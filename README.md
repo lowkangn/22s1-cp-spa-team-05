@@ -18,7 +18,7 @@
 Item | Version
 -|-
 OS | Windows 10
-Toolchain | Microsoft Visual Studio Enterprise 2019 Version 16.11.0
+Toolchain | Microsoft Visual Studio Enterprise 2022
 C++ Standard | C++17
 
 ### Additional Build Instructions
@@ -29,4 +29,4 @@ No additional instructions required.
 
 Name | Mobile | Email | Development OS/Toolchain
 -:|:-:|:-|-|
-John Doe | 99887766 | john@doe.com | Windows 10/Visual Studio 2019
+Aryan Sarswat | 86086580 | aryansarswat2000@gmail.com | Windows 11/Visual Studio 2022
