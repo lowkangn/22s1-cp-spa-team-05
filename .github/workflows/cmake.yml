@@ -1,13 +1,9 @@
-name: CMake
+name: Automated tests
 
 on:
   push:
   pull_request:
     branches: [ "master" ]
-
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
 
 jobs:
   build:
@@ -18,21 +14,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-
-    - name: Configure CMake
+    
+    - name: Set up cmake 
+      uses: jwlawson/actions-setup-cmake@v1.12.1
+      with:
+        cmake-version: '3.16.3'
+      
+    - name: Create build directory
       working-directory: ${{github.workspace}}/Team05/Code05
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ./out/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-
-    - name: Build
-      working-directory: ${{github.workspace}}/Team05/Code05
-      # Build your program with the given configuration
-      run: cmake --build ./out/build --config ${{env.BUILD_TYPE}}
+      run: mkdir build
+      
+    - name: Run CMake
+      working-directory: ${{github.workspace}}/Team05/Code05/build
+      run: cmake ../
 
     - name: Test
-      working-directory: ${{github.workspace}}/Team05/Code05/out/build
-      # Execute tests defined by the CMake configuration.  
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
+      working-directory: ${{github.workspace}}/Team05/Code05/build
+      run: ctest -V
       
