@@ -30,3 +30,4 @@ No additional instructions required.
 Name | Mobile | Email | Development OS/Toolchain
 -:|:-:|:-|-|
 Aryan Sarswat | 86086580 | aryansarswat2000@gmail.com | Windows 11/Visual Studio 2022
+Bruce Ng | 85333185 | ng.tze.wei.bruce@gmail.com | macOS 12/CLion 2022.2.1
