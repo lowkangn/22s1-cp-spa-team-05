@@ -17,6 +17,8 @@
 
 Item | Version
 -|-
+OS | Windows 10
+Toolchain | Microsoft Visual Studio Enterprise 2019 Version 16.11.0
 OS | Windows 11
 Toolchain | Microsoft Visual Studio Enterprise 2022
 C++ Standard | C++17
