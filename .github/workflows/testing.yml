@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Build Project
+      - name: Unit & integration tests
         shell: bash
         run: |
           cd Team05/Code05
@@ -29,5 +29,4 @@ jobs:
           cmake -A Win32 ..
           cmake --build . --target unit_testing --config Release
           cmake --build . --target integration_testing --config Release
-          cmake --build . --target autotester --config Release
           cd ../..
