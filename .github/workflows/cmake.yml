@@ -29,5 +29,5 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/Team05/Code05/build
-      run: ctest -V
+      run: ctest -V --parallel
       
