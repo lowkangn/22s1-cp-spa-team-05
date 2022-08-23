@@ -23,7 +23,7 @@ jobs:
       - name: Build Project
         shell: bash
         run: |
-          cd Team00/Code00
+          cd Team05/Code05
           mkdir build
           cd build
           cmake -A Win32 ..
