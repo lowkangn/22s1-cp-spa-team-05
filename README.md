@@ -1,4 +1,4 @@
-# Team 00
+# Team 05
 
 > Please fill in this Readme with the required information, and delete this box.
 > 
@@ -17,7 +17,7 @@
 
 Item | Version
 -|-
-OS | Windows 10
+OS | Windows 11
 Toolchain | Microsoft Visual Studio Enterprise 2022
 C++ Standard | C++17
 
