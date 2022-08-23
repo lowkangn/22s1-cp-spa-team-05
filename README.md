@@ -17,13 +17,10 @@
 
 Item | Version
 -|-
-<<<<<<< HEAD
 OS | Windows 10
 Toolchain | Microsoft Visual Studio Enterprise 2019 Version 16.11.0
-=======
 OS | Windows 11
 Toolchain | Microsoft Visual Studio Enterprise 2022
->>>>>>> f665eb134d6b56a11a1e46706a8dd6e833a4f6ab
 C++ Standard | C++17
 
 ### Additional Build Instructions
@@ -34,11 +31,7 @@ No additional instructions required.
 
 Name | Mobile | Email | Development OS/Toolchain
 -:|:-:|:-|-|
-<<<<<<< HEAD
-John Doe | 99887766 | john@doe.com | Windows 10/Visual Studio 2019
-=======
 Aryan Sarswat | 86086580 | aryansarswat2000@gmail.com | Windows 11/Visual Studio 2022
 Bruce Ng | 85333185 | ng.tze.wei.bruce@gmail.com | macOS 12/CLion 2022.2.1
 William Ming | 97517026 | williamming778@gmail.com | Windows 10/Visual Studio 2022
 Nicholas Canete | 98245987 | nicholasgcc@gmail.com | macOS 12.5/CLion 2022.2.1
->>>>>>> f665eb134d6b56a11a1e46706a8dd6e833a4f6ab
