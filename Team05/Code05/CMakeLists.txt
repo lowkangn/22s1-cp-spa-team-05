@@ -1,6 +1,5 @@
 cmake_minimum_required (VERSION 3.20.2)
 project (SPA)
-include(CTest)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 
@@ -28,7 +27,6 @@ list(APPEND CMAKE_PREFIX_PATH "${AUTOTESTER_ROOT}")
 find_package(autotester REQUIRED)
 include_directories("${CMAKE_CURRENT_LIST_DIR}/lib")#include catch.hpp
 
-enable_testing()
 add_subdirectory(src/spa)
 add_subdirectory(src/autotester)
 #add_subdirectory(src/autotester_gui)
