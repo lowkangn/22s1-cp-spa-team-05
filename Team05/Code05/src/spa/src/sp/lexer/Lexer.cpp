@@ -4,7 +4,7 @@
 using namespace std;
 
 // imported local files
-#include "Token.h"
+#include "../Token.h"
 #include "Lexer.h"
 
 

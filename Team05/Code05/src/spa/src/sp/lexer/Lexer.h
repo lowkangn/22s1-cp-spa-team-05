@@ -6,7 +6,7 @@
 using namespace std;
 
 // imported local files
-#include "Token.h"
+#include "../Token.h"
 
 class Lexer {
 
