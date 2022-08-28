@@ -1,23 +1,16 @@
 #include <string>
-#include "Manager.h"
-#include <vector>
+#include "PatternManager.h"
 
-class PatternManager : public Manager {
 
-	// Change to vector<Patterns> once class is implemented
-	std::vector<int> patterns;
+std::string PatternManager::filter(std::string queryClause)  {
+	return std::string(0);
+}
 
-	//TODO Change from string to QueryClause class
-	std::string filter(std::string queryClause) override {
-		return std::string(0);
-	}
+//TODO Change from string to Relationship class
+void PatternManager::add(std::string relationship) {
 
-	//TODO Change from string to Relationship class
-	void add(std::string relationship) override {
+}	
 
-	}
-
-	void clearDataBase() override {
-
-	}
-};
+void PatternManager::clearDataBase() {
+	//Clear data
+}

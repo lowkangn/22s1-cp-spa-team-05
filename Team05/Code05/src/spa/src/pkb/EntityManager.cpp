@@ -1,25 +1,17 @@
 #include <string>
-#include "Manager.h"
+#include "EntityManager.h"
 #include <vector>
 
-class EntityManager : public Manager {
+//TODO Change from string to QueryClause class
+std::string EntityManager::filter(std::string queryClause)  {
+	return std::string{"0"};
+}
 
-	// Change to the vector<Variables> once variables is implemented
-	std::vector<int> variables;
-	// Change to the vector<Statements> once variables is implemented
-	std::vector<int> statements;
+//TODO Change from string to Relationship class
+void EntityManager::add(std::string relationship) {
 
-	//TODO Change from string to QueryClause class
-	std::string filter(std::string queryClause) override {
-		return std::string{"0"};
-	}
+}
 
-	//TODO Change from string to Relationship class
-	void add(std::string relationship) override {
-
-	}
-
-	void clearDataBase() override {
-
-	}
-};
+void EntityManager::clearDataBase() {
+	//Clear data
+}
