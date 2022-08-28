@@ -3,7 +3,7 @@
 class Pattern
 {
 	public:
-		bool matchesPattern(Entity lhs, Entity rhs);
+		bool matchesPattern(Entity statement);
 
 	protected:
 		Entity lhs;
