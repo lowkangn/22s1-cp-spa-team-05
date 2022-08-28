@@ -1,15 +1,14 @@
-#include <string>
 #include "PatternManager.h"
+#include <string>
+#include <vector>
 
-
-std::string PatternManager::filter(std::string queryClause)  {
-	return std::string(0);
+std::string PatternManager::filter(QueryClause queryClause) {
+	return std::string{ "0" };
 }
 
-//TODO Change from string to Relationship class
-void PatternManager::add(std::string relationship) {
+void PatternManager::add(Relationship relationship) {
 
-}	
+}
 
 void PatternManager::clearDataBase() {
 	//Clear data
