@@ -10,6 +10,7 @@
 #include "ParentTManager.h"
 #include "UsesManager.h"
 #include <map>
+#include <string>
 
 using namespace std;
 

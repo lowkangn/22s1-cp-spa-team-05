@@ -4,6 +4,7 @@
 #include "../dataclasses/Relationship.h"
 #include "Manager.h"
 #include <map>
+#include <string>
 
 class ParentManager : public Manager {
 public:

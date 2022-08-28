@@ -3,6 +3,7 @@
 #include "../dataclasses/Relationship.h"
 #include "Manager.h"
 #include <vector>
+#include <string>
 
 class PatternManager : public Manager {
 public:

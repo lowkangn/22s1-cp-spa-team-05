@@ -5,6 +5,7 @@
 #include "Manager.h"
 #include <map>
 #include <vector>
+#include <string>
 
 class ParentTManager : public Manager{
 public:

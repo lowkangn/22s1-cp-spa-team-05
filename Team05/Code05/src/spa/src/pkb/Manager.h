@@ -1,6 +1,7 @@
 #pragma once
 #include "../dataclasses/QueryClause.h"
 #include "../dataclasses/Relationship.h"
+#include <string>
 
 class Manager {
 public:

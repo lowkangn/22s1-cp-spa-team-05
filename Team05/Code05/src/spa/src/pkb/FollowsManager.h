@@ -2,6 +2,7 @@
 #include "../dataclasses/Relationship.h"
 #include "Manager.h"
 #include <map>
+#include <string>
 
 class FollowsManager: public Manager {
 public:

@@ -4,6 +4,8 @@
 #include "../dataclasses/Relationship.h"
 #include "Manager.h"
 #include <map>
+#include <string>
+#include <vector>
 
 class FollowsTManager : public Manager {
 public:
