@@ -1,18 +1,18 @@
 #pragma once
-#include <string>
+#include "../dataclasses/QueryClause.h"
+#include "../dataclasses/Relationship.h"
 #include "Manager.h"
 #include <vector>
 
 class PatternManager : public Manager {
+public:
+	std::string filter(QueryClause queryClause) override;
 
-	// Change to vector<Patterns> once class is implemented
-	std::vector<int> patterns;
-
-	//TODO Change from string to QueryClause class
-	std::string filter(std::string queryClause) override;
-
-	//TODO Change from string to Relationship class
-	void add(std::string relationship) override;
+	void add(Relationship relationship) override;
 
 	void clearDataBase() override;
+
+private:
+	// Change to vector<Patterns> once class is implemented
+	std::vector<int> patterns;
 };

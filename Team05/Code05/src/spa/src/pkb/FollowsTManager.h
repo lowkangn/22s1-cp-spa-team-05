@@ -1,13 +1,18 @@
-#include <list>
-#include <map>
+#pragma once
 #include "../dataclasses/Entity.h"
+#include "../dataclasses/QueryClause.h"
 #include "../dataclasses/Relationship.h"
 #include "Manager.h"
+#include <map>
 
-using namespace std;
+class FollowsTManager : public Manager {
+public:
+	std::string filter(QueryClause queryClause) override;
 
-class FollowsTManager : public Manager
-{
+	void add(Relationship relationship) override;
+
+	void clearDataBase() override;
+
 private:
-	map<Entity, list<Relationship>> mappings;
+	std::map<Entity, std::vector<Relationship>> mappings;
 };

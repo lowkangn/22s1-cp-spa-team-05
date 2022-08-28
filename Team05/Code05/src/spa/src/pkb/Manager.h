@@ -1,7 +1,6 @@
+#pragma once
 #include "../dataclasses/QueryClause.h"
 #include "../dataclasses/Relationship.h"
-
-using namespace std;
 
 class Manager {
 public:
@@ -11,4 +10,3 @@ public:
 
 	virtual void clearDataBase() = 0;
 };
-
