@@ -5,9 +5,9 @@
 
 class EntityManager : public Manager {
 
-	// Change to the vector<Variables> once variables is implemented
+	// Change to the vector<Variables> once Variables is implemented
 	std::vector<int> variables;
-	// Change to the vector<Statements> once variables is implemented
+	// Change to the vector<Statements> once Statements is implemented
 	std::vector<int> statements;
 
 	//TODO Change from string to QueryClause class

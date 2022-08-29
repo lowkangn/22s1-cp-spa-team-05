@@ -5,7 +5,7 @@
 
 class PatternManager : public Manager {
 
-	// Change to vector<Patterns> once class is implemented
+	// TODO Change to vector<Patterns> once class is implemented
 	std::vector<int> patterns;
 
 	//TODO Change from string to QueryClause class
