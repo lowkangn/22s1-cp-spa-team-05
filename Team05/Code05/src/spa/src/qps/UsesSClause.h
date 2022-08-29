@@ -1,6 +1,6 @@
 #include <Clause.h>
 
-class UsesClause : public Clause {
+class UsesSClause : public Clause {
 public:
 	ClauseResult execute() override;
 };
