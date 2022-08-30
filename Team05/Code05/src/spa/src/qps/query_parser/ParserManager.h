@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Query.h"
+#include <qps/query_parser/Query.h>
 #include <string>
 
 using namespace std;

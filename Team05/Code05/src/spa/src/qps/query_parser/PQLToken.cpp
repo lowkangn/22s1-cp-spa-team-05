@@ -1,4 +1,4 @@
-#include "PQLToken.h"
+#include <qps/query_parser/PQLToken.h>
 
 string PQLToken::getToken() {
     return tokenString;

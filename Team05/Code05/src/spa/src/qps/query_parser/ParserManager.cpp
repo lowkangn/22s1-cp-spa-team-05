@@ -1,8 +1,9 @@
-#include "ErrorChecker.h"
-#include "ParserManager.h"
-#include "PQLToken.h"
-#include "QueryParser.h"
-#include "Tokenizer.h"
+#include <qps/query_parser/ErrorChecker.h>
+#include <qps/query_parser/ParserManager.h>
+#include <qps/query_parser/PQLToken.h>
+#include <qps/query_parser/Query.h>
+#include <qps/query_parser/QueryParser.h>
+#include <qps/query_parser/Tokenizer.h>
 
 Query ParserManager::parse(string queryText) {
     // tokenize the query string

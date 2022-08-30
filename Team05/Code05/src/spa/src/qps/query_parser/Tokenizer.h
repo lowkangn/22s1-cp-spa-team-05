@@ -1,7 +1,7 @@
 #pragma once
 
+#include <qps/query_parser/PQLToken.h>
 #include <vector>
-#include "PQLToken.h"
 
 using namespace std;
 
