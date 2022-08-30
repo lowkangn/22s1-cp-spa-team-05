@@ -1,9 +1,8 @@
 #pragma once
 
-#include "../Token.h"
-#include "../AST.h"
-#include "vector"
-
+#include <vector>
+#include <sp/dataclasses/ASTNode.h>
+#include <sp/dataclasses/Token.h>
 
 using namespace std;
 

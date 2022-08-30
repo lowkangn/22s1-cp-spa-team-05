@@ -1,10 +1,11 @@
 #pragma once
-#include "string"
+#include <string>
+using namespace std;
 enum class TokenType {
 };
 
 class Token {
 private:
-	std::string s;
+	string s;
 	TokenType type;
 };

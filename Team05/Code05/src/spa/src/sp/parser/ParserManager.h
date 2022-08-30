@@ -2,8 +2,7 @@
 
 using namespace std;
 
-#include "../AST.h"
-#include "../Token.h"
+#include <sp/dataclasses/ASTNode.h>
 
 /*
 	This class handles the parsing of a list of tokens into recursively-defined syntax rules, 

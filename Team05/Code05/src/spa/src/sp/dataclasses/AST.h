@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Token.h"
+#include <sp/dataclasses/Token.h>
 #include "vector"
 using namespace std;
 

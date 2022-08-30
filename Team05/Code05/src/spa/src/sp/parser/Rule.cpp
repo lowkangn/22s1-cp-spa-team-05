@@ -1,5 +1,5 @@
-#include "Rule.h"
-#include "../AST.h"
+#include <sp/parser/Rule.h>
+#include <sp/dataclasses/ASTNode.h>
 
 using namespace std;
 

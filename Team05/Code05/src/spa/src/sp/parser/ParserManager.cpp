@@ -1,5 +1,5 @@
-#include "ParserManager.h"
-#include "../AST.h"
+#include <sp/parser/ParserManager.h>
+#include <sp/dataclasses/ASTNode.h>
 
 using namespace std;
 
