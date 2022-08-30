@@ -4,7 +4,7 @@
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <string>
 
-class Manager {
+class PkbTableManager {
 public:
 	virtual std::string filter(PkbQuery query) = 0;
 	

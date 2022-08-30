@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Manager.h>
+#include <PkbTableManager.h>
 #include <map>
 #include <string>
 #include <vector>
 
-class FollowsTManager : public Manager {
+class FollowsTPkbTableManager : public PkbTableManager {
 public:
 	std::string filter(PkbQuery query) override;
 

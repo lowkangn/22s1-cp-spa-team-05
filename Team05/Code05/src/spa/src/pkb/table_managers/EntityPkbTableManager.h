@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Manager.h>
+#include <PkbTableManager.h>
 #include <vector>
 #include <string>
 
-class EntityManager : public Manager {
+class EntityPkbTableManager : public PkbTableManager {
 public:
 	std::string filter(PkbQuery query) override;
 

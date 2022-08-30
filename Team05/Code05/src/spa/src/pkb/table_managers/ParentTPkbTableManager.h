@@ -1,10 +1,11 @@
 #pragma once
 
-#include <Manager.h>
+#include <PkbTableManager.h>
 #include <map>
+#include <vector>
 #include <string>
 
-class ParentManager : public Manager {
+class ParentTPkbTableManager : public PkbTableManager{
 public:
 	std::string filter(PkbQuery query) override;
 
@@ -13,5 +14,5 @@ public:
 	void clearDataBase() override;
 
 private:
-	std::map<Entity, Relationship> mappings;
+	std::map<Entity, std::vector<Relationship>> mappings;
 };
