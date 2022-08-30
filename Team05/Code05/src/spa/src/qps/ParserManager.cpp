@@ -3,16 +3,15 @@
 #include "PQLToken.h"
 #include "QueryParser.h"
 #include "Tokenizer.h"
-#include <vector>
 
-Query ParserManager::parse(std::string queryText) {
+Query ParserManager::parse(string queryText) {
     // tokenize the query string
-    std::vector<PQLToken> tokens = Tokenizer::tokenize(queryText);
+    vector<PQLToken> tokens = Tokenizer().tokenize(queryText);
 
     // check for errors
-    ErrorChecker::check(tokens);
+    ErrorChecker().check(tokens);
 
     // need to break here if errors are found
     // if no errors, parse the tokens into a Query object
-    return QueryParser::parse(tokens);
+    return QueryParser().parse(tokens);
 }

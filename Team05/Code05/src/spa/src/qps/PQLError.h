@@ -2,6 +2,8 @@
 
 #include <string>
 
+using namespace std;
+
 /**
  * This class encapsulates error messages for errors during parsing of query strings.
  */
@@ -11,7 +13,7 @@ private:
     /**
      * String representation of the error.
      */
-    std::string message;
+    string message;
 
 public:
 
@@ -20,5 +22,5 @@ public:
      *
      * @return error message string.
      */
-    virtual std::string getMessage();
+    virtual string getMessage();
 };

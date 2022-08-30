@@ -2,6 +2,8 @@
 
 #include <string>
 
+using namespace std;
+
 /**
  * Class of enumerators for the different types of PQLTokens.
  */
@@ -17,7 +19,7 @@ private:
     /**
      * String representation of the token.
      */
-    std::string tokenString;
+    string tokenString;
 
     /**
      * Type of the token.
@@ -31,7 +33,7 @@ public:
      *
      * @return string representation of the token.
      */
-    std::string getToken();
+    string getToken();
 
     /**
      * Returns the PQLTokenType.

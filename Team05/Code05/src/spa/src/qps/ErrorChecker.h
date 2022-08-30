@@ -3,6 +3,8 @@
 #include "PQLToken.h"
 #include <vector>
 
+using namespace std;
+
 /**
  * This class handles the checking of a PQL Query that has been converted into a list of tokens for errors.
  */
@@ -15,7 +17,7 @@ public:
      *
      * @param tokens to be checked for syntactic or semantic errors.
      */
-    static void check(std::vector<PQLToken> tokens);
+    void check(vector<PQLToken> tokens);
 
 };
 

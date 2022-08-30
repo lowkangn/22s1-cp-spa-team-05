@@ -1,5 +1,5 @@
 #include "Query.h"
 #include "QueryParser.h"
 
-Query QueryParser::parse(std::vector<PQLToken> tokens) {
+Query QueryParser::parse(vector<PQLToken> tokens) {
 }

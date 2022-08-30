@@ -3,6 +3,8 @@
 #include "Query.h"
 #include <string>
 
+using namespace std;
+
 /**
  * This class handles the conversion of a query string to a Query object.
  */
@@ -16,6 +18,6 @@ public:
      * @param queryText The input string used to create the Query.
      * @return Query object generated, provided the query string has no errors.
      */
-    static Query parse(std::string queryText);
+    static Query parse(string queryText);
 
 };

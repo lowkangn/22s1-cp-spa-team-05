@@ -2,6 +2,6 @@
 #include "PQLToken.h"
 #include <vector>
 
-std::vector<PQLToken> Tokenizer::tokenize(std::string queryText) {
+vector<PQLToken> Tokenizer::tokenize(string queryText) {
     // split queryText for conversion to PQLTokens as per PQLToken types
 }

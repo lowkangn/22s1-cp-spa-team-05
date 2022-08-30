@@ -4,6 +4,8 @@
 #include "Query.h"
 #include <vector>
 
+using namespace std;
+
 /**
  * This class handles the creation of a Query object from a list of PQLTokens.
  */
@@ -17,6 +19,6 @@ public:
      * @param tokens used to create Query object.
      * @return Query object.
      */
-    static Query parse(std::vector<PQLToken> tokens);
+    Query parse(vector<PQLToken> tokens);
 };
 

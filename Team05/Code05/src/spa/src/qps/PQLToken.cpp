@@ -1,6 +1,6 @@
 #include "PQLToken.h"
 
-std::string PQLToken::getToken() {
+string PQLToken::getToken() {
     return tokenString;
 }
 
