@@ -15,9 +15,6 @@ class ProgramKnowledgeBase {
     void addKnowledge(std::string knowledge);
 
     // TODO Change from string to super class of Knowledge
-    void updateKnowledge(std::string knowledge);
-
-    // TODO Change from string to super class of Knowledge
     void deleteKnowledge(std::string knowledge);
 
 };

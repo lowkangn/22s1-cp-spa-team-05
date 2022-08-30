@@ -15,10 +15,6 @@ void ProgramKnowledgeBase::addKnowledge(std::string knowledge) {
 
 }
 
-void ProgramKnowledgeBase::updateKnowledge(std::string knowledge) {
-
-}
-
 void ProgramKnowledgeBase::deleteKnowledge(std::string knowledge) {
 
 }
