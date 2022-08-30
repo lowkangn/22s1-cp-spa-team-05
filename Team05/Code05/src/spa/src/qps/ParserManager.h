@@ -18,6 +18,6 @@ public:
      * @param queryText The input string used to create the Query.
      * @return Query object generated, provided the query string has no errors.
      */
-    static Query parse(string queryText);
+    Query parse(string queryText);
 
 };
