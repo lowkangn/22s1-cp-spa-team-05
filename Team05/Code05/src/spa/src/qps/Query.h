@@ -3,7 +3,7 @@
 #include <vector>
 
 #include <ClauseResult.h>
-#include <Clause.h>
+#include "clause/Clause.h"
 
 using std::vector;
 

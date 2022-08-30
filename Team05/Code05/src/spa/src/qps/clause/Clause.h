@@ -1,5 +1,5 @@
 #pragma once
-#include <ClauseResult.h>
+#include "../ClauseResult.h"
 
 class Clause {
 public:
