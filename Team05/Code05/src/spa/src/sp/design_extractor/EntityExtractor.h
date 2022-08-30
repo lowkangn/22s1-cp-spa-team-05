@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include <design_objects/Entity.h>
-#include <dataclasses/AST.h>
+#include <sp/dataclasses/design_objects/Entity.h>
+#include <sp/dataclasses/AST.h>
 using namespace std;
 
 class EntityExtractor {

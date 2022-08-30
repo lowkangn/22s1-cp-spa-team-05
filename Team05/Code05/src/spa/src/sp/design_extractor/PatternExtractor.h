@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include <design_objects/Pattern.h>
-#include <dataclasses/AST.h>
+#include <sp/dataclasses/Pattern.h>
+#include <sp/dataclasses/AST.h>
 using namespace std;
 
 class PatternExtractor {
