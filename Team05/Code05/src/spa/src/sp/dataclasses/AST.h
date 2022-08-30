@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sp/dataclasses/Token.h>
-#include "vector"
+#include <vector>
 using namespace std;
 
 class ASTNode {
