@@ -1,12 +1,12 @@
-#include "../dataclasses/Entity.h"
-#include "../dataclasses/Relationship.h"
-#include "Manager.h"
+#pragma once
+
+#include <Manager.h>
 #include <map>
 #include <string>
 
 class FollowsManager: public Manager {
 public:
-	std::string filter(QueryClause queryClause) override;
+	std::string filter(PkbQuery query) override;
 
 	void add(Relationship relationship) override;
 

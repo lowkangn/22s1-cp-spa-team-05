@@ -1,8 +1,8 @@
-#include "ModifiesManager.h"
+#include <ModifiesManager.h>
 #include <string>
 #include <vector>
 
-std::string ModifiesManager::filter(QueryClause queryClause) {
+std::string ModifiesManager::filter(PkbQuery query) {
 	return std::string{ "0" };
 }
 

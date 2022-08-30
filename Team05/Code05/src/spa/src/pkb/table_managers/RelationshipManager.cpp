@@ -1,8 +1,8 @@
-#include "RelationshipManager.h"
+#include <RelationshipManager.h>
 #include <string>
 #include <vector>
 
-std::string RelationshipManager::filter(QueryClause queryClause) {
+std::string RelationshipManager::filter(PkbQuery query) {
 	return std::string{ "0" };
 }
 

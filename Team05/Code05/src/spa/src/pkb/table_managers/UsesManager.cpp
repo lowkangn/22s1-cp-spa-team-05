@@ -1,8 +1,8 @@
-#include "UsesManager.h"
+#include <UsesManager.h>
 #include <string>
 #include <vector>
 
-std::string UsesManager::filter(QueryClause queryClause) {
+std::string UsesManager::filter(PkbQuery query) {
 	return std::string{ "0" };
 }
 

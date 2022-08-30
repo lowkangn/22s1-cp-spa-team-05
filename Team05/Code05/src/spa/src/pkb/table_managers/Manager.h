@@ -1,11 +1,12 @@
 #pragma once
-#include "../dataclasses/QueryClause.h"
-#include "../dataclasses/Relationship.h"
+
+#include <pkb/design_objects/PkbQuery.h>
+#include <sp/dataclasses/design_objects/Relationship.h>
 #include <string>
 
 class Manager {
 public:
-	virtual std::string filter(QueryClause queryClause) = 0;
+	virtual std::string filter(PkbQuery query) = 0;
 	
 	virtual void add(Relationship relationship) = 0;
 

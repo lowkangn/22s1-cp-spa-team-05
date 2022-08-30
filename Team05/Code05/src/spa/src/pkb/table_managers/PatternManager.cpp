@@ -1,8 +1,8 @@
-#include "PatternManager.h"
+#include <PatternManager.h>
 #include <string>
 #include <vector>
 
-std::string PatternManager::filter(QueryClause queryClause) {
+std::string PatternManager::filter(PkbQuery query) {
 	return std::string{ "0" };
 }
 

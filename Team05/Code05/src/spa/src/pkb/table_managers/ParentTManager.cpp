@@ -1,8 +1,8 @@
-#include "ParentTManager.h"
+#include <ParentTManager.h>
 #include <string>
 #include <vector>
 
-std::string ParentTManager::filter(QueryClause queryClause) {
+std::string ParentTManager::filter(PkbQuery query) {
 	return std::string{ "0" };
 }
 

@@ -1,8 +1,8 @@
-#include "FollowsManager.h"
+#include <FollowsManager.h>
 #include <string>
 #include <vector>
 
-std::string FollowsManager::filter(QueryClause queryClause) {
+std::string FollowsManager::filter(PkbQuery query) {
 	return std::string{ "0" };
 }
 

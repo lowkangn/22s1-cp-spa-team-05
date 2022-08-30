@@ -1,13 +1,12 @@
 #pragma once
-#include "../dataclasses/QueryClause.h"
-#include "../dataclasses/Relationship.h"
-#include "Manager.h"
+
+#include <Manager.h>
 #include <vector>
 #include <string>
 
 class PatternManager : public Manager {
 public:
-	std::string filter(QueryClause queryClause) override;
+	std::string filter(PkbQuery query) override;
 
 	void add(Relationship relationship) override;
 
