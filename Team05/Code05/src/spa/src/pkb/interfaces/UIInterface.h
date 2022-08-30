@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "PKB.h"
+#include <pkb/PKB.h>
 
 class UIInterface {
 private:

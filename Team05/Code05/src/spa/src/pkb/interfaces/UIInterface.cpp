@@ -1,4 +1,4 @@
-#include "UIInterface.h"
+#include <pkb/interfaces/UIInterface.h>
 
 UIInterface::UIInterface(ProgramKnowledgeBase pkb) {
 

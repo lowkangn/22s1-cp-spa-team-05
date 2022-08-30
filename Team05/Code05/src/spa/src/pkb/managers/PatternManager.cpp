@@ -1,5 +1,5 @@
 #include <string>
-#include "PatternManager.h"
+#include <pkb/managers/PatternManager.h>
 
 
 std::string PatternManager::filter(std::string queryClause)  {

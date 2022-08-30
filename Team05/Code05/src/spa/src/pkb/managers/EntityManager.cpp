@@ -1,5 +1,5 @@
 #include <string>
-#include "EntityManager.h"
+#include <pkb/managers/EntityManager.h>
 #include <vector>
 
 //TODO Change from string to QueryClause class

@@ -1,4 +1,4 @@
-#include "SPinterface.h"
+#include <pkb/interfaces/SPinterface.h>
 
 SPInterface::SPInterface(ProgramKnowledgeBase pkb) {
 

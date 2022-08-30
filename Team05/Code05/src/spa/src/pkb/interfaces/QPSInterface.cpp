@@ -1,4 +1,5 @@
-#include "QPSInterface.h"
+#include <pkb/PKB.h>
+#include <pkb/interfaces/QPSInterface.h>
 
 QPSInterface::QPSInterface(ProgramKnowledgeBase pkb) {
 
