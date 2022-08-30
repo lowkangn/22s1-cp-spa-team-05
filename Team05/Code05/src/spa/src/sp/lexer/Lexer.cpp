@@ -8,7 +8,7 @@ using namespace std;
 #include <sp/lexer/Lexer.h>
 
 
-vector<Token> Lexer::tokenize(string fileText) {
+vector<Token> Lexer::tokenize(string sourceCode) {
 	// TODO
 	return vector<Token>();
 }

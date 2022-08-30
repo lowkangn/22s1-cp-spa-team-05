@@ -16,7 +16,6 @@ enum class EntityType {};
 class Entity {
 private:
 	EntityType type;
-	vector<Token> tokens;
 	int line;
 	EntityIdentifier identifier;
 

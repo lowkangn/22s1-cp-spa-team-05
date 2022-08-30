@@ -9,7 +9,7 @@ using namespace std;
 class Rule {
 private:
 	vector<Token> tokens;
-	vector<Rule> rules;
+	vector<Rule> childRules;
 	bool generated = false;
 
 public:
@@ -18,12 +18,12 @@ public:
 		This method causes the rule to create a new set of rules based on the internal tokens 
 		it keeps track of and recursively validate them. An exception is thrown with a validation error.
 	*/
-	virtual void validate();
+	virtual void validate=0;
 
 	/*
 		This method generates a list of rules that are recursively defined based on the rule itself.
 	*/
-	virtual vector<Rule> generateRules();
+	virtual vector<Rule> generateChildRules()=0;
 
 	/*
 		This method constructs a node out of the rule as part of an abstract syntax tree.

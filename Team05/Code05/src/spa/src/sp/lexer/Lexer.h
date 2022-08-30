@@ -20,6 +20,6 @@ public:
 	/* 
 		This method converts a string from a text file into a list of internally recognized tokens.
 	 */
-	vector<Token> tokenize(string fileText);
+	vector<Token> tokenize(string sourceCode);
 	
 };
