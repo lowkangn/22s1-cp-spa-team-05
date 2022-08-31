@@ -32,12 +32,12 @@ public:
 	/*
 		Checks whether a given character type is a delimiter type (e.g. ;, })
 	*/
-	bool isDelimiter(char c);
+	bool charIsDelimiter(char c);
 
 	/*
 		Checks whether a given character type is an operator
 	*/
-	bool isOperator(char c);
+	bool charIsOperator(char c);
 
 	/*
 		
@@ -45,7 +45,7 @@ public:
 	/*
 		Checks whether a given character is whitespace.
 	*/
-	bool isWhiteSpace(char c);
+	bool charIsWhiteSpace(char c);
 
 	/*#include <FileIOManager.h>
 
@@ -58,7 +58,7 @@ public:
 		Traverses stream to remove newlines.
 		NOTE: has side effects - modifies the stream by reference.
 	*/
-	void traverseStreamUntilNoNewLines(istream& stream);
+	void traverseStreamUntilNoComment(istream& stream);
 
 
 	/*

@@ -1,45 +1,216 @@
 #include "catch.hpp"
+#include <sstream>
+#include <string>
 #include <sp/lexer/Lexer.h>
 #include <sp/lexer/Lexer.cpp>
-
-
-
+using namespace std;
 
 // =============== UNIT TESTS ====================
 
 TEST_CASE("Lexer: test charIsAlphabetical") {
+
     
+    auto testCharIsAlphebetical = [](char alphabetical, bool expectedResult) {
         // ----- given -----
         Lexer lexer = Lexer();
-        char alphabetical = 'a';
-
 
         // ----- when -----
         bool isAlphabetical = lexer.charIsAlphabetical(alphabetical);
 
-
         // ----- then -----
-        REQUIRE(isAlphabetical);
+        REQUIRE(isAlphabetical == expectedResult);
+    };
+
+    // run tests
+    testCharIsAlphebetical('a', true);
+    testCharIsAlphebetical('b', true);
+    testCharIsAlphebetical('1', false);
+    testCharIsAlphebetical(':', false);
 
 }
 
 TEST_CASE("Lexer: test charIsDigit") {
 
+    auto testCharIsDigit = [](char digit, bool expectedResult) {
+        // ----- given -----
+        Lexer lexer = Lexer();
 
+        // ----- when -----
+        bool isDigit = lexer.charIsDigit(digit);
+
+        // ----- then -----
+        REQUIRE(isDigit == expectedResult);
+    };
+
+    // run tests
+    testCharIsDigit('a', false);
+    testCharIsDigit('b', false);
+    testCharIsDigit('1', true);
+    testCharIsDigit(':', false);
 
 }
 
-TEST_CASE("Lexer: test isDelimiter") {}
+TEST_CASE("Lexer: test icharIsDelimiter") {
+    auto testCharIsDelimiter = [](char digit, bool expectedResult) {
+        // ----- given -----
+        Lexer lexer = Lexer();
 
-TEST_CASE("Lexer: test isOperator") {}
+        // ----- when -----
+        bool isDelimiter = lexer.charIsDelimiter(digit);
 
-TEST_CASE("Lexer: test isWhiteSpace") {}
+        // ----- then -----
+        REQUIRE(isDelimiter == expectedResult);
+    };
 
-TEST_CASE("Lexer: test traverseStreamUntilNoWhiteSpace") {}
+    // run tests
+    testCharIsDelimiter('a', false);
+    testCharIsDelimiter('b', false);
+    testCharIsDelimiter('1', false);
+    testCharIsDelimiter(':', false);
+    testCharIsDelimiter('.', false);
+    testCharIsDelimiter(',', false);
+    testCharIsDelimiter('{', true);
+    testCharIsDelimiter('}', true);
+    testCharIsDelimiter('(', true);
+    testCharIsDelimiter(')', true);
+    testCharIsDelimiter(';', true);
+    testCharIsDelimiter('\n', true);
 
-TEST_CASE("Lexer: test traverseStreamUntilNoNewLines") {}
+}
 
-// =============== INTEGRATION TESTS ====================
+TEST_CASE("Lexer: test charIsOperator") {
+    auto testCharIsOperator = [](char digit, bool expectedResult) {
+        // ----- given -----
+        Lexer lexer = Lexer();
+
+        // ----- when -----
+        bool isOperator = lexer.charIsOperator(digit);
+
+        // ----- then -----
+        REQUIRE(isOperator == expectedResult);
+    };
+
+    // run tests
+    testCharIsOperator('a', false);
+    testCharIsOperator('b', false);
+    testCharIsOperator('1', false);
+    testCharIsOperator(':', false);
+    testCharIsOperator('.', false);
+    testCharIsOperator(',', false);
+    testCharIsOperator('{', false);
+    testCharIsOperator('}', false);
+    testCharIsOperator('(', false);
+    testCharIsOperator(')', false);
+    testCharIsOperator(';', false);
+    testCharIsOperator('+', true);
+    testCharIsOperator('-', true);
+    testCharIsOperator('*', true);
+    testCharIsOperator('/', true);
+    testCharIsOperator('%', false);
+    testCharIsOperator('#', false);
+    testCharIsOperator('|', true);
+    testCharIsOperator('&', true);
+    testCharIsOperator('!', true);
+}
+
+TEST_CASE("Lexer: test charIsWhiteSpace") {
+
+    auto testCharIsWhiteSpace = [](char digit, bool expectedResult) {
+        // ----- given -----
+        Lexer lexer = Lexer();
+
+        // ----- when -----
+        bool isWhiteSpace = lexer.charIsWhiteSpace(digit);
+
+        // ----- then -----
+        REQUIRE(isWhiteSpace == expectedResult);
+    };
+
+    // run tests
+    testCharIsWhiteSpace('a', false);
+    testCharIsWhiteSpace('b', false);
+    testCharIsWhiteSpace('1', false);
+    testCharIsWhiteSpace(':', false);
+    testCharIsWhiteSpace('.', false);
+    testCharIsWhiteSpace(',', false);
+    testCharIsWhiteSpace(' ', true);
+
+}
+
+TEST_CASE("Lexer: test traverseStreamUntilNoComment correctly consumes tokens") {
+    auto test = [](string s, char expectedEndChar) {
+        // ----- given -----
+        Lexer lexer = Lexer();
+        stringstream ss(s);
+        istream &stream = ss;
+       
+        // ----- when -----
+        lexer.traverseStreamUntilNoComment(stream);
+
+        // ----- then -----
+        REQUIRE(char(stream.peek()) == expectedEndChar);
+    };
+
+    SECTION("Trivial examples") {
+        test("//somecommentwithnospace", EOF);
+    }
+
+    SECTION("Comment with space and newline, newline preserved") {
+        test("//some comment with space and newline \n", '\n');
+    }
+    SECTION("Only backslash") {
+        test("//", EOF); // only backslash is ok
+    }
+    SECTION("No backslash, should have no change") {
+        test("no backslash", 'n');
+    }
+
+}
+
+TEST_CASE("Lexer: test traverseStreamUntilNoComment correctly throws error") {
+    auto test = [](string s) {
+        // ----- given -----
+        Lexer lexer = Lexer();
+        stringstream ss(s);
+        istream& stream = ss;
+
+        // ----- when & then -----
+        REQUIRE_THROWS(lexer.traverseStreamUntilNoComment(stream));
+    };
+    SECTION("Only one backslash") {
+        test("/only one backslash");
+    }
+    
+}
+
+
+TEST_CASE("Lexer: test traverseStreamUntilNoWhiteSpace correctly consumes tokens") {
+    auto test = [](string s, char expectedEndChar) {
+        // ----- given -----
+        Lexer lexer = Lexer();
+        stringstream ss(s);
+        istream& stream = ss;
+
+        // ----- when -----
+        lexer.traverseStreamUntilNoWhiteSpace(stream);
+
+        // ----- then -----
+        REQUIRE(char(stream.peek()) == expectedEndChar);
+    };
+
+    SECTION("Only space") {
+        test("   ", EOF);
+    }
+
+    SECTION("Space in the middle") {
+        test(" something   ", 's');
+    }
+    SECTION("Does nothing") {
+        test("", EOF); // only backslash is ok
+    }
+
+}
+
 
 TEST_CASE("Lexer: test createNameTokenFromTraversingStream") {}
 
@@ -48,3 +219,9 @@ TEST_CASE("Lexer: test createIntegerTokenFromTraversingStream") {}
 TEST_CASE("Lexer: test createDelimiterTokenFromTraversingStream") {}
 
 TEST_CASE("Lexer: test createOperatorTokenFromTraversingStream") {}
+
+// =============== INTEGRATION TESTS ====================
+
+TEST_CASE("Lexer: test tokenize throws") {}
+
+TEST_CASE("Lexer: test tokenize works correctly") {}
