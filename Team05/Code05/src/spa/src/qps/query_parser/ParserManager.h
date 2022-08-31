@@ -1,6 +1,9 @@
 #pragma once
 
+#include <qps/query_parser/ErrorChecker.h>
 #include <qps/query_parser/Query.h>
+#include <qps/query_parser/QueryParser.h>
+#include <qps/query_parser/Tokenizer.h>
 #include <string>
 
 using namespace std;
@@ -9,6 +12,23 @@ using namespace std;
  * This class handles the conversion of a query string to a Query object.
  */
 class ParserManager {
+
+private:
+
+    /**
+     * Tokenizer for converting the query string into a list of tokens.
+     */
+    Tokenizer tokenizer;
+
+    /**
+     * ErrorChecker for validating the grammar of the query.
+     */
+    ErrorChecker checker;
+
+    /**
+     * QueryParser for converting the list of tokens into a Query object.
+     */
+    QueryParser parser;
 
 public:
 
