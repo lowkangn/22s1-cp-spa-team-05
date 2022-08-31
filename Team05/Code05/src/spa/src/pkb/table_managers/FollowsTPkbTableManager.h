@@ -1,7 +1,7 @@
 #pragma once
 
 #include <PkbTableManager.h>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -14,5 +14,5 @@ public:
 	void clearDataBase() override;
 
 private:
-	std::map<Entity, std::vector<Relationship>> mappings;
+	std::unordered_map<Entity, std::vector<Relationship>> mappings;
 };
