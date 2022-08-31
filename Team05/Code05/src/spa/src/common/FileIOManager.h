@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <istream>
 
 using namespace std;
 
@@ -10,5 +11,5 @@ public:
 	/*
 		Reads lines from a specified file into a vector of strings.
 	*/
-	vector<string> readLinesFromFile(string filename);
+	istream readLinesFromFile(string filename);
 };
