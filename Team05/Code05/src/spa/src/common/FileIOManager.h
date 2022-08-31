@@ -9,7 +9,7 @@ class FileIOManager {
 
 public:
 	/*
-		Reads lines from a specified file into a vector of strings.
+		Reads in a file stream by reference.
 	*/
-	istream readLinesFromFile(string filename);
+	void readLinesFromFile(ifstream& stream, const string& filename);
 };

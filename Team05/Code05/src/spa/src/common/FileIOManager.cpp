@@ -1,22 +1,16 @@
-#include <iostream>
 #include <fstream>
-#include <istream>
-#include <FileIOManager.h>
 #include <string>
+#include <FileIOManager.h>
+
 
 using namespace std;
 
-istream FileIOManager::readLinesFromFile(string &filename) {
+void FileIOManager::readLinesFromFile(ifstream& stream, const string& filename) {
 
     try {
-        fstream file;
-        file.open(filename);
-        istream& fileStream = file;
-        return fileStream;
-
+        stream.open(filename);
     }
     catch (exception e) {
         exit(0);
     }
-}
-}
+};
