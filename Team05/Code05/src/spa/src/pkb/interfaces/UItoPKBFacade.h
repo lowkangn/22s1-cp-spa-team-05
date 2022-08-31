@@ -3,11 +3,11 @@
 #include <vector>
 #include <pkb/PKB.h>
 
-class UIInterface {
+class UItoPKBFacade {
 private:
     ProgramKnowledgeBase KnowledgeBase;
 public:
-    UIInterface(ProgramKnowledgeBase pkb);
+    UItoPKBFacade(ProgramKnowledgeBase pkb);
 
     void addKnowledge();
 

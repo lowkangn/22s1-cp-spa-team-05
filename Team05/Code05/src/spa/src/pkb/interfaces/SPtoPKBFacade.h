@@ -3,11 +3,11 @@
 #include <vector>
 #include <pkb/PKB.h>
 
-class SPInterface {
+class SPtoPKBFacade {
 private:
     ProgramKnowledgeBase KnowledgeBase;
 public:
-    SPInterface(ProgramKnowledgeBase pkb);
+    SPtoPKBFacade(ProgramKnowledgeBase pkb);
 
     // TODO Change string to super class of relationships
     void addKnowledge(std::vector<std::string> relationships);
