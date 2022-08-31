@@ -1,0 +1,1 @@
+#include <qps/query/clause/PatternClause.h>

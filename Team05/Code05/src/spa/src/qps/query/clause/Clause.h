@@ -1,5 +1,5 @@
 #pragma once
-#include "../ClauseResult.h"
+#include <qps/query/clause/ClauseResult.h>
 
 class Clause {
 public:

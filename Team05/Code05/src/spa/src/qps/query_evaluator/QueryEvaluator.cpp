@@ -1,7 +1,7 @@
-#include <QueryEvaluator.h>
+#include <qps/query_evaluator/QueryEvaluator.h>
 
-vector<string> combine(vector<ClauseResult> results) {
-	vector<string> combinedResult;
+string combine(vector<ClauseResult> results) {
+	string combinedResult;
 	std::vector<ClauseResult>::iterator iter = results.begin();
 	while (iter != results.end()) {
 
@@ -9,7 +9,7 @@ vector<string> combine(vector<ClauseResult> results) {
 	return combinedResult;
 };
 
-vector<string> evaluate(Query query) {
+string evaluate(Query query) {
 	vector<ClauseResult> results = query.execute();
 	return combine(results);
 };

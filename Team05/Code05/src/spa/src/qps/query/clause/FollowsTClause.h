@@ -1,4 +1,4 @@
-#include <Clause.h>
+#include <qps/query/clause/Clause.h>
 
 class FollowsTClause : public Clause {
 public:

@@ -3,18 +3,17 @@
 #include <string>
 #include <vector>
 
-#include <ClauseResult.h>
-#include <Query.h>
+#include <qps/query/clause/ClauseResult.h>
+#include <qps/query/Query.h>
 
-using std::vector;
-using std::string;
+using namespace std;
 
 class QueryEvaluator {
 public:
 	/* Returns the final result of a query */
-	vector<string> evaluate(Query query);
+	string evaluate(Query query);
 
 	/* Combines the results from the clauses of a query */
-	vector<string> combine(vector<ClauseResult>);
+	string combine(vector<ClauseResult>);
 
 };

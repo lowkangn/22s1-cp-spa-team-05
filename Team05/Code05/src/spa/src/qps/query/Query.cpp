@@ -1,4 +1,4 @@
-#include <Query.h>
+#include <qps/query/Query.h>
 
 vector<ClauseResult> Query::execute() {
 	std::vector<ClauseResult> results;

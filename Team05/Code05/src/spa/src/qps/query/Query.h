@@ -2,10 +2,10 @@
 
 #include <vector>
 
-#include <ClauseResult.h>
-#include "clause/Clause.h"
+#include <qps/query/clause/ClauseResult.h>
+#include <qps/query/clause/Clause.h>
 
-using std::vector;
+using namespace std;
 
 class Query {
 private:
