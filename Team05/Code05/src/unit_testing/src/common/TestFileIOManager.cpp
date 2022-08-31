@@ -1,8 +1,8 @@
 #include "catch.hpp"
 
 
-TEST_CASE("Dummy AST test") {	
-	
+SCENARIO("Dummy AST test") {	
+
 	REQUIRE(1 == 1);
 }
 

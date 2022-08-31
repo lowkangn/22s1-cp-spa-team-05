@@ -1,10 +1,7 @@
 // imported libraries
 #include <string>
 #include <list>
-#include <vector>
-#include <iostream>
-#include <sstream>
-#include <streamsize>
+#include <fstream>
 using namespace std;
 
 // imported local files
@@ -15,7 +12,7 @@ const char SINGLE_LINE_CONTINUATION_CHARACTER = '\\';
 // see https://stackoverflow.com/questions/19405196/what-does-a-backslash-in-c-mean and https://www.quora.com/What-is-the-use-of-the-backslash-in-C
 const char NEWLINE_CHARACTER = '\n';
 
-list<Token> Lexer::tokenize(istream &stream) {
+list<Token> Lexer::tokenize(ifstream &stream) {
 	
     // we use linkedlist (since we appending)
     list<Token> linkedListOfTokens;
@@ -23,28 +20,31 @@ list<Token> Lexer::tokenize(istream &stream) {
     while (stream.peek() != EOF) { // see https://cplusplus.com/reference/cstdio/EOF/
 
         // ===== guard clause =====
-        this->traverseStreamUntilNoNewLines();
+        this->traverseStreamUntilNoNewLines(stream);
         
 
         // ===== tokenize =====
-        char peeked = stream.peek();
+        char peeked = char(stream.peek());
         if (this->charIsAlphabetical(peeked)) { // starts with alphabet, is probably a name
-            linkedListOfTokens.emplace_back(this->createNameTokenFromTraversingStream(stream);
+            linkedListOfTokens.emplace_back(this->createNameTokenFromTraversingStream(stream));
         } 
         else if (this->charIsDigit(peeked)) { // starts with a digit, is a number
             linkedListOfTokens.emplace_back(this->createIntegerTokenFromTraversingStream(stream));
         }
-        else if (this->isPunctuation(peeked)) { // is punctuation, we're looking out only for specific ones
-            linkedListOfTokens.emplace_back(this->createPunctuationRelatedTokenFromTraversingStream(stream));
+        else if (this->isOperator(peeked)) { // is punctuation, we're looking out only for specific ones
+            linkedListOfTokens.emplace_back(this->createOperatorTokenFromTraversingStream(stream));
         }
-        else if (this->isWhiteSpace) {
+        else if (this->isDelimiter(peeked)) { // is punctuation, we're looking out only for specific ones
+            linkedListOfTokens.emplace_back(this->createDelimiterTokenFromTraversingStream(stream));
+        }
+        else if (this->isWhiteSpace(peeked)) {
             this->traverseStreamUntilNoWhiteSpace(stream);
         }
         else if (peeked == EOF) {
             break;
         }
         else {
-            throw exception("Unknown character " + peeked + " encountered!")
+            throw logic_error(string("Unknown character ") + peeked + string(" encountered!"));
         }
     }
     return linkedListOfTokens;
@@ -71,7 +71,7 @@ void Lexer::traverseStreamUntilNoNewLines(istream& stream) {
         }
         else {
             // some error, since after line continuation (\\) we expect another (\\)
-            throw exception("Expected \\ after \\ for valid line continuation, got: " + char(stream.peek());
+            throw logic_error(string("Expected \\ after \\ for valid line continuation, got: ") + char(stream.peek()));
         }
 
     }
@@ -123,22 +123,22 @@ bool Lexer::isOperator(char c) {
     }
 }
 
-Token createNameTokenFromTraversingStream(istream& stream) {
+Token Lexer::createNameTokenFromTraversingStream(istream& stream) {
     string name;
     while (isalnum(stream.peek())) {
         name += char(stream.get());
     }
-    return Token(name, TokenType::NAME)
+    return Token(name, TokenType::NAME);
 }
 
-Token createIntegerTokenFromTraversingStream(istream& stream) {
+Token Lexer::createIntegerTokenFromTraversingStream(istream& stream) {
     string value;
     while (isdigit(stream.peek())) { // keep getting digits
         value += char(stream.get());
     }
     // cannot have letter immediately after 
     if (isalpha(stream.peek())) {
-        throw exception("Alphabetical character " + stream.peek() + " immediately after number " + value + " - did you forget a space ? ");
+        throw logic_error(string("Alphabetical character ") + char(stream.peek()) + string(" immediately after number ") + value + string(" - did you forget a space ? "));
     }
     return Token(value, TokenType::INTEGER);
 
@@ -146,15 +146,16 @@ Token createIntegerTokenFromTraversingStream(istream& stream) {
 
 
 Token Lexer::createDelimiterTokenFromTraversingStream(istream& stream) {
-    string s = string(stream.get());
+    string s = "" + char(stream.get());
     return Token(s, TokenType::DELIMITER);
 }
 
 Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
     // check if is singleton operators
-    string s = string(stream.get());
+    char c = char(stream.get());
+    string s = "" + c;
 
-    switch (s) {
+    switch (c) {
     case '+':
     case '-':
     case '*':
@@ -164,25 +165,25 @@ Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
     case '<':
     case '=':
     case '!':
-        if (string(char(stream.peek())) == '=') { // comparators can only be paired with =
+        if (char(stream.peek()) == '=') { // comparators can only be paired with =
             s += char(stream.get());
             break;
         }
-        else if (this->isOperator(stream.peek())) {
-            throw exception("Invalid comparator operator! " + s + " followed by " + stream.peek());
+        else if (this->isOperator(char(stream.peek()))) {
+            throw logic_error(string("Invalid comparator operator! ") + s + string(" followed by ") + char(stream.peek()));
         }
 
     case '&':
     case '|':
-        if (string(char(stream.peek())) == s) { // comparators can only be paired with =
+        if (char(stream.peek()) == c) { // comparators can only be paired with =
             s += char(stream.get());
             break;
         }
-        else if (this->isOperator(stream.peek())) {
-            throw exception("Invalid logical operator! " + s + " followed by " + stream.peek());
+        else if (this->isOperator(char(stream.peek()))) {
+            throw logic_error(string("Invalid logical operator! ") + s + string(" followed by ") + char(stream.peek()));
         }
     default:
-        throw exception("Unknown operator: " + s);
+        throw logic_error(string("Unknown operator: ") + s);
     }
     return Token(s, TokenType::OPERATOR);
     

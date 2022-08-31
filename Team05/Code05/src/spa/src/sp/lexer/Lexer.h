@@ -2,7 +2,9 @@
 
 // imported libraries
 #include <string>
-#include <vector>
+#include <list>
+#include <fstream>
+
 using namespace std;
 
 // imported local files
@@ -11,17 +13,12 @@ using namespace std;
 
 class Lexer {
 
-private:
-
-	// ===== attributes =====
-
 public:
-	Lexer() {
-	};
+	Lexer() {};
 	/* 
 		This method converts a string from a text file into a list of internally recognized tokens.
 	 */
-	vector<Token> tokenize(vector<string> sourceCodeLines);
+	list<Token> tokenize(ifstream &stream);
 
 	/*
 		Checks whether a given character is alphabetical.
@@ -50,7 +47,8 @@ public:
 	*/
 	bool isWhiteSpace(char c);
 
-	/*
+	/*#include <FileIOManager.h>
+
 		Traverses stream to remove whitespace characters.
 		NOTE: has side effects - modifies the stream by reference.
 	*/
