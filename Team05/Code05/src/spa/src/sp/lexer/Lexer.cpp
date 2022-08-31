@@ -11,7 +11,7 @@ using namespace std;
 const char COMMENT_CHARACTER = '/'; 
 const char NEWLINE_CHARACTER = '\n';
 
-list<Token> Lexer::tokenize(ifstream &stream) {
+list<Token> Lexer::tokenize(istream &stream) {
 	
     // we use linkedlist (since we appending)
     list<Token> linkedListOfTokens;
@@ -127,7 +127,7 @@ bool Lexer::charIsOperator(char c) {
 
 Token Lexer::createNameTokenFromTraversingStream(istream& stream) {
     string name;
-    while (isalnum(stream.peek())) {
+    while (isalnum(stream.peek())) { // while is alphanumeric
         name += char(stream.get());
     }
     return Token(name, TokenType::NAME);
@@ -148,14 +148,16 @@ Token Lexer::createIntegerTokenFromTraversingStream(istream& stream) {
 
 
 Token Lexer::createDelimiterTokenFromTraversingStream(istream& stream) {
-    string s = "" + char(stream.get());
+    string s;
+    s += char(stream.get());
     return Token(s, TokenType::DELIMITER);
 }
 
 Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
     // check if is singleton operators
     char c = char(stream.get());
-    string s = "" + c;
+    string s;
+    s += c;
 
     switch (c) {
     case '+':
@@ -185,7 +187,7 @@ Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
         if (char(stream.peek()) == c) { // comparators can only be paired with =
             s += char(stream.get());
         }
-        else if (this->charIsOperator(char(stream.peek()))) {
+        if (this->charIsOperator(char(stream.peek()))) {
             throw logic_error(string("Invalid logical operator! ") + s + string(" followed by ") + char(stream.peek()));
         }
         break;

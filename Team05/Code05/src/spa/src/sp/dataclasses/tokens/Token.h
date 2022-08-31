@@ -26,5 +26,14 @@ public:
 		this->s = s;
 		this->type = type;
 	};
-	
+	TokenType getType() {
+		return this->type;
+	}
+	string asString() {
+		return this->s;
+	}
+
+	bool equals(Token other) {
+		return ((this->getType() == other.getType()) && (this->asString() == other.asString()));
+	}
 };

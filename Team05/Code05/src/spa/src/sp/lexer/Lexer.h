@@ -18,7 +18,7 @@ public:
 	/* 
 		This method converts a string from a text file into a list of internally recognized tokens.
 	 */
-	list<Token> tokenize(ifstream &stream);
+	list<Token> tokenize(istream &stream);
 
 	/*
 		Checks whether a given character is alphabetical.

@@ -1,8 +1,10 @@
 #include "catch.hpp"
 #include <sstream>
 #include <string>
+#include <list>
 #include <sp/lexer/Lexer.h>
 #include <sp/lexer/Lexer.cpp>
+#include <iostream>
 using namespace std;
 
 // =============== UNIT TESTS ====================
@@ -212,16 +214,200 @@ TEST_CASE("Lexer: test traverseStreamUntilNoWhiteSpace correctly consumes tokens
 }
 
 
-TEST_CASE("Lexer: test createNameTokenFromTraversingStream") {}
+TEST_CASE("Lexer: test createNameTokenFromTraversingStream") {
+    auto test = [](string s, string expectedStringOfToken, char expectedNextChar) {
+        // ----- given -----
+        Lexer lexer = Lexer();
+        stringstream ss(s);
+        istream& stream = ss;
 
-TEST_CASE("Lexer: test createIntegerTokenFromTraversingStream") {}
+        // ----- when -----
+        Token t = lexer.createNameTokenFromTraversingStream(stream);
 
-TEST_CASE("Lexer: test createDelimiterTokenFromTraversingStream") {}
+        // ----- then -----
+        REQUIRE(t.asString() == expectedStringOfToken);
+        REQUIRE(t.getType() == TokenType::NAME);
+        REQUIRE(char(stream.peek()) == expectedNextChar);
+    };
 
-TEST_CASE("Lexer: test createOperatorTokenFromTraversingStream") {}
+    SECTION("Some valid name") {
+        test("someVariable123", "someVariable123", EOF);
+    }
+
+    SECTION("Some characters after not used") {
+        test("somevariable ", "somevariable", ' ');
+    }
+
+    SECTION("Some valid name") {
+        test("hello=", "hello", '=');
+    }
+
+}
+
+TEST_CASE("Lexer: test createIntegerTokenFromTraversingStream") {
+    auto test = [](string s, string expectedStringOfToken, char expectedNextChar) {
+        // ----- given -----
+        Lexer lexer = Lexer();
+        stringstream ss(s);
+        istream& stream = ss;
+
+        // ----- when -----
+        Token t = lexer.createIntegerTokenFromTraversingStream(stream);
+
+        // ----- then -----
+        REQUIRE(t.asString() == expectedStringOfToken);
+        REQUIRE(t.getType() == TokenType::INTEGER);
+        REQUIRE(char(stream.peek()) == expectedNextChar);
+    };
+
+    SECTION("Some valid integer") {
+        test("1234", "1234", EOF);
+    }
+
+    SECTION("Some characters after not used") {
+        test("1234 ", "1234", ' ');
+    }
+
+
+}
+
+TEST_CASE("Lexer: test createDelimiterTokenFromTraversingStream") {
+
+    auto test = [](string s, string expectedStringOfToken, char expectedNextChar) {
+        // ----- given -----
+        Lexer lexer = Lexer();
+        stringstream ss(s);
+        istream& stream = ss;
+
+        // ----- when -----
+        Token t = lexer.createDelimiterTokenFromTraversingStream(stream);
+
+        // ----- then -----
+        REQUIRE(t.asString() == expectedStringOfToken);
+        REQUIRE(t.getType() == TokenType::DELIMITER);
+        REQUIRE(char(stream.peek()) == expectedNextChar);
+    };
+
+    SECTION("Some valid delimiter") {
+        test(";", ";", EOF);
+        test("(", "(", EOF);
+        test(")", ")", EOF);
+        test("{", "{", EOF);
+        test("}", "}", EOF);
+        test("\n", "\n", EOF);
+    }
+
+    SECTION("Some characters after not used") {
+        test("; ", ";", ' ');
+    }
+}
+
+TEST_CASE("Lexer: test createOperatorTokenFromTraversingStream") {
+    auto test = [](string s, string expectedStringOfToken, char expectedNextChar) {
+        // ----- given -----
+        Lexer lexer = Lexer();
+        stringstream ss(s);
+        istream& stream = ss;
+
+        // ----- when -----
+        Token t = lexer.createOperatorTokenFromTraversingStream(stream);
+
+        // ----- then -----
+        REQUIRE(t.asString() == expectedStringOfToken);
+        REQUIRE(t.getType() == TokenType::OPERATOR);
+        REQUIRE(char(stream.peek()) == expectedNextChar);
+    };
+
+    SECTION("Basic operators") {
+        test("+ ", "+", ' ');
+        test("- ", "-", ' ');
+        test("* ", "*", ' ');
+        test("/ ", "/", ' ');
+    }
+
+    SECTION("Comparative operators") {
+        test("> ", ">", ' ');
+        test("< ", "<", ' ');
+        test("= ", "=", ' ');
+        test(">= ", ">=", ' ');
+        test("<= ", "<=", ' ');
+        test("== ", "==", ' ');
+        test("!= ", "!=", ' ');
+    }
+
+    SECTION("Logical operators") {
+        test("&& ", "&&", ' ');
+        test("|| ", "||", ' ');
+    }
+
+   
+}
+
+TEST_CASE("Lexer: test createOperatorTokenFromTraversingStream correctly throws") {
+    auto test = [](string s) {
+        // ----- given -----
+        Lexer lexer = Lexer();
+        stringstream ss(s);
+        istream& stream = ss;
+
+        // ----- when & then -----
+        REQUIRE_THROWS(lexer.createOperatorTokenFromTraversingStream(stream));
+    };
+
+    SECTION("sole not ! operator") {
+        test("!");
+    }
+
+    SECTION("Some wrong operator combinations") {
+        test(">>");
+        test("|&");
+        test("&>");
+        test("&&&");
+    }
+
+}
 
 // =============== INTEGRATION TESTS ====================
 
-TEST_CASE("Lexer: test tokenize throws") {}
+TEST_CASE("Lexer: test tokenize works correctly") {
 
-TEST_CASE("Lexer: test tokenize works correctly") {}
+    auto test = [](string s, list<Token> expectedTokens) {
+        // ----- given -----
+        Lexer lexer = Lexer();
+        stringstream ss(s);
+        istream& stream = ss;
+
+        // ----- when -----
+        list<Token> tokens = lexer.tokenize(stream);
+
+        // ---- then -----
+        Token curr = tokens.front();
+        Token currExpected = expectedTokens.front(); 
+        while (!tokens.empty() && !expectedTokens.empty()) {
+
+            curr = tokens.front();
+            currExpected = expectedTokens.front();
+
+            REQUIRE(curr.equals(currExpected));
+
+            tokens.pop_front();
+            expectedTokens.pop_front();
+
+            
+        }
+        
+    };
+
+    SECTION("Works as expected") {
+        test("a + b = c", list<Token>{
+            Token("a", TokenType::NAME), 
+                Token("+", TokenType::OPERATOR), 
+                Token("b", TokenType::NAME), 
+                Token("=", TokenType::OPERATOR),
+                Token("c", TokenType::NAME)
+        });
+    }
+
+
+
+}
