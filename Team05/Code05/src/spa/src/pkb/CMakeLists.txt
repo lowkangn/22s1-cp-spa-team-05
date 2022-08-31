@@ -6,3 +6,5 @@ target_include_directories(pkb PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/interfaces)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/managers)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/design_objects)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/table_managers)
