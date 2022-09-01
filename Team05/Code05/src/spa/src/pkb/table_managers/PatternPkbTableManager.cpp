@@ -1,4 +1,4 @@
-#include <PatternPkbTableManager.h>
+#include <pkb/table_managers/PatternPkbTableManager.h>
 #include <string>
 #include <vector>
 

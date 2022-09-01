@@ -1,4 +1,4 @@
-#include <FollowsTPkbTableManager.h>
+#include <pkb/table_managers/FollowsTPkbTableManager.h>
 #include <string>
 #include <vector>
 
