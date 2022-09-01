@@ -40,7 +40,7 @@ public:
 	/*
 		This method constructs a node out of the rule as part of an abstract syntax tree.
 	*/
-	ASTNode constructNode() final;
+	virtual ASTNode constructNode()=0;
 
 	/*
 		This method generates a list of rules that are recursively defined based on the rule itself.

@@ -6,7 +6,7 @@
 #include <sp/parser/rules/SimpleSyntaxRule.h>
 using namespace std;
 
-class AssignSimpleSyntaxRule : SimpleSyntaxRule {
+class VariableNameSimpleSyntaxRule : SimpleSyntaxRule {
 public:
 	vector<SimpleSyntaxRule> generateChildRules() override;
 	list<Token> consumeTokens(list<Token> tokens) override;

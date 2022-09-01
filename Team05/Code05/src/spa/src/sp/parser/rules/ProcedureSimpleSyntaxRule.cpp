@@ -17,7 +17,6 @@ vector<SimpleSyntaxRule> ProcedureSimpleSyntaxRule::generateChildRules() {
 	Token token;
 	while (!tokens.empty()) {
 		token = tokens.front(); // read
-		tokens.pop_front(); // pop
 		if (token.isReadKeywordToken()) { // is read statement
 
 		}

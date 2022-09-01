@@ -96,11 +96,23 @@ public:
 
 	/* Checks if the token is a name token.*/
 	bool isNameToken() {
-		return (this->type == TokenType::NAME_OR_KEYWORD);
+		return (this->type == TokenType::NAME_OR_KEYWORD) && !this->isKeywordToken();
 	}
 
 	/* Checks if the token is an equal sign.*/
 	bool isEqualToken() {
 		return (this->type == TokenType::OPERATOR) && (this->s == EQUAL_OPERATOR);
 	}
+
+	/* Check that token is a reserved keyword.*/
+	bool isKeywordToken() {
+		return (this->type == TokenType::NAME_OR_KEYWORD) 
+			&& (this->isProcedureKeywordToken() 
+				|| this->isProcedureKeywordToken()
+				|| this->isCallKeywordToken()
+				|| this->isWhileKeywordToken()
+				|| this->isIfKeywordToken()
+			);
+	}
+
 };
