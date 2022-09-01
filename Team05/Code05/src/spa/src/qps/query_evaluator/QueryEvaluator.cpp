@@ -2,8 +2,7 @@
 
 string combine(vector<ClauseResult> results) {
 	string combinedResult;
-	std::vector<ClauseResult>::iterator iter = results.begin();
-	while (iter != results.end()) {
+	for (ClauseResult c : results) {
 
 	}
 	return combinedResult;
