@@ -18,12 +18,12 @@ private:
     /**
      * Tokenizer for converting the query string into a list of tokens.
      */
-    Tokenizer tokenizer;
+    QPSTokenizer tokenizer;
 
     /**
      * ErrorChecker for validating the grammar of the query.
      */
-    ErrorChecker checker;
+    QPSErrorChecker checker;
 
     /**
      * QueryParser for converting the list of tokens into a Query object.
