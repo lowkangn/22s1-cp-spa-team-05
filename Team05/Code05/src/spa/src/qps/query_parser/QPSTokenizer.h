@@ -1,6 +1,6 @@
 #pragma once
 
-#include <qps/query_parser/PQLToken.h>
+#include "PQLToken.h"
 #include <vector>
 
 using namespace std;

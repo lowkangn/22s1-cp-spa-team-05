@@ -1,6 +1,4 @@
-#include <qps/query_parser/ParserManager.h>
-#include <qps/query_parser/PQLToken.h>
-#include <qps/query_parser/Query.h>
+#include "ParserManager.h"
 
 Query ParserManager::parse(string queryText) {
     // tokenize the query string
