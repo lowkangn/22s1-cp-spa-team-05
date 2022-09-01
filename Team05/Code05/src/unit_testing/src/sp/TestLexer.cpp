@@ -222,7 +222,7 @@ TEST_CASE("Lexer: test createNameTokenFromTraversingStream") {
         istream& stream = ss;
 
         // ----- when -----
-        Token t = lexer.createNameTokenFromTraversingStream(stream);
+        Token t = lexer.createKeywordOrNameTokenFromTraversingStream(stream);
 
         // ----- then -----
         REQUIRE(t.asString() == expectedStringOfToken);

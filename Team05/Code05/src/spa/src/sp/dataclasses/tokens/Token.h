@@ -2,12 +2,17 @@
 #include <string>
 using namespace std;
 
+/*
+	The possible token types. We group them as such as this way balances ease of 
+	parsing character-by-character while retaining sufficiently logical groups 
+	for parsing into more abstract representations (e.g. a syntax tree).
+*/
 enum class TokenType {
-	NAME,
+	NAME_OR_KEYWORD, 
 	INTEGER,
 	OPERATOR,
 	DELIMITER,
-	INVALID
+	INVALID,
 };
 
 
