@@ -8,15 +8,22 @@ class ASTNode {
 
 
 private:
-	// TODO: include node types
-	int lineNumber;
+	// Default line number is -1 (For validation purposes)
+	int lineNumber = -1;
 	vector<Token> tokens;
 	vector<ASTNode> children;
 
 public: 
 	// constructor
-	ASTNode(vector<Token> tokens, int lineNumber) {
+	ASTNode(vector<Token> tokens) {
 		this->tokens = tokens;
+		this->lineNumber = lineNumber;
+	}
+
+	/*
+		Changes the line number of the node.
+	*/
+	void changeLineNumber(int lineNumber) {
 		this->lineNumber = lineNumber;
 	}
 

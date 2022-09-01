@@ -4,7 +4,7 @@
 #include <sp/dataclasses/AST.h>
 using namespace std;
 
-class EntityExtractor {
+class EntityExtractor : Extractor<Entity> {
 
 public:
 	/*
