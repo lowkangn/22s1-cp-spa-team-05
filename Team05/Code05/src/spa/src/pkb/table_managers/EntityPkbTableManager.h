@@ -1,6 +1,6 @@
 #pragma once
 
-#include <PkbTableManager.h>
+#include <pkb/table_managers/PkbTableManager.h>
 #include <vector>
 #include <string>
 
@@ -15,6 +15,6 @@ public:
 private:
 	// Change to the vector<Variables> once variables is implemented
 	std::vector<int> variables;
-	// Change to the vector<Statements> once variables is implemented
+	// Change to the vector<Statements> once Statements is implemented
 	std::vector<int> statements;
 };
