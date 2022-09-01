@@ -33,13 +33,17 @@ public:
      *
      * @return string representation of the token.
      */
-    string getToken();
+    string getToken() {
+        return tokenString;
+    }
 
     /**
      * Returns the PQLTokenType.
      *
      * @return the PQLTokenType.
      */
-    PQLTokenType getTokenType();
+    PQLTokenType getTokenType() {
+        return tokenType;
+    }
 };
 

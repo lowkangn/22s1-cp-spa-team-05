@@ -1,9 +1,9 @@
 #pragma once
 
-#include <qps/query_parser/ErrorChecker.h>
+#include <qps/query_parser/QPSErrorChecker.h>
 #include <qps/query_parser/Query.h>
 #include <qps/query_parser/QueryParser.h>
-#include <qps/query_parser/Tokenizer.h>
+#include <qps/query_parser/QPSTokenizer.h>
 #include <string>
 
 using namespace std;

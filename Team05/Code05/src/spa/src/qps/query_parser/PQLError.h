@@ -7,7 +7,7 @@ using namespace std;
 /**
  * This class encapsulates error messages for errors during parsing of query strings.
  */
-class PQLError {
+class PQLError : public exception {
 
 private:
     /**

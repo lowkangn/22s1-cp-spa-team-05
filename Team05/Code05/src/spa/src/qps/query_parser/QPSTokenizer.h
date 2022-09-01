@@ -9,7 +9,7 @@ using namespace std;
  * This class handles the conversion of a given query string into PQLTokens for error checking and conversion to a
  * Query object.
  */
-class Tokenizer {
+class QPSTokenizer {
 
 public:
 

@@ -8,7 +8,7 @@ using namespace std;
 /**
  * This class handles the checking of a PQL Query that has been converted into a list of tokens for errors.
  */
-class ErrorChecker {
+class QPSErrorChecker {
 
 public:
 
