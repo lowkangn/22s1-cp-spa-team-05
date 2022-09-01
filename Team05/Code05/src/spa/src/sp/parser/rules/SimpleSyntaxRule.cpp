@@ -8,9 +8,10 @@ void SimpleSyntaxRule::validate() {
 	// generate if needed
 	if (!this->generated) {
 		this->childRules = this->generateChildRules();
-	} 
+	}
 
 	// for each rule, recursively validate
+	// note that if no childrules, is terminal, then we are done
 	for (SimpleSyntaxRule rule : this->childRules) {
 		rule.validate();
 	}

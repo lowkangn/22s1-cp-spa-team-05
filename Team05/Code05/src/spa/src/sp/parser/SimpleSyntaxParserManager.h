@@ -1,10 +1,12 @@
 #pragma once
 
 #include <list>
+#include <string>
 using namespace std;
 
 #include <sp/dataclasses/AST.h>
 #include <sp/dataclasses/tokens/Token.h>
+
 
 /*
 	This class handles the parsing of a list of tokens into recursively-defined syntax rules, 

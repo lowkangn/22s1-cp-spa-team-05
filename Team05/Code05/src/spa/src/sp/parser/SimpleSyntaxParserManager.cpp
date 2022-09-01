@@ -8,7 +8,6 @@
 using namespace std;
 
 
-
 ASTNode ParserManager::parse() {
 	/*
 		Main logic of this method: 

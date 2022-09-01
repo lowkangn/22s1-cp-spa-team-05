@@ -6,3 +6,10 @@ using namespace std;
 class SimpleSyntaxParserException : public exception{
 
 };
+
+/*
+	Thrown when a rule is not initialized with tokens.
+*/
+class SimpleSyntaxRuleNotInitializedException : public SimpleSyntaxParserException {
+
+};

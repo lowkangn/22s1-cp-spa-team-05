@@ -35,7 +35,7 @@ public:
 		This method causes the rule to create a new set of rules based on the internal tokens 
 		it keeps track of and recursively validate them. An exception is thrown with a validation error.
 	*/
-	void validate() final;
+	void validate();
 
 	/*
 		This method constructs a node out of the rule as part of an abstract syntax tree.
