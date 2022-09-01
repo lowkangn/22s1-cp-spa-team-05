@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <sp/dataclasses/ASTNode.h>
-#include <sp/dataclasses/Token.h>
+#include <sp/dataclasses/tokens/Token.h>
 
 using namespace std;
 

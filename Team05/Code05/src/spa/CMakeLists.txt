@@ -8,3 +8,5 @@ target_include_directories(spa PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/sp)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/pkb)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/qps)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/common)
+
