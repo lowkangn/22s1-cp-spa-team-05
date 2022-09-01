@@ -8,6 +8,6 @@
 #include <sp/dataclasses/AST.h>
 using namespace std;
 
-vector<Entity> EntityExtractor::extract(AST ast) {
-
+vector<Entity> EntityExtractor::extract(ASTNode ast) override {
+	return vector<Entity>();
 }

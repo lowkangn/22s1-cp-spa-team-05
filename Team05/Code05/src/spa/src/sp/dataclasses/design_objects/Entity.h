@@ -8,7 +8,7 @@ using namespace std;
 /*
 	Enumeration of possible entity types.
 */
-enum class EntityType {};
+enum class EntityType {PROCEDURE, STMTLIST, STMT, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT};
 
 /*
 	Encapsulates an entity.
@@ -18,7 +18,6 @@ private:
 	EntityType type;
 	int line;
 	EntityIdentifier identifier;
-
 };
 
 class EntityIdentifier {

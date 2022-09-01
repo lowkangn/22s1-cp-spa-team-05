@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
-#include <sp/dataclasses/design_objects/Entity.h>
+#include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/AST.h>
 using namespace std;
 
-class EntityExtractor : Extractor<Entity> {
+class FollowsExtractor : Extractor<Relationship> {
 
 public:
 	/*
