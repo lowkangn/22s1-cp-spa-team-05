@@ -9,15 +9,16 @@ class ASTNode {
 
 private:
 	// TODO: include node types
+	int lineNumber;
 	vector<Token> tokens;
 	vector<ASTNode> children;
 
 public: 
 	// constructor
-	ASTNode(vector<Token> tokens) {
+	ASTNode(vector<Token> tokens, int lineNumber) {
 		this->tokens = tokens;
+		this->lineNumber = lineNumber;
 	}
-
 
 	/*
 		Adds a child to the node.
