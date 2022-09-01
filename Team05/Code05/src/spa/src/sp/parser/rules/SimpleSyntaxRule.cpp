@@ -1,9 +1,9 @@
-#include <sp/parser/Rule.h>
+#include <sp/parser/rules/SimpleSyntaxRule.h>
 #include <sp/dataclasses/ASTNode.h>
 
 using namespace std;
 
-void Rule::validate() {
+void SimpleSyntaxRule::validate() {
 
 	// generate if needed
 	if (!this->generated) {
@@ -11,12 +11,15 @@ void Rule::validate() {
 	} 
 
 	// for each rule, recursively validate
-	for (Rule rule : this->childRules) {
+	for (SimpleSyntaxRule rule : this->childRules) {
 		rule.validate();
 	}
 }
 
-ASTNode Rule::constructNode() {
+ASTNode SimpleSyntaxRule::constructNode() {
+
+	// check that initialized correctly 
+	if (!)
 
 	// generate if needed
 	if (!this->generated) {
@@ -27,7 +30,7 @@ ASTNode Rule::constructNode() {
 	ASTNode *node = new ASTNode(this->tokens);
 
 	// for each rule, recursively create children and assign to children
-	for (Rule rule : this->childRules) {
+	for (SimpleSyntaxRule rule : this->childRules) {
 		ASTNode child = rule.constructNode();
 		node->addChild(child);
 	}

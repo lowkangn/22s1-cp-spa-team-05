@@ -131,7 +131,7 @@ Token Lexer::createKeywordOrNameTokenFromTraversingStream(istream& stream) {
     while (isalnum(stream.peek())) { // while is alphanumeric
         name += char(stream.get());
     }
-    return Token(name, TokenType::NAME);
+    return Token(name, TokenType::NAME_OR_KEYWORD);
 }
 
 Token Lexer::createIntegerTokenFromTraversingStream(istream& stream) {

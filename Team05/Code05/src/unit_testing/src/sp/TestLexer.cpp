@@ -225,8 +225,8 @@ TEST_CASE("Lexer: test createNameTokenFromTraversingStream") {
         Token t = lexer.createKeywordOrNameTokenFromTraversingStream(stream);
 
         // ----- then -----
-        REQUIRE(t.asString() == expectedStringOfToken);
-        REQUIRE(t.getType() == TokenType::NAME);
+        REQUIRE(t.getString() == expectedStringOfToken);
+        REQUIRE(t.getType() == TokenType::NAME_OR_KEYWORD);
         REQUIRE(char(stream.peek()) == expectedNextChar);
     };
 
@@ -255,7 +255,7 @@ TEST_CASE("Lexer: test createIntegerTokenFromTraversingStream") {
         Token t = lexer.createIntegerTokenFromTraversingStream(stream);
 
         // ----- then -----
-        REQUIRE(t.asString() == expectedStringOfToken);
+        REQUIRE(t.getString() == expectedStringOfToken);
         REQUIRE(t.getType() == TokenType::INTEGER);
         REQUIRE(char(stream.peek()) == expectedNextChar);
     };
@@ -283,7 +283,7 @@ TEST_CASE("Lexer: test createDelimiterTokenFromTraversingStream") {
         Token t = lexer.createDelimiterTokenFromTraversingStream(stream);
 
         // ----- then -----
-        REQUIRE(t.asString() == expectedStringOfToken);
+        REQUIRE(t.getString() == expectedStringOfToken);
         REQUIRE(t.getType() == TokenType::DELIMITER);
         REQUIRE(char(stream.peek()) == expectedNextChar);
     };
@@ -313,7 +313,7 @@ TEST_CASE("Lexer: test createOperatorTokenFromTraversingStream") {
         Token t = lexer.createOperatorTokenFromTraversingStream(stream);
 
         // ----- then -----
-        REQUIRE(t.asString() == expectedStringOfToken);
+        REQUIRE(t.getString() == expectedStringOfToken);
         REQUIRE(t.getType() == TokenType::OPERATOR);
         REQUIRE(char(stream.peek()) == expectedNextChar);
     };
@@ -400,11 +400,11 @@ TEST_CASE("Lexer: test tokenize works correctly") {
 
     SECTION("Works as expected") {
         test("a + b = c", list<Token>{
-            Token("a", TokenType::NAME), 
+            Token("a", TokenType::NAME_OR_KEYWORD), 
                 Token("+", TokenType::OPERATOR), 
-                Token("b", TokenType::NAME), 
+                Token("b", TokenType::NAME_OR_KEYWORD), 
                 Token("=", TokenType::OPERATOR),
-                Token("c", TokenType::NAME)
+                Token("c", TokenType::NAME_OR_KEYWORD)
         });
     }
 

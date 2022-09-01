@@ -24,7 +24,6 @@ private:
 	string s;
 	TokenType type;
 	
-
 public: 
 
 	Token(string s, TokenType type) {
@@ -34,11 +33,11 @@ public:
 	TokenType getType() {
 		return this->type;
 	}
-	string asString() {
+	string getString() {
 		return this->s;
 	}
 
 	bool equals(Token other) {
-		return ((this->getType() == other.getType()) && (this->asString() == other.asString()));
+		return ((this->getType() == other.getType()) && (this->getString() == other.getString()));
 	}
 };
