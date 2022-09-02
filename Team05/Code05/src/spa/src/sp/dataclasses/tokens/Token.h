@@ -24,7 +24,8 @@ public:
 	Token(string s, TokenType type) {
 		this->s = s;
 		this->type = type;
-	};
+	}
+
 	TokenType getType() {
 		return this->type;
 	}

@@ -11,7 +11,7 @@ using namespace std;
 /*
 	Enumeration of possible entity types.
 */
-enum class EntityType {PROCEDURE, STMTLIST, STMT, VARIABLE, CONSTANT, LINENUMBER};
+enum class EntityType {PROCEDURE, STMTLIST, STMT, VARIABLE, CONSTANT, LINENUMBER, UNDEFINED};
 
 class EntityIdentifier {
 private:
@@ -19,7 +19,7 @@ private:
 	string asString;
 	// TODO: add validation at initialization
 public:
-	EntityIdentifier(Token token, string asString) {
+	EntityIdentifier(Token token, string asString) : token(token), asString(asString) {
 		this->token = token;
 		this->asString = asString;
 	}
@@ -34,11 +34,11 @@ private:
 	int line;
 	EntityIdentifier identifier;
 public:
-	Entity(EntityType type, int lineNumber, Token token, string asString) {
+	Entity(EntityType type, int lineNumber, const Token &token, const string &asString) : type(type), line(lineNumber), identifier(token, asString) {
 		this->type = type;
 		this->line = lineNumber;
-		EntityIdentifier* identifier = new EntityIdentifier(token, asString);
-		this->identifier = *identifier;
+		EntityIdentifier identifier = EntityIdentifier{token, asString};
+		this->identifier = identifier;
 	}
 };
 
