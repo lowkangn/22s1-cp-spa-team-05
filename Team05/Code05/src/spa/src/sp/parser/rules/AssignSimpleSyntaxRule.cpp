@@ -21,15 +21,19 @@ vector<shared_ptr<SimpleSyntaxRule>> AssignSimpleSyntaxRule::generateChildRules(
 	vector<shared_ptr<SimpleSyntaxRule>> childRules;
 
 	// variable name on lhs 
+	if (!tokens.front().isNameToken()) {
+		throw SimpleSyntaxParserException("First token should be a variable!");
+	}
 	shared_ptr<SimpleSyntaxRule> lhsRulePointer = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
-	tokens = lhsRulePointer->consumeTokens(tokens);
+	tokens = lhsRulePointer->consumeTokens(tokens); // consume the tokens
 	childRules.push_back(lhsRulePointer);
 
-	// expression rule on rhs
+	// expression rule on rhs, consume remaining tokens
 	// NOTE: for MVP we only allow constant assignment
 	// TODO: do a proper expression
-	ConstantValueSimpleSyntaxRule rhsRule = ConstantValueSimpleSyntaxRule();
-	tokens = rhsRule.consumeTokens(tokens);
+	shared_ptr<SimpleSyntaxRule> rhsRulePointer = shared_ptr<SimpleSyntaxRule>(new ConstantValueSimpleSyntaxRule());
+	tokens = rhsRulePointer->consumeTokens(tokens);
+	childRules.push_back(rhsRulePointer);
 
 	// should have no tokens left
 	if (!tokens.empty()) {
@@ -46,32 +50,35 @@ list<Token> AssignSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	// should start with variable 
 	Token token = tokens.front(); // read
 	tokens.pop_front(); // pop
-	childTokens.push_back(token); // we want the lhs variable
 	if (!token.isNameToken()) {
-		// throw
+		throw SimpleSyntaxParserException(string("Expected a name variable, got: ") + token.getString());
 	}
+	childTokens.push_back(token); // we want the lhs variable
+	
 
 	// then equals 
 	token = tokens.front(); // read
-	tokens.pop_front(); // pop
 	if (!token.isEqualToken()) {
-		throw SimpleSyntaxParserException("Statement starting with variable should be assign statement, but no equal sign!");
+		throw SimpleSyntaxParserException(string("Expected a = operator, got: ") + token.getString());
 	}
+	tokens.pop_front(); // pop
 
 	// then tokens until semicolon delimiter (rhs stuff)
 	bool seenSemiColon = false;
+	bool seenOneToken = false;
 	while (!tokens.empty()) {
 		token = tokens.front(); // read
 		tokens.pop_front(); // pop
-		childTokens.push_back(token);
 
 		if (token.isSemiColonToken()) {
 			seenSemiColon = true;
 			break;
 		}
+		childTokens.push_back(token);
+		seenOneToken = true;
 	}
-	if (!seenSemiColon) {
-		throw SimpleSyntaxParserException("No terminal semicolon, invalid assign statement!");
+	if (!seenSemiColon || !seenOneToken) {
+		throw SimpleSyntaxParserException("No terminal semicolon or too few tokens before, invalid assign statement!");
 	}
 
 	// then store state

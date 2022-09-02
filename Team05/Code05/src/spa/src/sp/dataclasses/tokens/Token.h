@@ -97,9 +97,8 @@ public:
 
 	/* Check that token is a reserved keyword.*/
 	bool isKeywordToken() {
-		return (this->type == TokenType::NAME_OR_KEYWORD) 
-			&& (this->isProcedureKeywordToken() 
-				|| this->isProcedureKeywordToken()
+		return (this->isProcedureKeywordToken() 
+				|| this->isReadKeywordToken()
 				|| this->isCallKeywordToken()
 				|| this->isWhileKeywordToken()
 				|| this->isIfKeywordToken()

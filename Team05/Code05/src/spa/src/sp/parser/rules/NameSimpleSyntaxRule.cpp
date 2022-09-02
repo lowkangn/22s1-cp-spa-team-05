@@ -18,11 +18,6 @@ list<Token> NameSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	Token token = tokens.front();
 	tokens.pop_front();
 
-	// should have exactly one token left
-	if (!tokens.empty()) {
-		throw SimpleSyntaxParserException("Expected exactly one token left for variable name!");
-	}
-
 	// token should be a name token
 	if (!token.isNameToken()) {
 		throw SimpleSyntaxParserException("Token should be a variable name!");
@@ -33,7 +28,7 @@ list<Token> NameSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	childTokens.push_back(token);
 	this->initialized = true;
 	this->tokens = childTokens;
-	return tokens; // now empty
+	return tokens; 
 }
 
 

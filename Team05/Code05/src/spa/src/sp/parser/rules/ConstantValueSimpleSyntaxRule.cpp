@@ -16,14 +16,9 @@ list<Token> ConstantValueSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	Token token = tokens.front();
 	tokens.pop_front();
 
-	// should have exactly one token left
-	if (!tokens.empty()) {
-		throw SimpleSyntaxParserException("Expected exactly one token left for constant!");
-	}
-
 	// token should be a integer token
 	if (!token.isIntegerToken()) {
-		throw SimpleSyntaxParserException("Token should be an integer!");
+		throw SimpleSyntaxParserException(string("Token should be an integer, but was: ") + token.getString());
 	}
 
 	// set state
@@ -31,7 +26,7 @@ list<Token> ConstantValueSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	childTokens.push_back(token);
 	this->initialized = true;
 	this->tokens = childTokens;
-	return tokens; // now empty
+	return tokens; 
 }
 
 

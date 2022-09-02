@@ -2,6 +2,7 @@
 #include <sp/parser/rules/ReadSimpleSyntaxRule.h>
 #include <sp/parser/rules/AssignSimpleSyntaxRule.h>
 #include <sp/parser/rules/NameSimpleSyntaxRule.h>
+#include <sp/parser/rules/StatementListSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 
 #include <list>
@@ -14,38 +15,23 @@ vector<shared_ptr<SimpleSyntaxRule>> ProcedureSimpleSyntaxRule::generateChildRul
 		throw SimpleSyntaxRuleNotInitializedException();
 	}
 
-	// first token should be a procedure name
-
-	// a procedure is defined by a statement list, so let's parse each statement, which we identify by a delimiter
 	vector<shared_ptr<SimpleSyntaxRule>> childRules;
+
+	// first token should be a procedure name
 	list<Token> tokens = this->tokens;
-	
-	while (!tokens.empty()) {
-		Token token = tokens.front(); // read
-		if (token.isReadKeywordToken()) { // is read statement
-			shared_ptr<SimpleSyntaxRule> readRulePointer = shared_ptr<SimpleSyntaxRule>(new ReadSimpleSyntaxRule());
-			tokens = readRulePointer->consumeTokens(tokens); // consume tokens
-			childRules.push_back(readRulePointer); // add to children nodes in order
-		}
-		else if (token.isCallKeywordToken()) { // call statement
-			// TODO - not needed for MVP
-		}
-		else if (token.isWhileKeywordToken()) { // while block
-			// TODO - not needed for MVP
-		}
-		else if (token.isIfKeywordToken()) { // if else statement
-			// TODO - not needed for MVP
-		}
-		else if (token.isNameToken()) { // probably assign statement
-			shared_ptr<SimpleSyntaxRule> assignRulePointer = shared_ptr<SimpleSyntaxRule>(new AssignSimpleSyntaxRule());
-			tokens = assignRulePointer->consumeTokens(tokens);
-			childRules.push_back(assignRulePointer); // add to children nodes in order
-		}
-		else { // unknown
-			throw SimpleSyntaxParserException("Unknown statement type within a procedure!");
-		}
+	shared_ptr<SimpleSyntaxRule> procedureNamePointer = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+	tokens = procedureNamePointer->consumeTokens(tokens);
+	childRules.push_back(procedureNamePointer);
+
+	// a procedure is defined by a statement list, pass remaining into that
+	shared_ptr<SimpleSyntaxRule> statementListPointer = shared_ptr<SimpleSyntaxRule>(new StatementListSimpleSyntaxRule());
+	tokens = statementListPointer->consumeTokens(tokens);
+	childRules.push_back(statementListPointer);
+
+	if (!tokens.empty()) {
+		throw SimpleSyntaxParserException("Should have passed all tokens into statement list!");
 	}
-	// if gotten here, tokens are empty
+	
 	return childRules;
 
 }
@@ -63,10 +49,10 @@ list<Token> ProcedureSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	tokens.pop_front(); // is ok, let's pop the top token out
 
 	// second token should be a name
+	token = tokens.front(); // read
 	if (!token.isNameToken()) {
 		throw SimpleSyntaxParserException(string("Expected second token to be valid name, but was ") + token.getString());
 	}
-	token = tokens.front(); // read
 	tokens.pop_front(); // pop
 	consumedTokens.push_back(token);
 
@@ -76,6 +62,7 @@ list<Token> ProcedureSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 		throw SimpleSyntaxParserException(string("Expected third token to be open bracket, but was ") + token.getString());
 	}
 	tokens.pop_front(); // is ok, let's pop the top token out
+	consumedTokens.push_back(token);
 
 	// then we keep going until we hit a } 
 	bool seenCloseBracket = false;

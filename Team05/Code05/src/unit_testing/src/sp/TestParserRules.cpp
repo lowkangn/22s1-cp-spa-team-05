@@ -16,6 +16,9 @@
 #include <sp/parser/rules/SimpleSyntaxRule.cpp>
 #include <sp/parser/rules/NameSimpleSyntaxRule.h>
 #include <sp/parser/rules/NameSimpleSyntaxRule.cpp>
+#include <sp/parser/rules/StatementListSimpleSyntaxRule.h>
+#include <sp/parser/rules/StatementListSimpleSyntaxRule.cpp>
+
 #include <sp/dataclasses/tokens/Token.h>
 #include <list>
 #include <memory>
@@ -50,25 +53,24 @@ TEST_CASE("Parser: test ::consumeTokens") {
         REQUIRE_THROWS(rule.consumeTokens(tokens));
     };
 
-    // run tests
-
     // -------------------- ConstantValueSimpleSyntaxRule --------------------
-    SECTION("ConstValueSimpleSyntaxRule: Exactly one token left, numeric") {
+    SECTION("ConstantValueSimpleSyntaxRule: Exactly one token left, numeric") {
         list<Token> tokens = { Token("1", TokenType::INTEGER) };
         list<Token> expectedTokens = {};
         test(ConstantValueSimpleSyntaxRule(), tokens, expectedTokens);
     }
-    SECTION("ConstValueSimpleSyntaxRule: Exactly one token left, very large number") {
+    SECTION("ConstantValueSimpleSyntaxRule: Exactly one token left, very large number") {
         list<Token> tokens = { Token("12345435", TokenType::INTEGER) };
         list<Token> expectedTokens = {};
         test(ConstantValueSimpleSyntaxRule(), tokens, expectedTokens);
     }
-    SECTION("ConstValueSimpleSyntaxRule: Exactly one token left, not purely numeric, throws") {
-        list<Token> tokens = { Token(";", TokenType::DELIMITER) };
-        testThrowsException(ConstantValueSimpleSyntaxRule(), tokens);
-    }
-    SECTION("ConstValueSimpleSyntaxRule: Multiple tokens, throws") {
+    SECTION("ConstantValueSimpleSyntaxRule: Multiple tokens, does not throw") {
         list<Token> tokens = { Token("12345435", TokenType::INTEGER), Token("12345435", TokenType::INTEGER) };
+        list<Token> expectedTokens = { Token("12345435", TokenType::INTEGER) };
+        test(ConstantValueSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+    SECTION("ConstantValueSimpleSyntaxRule: Exactly one token left, not purely numeric, throws") {
+        list<Token> tokens = { Token(";", TokenType::DELIMITER) };
         testThrowsException(ConstantValueSimpleSyntaxRule(), tokens);
     }
 
@@ -78,14 +80,16 @@ TEST_CASE("Parser: test ::consumeTokens") {
         list<Token> expectedTokens = {};
         test(NameSimpleSyntaxRule(), tokens, expectedTokens);
     }
+    SECTION("NameSimpleSyntaxRule: Multiple tokens, does not throw") {
+        list<Token> tokens = { Token("soomevariable", TokenType::NAME_OR_KEYWORD), Token("soomevariable", TokenType::NAME_OR_KEYWORD) };
+        list<Token> expectedTokens = { Token("soomevariable", TokenType::NAME_OR_KEYWORD) };
+        test(NameSimpleSyntaxRule(), tokens, expectedTokens);
+    }
     SECTION("NameSimpleSyntaxRule: Exactly one token left, not name token, throws") {
         list<Token> tokens = { Token(";", TokenType::DELIMITER) };
         testThrowsException(NameSimpleSyntaxRule(), tokens);
     }
-    SECTION("NameSimpleSyntaxRule: Multiple tokens, throws") {
-        list<Token> tokens = { Token("soomevariable", TokenType::NAME_OR_KEYWORD), Token("soomevariable", TokenType::NAME_OR_KEYWORD) };
-        testThrowsException(NameSimpleSyntaxRule(), tokens);
-    }
+    
 
     // -------------------- ReadSimpleSyntaxRule --------------------
     SECTION("ReadSimpleSyntaxRule: Consumes exactly correct tokens") {
@@ -121,6 +125,166 @@ TEST_CASE("Parser: test ::consumeTokens") {
             Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
         };
         testThrowsException(ReadSimpleSyntaxRule(), tokens);
+    }
+
+    // -------------------- AssignSimpleSyntaxRule --------------------
+    SECTION("AssignSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        list<Token> expectedTokens = { Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD) };
+        test(AssignSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+    SECTION("AssignSimpleSyntaxRule: Missing = token") {
+        list<Token> tokens = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        testThrowsException(AssignSimpleSyntaxRule(), tokens);
+    }
+    SECTION("AssignSimpleSyntaxRule: Missing token after equal") {
+        list<Token> tokens = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        testThrowsException(AssignSimpleSyntaxRule(), tokens);
+    }
+    SECTION("AssignSimpleSyntaxRule: Missing semicolon token") {
+        list<Token> tokens = {
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        testThrowsException(AssignSimpleSyntaxRule(), tokens);
+    }
+
+    // -------------------- StatementListSimpleSyntaxRule --------------------
+    SECTION("StatementListSimpleSyntaxRule: Consumes exactly correct tokens, using example with just an assign") {
+        list<Token> tokens = {
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+        list<Token> expectedTokens = {};
+        test(StatementListSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+    SECTION("StatementListSimpleSyntaxRule: Missing {") {
+        list<Token> tokens = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+        testThrowsException(StatementListSimpleSyntaxRule(), tokens);
+    }
+    SECTION("StatementListSimpleSyntaxRule: Missing }") {
+        list<Token> tokens = {
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+        };
+        testThrowsException(StatementListSimpleSyntaxRule(), tokens);
+    }
+
+    // -------------------- ProcedureSimpleSyntaxRule --------------------
+    SECTION("ProcedureSimpleSyntaxRule: Consumes exactly correct tokens, using example with just an assign") {
+        list<Token> tokens = {
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("procedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+        list<Token> expectedTokens = {};
+        test(ProcedureSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+    SECTION("ProcedureSimpleSyntaxRule: Missing procedure keyword") {
+        list<Token> tokens = {
+            Token("procedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+        testThrowsException(ProcedureSimpleSyntaxRule(), tokens);
+    }
+    SECTION("ProcedureSimpleSyntaxRule: Missing name") {
+        list<Token> tokens = {
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+        testThrowsException(ProcedureSimpleSyntaxRule(), tokens);
+    }
+    SECTION("ProcedureSimpleSyntaxRule: Missing {") {
+        list<Token> tokens = {
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("procedureName", TokenType::NAME_OR_KEYWORD),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+        testThrowsException(ProcedureSimpleSyntaxRule(), tokens);
+    }
+    SECTION("ProcedureSimpleSyntaxRule: Missing }") {
+        list<Token> tokens = {
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("procedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+        };
+        testThrowsException(ProcedureSimpleSyntaxRule(), tokens);
+    }
+
+    // -------------------- ProgramSimpleSyntaxRule --------------------
+    SECTION("ProgramSimpleSyntaxRule: Consumes exactly correct tokens, using two procedures") {
+        list<Token> tokens = {
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("procedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("anotherProcedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+        list<Token> expectedTokens = {};
+        test(ProgramSimpleSyntaxRule(), tokens, expectedTokens);
     }
 
 }
@@ -175,4 +339,161 @@ TEST_CASE("Parser: test ::generateChildRules") {
         test(ReadSimpleSyntaxRule(), tokensToConsume, expectedChildren);
     }
 
+    // -------------------- ReadSimpleSyntaxRule --------------------
+    SECTION("AssignSimpleSyntaxRule: nested is the lhs and rhs, should have name lhs and const rhs generated") {
+        // tokens, an assign statement
+        list<Token> tokensToConsume = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+        };
+
+        // create lhs rule
+        shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+        list<Token> tokensInLHSRule = { Token("soomevariable", TokenType::NAME_OR_KEYWORD) };
+        lhsRule->consumeTokens(tokensInLHSRule);
+
+        // create rhs rule
+        shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ConstantValueSimpleSyntaxRule());
+        list<Token> tokensInRHSRule = { Token("1", TokenType::INTEGER), };
+        rhsRule->consumeTokens(tokensInRHSRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            lhsRule,
+            rhsRule
+        };
+        test(AssignSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+    SECTION("AssignSimpleSyntaxRule: nested is the lhs and rhs, should have name lhs and expression rhs generated") {
+        // TODO
+    }
+  
+    // -------------------- StatementListSimpleSyntaxRule --------------------
+    SECTION("StatementListSimpleSyntaxRule: nested assignment statement") {
+        // tokens, an assign statement in a procedure
+        list<Token> tokensToConsume = {
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+
+        // create child rules
+        shared_ptr<SimpleSyntaxRule> childRule1 = shared_ptr<SimpleSyntaxRule>(new AssignSimpleSyntaxRule());
+        list<Token> tokensInChildRule = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+        };
+        childRule1->consumeTokens(tokensInChildRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            childRule1,
+        };
+        test(StatementListSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+
+    // -------------------- ProcedureSimpleSyntaxRule --------------------
+    SECTION("ProcedureSimpleSyntaxRule: nested assignment statement") {
+        // tokens, an assign statement in a procedure
+        list<Token> tokensToConsume = {
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("procedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+
+        // create lhs rule
+        shared_ptr<SimpleSyntaxRule> procedureName = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+        list<Token> procedureNameTokens = { Token("procedureName", TokenType::NAME_OR_KEYWORD) };
+        procedureName->consumeTokens(procedureNameTokens);
+
+        // create rhs rule
+        shared_ptr<SimpleSyntaxRule> statementList = shared_ptr<SimpleSyntaxRule>(new StatementListSimpleSyntaxRule());
+        list<Token> statementListTokens = {
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+        statementList->consumeTokens(statementListTokens);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            procedureName,
+            statementList
+        };
+        test(ProcedureSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+    
+    // -------------------- ProgramSimpleSyntaxRule --------------------
+    SECTION("ProgramSimpleSyntaxRule: two procedures") {
+        // tokens, an assign statement in a procedure
+        list<Token> tokensToConsume = {
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("procedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("anotherProcedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+
+        // create child procedures
+        // 1. first procedure
+        shared_ptr<SimpleSyntaxRule> procedure1 = shared_ptr<SimpleSyntaxRule>(new ProcedureSimpleSyntaxRule());
+        list<Token> procedure1tokens = {
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("procedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            
+        };
+        procedure1->consumeTokens(procedure1tokens);
+
+        // 2. second procedure
+        shared_ptr<SimpleSyntaxRule> procedure2 = shared_ptr<SimpleSyntaxRule>(new ProcedureSimpleSyntaxRule());
+        list<Token> procedure2tokens = {
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("anotherProcedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+        procedure2->consumeTokens(procedure2tokens);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            procedure1,
+            procedure2
+        };
+        test(ProcedureSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
 }
+
+
+// =============== INTEGRATION TEST FOR RULES ====================
