@@ -1,7 +1,7 @@
 #pragma once
 
 #include "QPSErrorChecker.h"
-#include "Query.h"
+#include "../query/Query.h"
 #include "QueryParser.h"
 #include "QPSTokenizer.h"
 #include <fstream>

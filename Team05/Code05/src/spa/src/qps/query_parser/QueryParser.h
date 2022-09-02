@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PQLToken.h"
-#include "Query.h"
+#include "../query/Query.h"
 #include <list>
 
 using namespace std;
