@@ -21,7 +21,6 @@ private:
 	
 
 public: 
-
 	Token(string s, TokenType type) {
 		this->s = s;
 		this->type = type;

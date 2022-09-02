@@ -48,15 +48,15 @@ public:
 	/*
 		Extracts all the Relationships from the AST
 	*/
-	vector<Relationship> extractRelationships(ASTNode ast);
+	vector<Relationship> extractRelationships(ASTNode &ast);
 
 	/*
 		Extracts all the Entities from the AST
 	*/
-	vector<Entity> extractEntities(ASTNode ast);
+	vector<Entity> extractEntities(ASTNode &ast);
 
 	/*
 		Extracts all the patterns from the AST
 	*/
-	vector<Pattern> extractPatterns(ASTNode ast);
+	vector<Pattern> extractPatterns(ASTNode &ast);
 };

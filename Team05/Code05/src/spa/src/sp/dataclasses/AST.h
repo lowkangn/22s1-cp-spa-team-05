@@ -4,12 +4,15 @@
 #include <vector>
 using namespace std;
 
-class ASTNode {
+enum class ASTNodeType { PROCEDURE, STMTLIST, STMT, VARIABLE, CONSTANT, LINENUMBER, UNDEFINED };
 
+class ASTNode {
 
 private:
 	// Default line number is -1 (For validation purposes)
 	int lineNumber = -1;
+	// Default is UNDEFINED
+	ASTNodeType type = ASTNodeType::UNDEFINED;
 	vector<Token> tokens;
 	vector<ASTNode> children;
 
@@ -32,6 +35,13 @@ public:
 	*/
 	void addChild(ASTNode &child) {
 		this->children.push_back(child);
+	}
+
+	/*
+		Set the type of the ASTNode from the enum class ASTNodeType
+	*/
+	void setType(ASTNodeType type) {
+		this->type = type;
 	}
 
 	int getLineNumber() {

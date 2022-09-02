@@ -6,5 +6,5 @@ template <typename T> class Extractor {
 private:
 
 public:
-	virtual vector<T> extract(ASTNode rootnode) = 0;
+	virtual vector<T> extract(ASTNode &rootnode) = 0;
 };

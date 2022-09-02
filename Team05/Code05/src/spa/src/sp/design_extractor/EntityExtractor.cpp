@@ -9,6 +9,13 @@
 #include <sp/dataclasses/AST.h>
 using namespace std;
 
-vector<Entity> EntityExtractor::extract(ASTNode ast) override {
-	return vector<Entity>();
+vector<Entity> EntityExtractor::extract(ASTNode &ast) override {
+	vector<Entity> entities = vector<Entity>();
+
+	// Extract out line
+	return entities;
+}
+
+Entity EntityExtractor::extractLineNumbers(ASTNode& ast) {
+	Entity* lineEntity = new Entity(EntityType::LINENUMBER, ast->getLineNumber(), )
 }

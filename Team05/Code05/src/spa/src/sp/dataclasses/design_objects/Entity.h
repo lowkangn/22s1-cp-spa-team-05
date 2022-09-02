@@ -11,13 +11,18 @@ using namespace std;
 /*
 	Enumeration of possible entity types.
 */
-enum class EntityType {PROCEDURE, STMTLIST, STMT, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT};
+enum class EntityType {PROCEDURE, STMTLIST, STMT, VARIABLE, CONSTANT, LINENUMBER};
 
 class EntityIdentifier {
 private:
 	Token token;
 	string asString;
 	// TODO: add validation at initialization
+public:
+	EntityIdentifier(Token token, string asString) {
+		this->token = token;
+		this->asString = asString;
+	}
 };
 
 /*
@@ -28,5 +33,12 @@ private:
 	EntityType type;
 	int line;
 	EntityIdentifier identifier;
+public:
+	Entity(EntityType type, int lineNumber, Token token, string asString) {
+		this->type = type;
+		this->line = lineNumber;
+		EntityIdentifier* identifier = new EntityIdentifier(token, asString);
+		this->identifier = *identifier;
+	}
 };
 
