@@ -1,12 +1,12 @@
-#include <sp/parser/rules/ConstantSimpleSyntaxRule.h>
+#include <sp/parser/rules/ConstantValueSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 
 
-vector<SimpleSyntaxRule> ConstantSimpleSyntaxRule::generateChildRules() {
+vector<SimpleSyntaxRule> ConstantValueSimpleSyntaxRule::generateChildRules() {
 	return vector<SimpleSyntaxRule>(); // terminal
 }
 
-list<Token> ConstantSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
+list<Token> ConstantValueSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	// consume one token
 	Token token = tokens.front();
 	tokens.pop_front();

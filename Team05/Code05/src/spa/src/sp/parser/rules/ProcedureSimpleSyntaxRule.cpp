@@ -1,5 +1,6 @@
 #include <sp/parser/rules/ProcedureSimpleSyntaxRule.h>
 #include <sp/parser/rules/ReadSimpleSyntaxRule.h>
+#include <sp/parser/rules/AssignSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 #include <list>
 using namespace std;
@@ -19,7 +20,7 @@ vector<SimpleSyntaxRule> ProcedureSimpleSyntaxRule::generateChildRules() {
 	while (!tokens.empty()) {
 		token = tokens.front(); // read
 		if (token.isReadKeywordToken()) { // is read statement
-			SimpleSyntaxRule readRule = ReadSimpleSyntaxRule(); // note: upcast
+			ReadSimpleSyntaxRule readRule = ReadSimpleSyntaxRule();
 			tokens = readRule.consumeTokens(tokens); // consume tokens
 			childRules.push_back(readRule); // add to children nodes in order
 		}
@@ -32,8 +33,10 @@ vector<SimpleSyntaxRule> ProcedureSimpleSyntaxRule::generateChildRules() {
 		else if (token.isIfKeywordToken()) { // if else statement
 			// TODO - not needed for MVP
 		}
-		else if (token.isNameToken() && tokens.front().isEqualToken()) { // assign statement
-			
+		else if (token.isNameToken()) { // probably assign statement
+			AssignSimpleSyntaxRule assignRule = AssignSimpleSyntaxRule();
+			tokens = assignRule.consumeTokens(tokens);
+			childRules.push_back(assignRule); // add to children nodes in order
 		}
 		else { // unknown
 			throw SimpleSyntaxParserException("Unknown statement type within a procedure!")
@@ -41,7 +44,6 @@ vector<SimpleSyntaxRule> ProcedureSimpleSyntaxRule::generateChildRules() {
 	}
 	// if gotten here, tokens are empty
 	return tokens;
-
 
 }
 
@@ -68,7 +70,7 @@ list<Token> ProcedureSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	while (!tokens.empty()) {
 		token = tokens.front(); // read
 		tokens.pop_front(); // pop
-		consumedTokens.push_back(token); // insert
+		consumedTokens.push_back(token); // insert all tokens in order within bracket
 
 		if (token.isClosedCurlyBracketToken()) {
 			seenCloseBracket = true;
