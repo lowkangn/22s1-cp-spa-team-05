@@ -1,4 +1,5 @@
 #include <sp/parser/rules/ProcedureSimpleSyntaxRule.h>
+#include <sp/parser/rules/ReadSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 #include <list>
 using namespace std;
@@ -18,7 +19,9 @@ vector<SimpleSyntaxRule> ProcedureSimpleSyntaxRule::generateChildRules() {
 	while (!tokens.empty()) {
 		token = tokens.front(); // read
 		if (token.isReadKeywordToken()) { // is read statement
-
+			SimpleSyntaxRule readRule = ReadSimpleSyntaxRule(); // note: upcast
+			tokens = readRule.consumeTokens(tokens); // consume tokens
+			childRules.push_back(readRule); // add to children nodes in order
 		}
 		else if (token.isCallKeywordToken()) { // call statement
 			// TODO - not needed for MVP

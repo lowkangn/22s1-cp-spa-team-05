@@ -20,15 +20,16 @@ enum class TokenType {
 */
 // keywords
 const string PROCEDURE_KEYWORD = "procedure";
-const string READ_KEYWORD = "";
-const string CALL_KEYWORD = "";
-const string WHILE_KEYWORD = "";
-const string IF_KEYWORD = "";
+const string READ_KEYWORD = "read";
+const string CALL_KEYWORD = "call";
+const string WHILE_KEYWORD = "while";
+const string IF_KEYWORD = "if";
 
 
 // delimiters
 const string OPEN_CURLY_BRACKET = "{";
 const string CLOSED_CURLY_BRACKET = "}";
+const string SEMI_COLON = ";";
 
 // operators
 const string EQUAL_OPERATOR = "=";
@@ -57,21 +58,11 @@ public:
 	bool equals(Token other) {
 		return ((this->getType() == other.getType()) && (this->getString() == other.getString()));
 	}
-	// ===== Identifier helper methods =====
+	// ===== Keyword helper methods =====
 
 	/* Checks if a token is the procedure keyword. */
 	bool isProcedureKeywordToken() {
 		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == PROCEDURE_KEYWORD);
-	}
-
-	/* Checks if the token is an open bracket. */
-	bool isOpenCurlyBracketToken() {
-		return (this->type == TokenType::DELIMITER) && (this->s == OPEN_CURLY_BRACKET);
-	}
-
-	/* Checks if the token is a closed curly bracket.*/
-	bool isClosedCurlyBracketToken() {
-		return (this->type == TokenType::DELIMITER) && (this->s == CLOSED_CURLY_BRACKET);
 	}
 
 	/* Checks if the token is the read keyword.*/
@@ -113,6 +104,27 @@ public:
 				|| this->isWhileKeywordToken()
 				|| this->isIfKeywordToken()
 			);
+	}
+
+	// ===== Delimiter identifier ======
+	/* Checks if the token is an open bracket. */
+	bool isOpenCurlyBracketToken() {
+		return (this->type == TokenType::DELIMITER) && (this->s == OPEN_CURLY_BRACKET);
+	}
+
+	/* Checks if the token is a closed curly bracket.*/
+	bool isClosedCurlyBracketToken() {
+		return (this->type == TokenType::DELIMITER) && (this->s == CLOSED_CURLY_BRACKET);
+	}
+
+	/* Checks if the token is a closed curly bracket.*/
+	bool isSemiColonToken() {
+		return (this->type == TokenType::DELIMITER) && (this->s == SEMI_COLON);
+	}
+
+	// ====== Number identifier =====
+	bool isIntegerToken() {
+		return (this->type == TokenType::INTEGER);
 	}
 
 };
