@@ -12,7 +12,7 @@ private:
 	vector<Clause> clauses;
 public:
 	
-	/* Instantiates a Query object containign the clauses. */
+	/* Instantiates a Query object containing the clauses. */
 	Query(vector<Clause> clauses) {
 		this -> clauses = clauses;
 	}

@@ -1,16 +1,25 @@
-#include <string>
 #include <vector>
 #include "PKB.h"
+#include <sp/dataclasses/design_objects/Entity.h>
+#include <qps/query/clause/Clause.h>
 
-// TODO Refactor to dataclass coming from QPS
-std::vector <std::string> ProgramKnowledgeBase::readAll() {
-    std::vector<std::string> v;
-    return v;
+ProgramKnowledgeBase::ProgramKnowledgeBase() {
+
 }
 
-// TODO Refactor to dataclass coming from QPS
-std::string ProgramKnowledgeBase::read(std::string queryClause) {
-    return std::string("");
+ProgramKnowledgeBase *ProgramKnowledgeBase::getInstance() {
+    if (!PKBInstance) {
+        PKBInstance = new ProgramKnowledgeBase;
+    }
+    return PKBInstance;
+}
+
+std::vector<Entity> ProgramKnowledgeBase::retrieveAllKnowledge() {
+    return std::vector<Entity>();
+}
+
+Entity ProgramKnowledgeBase::retrieveKnowledge(Clause queryClause) {
+    return Entity();
 }
 
 // TODO Refactor to dataclass coming from QPS
