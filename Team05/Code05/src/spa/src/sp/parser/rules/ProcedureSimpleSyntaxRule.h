@@ -6,8 +6,14 @@
 #include <sp/parser/rules/SimpleSyntaxRule.h>
 using namespace std;
 
-class ProcedureSimpleSyntaxRule : SimpleSyntaxRule {
+class ProcedureSimpleSyntaxRule : public SimpleSyntaxRule {
 public:
-	vector<SimpleSyntaxRule> generateChildRules() override;
+
+	ProcedureSimpleSyntaxRule() {
+		this->generated = false;
+		this->initialized = false;
+	}
+	vector<shared_ptr<SimpleSyntaxRule>> generateChildRules() override;
 	list<Token> consumeTokens(list<Token> tokens) override;
+	ASTNode constructNode() override;
 };

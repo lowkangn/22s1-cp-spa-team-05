@@ -4,6 +4,7 @@
 #include <vector>
 #include <sp/dataclasses/AST.h>
 #include <sp/dataclasses/tokens/Token.h>
+#include <memory>
 
 using namespace std;
 
@@ -14,28 +15,17 @@ using namespace std;
 class SimpleSyntaxRule {
 protected:
 	list<Token> tokens;
-	vector<SimpleSyntaxRule> childRules;
+	vector<shared_ptr<SimpleSyntaxRule>> childRules;
 	bool generated; // boolean variable to make sure a generation attempt has been made
 	bool initialized; // boolean variable to make sure tokens are not empty
 
-
-
 public:
-
-	/*
-		Constructor initiliazes boolean flags to false. Flags are changed by the corresponding
-		methods - generate child rules flips generated, create flips initialized.
-	*/
-	SimpleSyntaxRule() {
-		this->generated = false;
-		this->initialized = false;
-	}
 
 	/*
 		This method causes the rule to create a new set of rules based on the internal tokens 
 		it keeps track of and recursively validate them. An exception is thrown with a validation error.
 	*/
-	void validate();
+	virtual void validate();
 
 	/*
 		This method constructs a node out of the rule as part of an abstract syntax tree.
@@ -45,7 +35,7 @@ public:
 	/*
 		This method generates a list of rules that are recursively defined based on the rule itself.
 	*/
-	virtual vector<SimpleSyntaxRule> generateChildRules()=0;
+	virtual vector<shared_ptr<SimpleSyntaxRule>> generateChildRules()=0;
 
 	/*
 		This method, provided tokens, selects the relevant tokens to wrap into the rule object and 
@@ -58,7 +48,11 @@ public:
 
 	*/
 	virtual list<Token> consumeTokens(list<Token> tokens)=0;
-
+	
+	/*
+		Compares two rules to see if they are equal.
+	*/
+	bool equals(SimpleSyntaxRule &other);
 
 
 };

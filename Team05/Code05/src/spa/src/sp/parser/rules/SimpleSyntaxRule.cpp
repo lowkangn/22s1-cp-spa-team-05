@@ -1,5 +1,6 @@
 #include <sp/parser/rules/SimpleSyntaxRule.h>
-#include <sp/dataclasses/ASTNode.h>
+#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
+#include <sp/dataclasses/AST.h>
 
 using namespace std;
 
@@ -12,29 +13,35 @@ void SimpleSyntaxRule::validate() {
 
 	// for each rule, recursively validate
 	// note that if no childrules, is terminal, then we are done
-	for (SimpleSyntaxRule rule : this->childRules) {
-		rule.validate();
+	for (auto rulePointer = this->childRules.begin(); rulePointer != this->childRules.end(); rulePointer++) {
+		(*rulePointer)->validate();
 	}
 }
 
-ASTNode SimpleSyntaxRule::constructNode() {
+bool SimpleSyntaxRule::equals(SimpleSyntaxRule &other) {
+	// status should be equal
+	bool attributesEqual = (this->generated == other.generated) && (this->initialized == other.initialized);
+	if (!attributesEqual) {
+		return false;
+	}
+	
+	// rules should be recursively identical
+	bool sameNumberOfChildRules = (this->childRules.size() == other.childRules.size());
+	if (!sameNumberOfChildRules) {
+		return false;
+	}
+	else {
+		// iterate and check
+		for (int i = 0; i < this->childRules.size(); i++) {
+			auto rule = this->childRules.at(i);
+			auto otherRule = other.childRules.at(i);
+			if ((*rule).equals(*otherRule)) {
+				return false;
+			}
+		}
+		return true;
 
-	// check that initialized correctly 
-	if (!)
-
-	// generate if needed
-	if (!this->generated) {
-		this->childRules = this->generateChildRules();
 	}
 
-	// create current node
-	ASTNode *node = new ASTNode(this->tokens);
-
-	// for each rule, recursively create children and assign to children
-	for (SimpleSyntaxRule rule : this->childRules) {
-		ASTNode child = rule.constructNode();
-		node->addChild(child);
-	}
-
-	return *node;
 }
+

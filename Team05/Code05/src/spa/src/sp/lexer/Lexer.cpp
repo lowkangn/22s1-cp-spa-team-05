@@ -137,6 +137,7 @@ Token Lexer::createKeywordOrNameTokenFromTraversingStream(istream& stream) {
 Token Lexer::createIntegerTokenFromTraversingStream(istream& stream) {
     string value;
     while (isdigit(stream.peek())) { // keep getting digits
+        // TODO: we should include a check for how weird numbers like 001
         value += char(stream.get());
     }
     // cannot have letter immediately after 

@@ -1,26 +1,29 @@
 #include <sp/parser/rules/AssignSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/parser/rules/VariableNameSimpleSyntaxRule.h>
+#include <sp/parser/rules/NameSimpleSyntaxRule.h>
 #include <sp/parser/rules/ConstantValueSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-
+#include <sp/dataclasses/AST.h>
 #include <list>
+#include <memory>
 
 using namespace std;
-vector<SimpleSyntaxRule> AssignSimpleSyntaxRule::generateChildRules() {
+
+using namespace std;
+vector<shared_ptr<SimpleSyntaxRule>> AssignSimpleSyntaxRule::generateChildRules() {
 	// should be initialized 
 	if (!this->initialized) {
-		throw SimpleSyntaxParserException("Assign rule has not been initialized with tokens.")
+		throw SimpleSyntaxRuleNotInitializedException();
 	}
 
 	// initialize outputs
 	list<Token> tokens = this->tokens;
-	vector<SimpleSyntaxRule> childRules;
+	vector<shared_ptr<SimpleSyntaxRule>> childRules;
 
 	// variable name on lhs 
-	VariableNameSimpleSyntaxRule lhsRule = VariableNameSimpleSyntaxRule();
-	tokens = lhsRule.consumeTokens(tokens);
-	childRules.push_back(lhsRule);
+	shared_ptr<SimpleSyntaxRule> lhsRulePointer = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+	tokens = lhsRulePointer->consumeTokens(tokens);
+	childRules.push_back(lhsRulePointer);
 
 	// expression rule on rhs
 	// NOTE: for MVP we only allow constant assignment
@@ -75,4 +78,9 @@ list<Token> AssignSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	this->tokens = childTokens;
 	this->initialized = true;
 	return tokens; // return remaining tokens
+}
+
+ASTNode AssignSimpleSyntaxRule::constructNode() {
+	// TODO
+	return ASTNode();
 }

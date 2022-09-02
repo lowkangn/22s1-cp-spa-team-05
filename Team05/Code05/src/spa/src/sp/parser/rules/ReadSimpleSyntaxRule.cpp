@@ -1,14 +1,17 @@
 #include <sp/parser/rules/ReadSimpleSyntaxRule.h>
-#include <sp/parser/rules/VariableNameSimpleSyntaxRule.h>
+#include <sp/parser/rules/NameSimpleSyntaxRule.h>
+#include <sp/parser/rules/SimpleSyntaxRule.h>
+#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
+
 #include <list>
 
-vector<SimpleSyntaxRule> ReadSimpleSyntaxRule::generateChildRules()
+vector<shared_ptr<SimpleSyntaxRule>> ReadSimpleSyntaxRule::generateChildRules()
 {
-	vector<SimpleSyntaxRule> childRules; 
+	vector<shared_ptr<SimpleSyntaxRule>> childRules;
 	// only child is variable
-	VariableNameSimpleSyntaxRule rule = VariableNameSimpleSyntaxRule();
-	rule.consumeTokens(this->tokens);
-	childRules.push_back(childRules);
+	shared_ptr<SimpleSyntaxRule> rulePointer = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+	rulePointer->consumeTokens(this->tokens);
+	childRules.push_back(rulePointer);
 	return childRules;
 
 }
@@ -23,14 +26,14 @@ list<Token> ReadSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	Token token = tokens.front(); // read
 	tokens.pop_front(); // pop
 	if (!token.isReadKeywordToken()) {
-		throw 
+		throw SimpleSyntaxParserException("first token shouold be a read token.");
 	}
 
 	// variable token
 	token = tokens.front();
 	tokens.pop_front(); // pop
 	if (!token.isNameToken()) {
-		throw
+		throw SimpleSyntaxParserException("second token shouold be a name variable token.");
 	}
 	childTokens.push_back(token);
 
@@ -38,7 +41,7 @@ list<Token> ReadSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	token = tokens.front();
 	tokens.pop_front(); // pop
 	if (!token.isClosedCurlyBracketToken()) {
-		throw
+		throw SimpleSyntaxParserException("third token shouold be a semicolon token.");
 	}
 
 	// store the state
@@ -46,4 +49,9 @@ list<Token> ReadSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	this->initialized = true;
 
 	return tokens;
+}
+
+ASTNode ReadSimpleSyntaxRule::constructNode() {
+	// TODO
+	return ASTNode();
 }

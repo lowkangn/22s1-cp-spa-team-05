@@ -2,8 +2,13 @@
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 
 
-vector<SimpleSyntaxRule> ConstantValueSimpleSyntaxRule::generateChildRules() {
-	return vector<SimpleSyntaxRule>(); // terminal
+vector<shared_ptr<SimpleSyntaxRule>> ConstantValueSimpleSyntaxRule::generateChildRules() {
+	// must be initialized
+	if (!this->initialized) {
+		throw SimpleSyntaxRuleNotInitializedException();
+	}
+
+	return vector<shared_ptr<SimpleSyntaxRule>>(); // terminal
 }
 
 list<Token> ConstantValueSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
@@ -13,12 +18,12 @@ list<Token> ConstantValueSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 
 	// should have exactly one token left
 	if (!tokens.empty()) {
-		SimpleSyntaxParserException("Expected exactly one token left for constant!")
+		throw SimpleSyntaxParserException("Expected exactly one token left for constant!");
 	}
 
 	// token should be a integer token
 	if (!token.isIntegerToken()) {
-		SimpleSyntaxParserException("Token should be an integer!")
+		throw SimpleSyntaxParserException("Token should be an integer!");
 	}
 
 	// set state
@@ -27,4 +32,10 @@ list<Token> ConstantValueSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	this->initialized = true;
 	this->tokens = childTokens;
 	return tokens; // now empty
+}
+
+
+ASTNode ConstantValueSimpleSyntaxRule::constructNode() {
+	// TODO
+	return ASTNode();
 }
