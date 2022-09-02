@@ -26,7 +26,7 @@ TEST_CASE("AST: Change line number") {
 		// Ensure intial linenumber is -1
 		REQUIRE(toChangeLineNumber->getLineNumber() == -1);
 
-		toChangeLineNumber->changeLineNumber(lineNumber);
+		toChangeLineNumber->setLineNumber(lineNumber);
 
 		REQUIRE(toChangeLineNumber->getLineNumber() == lineNumber);
 	};

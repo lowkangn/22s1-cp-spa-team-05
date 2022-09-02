@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/design_objects/Entity.h>

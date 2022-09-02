@@ -4,7 +4,7 @@
 #include <vector>
 using namespace std;
 
-enum class ASTNodeType { PROCEDURE, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT, UNDEFINED };
+enum class ASTNodeType { PROCEDURE, NAME, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, EXPRESSION, CONSTANT, UNDEFINED };
 
 class ASTNode {
 
@@ -18,15 +18,16 @@ private:
 
 public: 
 	// constructor
-	ASTNode(vector<Token> &tokens) {
+	ASTNode(vector<Token> &tokens) : tokens(tokens) {
 		this->tokens = tokens;
 		this->lineNumber = lineNumber;
+		this->children = vector<ASTNode>();
 	}
 
 	/*
 		Changes the line number of the node.
 	*/
-	void changeLineNumber(int lineNumber) {
+	void setLineNumber(int lineNumber) {
 		this->lineNumber = lineNumber;
 	}
 
@@ -51,14 +52,14 @@ public:
 	/*
 		Get the type of the ASTNode from the enum class ASTNodeType
 	*/
-	ASTNodeType getType(ASTNodeType type) {
+	ASTNodeType getType() {
 		return this->type;
 	}
 
 	/*
 		Get the token present in the ASTNode
 	*/
-	vector<Token> getTokens(ASTNodeType type) {
+	vector<Token> getTokens() {
 		return this->tokens;
 	}
 
