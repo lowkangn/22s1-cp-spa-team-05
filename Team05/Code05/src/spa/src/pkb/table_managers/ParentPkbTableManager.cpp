@@ -1,4 +1,4 @@
-#include <ParentPkbTableManager.h>
+#include <pkb/table_managers/ParentPkbTableManager.h>
 #include <string>
 #include <vector>
 

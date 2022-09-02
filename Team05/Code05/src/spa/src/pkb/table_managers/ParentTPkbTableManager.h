@@ -1,6 +1,6 @@
 #pragma once
 
-#include <PkbTableManager.h>
+#include <pkb/table_managers/PkbTableManager.h>
 #include <unordered_map>
 #include <vector>
 #include <string>
