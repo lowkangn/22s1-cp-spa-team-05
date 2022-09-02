@@ -73,4 +73,11 @@ public:
 	int numChildren() {
 		return children.size();
 	}
+
+	/*
+		Returns true if the ASTNode is terminal else false
+	*/
+	bool isTerminal() {
+		return this->children.size() == 0;
+	}
 };

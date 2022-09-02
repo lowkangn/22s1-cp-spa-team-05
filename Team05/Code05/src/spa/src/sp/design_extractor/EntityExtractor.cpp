@@ -1,6 +1,5 @@
 // imported libraries
 #include<vector>
-#include <iostream>
 
 
 // imported local files
@@ -19,9 +18,8 @@ vector<Entity> EntityExtractor::extract(ASTNode &ast) {
 	}
 
 	// Recursively go down the AST to extract child entities
-	if (ast.numChildren() > 0) {
+	if (!ast.isTerminal()) {
 		vector<ASTNode*> children = ast.getChildren();
-		vector<Entity> extractedChildEntities = vector<Entity>();
 		vector<Entity> extractedEntities;
 		// If an entity was extracted from the current node, we can skip the first child
 		// as it has already been extracted
@@ -29,17 +27,16 @@ vector<Entity> EntityExtractor::extract(ASTNode &ast) {
 			for (int i = 1; i < children.size(); i++) {
 				ASTNode* child = children[i];
 				extractedEntities = this->extract(*child);
-				extractedChildEntities.insert(extractedChildEntities.end(), extractedEntities.begin(), extractedEntities.end());
+				entities.insert(entities.end(), extractedEntities.begin(), extractedEntities.end());
 			}
 		}
 		else {
 			for (int i = 0; i < children.size(); i++) {
 				ASTNode* child = children[i];
 				extractedEntities = this->extract(*child);
-				extractedChildEntities.insert(extractedChildEntities.end(), extractedEntities.begin(), extractedEntities.end());
+				entities.insert(entities.end(), extractedEntities.begin(), extractedEntities.end());
 			}
 		}
-		entities.insert(entities.end(), extractedChildEntities.begin(), extractedChildEntities.end());
 	}
 
 	return entities;
