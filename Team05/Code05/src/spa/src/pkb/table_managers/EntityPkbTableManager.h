@@ -6,7 +6,7 @@
 
 class EntityPkbTableManager : public PkbTableManager {
 public:
-	std::string filter(PkbClause clause) override;
+	string filter(PkbClause clause) override;
 
 	void add(Relationship relationship) override;
 
@@ -14,7 +14,7 @@ public:
 
 private:
 	// Change to the vector<Variables> once variables is implemented
-	std::vector<int> variables;
+	vector<int> variables;
 	// Change to the vector<Statements> once Statements is implemented
-	std::vector<int> statements;
+	vector<int> statements;
 };

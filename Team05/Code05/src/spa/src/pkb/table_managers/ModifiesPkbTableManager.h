@@ -6,12 +6,13 @@
 
 class ModifiesPkbTableManager : public PkbTableManager {
 public:
-	std::string filter(PkbClause clause) override;
+	string filter(PkbClause clause) override;
 
 	void add(Relationship relationship) override;
 
 	void clearDataBase() override;
 
 private:
-	std::unordered_map<Entity, Relationship> mappings;
+	unordered_map<Entity, Relationship> mappings;
+
 };

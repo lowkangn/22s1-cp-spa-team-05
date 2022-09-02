@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 
-std::string FollowsTPkbTableManager::filter(PkbClause clause) {
-	return std::string{ "0" };
+string FollowsTPkbTableManager::filter(PkbClause clause) {
+	return string{ "0" };
 }
 
 void FollowsTPkbTableManager::add(Relationship relationship) {

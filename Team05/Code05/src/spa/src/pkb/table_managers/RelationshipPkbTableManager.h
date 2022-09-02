@@ -10,11 +10,9 @@
 #include <map>
 #include <string>
 
-using namespace std;
-
 class RelationshipPkbTableManager: public PkbTableManager {
 public:
-	std::string filter(PkbClause clause) override;
+	string filter(PkbClause clause) override;
 
 	void add(Relationship relationship) override;
 

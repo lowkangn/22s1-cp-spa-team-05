@@ -6,12 +6,12 @@
 
 class UsesPkbTableManager : public PkbTableManager {
 public:
-	std::string filter(PkbClause) override;
+	string filter(PkbClause) override;
 
 	void add(Relationship relationship) override;
 
 	void clearDataBase() override;
 
 private:
-	std::unordered_map<Entity, Relationship> mappings;
+	unordered_map<Entity, Relationship> mappings;
 };

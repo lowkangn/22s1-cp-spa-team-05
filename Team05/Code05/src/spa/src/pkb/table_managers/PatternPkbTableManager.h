@@ -6,7 +6,7 @@
 
 class PatternPkbTableManager : public PkbTableManager {
 public:
-	std::string filter(PkbClause clause) override;
+	string filter(PkbClause clause) override;
 
 	void add(Relationship relationship) override;
 
@@ -14,5 +14,5 @@ public:
 
 private:
 	// Change to vector<Patterns> once class is implemented
-	std::vector<int> patterns;
+	vector<int> patterns;
 };

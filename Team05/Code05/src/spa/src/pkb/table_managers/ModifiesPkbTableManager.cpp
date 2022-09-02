@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 
-std::string ModifiesPkbTableManager::filter(PkbClause clause) {
-	return std::string{ "0" };
+string ModifiesPkbTableManager::filter(PkbClause clause) {
+	return string{ "0" };
 }
 
 void ModifiesPkbTableManager::add(Relationship relationship) {
