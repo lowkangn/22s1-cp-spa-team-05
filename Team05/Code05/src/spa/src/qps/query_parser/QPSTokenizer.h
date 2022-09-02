@@ -13,7 +13,15 @@ using namespace std;
  */
 class QPSTokenizer {
 
-private:
+public:
+
+    /**
+     * Tokenizes the given query string into a list of PQLTokens.
+     *
+     * @param queryText to be converted into a list of PQLTokens.
+     * @return list of PQLTokens representing the given query string.
+     */
+    list<PQLToken> tokenize(istream& stream);
 
     /**
      * Checks if a given character is alphabetical.
@@ -93,17 +101,5 @@ private:
      * @param stream to remove whitespace or newlines from.
      */
     void skipWhitespaceOrNewlineInStream(istream& stream);
-
-
-
-public:
-
-    /**
-     * Tokenizes the given query string into a list of PQLTokens.
-     *
-     * @param queryText to be converted into a list of PQLTokens.
-     * @return list of PQLTokens representing the given query string.
-     */
-    list<PQLToken> tokenize(istream& stream);
 
 };

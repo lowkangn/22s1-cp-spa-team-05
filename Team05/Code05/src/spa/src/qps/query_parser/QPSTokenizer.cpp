@@ -93,7 +93,7 @@ PQLToken QPSTokenizer::extractIntegerFromStream(istream& stream) {
 
 PQLToken QPSTokenizer::extractDelimiterFromStream(istream& stream) {
     string del;
-    del + char(stream.get());
+    del += char(stream.get());
     return PQLToken(del, PQLTokenType::DELIMITER);
 }
 

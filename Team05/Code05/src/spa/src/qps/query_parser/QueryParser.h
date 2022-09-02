@@ -2,7 +2,7 @@
 
 #include "PQLToken.h"
 #include "Query.h"
-#include <vector>
+#include <list>
 
 using namespace std;
 
@@ -19,6 +19,6 @@ public:
      * @param tokens used to create Query object.
      * @return Query object.
      */
-    Query parse(vector<PQLToken> tokens);
+    Query parse(list<PQLToken> tokens);
 };
 

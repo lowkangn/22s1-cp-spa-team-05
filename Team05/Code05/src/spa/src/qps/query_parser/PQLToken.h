@@ -48,7 +48,7 @@ public:
      *
      * @return string representation of the token.
      */
-    string getToken() {
+    string getTokenString() {
         return tokenString;
     }
 
@@ -59,6 +59,15 @@ public:
      */
     PQLTokenType getTokenType() {
         return tokenType;
+    }
+
+    /**
+     * Tests if another token is equal to this token, i.e. same tokenString and tokenType.
+     * @param otherToken to test.
+     * @return true if tokens are equal.
+     */
+    bool equals(PQLToken otherToken) {
+        return tokenString == otherToken.getTokenString() && tokenType == otherToken.getTokenType();
     }
 
 };

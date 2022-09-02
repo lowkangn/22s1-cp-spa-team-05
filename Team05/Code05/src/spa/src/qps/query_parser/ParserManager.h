@@ -4,7 +4,7 @@
 #include "Query.h"
 #include "QueryParser.h"
 #include "QPSTokenizer.h"
-#include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -33,11 +33,11 @@ private:
 public:
 
     /**
-     * Takes in a PQL query in the form of a string and returns a Query object.
+     * Takes in a PQL query in the form of a stream and returns a Query object.
      *
-     * @param queryText The input string used to create the Query.
-     * @return Query object generated, provided the query string has no errors.
+     * @param queryText The input stream used to create the Query.
+     * @return Query object generated, provided the query stream has no errors.
      */
-    Query parse(string queryText);
+    Query parse(istream& queryStream);
 
 };
