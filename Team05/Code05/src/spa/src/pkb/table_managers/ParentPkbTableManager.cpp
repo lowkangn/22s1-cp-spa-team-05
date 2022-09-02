@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-std::string ParentPkbTableManager::filter(PkbQuery query) {
+std::string ParentPkbTableManager::filter(PkbClause clause) {
 	return std::string{ "0" };
 }
 

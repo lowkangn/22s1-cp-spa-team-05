@@ -6,7 +6,7 @@
 
 class EntityPkbTableManager : public PkbTableManager {
 public:
-	std::string filter(PkbQuery query) override;
+	std::string filter(PkbClause clause) override;
 
 	void add(Relationship relationship) override;
 

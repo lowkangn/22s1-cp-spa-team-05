@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-std::string ModifiesPkbTableManager::filter(PkbQuery query) {
+std::string ModifiesPkbTableManager::filter(PkbClause clause) {
 	return std::string{ "0" };
 }
 

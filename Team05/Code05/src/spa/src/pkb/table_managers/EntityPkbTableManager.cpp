@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-std::string EntityPkbTableManager::filter(PkbQuery query)  {
+std::string EntityPkbTableManager::filter(PkbClause clause)  {
 	return std::string{ "0" };
 }
 
