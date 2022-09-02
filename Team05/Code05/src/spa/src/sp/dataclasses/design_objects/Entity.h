@@ -23,6 +23,10 @@ public:
 		this->token = token;
 		this->asString = asString;
 	}
+
+	bool equals(EntityIdentifier& other) {
+		return this->token.equals(token) && this->asString == other.asString;
+	}
 };
 
 /*
@@ -39,6 +43,14 @@ public:
 		this->line = lineNumber;
 		EntityIdentifier identifier = EntityIdentifier{token, asString};
 		this->identifier = identifier;
+	}
+	 
+	EntityType getType() {
+		return this->type;
+	}
+
+	bool equals(Entity &other) {
+		return this->type == other.getType() && this->line == other.line && this->identifier.equals(other.identifier);
 	}
 };
 

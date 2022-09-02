@@ -33,22 +33,21 @@ vector<Entity> EntityExtractor::extract(ASTNode &ast) override {
 Entity* EntityExtractor::extractEntity(ASTNode &ast) {
 	ASTNodeType type = ast->getNodeType();
 	switch (type) {
-		case ASTNode::PROCEDURE:
+		case ASTNodeType::PROCEDURE:
 			// First token is "Procedure" second token is the name of the procedure
 			Token procedureName = ast->getToken()[1];
 			return new Entity(EntityType::PROCEDURE, ast->getLineNumber(), procedureName, procedureName.asString());
-		case ASTNode::READ:
-		case ASTNode::PRINT:
-		case ASTNode::ASSIGN:
-		case ASTNode::CALL:
-		case ASTNode::WHILE:
-		case ASTNode::IF:
+		case ASTNodeType::READ:
+		case ASTNodeType::PRINT:
+		case ASTNodeType::CALL:
+		case ASTNodeType::WHILE:
+		case ASTNodeType::IF:
 			Token stmtName = ast->getToken()[0];
 			return new Entity(EntityType::STMT, ast->getLineNumber(), stmtName, stmtName.asString());
-		case ASTNode::VARIABLE:
+		case ASTNodeType::VARIABLE:
 			Token variable = ast->getToken()[0];
 			return new Entity(EntityType::VARIABLE, ast->getLineNumber(), variable, variable.asString());
-		case ASTNode::CONSTANT:
+		case ASTNodeType::CONSTANT:
 			Token constant = ast->getToken()[0];
 			return new Entity(EntityType::CONSTANT, ast->getLineNumber(), constant, constant.asString());
 		default:
