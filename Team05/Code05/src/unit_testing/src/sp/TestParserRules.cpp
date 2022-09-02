@@ -23,7 +23,7 @@ using namespace std;
 
 // =============== UNIT TEST FOR RULES ====================
 
-TEST_CASE("Parser: test consumeTokens") {
+TEST_CASE("Parser: test ::consumeTokens") {
 
     auto test = [](SimpleSyntaxRule &rule, list<Token> tokens, list<Token> expectedTokens) {
         
@@ -31,14 +31,16 @@ TEST_CASE("Parser: test consumeTokens") {
         list<Token> remainingTokens = rule.consumeTokens(tokens);
 
         // ----- then -----
-        REQUIRE(remainingTokens.size() == expectedTokens.size()); // same size
-        while (!remainingTokens.empty()) {
-            Token t1 = remainingTokens.front();
-            Token t2 = expectedTokens.front();
-            REQUIRE(t1.equals(t2));
-            remainingTokens.pop_front();
-            expectedTokens.pop_front();
-            
+        bool sameSize = remainingTokens.size() == expectedTokens.size();
+        REQUIRE(sameSize); // same size
+        if (sameSize) {
+            while (!remainingTokens.empty()) {
+                Token t1 = remainingTokens.front();
+                Token t2 = expectedTokens.front();
+                REQUIRE(t1.equals(t2));
+                remainingTokens.pop_front();
+                expectedTokens.pop_front();
+            }
         }
     };
 
@@ -61,7 +63,6 @@ TEST_CASE("Parser: test consumeTokens") {
         list<Token> expectedTokens = {};
         test(ConstantValueSimpleSyntaxRule(), tokens, expectedTokens);
     }
-
     SECTION("ConstValueSimpleSyntaxRule: Exactly one token left, not purely numeric, throws") {
         list<Token> tokens = { Token(";", TokenType::DELIMITER) };
         testThrowsException(ConstantValueSimpleSyntaxRule(), tokens);
@@ -72,11 +73,59 @@ TEST_CASE("Parser: test consumeTokens") {
     }
 
     // -------------------- NameSimpleSyntaxRule --------------------
+    SECTION("NameSimpleSyntaxRule: Exactly one token left, valid") {
+        list<Token> tokens = { Token("soomevariable", TokenType::NAME_OR_KEYWORD) };
+        list<Token> expectedTokens = {};
+        test(NameSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+    SECTION("NameSimpleSyntaxRule: Exactly one token left, not name token, throws") {
+        list<Token> tokens = { Token(";", TokenType::DELIMITER) };
+        testThrowsException(NameSimpleSyntaxRule(), tokens);
+    }
+    SECTION("NameSimpleSyntaxRule: Multiple tokens, throws") {
+        list<Token> tokens = { Token("soomevariable", TokenType::NAME_OR_KEYWORD), Token("soomevariable", TokenType::NAME_OR_KEYWORD) };
+        testThrowsException(NameSimpleSyntaxRule(), tokens);
+    }
 
+    // -------------------- ReadSimpleSyntaxRule --------------------
+    SECTION("ReadSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = { 
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),  
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        list<Token> expectedTokens = { Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD) };
+        test(ReadSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+    SECTION("ReadSimpleSyntaxRule: Missing read token") {
+        list<Token> tokens = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        testThrowsException(ReadSimpleSyntaxRule(), tokens);
+    }
+    SECTION("ReadSimpleSyntaxRule: Missing name token") {
+        list<Token> tokens = {
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        testThrowsException(ReadSimpleSyntaxRule(), tokens);
+    }
+    SECTION("ReadSimpleSyntaxRule: Missing semicolon token") {
+        list<Token> tokens = {
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        testThrowsException(ReadSimpleSyntaxRule(), tokens);
+    }
 
 }
 
-TEST_CASE("Parser: test ConstantValueSimpleSyntaxRule::generateChildRules") {
+TEST_CASE("Parser: test ::generateChildRules") {
 
     auto test = [](SimpleSyntaxRule& rule, list<Token> tokensToConsume, vector<shared_ptr<SimpleSyntaxRule>> expectedChildren) {
 
@@ -103,5 +152,27 @@ TEST_CASE("Parser: test ConstantValueSimpleSyntaxRule::generateChildRules") {
         test(ConstantValueSimpleSyntaxRule(), tokensToConsume, expectedChildren);
     }
     
+    // -------------------- NameSimpleSyntaxRule --------------------
+    SECTION("NameSimpleSyntaxRule: is terminal, no rules to be generated") {
+        list<Token> tokensToConsume = { Token("a", TokenType::NAME_OR_KEYWORD) };
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {};
+        test(NameSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+
+    // -------------------- ReadSimpleSyntaxRule --------------------
+    SECTION("ReadSimpleSyntaxRule: nested is the name keyword, should have name rule generated") {
+        list<Token> tokensToConsume = {
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+        };
+        shared_ptr<SimpleSyntaxRule> nameRule = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+        list<Token> tokensInNameRule = { Token("soomevariable", TokenType::NAME_OR_KEYWORD) };
+        nameRule->consumeTokens(tokensInNameRule);
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            nameRule
+        };
+        test(ReadSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
 
 }

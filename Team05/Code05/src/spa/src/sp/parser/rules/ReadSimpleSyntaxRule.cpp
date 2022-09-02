@@ -26,7 +26,7 @@ list<Token> ReadSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	Token token = tokens.front(); // read
 	tokens.pop_front(); // pop
 	if (!token.isReadKeywordToken()) {
-		throw SimpleSyntaxParserException("first token shouold be a read token.");
+		throw SimpleSyntaxParserException("first token should be a read token.");
 	}
 
 	// variable token
@@ -40,8 +40,8 @@ list<Token> ReadSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// is semicolon
 	token = tokens.front();
 	tokens.pop_front(); // pop
-	if (!token.isClosedCurlyBracketToken()) {
-		throw SimpleSyntaxParserException("third token shouold be a semicolon token.");
+	if (!token.isSemiColonToken()) {
+		throw SimpleSyntaxParserException("third token should be a semicolon token.");
 	}
 
 	// store the state

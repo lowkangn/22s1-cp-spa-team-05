@@ -33,6 +33,7 @@ list<Token> NameSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	childTokens.push_back(token);
 	this->initialized = true;
 	this->tokens = childTokens;
+	return tokens; // now empty
 }
 
 
