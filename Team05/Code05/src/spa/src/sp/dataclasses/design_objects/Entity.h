@@ -19,7 +19,7 @@ private:
 	string asString;
 	// TODO: add validation at initialization
 public:
-	EntityIdentifier(Token token, string asString) : token(token), asString(asString) {
+	EntityIdentifier(const Token &token, const string asString) : token(token), asString(asString) {
 		this->token = token;
 		this->asString = asString;
 	}

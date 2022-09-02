@@ -15,5 +15,5 @@ public:
 	*/
 	virtual vector<Entity> extract(ASTNode &ast) = 0;
 
-	virtual Entity extractLineNumber(ASTNode& ast);
+	virtual Entity extractEntity(ASTNode& ast);
 };
