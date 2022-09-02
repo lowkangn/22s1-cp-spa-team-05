@@ -1,9 +1,10 @@
 #pragma once
 #include <sp/dataclasses/AST.h>
+#include <vector>
 
 template <typename T> class Extractor {
 private:
 
 public:
-	virtual T extract(AST rootnode) = 0;
+	virtual vector<T> extract(ASTNode rootnode) = 0;
 };

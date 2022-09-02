@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sp/dataclasses/Token.h>
+#include <sp/dataclasses/tokens/Token.h>
 #include <vector>
 using namespace std;
 
@@ -15,7 +15,7 @@ private:
 
 public: 
 	// constructor
-	ASTNode(vector<Token> tokens) {
+	ASTNode(vector<Token> &tokens) {
 		this->tokens = tokens;
 		this->lineNumber = lineNumber;
 	}
@@ -30,7 +30,18 @@ public:
 	/*
 		Adds a child to the node.
 	*/
-	void addChild(ASTNode child) {
+	void addChild(ASTNode &child) {
 		this->children.push_back(child);
+	}
+
+	int getLineNumber() {
+		return this->lineNumber;
+	}
+
+	/*
+		Returns the number of children this node contains
+	*/
+	int numChildren() {
+		return children.size();
 	}
 };
