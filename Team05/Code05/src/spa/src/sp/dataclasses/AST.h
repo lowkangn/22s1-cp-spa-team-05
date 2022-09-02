@@ -14,14 +14,14 @@ private:
 	// Default is UNDEFINED
 	ASTNodeType type = ASTNodeType::UNDEFINED;
 	vector<Token> tokens;
-	vector<ASTNode> children;
+	vector<ASTNode*> children;
 
 public: 
 	// constructor
 	ASTNode(vector<Token> &tokens) : tokens(tokens) {
 		this->tokens = tokens;
 		this->lineNumber = lineNumber;
-		this->children = vector<ASTNode>();
+		this->children = vector<ASTNode*>();
 	}
 
 	/*
@@ -34,11 +34,11 @@ public:
 	/*
 		Adds a child to the node.
 	*/
-	void addChild(ASTNode &child) {
+	void addChild(ASTNode *child) {
 		this->children.push_back(child);
 	}
 
-	vector<ASTNode> getChildren() {
+	vector<ASTNode*> getChildren() {
 		return this->children;
 	}
 

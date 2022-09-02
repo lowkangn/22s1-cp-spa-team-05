@@ -1,5 +1,6 @@
 // imported libraries
 #include<vector>
+#include <iostream>
 
 
 // imported local files
@@ -19,10 +20,26 @@ vector<Entity> EntityExtractor::extract(ASTNode &ast) {
 
 	// Recursively go down the AST to extract child entities
 	if (ast.numChildren() > 0) {
-		for (ASTNode &astChild : ast.getChildren()) {
-			vector<Entity> extractedChildEntites = this->extract(astChild);
-			entities.insert(entities.end(), extractedChildEntites.begin(), extractedChildEntites.end());
+		vector<ASTNode*> children = ast.getChildren();
+		vector<Entity> extractedChildEntities = vector<Entity>();
+		vector<Entity> extractedEntities;
+		// If an entity was extracted from the current node, we can skip the first child
+		// as it has already been extracted
+		if (entities.size() > 0) {
+			for (int i = 1; i < children.size(); i++) {
+				ASTNode* child = children[i];
+				extractedEntities = this->extract(*child);
+				extractedChildEntities.insert(extractedChildEntities.end(), extractedEntities.begin(), extractedEntities.end());
+			}
 		}
+		else {
+			for (int i = 0; i < children.size(); i++) {
+				ASTNode* child = children[i];
+				extractedEntities = this->extract(*child);
+				extractedChildEntities.insert(extractedChildEntities.end(), extractedEntities.begin(), extractedEntities.end());
+			}
+		}
+		entities.insert(entities.end(), extractedChildEntities.begin(), extractedChildEntities.end());
 	}
 
 	return entities;
@@ -36,16 +53,16 @@ Entity EntityExtractor::extractEntity(ASTNode &ast) {
 		case ASTNodeType::CALL:
 		{
 			// Left Child should contain NAME ASTNode which has the procedure's name
-			ASTNode leftChild = ast.getChildren()[0];
-			Token procedureName = leftChild.getTokens()[0];
+			ASTNode* leftChild = ast.getChildren()[0];
+			Token procedureName = leftChild->getTokens()[0];
 			return Entity{ EntityType::PROCEDURE, ast.getLineNumber(), procedureName, procedureName.asString() };
 		}
 
 		case ASTNodeType::ASSIGN:
 		case ASTNodeType::READ:
 		{
-			ASTNode leftChild = ast.getChildren()[0];
-			Token variableName = leftChild.getTokens()[0];
+			ASTNode* leftChild = ast.getChildren()[0];
+			Token variableName = leftChild->getTokens()[0];
 			return Entity{ EntityType::VARIABLE, ast.getLineNumber(), variableName, variableName.asString() };
 		}
 

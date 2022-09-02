@@ -10,7 +10,7 @@ TEST_CASE("AST: Add Child") {
 		ASTNode* toAddTo = new ASTNode(vector<Token>());
 		int prevSize = toAddTo->numChildren();
 
-		toAddTo->addChild(nodeToAdd);
+		toAddTo->addChild(&nodeToAdd);
 
 		REQUIRE(toAddTo->numChildren() == prevSize + 1);
 	};
