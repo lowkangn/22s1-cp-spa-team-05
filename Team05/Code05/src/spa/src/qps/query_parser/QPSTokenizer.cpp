@@ -78,7 +78,7 @@ PQLToken QPSTokenizer::extractNameFromStream(istream& stream) {
 
 PQLToken QPSTokenizer::extractIntegerFromStream(istream& stream) {
     string integer;
-    while (isnumber(stream.peek())) {
+    while (isdigit(stream.peek())) {
         integer += char(stream.get());
     }
 
