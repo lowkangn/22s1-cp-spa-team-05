@@ -1,4 +1,4 @@
-#include <EntityPkbTableManager.h>
+#include <pkb/table_managers/EntityPkbTableManager.h>
 #include <string>
 #include <vector>
 

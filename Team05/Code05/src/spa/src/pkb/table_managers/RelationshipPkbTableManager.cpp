@@ -1,4 +1,4 @@
-#include <RelationshipPkbTableManager.h>
+#include <pkb/table_managers/RelationshipPkbTableManager.h>
 #include <string>
 #include <vector>
 
