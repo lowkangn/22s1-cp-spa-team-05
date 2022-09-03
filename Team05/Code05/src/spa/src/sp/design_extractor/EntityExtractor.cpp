@@ -54,7 +54,7 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 			// Left Child (0th index) should contain NAME ASTNode which has the procedure's name
 			shared_ptr<ASTNode> leftChild = ast->getChildren()[LEFT_CHILD];
 			
-			Token procedureName = leftChild->getTokenName();
+			Token procedureName = leftChild->getNameToken();
 			return Entity{ EntityType::PROCEDURE, ast->getLineNumber(), procedureName, procedureName.getString() };
 		}
 
@@ -62,7 +62,7 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 		case ASTNodeType::READ:
 		{
 			shared_ptr<ASTNode> leftChild = ast->getChildren()[LEFT_CHILD];
-			Token variableName = leftChild->getTokenName();
+			Token variableName = leftChild->getNameToken();
 			return Entity{ EntityType::VARIABLE, ast->getLineNumber(), variableName, variableName.getString() };
 		}
 
@@ -70,14 +70,14 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 		{
 			// Sanity check for ensuring that the variable ASTNode only has one token which is its name
 			assert(ast->getTokens().size() == 1);
-			Token variableName = ast->getTokenName();
+			Token variableName = ast->getNameToken();
 			return Entity{ EntityType::VARIABLE, ast->getLineNumber(), variableName, variableName.getString() };
 		}
 		case ASTNodeType::CONSTANT:
 		{
 			// Sanity check for ensuring that the constant ASTNode only has one token
 			assert(ast->getTokens().size() == 1);
-			Token constantName = ast->getTokenName();
+			Token constantName = ast->getNameToken();
 			return Entity{ EntityType::CONSTANT, ast->getLineNumber(), constantName, constantName.getString() };
 		}
 		case ASTNodeType::STMTLIST:
