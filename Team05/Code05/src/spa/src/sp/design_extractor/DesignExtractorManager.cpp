@@ -13,6 +13,7 @@
 vector<Relationship> DesignExtractorManager::extractRelationships(ASTNode &ast) {
 	vector<Relationship> relationships = vector<Relationship>();
 
+	// Loops through all the different relationshipExtractor (Modifies, Uses, Parent) and extracts their respective relationships
 	for (const auto& relationshipExtractor : this->relationshipExtractorList) {
 		vector<Relationship> extractedRelations = relationshipExtractor.extract(ast);
 		relationships.insert(relationships.end(), extractedRelations.begin(), extractedRelations.end());

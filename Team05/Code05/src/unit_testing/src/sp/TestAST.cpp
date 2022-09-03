@@ -6,17 +6,17 @@
 using namespace std;
 
 TEST_CASE("AST: Add Child") {
-	auto testAddChild = [](ASTNode nodeToAdd) {
-		ASTNode* toAddTo = new ASTNode(vector<Token>());
+	auto testAddChild = [](shared_ptr<ASTNode> nodeToAdd) {
+		shared_ptr<ASTNode> toAddTo (new ASTNode(vector<Token>()));
 		int prevSize = toAddTo->numChildren();
 
-		toAddTo->addChild(&nodeToAdd);
+		toAddTo->addChild(nodeToAdd);
 
 		REQUIRE(toAddTo->numChildren() == prevSize + 1);
 	};
 
-	ASTNode* toAdd = new ASTNode(vector<Token>());
-	testAddChild(*toAdd);
+	shared_ptr<ASTNode> toAdd (new ASTNode(vector<Token>()));
+	testAddChild(toAdd);
 }
 
 TEST_CASE("AST: Change line number") {

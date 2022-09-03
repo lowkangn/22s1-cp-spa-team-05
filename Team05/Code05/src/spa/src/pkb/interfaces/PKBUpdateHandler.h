@@ -11,7 +11,6 @@ private:
 public:
     PKBUpdateHandler(ProgramKnowledgeBase pkb);
 
-    // TODO Change string to super class of relationships
     void addRelationship(vector<Relationship> relationships);
     
     void addPattern(vector<Pattern> patterns);

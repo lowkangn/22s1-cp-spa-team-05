@@ -8,7 +8,7 @@
 using namespace std;
 
 TEST_CASE("ModifiesExtractor : test recursiveExtract") {
-	auto testRecursiveExtract = [](Entity LHS, ASTNode RHS, vector<Relationship> expectedResult) {
+	auto testRecursiveExtract = [](Entity LHS, shared_ptr<ASTNode> RHS, vector<Relationship> expectedResult) {
 		ModifiesExtractor extractor = ModifiesExtractor();
 
 		vector<Relationship> extractedResult = extractor.recursiveExtract(LHS, RHS);
@@ -31,23 +31,23 @@ TEST_CASE("ModifiesExtractor : test recursiveExtract") {
 	Token addToken = Token{ "+", TokenType::OPERATOR };
 	Token constToken = Token{ "1", TokenType::INTEGER };
 
-	ASTNode addNode = ASTNode{ vector<Token> {addToken} };
-	addNode.setType(ASTNodeType::OPERATOR);
+	shared_ptr<ASTNode> addNode (new ASTNode( vector<Token> {addToken} ));
+	addNode->setType(ASTNodeType::OPERATOR);
 
-	ASTNode x = ASTNode{ vector<Token> {xToken} };
-	x.setType(ASTNodeType::NAME);
+	shared_ptr<ASTNode> x (new ASTNode(vector<Token> {xToken}));
+	x->setType(ASTNodeType::NAME);
 
-	ASTNode constNode = ASTNode{ vector<Token> {constToken} };
-	constNode.setType(ASTNodeType::CONSTANT);
+	shared_ptr<ASTNode> constNode (new ASTNode(vector<Token> {constToken}));
+	constNode->setType(ASTNodeType::CONSTANT);
 	Entity constEntity = Entity{ EntityType::CONSTANT, LINENUMBER, constToken, constToken.asString() };
 
 
-	addNode.setLineNumber(1);
-	x.setLineNumber(1);
-	constNode.setLineNumber(1);
+	addNode->setLineNumber(1);
+	x->setLineNumber(1);
+	constNode->setLineNumber(1);
 
-	addNode.addChild(&x);
-	addNode.addChild(&constNode);
+	addNode->addChild(x);
+	addNode->addChild(constNode);
 
 	Relationship xModifiesX = Relationship{ LHS, LHS, RelationshipType::MODIFIES };
 	Relationship xModifiesConst = Relationship{ LHS, constEntity, RelationshipType::MODIFIES };
@@ -60,7 +60,7 @@ TEST_CASE("ModifiesExtractor : test recursiveExtract") {
 TEST_CASE("ModifiesExtractor: test extractModifies") {
 
 
-	auto testExtractModifies = [](ASTNode ast, vector<Relationship> expectedResult) {
+	auto testExtractModifies = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
 		ModifiesExtractor extractor = ModifiesExtractor();
 
 		vector<Relationship> extractedResult = extractor.extractModifies(ast);
@@ -83,30 +83,30 @@ TEST_CASE("ModifiesExtractor: test extractModifies") {
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
 
-	ASTNode assignNode = ASTNode{ vector<Token> {assignToken} };
-	assignNode.setType(ASTNodeType::ASSIGN);
+	shared_ptr<ASTNode> assignNode (new ASTNode(vector<Token> {assignToken}));
+	assignNode->setType(ASTNodeType::ASSIGN);
 
-	ASTNode addNode = ASTNode{ vector<Token> {addToken} };
-	addNode.setType(ASTNodeType::OPERATOR);
+	shared_ptr<ASTNode> addNode (new ASTNode(vector<Token> {addToken}));
+	addNode->setType(ASTNodeType::OPERATOR);
 
-	ASTNode x = ASTNode{ vector<Token> {xToken} };
-	x.setType(ASTNodeType::NAME);
+	shared_ptr<ASTNode> x (new ASTNode(vector<Token> {xToken}));
+	x->setType(ASTNodeType::NAME);
 
-	ASTNode constNode = ASTNode{ vector<Token> {constToken} };
-	constNode.setType(ASTNodeType::CONSTANT);
+	shared_ptr<ASTNode> constNode (new ASTNode(vector<Token> {constToken}));
+	constNode->setType(ASTNodeType::CONSTANT);
 	Entity constEntity = Entity{ EntityType::CONSTANT, LINENUMBER, constToken, constToken.asString() };
 
 
-	addNode.setLineNumber(1);
-	assignNode.setLineNumber(1);
-	x.setLineNumber(1);
-	constNode.setLineNumber(1);
+	addNode->setLineNumber(1);
+	assignNode->setLineNumber(1);
+	x->setLineNumber(1);
+	constNode->setLineNumber(1);
 
-	assignNode.addChild(&x);
-	assignNode.addChild(&addNode);
+	assignNode->addChild(x);
+	assignNode->addChild(addNode);
 
-	addNode.addChild(&x);
-	addNode.addChild(&constNode);
+	addNode->addChild(x);
+	addNode->addChild(constNode);
 
 
 	Relationship xModifiesX = Relationship{ LHS, LHS, RelationshipType::MODIFIES };
@@ -120,7 +120,7 @@ TEST_CASE("ModifiesExtractor: test extractModifies") {
 
 
 TEST_CASE("ModifiesExtractor: test extract") {
-	auto testExtract = [](ASTNode rootNode, vector<Relationship> expectedResult) {
+	auto testExtract = [](shared_ptr<ASTNode> rootNode, vector<Relationship> expectedResult) {
 		ModifiesExtractor extractor = ModifiesExtractor();
 
 		vector<Relationship> extractedResult = extractor.extract(rootNode);
@@ -146,39 +146,39 @@ TEST_CASE("ModifiesExtractor: test extract") {
 
 	Entity yEntity = Entity{ EntityType::VARIABLE, LINENUMBER, yToken, yToken.asString() };
 
-	ASTNode LHSNode = ASTNode{ vector<Token> {xToken} };
+	shared_ptr<ASTNode> LHSNode (new ASTNode(vector<Token> {xToken}));
 
-	ASTNode assignNode = ASTNode{ vector<Token> {assignToken} };
-	assignNode.setType(ASTNodeType::ASSIGN);
+	shared_ptr<ASTNode> assignNode (new ASTNode(vector<Token> {assignToken}));
+	assignNode->setType(ASTNodeType::ASSIGN);
 
-	ASTNode addNode1 = ASTNode{ vector<Token> {addToken} };
-	addNode1.setType(ASTNodeType::OPERATOR);	
-	ASTNode addNode2 = ASTNode{ vector<Token> {addToken} };
-	addNode2.setType(ASTNodeType::OPERATOR);
+	shared_ptr<ASTNode> addNode1 (new ASTNode(vector<Token> {addToken}));
+	addNode1->setType(ASTNodeType::OPERATOR);	
+	shared_ptr<ASTNode> addNode2 (new ASTNode(vector<Token> {addToken}));
+	addNode2->setType(ASTNodeType::OPERATOR);
 
-	ASTNode x = ASTNode{ vector<Token> {xToken} };
-	ASTNode y = ASTNode{ vector<Token> {yToken} };
-	x.setType(ASTNodeType::NAME);
-	y.setType(ASTNodeType::NAME);
+	shared_ptr<ASTNode> x (new ASTNode(vector<Token> {xToken}));
+	shared_ptr<ASTNode> y (new ASTNode(vector<Token> {yToken}));
+	x->setType(ASTNodeType::NAME);
+	y->setType(ASTNodeType::NAME);
 
-	ASTNode constNode = ASTNode{ vector<Token> {constToken} };
-	constNode.setType(ASTNodeType::CONSTANT);
+	shared_ptr<ASTNode> constNode (new ASTNode(vector<Token> {constToken}));
+	constNode->setType(ASTNodeType::CONSTANT);
 	Entity constEntity = Entity{ EntityType::CONSTANT, LINENUMBER, constToken, constToken.asString() };
 
 
-	addNode1.setLineNumber(1);
-	assignNode.setLineNumber(1);
-	x.setLineNumber(1);
-	y.setLineNumber(1);
-	constNode.setLineNumber(1);
+	addNode1->setLineNumber(1);
+	assignNode->setLineNumber(1);
+	x->setLineNumber(1);
+	y->setLineNumber(1);
+	constNode->setLineNumber(1);
 
-	assignNode.addChild(&x);
-	assignNode.addChild(&addNode1);
+	assignNode->addChild(x);
+	assignNode->addChild(addNode1);
 
-	addNode1.addChild(&x);
-	addNode1.addChild(&addNode2);
-	addNode2.addChild(&constNode);
-	addNode2.addChild(&y);
+	addNode1->addChild(x);
+	addNode1->addChild(addNode2);
+	addNode2->addChild(constNode);
+	addNode2->addChild(y);
 
 
 	Relationship xModifiesX = Relationship{ LHS, LHS, RelationshipType::MODIFIES };
