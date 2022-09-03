@@ -3,19 +3,27 @@
 #include <vector>
 
 vector<PkbEntity> EntityPkbTableManager::filter(vector<int> ids)  {
-	return PkbEntity{ PkbEntity(1, Token{ })};
+	vector<PkbEntity> filtered = vector<PkbEntity>();
+
+	for (auto id : ids) {
+		if (idToEntityMapping.find(id) != idToEntityMapping.end()) {
+			filtered.push_back(idToEntityMapping.at(id));
+		}
+	}
+	return filtered;
 }
 
-void EntityPkbTableManager::add(Entity entity) {
+int EntityPkbTableManager::add(PkbEntity entity) {
 	if (entityToIdMapping.find(entity) == entityToIdMapping.end()) {
 
-		entityToIdMapping[Entity] = nextId;
-		idToEntityMapping[nextId] = Entity(Token{ });
+		entityToIdMapping[entity] = nextId;
+		idToEntityMapping.at(nextId) = entity;
 		nextId++;
 	}
 	else {
-		return entityToIdMapping[Entity];
+		return entityToIdMapping[entity];
 	}
+	return 0;
 }
 
 void EntityPkbTableManager::clearDataBase() {

@@ -8,7 +8,7 @@ using namespace std;
 class PkbRelationship {
 
 public:
-	PkbRelationship(int lhsId, int rhsId, vector<Tokens> &lhsTokens, vector<Token> rhsTokens) {
+	PkbRelationship(int lhsId, int rhsId) {
 		this->lhsId = lhsId;
 		this->rhsId = rhsId;
 	}
@@ -16,6 +16,4 @@ public:
 private:
 	int lhsId;
 	int rhsId;
-	vector<Token> lhsTokens;
-	vector<Token> rhsTokens;
 };

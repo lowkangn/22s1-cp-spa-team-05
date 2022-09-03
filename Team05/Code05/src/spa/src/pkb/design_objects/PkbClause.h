@@ -17,7 +17,7 @@ public:
 	}
 
 	string getRhs() {
-		return this->getRhs;
+		return this->rhs;
 	}
 
 private:

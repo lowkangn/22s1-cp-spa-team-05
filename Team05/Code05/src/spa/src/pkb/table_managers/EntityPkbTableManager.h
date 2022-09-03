@@ -2,22 +2,20 @@
 
 #include <pkb/design_objects/PkbEntity.h>
 #include <pkb/table_managers/PkbTableManager.h>
-#include <sp/dataclasses/design_objects/Entity.h>
 #include <vector>
 #include <string>
 #include <unordered_map>
 
-class EntityPkbTableManager : public PkbTableManager {
+class EntityPkbTableManager : public PkbTableManager<PkbEntity> {
 
 public:
-	vector<PkbEntity> filter(vector<int> ids) override;
+	vector<PkbEntity> filter(vector<int> ids);
 
-	int add(Entity entity);
+	int add(PkbEntity entity) override;
 
 	void clearDataBase() override;
 
 private:
 	unordered_map<int, PkbEntity> idToEntityMapping;
-	unordered_map<Entity, int> entityToIdMapping;
-	int nextId = 0;
+	unordered_map<PkbEntity, int, EntityHasher> entityToIdMapping;
 };

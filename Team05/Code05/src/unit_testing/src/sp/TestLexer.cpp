@@ -10,7 +10,6 @@ using namespace std;
 // =============== UNIT TESTS ====================
 
 TEST_CASE("Lexer: test charIsAlphabetical") {
-
     
     auto testCharIsAlphebetical = [](char alphabetical, bool expectedResult) {
         // ----- given -----
