@@ -9,7 +9,7 @@
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
 
-vector<Relationship> DesignExtractor::extractRelationships(ASTNode &ast) {
+vector<Relationship> DesignExtractorManager::extractRelationships(ASTNode &ast) {
 	vector<Relationship> relationships = vector<Relationship>();
 
 	for (const auto& relationshipExtractor : this->relationshipExtractorList) {
@@ -20,17 +20,17 @@ vector<Relationship> DesignExtractor::extractRelationships(ASTNode &ast) {
 	return relationships;
 }
 
-vector<Entity> DesignExtractor::extractEntities(ASTNode &ast) {
+vector<Entity> DesignExtractorManager::extractEntities(ASTNode &ast) {
 	vector<Entity> entities = this->entityExtractor.extract(ast);
 	return entities;
 }
 
-vector<Pattern> DesignExtractor::extractPatterns(ASTNode &ast) {
+vector<Pattern> DesignExtractorManager::extractPatterns(ASTNode &ast) {
 	vector<Pattern> patterns = this->patternExtractor.extract(ast);
 	return patterns;
 };
 
-void DesignExtractor::extractAll() {
+void DesignExtractorManager::extractAll() {
 	vector<Relationship> extractedRelationships = this->extractRelationships(this->rootNode);
 	this->relationships.insert(this->relationships.end(), extractedRelationships.begin(), extractedRelationships.end());
 
