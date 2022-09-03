@@ -20,6 +20,7 @@ private:
 	string asString;
 	// TODO: add validation at initialization
 public:
+	// Refer to https://stackoverflow.com/questions/68049611/no-default-constructor-exists-for-class-in-c for the following declaration usage
 	EntityIdentifier(const Token &token, const string asString) : token(token), asString(asString) {
 		this->token = token;
 		this->asString = asString;
