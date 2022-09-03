@@ -87,7 +87,7 @@ public:
 
 	/* Checks if the token is a name token.*/
 	bool isNameToken() {
-		return (this->type == TokenType::NAME_OR_KEYWORD) && !this->isKeywordToken();
+		return (this->type == TokenType::NAME_OR_KEYWORD); // note that keywords can be names
 	}
 
 	/* Checks if the token is an equal sign.*/

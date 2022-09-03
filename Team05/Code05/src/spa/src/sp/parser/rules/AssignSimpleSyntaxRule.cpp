@@ -9,7 +9,6 @@
 
 using namespace std;
 
-using namespace std;
 vector<shared_ptr<SimpleSyntaxRule>> AssignSimpleSyntaxRule::generateChildRules() {
 	// should be initialized 
 	if (!this->initialized) {
