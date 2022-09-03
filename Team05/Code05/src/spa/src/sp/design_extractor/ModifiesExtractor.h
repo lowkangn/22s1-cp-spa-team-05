@@ -16,9 +16,24 @@ public:
 	vector<Relationship> extract(shared_ptr<ASTNode> ast) override;
 
 	/*
-		This method extracts a modifies relationship from an Assign or a Read node
+		This method extracts a modifies relationship from an Procedure node
 	*/
-	vector<Relationship> extractModifies(shared_ptr<ASTNode> ast);
+	vector<Relationship> handleProcedure(shared_ptr<ASTNode> ast);
+
+	/*
+		This method extracts a modifies relationship from an Assign node
+	*/
+	vector<Relationship> handleAssign(shared_ptr<ASTNode> ast);
+
+	/*
+	This method extracts a modifies relationship from an Read node
+	*/
+	vector<Relationship> handleRead(shared_ptr<ASTNode> ast);
+
+	/*
+		This method recursively traverses the node adding the Modifies relationship for procedures
+	*/
+	vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& LHS, shared_ptr<ASTNode> ast);
 
 	/*
 		This method recursively traverses the node adding the Modifies relationship

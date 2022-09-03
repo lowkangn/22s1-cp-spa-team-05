@@ -57,13 +57,13 @@ TEST_CASE("ModifiesExtractor : test recursiveExtract") {
 	testRecursiveExtract(LHS, addNode, expectedResult);
 }
 
-TEST_CASE("ModifiesExtractor: test extractModifies") {
+TEST_CASE("ModifiesExtractor: test handleAssign") {
 
 
-	auto testExtractModifies = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
+	auto handleAssign = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
 		ModifiesExtractor extractor = ModifiesExtractor();
 
-		vector<Relationship> extractedResult = extractor.extractModifies(ast);
+		vector<Relationship> extractedResult = extractor.handleAssign(ast);
 
 		REQUIRE(expectedResult.size() == extractedResult.size());
 
@@ -114,7 +114,146 @@ TEST_CASE("ModifiesExtractor: test extractModifies") {
 
 	vector<Relationship> expectedResult = vector<Relationship>{ xModifiesX, xModifiesConst };
 
-	testExtractModifies(assignNode, expectedResult);
+	handleAssign(assignNode, expectedResult);
+
+}
+
+TEST_CASE("ModifiesExtractor: test handleRead") {
+
+
+	auto testHandleRead = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
+		ModifiesExtractor extractor = ModifiesExtractor();
+
+		vector<Relationship> extractedResult = extractor.handleRead(ast);
+
+		REQUIRE(expectedResult.size() == extractedResult.size());
+
+		for (int i = 0; i < extractedResult.size(); i++) {
+			REQUIRE(extractedResult[i].equals(expectedResult[i]));
+		}
+
+	};
+	const int LINENUMBER = 1;
+
+	Token leftToken = Token{ "x", TokenType::NAME };
+	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken, leftToken.asString() };
+
+	// read x;
+	Token xToken = Token{ "x", TokenType::NAME };
+	Token readToken = Token{ "read", TokenType::NAME };
+
+
+	shared_ptr<ASTNode> readNode(new ASTNode(vector<Token> {readToken}));
+	readNode->setType(ASTNodeType::READ);
+
+	shared_ptr<ASTNode> x(new ASTNode(vector<Token> {xToken}));
+
+	x->setType(ASTNodeType::NAME);
+
+	x->setLineNumber(1);
+	readNode->setLineNumber(1);
+
+	readNode->addChild(x);
+
+	Token lineNumber = Token{ "1",TokenType::NAME };
+	Entity lineEntity = Entity{ EntityType::LINENUMBER, 1, lineNumber, lineNumber.asString() };
+	Entity xEntity = Entity{ EntityType::VARIABLE, 1, xToken, xToken.asString() };
+
+	Relationship readRelation = Relationship{ lineEntity, xEntity, RelationshipType::MODIFIES };
+
+
+	vector<Relationship> expectedResult = vector<Relationship>{ readRelation };
+
+	testHandleRead(readNode, expectedResult);
+
+}
+
+TEST_CASE("ModifiesExtractor: test handleProcedure") {
+
+
+	auto handleProcedure = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
+		ModifiesExtractor extractor = ModifiesExtractor();
+
+		vector<Relationship> extractedResult = extractor.handleProcedure(ast);
+
+		REQUIRE(expectedResult.size() == extractedResult.size());
+
+		for (int i = 0; i < extractedResult.size(); i++) {
+			REQUIRE(extractedResult[i].equals(expectedResult[i]));
+		}
+
+	};
+	const int LINENUMBER = 1;
+
+	Token leftToken = Token{ "x", TokenType::NAME };
+	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken, leftToken.asString() };
+
+	/*
+		procedure main {
+			x = 1;
+			read y;
+		}
+	*/
+	Token procedureToken = { "procedure", TokenType::NAME };
+	Token mainToken = Token{ "main", TokenType::NAME };
+	Token xToken = Token{ "x", TokenType::NAME };
+	Token yToken = Token{ "y", TokenType::NAME };
+	Token constToken = Token{ "1", TokenType::INTEGER };
+	Token readToken = Token{ "read", TokenType::NAME };
+	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	Token stmtLst = Token{"", TokenType::INVALID};
+
+
+
+	shared_ptr<ASTNode> readNode(new ASTNode(vector<Token> {readToken}));
+	readNode->setType(ASTNodeType::READ);
+
+	shared_ptr<ASTNode> procedureNode(new ASTNode(vector<Token> {procedureToken}));
+	procedureNode->setType(ASTNodeType::PROCEDURE);
+
+	shared_ptr<ASTNode> mainNode(new ASTNode(vector<Token> {mainToken}));
+	mainNode->setType(ASTNodeType::PROCEDURE);
+
+	shared_ptr<ASTNode> assignNode(new ASTNode(vector<Token> {assignToken}));
+	assignNode->setType(ASTNodeType::ASSIGN);
+
+	shared_ptr<ASTNode> stmtLstNode(new ASTNode(vector<Token> {stmtLst}));
+	stmtLstNode->setType(ASTNodeType::STMTLIST);
+
+	shared_ptr<ASTNode> x(new ASTNode(vector<Token> {xToken}));
+	shared_ptr<ASTNode> y(new ASTNode(vector<Token> {yToken}));
+	shared_ptr<ASTNode> constNode(new ASTNode(vector<Token> {constToken}));
+
+	x->setType(ASTNodeType::NAME);
+	y->setType(ASTNodeType::NAME);
+
+	x->setLineNumber(1);
+	constNode->setLineNumber(1);
+	y->setLineNumber(2);
+	readNode->setLineNumber(2);
+
+	procedureNode->addChild(mainNode);
+	procedureNode->addChild(stmtLstNode);
+
+	stmtLstNode->addChild(assignNode);
+	stmtLstNode->addChild(readNode);
+
+	assignNode->addChild(x);
+	assignNode->addChild(constNode);
+
+	readNode->addChild(y);
+
+	Entity procedureEntity = Entity{ EntityType::PROCEDURE, mainNode->getLineNumber(), mainToken, mainToken.asString() };
+	Entity xEntity = Entity{ EntityType::VARIABLE, x->getLineNumber(), xToken, xToken.asString() };
+	Entity yEntity = Entity{ EntityType::VARIABLE, y->getLineNumber(), yToken, yToken.asString() };
+
+	Relationship readRelation = Relationship{ procedureEntity, xEntity, RelationshipType::MODIFIES };
+	Relationship assignRelation = Relationship{ procedureEntity, yEntity, RelationshipType::MODIFIES };
+
+
+	vector<Relationship> expectedResult = vector<Relationship>{ readRelation, assignRelation };
+
+	handleProcedure(procedureNode, expectedResult);
 
 }
 
