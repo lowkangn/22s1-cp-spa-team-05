@@ -53,18 +53,18 @@ vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	assert(left->getTokens().size() == 1);
 
 	Token leftToken = left->getTokens()[0];
-	Entity LHS = Entity{ EntityType::VARIABLE, left->getLineNumber(), leftToken, leftToken.asString() };
+	Entity LHS = Entity{ EntityType::VARIABLE, left->getLineNumber(), leftToken, leftToken.getString() };
 
 	shared_ptr<ASTNode> right = ast->getChildren()[1];
 
 	if (right->isTerminal()) {
 		Token rightToken = right->getTokens()[0];
 		Entity RHS = Entity{ EntityType::UNDEFINED, -1, Token{"", TokenType::INVALID}, "" };
-		if (rightToken.getType() == TokenType::NAME) {
-			RHS = Entity{ EntityType::VARIABLE, right->getLineNumber(), rightToken, rightToken.asString() };
+		if (rightToken.getType() == TokenType::NAME_OR_KEYWORD) {
+			RHS = Entity{ EntityType::VARIABLE, right->getLineNumber(), rightToken, rightToken.getString() };
 		}
 		else {
-			RHS = Entity{ EntityType::CONSTANT, right->getLineNumber(), rightToken, rightToken.asString() };
+			RHS = Entity{ EntityType::CONSTANT, right->getLineNumber(), rightToken, rightToken.getString() };
 		}
 		modifiesRelationships.push_back(Relationship{LHS, RHS, RelationshipType::MODIFIES});
 	}
@@ -83,11 +83,11 @@ vector<Relationship> ModifiesExtractor::handleRead(shared_ptr<ASTNode> ast) {
 
 	shared_ptr<ASTNode> child = ast->getChildren()[0];
 
-	Token lineNumber = Token{ to_string(ast->getLineNumber()),TokenType::NAME };
+	Token lineNumber = Token{ to_string(ast->getLineNumber()),TokenType::NAME_OR_KEYWORD };
 	Token childToken = child->getTokens()[0];
 
-	Entity LHS = Entity{ EntityType::LINENUMBER, ast->getLineNumber(), lineNumber, lineNumber.asString() };
-	Entity RHS = Entity{ EntityType::VARIABLE, child->getLineNumber(), childToken, childToken.asString() };
+	Entity LHS = Entity{ EntityType::LINENUMBER, ast->getLineNumber(), lineNumber, lineNumber.getString() };
+	Entity RHS = Entity{ EntityType::VARIABLE, child->getLineNumber(), childToken, childToken.getString() };
 
 	modifiesRelationships.push_back(Relationship{ LHS, RHS, RelationshipType::MODIFIES });
 
@@ -100,7 +100,7 @@ vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast)
 
 	Token procedureName = child->getTokens()[0];
 
-	Entity LHS = Entity{ EntityType::PROCEDURE, ast->getLineNumber(), procedureName, procedureName.asString() };
+	Entity LHS = Entity{ EntityType::PROCEDURE, ast->getLineNumber(), procedureName, procedureName.getString() };
 
 	vector<Relationship> extractedChildRelationships = this->recursiveProcedureExtract(LHS, ast);
 
@@ -118,7 +118,7 @@ vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& LHS, s
 		shared_ptr<ASTNode> leftChild = ast->getChildren()[LEFT_CHILD];
 		assert(leftChild->getType() == ASTNodeType::NAME);
 		Token childToken = leftChild->getTokens()[0];
-		Entity childEntity = Entity{ EntityType::VARIABLE, leftChild->getLineNumber(), childToken, childToken.asString() };
+		Entity childEntity = Entity{ EntityType::VARIABLE, leftChild->getLineNumber(), childToken, childToken.getString() };
 		Relationship toAdd = Relationship{ LHS, childEntity, RelationshipType::MODIFIES };
 		modifiesRelationships.push_back(toAdd);
 		break;
@@ -133,7 +133,7 @@ vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& LHS, s
 		assert(child->getType() == ASTNodeType::NAME);
 
 		Token childToken = child->getTokens()[0];
-		Entity childEntity = Entity{ EntityType::VARIABLE, child->getLineNumber(), childToken, childToken.asString() };
+		Entity childEntity = Entity{ EntityType::VARIABLE, child->getLineNumber(), childToken, childToken.getString() };
 		Relationship toAdd = Relationship{ LHS, childEntity, RelationshipType::MODIFIES };
 		
 		modifiesRelationships.push_back(toAdd);
@@ -158,11 +158,11 @@ vector<Relationship> ModifiesExtractor::recursiveExtract(Entity& LHS, shared_ptr
 	if (ast->isTerminal()) {
 		Token token = ast->getTokens()[0];
 		Entity RHS = Entity{ EntityType::UNDEFINED, -1, Token{"", TokenType::INVALID}, "" };
-		if (token.getType() == TokenType::NAME) {
-			RHS = Entity{ EntityType::VARIABLE, ast->getLineNumber(), token, token.asString() };
+		if (token.getType() == TokenType::NAME_OR_KEYWORD) {
+			RHS = Entity{ EntityType::VARIABLE, ast->getLineNumber(), token, token.getString() };
 		}
 		else {
-			RHS = Entity{ EntityType::CONSTANT, ast->getLineNumber(), token, token.asString() };
+			RHS = Entity{ EntityType::CONSTANT, ast->getLineNumber(), token, token.getString() };
 		}
 		modifiesRelationships.push_back(Relationship{ LHS, RHS, RelationshipType::MODIFIES });
 	}

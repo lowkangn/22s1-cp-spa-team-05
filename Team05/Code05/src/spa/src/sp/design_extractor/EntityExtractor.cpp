@@ -55,7 +55,7 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 			assert(leftChild->getTokens().size() == 1);
 			
 			Token procedureName = leftChild->getTokens()[0];
-			return Entity{ EntityType::PROCEDURE, ast->getLineNumber(), procedureName, procedureName.asString() };
+			return Entity{ EntityType::PROCEDURE, ast->getLineNumber(), procedureName, procedureName.getString() };
 		}
 
 		case ASTNodeType::ASSIGN:
@@ -63,18 +63,18 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 		{
 			shared_ptr<ASTNode> leftChild = ast->getChildren()[LEFT_CHILD];
 			Token variableName = leftChild->getTokens()[0];
-			return Entity{ EntityType::VARIABLE, ast->getLineNumber(), variableName, variableName.asString() };
+			return Entity{ EntityType::VARIABLE, ast->getLineNumber(), variableName, variableName.getString() };
 		}
 
 		case ASTNodeType::NAME:
 		{
 			Token variableName = ast->getTokens()[0];
-			return Entity{ EntityType::VARIABLE, ast->getLineNumber(), variableName, variableName.asString() };
+			return Entity{ EntityType::VARIABLE, ast->getLineNumber(), variableName, variableName.getString() };
 		}
 		case ASTNodeType::CONSTANT:
 		{
 			Token constantName = ast->getTokens()[0];
-			return Entity{ EntityType::CONSTANT, ast->getLineNumber(), constantName, constantName.asString() };
+			return Entity{ EntityType::CONSTANT, ast->getLineNumber(), constantName, constantName.getString() };
 		}
 		case ASTNodeType::STMTLIST:
 		case ASTNodeType::PRINT:

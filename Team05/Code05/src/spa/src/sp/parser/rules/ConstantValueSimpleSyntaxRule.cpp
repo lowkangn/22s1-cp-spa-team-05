@@ -30,7 +30,8 @@ list<Token> ConstantValueSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 }
 
 
-ASTNode ConstantValueSimpleSyntaxRule::constructNode() {
+shared_ptr<ASTNode> ConstantValueSimpleSyntaxRule::constructNode() {
 	// TODO
-	return ASTNode();
+	shared_ptr<ASTNode> temp;
+	return temp;
 }

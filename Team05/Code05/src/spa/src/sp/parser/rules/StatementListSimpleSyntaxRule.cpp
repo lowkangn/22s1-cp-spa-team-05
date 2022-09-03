@@ -81,7 +81,8 @@ vector<shared_ptr<SimpleSyntaxRule>> StatementListSimpleSyntaxRule::generateChil
 	return childRules;
 }
 
-ASTNode StatementListSimpleSyntaxRule::constructNode() {
+shared_ptr<ASTNode> StatementListSimpleSyntaxRule::constructNode() {
 	// TODO
-	return ASTNode();
+	shared_ptr<ASTNode> temp;
+	return temp;
 }
