@@ -25,7 +25,7 @@ list<Token> Lexer::tokenize(istream &stream) {
         // ===== tokenize =====
         char peeked = char(stream.peek());
         if (this->charIsAlphabetical(peeked)) { // starts with alphabet, is probably a name
-            linkedListOfTokens.emplace_back(this->createNameTokenFromTraversingStream(stream));
+            linkedListOfTokens.emplace_back(this->createKeywordOrNameTokenFromTraversingStream(stream));
         } 
         else if (this->charIsDigit(peeked)) { // starts with a digit, is a number
             linkedListOfTokens.emplace_back(this->createIntegerTokenFromTraversingStream(stream));
@@ -40,6 +40,7 @@ list<Token> Lexer::tokenize(istream &stream) {
             this->traverseStreamUntilNoWhiteSpace(stream);
         }
         else if (peeked == NEWLINE_CHARACTER) {
+            stream.get(); // take the character out
             trueline += 1; // count true line thing was on
         }
         else if (peeked == EOF) {
@@ -125,17 +126,18 @@ bool Lexer::charIsOperator(char c) {
     }
 }
 
-Token Lexer::createNameTokenFromTraversingStream(istream& stream) {
+Token Lexer::createKeywordOrNameTokenFromTraversingStream(istream& stream) {
     string name;
     while (isalnum(stream.peek())) { // while is alphanumeric
         name += char(stream.get());
     }
-    return Token(name, TokenType::NAME);
+    return Token(name, TokenType::NAME_OR_KEYWORD);
 }
 
 Token Lexer::createIntegerTokenFromTraversingStream(istream& stream) {
     string value;
     while (isdigit(stream.peek())) { // keep getting digits
+        // TODO: we should include a check for how weird numbers like 001
         value += char(stream.get());
     }
     // cannot have letter immediately after 

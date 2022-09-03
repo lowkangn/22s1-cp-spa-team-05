@@ -1,8 +1,12 @@
 #pragma once
 
+#include <list>
+#include <string>
 using namespace std;
 
-#include <sp/dataclasses/ASTNode.h>
+#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/tokens/Token.h>
+
 
 /*
 	This class handles the parsing of a list of tokens into recursively-defined syntax rules, 
@@ -13,10 +17,14 @@ class ParserManager {
 	
 private: 
 	ASTNode *root; // root node of constructed AST
-	vector<Token> tokens; // tokens to parse
+	list<Token> tokens; // tokens to parse
 
 public:
 
+	/*
+		Constructs a parser manager. Expects the tokens to be parsed to be instantiated 
+		with it at run time.
+	*/
 	ParserManager(vector<Token> tokens) {
 		this->tokens = tokens;
 		this->root = new ASTNode(tokens);
