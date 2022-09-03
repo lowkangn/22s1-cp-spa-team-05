@@ -69,25 +69,6 @@ TEST_CASE("EntityExtractor: test extractEntity") {
 
 		testExtractEntity(node, expectedEntity);
 	}
-
-
-	SECTION("Test for 'x = 5'") {
-		Token expectedToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-		Entity expectedEntity = Entity{ EntityType::VARIABLE, 1, expectedToken, expectedToken.getString() };
-
-		vector<Token> tokens = vector<Token>{ Token{"=", TokenType::OPERATOR} };
-		shared_ptr<ASTNode> node = shared_ptr<ASTNode>(new ASTNode({ tokens }));
-		node->setType(ASTNodeType::ASSIGN);
-		node->setLineNumber(1);
-
-		shared_ptr<ASTNode> child = shared_ptr<ASTNode>(new ASTNode(vector<Token>{expectedToken, Token{ "5", TokenType::DELIMITER }}));
-		child->setLineNumber(1);
-		node->addChild(child);
-
-		testExtractEntity(node, expectedEntity);
-	}
-
-
 }
 
 TEST_CASE("EntityExtractor: test extract") {

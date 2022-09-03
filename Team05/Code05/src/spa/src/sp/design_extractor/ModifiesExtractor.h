@@ -31,6 +31,16 @@ public:
 	vector<Relationship> handleRead(shared_ptr<ASTNode> ast);
 
 	/*
+		This method extracts a modifies relationship from an container node
+	*/
+	vector<Relationship> handleContainer(shared_ptr<ASTNode> ast);
+
+	/*
+		This method extracts a modifies relationship from an call node
+	*/
+	vector<Relationship> handleCall(shared_ptr<ASTNode> ast);
+
+	/*
 		This method recursively traverses the node adding the Modifies relationship for procedures
 	*/
 	vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& LHS, shared_ptr<ASTNode> ast);
@@ -39,4 +49,5 @@ public:
 		This method recursively traverses the node adding the Modifies relationship
 	*/
 	vector<Relationship> recursiveExtract(Entity& LHS, shared_ptr<ASTNode> ast);
+
 };

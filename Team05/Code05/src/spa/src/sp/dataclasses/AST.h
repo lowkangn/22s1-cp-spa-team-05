@@ -2,6 +2,7 @@
 
 #include <sp/dataclasses/tokens/Token.h>
 #include <vector>
+#include <assert.h>
 #include <memory>
 using namespace std;
 
@@ -80,5 +81,14 @@ public:
 	*/
 	bool isTerminal() {
 		return this->children.size() == 0;
+	}
+
+	/*
+		Returns the name of the ASTNode if the ASTNode is of the Name type
+	*/
+	Token getNameToken() {
+		assert(this->getTokens().size() == 1);
+
+		return this->getTokens()[0];
 	}
 };

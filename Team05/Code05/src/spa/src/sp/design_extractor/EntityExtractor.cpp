@@ -5,6 +5,7 @@
 // imported local files
 #include <sp/design_extractor/EntityExtractor.h>
 #include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/AST.h>
 #include <sp/design_extractor/UnknownASTNodeException.h>
 #include <assert.h>
 using namespace std;
@@ -15,10 +16,12 @@ vector<Entity> EntityExtractor::extract(shared_ptr<ASTNode> ast) {
 	vector<Entity> entities = vector<Entity>();
 	
 	Entity toAdd = this->extractEntity(ast);
+	bool includedLocalNode = false;
 
 	// Add Current node as an entity
 	if (toAdd.getType() != EntityType::UNDEFINED) {
 		entities.push_back(toAdd);
+		includedLocalNode = true;
 	}
 
 	// Recursively go down the AST to extract child entities
@@ -28,7 +31,7 @@ vector<Entity> EntityExtractor::extract(shared_ptr<ASTNode> ast) {
 		int startIndex = 0;
 		// If an entity was extracted from the current node, we can skip the first child
 		// as it has already been extracted
-		if (entities.size() > 0) {
+		if (includedLocalNode) {
 			startIndex = 1;
 		}
 		for (int i = startIndex; i < children.size(); i++) {
@@ -51,10 +54,7 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 			// Left Child (0th index) should contain NAME ASTNode which has the procedure's name
 			shared_ptr<ASTNode> leftChild = ast->getChildren()[LEFT_CHILD];
 			
-			// Sanity check to makesure only one token is present 
-			assert(leftChild->getTokens().size() == 1);
-			
-			Token procedureName = leftChild->getTokens()[0];
+			Token procedureName = leftChild->getTokenName();
 			return Entity{ EntityType::PROCEDURE, ast->getLineNumber(), procedureName, procedureName.getString() };
 		}
 
@@ -62,18 +62,22 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 		case ASTNodeType::READ:
 		{
 			shared_ptr<ASTNode> leftChild = ast->getChildren()[LEFT_CHILD];
-			Token variableName = leftChild->getTokens()[0];
+			Token variableName = leftChild->getTokenName();
 			return Entity{ EntityType::VARIABLE, ast->getLineNumber(), variableName, variableName.getString() };
 		}
 
 		case ASTNodeType::NAME:
 		{
-			Token variableName = ast->getTokens()[0];
+			// Sanity check for ensuring that the variable ASTNode only has one token which is its name
+			assert(ast->getTokens().size() == 1);
+			Token variableName = ast->getTokenName();
 			return Entity{ EntityType::VARIABLE, ast->getLineNumber(), variableName, variableName.getString() };
 		}
 		case ASTNodeType::CONSTANT:
 		{
-			Token constantName = ast->getTokens()[0];
+			// Sanity check for ensuring that the constant ASTNode only has one token
+			assert(ast->getTokens().size() == 1);
+			Token constantName = ast->getTokenName();
 			return Entity{ EntityType::CONSTANT, ast->getLineNumber(), constantName, constantName.getString() };
 		}
 		case ASTNodeType::STMTLIST:
@@ -82,6 +86,7 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 		case ASTNodeType::OPERATOR:
 		case ASTNodeType::WHILE:
 		case ASTNodeType::EXPRESSION:
+			// Place holder as StmtLst are not Entities by themselves
 			return Entity{ EntityType::UNDEFINED, ast->getLineNumber(), Token{"", TokenType::INVALID}, "" };
 		default:
 			throw UnknownASTNodeTypeException();
