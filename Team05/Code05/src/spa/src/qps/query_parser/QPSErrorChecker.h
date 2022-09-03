@@ -1,7 +1,7 @@
 #pragma once
 
-#include <qps/query_parser/PQLToken.h>
-#include <vector>
+#include "PQLToken.h"
+#include <list>
 
 using namespace std;
 
@@ -17,7 +17,7 @@ public:
      *
      * @param tokens to be checked for syntactic or semantic errors.
      */
-    void check(vector<PQLToken> tokens);
+    void check(list<PQLToken> tokens);
 
 };
 

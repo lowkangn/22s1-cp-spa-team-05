@@ -1,7 +1,6 @@
-#include <qps/query_parser/Query.h>
-#include <qps/query_parser/QueryParser.h>
+#include "QueryParser.h"
 
-Query QueryParser::parse(vector<PQLToken> tokens) {
+Query QueryParser::parse(list<PQLToken> tokens) {
     // Group tokens and convert into clauses, add list to new Query object
     return {};
 }

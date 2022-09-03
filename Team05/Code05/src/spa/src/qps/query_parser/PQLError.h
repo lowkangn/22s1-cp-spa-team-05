@@ -18,9 +18,21 @@ private:
 public:
 
     /**
+     * Constructor for a PQLError.
+     *
+     * @param message
+     */
+    explicit PQLError(string message) {
+        this->message = message;
+    }
+
+    /**
      * Returns error message string.
      *
      * @return error message string.
      */
-    virtual string getMessage();
+    [[nodiscard]] const char* what() const noexcept override {
+        return message.c_str();
+    }
+
 };
