@@ -60,12 +60,11 @@ public:
 	*/
 	void traverseStreamUntilNoComment(istream& stream);
 
-
 	/*
 		Traverses the stream and creates a token out of it. 
 		NOTE: has side effects - modifies the stream by reference.
 	*/
-	Token createNameTokenFromTraversingStream(istream& stream);
+	Token createKeywordOrNameTokenFromTraversingStream(istream& stream);
 
 	/*
 		Traverses the stream and creates a token out of it.

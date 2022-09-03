@@ -2,6 +2,7 @@
 
 #include <sp/dataclasses/tokens/Token.h>
 #include <vector>
+#include <memory>
 using namespace std;
 
 enum class ASTNodeType { PROCEDURE, NAME, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, EXPRESSION, CONSTANT, OPERATOR, UNDEFINED };
@@ -29,6 +30,7 @@ public:
 	void setLineNumber(int lineNumber) {
 		this->lineNumber = lineNumber;
 	}
+public: 
 
 	/*
 		Adds a child to the node.
