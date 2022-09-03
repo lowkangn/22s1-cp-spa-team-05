@@ -14,6 +14,20 @@ enum class PQLTokenType {
     DELIMITER
 };
 
+// keywords that form the select-cl
+const string SELECT = "Select";
+const string SUCH = "such";
+const string THAT = "that";
+const string PATTERN = "pattern";
+
+// delimiters
+const string SEMICOLON = ";";
+const string COMMA = ",";
+const string OPEN_BRACKET = "(";
+const string CLOSE_BRACKET = ")";
+const string QUOTE = "\"";
+const string UNDERSCORE = "_";
+
 /**
  * This class represents tokens obtained from tokenizing of the query string.
  */
@@ -70,5 +84,48 @@ public:
         return tokenString == otherToken.getTokenString() && tokenType == otherToken.getTokenType();
     }
 
+    bool isSelect() {
+        return tokenType == PQLTokenType::NAME && tokenString == SELECT;
+    }
+
+    bool isSuch() {
+        return tokenType == PQLTokenType::NAME && tokenString == SUCH;
+    }
+
+    bool isThat() {
+        return tokenType == PQLTokenType::NAME && tokenString == THAT;
+    }
+
+    bool isPattern() {
+        return tokenType == PQLTokenType::NAME && tokenString == PATTERN;
+    }
+
+    bool isSemicolon() {
+        return tokenType == PQLTokenType::DELIMITER && tokenString == SEMICOLON;
+    }
+
+    bool isComma() {
+        return tokenType == PQLTokenType::DELIMITER && tokenString == COMMA;
+    }
+
+    bool isOpenBracket() {
+        return tokenType == PQLTokenType::DELIMITER && tokenString == OPEN_BRACKET;
+    }
+
+    bool isCloseBracket() {
+        return tokenType == PQLTokenType::DELIMITER && tokenString == CLOSE_BRACKET;
+    }
+
+    bool isQuote() {
+        return tokenType == PQLTokenType::DELIMITER && tokenString == QUOTE;
+    }
+
+    bool isUnderscore() {
+        return tokenType == PQLTokenType::DELIMITER && tokenString == UNDERSCORE;
+    }
+
+    bool isName() {
+        return tokenType == PQLTokenType::NAME;
+    }
 };
 
