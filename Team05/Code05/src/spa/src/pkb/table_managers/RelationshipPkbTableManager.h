@@ -1,12 +1,12 @@
 #pragma once
 
-#include <FollowsPkbTableManager.h>
-#include <FollowsTPkbTableManager.h>
-#include <PkbTableManager.h>
-#include <ModifiesPkbTableManager.h>
-#include <ParentPkbTableManager.h>
-#include <ParentTPkbTableManager.h>
-#include <UsesPkbTableManager.h>
+#include <pkb/table_managers/FollowsPkbTableManager.h>
+#include <pkb/table_managers/FollowsTPkbTableManager.h>
+#include <pkb/table_managers/PkbTableManager.h>
+#include <pkb/table_managers/ModifiesPkbTableManager.h>
+#include <pkb/table_managers/ParentPkbTableManager.h>
+#include <pkb/table_managers/ParentTPkbTableManager.h>
+#include <pkb/table_managers/UsesPkbTableManager.h>
 #include <map>
 #include <string>
 
