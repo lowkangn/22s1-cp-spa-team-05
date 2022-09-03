@@ -32,7 +32,8 @@ list<Token> NameSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 }
 
 
-ASTNode NameSimpleSyntaxRule::constructNode() {
+shared_ptr<ASTNode> NameSimpleSyntaxRule::constructNode() {
 	// TODO
-	return ASTNode();
+	shared_ptr<ASTNode> temp;
+	return temp;
 }

@@ -86,7 +86,8 @@ list<Token> AssignSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	return tokens; // return remaining tokens
 }
 
-ASTNode AssignSimpleSyntaxRule::constructNode() {
+shared_ptr<ASTNode> AssignSimpleSyntaxRule::constructNode() {
 	// TODO
-	return ASTNode();
+	shared_ptr<ASTNode> temp;
+	return temp;
 }

@@ -87,7 +87,8 @@ list<Token> ProcedureSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	return tokens;
 }
 
-ASTNode ProcedureSimpleSyntaxRule::constructNode() {
+shared_ptr<ASTNode> ProcedureSimpleSyntaxRule::constructNode() {
 	// TODO
-	return ASTNode();
+	shared_ptr<ASTNode> temp;
+	return temp;
 }

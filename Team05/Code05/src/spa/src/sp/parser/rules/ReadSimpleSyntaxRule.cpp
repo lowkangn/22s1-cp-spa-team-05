@@ -51,7 +51,8 @@ list<Token> ReadSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	return tokens;
 }
 
-ASTNode ReadSimpleSyntaxRule::constructNode() {
+shared_ptr<ASTNode> ReadSimpleSyntaxRule::constructNode() {
 	// TODO
-	return ASTNode();
+	shared_ptr<ASTNode> temp;
+	return temp;
 }

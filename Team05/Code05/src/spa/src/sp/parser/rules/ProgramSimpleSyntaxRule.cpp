@@ -51,7 +51,7 @@ list<Token> ProgramSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	return list<Token>();
 }
 
-ASTNode ProgramSimpleSyntaxRule::constructNode() {
+shared_ptr<ASTNode> ProgramSimpleSyntaxRule::constructNode() {
 
 	// check that initialized correctly 
 	if (!this->initialized) {
@@ -64,14 +64,15 @@ ASTNode ProgramSimpleSyntaxRule::constructNode() {
 	}
 
 	// create current node
-	ASTNode* node = new ASTNode();
+	Token programToken = Token{ "program", TokenType::NAME_OR_KEYWORD };
+	shared_ptr<ASTNode> node (new ASTNode(vector<Token>{programToken}));
 
 	// for each rule, recursively create children and assign to children
 	for (auto rulePointer = this->childRules.begin(); rulePointer != this->childRules.end(); rulePointer++) {
-		ASTNode child = (*rulePointer)->constructNode();
+		shared_ptr<ASTNode> child = (*rulePointer)->constructNode();
 		node->addChild(child);
 	}
 
-	return *node;
+	return node;
 }
 
