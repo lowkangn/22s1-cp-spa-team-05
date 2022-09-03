@@ -1,6 +1,7 @@
 #include <pkb/table_managers/EntityPkbTableManager.h>
 #include <string>
 #include <vector>
+#include <iostream>
 
 vector<PkbEntity> EntityPkbTableManager::filter(vector<int> ids)  {
 	vector<PkbEntity> filtered = vector<PkbEntity>();
@@ -15,18 +16,18 @@ vector<PkbEntity> EntityPkbTableManager::filter(vector<int> ids)  {
 
 int EntityPkbTableManager::add(PkbEntity entity) {
 	if (entityToIdMapping.find(entity) == entityToIdMapping.end()) {
-
 		entityToIdMapping[entity] = nextId;
-		idToEntityMapping.at(nextId) = entity;
+		idToEntityMapping.insert({ nextId, entity });
 		nextId++;
-	}
+		return nextId - 1;
+	}	
 	else {
 		return entityToIdMapping[entity];
 	}
-	return 0;
 }
 
 void EntityPkbTableManager::clearDataBase() {
 	idToEntityMapping.clear();
 	entityToIdMapping.clear();
+	nextId = 0;
 }
