@@ -86,7 +86,7 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 		case ASTNodeType::OPERATOR:
 		case ASTNodeType::WHILE:
 		case ASTNodeType::EXPRESSION:
-			// Place holder as StmtLst are not Entities by themselves
+			// Place holder as the above are not Entities which we need to store in the PKB by themselves
 			return Entity{ EntityType::UNDEFINED, ast->getLineNumber(), Token{"", TokenType::INVALID}, "" };
 		default:
 			throw UnknownASTNodeTypeException();
