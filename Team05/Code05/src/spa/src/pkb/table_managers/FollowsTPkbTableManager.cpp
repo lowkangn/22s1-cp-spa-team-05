@@ -2,11 +2,11 @@
 #include <string>
 #include <vector>
 
-string FollowsTPkbTableManager::filter(PkbClause clause) {
-	return string{ "0" };
+vector<int> FollowsTPkbTableManager::filter(PkbClause clause) {
+	return int{ 0 };
 }
 
-void FollowsTPkbTableManager::add(Relationship relationship) {
+void FollowsTPkbTableManager::add(PkbRelationship relationship) {
 
 }
 

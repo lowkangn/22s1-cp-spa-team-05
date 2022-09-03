@@ -1,14 +1,14 @@
 #pragma once
 
-#include <pkb/table_managers/PkbTableManager.h>
+#include <pkb/table_managers/RelationshipPkbTableManager.h>
 #include <vector>
 #include <string>
 
-class PatternPkbTableManager : public PkbTableManager {
+class PatternPkbTableManager : public RelationshipPkbTableManager {
 public:
-	string filter(PkbClause clause) override;
+	vector<int> filter(PkbClause clause) override;
 
-	void add(Relationship relationship) override;
+	void add(PkbRelationship relationship) override;
 
 	void clearDataBase() override;
 

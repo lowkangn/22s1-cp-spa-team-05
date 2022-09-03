@@ -2,14 +2,23 @@
 #include <string>
 #include <vector>
 
-string EntityPkbTableManager::filter(PkbClause clause)  {
-	return string{ "0" };
+vector<PkbEntity> EntityPkbTableManager::filter(vector<int> ids)  {
+	return PkbEntity{ PkbEntity(1, Token{ })};
 }
 
-void EntityPkbTableManager::add(Relationship relationship) {
+void EntityPkbTableManager::add(Entity entity) {
+	if (entityToIdMapping.find(entity) == entityToIdMapping.end()) {
 
+		entityToIdMapping[Entity] = nextId;
+		idToEntityMapping[nextId] = Entity(Token{ });
+		nextId++;
+	}
+	else {
+		return entityToIdMapping[Entity];
+	}
 }
 
 void EntityPkbTableManager::clearDataBase() {
-	//Clear data
+	idToEntityMapping.clear();
+	entityToIdMapping.clear();
 }
