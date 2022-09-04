@@ -1,12 +1,13 @@
 #pragma once
 #include <vector>
-#include <sp/design_extractor/RelationshipExtractor.h>
+#include <sp/design_extractor/Extractor.h>
 #include <sp/design_extractor/EntityExtractor.h>
 #include <sp/design_extractor/PatternExtractor.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/AST.h>
+#include <pkb/interfaces/PKBUpdateHandler.h>
 #include <sp/design_extractor/Extractor.h>
 
 
@@ -14,9 +15,9 @@ using namespace std;
 
 class DesignExtractorManager {
 private:
-	vector<ASTNode> rootNode;
+	shared_ptr<ASTNode> rootNode;
 	
-	vector<Extractor> relationshipExtractorList;
+	vector<shared_ptr<Extractor<Relationship>>> relationshipExtractorList;
 	EntityExtractor entityExtractor;
 	PatternExtractor patternExtractor;
 
@@ -29,9 +30,9 @@ public:
 	/*
 		Constructor which takes in all the extractors
 	*/
-	DesignExtractorManager(EntityExtractor entityExtractor, PatternExtractor patternExtractor, vector<Extractor<Relationship>> relationshipExtractorList) {
+	DesignExtractorManager(EntityExtractor entityExtractor, PatternExtractor patternExtractor, vector<shared_ptr<Extractor<Relationship>>> relationshipExtractorList) {
 		this->entityExtractor = entityExtractor;
-		this->patternExtractor = entityExtractor;
+		this->patternExtractor = patternExtractor;
 		this->relationshipExtractorList = relationshipExtractorList;
 	}
 
@@ -50,7 +51,7 @@ public:
 	/*
 		Stores all the Relationships, Entities, Patterns into the PKB
 	*/
-	void storeAllRelations();
+	void storeAllRelations(PKBUpdateHandler pkb);
 
 	/*
 		Extracts all the Relationships from the AST

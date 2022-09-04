@@ -15,8 +15,8 @@ vector<Relationship> DesignExtractorManager::extractRelationships(shared_ptr<AST
 	vector<Relationship> relationships = vector<Relationship>();
 
 	// Loops through all the different relationshipExtractor (Modifies, Uses, Parent) and extracts their respective relationships
-	for (auto& relationshipExtractor : this->relationshipExtractorList) {
-		vector<Relationship> extractedRelations = relationshipExtractor.extract(ast);
+	for (auto &relationshipExtractor : this->relationshipExtractorList) {
+		vector<Relationship> extractedRelations = relationshipExtractor->extract(ast);
 		relationships.insert(relationships.end(), extractedRelations.begin(), extractedRelations.end());
 	}
 
@@ -44,8 +44,8 @@ void DesignExtractorManager::extractAll() {
 	this->patterns.insert(this->patterns.end(), extractedPatterns.begin(), extractedPatterns.end());
 }
 
-void storeAllRelations(PKBUpdateHandler pkb) {
-	pkb.addEntity(vector<Entity> entities);
-	pkb.addPattern(vector<Pattern> patterns);
-	pkb.addRelationship(vector<Relationship> relationships);
+void DesignExtractorManager::storeAllRelations(PKBUpdateHandler pkb) {
+	//pkb.addEntity(this->entities);
+	//pkb.addPattern(this->patterns);
+	//pkb.addRelationship(this->relationships);
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <sp/dataclasses/Pattern.h>
+#include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/AST.h>
 #include <sp/design_extractor/Extractor.h>
 using namespace std;

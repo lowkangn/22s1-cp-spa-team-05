@@ -54,5 +54,4 @@ public:
 	*/
 	bool equals(SimpleSyntaxRule &other);
 
-
 };

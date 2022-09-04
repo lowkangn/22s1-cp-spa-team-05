@@ -6,9 +6,13 @@
 #include <memory>
 using namespace std;
 
+
+
 enum class ASTNodeType { PROGRAM, PROCEDURE, NAME, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, EXPRESSION, CONSTANT, OPERATOR, UNDEFINED };
 
 class ASTNode {
+
+
 
 private:
 	// Default line number is -1 (For validation purposes)
@@ -18,7 +22,9 @@ private:
 	vector<Token> tokens;
 	vector<shared_ptr<ASTNode>> children;
 
-public: 
+public:
+	const static int LEFT_CHILD = 0;
+	const static int RIGHT_CHILD = 1;
 	// constructor
 	ASTNode(vector<Token> &tokens) : tokens(tokens) {
 		this->tokens = tokens;
