@@ -89,6 +89,6 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 			// Place holder as the above are not Entities which we need to store in the PKB by themselves
 			return Entity{ EntityType::UNDEFINED, ast->getLineNumber(), Token{"", TokenType::INVALID}, "" };
 		default:
-			throw UnknownASTNodeTypeException();
+			throw UnknownASTNodeTypeException("Entity type is not defined!");
 	}
 }

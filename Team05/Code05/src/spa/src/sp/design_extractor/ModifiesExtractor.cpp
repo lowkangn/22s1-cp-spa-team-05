@@ -4,6 +4,7 @@
 // imported locally
 #include <sp/dataclasses/AST.h>
 #include <sp/design_extractor/ModifiesExtractor.h>
+#include <memory>
 #include <assert.h>
 
 

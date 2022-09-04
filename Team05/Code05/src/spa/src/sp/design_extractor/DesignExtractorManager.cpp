@@ -11,6 +11,8 @@
 #include <pkb/interfaces/PKBUpdateHandler.h>
 #include <memory>
 
+using namespace std;
+
 vector<Relationship> DesignExtractorManager::extractRelationships(shared_ptr<ASTNode> ast) {
 	vector<Relationship> relationships = vector<Relationship>();
 
