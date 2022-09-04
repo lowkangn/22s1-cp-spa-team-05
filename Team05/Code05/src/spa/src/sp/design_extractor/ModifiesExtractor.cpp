@@ -4,11 +4,11 @@
 // imported locally
 #include <sp/dataclasses/AST.h>
 #include <sp/design_extractor/ModifiesExtractor.h>
+#include <memory>
 #include <assert.h>
 
 
-const int LEFT_CHILD = 0;
-const int RIGHT_CHILD = 1;
+
 
 vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
 
@@ -49,7 +49,7 @@ vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifiesRelationships = vector<Relationship>();
 
 	// This is the Left hand side of the assign relation
-	shared_ptr<ASTNode> left = ast->getChildren()[LEFT_CHILD];
+	shared_ptr<ASTNode> left = ast->getChildren()[ASTNode::LEFT_CHILD];
 
 
 	// Extracting tokens to create a Entity to be used in the Relationship class
@@ -57,7 +57,7 @@ vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	Entity leftHandSide = Entity{ EntityType::VARIABLE, left->getLineNumber(), leftToken, leftToken.getString() };
 
 	// The rest of the expression
-	shared_ptr<ASTNode> right = ast->getChildren()[RIGHT_CHILD];
+	shared_ptr<ASTNode> right = ast->getChildren()[ASTNode::RIGHT_CHILD];
 
 	// Recursively check the right hand side for Entities to add to the Modifies relationship
 	if (right->isTerminal()) {
@@ -98,7 +98,7 @@ vector<Relationship> ModifiesExtractor::handleRead(shared_ptr<ASTNode> ast) {
 
 vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast) {
 	// Get the name ASTNode
-	shared_ptr<ASTNode> child = ast->getChildren()[LEFT_CHILD];
+	shared_ptr<ASTNode> child = ast->getChildren()[ASTNode::LEFT_CHILD];
 
 	Token procedureName = child->getNameToken();
 
@@ -128,7 +128,7 @@ vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& leftHa
 	case ASTNodeType::ASSIGN:
 	{
 		// Get left child
-		shared_ptr<ASTNode> leftChild = ast->getChildren()[LEFT_CHILD];
+		shared_ptr<ASTNode> leftChild = ast->getChildren()[ASTNode::LEFT_CHILD];
 		
 		Token childToken = leftChild->getNameToken();
 		Entity childEntity = Entity{ EntityType::VARIABLE, leftChild->getLineNumber(), childToken, childToken.getString() };
