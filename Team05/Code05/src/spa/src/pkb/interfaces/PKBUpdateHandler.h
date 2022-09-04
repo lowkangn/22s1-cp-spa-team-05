@@ -1,19 +1,18 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <sp/dataclasses/design_objects/Pattern.h>
 #include <pkb/PKB.h>
 
 using namespace std;
 
 class PKBUpdateHandler {
-private:
-    ProgramKnowledgeBase KnowledgeBase;
 public:
-    PKBUpdateHandler(ProgramKnowledgeBase pkb);
 
-    void addRelationship(vector<Relationship> relationships);
+    virtual void addRelationship(vector<Relationship> relationships);
     
-    void addPattern(vector<Pattern> patterns);
+    virtual void addPattern(vector<Pattern> patterns);
     
-    void addEntity(vector<Entity> entities);
+    virtual vector<int> addEntity(vector<Entity> entities);
 };
+

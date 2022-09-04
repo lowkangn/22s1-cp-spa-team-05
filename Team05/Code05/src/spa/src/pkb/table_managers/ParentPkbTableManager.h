@@ -6,7 +6,9 @@
 
 class ParentPkbTableManager : public RealtionshipPkbTableManager {
 public:
-	vector<int> filter(PkbClause clause) override;
+    ParentPkbTableManager(EntityPkbTableManager& entityManager) : RelationshipPkbTableManager(entityManager) {}
+
+    vector<int> filter(PkbClause clause) override;
 
 	void add(PkbRelationship relationship) override;
 

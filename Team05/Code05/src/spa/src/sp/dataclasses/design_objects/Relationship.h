@@ -24,6 +24,18 @@ public:
         this->type = type;
     }
 
+    vector<Entity> getEntities() {
+        vector<Entity> entities {
+            entity1,
+            entity2
+        };
+        return entities;
+    }
+
+    RelationshipType getType() {
+        return type;
+    }
+
     bool equals(Relationship other) {
         return (this->type == other.type) && (this->entity1.equals(other.entity1)) && (this->entity2.equals(other.entity2));
     }

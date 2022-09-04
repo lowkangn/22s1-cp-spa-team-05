@@ -8,7 +8,9 @@
 
 class FollowsTPkbTableManager : public RelationshipPkbTableManager {
 public:
-	vector<int> filter(PkbClause clause) override;
+    FollowsTPkbTableManager(EntityPkbTableManager& entityManager) : RelationshipPkbTableManager(entityManager) {}
+
+    vector<int> filter(PkbClause clause) override;
 
 	void add(PkbRelationship relationship) override;
 

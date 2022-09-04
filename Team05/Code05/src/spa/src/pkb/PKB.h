@@ -1,9 +1,12 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include <sp/dataclasses/design_objects/Entity.h>
+#include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
+#include <pkb/interfaces/PKBUpdateHandler.h>
 #include <pkb/table_managers/PkbTableManager.h>
 #include <pkb/table_managers/EntityPkbTableManager.h>
 #include <pkb/table_managers/FollowsPkbTableManager.h>
@@ -20,20 +23,18 @@
 
 using namespace std;
 
-class ProgramKnowledgeBase {
+class ProgramKnowledgeBase: public PKBUpdateHandler {
 private:
 
     static ProgramKnowledgeBase* PKBInstance;
-    vector<shared_ptr<PkbTableManager>> tableManagers {
-        shared_ptr<PkbTableManager>(new EntityPkbTableManager()),
-        shared_ptr<PkbTableManager>(new FollowsPkbTableManager()),
-        shared_ptr<PkbTableManager>(new FollowsTPkbTableManager()),
-        shared_ptr<PkbTableManager>(new ModifiesPkbTableManager()),
-        shared_ptr<PkbTableManager>(new ParentPkbTableManager()),
-        shared_ptr<PkbTableManager>(new ParentTPkbTableManager()),
-        shared_ptr<PkbTableManager>(new PatternPkbTableManager()),
-        shared_ptr<PkbTableManager>(new UsesPkbTableManager())
-    };
+    EntityPkbTableManager entityManager;
+    FollowsPkbTableManager* followsTable;
+    FollowsTPkbTableManager* followsTTable;
+    ModifiesPkbTableManager* modifiesTable;
+    ParentPkbTableManager* parentTable;
+    ParentTPkbTableManager* parentTTable;
+    PatternPkbTableManager* patternTable;
+    UsesPkbTableManager* usesTable;
 
 protected:
 
@@ -50,8 +51,11 @@ public:
     // TODO Change arg from string to QueryClause class
     Entity retrieveKnowledge(Clause queryClause);
 
-    // TODO Change from string to super class of Knowledge
-    void addKnowledge(std::string knowledge);
+    void addRelationship(vector<Relationship> relationships) override;
+
+    void addPattern(vector<Pattern> patterns) override;
+
+    vector<int> addEntity(vector<Entity> entities) override;
 
     // TODO Change from string to super class of Knowledge
     void deleteKnowledge(std::string knowledge);

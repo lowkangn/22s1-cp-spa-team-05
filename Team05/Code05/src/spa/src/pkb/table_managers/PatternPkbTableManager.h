@@ -6,7 +6,9 @@
 
 class PatternPkbTableManager : public RelationshipPkbTableManager {
 public:
-	vector<int> filter(PkbClause clause) override;
+    PatternPkbTableManager(EntityPkbTableManager& entityManager) : RelationshipPkbTableManager(entityManager) {}
+
+    vector<int> filter(PkbClause clause) override;
 
 	void add(PkbRelationship relationship) override;
 
