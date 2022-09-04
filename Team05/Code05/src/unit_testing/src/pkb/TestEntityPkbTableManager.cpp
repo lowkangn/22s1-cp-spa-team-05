@@ -21,40 +21,53 @@ TEST_CASE("EntityPkbTableManager: test add") {
 		}
 	};
 
+	PkbEntityGenerator g = PkbEntityGenerator();
+
+	PkbEntity varA = g.generateVariable("a");
+	PkbEntity varB = g.generateVariable("b");
+	PkbEntity varC = g.generateVariable("c");
+	PkbEntity varX = g.generateVariable("x");
+	PkbEntity varY = g.generateVariable("y");
+	PkbEntity readX = g.generateStatement("read x", 1);
+	PkbEntity readY = g.generateStatement("read y", 3);
+	PkbEntity assignX = g.generateStatement("x = x + 1;", 2);
+
 	SECTION("Single add") {
-		testAdd({ PkbEntity("a") }, { 0 });
-		testAdd({ PkbEntity("read x", 1) }, { 0 });
+		testAdd({ varA }, { 0 });
+		testAdd({ readX }, { 0 });
 	}
 
 	SECTION("Multiple adds") {
-		testAdd({ PkbEntity("a"), PkbEntity("b"), PkbEntity("c") }, { 0, 1, 2 });
-		testAdd({ PkbEntity("read x", 1), PkbEntity("x") }, { 0, 1 });
-		testAdd({ PkbEntity("read x", 1), PkbEntity("x = x + 1;", 2), PkbEntity("read y", 3) }, { 0, 1, 2 });
+		testAdd({ varA, varB, varC }, { 0, 1, 2 });
+		testAdd({ readX, varX }, { 0, 1 });
+		testAdd({ readX, assignX, readY }, { 0, 1, 2 });
 	}
 
 	SECTION("Adding same entities") {
-		testAdd({ PkbEntity("a"), PkbEntity("b"), PkbEntity("c"), PkbEntity("a"), PkbEntity("b") }, { 0, 1, 2, 0, 1 });
-		testAdd({ PkbEntity("x"), PkbEntity("read x", 1), PkbEntity("read x", 1), PkbEntity("x") }, { 0, 1, 1, 0 });
+
+		PkbEntity varACopy = g.generateVariable("a");
+		PkbEntity varBCopy = g.generateVariable("b");
+		PkbEntity varXCopy = g.generateVariable("x");
+		PkbEntity readXCopy = g.generateStatement("read x", 1);
+
+		testAdd({ varA, varB, varC, varACopy, varBCopy }, { 0, 1, 2, 0, 1 });
+		testAdd({ varX, readX, readXCopy, varXCopy }, { 0, 1, 1, 0 });
 	}
 
 	SECTION("Adding similar statements with different line numbers") {
-		testAdd({ PkbEntity("read x", 1), PkbEntity("read x", 2),  PkbEntity("read x", 3) }, { 0, 1, 2 });
+
+		PkbEntity readX2 = g.generateStatement("read x", 2);
+		PkbEntity readX3 = g.generateStatement("read x", 3);
+
+		testAdd({ readX, readX2, readX3 }, { 0, 1, 2 });
 	}
 }
 
 TEST_CASE("EntityPkbTableManager: test filter") {
 
-	auto testFilter = [](vector<int> ids, vector<PkbEntity> expectedResult) {
+	auto testFilter = [](EntityPkbTableManager entityManager, vector<int> ids, vector<PkbEntity> expectedResult) {
 
 		REQUIRE(ids.size() == expectedResult.size());
-
-		EntityPkbTableManager entityManager = EntityPkbTableManager();
-
-		entityManager.add(PkbEntity("x"));
-		entityManager.add(PkbEntity("y"));
-		entityManager.add(PkbEntity("a"));
-		entityManager.add(PkbEntity("read x", 1));
-		entityManager.add(PkbEntity("read y", 2));
 
 		vector<PkbEntity> actualResults = entityManager.filter(ids);
 
@@ -65,26 +78,43 @@ TEST_CASE("EntityPkbTableManager: test filter") {
 		}
 	};
 
-	testFilter({ 0, 1, 2, 3, 4 },
-		{ PkbEntity("x"), PkbEntity("y"), PkbEntity("a"), PkbEntity("read x", 1), PkbEntity("read y", 2) });
-	testFilter({ 4, 3, 1 }, { PkbEntity("read y", 2), PkbEntity("read x", 1), PkbEntity("y") });
-	testFilter({ 1 }, { PkbEntity("y") });
+	PkbEntityGenerator g = PkbEntityGenerator();
+
+	PkbEntity varA = g.generateVariable("a");
+	PkbEntity varX = g.generateVariable("x");
+	PkbEntity varY = g.generateVariable("y");
+	PkbEntity readX = g.generateStatement("read x", 1);
+	PkbEntity readY = g.generateStatement("read y", 3);
+
+
+	EntityPkbTableManager entityManager = EntityPkbTableManager();
+
+	entityManager.add(varX);
+	entityManager.add(varY);
+	entityManager.add(varA);
+	entityManager.add(readX);
+	entityManager.add(readY);
+
+	testFilter(entityManager, { 0, 1, 2, 3, 4 }, { varX, varY, varA, readX, readY });
+	testFilter(entityManager, { 4, 3, 1 }, { readY, readX, varY });
+	testFilter(entityManager, { 1 }, { varY });
 }
 
 TEST_CASE("EntityPkbTableManager: test clearDataBase") {
 
 	auto testClear = []() {
 		EntityPkbTableManager entityManager = EntityPkbTableManager();
+		PkbEntityGenerator g = PkbEntityGenerator();
 
-		entityManager.add(PkbEntity("a"));
-		entityManager.add(PkbEntity("b"));
-		entityManager.add(PkbEntity("c"));
-		entityManager.add(PkbEntity("read x", 1));
-		entityManager.add(PkbEntity("read y", 2));
+		entityManager.add(g.generateVariable("a"));
+		entityManager.add(g.generateVariable("b"));
+		entityManager.add(g.generateVariable("c"));
+		entityManager.add(g.generateStatement("read x", 1));
+		entityManager.add(g.generateStatement("read y", 2));
 
 		entityManager.clearDataBase();
 
-		REQUIRE(entityManager.add(PkbEntity("a")) == 0);
+		REQUIRE(entityManager.add(g.generateVariable("a")) == 0);
 	};
 
 	testClear();

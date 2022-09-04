@@ -32,11 +32,11 @@ public:
 		return this->type == EntityType::STATEMENT;
 	}
 
-	string toString() {
+	string toString() const {
 		return this->string;
 	}
 
-	int getLineNumber() {
+	int getLineNumber() const {
 		return this->lineNumber;
 	}
 
@@ -55,8 +55,21 @@ private:
 class EntityHasher {
 
 public:
-	size_t operator()(PkbEntity entity) const {
+	size_t operator()(const PkbEntity& entity) const {
 		return (hash<string>()(entity.toString()))
 			^ (hash<int>()(entity.getLineNumber()));
+	}
+};
+
+// Use this class to generate the PkbEntity objects.
+class PkbEntityGenerator {
+
+public:
+	PkbEntity generateVariable(string s) {
+		return PkbEntity(s);
+	}
+
+	PkbEntity generateStatement(string s, int lineNumber) {
+		return PkbEntity(s, lineNumber);
 	}
 };
