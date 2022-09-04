@@ -31,7 +31,15 @@ list<Token> ConstantValueSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 
 
 shared_ptr<ASTNode> ConstantValueSimpleSyntaxRule::constructNode() {
-	// TODO
-	shared_ptr<ASTNode> temp;
-	return temp;
+	// check that initialized correctly 
+	if (!this->initialized) {
+		throw SimpleSyntaxParserException("Node is not initialized!");
+	}
+
+	// create current node
+	Token constantValueToken = this->tokens.front();
+	shared_ptr<ASTNode> constantValueNode(new ASTNode(vector<Token> {constantValueToken}));
+	constantValueNode->setType(ASTNodeType::CONSTANT);
+
+	return constantValueNode;
 }

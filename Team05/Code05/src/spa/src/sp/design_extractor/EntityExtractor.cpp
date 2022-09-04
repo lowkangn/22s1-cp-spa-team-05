@@ -7,6 +7,7 @@
 #include <sp/dataclasses/AST.h>
 #include <sp/dataclasses/AST.h>
 #include <sp/design_extractor/UnknownASTNodeException.h>
+#include <string>
 #include <assert.h>
 using namespace std;
 
@@ -80,12 +81,18 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 			Token constantName = ast->getNameToken();
 			return Entity{ EntityType::CONSTANT, ast->getLineNumber(), constantName, constantName.getString() };
 		}
-		case ASTNodeType::STMTLIST:
+		case ASTNodeType::WHILE:
 		case ASTNodeType::PRINT:
 		case ASTNodeType::IF:
+		{
+			// TODO extract line numbers for other types of nodes
+			Token lineNumberToken = Token(to_string(ast->getLineNumber()), TokenType::INTEGER);
+			return Entity{ EntityType::LINENUMBER, ast->getLineNumber(), lineNumberToken, lineNumberToken.getString() };
+		}
+		case ASTNodeType::STMTLIST:
 		case ASTNodeType::OPERATOR:
-		case ASTNodeType::WHILE:
 		case ASTNodeType::EXPRESSION:
+		case ASTNodeType::PROGRAM:
 			// Place holder as the above are not Entities which we need to store in the PKB by themselves
 			return Entity{ EntityType::UNDEFINED, ast->getLineNumber(), Token{"", TokenType::INVALID}, "" };
 		default:

@@ -5,6 +5,7 @@
 
 #include <list>
 
+
 vector<shared_ptr<SimpleSyntaxRule>> ReadSimpleSyntaxRule::generateChildRules()
 {
 	vector<shared_ptr<SimpleSyntaxRule>> childRules;
@@ -52,7 +53,26 @@ list<Token> ReadSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 }
 
 shared_ptr<ASTNode> ReadSimpleSyntaxRule::constructNode() {
-	// TODO
-	shared_ptr<ASTNode> temp;
-	return temp;
+	// check that initialized correctly 
+	if (!this->initialized) {
+		throw SimpleSyntaxParserException("Node is not initialized!");
+	}
+
+	// generate if needed
+	if (!this->generated) {
+		this->childRules = this->generateChildRules();
+	}
+
+	// create read node
+	Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
+	shared_ptr<ASTNode> readNode(new ASTNode(vector<Token>{readToken}));
+	readNode->setType(ASTNodeType::READ);
+
+	// create child variable node
+	shared_ptr<ASTNode> variableNode = this->childRules.front()->constructNode();
+	variableNode->setType(ASTNodeType::NAME);
+
+	readNode->addChild(variableNode);
+
+	return readNode;
 }

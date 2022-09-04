@@ -9,6 +9,9 @@
 
 using namespace std;
 
+const int LHS = 0;
+const int RHS = 1;
+
 vector<shared_ptr<SimpleSyntaxRule>> AssignSimpleSyntaxRule::generateChildRules() {
 	// should be initialized 
 	if (!this->initialized) {
@@ -87,7 +90,32 @@ list<Token> AssignSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 }
 
 shared_ptr<ASTNode> AssignSimpleSyntaxRule::constructNode() {
-	// TODO
-	shared_ptr<ASTNode> temp;
-	return temp;
+	// check that initialized correctly 
+	if (!this->initialized) {
+		throw SimpleSyntaxParserException("Node is not initialized!");
+	}
+
+	// generate if needed
+	if (!this->generated) {
+		this->childRules = this->generateChildRules();
+	}
+
+	// create current node
+	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	shared_ptr<ASTNode> assignNode(new ASTNode(vector<Token>{assignToken}));
+	assignNode->setType(ASTNodeType::ASSIGN);
+
+
+	shared_ptr<ASTNode> leftHandSide = this->childRules[LHS]->constructNode();
+	leftHandSide->setType(ASTNodeType::NAME);
+
+	// NOTE: for MVP we only allow constant assignment
+	// TODO: do a proper expression
+	shared_ptr<ASTNode> rightHandSide = this->childRules[RHS]->constructNode();
+	rightHandSide->setType(ASTNodeType::CONSTANT);
+
+	assignNode->addChild(leftHandSide);
+	assignNode->addChild(rightHandSide);
+
+	return assignNode;
 }
