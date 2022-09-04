@@ -1,8 +1,8 @@
 #pragma once
 
-#include <qps/query_parser/PQLToken.h>
-#include <qps/query_parser/Query.h>
-#include <vector>
+#include "PQLToken.h"
+#include "../query/Query.h"
+#include <list>
 
 using namespace std;
 
@@ -19,6 +19,6 @@ public:
      * @param tokens used to create Query object.
      * @return Query object.
      */
-    Query parse(vector<PQLToken> tokens);
+    Query parse(list<PQLToken> tokens);
 };
 

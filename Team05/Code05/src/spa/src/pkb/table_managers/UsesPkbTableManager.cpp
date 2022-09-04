@@ -2,11 +2,11 @@
 #include <string>
 #include <vector>
 
-std::string UsesPkbTableManager::filter(PkbQuery query) {
-	return std::string{ "0" };
+vector<int> UsesPkbTableManager::filter(PkbClause clause) {
+	return int{ 0 };
 }
 
-void UsesPkbTableManager::add(Relationship relationship) {
+void UsesPkbTableManager::add(PkbRelationship relationship) {
 
 }
 

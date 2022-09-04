@@ -1,14 +1,18 @@
 #pragma once
 
-#include <pkb/design_objects/PkbQuery.h>
-#include <sp/dataclasses/design_objects/Relationship.h>
+#include <pkb/design_objects/PkbClause.h>
+#include <unordered_map>
 #include <string>
 
-class PkbTableManager {
+using namespace std;
+
+template <typename T> class PkbTableManager {
 public:
-	virtual std::string filter(PkbQuery query) = 0;
-	
-	virtual void add(Relationship relationship) = 0;
+	// The return int represents a unique id assigned to the object to add.
+	virtual int add(T toAdd) = 0;
 
 	virtual void clearDataBase() = 0;
+
+protected:
+	int nextId = 0;
 };

@@ -1,10 +1,8 @@
-#include <qps/query_parser/ParserManager.h>
-#include <qps/query_parser/PQLToken.h>
-#include <qps/query_parser/Query.h>
+#include "ParserManager.h"
 
-Query ParserManager::parse(string queryText) {
+Query ParserManager::parse(istream& queryStream) {
     // tokenize the query string
-    vector<PQLToken> tokens = tokenizer.tokenize(queryText);
+    list<PQLToken> tokens = tokenizer.tokenize(queryStream);
 
     // check for errors
     checker.check(tokens);

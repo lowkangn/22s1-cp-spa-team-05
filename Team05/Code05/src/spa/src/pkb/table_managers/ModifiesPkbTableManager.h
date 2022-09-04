@@ -1,17 +1,22 @@
 #pragma once
 
-#include <pkb/table_managers/PkbTableManager.h>
+#include <pkb/table_managers/RelationshipPkbTableManager.h>
 #include <unordered_map>
 #include <string>
+#include <vector>
 
-class ModifiesPkbTableManager : public PkbTableManager {
+class ModifiesPkbTableManager : public RelationshipPkbTableManager {
 public:
-	std::string filter(PkbQuery query) override;
+	ModifiesPkbTableManager(EntityPkbTableManager& entityManager) : RelationshipPkbTableManager(entityManager) {}
 
-	void add(Relationship relationship) override;
+	vector<int> filter(PkbClause clause) override;
+
+	int add(PkbRelationship relationship) override;
 
 	void clearDataBase() override;
 
+	bool isClauseLhsEmpty(PkbClause clause);
+
 private:
-	std::unordered_map<Entity, Relationship> mappings;
+	unordered_map<int, PkbRelationship> idToRshipMapping;
 };
