@@ -139,3 +139,29 @@ TEST_CASE("EntityPkbTableManager: test findStatement") {
 		testFindStatement(3, -1);
 	}
 }
+
+TEST_CASE("EntityPkbTableManager: test findVariable") {
+	auto testFindVariable = [](string string, int expectedResult) {
+
+		EntityPkbTableManager entityManager = EntityPkbTableManager();
+
+		entityManager.add(PkbEntity::generateVariable("a"));
+		entityManager.add(PkbEntity::generateVariable("b"));
+		entityManager.add(PkbEntity::generateVariable("c"));
+		entityManager.add(PkbEntity::generateStatement("read x", 1));
+		entityManager.add(PkbEntity::generateStatement("read y", 4));
+
+		REQUIRE(entityManager.findVariable(string) == expectedResult);
+	};
+
+	SECTION("Valid variable") {
+		testFindVariable("a", 0);
+		testFindVariable("b", 1);
+		testFindVariable("c", 2);
+	}
+
+	SECTION("Invalid variable") {
+		testFindVariable("x", -1);
+		testFindVariable("y", -1);
+	}
+}

@@ -2,6 +2,19 @@
 #include <string>
 #include <vector>
 
+//If no such variable can be found, return -1;
+int EntityPkbTableManager::findVariable(string string) {
+	for (auto pair : idToEntityMapping) {
+
+		PkbEntity entity = pair.second;
+
+		if (entity.toString() == string) {
+			return pair.first;
+		}
+	}
+	return -1;
+}
+
 //If no such statement can be found, return -1;
 int EntityPkbTableManager::findStatement(int lineNumber) {
 	for (auto pair : idToEntityMapping) {

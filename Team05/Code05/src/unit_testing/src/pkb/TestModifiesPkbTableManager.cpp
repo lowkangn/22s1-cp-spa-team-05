@@ -58,24 +58,34 @@ TEST_CASE("ModifiesPkbTableManager: test filter") {
 	EntityPkbTableManager entityManager = EntityPkbTableManager();
 	ModifiesPkbTableManager modifiesManager = ModifiesPkbTableManager(entityManager);
 
-	PkbEntity varX = PkbEntity::generateVariable("x");
-	PkbEntity varY = PkbEntity::generateVariable("y");
+	int x_id = entityManager.add(PkbEntity::generateVariable("x"));
+	int y_id = entityManager.add(PkbEntity::generateVariable("y"));
+	
+	int readX_id = entityManager.add(PkbEntity::generateStatement("read x", 1));
+	int readY_id = entityManager.add(PkbEntity::generateStatement("read y", 3));
+	int assignY_id = entityManager.add(PkbEntity::generateStatement("y = y + 1;", 2));
+	
+	modifiesManager.add(PkbRelationship(readX_id, x_id));
+	modifiesManager.add(PkbRelationship(readY_id, y_id));
+	modifiesManager.add(PkbRelationship(assignY_id, y_id));
 
-	PkbEntity readX = PkbEntity::generateStatement("read x", 1);
-	int x_id = entityManager.add(varX);
-	modifiesManager.add(PkbRelationship(entityManager.add(readX), x_id));
-
-	PkbEntity assignY = PkbEntity::generateStatement("y = y + 1;", 3);
-	int y_id = entityManager.add(varY);
-	modifiesManager.add(PkbRelationship(entityManager.add(assignY), y_id));
-
-	SECTION("Modifies relationship exists") {
+	SECTION("Filter by valid LHS") {
 		testFilter(modifiesManager, PkbClause("1", ""), { x_id });
 		testFilter(modifiesManager, PkbClause("3", ""), { y_id });
+		testFilter(modifiesManager, PkbClause("2", ""), { y_id });
 	};
 
-	SECTION("Modifies relationship does not exist") {
+	SECTION("Filter by invalid LHS") {
 		testFilter(modifiesManager, PkbClause("5", ""), { });
+	}
+
+	SECTION("Filter by valid RHS") {
+		testFilter(modifiesManager, PkbClause("", "x"), { readX_id });
+		testFilter(modifiesManager, PkbClause("", "y"), { readY_id, assignY_id });
+	};
+
+	SECTION("Filter by invalid RHS") {
+		testFilter(modifiesManager, PkbClause("", "a"), { });
 	}
 }
 

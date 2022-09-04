@@ -2,17 +2,31 @@
 #include <string>
 #include <vector>
 
+
 vector<int> ModifiesPkbTableManager::filter(PkbClause clause) {
-	int statement = entityManager.findStatement(stoi(clause.getLhs()));
 	vector<int> results = vector<int>();
 
-	if (!statement) {
-		return results;
-	}
+	// If the clause lacks a LHS, it must have a RHS. Otherwise it would be invalid.
+	if (clause.getLhs() == "") {
+		int variable = entityManager.findVariable(clause.getRhs());
 
-	for (auto pair : mappings) {
-		if (pair.second.getLhs() == statement) {
-			results.push_back(pair.second.getRhs());
+		for (auto pair : mappings) {
+			if (pair.second.getRhs() == variable) {
+				results.push_back(pair.second.getLhs());
+			}
+		}
+	}
+	else {
+		int statement = entityManager.findStatement(stoi(clause.getLhs()));
+
+		if (!statement) {
+			return results;
+		}
+
+		for (auto pair : mappings) {
+			if (pair.second.getLhs() == statement) {
+				results.push_back(pair.second.getRhs());
+			}
 		}
 	}
 	return results;

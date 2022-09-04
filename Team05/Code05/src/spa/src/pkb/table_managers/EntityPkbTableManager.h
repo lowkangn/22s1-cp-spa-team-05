@@ -9,6 +9,8 @@
 class EntityPkbTableManager : public PkbTableManager<PkbEntity> {
 
 public:
+	int findVariable(string string);
+
 	int findStatement(int lineNumber);
 
 	vector<PkbEntity> filter(vector<int> ids);
