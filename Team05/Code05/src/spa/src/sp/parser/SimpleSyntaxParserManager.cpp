@@ -29,5 +29,8 @@ shared_ptr<ASTNode> ParserManager::parse() {
 	// recursively call construct
 	shared_ptr<ASTNode> programNode = programRule.constructNode();
 
+	// based on tree, count line numbers
+	programRule.setASTLineNumbers(programNode, 1); // start at line 1
+
 	return programNode;
 }
