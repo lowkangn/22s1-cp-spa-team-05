@@ -64,7 +64,7 @@ shared_ptr<ASTNode> ProgramSimpleSyntaxRule::constructNode() {
 	}
 
 	// create current node
-	Token programToken = Token{ "program", TokenType::NAME_OR_KEYWORD };
+	Token programToken = Token{ PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD };
 	shared_ptr<ASTNode> node (new ASTNode(vector<Token>{programToken}));
 	node->setType(ASTNodeType::PROGRAM);
 

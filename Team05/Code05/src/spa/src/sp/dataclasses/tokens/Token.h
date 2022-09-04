@@ -24,6 +24,7 @@ const string READ_KEYWORD = "read";
 const string CALL_KEYWORD = "call";
 const string WHILE_KEYWORD = "while";
 const string IF_KEYWORD = "if";
+const string PROGRAM_KEYWORD = "program";
 
 
 // delimiters

@@ -112,7 +112,7 @@ shared_ptr<ASTNode> AssignSimpleSyntaxRule::constructNode() {
 	// NOTE: for MVP we only allow constant assignment
 	// TODO: do a proper expression
 	shared_ptr<ASTNode> rightHandSide = this->childRules[RHS]->constructNode();
-	assignNode->setType(ASTNodeType::CONSTANT);
+	rightHandSide->setType(ASTNodeType::CONSTANT);
 
 	assignNode->addChild(leftHandSide);
 	assignNode->addChild(rightHandSide);

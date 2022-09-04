@@ -94,6 +94,7 @@ shared_ptr<ASTNode> StatementListSimpleSyntaxRule::constructNode() {
 	}
 
 	// create stmt node
+	// Add stmtLst as a token type
 	Token stmtLstToken = Token{ "", TokenType::DELIMITER};
 	shared_ptr<ASTNode> stmtLstNode(new ASTNode(vector<Token>{stmtLstToken}));
 	stmtLstNode->setType(ASTNodeType::STMTLIST);
