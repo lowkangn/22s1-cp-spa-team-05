@@ -21,16 +21,14 @@ TEST_CASE("EntityPkbTableManager: test add") {
 		}
 	};
 
-	PkbEntityGenerator g = PkbEntityGenerator();
-
-	PkbEntity varA = g.generateVariable("a");
-	PkbEntity varB = g.generateVariable("b");
-	PkbEntity varC = g.generateVariable("c");
-	PkbEntity varX = g.generateVariable("x");
-	PkbEntity varY = g.generateVariable("y");
-	PkbEntity readX = g.generateStatement("read x", 1);
-	PkbEntity readY = g.generateStatement("read y", 3);
-	PkbEntity assignX = g.generateStatement("x = x + 1;", 2);
+	PkbEntity varA = PkbEntity::generateVariable("a");
+	PkbEntity varB = PkbEntity::generateVariable("b");
+	PkbEntity varC = PkbEntity::generateVariable("c");
+	PkbEntity varX = PkbEntity::generateVariable("x");
+	PkbEntity varY = PkbEntity::generateVariable("y");
+	PkbEntity readX = PkbEntity::generateStatement("read x", 1);
+	PkbEntity readY = PkbEntity::generateStatement("read y", 3);
+	PkbEntity assignX = PkbEntity::generateStatement("x = x + 1;", 2);
 
 	SECTION("Single add") {
 		testAdd({ varA }, { 0 });
@@ -45,10 +43,10 @@ TEST_CASE("EntityPkbTableManager: test add") {
 
 	SECTION("Adding same entities") {
 
-		PkbEntity varACopy = g.generateVariable("a");
-		PkbEntity varBCopy = g.generateVariable("b");
-		PkbEntity varXCopy = g.generateVariable("x");
-		PkbEntity readXCopy = g.generateStatement("read x", 1);
+		PkbEntity varACopy = PkbEntity::generateVariable("a");
+		PkbEntity varBCopy = PkbEntity::generateVariable("b");
+		PkbEntity varXCopy = PkbEntity::generateVariable("x");
+		PkbEntity readXCopy = PkbEntity::generateStatement("read x", 1);
 
 		testAdd({ varA, varB, varC, varACopy, varBCopy }, { 0, 1, 2, 0, 1 });
 		testAdd({ varX, readX, readXCopy, varXCopy }, { 0, 1, 1, 0 });
@@ -56,8 +54,8 @@ TEST_CASE("EntityPkbTableManager: test add") {
 
 	SECTION("Adding similar statements with different line numbers") {
 
-		PkbEntity readX2 = g.generateStatement("read x", 2);
-		PkbEntity readX3 = g.generateStatement("read x", 3);
+		PkbEntity readX2 = PkbEntity::generateStatement("read x", 2);
+		PkbEntity readX3 = PkbEntity::generateStatement("read x", 3);
 
 		testAdd({ readX, readX2, readX3 }, { 0, 1, 2 });
 	}
@@ -78,13 +76,11 @@ TEST_CASE("EntityPkbTableManager: test filter") {
 		}
 	};
 
-	PkbEntityGenerator g = PkbEntityGenerator();
-
-	PkbEntity varA = g.generateVariable("a");
-	PkbEntity varX = g.generateVariable("x");
-	PkbEntity varY = g.generateVariable("y");
-	PkbEntity readX = g.generateStatement("read x", 1);
-	PkbEntity readY = g.generateStatement("read y", 3);
+	PkbEntity varA = PkbEntity::generateVariable("a");
+	PkbEntity varX = PkbEntity::generateVariable("x");
+	PkbEntity varY = PkbEntity::generateVariable("y");
+	PkbEntity readX = PkbEntity::generateStatement("read x", 1);
+	PkbEntity readY = PkbEntity::generateStatement("read y", 3);
 
 
 	EntityPkbTableManager entityManager = EntityPkbTableManager();
@@ -104,17 +100,16 @@ TEST_CASE("EntityPkbTableManager: test clearDataBase") {
 
 	auto testClear = []() {
 		EntityPkbTableManager entityManager = EntityPkbTableManager();
-		PkbEntityGenerator g = PkbEntityGenerator();
 
-		entityManager.add(g.generateVariable("a"));
-		entityManager.add(g.generateVariable("b"));
-		entityManager.add(g.generateVariable("c"));
-		entityManager.add(g.generateStatement("read x", 1));
-		entityManager.add(g.generateStatement("read y", 2));
+		entityManager.add(PkbEntity::generateVariable("a"));
+		entityManager.add(PkbEntity::generateVariable("b"));
+		entityManager.add(PkbEntity::generateVariable("c"));
+		entityManager.add(PkbEntity::generateStatement("read x", 1));
+		entityManager.add(PkbEntity::generateStatement("read y", 2));
 
 		entityManager.clearDataBase();
 
-		REQUIRE(entityManager.add(g.generateVariable("a")) == 0);
+		REQUIRE(entityManager.add(PkbEntity::generateVariable("a")) == 0);
 	};
 
 	testClear();

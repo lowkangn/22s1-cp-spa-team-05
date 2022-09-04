@@ -13,6 +13,14 @@ public:
 		this->rhsId = rhsId;
 	}
 
+	int getLhs() {
+		return this->lhsId;
+	}
+
+	int getRhs() {
+		return this->rhsId;
+	}
+
 private:
 	int lhsId;
 	int rhsId;

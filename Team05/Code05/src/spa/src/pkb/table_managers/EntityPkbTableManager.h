@@ -9,6 +9,8 @@
 class EntityPkbTableManager : public PkbTableManager<PkbEntity> {
 
 public:
+	int findStatement(int lineNumber);
+
 	vector<PkbEntity> filter(vector<int> ids);
 
 	int add(PkbEntity entity) override;

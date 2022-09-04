@@ -3,6 +3,19 @@
 #include <vector>
 #include <iostream>
 
+//If no such statement can be found, return -1;
+int EntityPkbTableManager::findStatement(int lineNumber) {
+	for (auto pair : idToEntityMapping) {
+
+		PkbEntity entity = pair.second;
+
+		if (entity.isStatement() && entity.getLineNumber() == lineNumber) {
+			return pair.first;
+		}
+	}
+	return -1;
+}
+
 vector<PkbEntity> EntityPkbTableManager::filter(vector<int> ids)  {
 	vector<PkbEntity> filtered = vector<PkbEntity>();
 
