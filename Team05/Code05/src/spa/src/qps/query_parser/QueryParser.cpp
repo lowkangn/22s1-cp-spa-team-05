@@ -1,10 +1,10 @@
 #include "QueryParser.h"
-#include <Declaration.h>
+#include <DesignEntity.h>
 #include <DeclarationParser.h>
 
 Query QueryParser::parse() {
     DeclarationParser declParser = DeclarationParser(tokens);
-    unordered_map<string, Declaration> declarations = declParser.parse();
+    unordered_map<string, DesignEntity> declarations = declParser.parse();
 
     Clause selectClause;
     list<Clause> constraintClauses;
