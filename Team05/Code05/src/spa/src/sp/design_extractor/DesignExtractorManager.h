@@ -27,12 +27,19 @@ private:
 
 public:
 	/*
-		Constrcutor which takes in all the extractors
+		Constructor which takes in all the extractors
 	*/
-	DesignExtractorManager(EntityExtractor entityExtractor, PatternExtractor patternExtractor, vector<Extractor> relationshipExtractorList) {
+	DesignExtractorManager(EntityExtractor entityExtractor, PatternExtractor patternExtractor, vector<Extractor<Relationship>> relationshipExtractorList) {
 		this->entityExtractor = entityExtractor;
 		this->patternExtractor = entityExtractor;
 		this->relationshipExtractorList = relationshipExtractorList;
+	}
+
+	/*
+		Sets the root node
+	*/
+	void setRootNode(shared_ptr<ASTNode> ast) {
+		this->rootNode = ast;
 	}
 
 	/*
@@ -48,15 +55,15 @@ public:
 	/*
 		Extracts all the Relationships from the AST
 	*/
-	vector<Relationship> extractRelationships(ASTNode &ast);
+	vector<Relationship> extractRelationships(shared_ptr<ASTNode> ast);
 
 	/*
 		Extracts all the Entities from the AST
 	*/
-	vector<Entity> extractEntities(ASTNode &ast);
+	vector<Entity> extractEntities(shared_ptr<ASTNode> ast);
 
 	/*
 		Extracts all the patterns from the AST
 	*/
-	vector<Pattern> extractPatterns(ASTNode &ast);
+	vector<Pattern> extractPatterns(shared_ptr<ASTNode> ast);
 };
