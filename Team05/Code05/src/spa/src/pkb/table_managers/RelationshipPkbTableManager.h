@@ -11,6 +11,7 @@
 
 class RelationshipPkbTableManager: public PkbTableManager<PkbRelationship> {
 public:
+	// Returns a list of entity ids which satisfy the clause.
 	virtual vector<int> filter(PkbClause clause) = 0;
 
 protected:

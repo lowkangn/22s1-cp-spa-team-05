@@ -80,7 +80,7 @@ TEST_CASE("EntityExtractor: test extract") {
 		REQUIRE(extractedEntity.size() == expectedEntityVector.size());
 
 		for (int i = 0; i < extractedEntity.size(); i++) {
-			//REQUIRE(extractedEntity[i].equals(expectedEntityVector[i]));
+			REQUIRE(extractedEntity[i].equals(expectedEntityVector[i]));
 		}
 	};
 
