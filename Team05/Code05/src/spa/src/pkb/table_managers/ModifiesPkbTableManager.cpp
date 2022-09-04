@@ -3,7 +3,7 @@
 #include <vector>
 
 vector<int> ModifiesPkbTableManager::filter(PkbClause clause) {
-	int statement = entityManager.findStatement((int)clause.getLhs());
+	int statement = entityManager.findStatement(stoi(clause.getLhs()));
 	vector<int> results = vector<int>();
 
 	if (!statement) {
@@ -12,18 +12,18 @@ vector<int> ModifiesPkbTableManager::filter(PkbClause clause) {
 
 	for (auto pair : mappings) {
 		if (pair.first == statement) {
-			results.push_back(pair.second);
+			results.push_back(pair.second.getRhs());
 		}
 	}
 	return results;
 }
 
 int ModifiesPkbTableManager::add(PkbRelationship relationship) {
-	mappings[nextId] = relationship;
+	mappings.at(nextId) = relationship;
 	nextId++;
 	return nextId - 1;
 }
 
 void ModifiesPkbTableManager::clearDataBase() {
-	mappings.clear()
+	mappings.clear();
 }

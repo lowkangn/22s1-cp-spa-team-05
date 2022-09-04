@@ -15,6 +15,5 @@ public:
 	virtual vector<int> filter(PkbClause clause) = 0;
 
 protected:
-	PkbEntityGenerator g;
 	EntityPkbTableManager entityManager;
 };

@@ -62,10 +62,10 @@ TEST_CASE("ModifiesPkbTableManager: test filter") {
 	PkbEntity varY = PkbEntity::generateVariable("y");
 
 	PkbEntity readX = PkbEntity::generateStatement("read x", 1);
-	modifiesManager.add(PkbRelationship(entityManager.add(readX), entityManager.add(varX));
+	modifiesManager.add(PkbRelationship(entityManager.add(readX), entityManager.add(varX)));
 
 	PkbEntity assignY = PkbEntity::generateStatement("y = y + 1;", 3);
-	modifiesManager.add(PkbRelationship(entityManager.add(assignY), entityManager.add(varY));
+	modifiesManager.add(PkbRelationship(entityManager.add(assignY), entityManager.add(varY)));
 
 	SECTION("Modifies relationship exists") {
 		testFilter(modifiesManager, PkbClause("1", ""), { 1 });
@@ -87,17 +87,17 @@ TEST_CASE("ModifiesPkbTableManager: test clearDataBase") {
 		PkbEntity varY = PkbEntity::generateVariable("y");
 
 		PkbEntity readX = PkbEntity::generateStatement("read x", 1);
-		modifiesManager.add(PkbRelationship(entityManager.add(readX), entityManager.add(varX));
+		modifiesManager.add(PkbRelationship(entityManager.add(readX), entityManager.add(varX)));
 
 		PkbEntity assignY = PkbEntity::generateStatement("y = y + 1;", 3);
-		modifiesManager.add(PkbRelationship(entityManager.add(assignY), entityManager.add(varY));
+		modifiesManager.add(PkbRelationship(entityManager.add(assignY), entityManager.add(varY)));
 
 		modifiesManager.clearDataBase();
 
 		PkbEntity varA = PkbEntity::generateVariable("a");
 		PkbEntity readA = PkbEntity::generateStatement("read a", 1);
 
-		REQUIRE(modifiesManager.add(PkbRelationship(entityManager.add(readA), entityManager.add(varA)));
+		REQUIRE(modifiesManager.add(PkbRelationship(entityManager.add(readA), entityManager.add(varA))) == 0);
 	};
 
 	testClearDataBase();
