@@ -81,14 +81,10 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 			Token constantName = ast->getNameToken();
 			return Entity{ EntityType::CONSTANT, ast->getLineNumber(), constantName, constantName.getString() };
 		}
+		// TODO extract line numbers for other types of nodes
 		case ASTNodeType::WHILE:
 		case ASTNodeType::PRINT:
 		case ASTNodeType::IF:
-		{
-			// TODO extract line numbers for other types of nodes
-			Token lineNumberToken = Token(to_string(ast->getLineNumber()), TokenType::INTEGER);
-			return Entity{ EntityType::LINENUMBER, ast->getLineNumber(), lineNumberToken, lineNumberToken.getString() };
-		}
 		case ASTNodeType::STMTLIST:
 		case ASTNodeType::OPERATOR:
 		case ASTNodeType::EXPRESSION:
