@@ -7,18 +7,56 @@
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/AST.h>
+#include <sp/design_extractor/Extractor.h>
 
 
 using namespace std;
 
 class DesignExtractorManager {
 private:
-	vector<RelationshipExtractor> relationshipExtractors;
-	vector<EntityExtractor> entityExtractor;
-	vector<PatternExtractor> patternExtractor;
+	vector<ASTNode> rootNode;
+	
+	vector<Extractor> relationshipExtractorList;
+	EntityExtractor entityExtractor;
+	PatternExtractor patternExtractor;
 
-public: 
-	virtual vector<Relationship> extractRelationships(ASTNode ast) = 0;
-	virtual vector<Entity> extractEntities(ASTNode ast) = 0;
-	virtual vector<Pattern> extractPatterns(ASTNode ast) = 0;
+
+	vector<Relationship> relationships;
+	vector<Entity> entities;
+	vector<Pattern> patterns;
+
+public:
+	/*
+		Constrcutor which takes in all the extractors
+	*/
+	DesignExtractorManager(EntityExtractor entityExtractor, PatternExtractor patternExtractor, vector<Extractor> relationshipExtractorList) {
+		this->entityExtractor = entityExtractor;
+		this->patternExtractor = entityExtractor;
+		this->relationshipExtractorList = relationshipExtractorList;
+	}
+
+	/*
+		Traverses the entire AST Tree and extracts all the relations
+	*/
+	void extractAll();
+
+	/*
+		Stores all the Relationships, Entities, Patterns into the PKB
+	*/
+	void storeAllRelations();
+
+	/*
+		Extracts all the Relationships from the AST
+	*/
+	vector<Relationship> extractRelationships(ASTNode &ast);
+
+	/*
+		Extracts all the Entities from the AST
+	*/
+	vector<Entity> extractEntities(ASTNode &ast);
+
+	/*
+		Extracts all the patterns from the AST
+	*/
+	vector<Pattern> extractPatterns(ASTNode &ast);
 };
