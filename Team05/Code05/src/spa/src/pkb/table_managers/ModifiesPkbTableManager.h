@@ -7,9 +7,7 @@
 
 class ModifiesPkbTableManager : public RelationshipPkbTableManager {
 public:
-	ModifiesPkbTableManager(EntityPkbTableManager entityManager) {
-		this->entityManager = entityManager;
-	}
+	ModifiesPkbTableManager(EntityPkbTableManager& entityManager) : RelationshipPkbTableManager(entityManager) {}
 
 	vector<int> filter(PkbClause clause) override;
 

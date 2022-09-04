@@ -11,7 +11,7 @@ vector<int> ModifiesPkbTableManager::filter(PkbClause clause) {
 	}
 
 	for (auto pair : mappings) {
-		if (pair.first == statement) {
+		if (pair.second.getLhs() == statement) {
 			results.push_back(pair.second.getRhs());
 		}
 	}
@@ -19,11 +19,12 @@ vector<int> ModifiesPkbTableManager::filter(PkbClause clause) {
 }
 
 int ModifiesPkbTableManager::add(PkbRelationship relationship) {
-	mappings.at(nextId) = relationship;
+	mappings.insert({ nextId, relationship });
 	nextId++;
 	return nextId - 1;
 }
 
 void ModifiesPkbTableManager::clearDataBase() {
 	mappings.clear();
+	nextId = 0;
 }

@@ -1,7 +1,6 @@
 #include <pkb/table_managers/EntityPkbTableManager.h>
 #include <string>
 #include <vector>
-#include <iostream>
 
 //If no such statement can be found, return -1;
 int EntityPkbTableManager::findStatement(int lineNumber) {

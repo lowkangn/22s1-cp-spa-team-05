@@ -62,14 +62,16 @@ TEST_CASE("ModifiesPkbTableManager: test filter") {
 	PkbEntity varY = PkbEntity::generateVariable("y");
 
 	PkbEntity readX = PkbEntity::generateStatement("read x", 1);
-	modifiesManager.add(PkbRelationship(entityManager.add(readX), entityManager.add(varX)));
+	int x_id = entityManager.add(varX);
+	modifiesManager.add(PkbRelationship(entityManager.add(readX), x_id));
 
 	PkbEntity assignY = PkbEntity::generateStatement("y = y + 1;", 3);
-	modifiesManager.add(PkbRelationship(entityManager.add(assignY), entityManager.add(varY)));
+	int y_id = entityManager.add(varY);
+	modifiesManager.add(PkbRelationship(entityManager.add(assignY), y_id));
 
 	SECTION("Modifies relationship exists") {
-		testFilter(modifiesManager, PkbClause("1", ""), { 1 });
-		testFilter(modifiesManager, PkbClause("3", ""), { 3 });
+		testFilter(modifiesManager, PkbClause("1", ""), { x_id });
+		testFilter(modifiesManager, PkbClause("3", ""), { y_id });
 	};
 
 	SECTION("Modifies relationship does not exist") {
