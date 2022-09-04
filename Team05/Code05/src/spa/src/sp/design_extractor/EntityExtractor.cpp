@@ -5,13 +5,10 @@
 // imported local files
 #include <sp/design_extractor/EntityExtractor.h>
 #include <sp/dataclasses/AST.h>
-#include <sp/dataclasses/AST.h>
 #include <sp/design_extractor/UnknownASTNodeException.h>
 #include <string>
 #include <assert.h>
 using namespace std;
-
-const int LEFT_CHILD = 0;
 
 vector<Entity> EntityExtractor::extract(shared_ptr<ASTNode> ast) {
 	vector<Entity> entities = vector<Entity>();
@@ -53,7 +50,7 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 		case ASTNodeType::CALL:
 		{
 			// Left Child (0th index) should contain NAME ASTNode which has the procedure's name
-			shared_ptr<ASTNode> leftChild = ast->getChildren()[LEFT_CHILD];
+			shared_ptr<ASTNode> leftChild = ast->getChildren()[ASTNode::LEFT_CHILD];
 			
 			Token procedureName = leftChild->getNameToken();
 			return Entity{ EntityType::PROCEDURE, ast->getLineNumber(), procedureName, procedureName.getString() };
@@ -62,7 +59,7 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 		case ASTNodeType::ASSIGN:
 		case ASTNodeType::READ:
 		{
-			shared_ptr<ASTNode> leftChild = ast->getChildren()[LEFT_CHILD];
+			shared_ptr<ASTNode> leftChild = ast->getChildren()[ASTNode::LEFT_CHILD];
 			Token variableName = leftChild->getNameToken();
 			return Entity{ EntityType::VARIABLE, ast->getLineNumber(), variableName, variableName.getString() };
 		}
@@ -92,6 +89,6 @@ Entity EntityExtractor::extractEntity(shared_ptr<ASTNode> ast) {
 			// Place holder as the above are not Entities which we need to store in the PKB by themselves
 			return Entity{ EntityType::UNDEFINED, ast->getLineNumber(), Token{"", TokenType::INVALID}, "" };
 		default:
-			throw UnknownASTNodeTypeException();
+			throw UnknownASTNodeTypeException("Entity type is not defined!");
 	}
 }
