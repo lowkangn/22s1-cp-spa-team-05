@@ -1,10 +1,14 @@
-#include <pkb/PKB.h>
-#include <pkb/interfaces/PKBQueryHandler.h>
+#include "PKBQueryHandler.h"
 
 PKBQueryHandler::PKBQueryHandler(ProgramKnowledgeBase pkb) {
 
 }
 
-void PKBQueryHandler::retrieveKnowledge(std::vector<std::string> queryClause) {
+vector<PQLEntity> PKBQueryHandler::retrieveKnowledge(ClauseArgument arg) {
 
 }
+
+vector<PQLRelationship> PKBQueryHandler::retrieveKnowledge(ClauseType clauseType, ClauseArgument lhs, ClauseArgument rhs) {
+
+}
+
