@@ -54,7 +54,7 @@ TEST_CASE("ParserManager::parse works correctly") {
 
 		// create the correct ASTNode
 		// 1. the root program node
-		shared_ptr<ASTNode> expectedProgramNode(new ASTNode(vector<Token>{}));
+		shared_ptr<ASTNode> expectedProgramNode(new ASTNode(vector<Token>{ Token{ PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD } }));
 		expectedProgramNode->setType(ASTNodeType::PROGRAM);
 
 		// 2. program node has a procedure node as sole child 
@@ -67,7 +67,7 @@ TEST_CASE("ParserManager::parse works correctly") {
 		procedureNameNode->setType(ASTNodeType::NAME);
 		procedureNode->addChild(procedureNameNode);
 
-		shared_ptr<ASTNode> stmtLstNode(new ASTNode(vector<Token>{}));
+		shared_ptr<ASTNode> stmtLstNode(new ASTNode(vector<Token>{Token("", TokenType::DELIMITER) }));
 		stmtLstNode->setType(ASTNodeType::STMTLIST);
 		procedureNode->addChild(stmtLstNode);
 
@@ -75,6 +75,7 @@ TEST_CASE("ParserManager::parse works correctly") {
 		shared_ptr<ASTNode> assignNode(new ASTNode(vector<Token>{equalsToken}));
 		assignNode->setType(ASTNodeType::ASSIGN);
 		assignNode->setLineNumber(1);
+		stmtLstNode->addChild(assignNode);
 
 		// 5. assign node has left child as x and right child as 1
 		shared_ptr<ASTNode> xVariableNode(new ASTNode(vector<Token>{xVariableToken}));
