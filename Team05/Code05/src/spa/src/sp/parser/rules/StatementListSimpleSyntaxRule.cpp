@@ -83,6 +83,26 @@ vector<shared_ptr<SimpleSyntaxRule>> StatementListSimpleSyntaxRule::generateChil
 
 shared_ptr<ASTNode> StatementListSimpleSyntaxRule::constructNode() {
 	// TODO
-	shared_ptr<ASTNode> temp;
-	return temp;
+	// check that initialized correctly 
+	if (!this->initialized) {
+		throw SimpleSyntaxParserException("Node is not initialized!");
+	}
+
+	// generate if needed
+	if (!this->generated) {
+		this->childRules = this->generateChildRules();
+	}
+
+	// create stmt node
+	Token stmtLstToken = Token{ "", TokenType::DELIMITER};
+	shared_ptr<ASTNode> stmtLstNode(new ASTNode(vector<Token>{stmtLstToken}));
+	stmtLstNode->setType(ASTNodeType::STMTLIST);
+
+	// for each rule, recursively create children and assign to stmtLst node
+	for (auto rulePointer = this->childRules.begin(); rulePointer != this->childRules.end(); rulePointer++) {
+		shared_ptr<ASTNode> child = (*rulePointer)->constructNode();
+		stmtLstNode->addChild(child);
+	}
+
+	return stmtLstNode;
 }

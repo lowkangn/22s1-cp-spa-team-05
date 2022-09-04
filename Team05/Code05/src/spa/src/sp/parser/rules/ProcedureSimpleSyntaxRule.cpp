@@ -8,6 +8,8 @@
 #include <list>
 using namespace std;
 
+const int STMT_LST = 1;
+
 vector<shared_ptr<SimpleSyntaxRule>> ProcedureSimpleSyntaxRule::generateChildRules() {
 
 	// must be initialized
@@ -88,7 +90,32 @@ list<Token> ProcedureSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 }
 
 shared_ptr<ASTNode> ProcedureSimpleSyntaxRule::constructNode() {
-	// TODO
-	shared_ptr<ASTNode> temp;
-	return temp;
+	if (!this->initialized) {
+		throw SimpleSyntaxParserException("Node is not initialized!");
+	}
+
+	// generate if needed
+	if (!this->generated) {
+		this->childRules = this->generateChildRules();
+	}
+
+	// create current node
+	Token procedureToken = Token{ "procedure", TokenType::NAME_OR_KEYWORD };
+	shared_ptr<ASTNode> procedureNode(new ASTNode(vector<Token>{procedureToken}));
+	procedureNode->setType(ASTNodeType::PROCEDURE);
+
+	// create child node for procedure name
+	Token procedureNameToken = this->tokens.front();
+	shared_ptr<ASTNode> procedureNameNode(new ASTNode(vector<Token>{procedureNameToken}));
+	procedureNameNode->setType(ASTNodeType::NAME);
+
+	// create stmtlst node
+	shared_ptr<ASTNode> stmtLstNode = this->childRules[STMT_LST]->constructNode();
+	stmtLstNode->setType(ASTNodeType::STMTLIST);
+
+	// Add child to procedure node to construct tree
+	procedureNode->addChild(procedureNameNode);
+	procedureNode->addChild(stmtLstNode);
+
+	return procedureNode;
 }

@@ -33,7 +33,14 @@ list<Token> NameSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 
 
 shared_ptr<ASTNode> NameSimpleSyntaxRule::constructNode() {
-	// TODO
-	shared_ptr<ASTNode> temp;
-	return temp;
+	// check that initialized correctly 
+	if (!this->initialized) {
+		throw SimpleSyntaxParserException("Node is not initialized!");
+	}
+
+	Token nameToken = this->tokens.front();
+	shared_ptr<ASTNode> nameNode(new ASTNode(vector<Token>{nameToken}));
+	nameNode->setType(ASTNodeType::NAME);
+
+	return nameNode;
 }
