@@ -74,8 +74,6 @@ shared_ptr<ASTNode> ProgramSimpleSyntaxRule::constructNode() {
 		node->addChild(child);
 	}
 
-	this->setLineNumbers(node, 1);
-
 	return node;
 }
 
