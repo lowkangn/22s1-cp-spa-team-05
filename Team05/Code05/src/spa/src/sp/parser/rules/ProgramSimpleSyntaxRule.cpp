@@ -77,3 +77,71 @@ shared_ptr<ASTNode> ProgramSimpleSyntaxRule::constructNode() {
 	return node;
 }
 
+int ProgramSimpleSyntaxRule::setASTLineNumbers(shared_ptr<ASTNode> root, int lineNumber) {
+	ASTNodeType nodeType = root->getType();
+
+	// If it is a statement list call function to handle statement list
+	if (nodeType == ASTNodeType::STMTLIST) {
+		lineNumber = this->iterateThroughStatementInStatementList(root, lineNumber);
+	}
+
+	// Iterate through children and recursively set their line numbers
+	for (auto &child : root->getChildren()) {
+		lineNumber = this->setASTLineNumbers(child, lineNumber);
+	}
+
+	return lineNumber;
+}
+
+int ProgramSimpleSyntaxRule::iterateThroughStatementInStatementList(shared_ptr<ASTNode> rootOfStatementList , int lineNumber) {
+	// Sanity check
+	assert(rootOfStatementList->getType() == ASTNodeType::STMTLIST);
+
+	// For each statement set the line number then increment
+	for (auto &child : rootOfStatementList->getChildren()) {
+		this->recursiveSetLineNumber(child, lineNumber);
+		lineNumber += 1;
+	}
+	return lineNumber;
+}
+
+void ProgramSimpleSyntaxRule::recursiveSetLineNumber(shared_ptr<ASTNode> root, int lineNumber) {
+	// Set current node's line number
+	ASTNodeType nodeType = root->getType();
+	root->setLineNumber(lineNumber);
+
+	// TODO Try to come up with a more clean way to handle this logic
+	switch (nodeType) {
+	// If and While are special cases
+	case ASTNodeType::IF:
+	case ASTNodeType::WHILE:
+		{
+			for (auto &child : root->getChildren()) {
+				// Call to iterateThroughStatementInStatementList as IF and WHILE themselves contain statement lists
+				if (child->getType() == ASTNodeType::STMTLIST) {
+					lineNumber = this->iterateThroughStatementInStatementList(child, lineNumber);
+				}
+				else {
+					// Handles the condition in IF statements
+					this->recursiveSetStatementNumber(root, lineNumber);
+				}
+			}
+			break;
+		}
+	default:
+		{
+			// Set the entire subtree to the same line number
+			this->recursiveSetStatementNumber(root, lineNumber);
+		}
+	}
+}
+
+void ProgramSimpleSyntaxRule::recursiveSetStatementNumber(shared_ptr<ASTNode> root, int lineNumber) {
+	root->setLineNumber(lineNumber);
+	if (root->numChildren() > 0) {
+		// Set children of the tree to the same line number recursively
+		for (auto& child : root->getChildren()) {
+			this->recursiveSetStatementNumber(child, lineNumber);
+		}
+	}
+}
