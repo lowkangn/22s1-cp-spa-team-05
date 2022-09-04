@@ -18,7 +18,10 @@ public:
 	list<Token> consumeTokens(list<Token> tokens) override;
 	shared_ptr<ASTNode> constructNode() override;
 
-	int setLineNumbers(shared_ptr<ASTNode> root, int lineNumber);
+	/*
+		Wrapper for setting the line numbers in a AST
+	*/
+	int setASTLineNumbers(shared_ptr<ASTNode> root, int lineNumber);
 	
 	/*
 		This function sets the line numbers of statement lists
@@ -26,9 +29,12 @@ public:
 	int handleStatementList(shared_ptr<ASTNode> root, int lineNumber);
 
 	/*
-		This function recursively sets linenumber for Entities
+		This function recursively sets linenumber for nodes depending on their type
 	*/
 	void recursiveSetLineNumber(shared_ptr<ASTNode> root, int lineNumber);
 
+	/*
+		This function recursively sets linenumber for nodes and its children
+	*/
 	void recursiveSetStatementNumber(shared_ptr<ASTNode> root, int lineNumber);
 };

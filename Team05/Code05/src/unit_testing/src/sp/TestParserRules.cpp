@@ -848,7 +848,7 @@ TEST_CASE("ProgramSimpleSyntaxRule test ::setLineNumber") {
 
         ProgramSimpleSyntaxRule rule = ProgramSimpleSyntaxRule();
 
-        rule.setLineNumbers(toSet, 1);
+        rule.setASTLineNumbers(toSet, 1);
 
         REQUIRE(toSet->equals(*expected));
         
