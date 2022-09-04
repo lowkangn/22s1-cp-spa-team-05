@@ -20,6 +20,10 @@ const string SUCH = "such";
 const string THAT = "that";
 const string PATTERN = "pattern";
 
+// keywords for identifying Clause type
+const string MODIFIES = "Modifies";
+const string FOLLOW = "Follows";
+
 // delimiters
 const string SEMICOLON = ";";
 const string COMMA = ",";
@@ -84,48 +88,63 @@ public:
         return tokenString == otherToken.getTokenString() && tokenType == otherToken.getTokenType();
     }
 
-    bool isSelect() {
-        return tokenType == PQLTokenType::NAME && tokenString == SELECT;
+    // tokenType indicators
+    bool isName() {
+        return tokenType == PQLTokenType::NAME;
+    }
+    bool isInteger() {
+        return tokenType == PQLTokenType::INTEGER;
+    }
+    bool isDelimiter() {
+        return tokenType == PQLTokenType::DELIMITER;
+    }
+    bool isOperator() {
+        return tokenType == PQLTokenType::OPERATOR;
     }
 
-    bool isSuch() {
-        return tokenType == PQLTokenType::NAME && tokenString == SUCH;
-    }
-
-    bool isThat() {
-        return tokenType == PQLTokenType::NAME && tokenString == THAT;
-    }
-
-    bool isPattern() {
-        return tokenType == PQLTokenType::NAME && tokenString == PATTERN;
-    }
-
+    // Delimiter indicators
     bool isSemicolon() {
-        return tokenType == PQLTokenType::DELIMITER && tokenString == SEMICOLON;
+        return isDelimiter() && tokenString == SEMICOLON;
     }
 
     bool isComma() {
-        return tokenType == PQLTokenType::DELIMITER && tokenString == COMMA;
+        return isDelimiter() && tokenString == COMMA;
     }
 
     bool isOpenBracket() {
-        return tokenType == PQLTokenType::DELIMITER && tokenString == OPEN_BRACKET;
+        return isDelimiter() && tokenString == OPEN_BRACKET;
     }
 
     bool isCloseBracket() {
-        return tokenType == PQLTokenType::DELIMITER && tokenString == CLOSE_BRACKET;
+        return isDelimiter() && tokenString == CLOSE_BRACKET;
     }
 
     bool isQuote() {
-        return tokenType == PQLTokenType::DELIMITER && tokenString == QUOTE;
+        return isDelimiter() && tokenString == QUOTE;
     }
 
     bool isUnderscore() {
-        return tokenType == PQLTokenType::DELIMITER && tokenString == UNDERSCORE;
+        return isDelimiter() && tokenString == UNDERSCORE;
     }
 
-    bool isName() {
-        return tokenType == PQLTokenType::NAME;
+
+    // Query section indicators
+    bool isSelect() {
+        return isName() && tokenString == SELECT;
+    }
+    bool isSuch() {
+        return isName() && tokenString == SUCH;
+    }
+    bool isThat() {
+        return isName() && tokenString == THAT;
+    }
+    bool isPattern() {
+        return isName() && tokenString == PATTERN;
+    }
+
+    // Clause Type indicators
+    bool isModifies() {
+        return isName() && tokenString == MODIFIES;
     }
 };
 

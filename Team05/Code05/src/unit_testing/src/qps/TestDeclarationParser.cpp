@@ -3,8 +3,8 @@
 #include <list>
 #include <qps/query_parser/PQLError.h>
 #include <qps/query_parser/DesignEntity.h>
-#include <qps/query_parser/DeclarationParser.h>
-#include <qps/query_parser/DeclarationParser.cpp>
+#include <qps/query_parser/parsers/DeclarationParser.h>
+#include <qps/query_parser/parsers/DeclarationParser.cpp>
 
 using namespace std;
 

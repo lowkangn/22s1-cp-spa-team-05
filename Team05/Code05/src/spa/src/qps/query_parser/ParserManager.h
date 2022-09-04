@@ -20,16 +20,6 @@ private:
      */
     QPSTokenizer tokenizer;
 
-    /**
-     * ErrorChecker for validating the grammar of the query.
-     */
-    QPSErrorChecker checker;
-
-    /**
-     * QueryParser for converting the list of tokens into a Query object.
-     */
-    QueryParser parser;
-
 public:
 
     /**

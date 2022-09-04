@@ -1,4 +1,4 @@
-#include <qps/query_parser/DeclarationParser.h>
+#include <qps/query_parser/parsers/DeclarationParser.h>
 #include <qps/query_parser/PQLError.h>
 
 unordered_map<string, DesignEntity> DeclarationParser::parse() {

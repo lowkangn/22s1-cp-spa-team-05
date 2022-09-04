@@ -32,5 +32,8 @@ public:
      */
     Query parse();
 
+    list<Clause> QueryParser::parseConstraints();
+
+    list<Clause> QueryParser::parseSuchThat();
 };
 
