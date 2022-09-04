@@ -1,6 +1,6 @@
 #include <qps/query_parser/parsers/SelectParser.h>
 
-SelectClause* SelectParser::parse() {
+shared_ptr<Clause> SelectParser::parse() {
 	PQLToken token = tokens.front();
 	
 	//check for Select token
@@ -17,7 +17,7 @@ SelectClause* SelectParser::parse() {
 	if (!token.isName()) {
 		throw PQLError("Expected synonym after select, got: " + token.getTokenString());
 	}
-	tokens.pop_front();
+	ClauseArgument arg = parseSynonym();
 
-	return new SelectClause(parseSynonym(token));
+	return shared_ptr<Clause>(new SelectClause(arg));
 }

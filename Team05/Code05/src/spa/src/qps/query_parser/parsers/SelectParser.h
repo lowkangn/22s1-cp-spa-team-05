@@ -14,5 +14,5 @@ public:
 		ClauseParser(tokens, declarations) {};
 
 	/* Parses all declarations in the query. */
-	SelectClause* parse() override;
+	shared_ptr<Clause>  parse() override;
 };

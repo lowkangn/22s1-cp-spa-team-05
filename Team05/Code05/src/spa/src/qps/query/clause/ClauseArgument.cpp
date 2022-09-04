@@ -1,3 +1,5 @@
+#pragma once
+
 #include <qps/query/clause/ClauseArgument.h>
 
 

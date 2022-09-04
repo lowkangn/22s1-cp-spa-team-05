@@ -2,7 +2,6 @@
 
 #include <list>
 
-#include <qps/query_parser/Declaration.h>
 #include <qps/query/clause/ClauseResult.h>
 #include <qps/query/clause/Clause.h>
 
@@ -10,12 +9,12 @@ using namespace std;
 
 class Query {
 private:
-	Clause selectClause;
-	list<Clause> constraintClauses;
+	shared_ptr<Clause> selectClause;
+	list<shared_ptr<Clause>> constraintClauses;
 public:
 	
 	/* Instantiates a Query object containign the clauses. */
-	Query(Clause select, list<Clause> constraints) {
+	Query(shared_ptr<Clause> select, list<shared_ptr<Clause>> constraints) {
 		selectClause = select;
 		constraintClauses = constraints;
 	}

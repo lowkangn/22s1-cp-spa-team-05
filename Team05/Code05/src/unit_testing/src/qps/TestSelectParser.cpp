@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include <qps/query/clause/SelectClause.h>
+#include <qps/query/clause/SelectClause.cpp>
 #include <qps/query_parser/parsers/ClauseParser.h>
 #include <qps/query_parser/parsers/ClauseParser.cpp>
 #include <qps/query_parser/parsers/SelectParser.h>
@@ -18,20 +19,21 @@ TEST_CASE("SelectParser: test parseNoError") {
             SelectParser parser = SelectParser(tokens, declarations);
 
             // when
-            SelectClause actual = *parser.parse();
-            
+            shared_ptr<Clause>  actualPtr = parser.parse();
+            shared_ptr<SelectClause> actual = dynamic_pointer_cast<SelectClause>(actualPtr);
+
             // then
-            REQUIRE(actual == expected);
+            REQUIRE(*actual.get() == expected);
     };
 
-    SelectClause expected = SelectClause(ClauseArgument("v1", ArgumentType::SYNONYM));
+    SelectClause expected = SelectClause(ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM));
     testParseNoError(list<PQLToken>{
             PQLToken("Select", PQLTokenType::NAME),
                 PQLToken("v1", PQLTokenType::NAME)},
             unordered_map<string, DesignEntity>{ {"v1", DesignEntity::VARIABLE}},
             expected);
 
-    expected = SelectClause(ClauseArgument("abcdefgLongName", ArgumentType::SYNONYM));
+    expected = SelectClause(ClauseArgument("abcdefgLongName", ArgumentType::ENTREF_SYNONYM));
     testParseNoError(list<PQLToken>{
         PQLToken("Select", PQLTokenType::NAME),
             PQLToken("abcdefgLongName", PQLTokenType::NAME)},

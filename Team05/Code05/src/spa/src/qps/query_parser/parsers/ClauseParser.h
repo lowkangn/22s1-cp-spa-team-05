@@ -15,6 +15,21 @@ class ClauseParser {
 protected:
 	list<PQLToken> tokens;
 	unordered_map<string, DesignEntity> declarations;
+
+	ClauseArgument parseSynonym();
+
+	ClauseArgument parseStringLiteral();
+
+	ClauseArgument parseStatementNumber();
+
+	ClauseArgument parseWildcard();
+
+	void consumeClauseOpen();
+
+	void consumeClauseMiddle();
+
+	void consumeClauseClose();
+
 public:
 
 	ClauseParser(list<PQLToken> tokens, unordered_map<string, DesignEntity> declarations) {
@@ -24,12 +39,5 @@ public:
 
 	list<PQLToken> getRemainingTokens();
 
-	ClauseArgument parseSynonym(PQLToken synonymToken);
-
-	ClauseArgument parseStringLiteral(PQLToken strLiteralToken);
-
-	ClauseArgument parseStatementNumber(PQLToken stmtNumToken);
-
-	virtual Clause* parse() = 0;
-
+	virtual shared_ptr<Clause> parse() = 0;
 };

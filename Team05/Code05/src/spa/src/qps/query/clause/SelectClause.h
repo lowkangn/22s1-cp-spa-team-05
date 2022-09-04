@@ -11,7 +11,3 @@ public:
 	ClauseResult execute() override { return ClauseResult(); };
 	friend bool operator== (SelectClause first, SelectClause second);
 };
-
-bool operator== (SelectClause first, SelectClause second) {
-	return first.toSelect == second.toSelect;
-};

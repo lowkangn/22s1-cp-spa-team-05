@@ -11,33 +11,31 @@ Query QueryParser::parse() {
     unordered_map<string, DesignEntity> declarations = declParser.parse();
 
     SelectParser selParser = SelectParser(declParser.getRemainingTokens(), declarations);
-    Clause selectClause = selParser.parse();
+    shared_ptr<Clause> selectClause = selParser.parse();
 
-    tokens = SelectParser.getRemainingTokens();
-    list<Clause> constraintClauses;
-    /* TODO:
-    list<Clause> constraintClauses = parseConstraints();
-    */
+    tokens = selParser.getRemainingTokens();
+    list<shared_ptr<Clause>> constraintClauses = parseConstraints(declarations);
 
     return Query(selectClause, constraintClauses);
 }
 
-list<Clause> QueryParser::parseConstraints() {
-    list<Clause> clauses;
+list<shared_ptr<Clause>> QueryParser::parseConstraints(unordered_map<string, DesignEntity> declarations) {
+    list<shared_ptr<Clause>> clauses;
     PQLToken token = tokens.front();
     while (!tokens.empty()) {
         token = tokens.front();
         tokens.pop_front();
         if (token.isSuch()) {
-            clauses.emplace_back(parseSuchThat());
+            clauses.emplace_back(parseSuchThat(declarations));
         }
         else if (token.isPattern()) {
             //not needed for MVP
         }
     }
+    return clauses;
 }
 
-Clause QueryParser::parseSuchThat() {
+shared_ptr<Clause> QueryParser::parseSuchThat(unordered_map<string, DesignEntity> declarations) {
     if (tokens.empty() || !tokens.front().isThat()) {
         throw PQLError("Missing 'that' after 'such'");
     }
@@ -46,15 +44,15 @@ Clause QueryParser::parseSuchThat() {
         throw PQLError("Missing relRef after such that");
     }
     PQLToken token = tokens.front();
-    shared_ptr<ClauseParser> parserPointer;
+    shared_ptr<SuchThatClauseParser> parserPointer;
+
     if (token.isModifies()) {
-        parserPointer = shared_ptr<ClauseParser>(new ModifiesParser(tokens));
-    }
-    else {
-        //create other suchthatParsers for 
+        parserPointer = shared_ptr<SuchThatClauseParser>(new ModifiesParser(tokens, declarations));
+    } else {
+        //create other SuchThatClauseParsers 
         //not needed for MVP
     }
-    shared_ptr<Clause> clause = shared_ptr<Clause>(parserPointer->parse());
+    shared_ptr<Clause> clause = parserPointer->parse();
     tokens = parserPointer->getRemainingTokens();
-    return clause.get();
+    return clause;
 }
