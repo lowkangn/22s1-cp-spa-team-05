@@ -89,9 +89,9 @@ TEST_CASE("EntityExtractor: test extract") {
 	/*
 	* The following is the SIMPLE Program
 	* procedure main {
-		read x
-		read y
-		z = 5;
+	1.	read x;
+	2.	y = 5;
+	3.	print y;
 	  }
 
 	  procedure -> main & StmtLst
@@ -101,53 +101,68 @@ TEST_CASE("EntityExtractor: test extract") {
 
 	*/
 
+	// Create root node
 	shared_ptr<ASTNode> root (new ASTNode( vector<Token> {Token{"procedure", TokenType::NAME_OR_KEYWORD}} ));
 	root->setType(ASTNodeType::PROCEDURE);
+
+	// Create name of procedure node
 	Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
 	shared_ptr<ASTNode> main (new ASTNode(vector<Token> {mainToken}));
 	main->setType(ASTNodeType::NAME);
-	root->setLineNumber(1);
-	main->setLineNumber(1);
+	
+	Entity mainEntity = Entity{ EntityType::PROCEDURE, -1, mainToken, mainToken.getString() };
 
-	Entity mainEntity = Entity{ EntityType::PROCEDURE, 1, mainToken, mainToken.getString() };
-
-	shared_ptr<ASTNode> stmtLst(new ASTNode(vector<Token> {Token{ "", TokenType::INVALID }}));
+	// Create stmtLst node
+	shared_ptr<ASTNode> stmtLst(new ASTNode(vector<Token> {Token{ PROGRAM_KEYWORD, TokenType::DELIMITER }}));
 	stmtLst->setType(ASTNodeType::STMTLIST);
 
-	shared_ptr<ASTNode> read (new ASTNode(vector<Token> {Token{"read", TokenType::NAME_OR_KEYWORD}}));
+	// Create read node
+	shared_ptr<ASTNode> read (new ASTNode(vector<Token> {Token{READ_KEYWORD, TokenType::NAME_OR_KEYWORD}}));
 	read->setType(ASTNodeType::READ);
+	
+	// Create x node
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
 	shared_ptr<ASTNode> x (new ASTNode(vector<Token> {xToken}));
 	x->setType(ASTNodeType::NAME);
-	read->setLineNumber(2);
-	x->setLineNumber(2);
 
-	Entity xEntity = Entity{ EntityType::VARIABLE, 2, xToken, xToken.getString() };
+	read->setLineNumber(1);
+	x->setLineNumber(1);
 
+	Entity xEntity = Entity{ EntityType::VARIABLE, 1, xToken, xToken.getString() };
+
+	// Create y1 node
 	Token y1Token = Token{ "y", TokenType::NAME_OR_KEYWORD };
 	shared_ptr<ASTNode> y1 (new ASTNode(vector<Token> {y1Token}));
 	y1->setType(ASTNodeType::NAME);
+
+	// Create assign node
 	shared_ptr<ASTNode> assign (new ASTNode(vector<Token> {Token{"=", TokenType::OPERATOR}}));
 	assign->setType(ASTNodeType::ASSIGN);
+
+	// Create constant node
 	Token constantToken = Token{ "5", TokenType::INTEGER };
 	shared_ptr<ASTNode> constant (new ASTNode(vector<Token> {constantToken}));
 	constant->setType(ASTNodeType::CONSTANT);
-	y1->setLineNumber(3);
-	assign->setLineNumber(3);
-	constant->setLineNumber(3);
 
-	Entity y1Entity = Entity{ EntityType::VARIABLE, 3, y1Token, y1Token.getString() };
-	Entity constantEntity = Entity{ EntityType::CONSTANT, 3, constantToken, constantToken.getString() };
+	y1->setLineNumber(2);
+	assign->setLineNumber(2);
+	constant->setLineNumber(2);
 
-	shared_ptr<ASTNode> print (new ASTNode(vector<Token> {Token{ "print", TokenType::NAME_OR_KEYWORD }}));
+	Entity y1Entity = Entity{ EntityType::VARIABLE, 2, y1Token, y1Token.getString() };
+	Entity constantEntity = Entity{ EntityType::CONSTANT, 2, constantToken, constantToken.getString() };
+
+	shared_ptr<ASTNode> print (new ASTNode(vector<Token> {Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD }}));
 	print->setType(ASTNodeType::PRINT);
+
+	// Create y2 node
 	Token y2Token = Token{ "y", TokenType::NAME_OR_KEYWORD };
 	shared_ptr<ASTNode> y2 (new ASTNode(vector<Token> {y2Token}));
 	y2->setType(ASTNodeType::NAME);
-	print->setLineNumber(4);
-	y2->setLineNumber(4);
 
-	Entity y2Entity = Entity{ EntityType::VARIABLE, 4, y2Token, y2Token.getString() };
+	print->setLineNumber(3);
+	y2->setLineNumber(3);
+
+	Entity y2Entity = Entity{ EntityType::VARIABLE, 3, y2Token, y2Token.getString() };
 
 
 	root->addChild(main);
