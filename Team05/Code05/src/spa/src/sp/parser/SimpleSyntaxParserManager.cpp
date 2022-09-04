@@ -5,10 +5,11 @@
 
 #include <list>
 #include <string>
+#include <memory>
 using namespace std;
 
 
-ASTNode ParserManager::parse() {
+shared_ptr<ASTNode> ParserManager::parse() {
 	/*
 		Main logic of this method: 
 		1. We wrap all tokens into the program rule.
@@ -26,7 +27,7 @@ ASTNode ParserManager::parse() {
 	programRule.validate();
 
 	// recursively call construct
-	ASTNode programNode = programRule.constructNode();
+	shared_ptr<ASTNode> programNode = programRule.constructNode();
 
 	return programNode;
 }
