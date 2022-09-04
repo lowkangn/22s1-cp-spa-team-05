@@ -58,21 +58,21 @@ TEST_CASE("ModifiesPkbTableManager: test filter") {
 	EntityPkbTableManager entityManager = EntityPkbTableManager();
 	ModifiesPkbTableManager modifiesManager = ModifiesPkbTableManager(entityManager);
 
-	int x_id = entityManager.add(PkbEntity::generateVariable("x"));
-	int y_id = entityManager.add(PkbEntity::generateVariable("y"));
+	int xId = entityManager.add(PkbEntity::generateVariable("x"));
+	int yId = entityManager.add(PkbEntity::generateVariable("y"));
 	
-	int readX_id = entityManager.add(PkbEntity::generateStatement("read x", 1));
-	int readY_id = entityManager.add(PkbEntity::generateStatement("read y", 3));
-	int assignY_id = entityManager.add(PkbEntity::generateStatement("y = y + 1;", 2));
+	int readXId = entityManager.add(PkbEntity::generateStatement("read x", 1));
+	int readYId = entityManager.add(PkbEntity::generateStatement("read y", 3));
+	int assignYId = entityManager.add(PkbEntity::generateStatement("y = y + 1;", 2));
 	
-	modifiesManager.add(PkbRelationship(readX_id, x_id));
-	modifiesManager.add(PkbRelationship(readY_id, y_id));
-	modifiesManager.add(PkbRelationship(assignY_id, y_id));
+	modifiesManager.add(PkbRelationship(readXId, xId));
+	modifiesManager.add(PkbRelationship(readYId, yId));
+	modifiesManager.add(PkbRelationship(assignYId, yId));
 
 	SECTION("Filter by valid LHS") {
-		testFilter(modifiesManager, PkbClause("1", ""), { x_id });
-		testFilter(modifiesManager, PkbClause("3", ""), { y_id });
-		testFilter(modifiesManager, PkbClause("2", ""), { y_id });
+		testFilter(modifiesManager, PkbClause("1", ""), { xId });
+		testFilter(modifiesManager, PkbClause("3", ""), { yId });
+		testFilter(modifiesManager, PkbClause("2", ""), { yId });
 	};
 
 	SECTION("Filter by invalid LHS") {
@@ -80,8 +80,8 @@ TEST_CASE("ModifiesPkbTableManager: test filter") {
 	}
 
 	SECTION("Filter by valid RHS") {
-		testFilter(modifiesManager, PkbClause("", "x"), { readX_id });
-		testFilter(modifiesManager, PkbClause("", "y"), { readY_id, assignY_id });
+		testFilter(modifiesManager, PkbClause("", "x"), { readXId });
+		testFilter(modifiesManager, PkbClause("", "y"), { readYId, assignYId });
 	};
 
 	SECTION("Filter by invalid RHS") {

@@ -3,13 +3,13 @@
 #include <vector>
 
 //If no such variable can be found, return -1;
-int EntityPkbTableManager::findVariable(string string) {
-	for (auto pair : idToEntityMapping) {
+int EntityPkbTableManager::findVariableByString(string stringToMatch) {
+	for (auto idAndEntity : this->idToEntityMapping) {
 
-		PkbEntity entity = pair.second;
+		PkbEntity entity = idAndEntity.second;
 
-		if (entity.toString() == string) {
-			return pair.first;
+		if (entity.toString() == stringToMatch) {
+			return idAndEntity.first;
 		}
 	}
 	return -1;
@@ -17,12 +17,12 @@ int EntityPkbTableManager::findVariable(string string) {
 
 //If no such statement can be found, return -1;
 int EntityPkbTableManager::findStatement(int lineNumber) {
-	for (auto pair : idToEntityMapping) {
+	for (auto idAndEntity : this->idToEntityMapping) {
 
-		PkbEntity entity = pair.second;
+		PkbEntity entity = idAndEntity.second;
 
 		if (entity.isStatement() && entity.getLineNumber() == lineNumber) {
-			return pair.first;
+			return idAndEntity.first;
 		}
 	}
 	return -1;
@@ -32,19 +32,19 @@ vector<PkbEntity> EntityPkbTableManager::filter(vector<int> ids)  {
 	vector<PkbEntity> filtered = vector<PkbEntity>();
 
 	for (auto id : ids) {
-		if (idToEntityMapping.find(id) != idToEntityMapping.end()) {
-			filtered.push_back(idToEntityMapping.at(id));
+		if (this->idToEntityMapping.find(id) != this->idToEntityMapping.end()) {
+			filtered.push_back(this->idToEntityMapping.at(id));
 		}
 	}
 	return filtered;
 }
 
 int EntityPkbTableManager::add(PkbEntity entity) {
-	if (entityToIdMapping.find(entity) == entityToIdMapping.end()) {
-		entityToIdMapping[entity] = nextId;
-		idToEntityMapping.insert({ nextId, entity });
-		nextId++;
-		return nextId - 1;
+	if (this->entityToIdMapping.find(entity) == this->entityToIdMapping.end()) {
+		this->entityToIdMapping[entity] = this->nextId;
+		this->idToEntityMapping.insert({ this->nextId, entity });
+		this->nextId++;
+		return this->nextId - 1;
 	}	
 	else {
 		return entityToIdMapping[entity];
@@ -52,7 +52,7 @@ int EntityPkbTableManager::add(PkbEntity entity) {
 }
 
 void EntityPkbTableManager::clearDataBase() {
-	idToEntityMapping.clear();
-	entityToIdMapping.clear();
-	nextId = 0;
+	this->idToEntityMapping.clear();
+	this->entityToIdMapping.clear();
+	this->nextId = 0;
 }

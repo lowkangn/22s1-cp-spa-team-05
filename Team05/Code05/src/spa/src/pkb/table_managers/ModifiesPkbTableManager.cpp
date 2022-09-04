@@ -5,27 +5,42 @@
 
 vector<int> ModifiesPkbTableManager::filter(PkbClause clause) {
 	vector<int> results = vector<int>();
+	const string EMPTY_STRING = "";
 
-	// If the clause lacks a LHS, it must have a RHS. Otherwise it would be invalid.
-	if (clause.getLhs() == "") {
-		int variable = entityManager.findVariable(clause.getRhs());
+	if (clause.getLhs() == EMPTY_STRING) {
 
-		for (auto pair : mappings) {
-			if (pair.second.getRhs() == variable) {
-				results.push_back(pair.second.getLhs());
+		string varString = clause.getRhs();
+		int varId = this->entityManager.findVariableByString(varString);
+		
+		for (auto idAndRship : this->idToRshipMapping) {
+
+			PkbRelationship relationship = idAndRship.second;
+			int modifier = relationship.getLhs();
+			int modified = relationship.getRhs();
+
+			// Find the statement that modify this variable.
+			if (modified == varId) {
+				results.push_back(modifier);
 			}
 		}
 	}
 	else {
-		int statement = entityManager.findStatement(stoi(clause.getLhs()));
+		int lineNumber = stoi(clause.getLhs());
+		int statementId = this->entityManager.findStatement(lineNumber);
 
-		if (!statement) {
+		if (!statementId) {
 			return results;
 		}
 
-		for (auto pair : mappings) {
-			if (pair.second.getLhs() == statement) {
-				results.push_back(pair.second.getRhs());
+		for (auto idAndRship : this->idToRshipMapping) {
+
+			PkbRelationship relationship = idAndRship.second;
+			int modifier = relationship.getLhs();
+			int modified = relationship.getRhs();
+
+			// Find the variable modified by this statement.
+			if (modifier == statementId) {
+				results.push_back(modified);
 			}
 		}
 	}
@@ -33,12 +48,12 @@ vector<int> ModifiesPkbTableManager::filter(PkbClause clause) {
 }
 
 int ModifiesPkbTableManager::add(PkbRelationship relationship) {
-	mappings.insert({ nextId, relationship });
-	nextId++;
-	return nextId - 1;
+	this->idToRshipMapping.insert({ this->nextId, relationship });
+	this->nextId++;
+	return this->nextId - 1;
 }
 
 void ModifiesPkbTableManager::clearDataBase() {
-	mappings.clear();
-	nextId = 0;
+	this->idToRshipMapping.clear();
+	this->nextId = 0;
 }

@@ -9,7 +9,7 @@
 class EntityPkbTableManager : public PkbTableManager<PkbEntity> {
 
 public:
-	int findVariable(string string);
+	int findVariableByString(string stringToMatch);
 
 	int findStatement(int lineNumber);
 

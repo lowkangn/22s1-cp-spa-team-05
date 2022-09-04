@@ -15,6 +15,8 @@ public:
 
 	void clearDataBase() override;
 
+	bool isClauseLhsEmpty(PkbClause clause);
+
 private:
-	unordered_map<int, PkbRelationship> mappings;
+	unordered_map<int, PkbRelationship> idToRshipMapping;
 };
