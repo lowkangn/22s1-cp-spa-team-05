@@ -705,7 +705,11 @@ TEST_CASE("Parser: test ::constructNode") {
     SECTION("ProgramSimpleSyntaxRule : constructNode") {
         /*
             procedure procedureName {
-                soomevariable = 1;
+            1.    soomevariable = 1;
+            }
+
+            procedure anotherProcedureName {
+            2.    variable = 1;
             }
         */
 
@@ -772,26 +776,37 @@ TEST_CASE("Parser: test ::constructNode") {
         // Create first assign node
         shared_ptr<ASTNode> firstAssignASTNode(new ASTNode(vector<Token> {equalsToken}));
         firstAssignASTNode->setType(ASTNodeType::ASSIGN);
+        firstAssignASTNode->setLineNumber(1);
 
         // Create first assign node
         shared_ptr<ASTNode> secondAssignASTNode(new ASTNode(vector<Token> {equalsToken}));
         secondAssignASTNode->setType(ASTNodeType::ASSIGN);
+        secondAssignASTNode->setLineNumber(2);
+
 
         // Create first variable node
         shared_ptr<ASTNode> variableNode(new ASTNode(vector<Token> {variable}));
         variableNode->setType(ASTNodeType::NAME);
+        variableNode->setLineNumber(1);
+
 
         // Create second variable node
         shared_ptr<ASTNode> anotherVariableNode(new ASTNode(vector<Token> {anotherVariable}));
         anotherVariableNode->setType(ASTNodeType::NAME);
+        anotherVariableNode->setLineNumber(2);
+
 
         // Create constant node
         shared_ptr<ASTNode> constantNode(new ASTNode(vector<Token> {constantToken}));
         constantNode->setType(ASTNodeType::CONSTANT);
+        constantNode->setLineNumber(1);
+
 
         // Create another constant node
         shared_ptr<ASTNode> anotherConstantNode(new ASTNode(vector<Token> {constantToken}));
         anotherConstantNode->setType(ASTNodeType::CONSTANT);
+        anotherConstantNode->setLineNumber(2);
+
 
         // Construct first procedure
 
@@ -827,6 +842,10 @@ TEST_CASE("Parser: test ::constructNode") {
         test(rule, expectedASTNode);
     }
 };
+
+TEST_CASE("Parser: test ::setLineNumber") {
+    
+}
 
 
 // =============== INTEGRATION TEST FOR RULES ====================

@@ -74,6 +74,73 @@ shared_ptr<ASTNode> ProgramSimpleSyntaxRule::constructNode() {
 		node->addChild(child);
 	}
 
+	this->setLineNumbers(node, 1);
+
 	return node;
 }
 
+int ProgramSimpleSyntaxRule::setLineNumbers(shared_ptr<ASTNode> root, int lineNumber) {
+	ASTNodeType nodeType = root->getType();
+
+	// If it is a statement list call function to handle statement list
+	if (nodeType == ASTNodeType::STMTLIST) {
+		lineNumber = this->handleStatementList(root, lineNumber);
+	}
+
+	// Iterate through children and recursively set their line numbers
+	for (auto &child : root->getChildren()) {
+		lineNumber = this->setLineNumbers(child, lineNumber);
+	}
+
+	return lineNumber;
+}
+
+int ProgramSimpleSyntaxRule::handleStatementList(shared_ptr<ASTNode> root , int lineNumber) {
+	// Sanity check
+	assert(root->getType() == ASTNodeType::STMTLIST);
+
+	// For each statement set the line number then increment
+	for (auto &child : root->getChildren()) {
+		this->recursiveSetLineNumber(child, lineNumber);
+		lineNumber += 1;
+	}
+	return lineNumber;
+}
+
+void ProgramSimpleSyntaxRule::recursiveSetLineNumber(shared_ptr<ASTNode> root, int lineNumber) {
+	// Set current node's line number
+	ASTNodeType nodeType = root->getType();
+	root->setLineNumber(lineNumber);
+
+	switch (nodeType) {
+	// If and While are special cases
+	case ASTNodeType::IF:
+	case ASTNodeType::WHILE:
+		{
+			for (auto &child : root->getChildren()) {
+				// Call to original function as IF and WHILE themselves contain statement lists
+				if (child->getType() == ASTNodeType::STMTLIST) {
+					lineNumber = this->handleStatementList(child, lineNumber);
+				}
+				else {
+					this->recursiveSetStatementNumber(root, lineNumber);
+				}
+			}
+			break;
+		}
+	default:
+		{
+			// Set the entire subtree to the same line number
+			this->recursiveSetStatementNumber(root, lineNumber);
+		}
+	}
+}
+
+void ProgramSimpleSyntaxRule::recursiveSetStatementNumber(shared_ptr<ASTNode> root, int lineNumber) {
+	root->setLineNumber(lineNumber);
+	if (root->numChildren() > 0) {
+		for (auto& child : root->getChildren()) {
+			this->recursiveSetStatementNumber(child, lineNumber);
+		}
+	}
+}

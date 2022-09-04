@@ -17,4 +17,18 @@ public:
 	vector<shared_ptr<SimpleSyntaxRule>> generateChildRules() override;
 	list<Token> consumeTokens(list<Token> tokens) override;
 	shared_ptr<ASTNode> constructNode() override;
+
+	int setLineNumbers(shared_ptr<ASTNode> root, int lineNumber);
+	
+	/*
+		This function sets the line numbers of statement lists
+	*/
+	int handleStatementList(shared_ptr<ASTNode> root, int lineNumber);
+
+	/*
+		This function recursively sets linenumber for Entities
+	*/
+	void recursiveSetLineNumber(shared_ptr<ASTNode> root, int lineNumber);
+
+	void recursiveSetStatementNumber(shared_ptr<ASTNode> root, int lineNumber);
 };
