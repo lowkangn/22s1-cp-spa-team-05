@@ -1,17 +1,17 @@
 #pragma once
 
-#include <pkb/table_managers/PkbTableManager.h>
+#include <pkb/table_managers/RelationshipPkbTableManager.h>
 #include <unordered_map>
 #include <string>
 
-class UsesPkbTableManager : public PkbTableManager {
+class UsesPkbTableManager : public RelationshipPkbTableManager {
 public:
-	std::string filter(PkbQuery query) override;
+	string filter(PkbClause clause) override;
 
-	void add(Relationship relationship) override;
+	void add(PkbRelationship relationship) override;
 
 	void clearDataBase() override;
 
 private:
-	std::unordered_map<Entity, Relationship> mappings;
+	unordered_map<int, PkbRelationship> mappings;
 };
