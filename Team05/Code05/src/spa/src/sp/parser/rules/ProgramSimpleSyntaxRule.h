@@ -26,7 +26,7 @@ public:
 	/*
 		This function sets the line numbers of statement lists
 	*/
-	int handleStatementList(shared_ptr<ASTNode> root, int lineNumber);
+	int iterateThroughStatementInStatementList(shared_ptr<ASTNode> root, int lineNumber);
 
 	/*
 		This function recursively sets linenumber for nodes depending on their type

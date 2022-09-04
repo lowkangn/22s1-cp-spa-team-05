@@ -82,7 +82,7 @@ int ProgramSimpleSyntaxRule::setASTLineNumbers(shared_ptr<ASTNode> root, int lin
 
 	// If it is a statement list call function to handle statement list
 	if (nodeType == ASTNodeType::STMTLIST) {
-		lineNumber = this->handleStatementList(root, lineNumber);
+		lineNumber = this->iterateThroughStatementInStatementList(root, lineNumber);
 	}
 
 	// Iterate through children and recursively set their line numbers
@@ -93,12 +93,12 @@ int ProgramSimpleSyntaxRule::setASTLineNumbers(shared_ptr<ASTNode> root, int lin
 	return lineNumber;
 }
 
-int ProgramSimpleSyntaxRule::handleStatementList(shared_ptr<ASTNode> root , int lineNumber) {
+int ProgramSimpleSyntaxRule::iterateThroughStatementInStatementList(shared_ptr<ASTNode> rootOfStatementList , int lineNumber) {
 	// Sanity check
-	assert(root->getType() == ASTNodeType::STMTLIST);
+	assert(rootOfStatementList->getType() == ASTNodeType::STMTLIST);
 
 	// For each statement set the line number then increment
-	for (auto &child : root->getChildren()) {
+	for (auto &child : rootOfStatementList->getChildren()) {
 		this->recursiveSetLineNumber(child, lineNumber);
 		lineNumber += 1;
 	}
@@ -110,15 +110,16 @@ void ProgramSimpleSyntaxRule::recursiveSetLineNumber(shared_ptr<ASTNode> root, i
 	ASTNodeType nodeType = root->getType();
 	root->setLineNumber(lineNumber);
 
+	// TODO Try to come up with a more clean way to handle this logic
 	switch (nodeType) {
 	// If and While are special cases
 	case ASTNodeType::IF:
 	case ASTNodeType::WHILE:
 		{
 			for (auto &child : root->getChildren()) {
-				// Call to original function as IF and WHILE themselves contain statement lists
+				// Call to iterateThroughStatementInStatementList as IF and WHILE themselves contain statement lists
 				if (child->getType() == ASTNodeType::STMTLIST) {
-					lineNumber = this->handleStatementList(child, lineNumber);
+					lineNumber = this->iterateThroughStatementInStatementList(child, lineNumber);
 				}
 				else {
 					// Handles the condition in IF statements
