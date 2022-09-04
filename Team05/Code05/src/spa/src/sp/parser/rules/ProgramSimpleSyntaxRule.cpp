@@ -121,6 +121,7 @@ void ProgramSimpleSyntaxRule::recursiveSetLineNumber(shared_ptr<ASTNode> root, i
 					lineNumber = this->handleStatementList(child, lineNumber);
 				}
 				else {
+					// Handles the condition in IF statements
 					this->recursiveSetStatementNumber(root, lineNumber);
 				}
 			}
@@ -137,6 +138,7 @@ void ProgramSimpleSyntaxRule::recursiveSetLineNumber(shared_ptr<ASTNode> root, i
 void ProgramSimpleSyntaxRule::recursiveSetStatementNumber(shared_ptr<ASTNode> root, int lineNumber) {
 	root->setLineNumber(lineNumber);
 	if (root->numChildren() > 0) {
+		// Set children of the tree to the same line number recursively
 		for (auto& child : root->getChildren()) {
 			this->recursiveSetStatementNumber(child, lineNumber);
 		}
