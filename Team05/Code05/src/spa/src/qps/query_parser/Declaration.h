@@ -48,13 +48,34 @@ public:
 		return synonym;
 	}
 
-	/**
-	 * Tests if another declaration is equal to this declaration
-	 * @param otherDeclaration to test.
-	 * @return true if Declarations are equal.
-	 */
-	bool equals(Declaration otherDeclaration) {
-		return designEntity == otherDeclaration.getDesignEntity() 
-			&& synonym == otherDeclaration.getSynonym();
+
+	/* Returns true if the declaration is a statement synonym */
+	bool isStatement() {
+		return  designEntity == DesignEntity::STMT || designEntity == DesignEntity::READ
+			|| designEntity == DesignEntity::PRINT || designEntity == DesignEntity::ASSIGN
+			|| designEntity == DesignEntity::CALL || designEntity == DesignEntity::WHILE
+			|| designEntity == DesignEntity::IF;
+	}
+
+	/* Returns true if the declaration is an assign synonym */
+	bool isAssign() {
+		return  designEntity == DesignEntity::ASSIGN;
+	}
+
+	/* Returns true if the declaration is a procedure synonym */
+	bool isProcedure() {
+		return  designEntity == DesignEntity::PROCEDURE;
+	}
+
+	/* Returns true if the declaration is a variable synonym */
+	bool isVariable() {
+		return  designEntity == DesignEntity::VARIABLE;
+	}
+
+	/* Returns true if the declaration is a constant synonym */
+	bool isConstant() {
+		return  designEntity == DesignEntity::CONSTANT;
 	}
 };
+
+bool operator== (Declaration firstDeclaration, Declaration otherDeclaration);

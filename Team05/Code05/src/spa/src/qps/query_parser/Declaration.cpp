@@ -16,9 +16,13 @@ unordered_map<string, DesignEntity> entityMap({
 Declaration::Declaration(string designEntity, string synonym) {
 	try {
 		this->designEntity = entityMap.at(designEntity);
-	}
-	catch (const out_of_range& oor) {
+	} catch (const out_of_range& oor) {
 		throw PQLError(designEntity + " is not supported as a Design Entity");
 	}
 	this->synonym = synonym;
+}
+
+bool operator== (Declaration firstDeclaration, Declaration otherDeclaration) {
+	return firstDeclaration.getDesignEntity() == otherDeclaration.getDesignEntity()
+		&& firstDeclaration.getSynonym() == otherDeclaration.getSynonym();
 }

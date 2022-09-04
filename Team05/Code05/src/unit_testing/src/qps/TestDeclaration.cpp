@@ -39,7 +39,7 @@ TEST_CASE("Declaration: test Constructor") {
 
 TEST_CASE("Declaration: test equals") {
     auto testEquals = [](Declaration first, Declaration second, bool expected) {
-        REQUIRE(first.equals(second) == expected);
+        REQUIRE((first == second) == expected);
     };
 
     // Given

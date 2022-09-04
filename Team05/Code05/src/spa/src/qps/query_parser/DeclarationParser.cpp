@@ -2,16 +2,14 @@
 #include <qps/query_parser/PQLError.h>
 
 
-list<Declaration> DeclarationParser::parse() {
-	list<Declaration> declarations;
+unordered_map<string, Declaration> DeclarationParser::parse() {
 	PQLToken token = tokens.front();
 	while (!tokens.empty() && !token.isSelect()) {
 		token = tokens.front();
-		tokens.pop_front();
 		if (tokens.empty() || token.isSelect()) {
 			break;
 		}
-		declarations.splice(declarations.end(), parseOneDeclaration(token));
+		parseOneDeclaration();
 	}
 
 	if (tokens.empty()) {
@@ -21,14 +19,15 @@ list<Declaration> DeclarationParser::parse() {
 	return declarations;
 };
 
-list<Declaration> DeclarationParser::parseOneDeclaration(PQLToken designEntityToken) {
-	list<Declaration> result;
+void DeclarationParser::parseOneDeclaration() {
+	PQLToken designEntityToken = tokens.front();
+	tokens.pop_front();
 	PQLToken token = tokens.front();
 	bool isSynonymExpected = true;
+
 	while (!tokens.empty()) {
 		token = tokens.front();
 		tokens.pop_front();
-
 		if (isSynonymExpected && !token.isName()) {
 			throw PQLError("Expected synonym name, got: " + token.getTokenString());
 		} else if (token.isComma()) {
@@ -37,11 +36,9 @@ list<Declaration> DeclarationParser::parseOneDeclaration(PQLToken designEntityTo
 		} else if (token.isSemicolon()) {
 			break;
 		} 
-
 		string synonym = token.getTokenString();
 		ensureSynonymNotDeclared(synonym);
-		result.emplace_back(Declaration(designEntityToken.getTokenString(), synonym));
-		declaredSynonyms.insert(synonym);
+		declarations.insert({ synonym, Declaration(designEntityToken.getTokenString(), synonym) });
 		isSynonymExpected = false;
 	}
 
@@ -50,14 +47,12 @@ list<Declaration> DeclarationParser::parseOneDeclaration(PQLToken designEntityTo
 	}
 
 	if (!token.isSemicolon()) {
-		throw PQLError("Declaration must end with semicolon" + token.getTokenString());
+		throw PQLError("Declaration must end with semicolon, not " + token.getTokenString());
 	}
-
-	return result;
 };
 
 void DeclarationParser::ensureSynonymNotDeclared(string synonym) {
-	if (declaredSynonyms.find(synonym) != declaredSynonyms.end()) {
+	if (declarations.count(synonym) > 0) {
 		throw PQLError("Synonym already declared: " + synonym);
 	}
 };

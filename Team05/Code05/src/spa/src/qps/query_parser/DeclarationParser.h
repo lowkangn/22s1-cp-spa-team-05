@@ -8,30 +8,30 @@
 class DeclarationParser {
 private:
 	list<PQLToken> tokens;
-	unordered_set<string> declaredSynonyms;
+	unordered_map<string, Declaration> declarations;
 public:
 	DeclarationParser(list<PQLToken> tokens) {
 		this->tokens = tokens;
 	};
 
-	list<PQLToken> getRemainingTokens() {
-		return tokens; 
+	unordered_map<string, Declaration> getDeclarations() {
+		return declarations;
 	};
 
-	unordered_set<string> getDeclaredSynonyms() {
-		return declaredSynonyms;
+	list<PQLToken> getRemainingTokens() {
+		return tokens;
 	};
 
 	/* Parses all declarations in the query. */
-	list<Declaration> parse();
+	unordered_map<string, Declaration> parse();
 
 	/**
 	 * Parses one declaration clause, defined
 	 * as "design-entity synonym (',' synonym)* ';'"
-	 * 
-	 * Precondition: this->Tokens is non-empty
+	 *
+	 * Preconditions: this->Tokens is non-empty
 	 */
-	list<Declaration> parseOneDeclaration(PQLToken designEntityToken);
+	void parseOneDeclaration();
 
 	void ensureSynonymNotDeclared(string synonym);
 };

@@ -4,13 +4,13 @@
 
 Query QueryParser::parse() {
     DeclarationParser declParser = DeclarationParser(tokens);
-    list<Declaration> declarations = declParser.parse();
+    unordered_map<string, Declaration> declarations = declParser.parse();
 
-    list<Clause> selectClause;
+    Clause selectClause;
     list<Clause> constraintClauses;
-    /*
+    /* TODO:
     SelectParser selParser = SelectParser(declParser.getRemainingTokens(), declarations);
-    list<Clause> selectClause = selParser.parse();
+    Clause selectClause = selParser.parse();
 
     ConstraintParser constraintParser = ConstraintParser(SelectParser.getRemainingTokens(), declarations);
     list<Clause> constraintClauses = constraintParser.parse();

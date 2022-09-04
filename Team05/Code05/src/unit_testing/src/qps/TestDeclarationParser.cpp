@@ -2,6 +2,7 @@
 #include <string>
 #include <list>
 #include <qps/query_parser/PQLError.h>
+#include <qps/query_parser/Declaration.h>
 #include <qps/query_parser/DeclarationParser.h>
 #include <qps/query_parser/DeclarationParser.cpp>
 
@@ -10,79 +11,55 @@ using namespace std;
 // =============== UNIT TESTS ====================
 
 TEST_CASE("DeclarationParser: test parseOneDeclarationNoError") {
-    auto testParseOneDeclarationNoError = [](PQLToken designEntityToken, list<PQLToken> tokens, list<Declaration> expected) {
+    auto testParseOneDeclarationNoError = [](list<PQLToken> tokens,
+        unordered_map<string, Declaration> expected) {
         // given
         DeclarationParser parser = DeclarationParser(tokens);
 
         // when
-        list<Declaration> actual = parser.parseOneDeclaration(designEntityToken);
-        bool isEqual = actual.size() == expected.size();
-        if (isEqual) {
-            while (!actual.empty()) {
-                isEqual = isEqual && actual.front().equals(expected.front());
-                actual.pop_front();
-                expected.pop_front();
-            }
-        }
+        parser.parseOneDeclaration();
+        unordered_map<string, Declaration> actual = parser.getDeclarations();
 
         // then
-        REQUIRE(isEqual);
+        REQUIRE(actual == expected);
     };
 
 
     SECTION("One synonym") {
-        testParseOneDeclarationNoError(PQLToken("variable", PQLTokenType::NAME), 
-            list<PQLToken>{PQLToken("v1", PQLTokenType::NAME),PQLToken(";", PQLTokenType::DELIMITER)},
-            list<Declaration>{Declaration("variable", "v1")});
+        testParseOneDeclarationNoError(list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME), 
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER)},
+            unordered_map<string, Declaration>{ {"v1", Declaration("variable", "v1")}});
     }
 
-    SECTION("Multiple synonyms") {
-        testParseOneDeclarationNoError(PQLToken("variable", PQLTokenType::NAME), 
-            list<PQLToken>{
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("v2", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER)},
-            list<Declaration>{Declaration("variable", "v1"),
-                Declaration("variable", "v2")});
-        testParseOneDeclarationNoError(PQLToken("variable", PQLTokenType::NAME), 
-            list<PQLToken>{
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("v2", PQLTokenType::NAME),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("v3", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER)},
-            list<Declaration>{Declaration("variable", "v1"),
-                Declaration("variable", "v2"),
-                Declaration("variable", "v3")});
-    }
+    
 }
 
 
 TEST_CASE("DeclarationParser: test parseOneDeclarationWithError") {
-    auto testParseOneDeclarationWithError = [](PQLToken designEntityToken, list<PQLToken> tokens) {
+    auto testParseOneDeclarationWithError = [](list<PQLToken> tokens) {
         // given
         DeclarationParser parser = DeclarationParser(tokens);
 
         // then
-        REQUIRE_THROWS_AS(parser.parseOneDeclaration(designEntityToken), PQLError);
+        REQUIRE_THROWS_AS(parser.parseOneDeclaration(), PQLError);
     };
 
     // missing semicolon
-    testParseOneDeclarationWithError(PQLToken("variable", PQLTokenType::NAME),
-        list<PQLToken>{PQLToken("v1", PQLTokenType::NAME)});
+    testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+        PQLToken("v1", PQLTokenType::NAME)});
     // missing synonym
-    testParseOneDeclarationWithError(PQLToken("variable", PQLTokenType::NAME),
-        list<PQLToken>{PQLToken(";", PQLTokenType::DELIMITER)});
+    testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME), 
+        PQLToken(";", PQLTokenType::DELIMITER)});
     // missing synonym after comma
-    testParseOneDeclarationWithError(PQLToken("variable", PQLTokenType::NAME),
-        list<PQLToken>{PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken(";", PQLTokenType::DELIMITER)});
+    testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME), 
+        PQLToken("v1", PQLTokenType::NAME), 
+        PQLToken(",", PQLTokenType::DELIMITER), 
+        PQLToken(";", PQLTokenType::DELIMITER)});
     // typo - double comma
-    testParseOneDeclarationWithError(PQLToken("variable", PQLTokenType::NAME),
-        list<PQLToken>{PQLToken("v1", PQLTokenType::NAME),
+    testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME), 
+        PQLToken("v1", PQLTokenType::NAME),
         PQLToken(",", PQLTokenType::DELIMITER),
         PQLToken(",", PQLTokenType::DELIMITER),
         PQLToken("v2", PQLTokenType::NAME),
@@ -91,23 +68,15 @@ TEST_CASE("DeclarationParser: test parseOneDeclarationWithError") {
 
 
 TEST_CASE("DeclarationParser: test parseNoError") {
-    auto testParseNoError = [](list<PQLToken> tokens, list<Declaration> expected) {
+    auto testParseNoError = [](list<PQLToken> tokens, unordered_map<string, Declaration> expected) {
         // given
         DeclarationParser parser = DeclarationParser(tokens);
 
         // when
-        list<Declaration> actual = parser.parse();
-        bool isEqual = actual.size() == expected.size();
-        if (isEqual) {
-            while (!actual.empty()) {
-                isEqual = isEqual && actual.front().equals(expected.front());
-                actual.pop_front();
-                expected.pop_front();
-            }
-        }
+        unordered_map<string, Declaration> actual = parser.parse();
 
         // then
-        REQUIRE(isEqual);
+        REQUIRE(actual == expected);
     };
 
 
@@ -118,7 +87,7 @@ TEST_CASE("DeclarationParser: test parseNoError") {
                 PQLToken(";", PQLTokenType::DELIMITER),
                 PQLToken("Select", PQLTokenType::NAME),
                 PQLToken("v1", PQLTokenType::NAME)},
-            list<Declaration>{Declaration("variable", "v1")});
+            unordered_map<string, Declaration>{ {"v1", Declaration("variable", "v1")}});
     }
 
     SECTION("Multiple declarations") {
@@ -131,7 +100,8 @@ TEST_CASE("DeclarationParser: test parseNoError") {
                 PQLToken(";", PQLTokenType::DELIMITER),
                 PQLToken("Select", PQLTokenType::NAME),
                 PQLToken("v1", PQLTokenType::NAME)},
-            list<Declaration>{Declaration("variable", "v1"), Declaration("stmt", "s1")});
+            unordered_map<string, Declaration>{ {"v1", Declaration("variable", "v1")},
+            { "s1", Declaration("stmt", "s1") }});
         testParseNoError(list<PQLToken>{
             PQLToken("variable", PQLTokenType::NAME),
                 PQLToken("v1", PQLTokenType::NAME),
@@ -143,9 +113,8 @@ TEST_CASE("DeclarationParser: test parseNoError") {
                 PQLToken(";", PQLTokenType::DELIMITER),
                 PQLToken("Select", PQLTokenType::NAME),
                 PQLToken("v1", PQLTokenType::NAME)},
-            list<Declaration>{Declaration("variable", "v1"), 
-                Declaration("stmt", "s1"), 
-                Declaration("stmt", "s2")});
+            unordered_map<string, Declaration>{ {"v1", Declaration("variable", "v1")},
+            { "s1", Declaration("stmt", "s1") }, { "s2", Declaration("stmt", "s2") }});
     }
 }
 
@@ -170,4 +139,68 @@ TEST_CASE("DeclarationParser: test parseWithError") {
         PQLToken(",", PQLTokenType::DELIMITER),
         PQLToken("v1", PQLTokenType::NAME),
         PQLToken(";", PQLTokenType::DELIMITER)});
+}
+
+TEST_CASE("DeclarationParser: test getRemainingTokens (after parsing)") {
+    auto testGetRemainingTokens = [](list<PQLToken> tokens, list<PQLToken> expected) {
+        // given
+        DeclarationParser parser = DeclarationParser(tokens);
+
+        // when
+        parser.parse();
+        list<PQLToken> actual = parser.getRemainingTokens();
+        bool isEqual = actual.size() == expected.size();
+        if (isEqual) {
+            while (!actual.empty()) {
+                isEqual = isEqual && actual.front().equals(expected.front());
+                actual.pop_front();
+                expected.pop_front();
+            }
+        }
+
+        // then
+        REQUIRE(isEqual);
+    };
+
+
+    SECTION("One declaration") {
+        testGetRemainingTokens(list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
+                PQLToken("v1", PQLTokenType::NAME),
+                PQLToken(";", PQLTokenType::DELIMITER),
+                PQLToken("Select", PQLTokenType::NAME),
+                PQLToken("v1", PQLTokenType::NAME)},
+            list<PQLToken>{PQLToken("Select", PQLTokenType::NAME),
+                PQLToken("v1", PQLTokenType::NAME)});
+    }
+
+    SECTION("Multiple declarations; such that and pattern included") {
+        testGetRemainingTokens(list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
+                PQLToken("v1", PQLTokenType::NAME),
+                PQLToken(";", PQLTokenType::DELIMITER),
+                PQLToken("stmt", PQLTokenType::NAME),
+                PQLToken("s1", PQLTokenType::NAME),
+                PQLToken(";", PQLTokenType::DELIMITER),
+                PQLToken("Select", PQLTokenType::NAME),
+                PQLToken("v1", PQLTokenType::NAME),
+                PQLToken("such", PQLTokenType::NAME),
+                PQLToken("that", PQLTokenType::NAME),
+                PQLToken("Modifies", PQLTokenType::NAME),
+                PQLToken("(", PQLTokenType::DELIMITER),
+                PQLToken("1", PQLTokenType::DELIMITER),
+                PQLToken(",", PQLTokenType::DELIMITER),
+                PQLToken("v1", PQLTokenType::DELIMITER),
+                PQLToken(")", PQLTokenType::DELIMITER)},
+            list<PQLToken>{PQLToken("Select", PQLTokenType::NAME), 
+                PQLToken("v1", PQLTokenType::NAME),
+                PQLToken("such", PQLTokenType::NAME),
+                PQLToken("that", PQLTokenType::NAME),
+                PQLToken("Modifies", PQLTokenType::NAME),
+                PQLToken("(", PQLTokenType::DELIMITER),
+                PQLToken("1", PQLTokenType::DELIMITER),
+                PQLToken(",", PQLTokenType::DELIMITER),
+                PQLToken("v1", PQLTokenType::DELIMITER),
+                PQLToken(")", PQLTokenType::DELIMITER)});
+    }
 }
