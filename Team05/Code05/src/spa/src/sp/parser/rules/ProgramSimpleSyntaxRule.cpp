@@ -77,7 +77,7 @@ shared_ptr<ASTNode> ProgramSimpleSyntaxRule::constructNode() {
 	return node;
 }
 
-int ProgramSimpleSyntaxRule::setLineNumbers(shared_ptr<ASTNode> root, int lineNumber) {
+int ProgramSimpleSyntaxRule::setASTLineNumbers(shared_ptr<ASTNode> root, int lineNumber) {
 	ASTNodeType nodeType = root->getType();
 
 	// If it is a statement list call function to handle statement list
@@ -87,7 +87,7 @@ int ProgramSimpleSyntaxRule::setLineNumbers(shared_ptr<ASTNode> root, int lineNu
 
 	// Iterate through children and recursively set their line numbers
 	for (auto &child : root->getChildren()) {
-		lineNumber = this->setLineNumbers(child, lineNumber);
+		lineNumber = this->setASTLineNumbers(child, lineNumber);
 	}
 
 	return lineNumber;
