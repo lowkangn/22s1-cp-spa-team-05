@@ -12,7 +12,8 @@ string QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<Cl
     while (!results.second.empty()) {
         // Safe cast as we know results.second is the result of execute() (excluding SelectClause) which returns a
         // ClauseResult pointer pointing to a RelationshipClauseResult.
-        shared_ptr<RelationshipClauseResult> relationshipsResult = static_pointer_cast<RelationshipClauseResult>(results.second.front());
+        shared_ptr<RelationshipClauseResult> relationshipsResult = static_pointer_cast<RelationshipClauseResult>(
+                results.second.front());
         relationshipsResults.push_back(relationshipsResult);
         results.second.pop_front();
     }
@@ -26,7 +27,7 @@ string QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<Cl
         if ((*checkEmptyIter)->getRelationships().empty()) return "None";
     }
 
-    // We start with a list of entity names from the SelectClause, then remove as we check the other clauses
+    // We start with a list of entity names from the SelectClause, then remove as we check the other clauses for constraints
     vector<PQLEntity> entities = entitiesResult->getEntities();
     unordered_set<string> entityNamesToReturn;
 
@@ -38,39 +39,7 @@ string QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<Cl
     // Iterate through the other clauses
     list<shared_ptr<RelationshipClauseResult>>::iterator filterIter = relationshipsResults.begin();
     for (; filterIter != relationshipsResults.end(); filterIter++) {
-        DeclarationCheckOutput output = checkDeclaration(entitiesResult, *filterIter);
-
-        // If clause does not share a variable with the SelectClause, skip it
-        if (output == DeclarationCheckOutput::NONE) {
-            continue;
-
-        } else {
-            // Obtain an unordered set of names of the relevant entities in this relationships vector
-            vector<PQLRelationship> relationships = (*filterIter)->getRelationships();
-            unordered_set<string> entity_set;
-
-            vector<PQLRelationship>::iterator createSetIter = relationships.begin();
-
-            if (output == DeclarationCheckOutput::ARG1) {
-                for (; createSetIter != relationships.end(); createSetIter++) {
-                    PQLEntity currEntity = createSetIter->getFirstEntity();
-                    entity_set.insert(currEntity.toString());
-                }
-            } else {
-                for (; createSetIter != relationships.end(); createSetIter++) {
-                    PQLEntity currEntity = createSetIter->getSecondEntity();
-                    entity_set.insert(currEntity.toString());
-                }
-            }
-
-            // If a name in entityNamesToReturn is not in the set of names of the entities returned by this clause, remove it
-            unordered_set<string>::iterator removeIter = entityNamesToReturn.begin();
-            for (; removeIter != entityNamesToReturn.end(); removeIter++) {
-                if (entity_set.find(*removeIter) == entity_set.end()) {
-                    entityNamesToReturn.erase(*removeIter);
-                }
-            }
-        }
+        filterEntitiesToReturn(entityNamesToReturn, entitiesResult, *filterIter);
     }
 
     string combinedResult;
@@ -80,14 +49,16 @@ string QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<Cl
     for (; outputIter != entityNamesToReturn.end(); outputIter++) {
         if (outputIter == entityNamesToReturn.begin()) {
             combinedResult.append(", ");
+        }
         combinedResult.append(*outputIter);
     }
-};
+
+}
 
 string QueryEvaluator::evaluate(Query query) {
     pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results = query.execute();
 	return combine(results);
-};
+}
 
 DeclarationCheckOutput checkDeclaration(shared_ptr<EntityClauseResult> entityResult, shared_ptr<RelationshipClauseResult> relationshipResult) {
     if (entityResult->getArg() == relationshipResult->getFirstArg()) {
@@ -96,5 +67,43 @@ DeclarationCheckOutput checkDeclaration(shared_ptr<EntityClauseResult> entityRes
         return DeclarationCheckOutput::ARG2;
     } else {
         return DeclarationCheckOutput::NONE;
+    }
+}
+
+void filterEntitiesToReturn(unordered_set<string>* currEntitiesToReturn, shared_ptr<EntityClauseResult> entitiesResult,
+                            shared_ptr<RelationshipClauseResult> relationshipsResult) {
+
+    DeclarationCheckOutput output = checkDeclaration(entitiesResult, relationshipsResult);
+
+    // If clause does not share a variable with the SelectClause, skip it
+    if (output == DeclarationCheckOutput::NONE) {
+        return;
+
+    } else {
+        // Obtain an unordered set of names of the relevant entities in this relationships vector
+        vector<PQLRelationship> relationships = relationshipsResult->getRelationships();
+        unordered_set<string> entity_set;
+
+        vector<PQLRelationship>::iterator createSetIter = relationships.begin();
+
+        if (output == DeclarationCheckOutput::ARG1) {
+            for (; createSetIter != relationships.end(); createSetIter++) {
+                PQLEntity currEntity = createSetIter->getFirstEntity();
+                entity_set.insert(currEntity.toString());
+            }
+        } else {
+            for (; createSetIter != relationships.end(); createSetIter++) {
+                PQLEntity currEntity = createSetIter->getSecondEntity();
+                entity_set.insert(currEntity.toString());
+            }
+        }
+
+        // If a name in entityNamesToReturn is not in the set of names of the entities returned by this clause, remove it
+        unordered_set<string>::iterator removeIter = currEntitiesToReturn->begin();
+        for (; removeIter != currEntitiesToReturn->end(); removeIter++) {
+            if (entity_set.find(*removeIter) == entity_set.end()) {
+                currEntitiesToReturn->erase(*removeIter);
+            }
+        }
     }
 }

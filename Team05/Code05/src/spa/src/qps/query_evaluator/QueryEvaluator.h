@@ -19,6 +19,10 @@ enum class DeclarationCheckOutput {
 class QueryEvaluator {
 private:
     DeclarationCheckOutput checkDeclaration(shared_ptr<EntityClauseResult> entityResult, shared_ptr<RelationshipClauseResult> relationshipResult);
+
+    unordered_set<string> filterEntitiesToReturn(unordered_set<string> currEntitiesToReturn,
+                                                 shared_ptr<EntityClauseResult> entitiesResult,
+                                                 shared_ptr<RelationshipClauseResult> relationshipsResult);
 public:
 	/* Returns the final result of a query */
 	string evaluate(Query query);
