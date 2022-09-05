@@ -65,4 +65,6 @@ public:
         }
     }
 
+    friend bool operator==(PQLEntity first, PQLEntity second);
 };
+

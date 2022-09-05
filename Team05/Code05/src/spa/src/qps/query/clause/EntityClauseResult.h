@@ -24,5 +24,5 @@ public:
         return entities;
     }
 
+    friend bool operator==(EntityClauseResult first, EntityClauseResult second);
 };
-

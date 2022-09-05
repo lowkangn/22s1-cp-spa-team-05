@@ -1,7 +1,7 @@
 #include <unordered_set>
 #include "QueryEvaluator.h"
 
-string QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results) {
+unordered_set<string> QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results) {
 
     // Safe cast as we know results.first is the result of SelectClause's execute() which returns a ClauseResult pointer
     // pointing to an EntityClauseResult: https://stackoverflow.com/questions/1358143/downcasting-shared-ptrbase-to-shared-ptrderived
@@ -18,18 +18,19 @@ string QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<Cl
         results.second.pop_front();
     }
 
+    unordered_set<string> entityNamesToReturn;
+
     // If result from SelectClause returns no entries, return "None"
-    if (entitiesResult->getEntities().empty()) return "";
+    if (entitiesResult->getEntities().empty()) return entityNamesToReturn;
 
     // If result from any other Clause returns no entries, return "None"
     list<shared_ptr<RelationshipClauseResult>>::iterator checkEmptyIter = relationshipsResults.begin();
     for (; checkEmptyIter != relationshipsResults.end(); checkEmptyIter++) {
-        if ((*checkEmptyIter)->getRelationships().empty()) return "";
+        if ((*checkEmptyIter)->getRelationships().empty()) return entityNamesToReturn;
     }
 
     // We start with a list of entity names from the SelectClause, then remove as we check the other clauses for constraints
     vector<PQLEntity> entities = entitiesResult->getEntities();
-    unordered_set<string> entityNamesToReturn;
 
     vector<PQLEntity>::iterator createReturnVectorIter = entities.begin();
     for (; createReturnVectorIter != entities.end(); createReturnVectorIter++) {
@@ -42,21 +43,10 @@ string QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<Cl
         filterEntitiesToReturn(&entityNamesToReturn, entitiesResult, *filterIter);
     }
 
-    string combinedResult;
-
-    // Combine the remaining names are return a string
-    unordered_set<string>::iterator outputIter = entityNamesToReturn.begin();
-    for (; outputIter != entityNamesToReturn.end(); outputIter++) {
-        if (outputIter != entityNamesToReturn.begin()) {
-            combinedResult.append(", ");
-        }
-        combinedResult.append(*outputIter);
-    }
-
-    return combinedResult;
+    return entityNamesToReturn;
 }
 
-string QueryEvaluator::evaluate(Query query) {
+unordered_set<string> QueryEvaluator::evaluate(Query query) {
     pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results = query.execute();
 	return combine(results);
 }

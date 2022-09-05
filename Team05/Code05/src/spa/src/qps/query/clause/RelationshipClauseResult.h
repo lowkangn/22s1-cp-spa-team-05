@@ -32,5 +32,5 @@ public:
         return relationships;
     }
 
+    friend bool operator==(RelationshipClauseResult first, RelationshipClauseResult second);
 };
-

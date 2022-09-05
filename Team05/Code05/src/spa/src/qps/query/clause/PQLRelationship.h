@@ -25,4 +25,8 @@ public:
     PQLEntity getSecondEntity() {
         return secondEntity;
     }
+
+    friend bool operator==(PQLRelationship first, PQLRelationship second);
+
 };
+

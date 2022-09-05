@@ -37,9 +37,9 @@ public:
     QueryEvaluator() {};
 
 	/* Returns the final result of a query */
-	string evaluate(Query query);
+	unordered_set<string> evaluate(Query query);
 
 	/* Combines the results from the clauses of a query */
-	string combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>);
+    unordered_set<string> combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>);
 
 };
