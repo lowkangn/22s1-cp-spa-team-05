@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 #include "../query/clause/ClauseResult.h"
 #include "../query/clause/EntityClauseResult.h"
@@ -33,6 +34,8 @@ private:
                                 shared_ptr<EntityClauseResult> entitiesResult,
                                 shared_ptr<RelationshipClauseResult> relationshipsResult);
 public:
+    QueryEvaluator() {};
+
 	/* Returns the final result of a query */
 	string evaluate(Query query);
 

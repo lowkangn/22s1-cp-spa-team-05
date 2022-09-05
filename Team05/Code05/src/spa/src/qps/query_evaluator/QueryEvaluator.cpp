@@ -19,12 +19,12 @@ string QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<Cl
     }
 
     // If result from SelectClause returns no entries, return "None"
-    if (entitiesResult->getEntities().empty()) return "None";
+    if (entitiesResult->getEntities().empty()) return "";
 
     // If result from any other Clause returns no entries, return "None"
     list<shared_ptr<RelationshipClauseResult>>::iterator checkEmptyIter = relationshipsResults.begin();
     for (; checkEmptyIter != relationshipsResults.end(); checkEmptyIter++) {
-        if ((*checkEmptyIter)->getRelationships().empty()) return "None";
+        if ((*checkEmptyIter)->getRelationships().empty()) return "";
     }
 
     // We start with a list of entity names from the SelectClause, then remove as we check the other clauses for constraints
@@ -47,7 +47,7 @@ string QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<Cl
     // Combine the remaining names are return a string
     unordered_set<string>::iterator outputIter = entityNamesToReturn.begin();
     for (; outputIter != entityNamesToReturn.end(); outputIter++) {
-        if (outputIter == entityNamesToReturn.begin()) {
+        if (outputIter != entityNamesToReturn.begin()) {
             combinedResult.append(", ");
         }
         combinedResult.append(*outputIter);

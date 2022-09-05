@@ -36,7 +36,7 @@ public:
     }
 
     static PQLEntity generateConstant(int value) {
-        return PQLEntity(PQLEntityType::VARIABLE, "", 0, value);
+        return PQLEntity(PQLEntityType::CONSTANT, "", 0, value);
     }
 
     bool isProcedure() {
@@ -56,11 +56,13 @@ public:
     }
 
     string toString() {
-        return this->str;
-    }
-
-    int getValue() {
-        return this->value;
+        if (type == PQLEntityType::VARIABLE || type == PQLEntityType::PROCEDURE) {
+            return this->str;
+        } else if (type == PQLEntityType::STATEMENT) {
+            return to_string(this->lineNum);
+        } else {
+            return to_string(this->value);
+        }
     }
 
 };
