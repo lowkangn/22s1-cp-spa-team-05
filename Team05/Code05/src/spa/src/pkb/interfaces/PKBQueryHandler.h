@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <pkb/PKB.h>
 #include "../../qps/query/clause/ClauseArgument.h"
 #include "../../qps/query/clause/ClauseResult.h"
 #include "../../qps/query/clause/PQLEntity.h"
@@ -22,12 +21,8 @@ enum class ClauseType {
  * Interface used by QPS to retrieve data from PKB
  */
 class PKBQueryHandler {
-private:
-    ProgramKnowledgeBase KnowledgeBase;
 public:
     PKBQueryHandler() {};
-
-    PKBQueryHandler(ProgramKnowledgeBase pkb) {};
 
     // Accepts one ClauseArgument, only called by SelectClause
     vector<PQLEntity> retrieveKnowledge(ClauseArgument arg);
