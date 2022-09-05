@@ -3,7 +3,7 @@
 #include <unordered_set>
 
 #include <qps/query_parser/DesignEntity.h>
-#include <qps/query_parser/PQLToken.h>
+#include <qps/query_tokenizer/PQLToken.h>
 
 class DeclarationParser {
 private:

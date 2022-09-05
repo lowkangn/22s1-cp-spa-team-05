@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <qps/query_parser/PQLToken.h>
+#include <qps/query_tokenizer/PQLToken.h>
 
 using namespace std;
 

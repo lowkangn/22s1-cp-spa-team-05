@@ -1,5 +1,5 @@
+#include <qps/exceptions/PQLError.h>
 #include <qps/query_parser/parsers/DeclarationParser.h>
-#include <qps/query_parser/PQLError.h>
 
 unordered_map<string, DesignEntity> DeclarationParser::parse() {
 	PQLToken token = this->tokens.front();
