@@ -23,17 +23,17 @@ public:
 	};
 
 	bool isWildcard() {
-		return type == ArgumentType::WILDCARD;
+		return this->type == ArgumentType::WILDCARD;
 	}
 	
 	bool isStmtRefNoWildcard() {
-		return type == ArgumentType::STMTREF_SYNONYM
-			|| type == ArgumentType::LINE_NUMBER;
+		return this->type == ArgumentType::STMTREF_SYNONYM
+			|| this->type == ArgumentType::LINE_NUMBER;
 	}
 
 	bool isEntRefNoWildcard() {
-		return type == ArgumentType::ENTREF_SYNONYM 
-			|| type == ArgumentType::STRING_LITERAL;
+		return this->type == ArgumentType::ENTREF_SYNONYM
+			|| this->type == ArgumentType::STRING_LITERAL;
 	}
 
 	friend bool operator== (ClauseArgument first, ClauseArgument second);

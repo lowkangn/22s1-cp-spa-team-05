@@ -5,5 +5,5 @@ bool SelectClause::equals(const Clause* other) {
 		return false;
 	}
 	SelectClause otherSelect = *dynamic_cast<const SelectClause*>(other);
-	return toSelect == otherSelect.toSelect;
+	return this->toSelect == otherSelect.toSelect;
 }

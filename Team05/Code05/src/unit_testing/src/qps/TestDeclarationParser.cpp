@@ -46,24 +46,28 @@ TEST_CASE("DeclarationParser: test parseOneDeclarationWithError") {
         REQUIRE_THROWS_AS(parser.parseOneDeclaration(), PQLError);
     };
 
-    // missing semicolon
-    testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
-        PQLToken("v1", PQLTokenType::NAME)});
-    // missing synonym
-    testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME), 
-        PQLToken(";", PQLTokenType::DELIMITER)});
-    // missing synonym after comma
-    testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME), 
-        PQLToken("v1", PQLTokenType::NAME), 
-        PQLToken(",", PQLTokenType::DELIMITER), 
-        PQLToken(";", PQLTokenType::DELIMITER)});
-    // typo - double comma
-    testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME), 
-        PQLToken("v1", PQLTokenType::NAME),
-        PQLToken(",", PQLTokenType::DELIMITER),
-        PQLToken(",", PQLTokenType::DELIMITER),
-        PQLToken("v2", PQLTokenType::NAME),
-        PQLToken(";", PQLTokenType::DELIMITER)});
+    SECTION("Missing semicolon") {
+        testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME)});
+    }
+    SECTION("Missing synonym") {
+        testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER)});
+    }
+    SECTION("Missing synonym after comma") {
+        testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken(";", PQLTokenType::DELIMITER)});
+    }
+    SECTION("Double comma") {
+        testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("v2", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER)});
+    }
 }
 
 
@@ -128,17 +132,35 @@ TEST_CASE("DeclarationParser: test parseWithError") {
     };
 
 
-    // query ends without select clause
-    testParseWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER)});
+    SECTION("No select clause") {
+        testParseWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER)});
+    }
 
-    // repeated declarations
-    testParseWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
-        PQLToken("v1", PQLTokenType::NAME),
-        PQLToken(",", PQLTokenType::DELIMITER),
-        PQLToken("v1", PQLTokenType::NAME),
-        PQLToken(";", PQLTokenType::DELIMITER)});
+    SECTION("Missing comma") {
+        testParseWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken("v2", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER)});
+    }
+
+    SECTION("Repeated synonym name - same design entity") {
+        testParseWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER)});
+    }
+
+    SECTION("Repeated synonym name - different design entities") {
+        testParseWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("stmt", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER)});
+    }
 }
 
 TEST_CASE("DeclarationParser: test getRemainingTokens (after parsing)") {

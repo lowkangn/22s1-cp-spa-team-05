@@ -58,6 +58,39 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
             expected);
 }
 
+TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
+    auto testParseNoError = [](list<PQLToken> tokens,
+        unordered_map<string, DesignEntity> declarations,
+        ModifiesPClause expected) {
+            // given
+            ModifiesParser parser = ModifiesParser(tokens, declarations);
+
+            // when
+            shared_ptr<Clause>  actualPtr = parser.parse();
+
+            // then
+            REQUIRE(expected.equals(actualPtr.get()));
+    };
+
+
+    ModifiesPClause expected = ModifiesPClause(
+        ClauseArgument("x", ArgumentType::STRING_LITERAL),
+        ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM));
+    testParseNoError(list<PQLToken>{
+        PQLToken("Modifies", PQLTokenType::NAME),
+            PQLToken("(", PQLTokenType::DELIMITER),
+            PQLToken("\"", PQLTokenType::DELIMITER),
+            PQLToken("x", PQLTokenType::NAME),
+            PQLToken("\"", PQLTokenType::DELIMITER),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(")", PQLTokenType::DELIMITER)},
+        unordered_map<string, DesignEntity>{
+            {"v1", DesignEntity::VARIABLE}},
+            expected);
+}
+
+
 TEST_CASE("ModifiesParser: test parseWithError") {
     auto testParseWithError = [](list<PQLToken> tokens,
         unordered_map<string, DesignEntity> declarations) {

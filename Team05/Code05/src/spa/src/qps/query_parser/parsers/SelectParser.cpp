@@ -1,19 +1,19 @@
 #include <qps/query_parser/parsers/SelectParser.h>
 
 shared_ptr<Clause> SelectParser::parse() {
-	PQLToken token = tokens.front();
+	PQLToken token = this->tokens.front();
 	
 	//check for Select token
 	if (!token.isSelect()) {
 		throw PQLError("Expected Select, got:");
 	}
-	tokens.pop_front();
+	this->tokens.pop_front();
 	
 	//check for synonym name after Select
-	if (tokens.empty()) {
+	if (this->tokens.empty()) {
 		throw PQLError("Expected synonym after Select, reached end of query instead");
 	}
-	token = tokens.front();
+	token = this->tokens.front();
 	if (!token.isName()) {
 		throw PQLError("Expected synonym after select, got: " + token.getTokenString());
 	}

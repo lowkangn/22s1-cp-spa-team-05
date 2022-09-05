@@ -16,7 +16,7 @@ pair<ClauseArgument, ClauseArgument> SuchThatClauseParser::extractArguments() {
 }
 
 ClauseArgument SuchThatClauseParser::parseOneArgument() {
-	PQLToken token = tokens.front();
+	PQLToken token = this->tokens.front();
 	if (token.isName()) {
 		return parseSynonym();
 	} else if (token.isQuote()) {

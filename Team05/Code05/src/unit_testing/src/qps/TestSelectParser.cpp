@@ -62,4 +62,18 @@ TEST_CASE("SelectParser: test parseWithError") {
                 {"v1", DesignEntity::VARIABLE}, {"v2", DesignEntity::CONSTANT}});
     }
     
+    SECTION("Selecting non-synonyms") {
+        testParseWithError(list<PQLToken>{
+            PQLToken("Select", PQLTokenType::NAME),
+                PQLToken("\"", PQLTokenType::DELIMITER),
+                PQLToken("main", PQLTokenType::NAME),
+                PQLToken("\"", PQLTokenType::DELIMITER)},
+            unordered_map<string, DesignEntity>{ {"v2", DesignEntity::VARIABLE}});
+
+        testParseWithError(list<PQLToken>{
+            PQLToken("Select", PQLTokenType::NAME),
+                PQLToken("1", PQLTokenType::INTEGER)},
+            unordered_map<string, DesignEntity>{
+                {"v1", DesignEntity::VARIABLE}, { "v2", DesignEntity::CONSTANT }});
+    }
 }

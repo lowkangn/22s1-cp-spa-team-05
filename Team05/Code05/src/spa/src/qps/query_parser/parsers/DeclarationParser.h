@@ -15,11 +15,11 @@ public:
 	};
 
 	unordered_map<string, DesignEntity> getDeclarations() {
-		return declarations;
+		return this->declarations;
 	};
 
 	list<PQLToken> getRemainingTokens() {
-		return tokens;
+		return this->tokens;
 	};
 
 	/* Parses all declarations in the query. */

@@ -2,9 +2,9 @@
 #include <qps/query_parser/parsers/ModifiesParser.h>
 
 shared_ptr<Clause> ModifiesParser::parse() {
-	PQLToken token = tokens.front();
+	PQLToken token = this->tokens.front();
 	assert(token.isModifies());
-	tokens.pop_front();
+	this->tokens.pop_front();
 	pair <ClauseArgument,ClauseArgument> args = extractArguments();
 	
 	// first arg cannot be wildcard

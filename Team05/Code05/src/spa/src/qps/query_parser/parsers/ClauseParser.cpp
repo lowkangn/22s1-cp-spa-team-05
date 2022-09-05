@@ -6,11 +6,11 @@ list<PQLToken> ClauseParser::getRemainingTokens() {
 }
 
 ClauseArgument ClauseParser::parseSynonym() {
-	PQLToken synonymToken = tokens.front();
+	PQLToken synonymToken = this->tokens.front();
 	if (declarations.count(synonymToken.getTokenString()) == 0) {
 		throw PQLError("Synonym not declared: " + synonymToken.getTokenString());
 	}
-	tokens.pop_front();
+	this->tokens.pop_front();
 	if (isStatementDesignEntity(declarations.at(synonymToken.getTokenString()))) {
 		return ClauseArgument(synonymToken.getTokenString(), ArgumentType::STMTREF_SYNONYM);
 	} else {
@@ -20,55 +20,55 @@ ClauseArgument ClauseParser::parseSynonym() {
 
 ClauseArgument ClauseParser::parseStringLiteral() {
 	// Ignore '"' token
-	tokens.pop_front();
+	this->tokens.pop_front();
 
-	PQLToken token = tokens.front();
+	PQLToken token = this->tokens.front();
 	if (!token.isName()) {
 		throw PQLError("Expected name in quotes, got: " + token.getTokenString());
 	}
-	tokens.pop_front();
-	if (tokens.empty() || !tokens.front().isQuote()) {
+	this->tokens.pop_front();
+	if (this->tokens.empty() || !this->tokens.front().isQuote()) {
 		throw PQLError("Expected closing quote");
 	}
-	tokens.pop_front();
+	this->tokens.pop_front();
 	return ClauseArgument(token.getTokenString(), ArgumentType::STRING_LITERAL);
 }
 
 ClauseArgument ClauseParser::parseStatementNumber() {
-	PQLToken stmtNumToken = tokens.front();
-	tokens.pop_front();
+	PQLToken stmtNumToken = this->tokens.front();
+	this->tokens.pop_front();
 	return ClauseArgument(stmtNumToken.getTokenString(), ArgumentType::LINE_NUMBER);
 }
 
 ClauseArgument ClauseParser::parseWildcard() {
-	PQLToken wildCardToken = tokens.front();
-	tokens.pop_front();
+	PQLToken wildCardToken = this->tokens.front();
+	this->tokens.pop_front();
 	return ClauseArgument(wildCardToken.getTokenString(), ArgumentType::WILDCARD);
 }
 
 void ClauseParser::consumeClauseOpen() {
-	if (tokens.empty() || !tokens.front().isOpenBracket()) {
+	if (this->tokens.empty() || !this->tokens.front().isOpenBracket()) {
 		throw PQLError("Expected Open bracket");
 	}
-	tokens.pop_front();
-	if (tokens.empty()) {
+	this->tokens.pop_front();
+	if (this->tokens.empty()) {
 		throw PQLError("Expected argument after open bracket");
 	}
 }
 
 void ClauseParser::consumeClauseMiddle() {
-	if (tokens.empty() || !tokens.front().isComma()) {
+	if (this->tokens.empty() || !this->tokens.front().isComma()) {
 		throw PQLError("Expected Comma");
 	}
-	tokens.pop_front();
-	if (tokens.empty()) {
+	this->tokens.pop_front();
+	if (this->tokens.empty()) {
 		throw PQLError("Expected argument after comma");
 	}
 }
 
 void ClauseParser::consumeClauseClose() {
-	if (tokens.empty() || !tokens.front().isCloseBracket()) {
+	if (this->tokens.empty() || !this->tokens.front().isCloseBracket()) {
 		throw PQLError("Expected Close bracket");
 	}
-	tokens.pop_front();
+	this->tokens.pop_front();
 }

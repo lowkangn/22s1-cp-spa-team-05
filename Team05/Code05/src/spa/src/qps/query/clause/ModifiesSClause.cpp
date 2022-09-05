@@ -5,5 +5,5 @@ bool ModifiesSClause::equals (const Clause* other) {
 		return false;
 	}
 	ModifiesSClause otherModifies = *dynamic_cast<const ModifiesSClause*>(other);
-	return lhs == otherModifies.lhs && rhs == otherModifies.rhs;
+	return this->lhs == otherModifies.lhs && this->rhs == otherModifies.rhs;
 }
