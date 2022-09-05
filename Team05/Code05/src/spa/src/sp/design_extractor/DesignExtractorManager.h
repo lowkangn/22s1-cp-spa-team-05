@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include <sp/design_extractor/Extractor.h>
 #include <sp/design_extractor/EntityExtractor.h>
 #include <sp/design_extractor/PatternExtractor.h>
@@ -51,7 +52,7 @@ public:
 	/*
 		Stores all the Relationships, Entities, Patterns into the PKB
 	*/
-	void storeAllRelations(PKBUpdateHandler pkb);
+	void storeAllRelations(shared_ptr<PKBUpdateHandler> pkb);
 
 	/*
 		Extracts all the Relationships from the AST

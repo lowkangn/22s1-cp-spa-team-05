@@ -7,7 +7,7 @@
 #include <sp/design_extractor/PatternExtractor.cpp>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/AST.h>
-
+#include <pkb/interfaces/PKBUpdateHandler.h>
 TEST_CASE("DesignExtractor: test : extractEntity() && extractPattern()") {
 	auto test = [](shared_ptr<ASTNode> nodeToExtractFrom, vector<Entity> expectedEntity, vector<Relationship> expectedRelationship) {
 
