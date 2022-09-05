@@ -22,11 +22,10 @@ TEST_CASE("QueryParser: test parseConstraints") {
                 while (!actual.empty()) {
                     //temporarily use casting to check equality for now
                     shared_ptr<Clause>  actualPtr = actual.front();
-                    shared_ptr<ModifiesSClause> actualClause = dynamic_pointer_cast<ModifiesSClause>(actualPtr);
                     shared_ptr<Clause>  expectedPtr = expected.front();
                     shared_ptr<ModifiesSClause> expectedClause = dynamic_pointer_cast<ModifiesSClause>(actualPtr);
 
-                    isEqual = isEqual && (*actualClause.get() == *expectedClause.get());
+                    isEqual = isEqual && (*expectedClause.get()).equals(actualPtr.get());
                     actual.pop_front();
                     expected.pop_front();
                 }

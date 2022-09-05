@@ -1,5 +1,9 @@
 #include <qps/query/clause/ModifiesSClause.h>
 
-bool operator== (ModifiesSClause first, ModifiesSClause second) {
-	return first.lhs == second.lhs && first.rhs == second.rhs;
-};
+bool ModifiesSClause::equals (Clause* other) {
+	if (dynamic_cast<ModifiesSClause*>(other) == nullptr) {
+		return false;
+	}
+	ModifiesSClause otherModifies = *dynamic_cast<ModifiesSClause*>(other);
+	return lhs == otherModifies.lhs && rhs == otherModifies.rhs;
+}

@@ -1,5 +1,9 @@
 #include <qps/query/clause/SelectClause.h>
 
-bool operator== (SelectClause first, SelectClause second) {
-	return first.toSelect == second.toSelect;
-};
+bool SelectClause::equals(Clause* other) {
+	if (dynamic_cast<SelectClause*>(other) == nullptr) {
+		return false;
+	}
+	SelectClause otherSelect = *dynamic_cast<SelectClause*>(other);
+	return toSelect == otherSelect.toSelect;
+}

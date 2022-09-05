@@ -13,5 +13,5 @@ public:
 
 	ClauseResult execute() override { return ClauseResult(); }; //defintiion for testing purposes only
 
-	friend bool operator== (ModifiesPClause first, ModifiesPClause second);
+	bool equals(Clause* other) override;
 };

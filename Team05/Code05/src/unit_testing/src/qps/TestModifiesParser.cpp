@@ -22,10 +22,9 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
 
             // when
             shared_ptr<Clause>  actualPtr = parser.parse();
-            shared_ptr<ModifiesSClause> actual = dynamic_pointer_cast<ModifiesSClause>(actualPtr);
 
             // then
-            REQUIRE(*actual.get() == expected);
+            REQUIRE(expected.equals(actualPtr.get()));
     };
 
     ModifiesSClause expected = ModifiesSClause(

@@ -20,10 +20,9 @@ TEST_CASE("SelectParser: test parseNoError") {
 
             // when
             shared_ptr<Clause>  actualPtr = parser.parse();
-            shared_ptr<SelectClause> actual = dynamic_pointer_cast<SelectClause>(actualPtr);
 
             // then
-            REQUIRE(*actual.get() == expected);
+            REQUIRE(expected.equals(actualPtr.get()));
     };
 
     SelectClause expected = SelectClause(ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM));

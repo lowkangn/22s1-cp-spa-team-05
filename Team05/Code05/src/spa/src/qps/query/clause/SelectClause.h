@@ -9,5 +9,5 @@ private:
 public:
 	SelectClause(ClauseArgument toSelect) : toSelect(toSelect) {};
 	ClauseResult execute() override { return ClauseResult(); };
-	friend bool operator== (SelectClause first, SelectClause second);
+	bool equals(Clause* other) override;
 };
