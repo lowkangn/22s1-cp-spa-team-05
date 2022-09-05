@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 #include <pkb/pkb_object/PKB.h>
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <qps/query/clause/Clause.h>
@@ -22,7 +23,7 @@ using namespace std;
 
 ProgramKnowledgeBase::ProgramKnowledgeBase() {
     entityManager = EntityPkbTableManager();
-    modifiesTable = new ModifiesPkbTableManager(entityManager);
+    this->modifiesTable = shared_ptr<ModifiesPkbTableManager>(new ModifiesPkbTableManager(entityManager));
     
 }
 
@@ -75,7 +76,7 @@ vector<int> ProgramKnowledgeBase::addRelationship(vector<Relationship> relations
     for (auto &rs: relationships) {
         vector<Entity> entities = rs.getEntities();
         vector<int> entityIds = addEntity(entities);
-        PkbRelationship *pkbRelationship = new PkbRelationship(entityIds[0], entityIds[1]);
+        shared_ptr<PkbRelationship> pkbRelationship (new PkbRelationship(entityIds[0], entityIds[1]));
         RelationshipType relationshipType = rs.getType();
         int rsId;
         switch (relationshipType) {
@@ -112,8 +113,7 @@ vector<int> ProgramKnowledgeBase::addEntity(vector<Entity> entities) {
     }
     return entityIdVector;
 }
-
-ModifiesPkbTableManager ProgramKnowledgeBase::getModifiesTable() {
-    return *modifiesTable;
+shared_ptr<ModifiesPkbTableManager> ProgramKnowledgeBase::getModifiesTable() {
+    return std::static_pointer_cast<ModifiesPkbTableManager>(modifiesTable);
 }
 

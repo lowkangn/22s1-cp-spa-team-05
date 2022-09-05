@@ -30,13 +30,8 @@ private:
 
     static ProgramKnowledgeBase* PKBInstance;
     EntityPkbTableManager entityManager;
-    // FollowsPkbTableManager* followsTable;
-    // FollowsTPkbTableManager* followsTTable;
-    ModifiesPkbTableManager* modifiesTable;
-    // ParentPkbTableManager* parentTable;
-    // ParentTPkbTableManager* parentTTable;
-    // PatternPkbTableManager* patternTable;
-    // UsesPkbTableManager* usesTable;
+    shared_ptr<RelationshipPkbTableManager> modifiesTable;
+
 
     ProgramKnowledgeBase();
 
@@ -60,7 +55,7 @@ public:
     // TODO Change from string to super class of Knowledge
     void deleteKnowledge(std::string knowledge);
 
-    ModifiesPkbTableManager getModifiesTable();
+    shared_ptr<ModifiesPkbTableManager> getModifiesTable();
 
 };
 
