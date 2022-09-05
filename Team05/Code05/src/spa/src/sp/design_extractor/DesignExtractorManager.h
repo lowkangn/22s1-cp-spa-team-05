@@ -51,7 +51,7 @@ public:
 	/*
 		Stores all the Relationships, Entities, Patterns into the PKB
 	*/
-	void storeAllRelations(PKBUpdateHandler pkb);
+	void storeAllRelations(shared_ptr<PKBUpdateHandler> pkb);
 
 	/*
 		Extracts all the Relationships from the AST
