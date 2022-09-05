@@ -18,10 +18,10 @@ public:
     }
 
     ClauseArgument getArg() {
-        return arg;
+        return this->arg;
     }
     vector<PQLEntity> getEntities() {
-        return entities;
+        return this->entities;
     }
 
     friend bool operator==(EntityClauseResult first, EntityClauseResult second);

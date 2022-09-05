@@ -19,11 +19,11 @@ public:
     }
 
     PQLEntity getFirstEntity() {
-        return firstEntity;
+        return this->firstEntity;
     }
 
     PQLEntity getSecondEntity() {
-        return secondEntity;
+        return this->secondEntity;
     }
 
     friend bool operator==(PQLRelationship first, PQLRelationship second);

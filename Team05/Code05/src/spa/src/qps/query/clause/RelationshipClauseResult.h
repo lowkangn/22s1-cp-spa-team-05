@@ -21,15 +21,15 @@ public:
     }
 
     ClauseArgument getFirstArg() {
-        return firstArg;
+        return this->firstArg;
     }
 
     ClauseArgument getSecondArg() {
-        return secondArg;
+        return this->secondArg;
     }
 
     vector<PQLRelationship> getRelationships() {
-        return relationships;
+        return this->relationships;
     }
 
     friend bool operator==(RelationshipClauseResult first, RelationshipClauseResult second);
