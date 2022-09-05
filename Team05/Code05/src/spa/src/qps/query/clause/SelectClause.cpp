@@ -1,9 +1,9 @@
 #include <qps/query/clause/SelectClause.h>
 
-bool SelectClause::equals(Clause* other) {
-	if (dynamic_cast<SelectClause*>(other) == nullptr) {
+bool SelectClause::equals(const Clause* other) {
+	if (dynamic_cast<const SelectClause*>(other) == nullptr) {
 		return false;
 	}
-	SelectClause otherSelect = *dynamic_cast<SelectClause*>(other);
+	SelectClause otherSelect = *dynamic_cast<const SelectClause*>(other);
 	return toSelect == otherSelect.toSelect;
 }

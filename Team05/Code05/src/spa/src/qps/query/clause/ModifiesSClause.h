@@ -13,5 +13,5 @@ public:
 
 	ClauseResult execute() override { return ClauseResult(); }; //defintiion for testing purposes only
 
-	bool equals(Clause* other) override;
+	bool equals(const Clause* other) override;
 };
