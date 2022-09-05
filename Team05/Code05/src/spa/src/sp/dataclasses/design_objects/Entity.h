@@ -26,6 +26,10 @@ public:
 		this->asString = asString;
 	}
 
+    string getString() {
+        return this->asString;
+    }
+
 	bool equals(EntityIdentifier& other) {
 		return this->token.equals(token) && this->asString == other.asString;
 	}
@@ -50,6 +54,14 @@ public:
 	EntityType getType() {
 		return this->type;
 	}
+
+    int getLine() {
+        return this->line;
+    }
+
+    string toString() {
+        return this->identifier.getString();
+    }
 
 	bool equals(Entity &other) {
 		return this->type == other.getType() && this->line == other.line && this->identifier.equals(other.identifier);

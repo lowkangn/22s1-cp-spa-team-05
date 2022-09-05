@@ -57,3 +57,8 @@ void ModifiesPkbTableManager::clearDataBase() {
 	this->idToRshipMapping.clear();
 	this->nextId = 0;
 }
+
+// Added for PKB testing
+unordered_map<int, PkbRelationship> ModifiesPkbTableManager::getMap() {
+	return this->idToRshipMapping;
+}

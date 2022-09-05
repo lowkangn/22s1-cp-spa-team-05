@@ -4,11 +4,13 @@
 #include <unordered_map>
 #include <string>
 
-class ParentPkbTableManager : public RealtionshipPkbTableManager {
+class ParentPkbTableManager : public RelationshipPkbTableManager {
 public:
-	vector<int> filter(PkbClause clause) override;
+    ParentPkbTableManager(EntityPkbTableManager& entityManager) : RelationshipPkbTableManager(entityManager) {}
 
-	void add(PkbRelationship relationship) override;
+    vector<int> filter(PkbClause clause) override;
+
+	int add(PkbRelationship relationship) override;
 
 	void clearDataBase() override;
 
