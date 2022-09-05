@@ -2,17 +2,18 @@
 #include <string>
 #include <vector>
 #include <sp/dataclasses/design_objects/Pattern.h>
-#include <pkb/PKB.h>
+#include <sp/dataclasses/design_objects/Relationship.h>
+#include <sp/dataclasses/design_objects/Entity.h>
 
 using namespace std;
 
 class PKBUpdateHandler {
 public:
 
-    virtual void addRelationship(vector<Relationship> relationships);
+    virtual vector<int> addRelationship(vector<Relationship> relationships) = 0;
     
-    virtual void addPattern(vector<Pattern> patterns);
+    virtual void addPattern(vector<Pattern> patterns) = 0;
     
-    virtual vector<int> addEntity(vector<Entity> entities);
+    virtual vector<int> addEntity(vector<Entity> entities) = 0;
 };
 

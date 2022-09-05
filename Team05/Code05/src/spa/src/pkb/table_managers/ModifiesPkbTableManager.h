@@ -17,6 +17,8 @@ public:
 
 	bool isClauseLhsEmpty(PkbClause clause);
 
+	unordered_map<int, PkbRelationship> getMap();
+
 private:
 	unordered_map<int, PkbRelationship> idToRshipMapping;
 };

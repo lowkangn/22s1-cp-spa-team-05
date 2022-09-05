@@ -1,6 +1,8 @@
+#pragma once
+
 #include <vector>
 #include <map>
-#include "PKB.h"
+#include <pkb/pkb_object/PKB.h>
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <qps/query/clause/Clause.h>
 #include <pkb/table_managers/EntityPkbTableManager.h>
@@ -13,17 +15,20 @@
 #include <pkb/table_managers/RelationshipPkbTableManager.h>
 #include <pkb/table_managers/UsesPkbTableManager.h>
 
+#include <pkb/interfaces/PKBUpdateHandler.h>
+
+
 using namespace std;
 
 ProgramKnowledgeBase::ProgramKnowledgeBase() {
     entityManager = EntityPkbTableManager();
-    followsTable = new FollowsPkbTableManager(entityManager);
-    followsTTable = new FollowsTPkbTableManager(entityManager);
+    // followsTable = new FollowsPkbTableManager(entityManager);
+    // followsTTable = new FollowsTPkbTableManager(entityManager);
     modifiesTable = new ModifiesPkbTableManager(entityManager);
-    parentTable = new ParentPkbTableManager(entityManager);
-    parentTTable = new ParentTPkbTableManager(entityManager);
-    patternTable = new PatternPkbTableManager(entityManager);
-    usesTable = new UsesPkbTableManager(entityManager);
+    // parentTable = new ParentPkbTableManager(entityManager);
+    // parentTTable = new ParentTPkbTableManager(entityManager);
+    // patternTable = new PatternPkbTableManager(entityManager);
+    // usesTable = new UsesPkbTableManager(entityManager);
 }
 
 ProgramKnowledgeBase *ProgramKnowledgeBase::getInstance() {
@@ -33,12 +38,14 @@ ProgramKnowledgeBase *ProgramKnowledgeBase::getInstance() {
     return PKBInstance;
 }
 
+ProgramKnowledgeBase* ProgramKnowledgeBase::PKBInstance = NULL;
+
 std::vector<Entity> ProgramKnowledgeBase::retrieveAllKnowledge() {
     return std::vector<Entity>();
 }
 
-Entity ProgramKnowledgeBase::retrieveKnowledge(Clause queryClause) {
-    enum clauseType {
+Entity ProgramKnowledgeBase::retrieveKnowledge(PkbClause queryClause) {
+    enum class clauseType {
         FollowsClause,
         FollowsTClause,
         ModifiesPClause,
@@ -80,6 +87,11 @@ Entity ProgramKnowledgeBase::retrieveKnowledge(Clause queryClause) {
 //            tableManagers[7]->filter(PkbQuery());
 //            break;
 //    };
+    EntityPkbTableManager entityManager = EntityPkbTableManager();
+    Token tokenX = Token("x", TokenType::NAME_OR_KEYWORD);
+    EntityIdentifier identifierX = EntityIdentifier(tokenX, "x");
+    Entity entityX = Entity(EntityType::VARIABLE, 4, tokenX, "x");
+    return entityX;
 }
 
 // TODO Refactor to dataclass coming from QPS
@@ -87,53 +99,50 @@ void ProgramKnowledgeBase::deleteKnowledge(std::string knowledge) {
 
 }
 
-void ProgramKnowledgeBase::addRelationship(vector<Relationship> relationships) {
+vector<int> ProgramKnowledgeBase::addRelationship(vector<Relationship> relationships) {
+    vector<int> relationshipIds;
     for (auto &rs: relationships) {
         vector<Entity> entities = rs.getEntities();
         vector<int> entityIds = addEntity(entities);
         PkbRelationship *pkbRelationship = new PkbRelationship(entityIds[0], entityIds[1]);
         RelationshipType relationshipType = rs.getType();
+        int rsId;
         switch (relationshipType) {
             case RelationshipType::MODIFIES:
-                modifiesTable->add(*pkbRelationship);
-                break;
-            case RelationshipType::USES:
-                usesTable->add(*pkbRelationship);
-                break;
-            case RelationshipType::FOLLOWS:
-                followsTable->add(*pkbRelationship);
-                break;
-            case RelationshipType::FOLLOWST:
-                followsTTable->add(*pkbRelationship);
-                break;
-            case RelationshipType::PARENT:
-                parentTable->add(*pkbRelationship);
-                break;
-            case RelationshipType::PARENTT:
-                parentTTable->add(*pkbRelationship);
+                rsId = modifiesTable->add(*pkbRelationship);
+                relationshipIds.push_back(rsId);
                 break;
             default:
                 break;
         }
     }
+    return relationshipIds;
+}
+
+void ProgramKnowledgeBase::addPattern(vector<Pattern> patterns) {
+    int x;
 }
 
 vector<int> ProgramKnowledgeBase::addEntity(vector<Entity> entities) {
     vector<int> entityIdVector;
     for (auto &entity : entities) {
         string entityStr = entity.toString();
-        PkbEntity *pkbEntity;
         // TODO Cover other entity types
         if (entity.getType() == EntityType::STMT) {
             int lineNum = entity.getLine();
-            *pkbEntity = PkbEntity::generateStatement(entityStr, lineNum);
+            PkbEntity pkbEntity = PkbEntity::generateStatement(entityStr, lineNum);
+            int entityId = this->entityManager.add(pkbEntity);
+            entityIdVector.push_back(entityId);
         } else {
-            *pkbEntity = PkbEntity::generateVariable(entityStr);
+            PkbEntity pkbEntity = PkbEntity::generateVariable(entityStr);
+            int entityId = this->entityManager.add(pkbEntity);
+            entityIdVector.push_back(entityId);
         }
-        int entityId = this->entityManager.add(*pkbEntity);
-        entityIdVector.push_back(entityId);
     }
     return entityIdVector;
 }
 
+ModifiesPkbTableManager ProgramKnowledgeBase::getModifiesTable() {
+    return *modifiesTable;
+}
 

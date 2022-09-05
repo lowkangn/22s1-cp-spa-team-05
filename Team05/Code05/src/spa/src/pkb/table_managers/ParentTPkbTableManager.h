@@ -9,9 +9,9 @@ class ParentTPkbTableManager : public RelationshipPkbTableManager{
 public:
     ParentTPkbTableManager(EntityPkbTableManager& entityManager) : RelationshipPkbTableManager(entityManager) {}
 
-    string filter(PkbClause clause) override;
+	vector<int> filter(PkbClause clause) override;
 
-	void add(PkbRelationship relationship) override;
+	int add(PkbRelationship relationship) override;
 
 	void clearDataBase() override;
 
