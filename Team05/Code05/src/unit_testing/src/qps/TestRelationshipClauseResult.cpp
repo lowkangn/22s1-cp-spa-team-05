@@ -21,34 +21,53 @@ TEST_CASE("RelationshipClauseResult: test operator==") {
     ClauseArgument thirdArg = ClauseArgument("1", ArgumentType::LINE_NUMBER);
 
     PQLEntity firstEntity = PQLEntity::generateVariable("x");
-    PQLEntity firstEntityAgain = PQLEntity::generateVariable("x");
     PQLEntity secondEntity = PQLEntity::generateVariable("y");
     PQLEntity thirdEntity = PQLEntity::generateVariable("z");
 
     PQLRelationship firstRelationship = PQLRelationship(firstEntity, secondEntity);
-    PQLRelationship firstRelationshipAgain = PQLRelationship(firstEntityAgain, secondEntity);
-    PQLRelationship secondRelationship = PQLRelationship(firstEntityAgain, thirdEntity);
+    PQLRelationship firstRelationshipAgain = PQLRelationship(firstEntity, secondEntity);
+    PQLRelationship secondRelationship = PQLRelationship(firstEntity, thirdEntity);
     PQLRelationship thirdRelationship = PQLRelationship(secondEntity, thirdEntity);
 
     SECTION("Equal") {
+        // Same args and relationships
         testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            true);
+
+        // Different arg but same parameters, same relationships
         testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            RelationshipClauseResult(firstArgAgain, secondArg, vector<PQLRelationship>{firstRelationship}),
                            true);
+
+        // Same args, different sets of relationships but same parameters
         testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationshipAgain}),
+                           true);
+
+        // Different arg but same parameters, different sets of relationships but same parameters
+        testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
+                           RelationshipClauseResult(firstArgAgain, secondArg, vector<PQLRelationship>{firstRelationshipAgain}),
                            true);
     }
 
     SECTION("Not equal") {
+        // Different args, same relationships
+        testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
+                           RelationshipClauseResult(secondArg, thirdArg, vector<PQLRelationship>{firstRelationship}),
+                           false);
+
+        // Same args but in different order, same relationships
         testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            RelationshipClauseResult(secondArg, firstArg, vector<PQLRelationship>{firstRelationship}),
                            false);
+
+        // Same args, different relationships
         testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{secondRelationship}),
                            false);
+
+        // Same args, same sets of relationships but in different order
         testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship, secondRelationship}),
                            RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{secondRelationship, firstRelationship}),
                            false);
