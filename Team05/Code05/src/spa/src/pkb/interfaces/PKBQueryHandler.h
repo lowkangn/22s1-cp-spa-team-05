@@ -1,8 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "../PKB.h"
-#include "PKBQueryHandler.h"
+#include <pkb/PKB.h>
 #include "../../qps/query/clause/ClauseArgument.h"
 #include "../../qps/query/clause/ClauseResult.h"
 #include "../../qps/query/clause/PQLEntity.h"
