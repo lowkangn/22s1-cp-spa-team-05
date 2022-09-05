@@ -5,7 +5,7 @@
 
 using namespace std;
 
-enum class EntityType { STATEMENT, VARIABLE };
+enum class PkbEntityType { STATEMENT, VARIABLE };
 
 class PkbEntity {
 
@@ -21,7 +21,7 @@ public:
 	}
 
 	bool isStatement() {
-		return this->type == EntityType::STATEMENT;
+		return this->type == PkbEntityType::STATEMENT;
 	}
 
 	string toString() const {
@@ -40,19 +40,19 @@ public:
 
 private:
 	PkbEntity(string string) {
-		this->type = EntityType::VARIABLE;
+		this->type = PkbEntityType::VARIABLE;
 		this->string = string;
 		// For variable entities, the line number is not used for comparison. Hence they are all set to 0 by default.
 		this->lineNumber = 0;
 	}
 
 	PkbEntity(string string, int lineNumber) {
-		this->type = EntityType::STATEMENT;
+		this->type = PkbEntityType::STATEMENT;
 		this->string = string;
 		this->lineNumber = lineNumber;
 	}
 
-	EntityType type;
+	PkbEntityType type;
 	string string;
 	int lineNumber;
 };
