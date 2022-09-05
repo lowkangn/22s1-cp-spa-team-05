@@ -22,13 +22,8 @@ using namespace std;
 
 ProgramKnowledgeBase::ProgramKnowledgeBase() {
     entityManager = EntityPkbTableManager();
-    // followsTable = new FollowsPkbTableManager(entityManager);
-    // followsTTable = new FollowsTPkbTableManager(entityManager);
     modifiesTable = new ModifiesPkbTableManager(entityManager);
-    // parentTable = new ParentPkbTableManager(entityManager);
-    // parentTTable = new ParentTPkbTableManager(entityManager);
-    // patternTable = new PatternPkbTableManager(entityManager);
-    // usesTable = new UsesPkbTableManager(entityManager);
+    
 }
 
 ProgramKnowledgeBase *ProgramKnowledgeBase::getInstance() {
@@ -44,6 +39,8 @@ std::vector<Entity> ProgramKnowledgeBase::retrieveAllKnowledge() {
     return std::vector<Entity>();
 }
 
+
+// THIS IS A STUB
 Entity ProgramKnowledgeBase::retrieveKnowledge(PkbClause queryClause) {
     enum class clauseType {
         FollowsClause,
@@ -61,32 +58,6 @@ Entity ProgramKnowledgeBase::retrieveKnowledge(PkbClause queryClause) {
 
     string queryClauseType = typeid(queryClause).name();
 
-    // TODO: Optimise this switch case
-//    switch(s_mapClauseTypes[queryClauseType]) {
-//        case FollowsClause:
-//            // stub argument into filter
-//            tableManagers[1]->filter(PkbQuery());
-//            break;
-//        case FollowsTClause:
-//            tableManagers[2]->filter(PkbQuery());
-//            break;
-//        case ModifiesPClause:
-//        case ModifiesSClause:
-//            tableManagers[3]->filter(PkbQuery());
-//            break;
-//        case ParentClause:
-//            tableManagers[4]->filter(PkbQuery());
-//            break;
-//        case ParentTClause:
-//            tableManagers[5]->filter(PkbQuery());
-//            break;
-//        case PatternClause:
-//            tableManagers[6]->filter(PkbQuery());
-//        case UsesPClause:
-//        case UsesSClause:
-//            tableManagers[7]->filter(PkbQuery());
-//            break;
-//    };
     EntityPkbTableManager entityManager = EntityPkbTableManager();
     Token tokenX = Token("x", TokenType::NAME_OR_KEYWORD);
     EntityIdentifier identifierX = EntityIdentifier(tokenX, "x");
