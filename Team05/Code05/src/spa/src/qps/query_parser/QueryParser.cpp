@@ -14,6 +14,9 @@ Query QueryParser::parse() {
     shared_ptr<Clause> selectClause = selParser.parse();
 
     tokens = selParser.getRemainingTokens();
+    if (tokens.empty()) {
+        return Query(selectClause, list<shared_ptr<Clause>>{});
+    }
     list<shared_ptr<Clause>> constraintClauses = parseConstraints(declarations);
 
     return Query(selectClause, constraintClauses);
