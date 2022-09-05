@@ -705,7 +705,11 @@ TEST_CASE("Parser: test ::constructNode") {
     SECTION("ProgramSimpleSyntaxRule : constructNode") {
         /*
             procedure procedureName {
-                soomevariable = 1;
+            1.    soomevariable = 1;
+            }
+
+            procedure anotherProcedureName {
+            2.    variable = 1;
             }
         */
 
@@ -777,21 +781,26 @@ TEST_CASE("Parser: test ::constructNode") {
         shared_ptr<ASTNode> secondAssignASTNode(new ASTNode(vector<Token> {equalsToken}));
         secondAssignASTNode->setType(ASTNodeType::ASSIGN);
 
+
         // Create first variable node
         shared_ptr<ASTNode> variableNode(new ASTNode(vector<Token> {variable}));
         variableNode->setType(ASTNodeType::NAME);
+
 
         // Create second variable node
         shared_ptr<ASTNode> anotherVariableNode(new ASTNode(vector<Token> {anotherVariable}));
         anotherVariableNode->setType(ASTNodeType::NAME);
 
+
         // Create constant node
         shared_ptr<ASTNode> constantNode(new ASTNode(vector<Token> {constantToken}));
         constantNode->setType(ASTNodeType::CONSTANT);
 
+
         // Create another constant node
         shared_ptr<ASTNode> anotherConstantNode(new ASTNode(vector<Token> {constantToken}));
         anotherConstantNode->setType(ASTNodeType::CONSTANT);
+
 
         // Construct first procedure
 
@@ -827,6 +836,131 @@ TEST_CASE("Parser: test ::constructNode") {
         test(rule, expectedASTNode);
     }
 };
+
+TEST_CASE("ProgramSimpleSyntaxRule test ::setLineNumber") {
+    /*
+       procedure procedureName {
+       1.    soomevariable = 1;
+       }
+    */
+
+    auto test = [](shared_ptr<ASTNode> toSet, shared_ptr<ASTNode> expected) {
+
+        ProgramSimpleSyntaxRule rule = ProgramSimpleSyntaxRule();
+
+        rule.setASTLineNumbers(toSet, 1);
+
+        REQUIRE(toSet->equals(*expected));
+        
+    };
+
+    Token procedureToken = Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD);
+    Token procedureName = Token("procedureName", TokenType::NAME_OR_KEYWORD);
+    Token variable = Token("soomevariable", TokenType::NAME_OR_KEYWORD);
+    Token equalsToken = Token(EQUAL_OPERATOR, TokenType::OPERATOR);
+    Token constantToken = Token("1", TokenType::INTEGER);
+
+    // Create expected ASTNode
+    shared_ptr<ASTNode> expectedASTNode(new ASTNode(vector<Token> {Token(PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD)}));
+    expectedASTNode->setType(ASTNodeType::PROGRAM);
+    
+    // Create ASTNode with no line numbers
+    shared_ptr<ASTNode> toSet(new ASTNode(vector<Token> {Token(PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD)}));
+    toSet->setType(ASTNodeType::PROGRAM);
+
+    // Create first procedure node
+    shared_ptr<ASTNode> firstProcedureNode(new ASTNode(vector<Token> {procedureToken}));
+    firstProcedureNode->setType(ASTNodeType::PROCEDURE);
+
+    // Create first procedure node w/o line numbers
+    shared_ptr<ASTNode> toSetProcedureNode(new ASTNode(vector<Token> {procedureToken}));
+    toSetProcedureNode->setType(ASTNodeType::PROCEDURE);
+
+    // Create first procedure name node
+    shared_ptr<ASTNode> firstProcedureNameASTNode(new ASTNode(vector<Token> {procedureName}));
+    firstProcedureNameASTNode->setType(ASTNodeType::NAME);
+
+    // Create first procedure name node w/o line numbers
+    shared_ptr<ASTNode> toSetProcedureNameASTNode(new ASTNode(vector<Token> {procedureName}));
+    toSetProcedureNameASTNode->setType(ASTNodeType::NAME);
+
+    // Create first variable node
+    shared_ptr<ASTNode> variableNode(new ASTNode(vector<Token> {variable}));
+    variableNode->setType(ASTNodeType::NAME);
+    variableNode->setLineNumber(1);
+
+    // Create first variable node w/o Line numbers
+    shared_ptr<ASTNode> toSetVariableNode(new ASTNode(vector<Token> {variable}));
+    toSetVariableNode->setType(ASTNodeType::NAME);
+
+    // Create constant node
+    shared_ptr<ASTNode> constantNode(new ASTNode(vector<Token> {constantToken}));
+    constantNode->setType(ASTNodeType::CONSTANT);
+    constantNode->setLineNumber(1);
+
+    // Create constant node w/o line numbers
+    shared_ptr<ASTNode> toSetConstantNode(new ASTNode(vector<Token> {constantToken}));
+    toSetConstantNode->setType(ASTNodeType::CONSTANT);
+
+    // Create firstStmtlst node
+    shared_ptr<ASTNode> firstStmtLstASTNode(new ASTNode(vector<Token> {Token{ "", TokenType::DELIMITER }}));
+    firstStmtLstASTNode->setType(ASTNodeType::STMTLIST);
+
+    // Create firstStmtlst node w/o line numbers
+    shared_ptr<ASTNode> toSetStmtLstASTNode(new ASTNode(vector<Token> {Token{ "", TokenType::DELIMITER }}));
+    toSetStmtLstASTNode->setType(ASTNodeType::STMTLIST);
+
+    // Create first assign node
+    shared_ptr<ASTNode> firstAssignASTNode(new ASTNode(vector<Token> {equalsToken}));
+    firstAssignASTNode->setType(ASTNodeType::ASSIGN);
+    firstAssignASTNode->setLineNumber(1);
+
+    // Create first assign node w/o line numbers
+    shared_ptr<ASTNode> toSetAssignASTNode(new ASTNode(vector<Token> {equalsToken}));
+    toSetAssignASTNode->setType(ASTNodeType::ASSIGN);
+
+    // add children to assign node
+    firstAssignASTNode->addChild(variableNode);
+    firstAssignASTNode->addChild(constantNode);
+
+    toSetAssignASTNode->addChild(toSetVariableNode);
+    toSetAssignASTNode->addChild(toSetConstantNode);
+
+
+
+    // add assign node to stmtlst
+    firstStmtLstASTNode->addChild(firstAssignASTNode);
+
+    toSetStmtLstASTNode->addChild(toSetAssignASTNode);
+
+    // Add name childs for procedures
+    firstProcedureNode->addChild(firstProcedureNameASTNode);
+    firstProcedureNode->addChild(firstStmtLstASTNode);
+
+    toSetProcedureNode->addChild(toSetProcedureNameASTNode);
+    toSetProcedureNode->addChild(toSetStmtLstASTNode);
+
+    expectedASTNode->addChild(firstProcedureNode);
+    toSet->addChild(toSetProcedureNode);
+
+    test(toSet, expectedASTNode);
+
+}
+
+// TODO
+TEST_CASE("ProgramSimpleSyntaxRule test ::handleStatementList") {
+
+}
+
+// TODO
+TEST_CASE("ProgramSimpleSyntaxRule test ::recursiveSetLineNumber") {
+
+}
+
+// TODO
+TEST_CASE("ProgramSimpleSyntaxRule test ::recursiveSetStatementNumber") {
+
+}
 
 
 // =============== INTEGRATION TEST FOR RULES ====================

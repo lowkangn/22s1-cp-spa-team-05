@@ -20,4 +20,6 @@ public:
 
     /* Returns the results obtained from each of this query's clauses. */
     pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> execute();
+
+	friend bool operator==(Query first, Query second);
 };

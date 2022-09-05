@@ -2,6 +2,7 @@
 
 #include <list>
 #include <string>
+#include <vector>
 using namespace std;
 
 #include <sp/dataclasses/AST.h>
@@ -25,13 +26,17 @@ public:
 		Constructs a parser manager. Expects the tokens to be parsed to be instantiated 
 		with it at run time.
 	*/
-	ParserManager(vector<Token> tokens) {
+	ParserManager(list<Token> tokens) {
 		this->tokens = tokens;
-		this->root = new ASTNode(tokens);
+
+		// AST node expects a vector
+		// convert linkedlist to vector
+		vector<Token> tokensAsVector { begin(tokens), end(tokens) };
+		this->root = new ASTNode(tokensAsVector);
 	}
 
 	/*
 		Parses the tokens into an abstract syntax tree.
 	*/
-	ASTNode parse();
+	shared_ptr<ASTNode> parse();
 };

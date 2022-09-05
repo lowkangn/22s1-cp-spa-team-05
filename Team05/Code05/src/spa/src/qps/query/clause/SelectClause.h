@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include "Clause.h"
 #include "ClauseResult.h"
@@ -8,7 +10,9 @@ using namespace std;
 
 class SelectClause : public Clause {
 private:
-    ClauseArgument arg;
+	ClauseArgument toSelect;
 public:
-    shared_ptr<ClauseResult> execute() override;
+	SelectClause(ClauseArgument toSelect) : toSelect(toSelect) {};
+	shared_ptr<ClauseResult> execute() override;
+	bool equals(const Clause* other) override;
 };

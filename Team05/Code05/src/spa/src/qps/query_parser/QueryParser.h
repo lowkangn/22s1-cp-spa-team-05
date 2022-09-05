@@ -1,8 +1,10 @@
 #pragma once
 
-#include "PQLToken.h"
-#include "../query/Query.h"
+#include <qps/query_parser/PQLToken.h>
+#include <qps/query_parser/DesignEntity.h>
+#include <qps/query/Query.h>
 #include <list>
+#include <unordered_set>
 
 using namespace std;
 
@@ -10,15 +12,29 @@ using namespace std;
  * This class handles the creation of a Query object from a list of PQLTokens.
  */
 class QueryParser {
-
+private:
+    list<PQLToken> tokens;
+    unordered_set<string> names;
 public:
 
     /**
-     * Parses list of PQLTokens into a Query object.
+     * Instantiates a QueryParser that will parse the given tokens.
      *
-     * @param tokens used to create Query object.
+     * @param tokens to be parsed into a Query object.
+     */
+    QueryParser(list<PQLToken> tokens) {
+        this->tokens = tokens;
+    };
+
+    /**
+     * Parses list of PQLTokens into a Query object.
+     * 
      * @return Query object.
      */
-    Query parse(list<PQLToken> tokens);
+    Query parse();
+
+    list<shared_ptr<Clause>> QueryParser::parseConstraints(unordered_map<string, DesignEntity> declarations);
+
+    shared_ptr<Clause> QueryParser::parseSuchThat(unordered_map<string, DesignEntity> declarations);
 };
 

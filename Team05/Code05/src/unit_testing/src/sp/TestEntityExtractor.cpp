@@ -4,6 +4,7 @@
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/AST.h>
+#include <vector>
 #include <memory>
 
 using namespace std;

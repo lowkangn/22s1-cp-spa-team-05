@@ -6,7 +6,7 @@
 #include <memory>
 using namespace std;
 
-class ModifiesExtractor : Extractor<Relationship> {
+class ModifiesExtractor : public Extractor<Relationship> {
 
 public:
 	/*
