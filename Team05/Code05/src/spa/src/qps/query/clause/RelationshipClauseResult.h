@@ -1,7 +1,9 @@
 #pragma once
 
+#include <vector>
 #include "PQLRelationship.h"
 #include "ClauseResult.h"
+#include "ClauseArgument.h"
 
 class RelationshipClauseResult : public ClauseResult {
 

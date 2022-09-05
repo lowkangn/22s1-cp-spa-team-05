@@ -1,10 +1,11 @@
-#include <qps/query/Query.h>
+#include "Query.h"
 
-vector<ClauseResult> Query::execute() {
-	std::vector<ClauseResult> results;
-	std::vector<Clause>::iterator iter = clauses.begin();
-	for (; iter != clauses.end(); iter++) {
-		results.push_back((*iter).execute());
+pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> Query::execute() {
+    shared_ptr<ClauseResult> entities = selectClause->execute();
+    list<shared_ptr<ClauseResult>> relationships;
+	list<shared_ptr<Clause>>::iterator iter = constraintClauses.begin();
+	for (; iter != constraintClauses.end(); iter++) {
+        relationships.push_back((*iter)->execute());
 	}
-	return results;
+	return pair(entities, relationships);
 }

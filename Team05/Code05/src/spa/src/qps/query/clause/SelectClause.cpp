@@ -1,10 +1,10 @@
 #include "SelectClause.h"
 #include "../../../pkb/interfaces/PKBQueryHandler.h"
 #include "../../qps/query/clause/PQLEntity.h"
+#include "EntityClauseResult.h"
 
-ClauseResult SelectClause::execute() {
+shared_ptr<ClauseResult> SelectClause::execute() {
     // Not sure of the correct way to call this
-    vector<PQLEntity> entries = PKBQueryHandler::retrieveKnowledge(arg);
-    // ...
-    return *new ClauseResult();
+    vector<PQLEntity> entities = PKBQueryHandler::retrieveKnowledge(arg);
+    return shared_ptr<ClauseResult>(new EntityClauseResult(arg, entities));
 }

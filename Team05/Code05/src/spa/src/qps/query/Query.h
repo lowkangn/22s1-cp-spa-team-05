@@ -1,22 +1,23 @@
 #pragma once
 
-#include <vector>
+#include <list>
 
-#include <qps/query/clause/ClauseResult.h>
-#include <qps/query/clause/Clause.h>
-
+#include "clause/ClauseResult.h"
+#include "clause/Clause.h"
 using namespace std;
 
 class Query {
 private:
-	vector<Clause> clauses;
+    shared_ptr<Clause> selectClause;
+    list<shared_ptr<Clause>> constraintClauses;
 public:
-	
-	/* Instantiates a Query object containign the clauses. */
-	Query(vector<Clause> clauses) {
-		this -> clauses = clauses;
-	}
 
-	/* Returns the results obtained from each of this query's clauses. */
-	vector<ClauseResult> Query::execute();
+    /* Instantiates a Query object containing the clauses. */
+    Query(shared_ptr<Clause> select, list<shared_ptr<Clause>> constraints) {
+        selectClause = select;
+        constraintClauses = constraints;
+    }
+
+    /* Returns the results obtained from each of this query's clauses. */
+    pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> execute();
 };
