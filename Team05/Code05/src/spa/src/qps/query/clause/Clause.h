@@ -1,4 +1,6 @@
 #pragma once
+
+#include <memory>
 #include "ClauseResult.h"
 
 using namespace std;

@@ -12,7 +12,7 @@ private:
     vector<PQLEntity> entities;
 
 public:
-    EntityClauseResult(ClauseArgument arg, vector<PQLEntity> entities) {
+    EntityClauseResult(ClauseArgument arg, vector<PQLEntity> entities) : arg(arg), entities(entities) {
         this->arg = arg;
         this->entities = entities;
     }

@@ -11,30 +11,32 @@ private:
 
     PQLEntityType type;
     string str;
+    int lineNum;
     int value;
 
-    PQLEntity(PQLEntityType type, string str, int value) {
+    PQLEntity(PQLEntityType type, string str, int lineNum, int value) {
         this->type = type;
         this->str = str;
+        this->lineNum = lineNum;
         this->value = value;
     }
 
 public:
 
     static PQLEntity generateProcedure(string name) {
-        return PQLEntity(PQLEntityType::PROCEDURE, name, 0);
+        return PQLEntity(PQLEntityType::PROCEDURE, name, 0, 0);
     }
 
     static PQLEntity generateStatement(int lineNumber) {
-        return PQLEntity(PQLEntityType::STATEMENT, "", lineNumber);
+        return PQLEntity(PQLEntityType::STATEMENT, "", lineNumber, 0);
     }
 
     static PQLEntity generateVariable(string name) {
-        return PQLEntity(PQLEntityType::VARIABLE, name, 0);
+        return PQLEntity(PQLEntityType::VARIABLE, name, 0, 0);
     }
 
     static PQLEntity generateConstant(int value) {
-        return PQLEntity(PQLEntityType::VARIABLE, "", value);
+        return PQLEntity(PQLEntityType::VARIABLE, "", 0, value);
     }
 
     bool isProcedure() {

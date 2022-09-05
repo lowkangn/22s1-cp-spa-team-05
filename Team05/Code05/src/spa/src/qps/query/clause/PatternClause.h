@@ -1,6 +1,6 @@
-#include <qps/query/clause/Clause.h>
+#include "Clause.h"
 
 class PatternClause : public Clause {
 public:
-	ClauseResult execute() override;
+    shared_ptr<ClauseResult> execute() override;
 };

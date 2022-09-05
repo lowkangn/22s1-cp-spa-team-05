@@ -1,6 +1,6 @@
-#include <Clause.h>
+#include "Clause.h"
 
 class ParentTClause : public Clause {
 public:
-	ClauseResult execute() override;
+    shared_ptr<ClauseResult> execute() override;
 };

@@ -26,7 +26,9 @@ class PKBQueryHandler {
 private:
     ProgramKnowledgeBase KnowledgeBase;
 public:
-    PKBQueryHandler(ProgramKnowledgeBase pkb);
+    PKBQueryHandler() {};
+
+    PKBQueryHandler(ProgramKnowledgeBase pkb) {};
 
     // Accepts one ClauseArgument, only called by SelectClause
     vector<PQLEntity> retrieveKnowledge(ClauseArgument arg);

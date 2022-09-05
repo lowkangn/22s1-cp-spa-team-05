@@ -39,7 +39,7 @@ string QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<Cl
     // Iterate through the other clauses
     list<shared_ptr<RelationshipClauseResult>>::iterator filterIter = relationshipsResults.begin();
     for (; filterIter != relationshipsResults.end(); filterIter++) {
-        filterEntitiesToReturn(entityNamesToReturn, entitiesResult, *filterIter);
+        filterEntitiesToReturn(&entityNamesToReturn, entitiesResult, *filterIter);
     }
 
     string combinedResult;
@@ -53,6 +53,7 @@ string QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<Cl
         combinedResult.append(*outputIter);
     }
 
+    return combinedResult;
 }
 
 string QueryEvaluator::evaluate(Query query) {
@@ -60,17 +61,7 @@ string QueryEvaluator::evaluate(Query query) {
 	return combine(results);
 }
 
-DeclarationCheckOutput checkDeclaration(shared_ptr<EntityClauseResult> entityResult, shared_ptr<RelationshipClauseResult> relationshipResult) {
-    if (entityResult->getArg() == relationshipResult->getFirstArg()) {
-        return DeclarationCheckOutput::ARG1;
-    } else if (entityResult->getArg() == relationshipResult->getSecondArg()) {
-        return DeclarationCheckOutput::ARG2;
-    } else {
-        return DeclarationCheckOutput::NONE;
-    }
-}
-
-void filterEntitiesToReturn(unordered_set<string>* currEntitiesToReturn, shared_ptr<EntityClauseResult> entitiesResult,
+void QueryEvaluator::filterEntitiesToReturn(unordered_set<string>* currEntitiesToReturn, shared_ptr<EntityClauseResult> entitiesResult,
                             shared_ptr<RelationshipClauseResult> relationshipsResult) {
 
     DeclarationCheckOutput output = checkDeclaration(entitiesResult, relationshipsResult);

@@ -5,7 +5,6 @@
 #include "ClauseResult.h"
 #include "RelationshipClauseResult.h"
 #include "ClauseArgument.h"
-#include "../../../pkb/interfaces/PKBQueryHandler.h"
 
 class ModifiesSClause : public Clause {
 private:

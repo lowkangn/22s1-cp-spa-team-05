@@ -13,7 +13,8 @@ private:
     vector<PQLRelationship> relationships;
 
 public:
-    RelationshipClauseResult(ClauseArgument firstArg, ClauseArgument secondArg, vector<PQLRelationship> relationships) {
+    RelationshipClauseResult(ClauseArgument firstArg, ClauseArgument secondArg, vector<PQLRelationship> relationships)
+                                : firstArg(firstArg), secondArg(secondArg), relationships(relationships) {
         this->firstArg = firstArg;
         this->secondArg = secondArg;
         this->relationships = relationships;

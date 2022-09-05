@@ -5,8 +5,9 @@
 
 shared_ptr<ClauseResult> SelectClause::execute() {
     // Not sure of the correct way to call this
-    vector<PQLEntity> entities = PKBQueryHandler::retrieveKnowledge(toSelect);
-    return shared_ptr<ClauseResult>(new EntityClauseResult(toSelect, entities));
+//    vector<PQLEntity> entities = PKBQueryHandler().retrieveKnowledge(toSelect);
+//    return shared_ptr<ClauseResult>(new EntityClauseResult(toSelect, entities));
+    return shared_ptr<ClauseResult>();
 }
 
 bool SelectClause::equals(const Clause* other) {
