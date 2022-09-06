@@ -1,6 +1,8 @@
-#include <qps/query/clause/Clause.h>
+#pragma once
+
+#include "Clause.h"
 
 class ParentClause : public Clause {
 public:
-	ClauseResult execute() override;
+    shared_ptr<ClauseResult> execute() override;
 };

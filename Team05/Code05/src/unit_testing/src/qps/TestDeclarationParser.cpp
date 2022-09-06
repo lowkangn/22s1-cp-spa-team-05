@@ -5,6 +5,7 @@
 #include <qps/query_parser/DesignEntity.h>
 #include <qps/query_parser/parsers/DeclarationParser.h>
 #include <qps/query_parser/parsers/DeclarationParser.cpp>
+#include <unordered_map>
 
 using namespace std;
 

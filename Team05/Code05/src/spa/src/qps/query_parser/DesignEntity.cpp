@@ -1,3 +1,4 @@
+#include <unordered_map>
 #include <qps/query_parser/DesignEntity.h>
 
 unordered_map<string, DesignEntity> entityMap({

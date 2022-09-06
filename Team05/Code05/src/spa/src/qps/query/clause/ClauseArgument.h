@@ -38,5 +38,3 @@ public:
 
 	friend bool operator== (ClauseArgument first, ClauseArgument second);
 };
-
-
