@@ -19,6 +19,8 @@ public:
 
 	void clearDataBase() override;
 
+	unordered_map<int, PkbEntity> getMap();
+
 private:
 	unordered_map<int, PkbEntity> idToEntityMapping;
 	unordered_map<PkbEntity, int, EntityHasher> entityToIdMapping;

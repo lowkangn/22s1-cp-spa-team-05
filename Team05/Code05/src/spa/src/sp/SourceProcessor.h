@@ -1,6 +1,7 @@
 #include <string>
 #include <list>
 #include <fstream>
+#include <memory>
 
 using namespace std;
 
@@ -9,5 +10,5 @@ using namespace std;
 
 class SourceProcessor {
 public: 
-	void tokenizeParseExtractAndUpdatePkb(istream& filestream, PKBUpdateHandler pkb);
+	void tokenizeParseExtractAndUpdatePkb(istream& filestream, shared_ptr<PKBUpdateHandler> pkb);
 };

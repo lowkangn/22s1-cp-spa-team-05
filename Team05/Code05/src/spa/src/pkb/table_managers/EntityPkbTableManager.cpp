@@ -56,3 +56,7 @@ void EntityPkbTableManager::clearDataBase() {
 	this->entityToIdMapping.clear();
 	this->nextId = 0;
 }
+
+unordered_map<int, PkbEntity> EntityPkbTableManager::getMap() {
+	return this->idToEntityMapping;
+}

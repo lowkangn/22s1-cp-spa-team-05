@@ -28,8 +28,8 @@ using namespace std;
 class ProgramKnowledgeBase: public PKBUpdateHandler {
 private:
 
-    static ProgramKnowledgeBase* PKBInstance;
-    EntityPkbTableManager entityManager;
+    static shared_ptr<ProgramKnowledgeBase> PKBInstance;
+    shared_ptr <EntityPkbTableManager> entityManager;
     shared_ptr<RelationshipPkbTableManager> modifiesTable;
 
 
@@ -37,10 +37,10 @@ private:
 
 public:
 
-    static ProgramKnowledgeBase* getInstance();
+    static shared_ptr<ProgramKnowledgeBase> getInstance();
 
     // TODO Change from string to super class of Knowledge
-    std::vector<Entity> retrieveAllKnowledge();
+    vector<Entity> retrieveAllKnowledge();
 
     // TODO Change return type from string to super class of Knowledge
     // TODO Change arg from string to QueryClause class
@@ -55,7 +55,20 @@ public:
     // TODO Change from string to super class of Knowledge
     void deleteKnowledge(std::string knowledge);
 
-    shared_ptr<ModifiesPkbTableManager> getModifiesTable();
+    shared_ptr<ModifiesPkbTableManager> _getModifiesTable();
+    shared_ptr<EntityPkbTableManager> _getEntitiesTable();
+
+
+    /*
+        Helper method for testing purposes.
+    */
+    //vector<shared_ptr<Relationship>> _getAllRelationships(); 
+
+    /*
+        Helper method for testing purposes.
+    */
+    //vector<shared_ptr<Entity>> _getAllEntities();
+
 
 };
 

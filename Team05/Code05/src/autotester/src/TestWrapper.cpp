@@ -1,4 +1,7 @@
 #include "TestWrapper.h"
+#include <istream>
+#include <fstream>
+#include <memory>
 
 // implementation code of WrapperFactory - do NOT modify the next 5 lines
 AbstractWrapper* WrapperFactory::wrapper = 0;
@@ -11,22 +14,31 @@ volatile bool AbstractWrapper::GlobalStop = false;
 
 // a default constructor
 TestWrapper::TestWrapper() {
-	// initialize file io
-	// initialize sp
+	this->pkb = ProgramKnowledgeBase::getInstance();
+	this->sp = SourceProcessor();
+]	// initialize qps
 }
 
 // method for parsing the SIMPLE source
 void TestWrapper::parse(std::string filename) {
-	// get stream from fileio manager
+	// get stream 
+	fstream stream;
+	stream.open(filename);
+	
+	// parse
+	this->sp.tokenizeParseExtractAndUpdatePkb(stream, shared_ptr<PKBUpdateHandler>(this->pkb));
 
-	// sp parses and updates pkb 
-
+	stream.close();
 }
 
 // method to evaluating a query
 void TestWrapper::evaluate(std::string query, std::list<std::string>& results){
-// call your evaluator to evaluate the query here
-  // ...code to evaluate query...
+
+  // convert query string to stream
+
+	// query
+
+	// push into results list by reference
 
   // store the answers to the query in the results list (it is initially empty)
   // each result must be a string.
