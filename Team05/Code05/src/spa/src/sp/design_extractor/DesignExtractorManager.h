@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include <sp/design_extractor/Extractor.h>
 #include <sp/design_extractor/EntityExtractor.h>
 #include <sp/design_extractor/PatternExtractor.h>

@@ -74,7 +74,7 @@ TEST_CASE("PKB Add Modifies Relationships") {
 		ProgramKnowledgeBase pkb) {
 			vector<int> expectedResults;
 			vector<int> relationshipIds = pkb.addRelationship(relationships);
-			shared_ptr<ModifiesPkbTableManager> modifiesTable = pkb.getModifiesTable();
+			shared_ptr<ModifiesPkbTableManager> modifiesTable = pkb._getModifiesTable();
 			unordered_map<int, PkbRelationship> modifiesMap = modifiesTable->getMap();
 
 			for (int i = 0; i < relationships.size(); i++) {

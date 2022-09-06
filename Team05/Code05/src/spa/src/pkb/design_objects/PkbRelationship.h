@@ -19,6 +19,11 @@ public:
 	int getRhs() {
 		return this->rhsId;
 	}
+	
+
+	bool equals(PkbRelationship other) {
+		return this->lhsId == other.lhsId && this->rhsId == other.rhsId;
+	}
 
 private:
 	int lhsId;

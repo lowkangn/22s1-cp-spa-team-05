@@ -36,13 +36,14 @@ list<Token> Lexer::tokenize(istream &stream) {
         else if (this->charIsDelimiter(peeked)) { // is punctuation, we're looking out only for specific ones
             linkedListOfTokens.emplace_back(this->createDelimiterTokenFromTraversingStream(stream));
         }
-        else if (this->charIsWhiteSpace(peeked)) {
-            this->traverseStreamUntilNoWhiteSpace(stream);
-        }
         else if (peeked == NEWLINE_CHARACTER) {
             stream.get(); // take the character out
             trueline += 1; // count true line thing was on
         }
+        else if (this->charIsWhiteSpace(peeked)) {
+            this->traverseStreamUntilNoWhiteSpace(stream);
+        }
+        
         else if (peeked == EOF) {
             break;
         }
@@ -101,7 +102,6 @@ bool Lexer::charIsDelimiter(char c) {
         case '(':
         case ')':
         case ';':
-        case NEWLINE_CHARACTER:
             return true;
         default:
             return false;

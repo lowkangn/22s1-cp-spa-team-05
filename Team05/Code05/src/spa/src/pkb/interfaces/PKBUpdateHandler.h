@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <pkb/ProgramKnowledgeBase.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Entity.h>

@@ -74,7 +74,6 @@ TEST_CASE("Lexer: test icharIsDelimiter") {
     testCharIsDelimiter('(', true);
     testCharIsDelimiter(')', true);
     testCharIsDelimiter(';', true);
-    testCharIsDelimiter('\n', true);
 
 }
 
@@ -292,7 +291,6 @@ TEST_CASE("Lexer: test createDelimiterTokenFromTraversingStream") {
         test(")", ")", EOF);
         test("{", "{", EOF);
         test("}", "}", EOF);
-        test("\n", "\n", EOF);
     }
 
     SECTION("Some characters after not used") {
@@ -385,7 +383,8 @@ TEST_CASE("Lexer: test tokenize works correctly") {
 
             curr = tokens.front();
             currExpected = expectedTokens.front();
-
+                cout << curr.getString();
+                cout << currExpected.getString();
             REQUIRE(curr.equals(currExpected));
 
             tokens.pop_front();
@@ -396,13 +395,29 @@ TEST_CASE("Lexer: test tokenize works correctly") {
         
     };
 
-    SECTION("Works as expected") {
+    SECTION("Single line") {
         test("a + b = c", list<Token>{
             Token("a", TokenType::NAME_OR_KEYWORD), 
                 Token("+", TokenType::OPERATOR), 
                 Token("b", TokenType::NAME_OR_KEYWORD), 
                 Token("=", TokenType::OPERATOR),
                 Token("c", TokenType::NAME_OR_KEYWORD)
+        });
+    }
+
+    SECTION("Multiple lines") {
+        test("a + b = c;\nd+e=f", list<Token>{
+            Token("a", TokenType::NAME_OR_KEYWORD),
+                Token("+", TokenType::OPERATOR),
+                Token("b", TokenType::NAME_OR_KEYWORD),
+                Token("=", TokenType::OPERATOR),
+                Token("c", TokenType::NAME_OR_KEYWORD),
+                Token(SEMI_COLON, TokenType::DELIMITER),
+                Token("d", TokenType::NAME_OR_KEYWORD),
+                Token("+", TokenType::OPERATOR),
+                Token("e", TokenType::NAME_OR_KEYWORD),
+                Token("=", TokenType::OPERATOR),
+                Token("f", TokenType::NAME_OR_KEYWORD)
         });
     }
 

@@ -22,21 +22,21 @@
 using namespace std;
 
 ProgramKnowledgeBase::ProgramKnowledgeBase() {
-    entityManager = EntityPkbTableManager();
-    this->modifiesTable = shared_ptr<ModifiesPkbTableManager>(new ModifiesPkbTableManager(entityManager));
+    entityManager = shared_ptr<EntityPkbTableManager>(new EntityPkbTableManager());
+    this->modifiesTable = shared_ptr<ModifiesPkbTableManager>(new ModifiesPkbTableManager(*entityManager));
     
 }
 
-ProgramKnowledgeBase *ProgramKnowledgeBase::getInstance() {
-    if (!PKBInstance) {
-        PKBInstance = new ProgramKnowledgeBase;
+shared_ptr<ProgramKnowledgeBase> ProgramKnowledgeBase::getInstance() {
+    if (!ProgramKnowledgeBase::PKBInstance) {
+        ProgramKnowledgeBase::PKBInstance = shared_ptr< ProgramKnowledgeBase>(new ProgramKnowledgeBase);
     }
     return PKBInstance;
 }
 
-ProgramKnowledgeBase* ProgramKnowledgeBase::PKBInstance = NULL;
+shared_ptr<ProgramKnowledgeBase> ProgramKnowledgeBase::PKBInstance = NULL;
 
-std::vector<Entity> ProgramKnowledgeBase::retrieveAllKnowledge() {
+vector<Entity> ProgramKnowledgeBase::retrieveAllKnowledge() {
     return std::vector<Entity>();
 }
 
@@ -103,17 +103,31 @@ vector<int> ProgramKnowledgeBase::addEntity(vector<Entity> entities) {
         if (entity.getType() == EntityType::STMT) {
             int lineNum = entity.getLine();
             PkbEntity pkbEntity = PkbEntity::generateStatement(entityStr, lineNum);
-            int entityId = this->entityManager.add(pkbEntity);
+            int entityId = this->entityManager->add(pkbEntity);
             entityIdVector.push_back(entityId);
         } else {
             PkbEntity pkbEntity = PkbEntity::generateVariable(entityStr);
-            int entityId = this->entityManager.add(pkbEntity);
+            int entityId = this->entityManager->add(pkbEntity);
             entityIdVector.push_back(entityId);
         }
     }
     return entityIdVector;
 }
-shared_ptr<ModifiesPkbTableManager> ProgramKnowledgeBase::getModifiesTable() {
-    return std::static_pointer_cast<ModifiesPkbTableManager>(modifiesTable);
+shared_ptr<ModifiesPkbTableManager> ProgramKnowledgeBase::_getModifiesTable() {
+    return static_pointer_cast<ModifiesPkbTableManager>(modifiesTable);
 }
+
+shared_ptr<EntityPkbTableManager> ProgramKnowledgeBase::_getEntitiesTable() {
+    return this->entityManager;
+}
+   
+//vector<shared_ptr<Relationship>> ProgramKnowledgeBase::_getAllRelationships() {
+    // TODO: make this general 
+//}
+
+    
+//vector<shared_ptr<Entity>> ProgramKnowledgeBase::_getAllEntities() {
+
+//}
+
 
