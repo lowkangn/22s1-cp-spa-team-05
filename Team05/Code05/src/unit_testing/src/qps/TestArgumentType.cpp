@@ -1,25 +1,23 @@
 #include "catch.hpp"
-#include <string>
 #include <list>
 #include <qps/exceptions/PQLError.h>
-#include <qps/query_parser/DesignEntity.h>
-#include <qps/query_parser/DesignEntity.cpp>
+#include <qps/query_parser/ArgumentType.h>
 using namespace std;
 
 // =============== UNIT TESTS ====================
 
-TEST_CASE("Declaration: test getDesignEntity") {
-    auto testGetDesignEntity= [](string designEntity, bool shouldThrow) {
+TEST_CASE("ArgumentType: test getArgumentType") {
+    auto testGetDesignEntity= [](string argumentType, bool shouldThrow) {
         if (shouldThrow) {
-            REQUIRE_THROWS_AS(getDesignEntity(designEntity),
+            REQUIRE_THROWS_AS(getDesignEntityArgumentType(argumentType),
                 PQLError);
         } else {
-            REQUIRE_NOTHROW(getDesignEntity(designEntity));
+            REQUIRE_NOTHROW(getDesignEntityArgumentType(argumentType));
         }
     };
 
     SECTION("Not a design entity") {
-        testGetDesignEntity("nonExistantDesignEntity", true);
+        testGetDesignEntity("nonExistentDesignEntity", true);
     }
 
     SECTION("Design entities with typo") {

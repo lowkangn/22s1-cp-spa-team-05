@@ -28,7 +28,7 @@ TEST_CASE("QueryParser: test parseNoError") {
                 PQLToken("p", PQLTokenType::NAME)
         };
         Query query = Query(
-            shared_ptr<Clause>(new SelectClause(ClauseArgument("p", ArgumentType::ENTREF_SYNONYM))),
+            shared_ptr<Clause>(new SelectClause(ClauseArgument("p", ArgumentType::PROCEDURE))),
             list<shared_ptr<Clause>>{});
         testParseNoError(tokens, query);
     }
@@ -52,11 +52,11 @@ TEST_CASE("QueryParser: test parseNoError") {
                 PQLToken(")", PQLTokenType::DELIMITER)
         };
         Query query = Query(
-            shared_ptr<Clause>(new SelectClause(ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM))),
+            shared_ptr<Clause>(new SelectClause(ClauseArgument("v1", ArgumentType::VARIABLE))),
             list<shared_ptr<Clause>>{
             shared_ptr<Clause>(new ModifiesSClause(
                 ClauseArgument("1", ArgumentType::LINE_NUMBER),
-                ClauseArgument("v", ArgumentType::ENTREF_SYNONYM)))
+                ClauseArgument("v", ArgumentType::VARIABLE)))
         });
         testParseNoError(tokens, query);
 
@@ -81,10 +81,10 @@ TEST_CASE("QueryParser: test parseNoError") {
                 PQLToken(")", PQLTokenType::DELIMITER)
         };
         query = Query(
-            shared_ptr<Clause>(new SelectClause(ClauseArgument("c", ArgumentType::ENTREF_SYNONYM))),
+            shared_ptr<Clause>(new SelectClause(ClauseArgument("c", ArgumentType::CONSTANT))),
             list<shared_ptr<Clause>>{
             shared_ptr<Clause>(new ModifiesPClause(
-                ClauseArgument("p", ArgumentType::ENTREF_SYNONYM),
+                ClauseArgument("p", ArgumentType::PROCEDURE),
                 ClauseArgument("x", ArgumentType::STRING_LITERAL)))
         });
         testParseNoError(tokens, query);
@@ -93,7 +93,7 @@ TEST_CASE("QueryParser: test parseNoError") {
 
 TEST_CASE("QueryParser: test parseConstraints") {
     auto testParseNoError = [](list<PQLToken> tokens, 
-        unordered_map<string, DesignEntity> declarations,
+        unordered_map<string, ArgumentType> declarations,
         list<shared_ptr<Clause>> expected) {
             // given
             QueryParser parser = QueryParser(tokens);
@@ -120,8 +120,8 @@ TEST_CASE("QueryParser: test parseConstraints") {
 
     list<shared_ptr<Clause>> expected;
     expected.emplace_back(shared_ptr<Clause>(new ModifiesPClause(
-        ClauseArgument("s1", ArgumentType::STMTREF_SYNONYM),
-        ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM))));
+        ClauseArgument("s1", ArgumentType::STMT),
+        ClauseArgument("v1", ArgumentType::VARIABLE))));
     testParseNoError(list<PQLToken>{
         PQLToken("such", PQLTokenType::NAME),
             PQLToken("that", PQLTokenType::NAME),
@@ -131,7 +131,7 @@ TEST_CASE("QueryParser: test parseConstraints") {
             PQLToken(",", PQLTokenType::DELIMITER),
             PQLToken("v1", PQLTokenType::NAME),
             PQLToken(")", PQLTokenType::DELIMITER)},
-        unordered_map<string, DesignEntity>{ {"v1", DesignEntity::VARIABLE},
-            { "s1", DesignEntity::STMT }},
+        unordered_map<string, ArgumentType>{ {"v1", ArgumentType::VARIABLE},
+            { "s1", ArgumentType::STMT }},
             expected);
 }

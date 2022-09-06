@@ -5,16 +5,12 @@ list<PQLToken> ClauseParser::getRemainingTokens() {
 }
 
 ClauseArgument ClauseParser::parseSynonym() {
-	PQLToken synonymToken = this->tokens.front();
-	if (declarations.count(synonymToken.getTokenString()) == 0) {
-		throw PQLError("Synonym not declared: " + synonymToken.getTokenString());
-	}
-	this->tokens.pop_front();
-	if (isStatementDesignEntity(declarations.at(synonymToken.getTokenString()))) {
-		return ClauseArgument(synonymToken.getTokenString(), ArgumentType::STMTREF_SYNONYM);
-	} else {
-		return ClauseArgument(synonymToken.getTokenString(), ArgumentType::ENTREF_SYNONYM);
-	}
+    PQLToken synonymToken = this->tokens.front();
+    if (declarations.count(synonymToken.getTokenString()) == 0) {
+        throw PQLError("Synonym not declared: " + synonymToken.getTokenString());
+    }
+    this->tokens.pop_front();
+    return ClauseArgument(synonymToken.getTokenString(), declarations.at(synonymToken.getTokenString()));
 }
 
 ClauseArgument ClauseParser::parseStringLiteral() {

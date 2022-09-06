@@ -1,7 +1,7 @@
 #include <qps/exceptions/PQLError.h>
 #include <qps/query_parser/parsers/DeclarationParser.h>
 
-unordered_map<string, DesignEntity> DeclarationParser::parse() {
+unordered_map<string, ArgumentType> DeclarationParser::parse() {
 	PQLToken token = this->tokens.front();
 	while (!this->tokens.empty() && !token.isSelect()) {
 		token = this->tokens.front();
@@ -37,7 +37,7 @@ void DeclarationParser::parseOneDeclaration() {
 		} 
 		string synonym = token.getTokenString();
 		ensureSynonymNotDeclared(synonym);
-		this->declarations.insert({ synonym,  getDesignEntity(designEntityToken.getTokenString())});
+		this->declarations.insert({ synonym,  getDesignEntityArgumentType(designEntityToken.getTokenString())});
 		isSynonymExpected = false;
 	}
 

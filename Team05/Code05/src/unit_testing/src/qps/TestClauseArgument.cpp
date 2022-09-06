@@ -18,8 +18,8 @@ TEST_CASE("ClauseArgument: test operator==") {
 
 
     SECTION("Equal") {
-        testOperatorEquals(ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM),
-            ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM), true);
+        testOperatorEquals(ClauseArgument("v1", ArgumentType::VARIABLE),
+            ClauseArgument("v1", ArgumentType::VARIABLE), true);
         testOperatorEquals(ClauseArgument("simpleName", ArgumentType::STRING_LITERAL),
             ClauseArgument("simpleName", ArgumentType::STRING_LITERAL), true);
         testOperatorEquals(ClauseArgument("1", ArgumentType::LINE_NUMBER),
@@ -29,14 +29,14 @@ TEST_CASE("ClauseArgument: test operator==") {
     }
 
     SECTION("Not equal") {
-        testOperatorEquals(ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM),
-            ClauseArgument("v2", ArgumentType::ENTREF_SYNONYM), false);
-        testOperatorEquals(ClauseArgument("simpleName", ArgumentType::ENTREF_SYNONYM),
+        testOperatorEquals(ClauseArgument("v1", ArgumentType::VARIABLE),
+            ClauseArgument("v2", ArgumentType::VARIABLE), false);
+        testOperatorEquals(ClauseArgument("simpleName", ArgumentType::VARIABLE),
             ClauseArgument("simpleName", ArgumentType::STRING_LITERAL), false);
-        testOperatorEquals(ClauseArgument("a1", ArgumentType::STMTREF_SYNONYM),
+        testOperatorEquals(ClauseArgument("a1", ArgumentType::ASSIGN),
             ClauseArgument("1", ArgumentType::LINE_NUMBER), false);
         testOperatorEquals(ClauseArgument("_", ArgumentType::WILDCARD),
-            ClauseArgument("w1", ArgumentType::STMTREF_SYNONYM), false);
+            ClauseArgument("w1", ArgumentType::WHILE), false);
     }
 
 }

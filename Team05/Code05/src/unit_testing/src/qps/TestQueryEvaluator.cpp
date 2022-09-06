@@ -24,7 +24,7 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
         // x = x + 1; variable v; Select v
         testCombine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>{
                             shared_ptr<ClauseResult>(new EntityClauseResult(
-                                            ClauseArgument("v", ArgumentType::ENTREF_SYNONYM),
+                                            ClauseArgument("v", ArgumentType::VARIABLE),
                                             vector<PQLEntity>{
                                                 PQLEntity::generateVariable("x")
                                             })),
@@ -35,7 +35,7 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
         // x = x + 1; constant c; Select c
         testCombine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>{
                             shared_ptr<ClauseResult>(new EntityClauseResult(
-                                    ClauseArgument("c", ArgumentType::ENTREF_SYNONYM),
+                                    ClauseArgument("c", ArgumentType::CONSTANT),
                                     vector<PQLEntity>{
                                             PQLEntity::generateConstant(1)
                                     })),
@@ -46,7 +46,7 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
         // x = x + 1; procedure p; Select p
         testCombine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>{
                             shared_ptr<ClauseResult>(new EntityClauseResult(
-                                    ClauseArgument("p", ArgumentType::ENTREF_SYNONYM),
+                                    ClauseArgument("p", ArgumentType::PROCEDURE),
                                     vector<PQLEntity>{})),
                             list<shared_ptr<ClauseResult>>{}
                     },
@@ -63,15 +63,15 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
         // x = x + 1; y = y + 1; assign a; variable v; Select a such that Modifies(a,v)
         testCombine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>{
                             shared_ptr<ClauseResult>(new EntityClauseResult(
-                                    ClauseArgument("a", ArgumentType::STMTREF_SYNONYM),
+                                    ClauseArgument("a", ArgumentType::ASSIGN),
                                     vector<PQLEntity>{
                                             PQLEntity::generateStatement(1),
                                             PQLEntity::generateStatement(2)
                                     })),
                             list<shared_ptr<ClauseResult>>{
                                 shared_ptr<ClauseResult>(new RelationshipClauseResult(
-                                        ClauseArgument("a", ArgumentType::STMTREF_SYNONYM),
-                                        ClauseArgument("v", ArgumentType::ENTREF_SYNONYM),
+                                        ClauseArgument("a", ArgumentType::ASSIGN),
+                                        ClauseArgument("v", ArgumentType::VARIABLE),
                                         vector<PQLRelationship>{
                                                 PQLRelationship(relationship1Entity1, relationship1Entity2),
                                                 PQLRelationship(relationship2Entity1, relationship2Entity2)
@@ -83,15 +83,15 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
         // x = x + 1; y = y + 1; assign a; variable v; Select v such that Modifies(a,v)
         testCombine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>{
                             shared_ptr<ClauseResult>(new EntityClauseResult(
-                                    ClauseArgument("v", ArgumentType::ENTREF_SYNONYM),
+                                    ClauseArgument("v", ArgumentType::VARIABLE),
                                     vector<PQLEntity>{
                                             PQLEntity::generateVariable("x"),
                                             PQLEntity::generateVariable("y")
                                     })),
                             list<shared_ptr<ClauseResult>>{
                                     shared_ptr<ClauseResult>(new RelationshipClauseResult(
-                                            ClauseArgument("a", ArgumentType::STMTREF_SYNONYM),
-                                            ClauseArgument("v", ArgumentType::ENTREF_SYNONYM),
+                                            ClauseArgument("a", ArgumentType::ASSIGN),
+                                            ClauseArgument("v", ArgumentType::VARIABLE),
                                             vector<PQLRelationship>{
                                                     PQLRelationship(relationship1Entity1, relationship1Entity2),
                                                     PQLRelationship(relationship2Entity1, relationship2Entity2)

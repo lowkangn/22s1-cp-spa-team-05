@@ -2,7 +2,8 @@
 #include <string>
 #include <list>
 #include <qps/exceptions/PQLError.h>
-#include <qps/query_parser/DesignEntity.h>
+#include <qps/query_parser/ArgumentType.h>
+#include <qps/query_parser/ArgumentType.cpp>
 #include <qps/query_parser/parsers/DeclarationParser.h>
 #include <qps/query_parser/parsers/DeclarationParser.cpp>
 #include <unordered_map>
@@ -13,13 +14,13 @@ using namespace std;
 
 TEST_CASE("DeclarationParser: test parseOneDeclarationNoError") {
     auto testParseOneDeclarationNoError = [](list<PQLToken> tokens,
-        unordered_map<string, DesignEntity> expected) {
+        unordered_map<string, ArgumentType> expected) {
         // given
         DeclarationParser parser = DeclarationParser(tokens);
 
         // when
         parser.parseOneDeclaration();
-        unordered_map<string, DesignEntity> actual = parser.getDeclarations();
+        unordered_map<string, ArgumentType> actual = parser.getDeclarations();
 
         // then
         REQUIRE(actual == expected);
@@ -31,7 +32,7 @@ TEST_CASE("DeclarationParser: test parseOneDeclarationNoError") {
             PQLToken("variable", PQLTokenType::NAME), 
             PQLToken("v1", PQLTokenType::NAME),
             PQLToken(";", PQLTokenType::DELIMITER)},
-            unordered_map<string, DesignEntity>{ {"v1", DesignEntity::VARIABLE}});
+            unordered_map<string, ArgumentType>{ {"v1", ArgumentType::VARIABLE}});
     }
 
     
@@ -73,12 +74,12 @@ TEST_CASE("DeclarationParser: test parseOneDeclarationWithError") {
 
 
 TEST_CASE("DeclarationParser: test parseNoError") {
-    auto testParseNoError = [](list<PQLToken> tokens, unordered_map<string, DesignEntity> expected) {
+    auto testParseNoError = [](list<PQLToken> tokens, unordered_map<string, ArgumentType> expected) {
         // given
         DeclarationParser parser = DeclarationParser(tokens);
 
         // when
-        unordered_map<string, DesignEntity> actual = parser.parse();
+        unordered_map<string, ArgumentType> actual = parser.parse();
 
         // then
         REQUIRE(actual == expected);
@@ -92,7 +93,7 @@ TEST_CASE("DeclarationParser: test parseNoError") {
                 PQLToken(";", PQLTokenType::DELIMITER),
                 PQLToken("Select", PQLTokenType::NAME),
                 PQLToken("v1", PQLTokenType::NAME)},
-            unordered_map<string, DesignEntity>{ {"v1", DesignEntity::VARIABLE}});
+            unordered_map<string, ArgumentType>{ {"v1", ArgumentType::VARIABLE}});
     }
 
     SECTION("Multiple declarations") {
@@ -105,8 +106,8 @@ TEST_CASE("DeclarationParser: test parseNoError") {
                 PQLToken(";", PQLTokenType::DELIMITER),
                 PQLToken("Select", PQLTokenType::NAME),
                 PQLToken("v1", PQLTokenType::NAME)},
-            unordered_map<string, DesignEntity>{ {"v1", DesignEntity::VARIABLE},
-            { "s1", DesignEntity::STMT }});
+            unordered_map<string, ArgumentType>{ {"v1", ArgumentType::VARIABLE},
+            { "s1", ArgumentType::STMT }});
         testParseNoError(list<PQLToken>{
             PQLToken("variable", PQLTokenType::NAME),
                 PQLToken("v1", PQLTokenType::NAME),
@@ -118,8 +119,8 @@ TEST_CASE("DeclarationParser: test parseNoError") {
                 PQLToken(";", PQLTokenType::DELIMITER),
                 PQLToken("Select", PQLTokenType::NAME),
                 PQLToken("v1", PQLTokenType::NAME)},
-            unordered_map<string, DesignEntity>{ {"v1", DesignEntity::VARIABLE},
-            { "s1", DesignEntity::STMT }, { "s2", DesignEntity::STMT }});
+            unordered_map<string, ArgumentType>{ {"v1", ArgumentType::VARIABLE},
+            { "s1", ArgumentType::STMT }, { "s2", ArgumentType::STMT }});
     }
 }
 

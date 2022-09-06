@@ -15,7 +15,7 @@ using namespace std;
 
 TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
     auto testParseNoError = [](list<PQLToken> tokens,
-        unordered_map<string, DesignEntity> declarations,
+        unordered_map<string, ArgumentType> declarations,
         ModifiesSClause expected) {
             // given
             ModifiesParser parser = ModifiesParser(tokens, declarations);
@@ -28,8 +28,8 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
     };
 
     ModifiesSClause expected = ModifiesSClause(
-        ClauseArgument("s1", ArgumentType::STMTREF_SYNONYM),
-        ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM));
+        ClauseArgument("s1", ArgumentType::STMT),
+        ClauseArgument("v1", ArgumentType::VARIABLE));
     testParseNoError(list<PQLToken>{
         PQLToken("Modifies", PQLTokenType::NAME),
             PQLToken("(", PQLTokenType::DELIMITER),
@@ -37,9 +37,9 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
             PQLToken(",", PQLTokenType::DELIMITER),
             PQLToken("v1", PQLTokenType::NAME),
             PQLToken(")", PQLTokenType::DELIMITER)},
-        unordered_map<string, DesignEntity>{
-            {"v1", DesignEntity::VARIABLE},
-            { "s1", DesignEntity::STMT }},
+        unordered_map<string, ArgumentType>{
+            {"v1", ArgumentType::VARIABLE},
+            { "s1", ArgumentType::STMT }},
             expected);
 
     expected = ModifiesSClause(
@@ -54,13 +54,13 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
             PQLToken("x", PQLTokenType::NAME),
             PQLToken("\"", PQLTokenType::DELIMITER),
             PQLToken(")", PQLTokenType::DELIMITER)},
-        unordered_map<string, DesignEntity>{},
+        unordered_map<string, ArgumentType>{},
             expected);
 }
 
 TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
     auto testParseNoError = [](list<PQLToken> tokens,
-        unordered_map<string, DesignEntity> declarations,
+        unordered_map<string, ArgumentType> declarations,
         ModifiesPClause expected) {
             // given
             ModifiesParser parser = ModifiesParser(tokens, declarations);
@@ -75,7 +75,7 @@ TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
 
     ModifiesPClause expected = ModifiesPClause(
         ClauseArgument("x", ArgumentType::STRING_LITERAL),
-        ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM));
+        ClauseArgument("v1", ArgumentType::VARIABLE));
     testParseNoError(list<PQLToken>{
         PQLToken("Modifies", PQLTokenType::NAME),
             PQLToken("(", PQLTokenType::DELIMITER),
@@ -85,15 +85,15 @@ TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
             PQLToken(",", PQLTokenType::DELIMITER),
             PQLToken("v1", PQLTokenType::NAME),
             PQLToken(")", PQLTokenType::DELIMITER)},
-        unordered_map<string, DesignEntity>{
-            {"v1", DesignEntity::VARIABLE}},
+        unordered_map<string, ArgumentType>{
+            {"v1", ArgumentType::VARIABLE}},
             expected);
 }
 
 
 TEST_CASE("ModifiesParser: test parseWithError") {
     auto testParseWithError = [](list<PQLToken> tokens,
-        unordered_map<string, DesignEntity> declarations) {
+        unordered_map<string, ArgumentType> declarations) {
             // given
             ModifiesParser parser = ModifiesParser(tokens, declarations);
 
@@ -101,11 +101,11 @@ TEST_CASE("ModifiesParser: test parseWithError") {
             REQUIRE_THROWS_AS(parser.parse(), PQLError);
     };
 
-    SECTION("Undeclared / mispelled synonym") {
+    SECTION("Undeclared / misspelled synonym") {
         testParseWithError(list<PQLToken>{
             PQLToken("Modifies", PQLTokenType::NAME),
                 PQLToken("(", PQLTokenType::DELIMITER)},
-            unordered_map<string, DesignEntity>{ {"v2", DesignEntity::VARIABLE}});
+            unordered_map<string, ArgumentType>{ {"v2", ArgumentType::VARIABLE}});
         testParseWithError(list<PQLToken>{
             PQLToken("Modifies", PQLTokenType::NAME),
                 PQLToken("(", PQLTokenType::DELIMITER),
@@ -113,9 +113,9 @@ TEST_CASE("ModifiesParser: test parseWithError") {
                 PQLToken(",", PQLTokenType::DELIMITER),
                 PQLToken("v1", PQLTokenType::NAME),
                 PQLToken(")", PQLTokenType::DELIMITER)},
-            unordered_map<string, DesignEntity>{
-                {"v2", DesignEntity::VARIABLE},
-                { "s1", DesignEntity::STMT }});
+            unordered_map<string, ArgumentType>{
+                {"v2", ArgumentType::VARIABLE},
+                { "s1", ArgumentType::STMT }});
     }
 
     SECTION("Illegal arguments") {
@@ -126,9 +126,9 @@ TEST_CASE("ModifiesParser: test parseWithError") {
                 PQLToken(",", PQLTokenType::DELIMITER),
                 PQLToken("v1", PQLTokenType::NAME),
                 PQLToken(")", PQLTokenType::DELIMITER)},
-            unordered_map<string, DesignEntity>{
-                {"v1", DesignEntity::VARIABLE},
-            { "s1", DesignEntity::STMT }});
+            unordered_map<string, ArgumentType>{
+                {"v1", ArgumentType::VARIABLE},
+            { "s1", ArgumentType::STMT }});
         testParseWithError(list<PQLToken>{
             PQLToken("Modifies", PQLTokenType::NAME),
                 PQLToken("(", PQLTokenType::DELIMITER),
@@ -136,9 +136,9 @@ TEST_CASE("ModifiesParser: test parseWithError") {
                 PQLToken(",", PQLTokenType::DELIMITER),
                 PQLToken("s2", PQLTokenType::NAME),
                 PQLToken(")", PQLTokenType::DELIMITER)},
-            unordered_map<string, DesignEntity>{
-                {"s2", DesignEntity::STMT},
-            { "s1", DesignEntity::STMT }});
+            unordered_map<string, ArgumentType>{
+                {"s2", ArgumentType::STMT},
+            { "s1", ArgumentType::STMT }});
     }
 
 }

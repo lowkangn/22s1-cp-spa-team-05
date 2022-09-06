@@ -1,21 +1,14 @@
 #pragma once
 
 #include <string>
+#include <qps/query_parser/ArgumentType.h>
 
 using namespace std;
 
-enum class ArgumentType {
-	STMTREF_SYNONYM,
-	ENTREF_SYNONYM,
-	LINE_NUMBER,
-	STRING_LITERAL,
-	WILDCARD
-};
-
 class ClauseArgument {
 private:
+    string identifier;
 	ArgumentType type;
-	string identifier;
 public:
 	ClauseArgument(string identifier, ArgumentType type) {
 		this->identifier = identifier;
@@ -27,12 +20,20 @@ public:
 	}
 	
 	bool isStmtRefNoWildcard() {
-		return this->type == ArgumentType::STMTREF_SYNONYM
+		return this->type == ArgumentType::STMT
+            || this->type == ArgumentType::READ
+            || this->type == ArgumentType::PRINT
+            || this->type == ArgumentType::ASSIGN
+            || this->type == ArgumentType::CALL
+            || this->type == ArgumentType::WHILE
+            || this->type == ArgumentType::IF
 			|| this->type == ArgumentType::LINE_NUMBER;
 	}
 
 	bool isEntRefNoWildcard() {
-		return this->type == ArgumentType::ENTREF_SYNONYM
+		return this->type == ArgumentType::PROCEDURE
+            || this->type == ArgumentType::VARIABLE
+            || this->type == ArgumentType::CONSTANT
 			|| this->type == ArgumentType::STRING_LITERAL;
 	}
 
