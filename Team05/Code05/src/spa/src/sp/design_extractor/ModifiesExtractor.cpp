@@ -52,29 +52,15 @@ vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	shared_ptr<ASTNode> left = ast->getChildren()[ASTNode::LEFT_CHILD];
 
 
-	// Extracting tokens to create a Entity to be used in the Relationship class
-	Token leftToken = left->getNameToken();
-	Entity leftHandSide = Entity{ EntityType::VARIABLE, left->getLineNumber(), leftToken, leftToken.getString() };
+	// Extracting tokens of the entity which is modified
+	Token modifiedToken = left->getNameToken();
+	Entity modifiedEntity = Entity{ EntityType::VARIABLE, left->getLineNumber(), modifiedToken, modifiedToken.getString() };
 
-	// The rest of the expression
-	shared_ptr<ASTNode> right = ast->getChildren()[ASTNode::RIGHT_CHILD];
+	Token lineNumber = Token{ to_string(left->getLineNumber()),TokenType::NAME_OR_KEYWORD };
+	Entity leftHandSide = Entity{ EntityType::LINENUMBER, ast->getLineNumber(), lineNumber, lineNumber.getString() };
 
-	// Recursively check the right hand side for Entities to add to the Modifies relationship
-	if (right->isTerminal()) {
-		Token rightToken = right->getNameToken();
-		Entity RHS = Entity{ EntityType::UNDEFINED, -1, Token{"", TokenType::INVALID}, "" };
-		if (rightToken.getType() == TokenType::NAME_OR_KEYWORD) {
-			RHS = Entity{ EntityType::VARIABLE, right->getLineNumber(), rightToken, rightToken.getString() };
-		}
-		else {
-			RHS = Entity{ EntityType::CONSTANT, right->getLineNumber(), rightToken, rightToken.getString() };
-		}
-		modifiesRelationships.push_back(Relationship{ leftHandSide, RHS, RelationshipType::MODIFIES});
-	}
-	else {
-		vector<Relationship> extractedChildRelationships = this->recursiveExtract(leftHandSide, right);
-		modifiesRelationships.insert(modifiesRelationships.end(), extractedChildRelationships.begin(), extractedChildRelationships.end());
-	}
+	modifiesRelationships.push_back(Relationship{ leftHandSide, modifiedEntity, RelationshipType::MODIFIES });
+
 	return modifiesRelationships;
 }
 
@@ -129,11 +115,11 @@ vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& leftHa
 	{
 		// Get left child
 		shared_ptr<ASTNode> leftChild = ast->getChildren()[ASTNode::LEFT_CHILD];
-		
+
 		Token childToken = leftChild->getNameToken();
 		Entity childEntity = Entity{ EntityType::VARIABLE, leftChild->getLineNumber(), childToken, childToken.getString() };
 		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
-		
+
 		modifiesRelationships.push_back(toAdd);
 		break;
 	}
@@ -149,7 +135,7 @@ vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& leftHa
 		Token childToken = child->getNameToken();
 		Entity childEntity = Entity{ EntityType::VARIABLE, child->getLineNumber(), childToken, childToken.getString() };
 		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
-		
+
 		modifiesRelationships.push_back(toAdd);
 		break;
 	}
@@ -164,35 +150,5 @@ vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& leftHa
 		}
 	}
 	}
-	return modifiesRelationships;
-}
-
-vector<Relationship> ModifiesExtractor::recursiveExtract(Entity& leftHandSide, shared_ptr<ASTNode> ast) {
-	vector<Relationship> modifiesRelationships = vector<Relationship>();
-
-	if (ast->isTerminal()) {
-		// Sanity check 
-		assert(ast->getTokens().size() == 1);
-
-		Token token = ast->getTokens()[0];
-		Entity rightHandSide = Entity{ EntityType::UNDEFINED, -1, Token{"", TokenType::INVALID}, "" };
-		if (token.getType() == TokenType::NAME_OR_KEYWORD) {
-			rightHandSide = Entity{ EntityType::VARIABLE, ast->getLineNumber(), token, token.getString() };
-		}
-		else {
-			rightHandSide = Entity{ EntityType::CONSTANT, ast->getLineNumber(), token, token.getString() };
-		}
-		modifiesRelationships.push_back(Relationship{ leftHandSide, rightHandSide, RelationshipType::MODIFIES });
-	}
-	else {
-		// Iterate through child nodes calling this function recursively
-		vector<shared_ptr<ASTNode>> children = ast->getChildren();
-		for (int i = 0; i < children.size(); i++) {
-			shared_ptr<ASTNode> child = children[i];
-			vector<Relationship> extractedModifies = recursiveExtract(leftHandSide, child);
-			modifiesRelationships.insert(modifiesRelationships.end(), extractedModifies.begin(), extractedModifies.end());
-		}
-	}
-
 	return modifiesRelationships;
 }
