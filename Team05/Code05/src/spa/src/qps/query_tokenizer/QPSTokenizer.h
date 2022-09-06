@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PQLToken.h"
-#include "PQLError.h"
+#include <qps/exceptions/PQLError.h>
 #include <list>
 #include <fstream>
 

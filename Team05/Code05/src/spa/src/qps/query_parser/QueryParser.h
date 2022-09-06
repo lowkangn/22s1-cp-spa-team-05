@@ -1,6 +1,6 @@
 #pragma once
 
-#include <qps/query_parser/PQLToken.h>
+#include <qps/query_tokenizer/PQLToken.h>
 #include <qps/query_parser/DesignEntity.h>
 #include <qps/query/Query.h>
 #include <list>

@@ -3,8 +3,8 @@
 #include <list>
 #include <unordered_map>
 
-#include <qps/query_parser/PQLError.h>
-#include <qps/query_parser/PQLToken.h> 
+#include <qps/exceptions/PQLError.h>
+#include <qps/query_tokenizer/PQLToken.h> 
 #include <qps/query_parser/DesignEntity.h>
 #include <qps/query/clause/Clause.h>
 #include <qps/query/clause/ClauseArgument.h>

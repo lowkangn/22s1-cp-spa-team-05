@@ -2,8 +2,8 @@
 #include <sstream>
 #include <string>
 #include <list>
-#include <qps/query_parser/QPSTokenizer.h>
-#include <qps/query_parser/QPSTokenizer.cpp>
+#include <qps/query_tokenizer/QPSTokenizer.h>
+#include <qps/query_tokenizer/QPSTokenizer.cpp>
 #include <iostream>
 using namespace std;
 
@@ -375,13 +375,37 @@ TEST_CASE("QPSTokenizer: test tokenize works correctly") {
 
     };
 
-    SECTION("Works as expected") {
+    SECTION("short input") {
         test("variable v1; Select v1", list<PQLToken>{
                 PQLToken("variable", PQLTokenType::NAME),
                 PQLToken("v1", PQLTokenType::NAME),
                 PQLToken(";", PQLTokenType::DELIMITER),
                 PQLToken("Select", PQLTokenType::NAME),
                 PQLToken("v1", PQLTokenType::NAME)
+        });
+    }
+
+    SECTION("long input with spaces") {
+        test("stmt c; variable \t\tt \t, v1; \n Select t such \n\t that Modifies(c, v1)", list<PQLToken>{
+            PQLToken("stmt", PQLTokenType::NAME),
+                PQLToken("c", PQLTokenType::NAME),
+                PQLToken(";", PQLTokenType::DELIMITER),
+                PQLToken("variable", PQLTokenType::NAME),
+                PQLToken("t", PQLTokenType::NAME),
+                PQLToken(",", PQLTokenType::DELIMITER),
+                PQLToken("v1", PQLTokenType::NAME),
+                PQLToken(";", PQLTokenType::DELIMITER),
+                PQLToken("Select", PQLTokenType::NAME),
+                PQLToken("t", PQLTokenType::NAME),
+                PQLToken("such", PQLTokenType::NAME),
+                PQLToken("that", PQLTokenType::NAME),
+                PQLToken("Modifies", PQLTokenType::NAME),
+                PQLToken("(", PQLTokenType::DELIMITER),
+                PQLToken("c", PQLTokenType::NAME),
+                PQLToken(",", PQLTokenType::DELIMITER),
+                PQLToken("v1", PQLTokenType::NAME),
+                PQLToken(")", PQLTokenType::DELIMITER),
+
         });
     }
 

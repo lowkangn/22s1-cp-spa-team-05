@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include <string>
 #include <list>
-#include <qps/query_parser/PQLError.h>
+#include <qps/exceptions/PQLError.h>
 #include <qps/query_parser/DesignEntity.h>
 #include <qps/query_parser/DesignEntity.cpp>
 using namespace std;
