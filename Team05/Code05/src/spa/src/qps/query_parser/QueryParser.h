@@ -1,10 +1,10 @@
 #pragma once
 
-#include <qps/query_parser/PQLToken.h>
+#include <qps/query_tokenizer/PQLToken.h>
 #include <qps/query_parser/DesignEntity.h>
 #include <qps/query/Query.h>
 #include <list>
-#include <unordered_set>
+#include <unordered_map>
 
 using namespace std;
 
@@ -14,7 +14,6 @@ using namespace std;
 class QueryParser {
 private:
     list<PQLToken> tokens;
-    unordered_set<string> names;
 public:
 
     /**
@@ -33,8 +32,8 @@ public:
      */
     Query parse();
 
-    list<shared_ptr<Clause>> QueryParser::parseConstraints(unordered_map<string, DesignEntity> declarations);
+    list<shared_ptr<Clause>> parseConstraints(unordered_map<string, DesignEntity> declarations);
 
-    shared_ptr<Clause> QueryParser::parseSuchThat(unordered_map<string, DesignEntity> declarations);
+    shared_ptr<Clause> parseSuchThat(unordered_map<string, DesignEntity> declarations);
 };
 

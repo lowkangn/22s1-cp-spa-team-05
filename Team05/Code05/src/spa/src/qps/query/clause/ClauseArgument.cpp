@@ -1,6 +1,4 @@
-#pragma once
-
-#include <qps/query/clause/ClauseArgument.h>
+#include "ClauseArgument.h"
 
 
 bool operator== (ClauseArgument first, ClauseArgument second) {

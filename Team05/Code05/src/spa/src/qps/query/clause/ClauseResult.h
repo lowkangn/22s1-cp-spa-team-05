@@ -2,5 +2,5 @@
 
 class ClauseResult {
 public:
-	ClauseResult() {};
+    ClauseResult() {};
 };

@@ -1,4 +1,3 @@
-#include <qps/query_parser/PQLError.h>
 #include <qps/query_parser/parsers/ClauseParser.h>
 
 list<PQLToken> ClauseParser::getRemainingTokens() {

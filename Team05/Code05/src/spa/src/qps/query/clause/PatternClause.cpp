@@ -1,1 +1,5 @@
-#include <qps/query/clause/PatternClause.h>
+#include "PatternClause.h"
+
+shared_ptr<ClauseResult> PatternClause::execute() {
+    return shared_ptr<ClauseResult>();
+}

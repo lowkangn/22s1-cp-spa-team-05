@@ -1,7 +1,10 @@
 #pragma once
 
-#include <qps/query/clause/Clause.h>
-#include <qps/query/clause/ClauseArgument.h>
+#include <string>
+#include "Clause.h"
+#include "ClauseResult.h"
+#include "RelationshipClauseResult.h"
+#include "ClauseArgument.h"
 
 class ModifiesSClause : public Clause {
 private:
@@ -11,7 +14,7 @@ public:
 	ModifiesSClause(ClauseArgument lhs, ClauseArgument rhs)
 		: lhs(lhs), rhs(rhs) {};
 
-	ClauseResult execute() override { return ClauseResult(); }; //defintiion for testing purposes only
+	shared_ptr<ClauseResult> execute() override;
 
 	bool equals(const Clause* other) override;
 };

@@ -1,10 +1,14 @@
 #pragma once
-#include <qps/query/clause/ClauseResult.h>
+
+#include <memory>
+#include "ClauseResult.h"
+
+using namespace std;
 
 class Clause {
 public:
 	/* Returns the items retrieved from the PKB as a ClauseResult. */
-	virtual ClauseResult execute() = 0;
+	virtual shared_ptr<ClauseResult> execute() = 0;
 
 	virtual bool equals(const Clause* other) = 0;
 };
