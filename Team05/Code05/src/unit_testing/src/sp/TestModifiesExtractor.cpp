@@ -9,56 +9,6 @@
 
 using namespace std;
 
-TEST_CASE("ModifiesExtractor : test recursiveExtract") {
-	auto testRecursiveExtract = [](Entity LHS, shared_ptr<ASTNode> RHS, vector<Relationship> expectedResult) {
-		ModifiesExtractor extractor = ModifiesExtractor();
-
-		vector<Relationship> extractedResult = extractor.recursiveExtract(LHS, RHS);
-
-		REQUIRE(expectedResult.size() == extractedResult.size());
-
-		for (int i = 0; i < extractedResult.size(); i++) {
-			REQUIRE(extractedResult[i].equals(expectedResult[i]));
-		}
-
-	};
-
-	const int LINENUMBER = 1;
-
-	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken, leftToken.getString()};
-
-	// LHS x, RHS x + 1
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token addToken = Token{ "+", TokenType::OPERATOR };
-	Token constToken = Token{ "1", TokenType::INTEGER };
-
-	shared_ptr<ASTNode> addNode (new ASTNode( vector<Token> {addToken} ));
-	addNode->setType(ASTNodeType::OPERATOR);
-
-	shared_ptr<ASTNode> x (new ASTNode(vector<Token> {xToken}));
-	x->setType(ASTNodeType::NAME);
-
-	shared_ptr<ASTNode> constNode (new ASTNode(vector<Token> {constToken}));
-	constNode->setType(ASTNodeType::CONSTANT);
-	Entity constEntity = Entity{ EntityType::CONSTANT, LINENUMBER, constToken, constToken.getString() };
-
-
-	addNode->setLineNumber(1);
-	x->setLineNumber(1);
-	constNode->setLineNumber(1);
-
-	addNode->addChild(x);
-	addNode->addChild(constNode);
-
-	Relationship xModifiesX = Relationship{ LHS, LHS, RelationshipType::MODIFIES };
-	Relationship xModifiesConst = Relationship{ LHS, constEntity, RelationshipType::MODIFIES };
-
-	vector<Relationship> expectedResult = vector<Relationship>{ xModifiesX, xModifiesConst };
-
-	testRecursiveExtract(LHS, addNode, expectedResult);
-}
-
 TEST_CASE("ModifiesExtractor: test handleAssign") {
 
 
@@ -78,6 +28,8 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
 	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken, leftToken.getString() };
+	Token lineNumber = Token("1", TokenType::INTEGER);
+	Entity lineEntity = Entity{ EntityType::LINENUMBER, LINENUMBER, lineNumber, lineNumber.getString() };
 
 	// x = x + 1
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
@@ -111,10 +63,9 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 	addNode->addChild(constNode);
 
 
-	Relationship xModifiesX = Relationship{ LHS, LHS, RelationshipType::MODIFIES };
-	Relationship xModifiesConst = Relationship{ LHS, constEntity, RelationshipType::MODIFIES };
+	Relationship modifiesX = Relationship{ lineEntity, LHS, RelationshipType::MODIFIES };
 
-	vector<Relationship> expectedResult = vector<Relationship>{ xModifiesX, xModifiesConst };
+	vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
 
 	handleAssign(assignNode, expectedResult);
 
@@ -284,6 +235,9 @@ TEST_CASE("ModifiesExtractor: test extract") {
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
 	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
+	Token lineNumber = Token("1", TokenType::INTEGER);
+	Entity lineEntity = Entity{ EntityType::LINENUMBER, LINENUMBER, lineNumber, lineNumber.getString() };
+
 
 	Entity yEntity = Entity{ EntityType::VARIABLE, LINENUMBER, yToken, yToken.getString() };
 
@@ -322,11 +276,9 @@ TEST_CASE("ModifiesExtractor: test extract") {
 	addNode2->addChild(y);
 
 
-	Relationship xModifiesX = Relationship{ LHS, LHS, RelationshipType::MODIFIES };
-	Relationship xModifiesY = Relationship{ LHS, yEntity, RelationshipType::MODIFIES };
-	Relationship xModifiesConst = Relationship{ LHS, constEntity, RelationshipType::MODIFIES };
+	Relationship modifiesX = Relationship{ lineEntity, LHS, RelationshipType::MODIFIES };
 
-	vector<Relationship> expectedResult = vector<Relationship>{ xModifiesX, xModifiesConst, xModifiesY };
+	vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
 
 	testExtract(assignNode, expectedResult);
 }
