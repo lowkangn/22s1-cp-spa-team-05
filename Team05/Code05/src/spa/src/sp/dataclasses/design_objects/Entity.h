@@ -12,7 +12,7 @@ using namespace std;
 /*
 	Enumeration of possible entity types.
 */
-enum class EntityType {PROCEDURE, STMTLIST, STMT, VARIABLE, CONSTANT, LINENUMBER, UNDEFINED};
+enum class EntityType {PROGRAM, PROCEDURE, STMTLIST, STMT, VARIABLE, CONSTANT, LINENUMBER, UNDEFINED};
 
 class EntityIdentifier {
 private:
@@ -44,10 +44,10 @@ private:
 	int line;
 	EntityIdentifier identifier;
 public:
-	Entity(EntityType type, int lineNumber, const Token &token, const string &asString) : type(type), line(lineNumber), identifier(token, asString) {
+	Entity(EntityType type, int lineNumber, Token &token) : type(type), line(lineNumber), identifier(token, token.getString()) {
 		this->type = type;
 		this->line = lineNumber;
-		EntityIdentifier identifier = EntityIdentifier{token, asString};
+		EntityIdentifier identifier = EntityIdentifier{token, token.getString()};
 		this->identifier = identifier;
 	}
 	 

@@ -4,7 +4,7 @@
 
 // imported locally
 #include <sp/design_extractor/PatternExtractor.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
 
 using namespace std;

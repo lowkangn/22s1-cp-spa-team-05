@@ -1,6 +1,6 @@
 #include <sp/parser/rules/ConstantValueSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-
+#include <sp/dataclasses/ast/ConstantValueASTNode.h>
 
 vector<shared_ptr<SimpleSyntaxRule>> ConstantValueSimpleSyntaxRule::generateChildRules() {
 	// must be initialized
@@ -38,8 +38,7 @@ shared_ptr<ASTNode> ConstantValueSimpleSyntaxRule::constructNode() {
 
 	// create current node
 	Token constantValueToken = this->tokens.front();
-	shared_ptr<ASTNode> constantValueNode(new ASTNode(vector<Token> {constantValueToken}));
-	constantValueNode->setType(ASTNodeType::CONSTANT);
+	shared_ptr<ASTNode> constantValueNode(new ConstantValueASTNode(constantValueToken));
 
 	return constantValueNode;
 }

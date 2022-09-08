@@ -1,14 +1,11 @@
 // imported libraries
 #include <vector>
+#include <memory>
+
 
 // imported locally
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 #include <sp/design_extractor/ModifiesExtractor.h>
-#include <memory>
-#include <assert.h>
-
-
-
 
 vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
 
@@ -49,15 +46,15 @@ vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifiesRelationships = vector<Relationship>();
 
 	// This is the Left hand side of the assign relation
-	shared_ptr<ASTNode> left = ast->getChildren()[ASTNode::LEFT_CHILD];
+	shared_ptr<ASTNode> left = ast->getChildren()[LEFT_CHILD];
 
 
 	// Extracting tokens of the entity which is modified
-	Token modifiedToken = left->getNameToken();
-	Entity modifiedEntity = Entity{ EntityType::VARIABLE, left->getLineNumber(), modifiedToken, modifiedToken.getString() };
+	Token modifiedToken = left->getToken();
+	Entity modifiedEntity = Entity{ EntityType::VARIABLE, left->getLineNumber(), modifiedToken };
 
 	Token lineNumber = Token{ to_string(left->getLineNumber()),TokenType::NAME_OR_KEYWORD };
-	Entity leftHandSide = Entity{ EntityType::LINENUMBER, ast->getLineNumber(), lineNumber, lineNumber.getString() };
+	Entity leftHandSide = Entity{ EntityType::LINENUMBER, ast->getLineNumber(), lineNumber };
 
 	modifiesRelationships.push_back(Relationship{ leftHandSide, modifiedEntity, RelationshipType::MODIFIES });
 
@@ -68,14 +65,13 @@ vector<Relationship> ModifiesExtractor::handleRead(shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifiesRelationships = vector<Relationship>();
 
 	// Sanity check that there is only one child since this is a read statement;
-	assert(ast->numChildren() == 1);
 	shared_ptr<ASTNode> child = ast->getChildren()[0];
 
 	Token lineNumber = Token{ to_string(ast->getLineNumber()),TokenType::NAME_OR_KEYWORD };
-	Token childToken = child->getNameToken();
+	Token childToken = child->getToken();
 
-	Entity leftHandSide = Entity{ EntityType::LINENUMBER, ast->getLineNumber(), lineNumber, lineNumber.getString() };
-	Entity rightHandSide = Entity{ EntityType::VARIABLE, child->getLineNumber(), childToken, childToken.getString() };
+	Entity leftHandSide = Entity{ EntityType::LINENUMBER, ast->getLineNumber(), lineNumber, };
+	Entity rightHandSide = Entity{ EntityType::VARIABLE, child->getLineNumber(), childToken, };
 
 	modifiesRelationships.push_back(Relationship{ leftHandSide, rightHandSide, RelationshipType::MODIFIES });
 
@@ -84,13 +80,11 @@ vector<Relationship> ModifiesExtractor::handleRead(shared_ptr<ASTNode> ast) {
 
 vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast) {
 	// Get the name ASTNode
-	shared_ptr<ASTNode> child = ast->getChildren()[ASTNode::LEFT_CHILD];
+	Token procedureName = ast->getToken();
 
-	Token procedureName = child->getNameToken();
+	Entity leftHandSide = Entity{ EntityType::PROCEDURE, ast->getLineNumber(), procedureName };
 
-	Entity leftHandSide = Entity{ EntityType::PROCEDURE, ast->getLineNumber(), procedureName, procedureName.getString() };
-
-	vector<Relationship> extractedChildRelationships = this->recursiveProcedureExtract(leftHandSide, ast);
+	vector<Relationship> extractedChildRelationships = recursiveProcedureExtract(leftHandSide, ast);
 
 	return extractedChildRelationships;
 }
@@ -105,7 +99,6 @@ vector<Relationship> ModifiesExtractor::handleCall(shared_ptr<ASTNode> ast) {
 	return vector<Relationship>();
 }
 
-// TODO Can maybe improve efficiency
 vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& leftHandSide, shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifiesRelationships = vector<Relationship>();
 	ASTNodeType type = ast->getType();
@@ -114,10 +107,9 @@ vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& leftHa
 	case ASTNodeType::ASSIGN:
 	{
 		// Get left child
-		shared_ptr<ASTNode> leftChild = ast->getChildren()[ASTNode::LEFT_CHILD];
+		shared_ptr<ASTNode> leftChild = ast->getChildren()[LEFT_CHILD];
 
-		Token childToken = leftChild->getNameToken();
-		Entity childEntity = Entity{ EntityType::VARIABLE, leftChild->getLineNumber(), childToken, childToken.getString() };
+		Entity childEntity = leftChild->extractEntity();
 		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
 
 		modifiesRelationships.push_back(toAdd);
@@ -130,10 +122,7 @@ vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& leftHa
 		// Get child
 		shared_ptr<ASTNode> child = ast->getChildren()[0];
 
-		assert(child->getType() == ASTNodeType::NAME);
-
-		Token childToken = child->getNameToken();
-		Entity childEntity = Entity{ EntityType::VARIABLE, child->getLineNumber(), childToken, childToken.getString() };
+		Entity childEntity = child->extractEntity();
 		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
 
 		modifiesRelationships.push_back(toAdd);

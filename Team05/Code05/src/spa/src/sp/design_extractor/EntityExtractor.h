@@ -3,7 +3,7 @@
 
 #include <sp/design_extractor/Extractor.h>
 #include <sp/dataclasses/design_objects/Entity.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 using namespace std;
 
 class EntityExtractor : Extractor<Entity> {
@@ -16,6 +16,4 @@ public:
 	overriden for each specific entity type.
 	*/
 	vector<Entity> extract(shared_ptr<ASTNode> ast) override;
-
-	Entity extractEntity(shared_ptr<ASTNode> ast);
 };
