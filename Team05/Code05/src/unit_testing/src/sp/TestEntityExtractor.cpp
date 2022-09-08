@@ -3,74 +3,28 @@
 #include <sp/design_extractor/EntityExtractor.cpp>
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <sp/dataclasses/tokens/Token.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/ProcedureASTNode.h>
+#include <sp/dataclasses/ast/ProcedureASTNode.cpp>
+#include <sp/dataclasses/ast/ReadASTNode.h>
+#include <sp/dataclasses/ast/ReadASTNode.cpp>
+#include <sp/dataclasses/ast/AssignASTNode.h>
+#include <sp/dataclasses/ast/AssignASTNode.cpp>
+#include <sp/dataclasses/ast/CallASTNode.h>
+#include <sp/dataclasses/ast/CallASTNode.cpp>
+#include <sp/dataclasses/ast/WhileASTNode.h>
+#include <sp/dataclasses/ast/WhileASTNode.cpp>
+#include <sp/dataclasses/ast/PrintASTNode.h>
+#include <sp/dataclasses/ast/PrintASTNode.cpp>
+#include <sp/dataclasses/ast/VariableASTnode.h>
+#include <sp/dataclasses/ast/VariableASTnode.cpp>
+#include <sp/dataclasses/ast/ConstantValueASTNode.h>
+#include <sp/dataclasses/ast/ConstantValueASTNode.cpp>
+#include <sp/dataclasses/ast/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 #include <vector>
 #include <memory>
 
 using namespace std;
-
-TEST_CASE("EntityExtractor: test extractEntity") {
-
-
-	auto testExtractEntity = [](shared_ptr<ASTNode> nodeToExtractFrom, Entity expectedEntity) {
-		EntityExtractor extractor = EntityExtractor();
-
-		Entity extractedEntity = extractor.extractEntity(nodeToExtractFrom);
-
-		REQUIRE(extractedEntity.equals(expectedEntity));
-	};
-
-	//TODO Create function for creating the expectedToken and expectedEntity
-
-	SECTION("Test for 'procedure main' works") {
-		Token expectedToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-		Entity expectedEntity = Entity{ EntityType::PROCEDURE, 1, expectedToken, expectedToken.getString() };
-
-		vector<Token> tokens = vector<Token>{ Token{"procedure", TokenType::NAME_OR_KEYWORD} };
-		shared_ptr<ASTNode> node(new ASTNode{ tokens });
-		node->setType(ASTNodeType::PROCEDURE);
-		node->setLineNumber(1);
-
-		shared_ptr<ASTNode> child(new ASTNode(vector<Token>{expectedToken}));
-		child->setLineNumber(1);
-		node->addChild(child);
-
-		testExtractEntity(node, expectedEntity);
-	};
-
-	SECTION("Test for 'read x") {
-		Token expectedToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-		Entity expectedEntity = Entity{ EntityType::VARIABLE, 1, expectedToken, expectedToken.getString() };
-
-		vector<Token> tokens = vector<Token>{ Token{"read", TokenType::NAME_OR_KEYWORD} };
-		shared_ptr<ASTNode> node (new ASTNode(tokens));
-		node->setType(ASTNodeType::READ);
-		node->setLineNumber(1);
-
-		shared_ptr <ASTNode> child = shared_ptr<ASTNode>(new ASTNode(vector<Token>{expectedToken}));
-		child->setLineNumber(1);
-		node->addChild(child);
-
-		testExtractEntity(node, expectedEntity);
-	}
-
-
-	SECTION("Test for 'call addTwo'") {
-		Token expectedToken = Token{ "addTwo", TokenType::NAME_OR_KEYWORD };
-		Entity expectedEntity = Entity{ EntityType::PROCEDURE, 1, expectedToken, expectedToken.getString() };
-
-		vector<Token> tokens = vector<Token>{ Token{"call", TokenType::NAME_OR_KEYWORD} };
-		shared_ptr<ASTNode> node = shared_ptr<ASTNode>(new ASTNode({ tokens }));
-		node->setType(ASTNodeType::CALL);
-		node->setLineNumber(1);
-
-		shared_ptr<ASTNode> child = shared_ptr<ASTNode>(new ASTNode(vector<Token>{expectedToken}));
-		child->setLineNumber(1);
-		node->addChild(child);
-
-		testExtractEntity(node, expectedEntity);
-	}
-}
 
 TEST_CASE("EntityExtractor: test extract") {
 	auto testExtract = [](shared_ptr<ASTNode> nodeToExtractFrom, vector<Entity> expectedEntityVector) {
@@ -85,102 +39,86 @@ TEST_CASE("EntityExtractor: test extract") {
 		}
 	};
 
-	// TODO Create a function to generate the AST
+	SECTION("procedure main") {
+		Token procedureNameToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
 
-	/*
-	* The following is the SIMPLE Program
-	* procedure main {
-	1.	read x;
-	2.	y = 5;
-	3.	print y;
-	  }
+		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
+		procedureNode->setLineNumber(1);
 
-	  procedure -> main & StmtLst
-	  StmtLst -> read x -> x
-	  StmtLst -> y = 5 -> = -> y & 5
-	  StmtLst -> print y -> y
+		vector<Entity> expectedEntity{ Entity{EntityType::PROCEDURE, 1, procedureNameToken} };
 
-	*/
+		testExtract(procedureNode, expectedEntity);
+	}
 
-	// Create root node
-	shared_ptr<ASTNode> root (new ASTNode( vector<Token> {Token{"procedure", TokenType::NAME_OR_KEYWORD}} ));
-	root->setType(ASTNodeType::PROCEDURE);
+	SECTION("read x") {
+		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+		Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
 
-	// Create name of procedure node
-	Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-	shared_ptr<ASTNode> main (new ASTNode(vector<Token> {mainToken}));
-	main->setType(ASTNodeType::NAME);
-	
-	Entity mainEntity = Entity{ EntityType::PROCEDURE, -1, mainToken, mainToken.getString() };
+		shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
+		readNode->setLineNumber(1);
 
-	// Create stmtLst node
-	shared_ptr<ASTNode> stmtLst(new ASTNode(vector<Token> {Token{ PROGRAM_KEYWORD, TokenType::DELIMITER }}));
-	stmtLst->setType(ASTNodeType::STMTLIST);
+		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
+		xNode->setLineNumber(1);
 
-	// Create read node
-	shared_ptr<ASTNode> read (new ASTNode(vector<Token> {Token{READ_KEYWORD, TokenType::NAME_OR_KEYWORD}}));
-	read->setType(ASTNodeType::READ);
-	
-	// Create x node
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	shared_ptr<ASTNode> x (new ASTNode(vector<Token> {xToken}));
-	x->setType(ASTNodeType::NAME);
+		readNode->addChild(xNode);
 
-	read->setLineNumber(1);
-	x->setLineNumber(1);
+		vector<Entity> expectedEntity = vector<Entity>{ Entity(EntityType::STMT, 1, readToken), Entity(EntityType::VARIABLE, 1, xToken) };
 
-	Entity xEntity = Entity{ EntityType::VARIABLE, 1, xToken, xToken.getString() };
+		testExtract(readNode, expectedEntity);
+	}
+	SECTION("print y") {
+		Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
+		Token printToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
 
-	// Create y1 node
-	Token y1Token = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	shared_ptr<ASTNode> y1 (new ASTNode(vector<Token> {y1Token}));
-	y1->setType(ASTNodeType::NAME);
+		shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
+		printNode->setLineNumber(1);
 
-	// Create assign node
-	shared_ptr<ASTNode> assign (new ASTNode(vector<Token> {Token{"=", TokenType::OPERATOR}}));
-	assign->setType(ASTNodeType::ASSIGN);
+		shared_ptr<ASTNode> yNode(new VariableASTNode(yToken));
+		yNode->setLineNumber(1);
 
-	// Create constant node
-	Token constantToken = Token{ "5", TokenType::INTEGER };
-	shared_ptr<ASTNode> constant (new ASTNode(vector<Token> {constantToken}));
-	constant->setType(ASTNodeType::CONSTANT);
+		printNode->addChild(yNode);
 
-	y1->setLineNumber(2);
-	assign->setLineNumber(2);
-	constant->setLineNumber(2);
+		vector<Entity> expectedEntity{ Entity{EntityType::STMT, 1, printToken}, Entity{EntityType::VARIABLE, 1, yToken } };
 
-	Entity y1Entity = Entity{ EntityType::VARIABLE, 2, y1Token, y1Token.getString() };
-	Entity constantEntity = Entity{ EntityType::CONSTANT, 2, constantToken, constantToken.getString() };
-
-	shared_ptr<ASTNode> print (new ASTNode(vector<Token> {Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD }}));
-	print->setType(ASTNodeType::PRINT);
-
-	// Create y2 node
-	Token y2Token = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	shared_ptr<ASTNode> y2 (new ASTNode(vector<Token> {y2Token}));
-	y2->setType(ASTNodeType::NAME);
-
-	print->setLineNumber(3);
-	y2->setLineNumber(3);
-
-	Entity y2Entity = Entity{ EntityType::VARIABLE, 3, y2Token, y2Token.getString() };
+		testExtract(printNode, expectedEntity);
+	}
+	SECTION("x = 1") {
+		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+		Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
+		Token constantToken = Token{ "1", TokenType::INTEGER };
 
 
-	root->addChild(main);
-	root->addChild(stmtLst);
+		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+		assignNode->setLineNumber(1);
 
-	stmtLst->addChild(read);
-	stmtLst->addChild(assign);
-	stmtLst->addChild(print);
+		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
+		xNode->setLineNumber(1);
 
-	read->addChild(x);
+		shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constantToken));
+		constantNode->setLineNumber(1);
 
-	assign->addChild(y1);
-	assign->addChild(constant);
+		assignNode->addChild(xNode);
+		assignNode->addChild(constantNode);
 
-	print->addChild(y2);
 
-	vector<Entity> expectedVector = vector<Entity>{mainEntity, xEntity, y1Entity, constantEntity, y2Entity};
+		vector<Entity> expectedEntity{ Entity{EntityType::STMT, 1, assignToken}, Entity{EntityType::VARIABLE, 1, xToken}, Entity{EntityType::CONSTANT, 1, constantToken} };
 
-	testExtract(root, expectedVector);
+		testExtract(assignNode, expectedEntity);
+
+	}
+	SECTION("call somefunction") {
+		Token callNameToken = Token{ "somefunction", TokenType::NAME_OR_KEYWORD };
+
+		shared_ptr<ASTNode> callNode(new CallASTNode(callNameToken));
+		callNode->setLineNumber(1);
+
+		vector<Entity> expectedEntity{ Entity{EntityType::STMT, 1, callNameToken} };
+
+		testExtract(callNode, expectedEntity);
+	}
+
+	// Not yet implemented
+	SECTION("while") {}
+	// Not yet implemented
+	SECTION("if") {}
 }

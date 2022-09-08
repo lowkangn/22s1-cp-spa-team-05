@@ -62,7 +62,7 @@ Entity ProgramKnowledgeBase::retrieveKnowledge(PkbClause queryClause) {
     EntityPkbTableManager entityManager = EntityPkbTableManager();
     Token tokenX = Token("x", TokenType::NAME_OR_KEYWORD);
     EntityIdentifier identifierX = EntityIdentifier(tokenX, "x");
-    Entity entityX = Entity(EntityType::VARIABLE, 4, tokenX, "x");
+    Entity entityX = Entity(EntityType::VARIABLE, 4, tokenX);
     return entityX;
 }
 

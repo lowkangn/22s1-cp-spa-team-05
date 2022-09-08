@@ -41,19 +41,19 @@ TEST_CASE("PKB: test add entity") {
 	EntityPkbTableManager entityManager = EntityPkbTableManager();
 	Token tokenX = Token("x", TokenType::NAME_OR_KEYWORD);
 	EntityIdentifier identifierX = EntityIdentifier(tokenX, "x");
-	Entity entityX = Entity(EntityType::VARIABLE, 4, tokenX, "x");
+	Entity entityX = Entity(EntityType::VARIABLE, 4, tokenX);
 
 	Token tokenY = Token("x", TokenType::NAME_OR_KEYWORD);
 	EntityIdentifier identifierY = EntityIdentifier(tokenY, "y");
-	Entity entityY = Entity(EntityType::VARIABLE, 8, tokenY, "y");
+	Entity entityY = Entity(EntityType::VARIABLE, 8, tokenY);
 
 	Token tokenStmtX = Token("read x", TokenType::OPERATOR);
 	EntityIdentifier identifierStmtX = EntityIdentifier(tokenStmtX, "read x");
-	Entity entityStmtX = Entity(EntityType::STMT, 4, tokenStmtX, "read x");
+	Entity entityStmtX = Entity(EntityType::STMT, 4, tokenStmtX);
 
 	Token tokenStmtY = Token("y = y + 1", TokenType::OPERATOR);
 	EntityIdentifier identifierStmtY = EntityIdentifier(tokenStmtY, "read x");
-	Entity entityStmtY = Entity(EntityType::STMT, 4, tokenStmtY, "read x");
+	Entity entityStmtY = Entity(EntityType::STMT, 4, tokenStmtY);
 
 	/*
 	SECTION("Test single entity") {
@@ -101,19 +101,19 @@ TEST_CASE("PKB Add Modifies Relationships") {
 
 	Token tokenStmtX = Token("read x", TokenType::OPERATOR);
 	EntityIdentifier identifierStmtX = EntityIdentifier(tokenStmtX, "read x");
-	Entity entityStmtX = Entity(EntityType::STMT, 4, tokenStmtX, "read x");
+	Entity entityStmtX = Entity(EntityType::STMT, 4, tokenStmtX);
 
 	Token tokenX = Token("x", TokenType::NAME_OR_KEYWORD);
 	EntityIdentifier identifierX = EntityIdentifier(tokenX, "x");
-	Entity entityX = Entity(EntityType::VARIABLE, 4, tokenX, "x");
+	Entity entityX = Entity(EntityType::VARIABLE, 4, tokenX);
 
 	Token tokenStmtY = Token("read Y", TokenType::OPERATOR);
 	EntityIdentifier identifierStmtY = EntityIdentifier(tokenStmtY, "read Y");
-	Entity entityStmtY = Entity(EntityType::STMT, 4, tokenStmtY, "read Y");
+	Entity entityStmtY = Entity(EntityType::STMT, 4, tokenStmtY);
 
 	Token tokenY = Token("Y", TokenType::NAME_OR_KEYWORD);
 	EntityIdentifier identifierY = EntityIdentifier(tokenY, "Y");
-	Entity entityY = Entity(EntityType::VARIABLE, 4, tokenY, "Y");
+	Entity entityY = Entity(EntityType::VARIABLE, 4, tokenY);
 
 	Relationship relationshipX = Relationship(entityStmtX, entityX, RelationshipType::MODIFIES);
 	Relationship relationshipY = Relationship(entityStmtY, entityY, RelationshipType::MODIFIES);

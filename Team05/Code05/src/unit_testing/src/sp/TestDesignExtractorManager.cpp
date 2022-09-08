@@ -2,17 +2,28 @@
 #include <sp/design_extractor/DesignExtractorManager.h>
 #include <sp/design_extractor/DesignExtractorManager.cpp>
 #include <sp/design_extractor/ModifiesExtractor.h>
+#include <sp/design_extractor/ModifiesExtractor.cpp>
 #include <sp/design_extractor/Extractor.h>
 #include <sp/design_extractor/PatternExtractor.h>
 #include <sp/design_extractor/PatternExtractor.cpp>
 #include <sp/dataclasses/tokens/Token.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
+#include <sp/dataclasses/ast/ProcedureASTNode.h>
+#include <sp/dataclasses/ast/ConstantValueASTNode.h>
+#include <sp/dataclasses/ast/VariableASTNode.h>
+#include <sp/dataclasses/ast/StatementListASTNode.h>
+#include <sp/dataclasses/ast/StatementListASTNode.cpp>
+#include <sp/dataclasses/ast/ProgramASTNode.h>
+#include <sp/dataclasses/ast/ReadASTNode.h>
+#include <sp/dataclasses/ast/AssignASTNode.h>
+#include <sp/dataclasses/ast/ProgramASTNode.cpp>
 #include <pkb/interfaces/PKBUpdateHandler.h>
-TEST_CASE("DesignExtractor: test : extractEntity() && extractPattern()") {
+
+TEST_CASE("DesignExtractor: test : extractEntity() && extractModifies()") {
 	auto test = [](shared_ptr<ASTNode> nodeToExtractFrom, vector<Entity> expectedEntity, vector<Relationship> expectedRelationship) {
 
-		shared_ptr<EntityExtractor> entityExtractor (new EntityExtractor());
-		shared_ptr<PatternExtractor> patternExtractor (new PatternExtractor());
+		shared_ptr<EntityExtractor> entityExtractor(new EntityExtractor());
+		shared_ptr<PatternExtractor> patternExtractor(new PatternExtractor());
 
 		shared_ptr<Extractor<Relationship>> modifiesExtractor = shared_ptr<Extractor<Relationship>>(new ModifiesExtractor());
 
@@ -53,44 +64,35 @@ TEST_CASE("DesignExtractor: test : extractEntity() && extractPattern()") {
 	Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
 	Token assignToken = Token(EQUAL_OPERATOR, TokenType::OPERATOR);
 
-	shared_ptr<ASTNode> nodeToExtractFrom(new ASTNode(vector<Token>{programToken}));
-	nodeToExtractFrom->setType(ASTNodeType::PROGRAM);
+	shared_ptr<ASTNode> nodeToExtractFrom(new ProgramASTNode(programToken));
 
-	shared_ptr<ASTNode> procedureNode(new ASTNode(vector<Token>{procedureToken}));
-	procedureNode->setType(ASTNodeType::PROCEDURE);
+	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
+	Entity procedureEntity = procedureNode->extractEntity();
 
-	shared_ptr<ASTNode> procedureNameNode(new ASTNode(vector<Token>{procedureNameToken}));
-	procedureNameNode->setType(ASTNodeType::NAME);
-	Entity procedureEntity = Entity{ EntityType::PROCEDURE, procedureNameNode->getLineNumber(), procedureNameToken, procedureNameToken.getString() };
+	shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(stmtLstToken));
 
-
-	shared_ptr<ASTNode> stmtLstNode(new ASTNode(vector<Token>{stmtLstToken}));
-	stmtLstNode->setType(ASTNodeType::STMTLIST);
-
-	shared_ptr<ASTNode> xNode(new ASTNode(vector<Token>{xToken}));
-	xNode->setType(ASTNodeType::NAME);
+	shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
 	xNode->setLineNumber(2);
-	Entity xEntity = Entity{ EntityType::VARIABLE, xNode->getLineNumber(), xToken, xToken.getString() };
+	Entity xEntity = xNode->extractEntity();
 
-	shared_ptr<ASTNode> constantNode(new ASTNode(vector<Token>{constant}));
-	constantNode->setType(ASTNodeType::CONSTANT);
+	shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constant));
 	constantNode->setLineNumber(2);
-	Entity constantEntity = Entity{ EntityType::CONSTANT, constantNode->getLineNumber(), constant, constant.getString() };
+	Entity constantEntity = constantNode->extractEntity();
 
 
-	shared_ptr<ASTNode> assignNode(new ASTNode(vector<Token>{assignToken}));
-	assignNode->setType(ASTNodeType::ASSIGN);
+	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 	assignNode->setLineNumber(2);
+	Entity assignEntity = assignNode->extractEntity();
 
-	shared_ptr<ASTNode> yNode(new ASTNode(vector<Token>{yToken}));
-	yNode->setType(ASTNodeType::NAME);
+	shared_ptr<ASTNode> yNode(new VariableASTNode(yToken));
 	yNode->setLineNumber(1);
-	Entity yEntity = Entity{ EntityType::VARIABLE, yNode->getLineNumber(), yToken, yToken.getString() };
+	Entity yEntity = yNode->extractEntity();
 
 
-	shared_ptr<ASTNode> readNode(new ASTNode(vector<Token>{readToken}));
-	readNode->setType(ASTNodeType::READ);
+	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
 	readNode->setLineNumber(1);
+	Entity readEntity = readNode->extractEntity();
+
 
 	assignNode->addChild(xNode);
 	assignNode->addChild(constantNode);
@@ -100,7 +102,6 @@ TEST_CASE("DesignExtractor: test : extractEntity() && extractPattern()") {
 	stmtLstNode->addChild(readNode);
 	stmtLstNode->addChild(assignNode);
 
-	procedureNode->addChild(procedureNameNode);
 	procedureNode->addChild(stmtLstNode);
 
 	nodeToExtractFrom->addChild(procedureNode);
@@ -109,7 +110,7 @@ TEST_CASE("DesignExtractor: test : extractEntity() && extractPattern()") {
 	Relationship procedureModifiesx = Relationship(procedureEntity, xEntity, RelationshipType::MODIFIES);
 
 
-	vector<Entity> expectedEntities = vector<Entity>{ procedureEntity, yEntity, xEntity, constantEntity };
+	vector<Entity> expectedEntities = vector<Entity>{ procedureEntity, readEntity, yEntity, assignEntity, xEntity, constantEntity };
 	vector<Relationship> expectedRelation = vector<Relationship>{ procedureModifiesy, procedureModifiesx };
 
 	test(nodeToExtractFrom, expectedEntities, expectedRelation);

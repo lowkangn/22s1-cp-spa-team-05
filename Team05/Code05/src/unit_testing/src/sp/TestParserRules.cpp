@@ -1,7 +1,12 @@
 #include "catch.hpp"
 
-#include <sp/dataclasses/AST.cpp>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.cpp>
+#include <sp/dataclasses/ast/AST.h>
+#include <sp/dataclasses/ast/ProcedureASTNode.h>
+#include <sp/dataclasses/ast/ConstantValueASTNode.h>
+#include <sp/dataclasses/ast/VariableASTNode.h>
+#include <sp/dataclasses/ast/StatementListASTNode.h>
+#include <sp/dataclasses/ast/ProgramASTNode.h>
 #include <sp/parser/rules/ProgramSimpleSyntaxRule.cpp>
 #include <sp/parser/rules/ProgramSimpleSyntaxRule.h>
 #include <sp/parser/rules/AssignSimpleSyntaxRule.cpp>
@@ -28,8 +33,8 @@ using namespace std;
 
 TEST_CASE("Parser: test ::consumeTokens") {
 
-    auto test = [](SimpleSyntaxRule &rule, list<Token> tokens, list<Token> expectedTokens) {
-        
+    auto test = [](SimpleSyntaxRule& rule, list<Token> tokens, list<Token> expectedTokens) {
+
         // ----- when -----
         list<Token> remainingTokens = rule.consumeTokens(tokens);
 
@@ -89,12 +94,12 @@ TEST_CASE("Parser: test ::consumeTokens") {
         list<Token> tokens = { Token(";", TokenType::DELIMITER) };
         testThrowsException(NameSimpleSyntaxRule(), tokens);
     }
-    
+
 
     // -------------------- ReadSimpleSyntaxRule --------------------
     SECTION("ReadSimpleSyntaxRule: Consumes exactly correct tokens") {
-        list<Token> tokens = { 
-            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),  
+        list<Token> tokens = {
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
             Token("soomevariable", TokenType::NAME_OR_KEYWORD),
             Token(SEMI_COLON, TokenType::DELIMITER),
             Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
@@ -315,7 +320,7 @@ TEST_CASE("Parser: test ::generateChildRules") {
         vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {};
         test(ConstantValueSimpleSyntaxRule(), tokensToConsume, expectedChildren);
     }
-    
+
     // -------------------- NameSimpleSyntaxRule --------------------
     SECTION("NameSimpleSyntaxRule: is terminal, no rules to be generated") {
         list<Token> tokensToConsume = { Token("a", TokenType::NAME_OR_KEYWORD) };
@@ -368,7 +373,7 @@ TEST_CASE("Parser: test ::generateChildRules") {
     SECTION("AssignSimpleSyntaxRule: nested is the lhs and rhs, should have name lhs and expression rhs generated") {
         // TODO
     }
-  
+
     // -------------------- StatementListSimpleSyntaxRule --------------------
     SECTION("StatementListSimpleSyntaxRule: nested assignment statement") {
         // tokens, an assign statement in a procedure
@@ -434,7 +439,7 @@ TEST_CASE("Parser: test ::generateChildRules") {
         };
         test(ProcedureSimpleSyntaxRule(), tokensToConsume, expectedChildren);
     }
-    
+
     // -------------------- ProgramSimpleSyntaxRule --------------------
     SECTION("ProgramSimpleSyntaxRule: two procedures") {
         // tokens, an assign statement in a procedure
@@ -469,7 +474,7 @@ TEST_CASE("Parser: test ::generateChildRules") {
             Token("1", TokenType::INTEGER),
             Token(SEMI_COLON, TokenType::DELIMITER),
             Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
-            
+
         };
         procedure1->consumeTokens(procedure1tokens);
 
@@ -501,7 +506,7 @@ TEST_CASE("Parser: test ::constructNode") {
 
         shared_ptr<ASTNode> generatedNode = rule.constructNode();
 
-        REQUIRE(generatedNode->equals(*expectedASTNode));
+        REQUIRE(generatedNode->equals(expectedASTNode));
     };
 
     // -------------------- ConstantValueSimpleSyntaxRule --------------------
@@ -513,8 +518,7 @@ TEST_CASE("Parser: test ::constructNode") {
         vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
         // Create constant node
-        shared_ptr<ASTNode> expectedASTNode(new ASTNode(vector<Token> {constantValueToken}));
-        expectedASTNode->setType(ASTNodeType::CONSTANT);
+        shared_ptr<ASTNode> expectedASTNode(new ConstantValueASTNode(constantValueToken));
 
         test(rule, expectedASTNode);
     }
@@ -527,8 +531,7 @@ TEST_CASE("Parser: test ::constructNode") {
         vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
         // Create variable node
-        shared_ptr<ASTNode> expectedASTNode(new ASTNode(vector<Token> {variableValueToken}));
-        expectedASTNode->setType(ASTNodeType::NAME);
+        shared_ptr<ASTNode> expectedASTNode(new VariableASTNode(variableValueToken));
 
         test(rule, expectedASTNode);
     }
@@ -540,18 +543,16 @@ TEST_CASE("Parser: test ::constructNode") {
         Token variable = Token("soomevariable", TokenType::NAME_OR_KEYWORD);
         Token semiColon = Token(SEMI_COLON, TokenType::DELIMITER);
         list<Token> tokensToConsume = { readToken,  variable, semiColon };
-        
+
         ReadSimpleSyntaxRule rule = ReadSimpleSyntaxRule();
         list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
         vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
         // Create Read Node
-        shared_ptr<ASTNode> expectedASTNode(new ASTNode(vector<Token> {readToken}));
-        expectedASTNode->setType(ASTNodeType::READ);
+        shared_ptr<ASTNode> expectedASTNode(new ReadASTNode(readToken));
 
         // Create variableNode
-        shared_ptr<ASTNode> variableNode(new ASTNode(vector<Token> {variable}));
-        variableNode->setType(ASTNodeType::NAME);
+        shared_ptr<ASTNode> variableNode(new VariableASTNode(variable));
 
         expectedASTNode->addChild(variableNode);
 
@@ -574,16 +575,13 @@ TEST_CASE("Parser: test ::constructNode") {
         vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
         // Create assign node
-        shared_ptr<ASTNode> expectedASTNode(new ASTNode(vector<Token> {equalsToken}));
-        expectedASTNode->setType(ASTNodeType::ASSIGN);
+        shared_ptr<ASTNode> expectedASTNode(new AssignASTNode(equalsToken));
 
         // Create LHS
-        shared_ptr<ASTNode> variableNode(new ASTNode(vector<Token> {leftHandSideToken}));
-        variableNode->setType(ASTNodeType::NAME);
+        shared_ptr<ASTNode> variableNode(new VariableASTNode(leftHandSideToken));
 
         // Create RHS
-        shared_ptr<ASTNode> constantNode(new ASTNode(vector<Token> {rightHandSideToken}));
-        constantNode->setType(ASTNodeType::CONSTANT);
+        shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(rightHandSideToken));
 
         expectedASTNode->addChild(variableNode);
         expectedASTNode->addChild(constantNode);
@@ -613,20 +611,16 @@ TEST_CASE("Parser: test ::constructNode") {
         vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
         //Create StmtList node
-        shared_ptr<ASTNode> expectedASTNode(new ASTNode(vector<Token> {Token{ "", TokenType::DELIMITER }}));
-        expectedASTNode->setType(ASTNodeType::STMTLIST);
+        shared_ptr<ASTNode> expectedASTNode(new StatementListASTnode(Token{ "", TokenType::DELIMITER }));
 
         //Create Assign node
-        shared_ptr<ASTNode> assignASTNode(new ASTNode(vector<Token> {equalsToken}));
-        assignASTNode->setType(ASTNodeType::ASSIGN);
+        shared_ptr<ASTNode> assignASTNode(new AssignASTNode(equalsToken));
 
         // Create LHS
-        shared_ptr<ASTNode> variableNode(new ASTNode(vector<Token> {variable}));
-        variableNode->setType(ASTNodeType::NAME);
+        shared_ptr<ASTNode> variableNode(new VariableASTNode(variable));
 
         // Create RHS
-        shared_ptr<ASTNode> constantNode(new ASTNode(vector<Token> {constantToken}));
-        constantNode->setType(ASTNodeType::CONSTANT);
+        shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constantToken));
 
         assignASTNode->addChild(variableNode);
         assignASTNode->addChild(constantNode);
@@ -667,35 +661,25 @@ TEST_CASE("Parser: test ::constructNode") {
         vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
         // Create procedure node
-        shared_ptr<ASTNode> expectedASTNode(new ASTNode(vector<Token> {procedureToken}));
-        expectedASTNode->setType(ASTNodeType::PROCEDURE);
-
-        // Create procedure name node
-        shared_ptr<ASTNode> expectedProcedureNameASTNode(new ASTNode(vector<Token> {procedureName}));
-        expectedProcedureNameASTNode->setType(ASTNodeType::NAME);
+        shared_ptr<ASTNode> expectedASTNode(new ProcedureASTNode(procedureName));
 
         // Create stmtlst node
-        shared_ptr<ASTNode> stmtLstASTNode(new ASTNode(vector<Token> {Token{ "", TokenType::DELIMITER }}));
-        stmtLstASTNode->setType(ASTNodeType::STMTLIST);
+        shared_ptr<ASTNode> stmtLstASTNode(new StatementListASTnode(Token{ "", TokenType::DELIMITER }));
 
         // Create assign node
-        shared_ptr<ASTNode> assignASTNode(new ASTNode(vector<Token> {equalsToken}));
-        assignASTNode->setType(ASTNodeType::ASSIGN);
+        shared_ptr<ASTNode> assignASTNode(new AssignASTNode(equalsToken));
 
         // Create variable node
-        shared_ptr<ASTNode> variableNode(new ASTNode(vector<Token> {variable}));
-        variableNode->setType(ASTNodeType::NAME);
+        shared_ptr<ASTNode> variableNode(new VariableASTNode(variable));
 
         // Create constant node
-        shared_ptr<ASTNode> constantNode(new ASTNode(vector<Token> {constantToken}));
-        constantNode->setType(ASTNodeType::CONSTANT);
+        shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constantToken));
 
         assignASTNode->addChild(variableNode);
         assignASTNode->addChild(constantNode);
 
         stmtLstASTNode->addChild(assignASTNode);
 
-        expectedASTNode->addChild(expectedProcedureNameASTNode);
         expectedASTNode->addChild(stmtLstASTNode);
 
         test(rule, expectedASTNode);
@@ -746,60 +730,40 @@ TEST_CASE("Parser: test ::constructNode") {
         vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
         // Create expected ASTNode
-        shared_ptr<ASTNode> expectedASTNode(new ASTNode(vector<Token> {Token(PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD)}));
-        expectedASTNode->setType(ASTNodeType::PROGRAM);
+        shared_ptr<ASTNode> expectedASTNode(new ProgramASTNode({ Token(PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD) }));
 
         // Create first procedure node
-        shared_ptr<ASTNode> firstProcedureNode(new ASTNode(vector<Token> {procedureToken}));
-        firstProcedureNode->setType(ASTNodeType::PROCEDURE);
-
+        shared_ptr<ASTNode> firstProcedureNode(new ProcedureASTNode(procedureName));
         // Create second procedure node
-        shared_ptr<ASTNode> secondProcedureNode(new ASTNode(vector<Token> {procedureToken}));
-        secondProcedureNode->setType(ASTNodeType::PROCEDURE);
-
-        // Create first procedure name node
-        shared_ptr<ASTNode> firstProcedureNameASTNode(new ASTNode(vector<Token> {procedureName}));
-        firstProcedureNameASTNode->setType(ASTNodeType::NAME);
-
-        // Create second procedure name node
-        shared_ptr<ASTNode> secondProcedureNameASTNode(new ASTNode(vector<Token> {anotherProcedureName}));
-        secondProcedureNameASTNode->setType(ASTNodeType::NAME);
+        shared_ptr<ASTNode> secondProcedureNode(new ProcedureASTNode(anotherProcedureName));
 
         // Create firstStmtlst node
-        shared_ptr<ASTNode> firstStmtLstASTNode(new ASTNode(vector<Token> {Token{ "", TokenType::DELIMITER }}));
-        firstStmtLstASTNode->setType(ASTNodeType::STMTLIST);
+        shared_ptr<ASTNode> firstStmtLstASTNode(new StatementListASTnode(Token{ "", TokenType::DELIMITER }));
 
         // Create secondStmtlst node
-        shared_ptr<ASTNode> secondStmtLstASTNode(new ASTNode(vector<Token> {Token{ "", TokenType::DELIMITER }}));
-        secondStmtLstASTNode->setType(ASTNodeType::STMTLIST);
+        shared_ptr<ASTNode> secondStmtLstASTNode(new StatementListASTnode(Token{ "", TokenType::DELIMITER }));
 
         // Create first assign node
-        shared_ptr<ASTNode> firstAssignASTNode(new ASTNode(vector<Token> {equalsToken}));
-        firstAssignASTNode->setType(ASTNodeType::ASSIGN);
+        shared_ptr<ASTNode> firstAssignASTNode(new AssignASTNode(equalsToken));
 
         // Create first assign node
-        shared_ptr<ASTNode> secondAssignASTNode(new ASTNode(vector<Token> {equalsToken}));
-        secondAssignASTNode->setType(ASTNodeType::ASSIGN);
+        shared_ptr<ASTNode> secondAssignASTNode(new AssignASTNode(equalsToken));
 
 
         // Create first variable node
-        shared_ptr<ASTNode> variableNode(new ASTNode(vector<Token> {variable}));
-        variableNode->setType(ASTNodeType::NAME);
+        shared_ptr<ASTNode> variableNode(new VariableASTNode(variable));
 
 
         // Create second variable node
-        shared_ptr<ASTNode> anotherVariableNode(new ASTNode(vector<Token> {anotherVariable}));
-        anotherVariableNode->setType(ASTNodeType::NAME);
+        shared_ptr<ASTNode> anotherVariableNode(new VariableASTNode(anotherVariable));
 
 
         // Create constant node
-        shared_ptr<ASTNode> constantNode(new ASTNode(vector<Token> {constantToken}));
-        constantNode->setType(ASTNodeType::CONSTANT);
+        shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constantToken));
 
 
         // Create another constant node
-        shared_ptr<ASTNode> anotherConstantNode(new ASTNode(vector<Token> {constantToken}));
-        anotherConstantNode->setType(ASTNodeType::CONSTANT);
+        shared_ptr<ASTNode> anotherConstantNode(new ConstantValueASTNode(constantToken));
 
 
         // Construct first procedure
@@ -812,20 +776,18 @@ TEST_CASE("Parser: test ::constructNode") {
         firstStmtLstASTNode->addChild(firstAssignASTNode);
 
         // Add name childs for procedures
-        firstProcedureNode->addChild(firstProcedureNameASTNode);
         firstProcedureNode->addChild(firstStmtLstASTNode);
 
         // Construct first procedure
-   
+
         // add children to second assign node
         secondAssignASTNode->addChild(anotherVariableNode);
-        secondAssignASTNode->addChild(anotherConstantNode);      
-        
+        secondAssignASTNode->addChild(anotherConstantNode);
+
         // add assign node to stmtlst
         secondStmtLstASTNode->addChild(secondAssignASTNode);
 
         // Add name childs for procedures
-        secondProcedureNode->addChild(secondProcedureNameASTNode);
         secondProcedureNode->addChild(secondStmtLstASTNode);
 
 
@@ -850,8 +812,8 @@ TEST_CASE("ProgramSimpleSyntaxRule test ::setLineNumber") {
 
         rule.setASTLineNumbers(toSet, 1);
 
-        REQUIRE(toSet->equals(*expected));
-        
+        REQUIRE(toSet->equals(expected));
+
     };
 
     Token procedureToken = Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD);
@@ -861,63 +823,43 @@ TEST_CASE("ProgramSimpleSyntaxRule test ::setLineNumber") {
     Token constantToken = Token("1", TokenType::INTEGER);
 
     // Create expected ASTNode
-    shared_ptr<ASTNode> expectedASTNode(new ASTNode(vector<Token> {Token(PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD)}));
-    expectedASTNode->setType(ASTNodeType::PROGRAM);
-    
+    shared_ptr<ASTNode> expectedASTNode(new ProgramASTNode({ Token(PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD) }));
+
     // Create ASTNode with no line numbers
-    shared_ptr<ASTNode> toSet(new ASTNode(vector<Token> {Token(PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD)}));
-    toSet->setType(ASTNodeType::PROGRAM);
+    shared_ptr<ASTNode> toSet(new ProgramASTNode({ Token(PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD) }));
 
     // Create first procedure node
-    shared_ptr<ASTNode> firstProcedureNode(new ASTNode(vector<Token> {procedureToken}));
-    firstProcedureNode->setType(ASTNodeType::PROCEDURE);
+    shared_ptr<ASTNode> firstProcedureNode(new ProcedureASTNode(procedureName));
 
     // Create first procedure node w/o line numbers
-    shared_ptr<ASTNode> toSetProcedureNode(new ASTNode(vector<Token> {procedureToken}));
-    toSetProcedureNode->setType(ASTNodeType::PROCEDURE);
-
-    // Create first procedure name node
-    shared_ptr<ASTNode> firstProcedureNameASTNode(new ASTNode(vector<Token> {procedureName}));
-    firstProcedureNameASTNode->setType(ASTNodeType::NAME);
-
-    // Create first procedure name node w/o line numbers
-    shared_ptr<ASTNode> toSetProcedureNameASTNode(new ASTNode(vector<Token> {procedureName}));
-    toSetProcedureNameASTNode->setType(ASTNodeType::NAME);
+    shared_ptr<ASTNode> toSetProcedureNode(new ProcedureASTNode(procedureName));
 
     // Create first variable node
-    shared_ptr<ASTNode> variableNode(new ASTNode(vector<Token> {variable}));
-    variableNode->setType(ASTNodeType::NAME);
+    shared_ptr<ASTNode> variableNode(new VariableASTNode(variable));
     variableNode->setLineNumber(1);
 
     // Create first variable node w/o Line numbers
-    shared_ptr<ASTNode> toSetVariableNode(new ASTNode(vector<Token> {variable}));
-    toSetVariableNode->setType(ASTNodeType::NAME);
+    shared_ptr<ASTNode> toSetVariableNode(new VariableASTNode(variable));
 
     // Create constant node
-    shared_ptr<ASTNode> constantNode(new ASTNode(vector<Token> {constantToken}));
-    constantNode->setType(ASTNodeType::CONSTANT);
+    shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constantToken));
     constantNode->setLineNumber(1);
 
     // Create constant node w/o line numbers
-    shared_ptr<ASTNode> toSetConstantNode(new ASTNode(vector<Token> {constantToken}));
-    toSetConstantNode->setType(ASTNodeType::CONSTANT);
+    shared_ptr<ASTNode> toSetConstantNode(new ConstantValueASTNode(constantToken));
 
     // Create firstStmtlst node
-    shared_ptr<ASTNode> firstStmtLstASTNode(new ASTNode(vector<Token> {Token{ "", TokenType::DELIMITER }}));
-    firstStmtLstASTNode->setType(ASTNodeType::STMTLIST);
+    shared_ptr<ASTNode> firstStmtLstASTNode(new StatementListASTnode(Token{ "", TokenType::DELIMITER }));
 
     // Create firstStmtlst node w/o line numbers
-    shared_ptr<ASTNode> toSetStmtLstASTNode(new ASTNode(vector<Token> {Token{ "", TokenType::DELIMITER }}));
-    toSetStmtLstASTNode->setType(ASTNodeType::STMTLIST);
+    shared_ptr<ASTNode> toSetStmtLstASTNode(new StatementListASTnode(Token{ "", TokenType::DELIMITER }));
 
     // Create first assign node
-    shared_ptr<ASTNode> firstAssignASTNode(new ASTNode(vector<Token> {equalsToken}));
-    firstAssignASTNode->setType(ASTNodeType::ASSIGN);
+    shared_ptr<ASTNode> firstAssignASTNode(new AssignASTNode(equalsToken));
     firstAssignASTNode->setLineNumber(1);
 
     // Create first assign node w/o line numbers
-    shared_ptr<ASTNode> toSetAssignASTNode(new ASTNode(vector<Token> {equalsToken}));
-    toSetAssignASTNode->setType(ASTNodeType::ASSIGN);
+    shared_ptr<ASTNode> toSetAssignASTNode(new AssignASTNode(equalsToken));
 
     // add children to assign node
     firstAssignASTNode->addChild(variableNode);
@@ -934,10 +876,8 @@ TEST_CASE("ProgramSimpleSyntaxRule test ::setLineNumber") {
     toSetStmtLstASTNode->addChild(toSetAssignASTNode);
 
     // Add name childs for procedures
-    firstProcedureNode->addChild(firstProcedureNameASTNode);
     firstProcedureNode->addChild(firstStmtLstASTNode);
 
-    toSetProcedureNode->addChild(toSetProcedureNameASTNode);
     toSetProcedureNode->addChild(toSetStmtLstASTNode);
 
     expectedASTNode->addChild(firstProcedureNode);

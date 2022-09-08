@@ -1,11 +1,18 @@
 #include "catch.hpp"
 #include <sp/design_extractor/ModifiesExtractor.h>
-#include <sp/design_extractor/ModifiesExtractor.cpp>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/tokens/Token.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 #include <vector>
 #include <memory>
+#include <sp/dataclasses/ast/VariableASTNode.h>
+#include <sp/dataclasses/ast/ConstantValueASTNode.h>
+#include <sp/dataclasses/ast/ExpressionASTNode.h>
+#include <sp/dataclasses/ast/ExpressionASTNode.cpp>
+#include <sp/dataclasses/ast/ProcedureASTNode.h>
+#include <sp/dataclasses/ast/StatementListASTNode.h>
+#include <sp/dataclasses/ast/AssignASTNode.h>
+#include <sp/dataclasses/ast/ReadASTNode.h>
 
 using namespace std;
 
@@ -27,9 +34,9 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 	const int LINENUMBER = 1;
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken, leftToken.getString() };
+	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
 	Token lineNumber = Token("1", TokenType::INTEGER);
-	Entity lineEntity = Entity{ EntityType::LINENUMBER, LINENUMBER, lineNumber, lineNumber.getString() };
+	Entity lineEntity = Entity{ EntityType::LINENUMBER, LINENUMBER, lineNumber };
 
 	// x = x + 1
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
@@ -37,18 +44,14 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
 
-	shared_ptr<ASTNode> assignNode (new ASTNode(vector<Token> {assignToken}));
-	assignNode->setType(ASTNodeType::ASSIGN);
+	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 
-	shared_ptr<ASTNode> addNode (new ASTNode(vector<Token> {addToken}));
-	addNode->setType(ASTNodeType::OPERATOR);
+	shared_ptr<ASTNode> addNode(new ExpressionASTNode(addToken));
 
-	shared_ptr<ASTNode> x (new ASTNode(vector<Token> {xToken}));
-	x->setType(ASTNodeType::NAME);
+	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
 
-	shared_ptr<ASTNode> constNode (new ASTNode(vector<Token> {constToken}));
-	constNode->setType(ASTNodeType::CONSTANT);
-	Entity constEntity = Entity{ EntityType::CONSTANT, LINENUMBER, constToken, constToken.getString() };
+	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
+	Entity constEntity = Entity{ EntityType::CONSTANT, LINENUMBER, constToken };
 
 
 	addNode->setLineNumber(1);
@@ -89,19 +92,16 @@ TEST_CASE("ModifiesExtractor: test handleRead") {
 	const int LINENUMBER = 1;
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken, leftToken.getString() };
+	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
 
 	// read x;
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
 	Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
 
 
-	shared_ptr<ASTNode> readNode(new ASTNode(vector<Token> {readToken}));
-	readNode->setType(ASTNodeType::READ);
+	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
 
-	shared_ptr<ASTNode> x(new ASTNode(vector<Token> {xToken}));
-
-	x->setType(ASTNodeType::NAME);
+	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
 
 	x->setLineNumber(1);
 	readNode->setLineNumber(1);
@@ -109,8 +109,8 @@ TEST_CASE("ModifiesExtractor: test handleRead") {
 	readNode->addChild(x);
 
 	Token lineNumber = Token{ "1",TokenType::NAME_OR_KEYWORD };
-	Entity lineEntity = Entity{ EntityType::LINENUMBER, 1, lineNumber, lineNumber.getString() };
-	Entity xEntity = Entity{ EntityType::VARIABLE, 1, xToken, xToken.getString() };
+	Entity lineEntity = Entity{ EntityType::LINENUMBER, 1, lineNumber };
+	Entity xEntity = Entity{ EntityType::VARIABLE, 1, xToken };
 
 	Relationship readRelation = Relationship{ lineEntity, xEntity, RelationshipType::MODIFIES };
 
@@ -139,7 +139,7 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 	const int LINENUMBER = 1;
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken, leftToken.getString() };
+	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
 
 	/*
 		procedure main {
@@ -147,45 +147,33 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 			read y;
 		}
 	*/
-	Token procedureToken = { "procedure", TokenType::NAME_OR_KEYWORD };
 	Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
 	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
-	Token stmtLst = Token{"", TokenType::INVALID};
+	Token stmtLst = Token{ "", TokenType::INVALID };
 
 
 
-	shared_ptr<ASTNode> readNode(new ASTNode(vector<Token> {readToken}));
-	readNode->setType(ASTNodeType::READ);
+	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
 
-	shared_ptr<ASTNode> procedureNode(new ASTNode(vector<Token> {procedureToken}));
-	procedureNode->setType(ASTNodeType::PROCEDURE);
+	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(mainToken));
 
-	shared_ptr<ASTNode> mainNode(new ASTNode(vector<Token> {mainToken}));
-	mainNode->setType(ASTNodeType::PROCEDURE);
+	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 
-	shared_ptr<ASTNode> assignNode(new ASTNode(vector<Token> {assignToken}));
-	assignNode->setType(ASTNodeType::ASSIGN);
+	shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(stmtLst));
 
-	shared_ptr<ASTNode> stmtLstNode(new ASTNode(vector<Token> {stmtLst}));
-	stmtLstNode->setType(ASTNodeType::STMTLIST);
-
-	shared_ptr<ASTNode> x(new ASTNode(vector<Token> {xToken}));
-	shared_ptr<ASTNode> y(new ASTNode(vector<Token> {yToken}));
-	shared_ptr<ASTNode> constNode(new ASTNode(vector<Token> {constToken}));
-
-	x->setType(ASTNodeType::NAME);
-	y->setType(ASTNodeType::NAME);
+	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
+	shared_ptr<ASTNode> y(new VariableASTNode(yToken));
+	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
 
 	x->setLineNumber(1);
 	constNode->setLineNumber(1);
 	y->setLineNumber(2);
 	readNode->setLineNumber(2);
 
-	procedureNode->addChild(mainNode);
 	procedureNode->addChild(stmtLstNode);
 
 	stmtLstNode->addChild(assignNode);
@@ -196,9 +184,9 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 
 	readNode->addChild(y);
 
-	Entity procedureEntity = Entity{ EntityType::PROCEDURE, mainNode->getLineNumber(), mainToken, mainToken.getString() };
-	Entity xEntity = Entity{ EntityType::VARIABLE, x->getLineNumber(), xToken, xToken.getString() };
-	Entity yEntity = Entity{ EntityType::VARIABLE, y->getLineNumber(), yToken, yToken.getString() };
+	Entity procedureEntity = Entity{ EntityType::PROCEDURE, procedureNode->getLineNumber(), mainToken };
+	Entity xEntity = Entity{ EntityType::VARIABLE, x->getLineNumber(), xToken };
+	Entity yEntity = Entity{ EntityType::VARIABLE, y->getLineNumber(), yToken };
 
 	Relationship readRelation = Relationship{ procedureEntity, xEntity, RelationshipType::MODIFIES };
 	Relationship assignRelation = Relationship{ procedureEntity, yEntity, RelationshipType::MODIFIES };
@@ -227,7 +215,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 	const int LINENUMBER = 1;
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken, leftToken.getString() };
+	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
 
 	// x = x + 1 + y
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
@@ -236,29 +224,24 @@ TEST_CASE("ModifiesExtractor: test extract") {
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
 	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
 	Token lineNumber = Token("1", TokenType::INTEGER);
-	Entity lineEntity = Entity{ EntityType::LINENUMBER, LINENUMBER, lineNumber, lineNumber.getString() };
+	Entity lineEntity = Entity{ EntityType::LINENUMBER, LINENUMBER, lineNumber };
 
 
-	Entity yEntity = Entity{ EntityType::VARIABLE, LINENUMBER, yToken, yToken.getString() };
+	Entity yEntity = Entity{ EntityType::VARIABLE, LINENUMBER, yToken };
 
-	shared_ptr<ASTNode> LHSNode (new ASTNode(vector<Token> {xToken}));
+	shared_ptr<ASTNode> LHSNode(new VariableASTNode(xToken));
 
-	shared_ptr<ASTNode> assignNode (new ASTNode(vector<Token> {assignToken}));
-	assignNode->setType(ASTNodeType::ASSIGN);
+	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 
-	shared_ptr<ASTNode> addNode1 (new ASTNode(vector<Token> {addToken}));
-	addNode1->setType(ASTNodeType::OPERATOR);	
-	shared_ptr<ASTNode> addNode2 (new ASTNode(vector<Token> {addToken}));
-	addNode2->setType(ASTNodeType::OPERATOR);
+	shared_ptr<ASTNode> addNode1(new ExpressionASTNode(addToken));
+	shared_ptr<ASTNode> addNode2(new ExpressionASTNode(addToken));
 
-	shared_ptr<ASTNode> x (new ASTNode(vector<Token> {xToken}));
-	shared_ptr<ASTNode> y (new ASTNode(vector<Token> {yToken}));
-	x->setType(ASTNodeType::NAME);
-	y->setType(ASTNodeType::NAME);
+	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
+	shared_ptr<ASTNode> y(new VariableASTNode(yToken));
 
-	shared_ptr<ASTNode> constNode (new ASTNode(vector<Token> {constToken}));
-	constNode->setType(ASTNodeType::CONSTANT);
-	Entity constEntity = Entity{ EntityType::CONSTANT, LINENUMBER, constToken, constToken.getString() };
+	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
+
+	Entity constEntity = Entity{ EntityType::CONSTANT, LINENUMBER, constToken };
 
 
 	addNode1->setLineNumber(1);
