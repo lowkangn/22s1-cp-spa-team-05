@@ -1,7 +1,13 @@
 #include <qps/query_parser/parsers/ClauseParser.h>
 
-list<PQLToken> ClauseParser::getRemainingTokens() {
-	return this->tokens;
+shared_ptr<Clause> ClauseParser::parse() {
+	PQLToken clauseTypeToken = this->tokens.front();
+	assert(isCorrectClauseType(clauseTypeToken));
+	this->tokens.pop_front();
+
+	list<ClauseArgument> args = extractArguments();
+	checkArguments(args);
+	return createClause(clauseTypeToken, args);
 }
 
 ClauseArgument ClauseParser::parseSynonym() {
@@ -11,6 +17,25 @@ ClauseArgument ClauseParser::parseSynonym() {
     }
     this->tokens.pop_front();
     return ClauseArgument(synonymToken.getTokenString(), declarations.at(synonymToken.getTokenString()));
+}
+
+ClauseArgument ClauseParser::parseOneArgument() {
+	PQLToken token = this->tokens.front();
+	if (token.isName()) {
+		return parseSynonym();
+	}
+	else if (token.isQuote()) {
+		return parseStringLiteral();
+	}
+	else if (token.isInteger()) {
+		return parseStatementNumber();
+	}
+	else if (token.isUnderscore()) {
+		return parseWildcard();
+	}
+	else {
+		throw PQLError("Expected stmtRef or entRef, got: " + token.getTokenString());
+	}
 }
 
 ClauseArgument ClauseParser::parseStringLiteral() {
@@ -41,7 +66,7 @@ ClauseArgument ClauseParser::parseWildcard() {
 	return ClauseArgument(wildCardToken.getTokenString(), ArgumentType::WILDCARD);
 }
 
-void ClauseParser::consumeClauseOpen() {
+void ClauseParser::consumeOpenBracket() {
 	if (this->tokens.empty() || !this->tokens.front().isOpenBracket()) {
 		throw PQLError("Expected Open bracket");
 	}
@@ -51,7 +76,7 @@ void ClauseParser::consumeClauseOpen() {
 	}
 }
 
-void ClauseParser::consumeClauseMiddle() {
+void ClauseParser::consumeComma() {
 	if (this->tokens.empty() || !this->tokens.front().isComma()) {
 		throw PQLError("Expected Comma");
 	}
@@ -61,9 +86,13 @@ void ClauseParser::consumeClauseMiddle() {
 	}
 }
 
-void ClauseParser::consumeClauseClose() {
+void ClauseParser::consumeCloseBracket() {
 	if (this->tokens.empty() || !this->tokens.front().isCloseBracket()) {
 		throw PQLError("Expected Close bracket");
 	}
 	this->tokens.pop_front();
+}
+
+list<PQLToken> ClauseParser::getRemainingTokens() {
+	return this->tokens;
 }

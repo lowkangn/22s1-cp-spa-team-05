@@ -14,6 +14,9 @@ public:
 	ModifiesParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
 		SuchThatClauseParser(tokens, declarations) {};
 
-	/* Parses all declarations in the query. */
-	shared_ptr<Clause>  parse() override;
+	bool isCorrectClauseType(PQLToken clauseTypeToken) override;
+
+	void checkArguments(list<ClauseArgument>& args) override;
+
+	shared_ptr<Clause> createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) override;
 };

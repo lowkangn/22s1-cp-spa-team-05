@@ -13,6 +13,12 @@ public:
 	SelectParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
 		ClauseParser(tokens, declarations) {};
 
-	/* Parses all declarations in the query. */
-	shared_ptr<Clause>  parse() override;
+	bool isCorrectClauseType(PQLToken clauseTypeToken) override;
+
+	list<ClauseArgument> extractArguments() override;
+
+	void checkArguments(list<ClauseArgument>& args) override;
+
+	shared_ptr<Clause> createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) override;
+
 };

@@ -1,31 +1,17 @@
 #include <qps/query_parser/parsers/SuchThatClauseParser.h>
 
-pair<ClauseArgument, ClauseArgument> SuchThatClauseParser::extractArguments() {
+list<ClauseArgument> SuchThatClauseParser::extractArguments() {
 	// check '('
-	consumeClauseOpen();
+	consumeOpenBracket();
 
 	// get first arg and check ','
 	ClauseArgument firstArg = parseOneArgument();
-	consumeClauseMiddle();
+	consumeComma();
 
 	// get second arg and check ')'
 	ClauseArgument secondArg = parseOneArgument();
-	consumeClauseClose();
+	consumeCloseBracket();
 	
-	return make_pair(firstArg, secondArg);
+	return list<ClauseArgument>{firstArg, secondArg};
 }
 
-ClauseArgument SuchThatClauseParser::parseOneArgument() {
-	PQLToken token = this->tokens.front();
-	if (token.isName()) {
-		return parseSynonym();
-	} else if (token.isQuote()) {
-		return parseStringLiteral();
-	} else if (token.isInteger()) {
-		return parseStatementNumber();
-	} else if (token.isUnderscore()) {
-		return parseWildcard();
-	} else {
-		throw PQLError("Expected stmtRef or entRef, got: " + token.getTokenString());
-	}
-}

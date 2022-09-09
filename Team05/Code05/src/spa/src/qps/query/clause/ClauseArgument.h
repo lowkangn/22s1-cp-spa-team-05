@@ -19,22 +19,83 @@ public:
 		return this->type == ArgumentType::WILDCARD;
 	}
 	
+	bool isStmtSynonym() {
+		return this->type == ArgumentType::STMT;
+	}
+
+	bool isAssignSynonym() {
+		return this->type == ArgumentType::ASSIGN;
+	}
+
+	bool isPrintSynonym() {
+		return this->type == ArgumentType::PRINT;
+	}
+
+	bool isReadSynonym() {
+		return this->type == ArgumentType::READ;
+	}
+
+	bool isCallSynonym() {
+		return this->type == ArgumentType::CALL;
+	}
+
+	bool isWhileSynonym() {
+		return this->type == ArgumentType::WHILE;
+	}
+
+	bool isIfSynonym() {
+		return this->type == ArgumentType::IF;
+	}
+
+	bool isProcedureSynonym() {
+		return this->type == ArgumentType::PROCEDURE;
+	}
+
+	bool isVariableSynonym() {
+		return this->type == ArgumentType::VARIABLE;
+	}
+
+	bool isConstantSynonym() {
+		return this->type == ArgumentType::CONSTANT;
+	}
+
+	bool isLineNumber() {
+		return this->type == ArgumentType::LINE_NUMBER;
+	}
+
+	bool isStringLiteral() {
+		return this->type == ArgumentType::STRING_LITERAL;
+	}
+
+	bool isSynonym() {
+		return isStmtSynonym()
+			|| isReadSynonym()
+			|| isPrintSynonym()
+			|| isAssignSynonym()
+			|| isCallSynonym()
+			|| isWhileSynonym()
+			|| isIfSynonym()
+			|| isProcedureSynonym()
+			|| isVariableSynonym()
+			|| isConstantSynonym();
+	}
+
 	bool isStmtRefNoWildcard() {
-		return this->type == ArgumentType::STMT
-            || this->type == ArgumentType::READ
-            || this->type == ArgumentType::PRINT
-            || this->type == ArgumentType::ASSIGN
-            || this->type == ArgumentType::CALL
-            || this->type == ArgumentType::WHILE
-            || this->type == ArgumentType::IF
-			|| this->type == ArgumentType::LINE_NUMBER;
+		return isStmtSynonym()
+            || isReadSynonym()
+            || isPrintSynonym()
+            || isAssignSynonym()
+            || isCallSynonym()
+            || isWhileSynonym()
+            || isIfSynonym()
+			|| isLineNumber();
 	}
 
 	bool isEntRefNoWildcard() {
-		return this->type == ArgumentType::PROCEDURE
-            || this->type == ArgumentType::VARIABLE
-            || this->type == ArgumentType::CONSTANT
-			|| this->type == ArgumentType::STRING_LITERAL;
+		return isProcedureSynonym()
+			|| isVariableSynonym()
+			|| isConstantSynonym()
+			|| isStringLiteral();
 	}
 
 	friend bool operator== (ClauseArgument first, ClauseArgument second);
