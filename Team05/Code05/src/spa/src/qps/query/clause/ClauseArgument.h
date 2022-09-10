@@ -15,10 +15,6 @@ public:
 		this->type = type;
 	};
 
-	bool isWildcard() {
-		return this->type == ArgumentType::WILDCARD;
-	}
-	
 	bool isStmtSynonym() {
 		return this->type == ArgumentType::STMT;
 	}
@@ -67,7 +63,11 @@ public:
 		return this->type == ArgumentType::STRING_LITERAL;
 	}
 
-	bool isSynonym() {
+    bool isWildcard() {
+        return this->type == ArgumentType::WILDCARD;
+    }
+
+    bool isSynonym() {
 		return isStmtSynonym()
 			|| isReadSynonym()
 			|| isPrintSynonym()

@@ -27,7 +27,6 @@ TEST_CASE("ArgumentType: test getDesignEntityArgumentType") {
     }
 
     SECTION("Existing design entities") {
-        testGetDesignEntityArgumentType("procedure", false);
         testGetDesignEntityArgumentType("stmt", false);
         testGetDesignEntityArgumentType("read", false);
         testGetDesignEntityArgumentType("print", false);
@@ -35,6 +34,7 @@ TEST_CASE("ArgumentType: test getDesignEntityArgumentType") {
         testGetDesignEntityArgumentType("call", false);
         testGetDesignEntityArgumentType("while", false);
         testGetDesignEntityArgumentType("if", false);
+        testGetDesignEntityArgumentType("procedure", false);
         testGetDesignEntityArgumentType("variable", false);
         testGetDesignEntityArgumentType("constant", false);
     }

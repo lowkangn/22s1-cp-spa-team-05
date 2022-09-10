@@ -18,7 +18,6 @@ TEST_CASE("ClauseArgument: test isSynonym") {
     };
 
     SECTION("Is a synonym") {
-        testIsSynonym(ClauseArgument("p", ArgumentType::PROCEDURE), true);
         testIsSynonym(ClauseArgument("s", ArgumentType::STMT), true);
         testIsSynonym(ClauseArgument("r", ArgumentType::READ), true);
         testIsSynonym(ClauseArgument("p", ArgumentType::PRINT), true);
@@ -26,6 +25,7 @@ TEST_CASE("ClauseArgument: test isSynonym") {
         testIsSynonym(ClauseArgument("c", ArgumentType::CALL), true);
         testIsSynonym(ClauseArgument("w", ArgumentType::WHILE), true);
         testIsSynonym(ClauseArgument("i", ArgumentType::IF), true);
+        testIsSynonym(ClauseArgument("p", ArgumentType::PROCEDURE), true);
         testIsSynonym(ClauseArgument("v", ArgumentType::VARIABLE), true);
         testIsSynonym(ClauseArgument("c", ArgumentType::CONSTANT), true);
     }
@@ -115,7 +115,6 @@ TEST_CASE("ClauseArgument: test operator==") {
         testOperatorEquals(variableArgAgain, variableArgDiff, false);
     }
 
-    ClauseArgument procArg = ClauseArgument("v", ArgumentType::PROCEDURE);
     ClauseArgument stmtArg = ClauseArgument("v", ArgumentType::STMT);
     ClauseArgument readArg = ClauseArgument("v", ArgumentType::READ);
     ClauseArgument printArg = ClauseArgument("v", ArgumentType::PRINT);
@@ -123,6 +122,7 @@ TEST_CASE("ClauseArgument: test operator==") {
     ClauseArgument callArg = ClauseArgument("v", ArgumentType::CALL);
     ClauseArgument whileArg = ClauseArgument("v", ArgumentType::WHILE);
     ClauseArgument ifArg = ClauseArgument("v", ArgumentType::IF);
+    ClauseArgument procArg = ClauseArgument("v", ArgumentType::PROCEDURE);
     ClauseArgument constArg = ClauseArgument("v", ArgumentType::CONSTANT);
     ClauseArgument lineNumArg = ClauseArgument("v", ArgumentType::LINE_NUMBER);
     ClauseArgument stringLitArg = ClauseArgument("v", ArgumentType::STRING_LITERAL);
