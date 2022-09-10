@@ -38,8 +38,7 @@ shared_ptr<ASTNode> ConstantValueSimpleSyntaxRule::constructNode() {
 
 	// create current node
 	Token constantValueToken = this->tokens.front();
-    vector<Token> v = vector<Token>{constantValueToken};
-	shared_ptr<ASTNode> constantValueNode(new ASTNode(v));
+	shared_ptr<ASTNode> constantValueNode(new ASTNode(vector<Token>{constantValueToken}));
 	constantValueNode->setType(ASTNodeType::CONSTANT);
 
 	return constantValueNode;
