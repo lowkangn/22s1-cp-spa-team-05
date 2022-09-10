@@ -66,5 +66,7 @@ public:
     }
 
     friend bool operator==(PQLEntity first, PQLEntity second);
+
+    friend bool operator<(PQLEntity first, PQLEntity second);
 };
 

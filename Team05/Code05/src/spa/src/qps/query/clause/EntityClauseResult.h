@@ -24,5 +24,9 @@ public:
         return this->entities;
     }
 
+    bool isEmpty() {
+        return this->entities.empty();
+    }
+
     friend bool operator==(EntityClauseResult first, EntityClauseResult second);
 };

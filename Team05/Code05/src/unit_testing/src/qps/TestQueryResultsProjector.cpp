@@ -2,7 +2,7 @@
 #include <qps/results_projector/QueryResultsProjector.h>
 
 TEST_CASE("QueryResultsProjector: test populateResultsList") {
-    auto testListPopulatedCorrectly = [](unordered_set<string> evaluatorResults) {
+    auto testListPopulatedCorrectly = [](set<string> evaluatorResults) {
         // given
         list<string> autotesterList;
 
@@ -10,7 +10,7 @@ TEST_CASE("QueryResultsProjector: test populateResultsList") {
         QueryResultsProjector(evaluatorResults).populateResultsList(autotesterList);
 
         // then
-        unordered_set<string> autotesterSet {};
+        set<string> autotesterSet {};
         for (string s : autotesterList) {
             autotesterSet.insert(s);
         }
@@ -18,13 +18,13 @@ TEST_CASE("QueryResultsProjector: test populateResultsList") {
     };
 
     SECTION("Nonempty result") {
-        testListPopulatedCorrectly(unordered_set<string> {"1", "55", "3", "-10000"});
-        testListPopulatedCorrectly(unordered_set<string> {"main", "methodA", "foo", "bar"});
-        testListPopulatedCorrectly(unordered_set<string> {"x", "y", "z", "a", "st", "variableName"});
+        testListPopulatedCorrectly(set<string> {"1", "55", "3", "-10000"});
+        testListPopulatedCorrectly(set<string> {"main", "methodA", "foo", "bar"});
+        testListPopulatedCorrectly(set<string> {"x", "y", "z", "a", "st", "variableName"});
     };
 
     SECTION("Nonempty result") {
-        testListPopulatedCorrectly(unordered_set<string> {});
+        testListPopulatedCorrectly(set<string> {});
     };
 
 };

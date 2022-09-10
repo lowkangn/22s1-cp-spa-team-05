@@ -1,90 +1,72 @@
-#include <unordered_set>
+#include <set>
 #include "QueryEvaluator.h"
 
-unordered_set<string> QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results) {
+set<string> QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results) {
 
-    // Safe cast as we know results.first is the result of SelectClause's execute() which returns a ClauseResult pointer
-    // pointing to an EntityClauseResult: https://stackoverflow.com/questions/1358143/downcasting-shared-ptrbase-to-shared-ptrderived
-    // A bit sus but will work for now until we can do restructuring of Clause + ClauseResult
-    shared_ptr<EntityClauseResult> entitiesResult = static_pointer_cast<EntityClauseResult>(results.first);
+    EntityClauseResult entitiesResult = dereference(results.first);
+    list<RelationshipClauseResult> relationshipsResults = dereference(results.second);
 
-    list<shared_ptr<RelationshipClauseResult>> relationshipsResults;
-    while (!results.second.empty()) {
-        // Safe cast as we know results.second is the result of execute() (excluding SelectClause) which returns a
-        // ClauseResult pointer pointing to a RelationshipClauseResult.
-        shared_ptr<RelationshipClauseResult> relationshipsResult = static_pointer_cast<RelationshipClauseResult>(
-                results.second.front());
-        relationshipsResults.push_back(relationshipsResult);
-        results.second.pop_front();
+    // If result from SelectClause returns no entries, return empty set
+    if (entitiesResult.isEmpty()) {
+        return set<string>();
     }
 
-    unordered_set<string> entityNamesToReturn;
-
-    // If result from SelectClause returns no entries, return "None"
-    if (entitiesResult->getEntities().empty()) return entityNamesToReturn;
-
-    // If result from any other Clause returns no entries, return "None"
-    list<shared_ptr<RelationshipClauseResult>>::iterator checkEmptyIter = relationshipsResults.begin();
-    for (; checkEmptyIter != relationshipsResults.end(); checkEmptyIter++) {
-        if ((*checkEmptyIter)->getRelationships().empty()) return entityNamesToReturn;
+    // If result from any other Clause returns no entries, return empty set
+    for (RelationshipClauseResult relationshipsResult : relationshipsResults) {
+        if (relationshipsResult.isEmpty()) {
+            return set<string>();
+        }
     }
 
-    // We start with a list of entity names from the SelectClause, then remove as we check the other clauses for constraints
-    vector<PQLEntity> entities = entitiesResult->getEntities();
+    set<PQLEntity> entitiesToReturn;
 
-    vector<PQLEntity>::iterator createReturnVectorIter = entities.begin();
-    for (; createReturnVectorIter != entities.end(); createReturnVectorIter++) {
-        entityNamesToReturn.insert(createReturnVectorIter->toString());
+    list<RelationshipClauseResult>::iterator relationshipsResultIter = relationshipsResults.begin();
+    for (; relationshipsResultIter != relationshipsResults.end(); relationshipsResultIter++) {
+        // Check if either of its ClauseArguments match the EntityClauseResult's ClauseArgument
+        RelationshipArgument argumentFound = findDesiredArgument(entitiesResult.getArg(),
+                                                                 *relationshipsResultIter);
+
+        // If neither ClauseArgument matches, skip this RelationshipClauseResult
+        if (argumentFound == RelationshipArgument::NONE) {
+            continue;
+        } else {
+            // Extract entities corresponding to the matching ClauseArgument from the RelationshipClauseResult
+            set<PQLEntity> entitiesToIntersect = extractEntitySet(argumentFound, relationshipsResultIter->getRelationships());
+
+            // Intersect sets into entitiesToReturn
+            if (relationshipsResultIter == relationshipsResults.begin()) {
+                entitiesToReturn = entitiesToIntersect;
+            } else {
+               entitiesToReturn = intersectSets(entitiesToReturn, entitiesToIntersect);
+
+               // If intersection returns empty set, no entities meet all constraints so return empty set
+               if (entitiesToReturn.empty()) {
+                   return set<string>();
+               }
+            }
+        }
     }
 
-    // Iterate through the other clauses
-    list<shared_ptr<RelationshipClauseResult>>::iterator filterIter = relationshipsResults.begin();
-    for (; filterIter != relationshipsResults.end(); filterIter++) {
-        filterEntitiesToReturn(&entityNamesToReturn, entitiesResult, *filterIter);
+    // If at this stage entitiesToReturn is empty, means that all RelationshipClauseResults were skipped
+    // Hence, entitiesToReturn is just the list of entities in entitiesResult
+    if (entitiesToReturn.empty()) {
+        vector<PQLEntity> selectedEntities = entitiesResult.getEntities();
+        for (PQLEntity entity : selectedEntities) {
+            entitiesToReturn.insert(entity);
+        }
     }
 
-    return entityNamesToReturn;
+    // Convert set of entities into set of entity strings
+    set<string> entityStringsToReturn;
+
+    for (PQLEntity entity : entitiesToReturn) {
+        entityStringsToReturn.insert(entity.toString());
+    }
+
+    return entityStringsToReturn;
 }
 
-unordered_set<string> QueryEvaluator::evaluate(Query query) {
+set<string> QueryEvaluator::evaluate(Query query) {
     pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results = query.execute();
 	return combine(results);
-}
-
-void QueryEvaluator::filterEntitiesToReturn(unordered_set<string>* currEntitiesToReturn, shared_ptr<EntityClauseResult> entitiesResult,
-                            shared_ptr<RelationshipClauseResult> relationshipsResult) {
-
-    DeclarationCheckOutput output = checkDeclaration(entitiesResult, relationshipsResult);
-
-    // If clause does not share a variable with the SelectClause, skip it
-    if (output == DeclarationCheckOutput::NONE) {
-        return;
-
-    } else {
-        // Obtain an unordered set of names of the relevant entities in this relationships vector
-        vector<PQLRelationship> relationships = relationshipsResult->getRelationships();
-        unordered_set<string> entity_set;
-
-        vector<PQLRelationship>::iterator createSetIter = relationships.begin();
-
-        if (output == DeclarationCheckOutput::ARG1) {
-            for (; createSetIter != relationships.end(); createSetIter++) {
-                PQLEntity currEntity = createSetIter->getFirstEntity();
-                entity_set.insert(currEntity.toString());
-            }
-        } else {
-            for (; createSetIter != relationships.end(); createSetIter++) {
-                PQLEntity currEntity = createSetIter->getSecondEntity();
-                entity_set.insert(currEntity.toString());
-            }
-        }
-
-        // If a name in entityNamesToReturn is not in the set of names of the entities returned by this clause, remove it
-        unordered_set<string>::iterator removeIter = currEntitiesToReturn->begin();
-        for (; removeIter != currEntitiesToReturn->end(); removeIter++) {
-            if (entity_set.find(*removeIter) == entity_set.end()) {
-                currEntitiesToReturn->erase(*removeIter);
-            }
-        }
-    }
 }

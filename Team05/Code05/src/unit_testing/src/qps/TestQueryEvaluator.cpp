@@ -8,12 +8,12 @@ using namespace std;
 
 TEST_CASE("QueryEvaluator: test combine") {
 auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results,
-                                         unordered_set<string> expected) {
+                                         set<string> expected) {
     // given
     QueryEvaluator evaluator = QueryEvaluator();
 
     // when
-    unordered_set<string> actual = evaluator.combine(results);
+    set<string> actual = evaluator.combine(results);
 
     // then
     REQUIRE(actual == expected);
@@ -30,7 +30,7 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
                                             })),
                             list<shared_ptr<ClauseResult>>{}
                     },
-                    unordered_set<string>{"x"});
+                    set<string>{"x"});
 
         // x = x + 1; constant c; Select c
         testCombine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>{
@@ -41,7 +41,7 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
                                     })),
                             list<shared_ptr<ClauseResult>>{}
                     },
-                    unordered_set<string>{"1"});
+                    set<string>{"1"});
 
         // x = x + 1; procedure p; Select p
         testCombine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>{
@@ -50,7 +50,7 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
                                     vector<PQLEntity>{})),
                             list<shared_ptr<ClauseResult>>{}
                     },
-                    unordered_set<string>{});
+                    set<string>{});
     }
 
     SECTION("SelectClause with ModifiesSClause") {
@@ -78,7 +78,7 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
                                         }))
                             }
                     },
-                    unordered_set<string>{"1", "2"});
+                    set<string>{"1", "2"});
 
         // x = x + 1; y = y + 1; assign a; variable v; Select v such that Modifies(a,v)
         testCombine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>{
@@ -98,7 +98,7 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
                                             }))
                             }
                     },
-                    unordered_set<string>{"x", "y"});
+                    set<string>{"x", "y"});
     }
 
 }

@@ -32,5 +32,9 @@ public:
         return this->relationships;
     }
 
+    bool isEmpty() {
+        return this->relationships.empty();
+    }
+
     friend bool operator==(RelationshipClauseResult first, RelationshipClauseResult second);
 };
