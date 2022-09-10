@@ -35,7 +35,7 @@ TEST_CASE("RelationshipClauseResult: test operator==") {
                            RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            true);
 
-        // Different arg but same parameters, same relationships
+        // Different args but same parameters, same relationships
         testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            RelationshipClauseResult(firstArgAgain, secondArg, vector<PQLRelationship>{firstRelationship}),
                            true);
