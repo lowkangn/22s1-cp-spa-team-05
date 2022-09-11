@@ -11,10 +11,10 @@ using namespace std;
 class PKBUpdateHandler {
 public:
 
-    virtual vector<int> addRelationship(vector<Relationship> relationships) = 0;
+    virtual vector<int> addRelationships(vector<Relationship> relationships) = 0;
     
-    virtual void addPattern(vector<Pattern> patterns) = 0;
+    virtual void addPatterns(vector<Pattern> patterns) = 0;
     
-    virtual vector<int> addEntity(vector<Entity> entities) = 0;
+    virtual vector<int> addEntities(vector<Entity> entities) = 0;
 };
 
