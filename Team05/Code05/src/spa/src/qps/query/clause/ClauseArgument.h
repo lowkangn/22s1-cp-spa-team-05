@@ -68,35 +68,35 @@ public:
         return this->type == ArgumentType::WILDCARD;
     }
 
-    bool isSynonym() {
-        return isStmtSynonym()
-            || isReadSynonym()
-            || isPrintSynonym()
-            || isAssignSynonym()
-            || isCallSynonym()
-            || isWhileSynonym()
-            || isIfSynonym()
-            || isProcedureSynonym()
-            || isVariableSynonym()
-            || isConstantSynonym();
+	bool isSynonym() {
+		return isStmtSynonym()
+			|| isReadSynonym()
+			|| isPrintSynonym()
+			|| isAssignSynonym()
+			|| isCallSynonym()
+			|| isWhileSynonym()
+			|| isIfSynonym()
+			|| isProcedureSynonym()
+			|| isVariableSynonym()
+			|| isConstantSynonym();
 	}
 
-    bool isStmtRefNoWildcard() {
-        return isStmtSynonym()
-            || isReadSynonym()
-            || isPrintSynonym()
-            || isAssignSynonym()
-            || isCallSynonym()
-            || isWhileSynonym()
-            || isIfSynonym()
-            || isLineNumber();
+	bool isStmtRefNoWildcard() {
+		return isStmtSynonym()
+			|| isReadSynonym()
+			|| isPrintSynonym()
+			|| isAssignSynonym()
+			|| isCallSynonym()
+			|| isWhileSynonym()
+			|| isIfSynonym()
+			|| isLineNumber();
 	}
 
-    bool isEntRefNoWildcard() {
-        return isProcedureSynonym()
-            || isVariableSynonym()
-            || isConstantSynonym()
-            || isStringLiteral();
+	bool isEntRefNoWildcard() {
+		return isProcedureSynonym()
+			|| isVariableSynonym()
+			|| isConstantSynonym()
+			|| isStringLiteral();
 	}
 
     int getLineNumber() {
