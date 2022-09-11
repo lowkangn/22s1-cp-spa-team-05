@@ -57,8 +57,12 @@ public:
 		return this->s;
 	}
 
-	bool equals(Token other) {
-		return ((this->getType() == other.getType()) && (this->getString() == other.getString()));
+	static Token getPlaceHolderToken() {
+		return Token{ "", TokenType::INVALID };
+	}
+
+	bool operator==(Token other) const{
+		return ((this->type == other.getType()) && (this->s == other.getString()));
 	}
 	// ===== Keyword helper methods =====
 

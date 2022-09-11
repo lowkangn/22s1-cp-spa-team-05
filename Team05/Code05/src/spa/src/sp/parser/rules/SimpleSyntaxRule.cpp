@@ -1,6 +1,6 @@
 #include <sp/parser/rules/SimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 
 using namespace std;
 

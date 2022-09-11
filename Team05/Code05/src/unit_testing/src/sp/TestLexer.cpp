@@ -385,7 +385,7 @@ TEST_CASE("Lexer: test tokenize works correctly") {
             currExpected = expectedTokens.front();
                 cout << curr.getString();
                 cout << currExpected.getString();
-            REQUIRE(curr.equals(currExpected));
+            REQUIRE(curr == currExpected);
 
             tokens.pop_front();
             expectedTokens.pop_front();

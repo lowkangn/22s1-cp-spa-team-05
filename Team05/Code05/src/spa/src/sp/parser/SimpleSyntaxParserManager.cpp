@@ -1,5 +1,5 @@
 #include <sp/parser/SimpleSyntaxParserManager.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/parser/rules/ProgramSimpleSyntaxRule.h>
 

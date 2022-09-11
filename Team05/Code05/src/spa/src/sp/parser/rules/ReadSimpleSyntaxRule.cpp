@@ -2,7 +2,7 @@
 #include <sp/parser/rules/NameSimpleSyntaxRule.h>
 #include <sp/parser/rules/SimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-
+#include <sp/dataclasses/ast/ReadASTNode.h>
 #include <list>
 
 
@@ -64,13 +64,11 @@ shared_ptr<ASTNode> ReadSimpleSyntaxRule::constructNode() {
 	}
 
 	// create read node
-	Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
-	shared_ptr<ASTNode> readNode(new ASTNode(vector<Token>{readToken}));
-	readNode->setType(ASTNodeType::READ);
+	Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
+	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
 
 	// create child variable node
 	shared_ptr<ASTNode> variableNode = this->childRules.front()->constructNode();
-	variableNode->setType(ASTNodeType::NAME);
 
 	readNode->addChild(variableNode);
 
