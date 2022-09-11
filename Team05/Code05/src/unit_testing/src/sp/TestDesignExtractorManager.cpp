@@ -194,9 +194,12 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 	// Creating relationships
 	Relationship procedureModifiesy = Relationship(procedureEntity, yEntity, RelationshipType::MODIFIES);
 	Relationship procedureModifiesx = Relationship(procedureEntity, xEntity, RelationshipType::MODIFIES);
+	Relationship readModifiesY = Relationship(readEntity, yEntity, RelationshipType::MODIFIES);
+	Relationship assignModifiesX = Relationship(assignEntity, xEntity, RelationshipType::MODIFIES);
 
 
-	vector<Relationship> expectedRelation = vector<Relationship>{ procedureModifiesy, procedureModifiesx };
+
+	vector<Relationship> expectedRelation = vector<Relationship>{ procedureModifiesy,readModifiesY, procedureModifiesx, assignModifiesX };
 
 	test(nodeToExtractFrom, expectedRelation);
 }

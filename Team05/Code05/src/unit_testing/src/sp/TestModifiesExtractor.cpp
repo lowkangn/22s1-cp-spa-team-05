@@ -199,12 +199,16 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 	Entity procedureEntity = Entity{ EntityType::PROCEDURE, procedureNode->getLineNumber(), mainToken };
 	Entity xEntity = Entity{ EntityType::VARIABLE, x->getLineNumber(), xToken };
 	Entity yEntity = Entity{ EntityType::VARIABLE, y->getLineNumber(), yToken };
+	Entity assignEntity = Entity{ EntityType::ASSIGN, assignNode->getLineNumber(), assignToken };
+	Entity readEntity = Entity{ EntityType::READ, readNode->getLineNumber(), readToken };
 
-	Relationship readRelation = Relationship{ procedureEntity, xEntity, RelationshipType::MODIFIES };
-	Relationship assignRelation = Relationship{ procedureEntity, yEntity, RelationshipType::MODIFIES };
+	Relationship procedureXRelation = Relationship{ procedureEntity, xEntity, RelationshipType::MODIFIES };
+	Relationship procedureYRelation = Relationship{ procedureEntity, yEntity, RelationshipType::MODIFIES };
+	Relationship assignRelation = Relationship{ assignEntity, xEntity, RelationshipType::MODIFIES };
+	Relationship readRelation = Relationship{ readEntity, yEntity, RelationshipType::MODIFIES };
 
 
-	vector<Relationship> expectedResult = vector<Relationship>{ readRelation, assignRelation };
+	vector<Relationship> expectedResult = vector<Relationship>{ procedureXRelation, assignRelation, procedureYRelation, readRelation };
 
 	handleProcedure(procedureNode, expectedResult);
 
@@ -305,11 +309,13 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 	// Creating Relationships
 	Entity whileEntity = Entity{ EntityType::WHILE, whileNode->getLineNumber(), whileToken };
 	Entity xEntity = Entity{ EntityType::VARIABLE, x->getLineNumber(), xToken };
+	Entity assignEntity = Entity{ EntityType::ASSIGN, assignNode->getLineNumber(), assignToken };
 
 	Relationship whileRelation = Relationship{ whileEntity, xEntity, RelationshipType::MODIFIES };
+	Relationship assignRelation = Relationship{ assignEntity, xEntity, RelationshipType::MODIFIES };
 
 
-	vector<Relationship> expectedResult = vector<Relationship>{ whileRelation };
+	vector<Relationship> expectedResult = vector<Relationship>{ whileRelation, assignRelation };
 
 	test(whileNode, expectedResult);
 }
@@ -395,12 +401,16 @@ TEST_CASE("ModifiesExtractor: test handleIf") {
 	Entity ifEntity = Entity{ EntityType::IF, ifNode->getLineNumber(), ifToken };
 	Entity xEntity = Entity{ EntityType::VARIABLE, x->getLineNumber(), xToken };
 	Entity yEntity = Entity{ EntityType::VARIABLE, y->getLineNumber(), yToken };
+	Entity assignXEntity = Entity{ EntityType::ASSIGN, assignXNode->getLineNumber(), assignToken };
+	Entity assignYEntity = Entity{ EntityType::ASSIGN, assignYNode->getLineNumber(), assignToken };
 
 	Relationship xRelation = Relationship{ ifEntity, xEntity, RelationshipType::MODIFIES };
 	Relationship yRelation = Relationship{ ifEntity, yEntity, RelationshipType::MODIFIES };
+	Relationship assignXRelation = Relationship{ assignXEntity, xEntity, RelationshipType::MODIFIES };
+	Relationship assignYRelation = Relationship{ assignYEntity, yEntity, RelationshipType::MODIFIES };
 
 
-	vector<Relationship> expectedResult = vector<Relationship>{ xRelation, yRelation };
+	vector<Relationship> expectedResult = vector<Relationship>{ xRelation, assignXRelation, yRelation, assignYRelation };
 
 	handleProcedure(ifNode, expectedResult);
 

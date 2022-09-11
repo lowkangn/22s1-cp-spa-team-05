@@ -150,10 +150,13 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
 		shared_ptr<ASTNode> leftChild = assignNode->getLeftHandSide();
 
+		vector<Relationship> assignRelationship = handleAssign(ast);
+
 		Entity childEntity = leftChild->extractEntity();
 		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
 
 		modifiesRelationships.push_back(toAdd);
+		modifiesRelationships.insert(modifiesRelationships.end(), assignRelationship.begin(), assignRelationship.end());
 		break;
 	}
 	case ASTNodeType::READ:
@@ -162,10 +165,13 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		shared_ptr<ReadASTNode> readNode = dynamic_pointer_cast<ReadASTNode>(ast);
 		shared_ptr<ASTNode> child = readNode->getVariableToRead();
 
+		vector<Relationship> readRelationship = handleRead(ast);
+		
 		Entity childEntity = child->extractEntity();
 		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
 
 		modifiesRelationships.push_back(toAdd);
+		modifiesRelationships.insert(modifiesRelationships.end(), readRelationship.begin(), readRelationship.end());
 		break;
 	}
 	case ASTNodeType::WHILE:
@@ -175,6 +181,7 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		shared_ptr<ASTNode> children = whileNode->getStmtList();
 
 		vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, children);
+		vector<Relationship> recursiveWhile = handleWhile(ast);
 		modifiesRelationships.insert(modifiesRelationships.end(), toAdd.begin(), toAdd.end());
 		break;
 	}
@@ -188,9 +195,11 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 
 		vector<Relationship> toAddThen = recursiveContainerExtract(leftHandSide, thenChildren);
 		vector<Relationship> toAddElse = recursiveContainerExtract(leftHandSide, elseChildren);
+		vector<Relationship> recursiveIfRelations = handleIf(ast);
 
 		modifiesRelationships.insert(modifiesRelationships.end(), toAddThen.begin(), toAddThen.end());
 		modifiesRelationships.insert(modifiesRelationships.end(), toAddElse.begin(), toAddElse.end());
+		modifiesRelationships.insert(modifiesRelationships.end(), recursiveIfRelations.begin(), recursiveIfRelations.end());
 		break;
 	}
 	default:
