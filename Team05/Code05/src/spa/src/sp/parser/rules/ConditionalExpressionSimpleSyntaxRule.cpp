@@ -13,6 +13,9 @@
 
 using namespace std;
 
+const int FIRST_RULE = 0;
+const int SECOND_RULE = 1;
+
 vector<shared_ptr<SimpleSyntaxRule>> ConditionalExpressionSimpleSyntaxRule::generateChildRules() {
 	
 	// must be initialized
@@ -28,21 +31,23 @@ vector<shared_ptr<SimpleSyntaxRule>> ConditionalExpressionSimpleSyntaxRule::gene
 	if (token.isNotOperator()) {
 		shared_ptr<SimpleSyntaxRule> operatorRulePointer = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
 		tokens = operatorRulePointer.consume(tokens);
-		childRules.push_back(operatorRulePointer);
+		this->setOperatorRule(operatorRulePointer);
 
 		shared_ptr<SimpleSyntaxRule> conditionalRulePointer = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
 		tokens = conditionalRulePointer.consume(tokens);
 		childRules.push_back(conditionalRulePointer)
 	}
 	else if (token.isOpenBracketToken()) {
+		// First rule
 		shared_ptr<SimpleSyntaxRule> firstConditionalRulePointer = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
 		tokens = firstConditionalRulePointer.consume(tokens);
 		childRules.push_back(firstConditionalRulePointer);
 
 		shared_ptr<SimpleSyntaxRule> operatorRulePointer = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
 		tokens = operatorRulePointer.consume(tokens);
-		childRules.push_back(operatorRulePointer);
+		this->setOperatorRule(operatorRulePointer);
 
+		// Second rule
 		shared_ptr<SimpleSyntaxRule> secondConditionalRulePointer = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
 		tokens = secondConditionalRulePointer.consume(tokens);
 		childRules.push_back(secondConditionalRulePointer);
@@ -153,6 +158,19 @@ shared_ptr<ASTNode> ConditionalExpressionSimpleSyntaxRule::constructNode() {
 	// generate if needed
 	if (!this->generated) {
 		this->childRules = this->generateChildRules();
+		this->operatorRule->generateChildRules();
 	}
 
+	shared_ptr<SimpleSyntaxRule> firstCond = this->childRules[FIRST_RULE];
+	shared_ptr<SimpleSyntaxRule> secondCond = this->childRules[SECOND_RULE];
+	shared_ptr<SimpleSyntaxRule> operatorRule = this->getOperatorRule();
+
+	shared_ptr<ASTNode> leftHandSideNode = firstCond->constructNode();
+	shared_ptr<ASTNode> rightHandSideNode = secondCond->constructNode();
+	shared_ptr<ASTNode> operatorNode = operatorRule->constructNode();
+
+	operatorNode->addChild(leftHandSideNode);
+	operatorNode->addChild(rightHandSideNode);
+
+	return operator;
 }
