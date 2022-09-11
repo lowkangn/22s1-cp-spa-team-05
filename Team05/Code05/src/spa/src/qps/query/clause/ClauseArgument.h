@@ -9,9 +9,9 @@ using namespace std;
 class ClauseArgument {
 private:
     string identifier;
-	ArgumentType type;
+    ArgumentType type;
 public:
-	ClauseArgument(string identifier, ArgumentType type) {
+    ClauseArgument(string identifier, ArgumentType type) {
 		this->identifier = identifier;
 		this->type = type;
 	};
@@ -70,15 +70,15 @@ public:
 
     bool isSynonym() {
 		return isStmtSynonym()
-			|| isReadSynonym()
-			|| isPrintSynonym()
-			|| isAssignSynonym()
-			|| isCallSynonym()
-			|| isWhileSynonym()
-			|| isIfSynonym()
-			|| isProcedureSynonym()
-			|| isVariableSynonym()
-			|| isConstantSynonym();
+            || isReadSynonym()
+            || isPrintSynonym()
+            || isAssignSynonym()
+            || isCallSynonym()
+            || isWhileSynonym()
+            || isIfSynonym()
+            || isProcedureSynonym()
+            || isVariableSynonym()
+            || isConstantSynonym();
 	}
 
 	bool isStmtRefNoWildcard() {
@@ -94,9 +94,9 @@ public:
 
 	bool isEntRefNoWildcard() {
 		return isProcedureSynonym()
-			|| isVariableSynonym()
-			|| isConstantSynonym()
-			|| isStringLiteral();
+            || isVariableSynonym()
+            || isConstantSynonym()
+            || isStringLiteral();
 	}
 
     int getLineNumber() {
