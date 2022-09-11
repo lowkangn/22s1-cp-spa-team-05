@@ -71,7 +71,7 @@ TEST_CASE("EntityPkbTableManager: test filter") {
 		REQUIRE(actualResults.size() == expectedResult.size());
 
 		for (int i = 0; i < actualResults.size(); i++) {
-				actualResults[i] == expectedResult[i];
+			actualResults[i] == expectedResult[i];
 		}
 	};
 
