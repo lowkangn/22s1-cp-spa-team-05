@@ -2,17 +2,28 @@
 #include "ArgumentType.h"
 #include <qps/exceptions/PQLError.h>
 
+const string STMT_KEYWORD = "stmt";
+const string READ_KEYWORD = "read";
+const string PRINT_KEYWORD = "print";
+const string ASSIGN_KEYWORD = "assign";
+const string CALL_KEYWORD = "call";
+const string WHILE_KEYWORD = "while";
+const string IF_KEYWORD = "if";
+const string PROCEDURE_KEYWORD = "procedure";
+const string VARIABLE_KEYWORD = "variable";
+const string CONSTANT_KEYWORD = "constant";
+
 unordered_map<string, ArgumentType> designEntityMap({
-    {"procedure", ArgumentType::PROCEDURE},
-    {"stmt", ArgumentType::STMT},
-    {"read", ArgumentType::READ},
-    {"print", ArgumentType::PRINT},
-    {"assign", ArgumentType::ASSIGN},
-    {"call", ArgumentType::CALL},
-    {"while", ArgumentType::WHILE},
-    {"if", ArgumentType::IF},
-    {"variable", ArgumentType::VARIABLE},
-    {"constant", ArgumentType::CONSTANT},
+    {STMT_KEYWORD, ArgumentType::STMT},
+    {READ_KEYWORD, ArgumentType::READ},
+    {PRINT_KEYWORD, ArgumentType::PRINT},
+    {ASSIGN_KEYWORD, ArgumentType::ASSIGN},
+    {CALL_KEYWORD, ArgumentType::CALL},
+    {WHILE_KEYWORD, ArgumentType::WHILE},
+    {IF_KEYWORD, ArgumentType::IF},
+    {PROCEDURE_KEYWORD, ArgumentType::PROCEDURE},
+    {VARIABLE_KEYWORD, ArgumentType::VARIABLE},
+    {CONSTANT_KEYWORD, ArgumentType::CONSTANT},
     }
 );
 

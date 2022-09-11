@@ -24,7 +24,7 @@ protected:
 	/* A mapping from each synonym to its type */
 	unordered_map<string, ArgumentType> declarations;
 	
-	// ==== Methods to parse a single argument of the clause and consume the token(s) used. ====
+	/* ==== Methods to parse a single argument of the clause and consume the token(s) used. ==== */
 
 	ClauseArgument parseOneArgument();
 
@@ -36,7 +36,7 @@ protected:
 
 	ClauseArgument parseWildcard();
 
-	// ==== Methods ensure a delimiter is present and consume it ==== 
+	/* ==== Methods ensure a delimiter is present and consume it ==== */
 	
 	/* Consumes the open bracket token. */
 	void consumeOpenBracket();

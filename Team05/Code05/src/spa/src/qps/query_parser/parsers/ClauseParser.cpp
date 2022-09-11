@@ -6,7 +6,7 @@ shared_ptr<Clause> ClauseParser::parse() {
 	this->tokens.pop_front();
 
 	list<ClauseArgument> args = extractArguments();
-	checkArguments(args);
+	this->checkArguments(args);
 	return createClause(clauseTypeToken, args);
 }
 
