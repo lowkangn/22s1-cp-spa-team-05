@@ -69,7 +69,7 @@ public:
     }
 
     bool isSynonym() {
-		return isStmtSynonym()
+        return isStmtSynonym()
             || isReadSynonym()
             || isPrintSynonym()
             || isAssignSynonym()
