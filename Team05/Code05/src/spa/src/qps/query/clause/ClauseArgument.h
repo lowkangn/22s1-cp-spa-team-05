@@ -16,51 +16,51 @@ public:
 		this->type = type;
 	};
 
-	bool isStmtSynonym() {
+    bool isStmtSynonym() {
 		return this->type == ArgumentType::STMT;
 	}
 
-	bool isAssignSynonym() {
+    bool isAssignSynonym() {
 		return this->type == ArgumentType::ASSIGN;
 	}
 
-	bool isPrintSynonym() {
+    bool isPrintSynonym() {
 		return this->type == ArgumentType::PRINT;
 	}
 
-	bool isReadSynonym() {
+    bool isReadSynonym() {
 		return this->type == ArgumentType::READ;
 	}
 
-	bool isCallSynonym() {
+    bool isCallSynonym() {
 		return this->type == ArgumentType::CALL;
 	}
 
-	bool isWhileSynonym() {
+    bool isWhileSynonym() {
 		return this->type == ArgumentType::WHILE;
 	}
 
-	bool isIfSynonym() {
+    bool isIfSynonym() {
 		return this->type == ArgumentType::IF;
 	}
 
-	bool isProcedureSynonym() {
+    bool isProcedureSynonym() {
 		return this->type == ArgumentType::PROCEDURE;
 	}
 
-	bool isVariableSynonym() {
+    bool isVariableSynonym() {
 		return this->type == ArgumentType::VARIABLE;
 	}
 
-	bool isConstantSynonym() {
+    bool isConstantSynonym() {
 		return this->type == ArgumentType::CONSTANT;
 	}
 
-	bool isLineNumber() {
+    bool isLineNumber() {
 		return this->type == ArgumentType::LINE_NUMBER;
 	}
 
-	bool isStringLiteral() {
+    bool isStringLiteral() {
 		return this->type == ArgumentType::STRING_LITERAL;
 	}
 
@@ -81,7 +81,7 @@ public:
             || isConstantSynonym();
 	}
 
-	bool isStmtRefNoWildcard() {
+    bool isStmtRefNoWildcard() {
 		return isStmtSynonym()
             || isReadSynonym()
             || isPrintSynonym()
@@ -92,7 +92,7 @@ public:
             || isLineNumber();
 	}
 
-	bool isEntRefNoWildcard() {
+    bool isEntRefNoWildcard() {
 		return isProcedureSynonym()
             || isVariableSynonym()
             || isConstantSynonym()
@@ -113,5 +113,5 @@ public:
         return this->identifier;
     }
 
-	friend bool operator== (ClauseArgument first, ClauseArgument second);
+    friend bool operator== (ClauseArgument first, ClauseArgument second);
 };
