@@ -11,7 +11,7 @@ void ModifiesParser::checkArguments(list<ClauseArgument>& args) {
 	// first arg cannot be wildcard or variable
 	ClauseArgument arg = args.front();
 	if (arg.isWildcard() || arg.isVariableSynonym()) {
-		throw PQLError("First arg for Modifies cannot be wildcard or vaiable");
+		throw PQLError("First arg for Modifies cannot be wildcard or variable");
 	}
 
 	// second arg must be wildcard or entRef

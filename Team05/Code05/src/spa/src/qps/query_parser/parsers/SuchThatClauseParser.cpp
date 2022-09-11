@@ -14,4 +14,3 @@ list<ClauseArgument> SuchThatClauseParser::extractArguments() {
 	
 	return list<ClauseArgument>{firstArg, secondArg};
 }
-

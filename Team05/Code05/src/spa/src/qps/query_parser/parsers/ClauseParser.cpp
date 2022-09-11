@@ -6,7 +6,8 @@ shared_ptr<Clause> ClauseParser::parse() {
 	this->tokens.pop_front();
 
 	list<ClauseArgument> args = extractArguments();
-	checkArguments(args);
+	this->checkArguments(args);
+	this->isParseCompleted = true;
 	return createClause(clauseTypeToken, args);
 }
 
@@ -94,5 +95,8 @@ void ClauseParser::consumeCloseBracket() {
 }
 
 list<PQLToken> ClauseParser::getRemainingTokens() {
+	if (!this->isParseCompleted) {
+		throw PQLError("getRemainingTokens() called before parse()");
+	}
 	return this->tokens;
 }

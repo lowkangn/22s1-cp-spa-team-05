@@ -6,8 +6,8 @@ using namespace std;
 
 // =============== UNIT TESTS ====================
 
-TEST_CASE("ArgumentType: test getArgumentType") {
-    auto testGetDesignEntity= [](string argumentType, bool shouldThrow) {
+TEST_CASE("ArgumentType: test getDesignEntityArgumentType") {
+    auto testGetDesignEntityArgumentType= [](string argumentType, bool shouldThrow) {
         if (shouldThrow) {
             REQUIRE_THROWS_AS(getDesignEntityArgumentType(argumentType),
                 PQLError);
@@ -17,18 +17,25 @@ TEST_CASE("ArgumentType: test getArgumentType") {
     };
 
     SECTION("Not a design entity") {
-        testGetDesignEntity("nonExistentDesignEntity", true);
+        testGetDesignEntityArgumentType("nonExistentDesignEntity", true);
     }
 
     SECTION("Design entities with typo") {
-        testGetDesignEntity("Variable", true);
-        testGetDesignEntity("procdure", true);
-        testGetDesignEntity("statement", true);
+        testGetDesignEntityArgumentType("Variable", true);
+        testGetDesignEntityArgumentType("procdure", true);
+        testGetDesignEntityArgumentType("statement", true);
     }
 
     SECTION("Existing design entities") {
-        testGetDesignEntity("call", false);
-        testGetDesignEntity("variable", false);
-        testGetDesignEntity("stmt", false);
+        testGetDesignEntityArgumentType("stmt", false);
+        testGetDesignEntityArgumentType("read", false);
+        testGetDesignEntityArgumentType("print", false);
+        testGetDesignEntityArgumentType("assign", false);
+        testGetDesignEntityArgumentType("call", false);
+        testGetDesignEntityArgumentType("while", false);
+        testGetDesignEntityArgumentType("if", false);
+        testGetDesignEntityArgumentType("procedure", false);
+        testGetDesignEntityArgumentType("variable", false);
+        testGetDesignEntityArgumentType("constant", false);
     }
 }

@@ -28,10 +28,13 @@ TEST_CASE("DeclarationParser: test parseOneDeclarationNoError") {
 
 
     SECTION("One synonym") {
-        testParseOneDeclarationNoError(list<PQLToken>{
-            PQLToken("variable", PQLTokenType::NAME), 
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
             PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER)},
+            PQLToken(";", PQLTokenType::DELIMITER)
+        };
+
+        testParseOneDeclarationNoError(tokensList,
             unordered_map<string, ArgumentType>{ {"v1", ArgumentType::VARIABLE}});
     }
 
@@ -49,26 +52,39 @@ TEST_CASE("DeclarationParser: test parseOneDeclarationWithError") {
     };
 
     SECTION("Missing semicolon") {
-        testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
-            PQLToken("v1", PQLTokenType::NAME)});
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME)
+        };
+
+        testParseOneDeclarationWithError(tokensList);
     }
     SECTION("Missing synonym") {
-        testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER)});
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER)
+        };
+        testParseOneDeclarationWithError(tokensList);
     }
     SECTION("Missing synonym after comma") {
-        testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
             PQLToken("v1", PQLTokenType::NAME),
             PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken(";", PQLTokenType::DELIMITER)});
+            PQLToken(";", PQLTokenType::DELIMITER)
+        };
+        testParseOneDeclarationWithError(tokensList);
     }
     SECTION("Double comma") {
-        testParseOneDeclarationWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
             PQLToken("v1", PQLTokenType::NAME),
             PQLToken(",", PQLTokenType::DELIMITER),
             PQLToken(",", PQLTokenType::DELIMITER),
             PQLToken("v2", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER)});
+            PQLToken(";", PQLTokenType::DELIMITER)
+        };
+        testParseOneDeclarationWithError(tokensList);
     }
 }
 
@@ -87,40 +103,59 @@ TEST_CASE("DeclarationParser: test parseNoError") {
 
 
     SECTION("One declaration") {
-        testParseNoError(list<PQLToken>{
+        list<PQLToken> tokensList = list<PQLToken>{
             PQLToken("variable", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME)},
-            unordered_map<string, ArgumentType>{ {"v1", ArgumentType::VARIABLE}});
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME)
+        };
+
+        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+            {"v1", ArgumentType::VARIABLE}
+        };
+
+        testParseNoError(tokensList, declarationsMap);
     }
 
     SECTION("Multiple declarations") {
-        testParseNoError(list<PQLToken>{
+        list<PQLToken> tokensList = list<PQLToken>{
             PQLToken("variable", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("stmt", PQLTokenType::NAME),
-                PQLToken("s1", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME)},
-            unordered_map<string, ArgumentType>{ {"v1", ArgumentType::VARIABLE},
-            { "s1", ArgumentType::STMT }});
-        testParseNoError(list<PQLToken>{
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("stmt", PQLTokenType::NAME),
+            PQLToken("s1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME)
+        };
+
+        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+            {"v1", ArgumentType::VARIABLE},
+            { "s1", ArgumentType::STMT }
+        };
+
+        testParseNoError(tokensList, declarationsMap);
+
+        tokensList = list<PQLToken>{
             PQLToken("variable", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("stmt", PQLTokenType::NAME),
-                PQLToken("s1", PQLTokenType::NAME),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("s2", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME)},
-            unordered_map<string, ArgumentType>{ {"v1", ArgumentType::VARIABLE},
-            { "s1", ArgumentType::STMT }, { "s2", ArgumentType::STMT }});
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("stmt", PQLTokenType::NAME),
+            PQLToken("s1", PQLTokenType::NAME),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("s2", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME)
+        };
+
+        declarationsMap = unordered_map<string, ArgumentType>{
+            {"v1", ArgumentType::VARIABLE},
+            { "s1", ArgumentType::STMT }, { "s2", ArgumentType::STMT }
+        };
+
+        testParseNoError(tokensList, declarationsMap);
     }
 }
 
@@ -135,33 +170,49 @@ TEST_CASE("DeclarationParser: test parseWithError") {
 
 
     SECTION("No select clause") {
-        testParseWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
             PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER)});
+            PQLToken(";", PQLTokenType::DELIMITER)
+        };
+
+        testParseWithError(tokensList);
     }
 
     SECTION("Missing comma") {
-        testParseWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
             PQLToken("v1", PQLTokenType::NAME),
             PQLToken("v2", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER)});
+            PQLToken(";", PQLTokenType::DELIMITER)
+        };
+
+        testParseWithError(tokensList);
     }
 
     SECTION("Repeated synonym name - same design entity") {
-        testParseWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
             PQLToken("v1", PQLTokenType::NAME),
             PQLToken(",", PQLTokenType::DELIMITER),
             PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER)});
+            PQLToken(";", PQLTokenType::DELIMITER)
+        };
+
+        testParseWithError(tokensList);
     }
 
     SECTION("Repeated synonym name - different design entities") {
-        testParseWithError(list<PQLToken>{PQLToken("variable", PQLTokenType::NAME),
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
             PQLToken("v1", PQLTokenType::NAME),
             PQLToken(";", PQLTokenType::DELIMITER),
             PQLToken("stmt", PQLTokenType::NAME),
             PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER)});
+            PQLToken(";", PQLTokenType::DELIMITER)
+        };
+
+        testParseWithError(tokensList);
     }
 }
 
@@ -188,43 +239,55 @@ TEST_CASE("DeclarationParser: test getRemainingTokens (after parsing)") {
 
 
     SECTION("One declaration") {
-        testGetRemainingTokens(list<PQLToken>{
+        list<PQLToken> initialList = list<PQLToken>{
             PQLToken("variable", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME)},
-            list<PQLToken>{PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME)});
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME)
+        };
+
+        list<PQLToken> remainingList = list<PQLToken>{
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME)
+        };
+
+        testGetRemainingTokens(initialList, remainingList);
     }
 
     SECTION("Multiple declarations; such that and pattern included") {
-        testGetRemainingTokens(list<PQLToken>{
+        list<PQLToken> initialList = list<PQLToken>{
             PQLToken("variable", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("stmt", PQLTokenType::NAME),
-                PQLToken("s1", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken("such", PQLTokenType::NAME),
-                PQLToken("that", PQLTokenType::NAME),
-                PQLToken("Modifies", PQLTokenType::NAME),
-                PQLToken("(", PQLTokenType::DELIMITER),
-                PQLToken("1", PQLTokenType::DELIMITER),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("v1", PQLTokenType::DELIMITER),
-                PQLToken(")", PQLTokenType::DELIMITER)},
-            list<PQLToken>{PQLToken("Select", PQLTokenType::NAME), 
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken("such", PQLTokenType::NAME),
-                PQLToken("that", PQLTokenType::NAME),
-                PQLToken("Modifies", PQLTokenType::NAME),
-                PQLToken("(", PQLTokenType::DELIMITER),
-                PQLToken("1", PQLTokenType::DELIMITER),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("v1", PQLTokenType::DELIMITER),
-                PQLToken(")", PQLTokenType::DELIMITER)});
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("stmt", PQLTokenType::NAME),
+            PQLToken("s1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken("such", PQLTokenType::NAME),
+            PQLToken("that", PQLTokenType::NAME),
+            PQLToken("Modifies", PQLTokenType::NAME),
+            PQLToken("(", PQLTokenType::DELIMITER),
+            PQLToken("1", PQLTokenType::DELIMITER),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("v1", PQLTokenType::DELIMITER),
+            PQLToken(")", PQLTokenType::DELIMITER)
+        };
+
+        list<PQLToken> remainingList = list<PQLToken>{
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken("such", PQLTokenType::NAME),
+            PQLToken("that", PQLTokenType::NAME),
+            PQLToken("Modifies", PQLTokenType::NAME),
+            PQLToken("(", PQLTokenType::DELIMITER),
+            PQLToken("1", PQLTokenType::DELIMITER),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("v1", PQLTokenType::DELIMITER),
+            PQLToken(")", PQLTokenType::DELIMITER)
+        };
+
+        testGetRemainingTokens(initialList, remainingList);
     }
 }

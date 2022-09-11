@@ -27,35 +27,42 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
             REQUIRE(expected.equals(actualPtr.get()));
     };
 
+    list<PQLToken> tokensList = list<PQLToken>{
+        PQLToken("Modifies", PQLTokenType::NAME),
+        PQLToken("(", PQLTokenType::DELIMITER),
+        PQLToken("s1", PQLTokenType::NAME),
+        PQLToken(",", PQLTokenType::DELIMITER),
+        PQLToken("v1", PQLTokenType::NAME),
+        PQLToken(")", PQLTokenType::DELIMITER)
+    };
+
+    unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+        {"v1", ArgumentType::VARIABLE},
+        {"s1", ArgumentType::STMT}
+    };
+
     ModifiesSClause expected = ModifiesSClause(
         ClauseArgument("s1", ArgumentType::STMT),
         ClauseArgument("v1", ArgumentType::VARIABLE));
-    testParseNoError(list<PQLToken>{
+
+    testParseNoError(tokensList, declarationsMap, expected);
+
+    tokensList = list<PQLToken>{
         PQLToken("Modifies", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("s1", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)},
-        unordered_map<string, ArgumentType>{
-            {"v1", ArgumentType::VARIABLE},
-            { "s1", ArgumentType::STMT }},
-            expected);
+        PQLToken("(", PQLTokenType::DELIMITER),
+        PQLToken("1", PQLTokenType::INTEGER),
+        PQLToken(",", PQLTokenType::DELIMITER),
+        PQLToken("\"", PQLTokenType::DELIMITER),
+        PQLToken("x", PQLTokenType::NAME),
+        PQLToken("\"", PQLTokenType::DELIMITER),
+        PQLToken(")", PQLTokenType::DELIMITER)
+    };
 
     expected = ModifiesSClause(
         ClauseArgument("1", ArgumentType::LINE_NUMBER),
         ClauseArgument("x", ArgumentType::STRING_LITERAL));
-    testParseNoError(list<PQLToken>{
-        PQLToken("Modifies", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("1", PQLTokenType::INTEGER),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("\"", PQLTokenType::DELIMITER),
-            PQLToken("x", PQLTokenType::NAME),
-            PQLToken("\"", PQLTokenType::DELIMITER),
-            PQLToken(")", PQLTokenType::DELIMITER)},
-        unordered_map<string, ArgumentType>{},
-            expected);
+
+    testParseNoError(tokensList,unordered_map<string, ArgumentType>{}, expected);
 }
 
 TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
@@ -72,22 +79,26 @@ TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
             REQUIRE(expected.equals(actualPtr.get()));
     };
 
+    list<PQLToken> tokensList = list<PQLToken>{
+        PQLToken("Modifies", PQLTokenType::NAME),
+        PQLToken("(", PQLTokenType::DELIMITER),
+        PQLToken("\"", PQLTokenType::DELIMITER),
+        PQLToken("x", PQLTokenType::NAME),
+        PQLToken("\"", PQLTokenType::DELIMITER),
+        PQLToken(",", PQLTokenType::DELIMITER),
+        PQLToken("v1", PQLTokenType::NAME),
+        PQLToken(")", PQLTokenType::DELIMITER)
+    };
+
+    unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+        {"v1", ArgumentType::VARIABLE}
+    };
 
     ModifiesPClause expected = ModifiesPClause(
         ClauseArgument("x", ArgumentType::STRING_LITERAL),
         ClauseArgument("v1", ArgumentType::VARIABLE));
-    testParseNoError(list<PQLToken>{
-        PQLToken("Modifies", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("\"", PQLTokenType::DELIMITER),
-            PQLToken("x", PQLTokenType::NAME),
-            PQLToken("\"", PQLTokenType::DELIMITER),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)},
-        unordered_map<string, ArgumentType>{
-            {"v1", ArgumentType::VARIABLE}},
-            expected);
+
+    testParseNoError(tokensList, declarationsMap, expected);
 }
 
 
@@ -102,43 +113,67 @@ TEST_CASE("ModifiesParser: test parseWithError") {
     };
 
     SECTION("Undeclared / misspelled synonym") {
-        testParseWithError(list<PQLToken>{
+
+        list<PQLToken> tokensList = list<PQLToken>{
             PQLToken("Modifies", PQLTokenType::NAME),
-                PQLToken("(", PQLTokenType::DELIMITER)},
-            unordered_map<string, ArgumentType>{ {"v2", ArgumentType::VARIABLE}});
-        testParseWithError(list<PQLToken>{
+            PQLToken("(", PQLTokenType::DELIMITER)
+        };
+
+        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+            {"v2", ArgumentType::VARIABLE}
+        };
+
+        testParseWithError(tokensList, declarationsMap);
+
+        tokensList = list<PQLToken>{
             PQLToken("Modifies", PQLTokenType::NAME),
-                PQLToken("(", PQLTokenType::DELIMITER),
-                PQLToken("s1", PQLTokenType::NAME),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(")", PQLTokenType::DELIMITER)},
-            unordered_map<string, ArgumentType>{
-                {"v2", ArgumentType::VARIABLE},
-                { "s1", ArgumentType::STMT }});
+            PQLToken("(", PQLTokenType::DELIMITER),
+            PQLToken("s1", PQLTokenType::NAME),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(")", PQLTokenType::DELIMITER)
+        };
+
+        declarationsMap = unordered_map<string, ArgumentType>{
+            {"v2", ArgumentType::VARIABLE},
+            {"s1", ArgumentType::STMT}
+        };
+
+        testParseWithError(tokensList, declarationsMap);
     }
 
     SECTION("Illegal arguments") {
-        testParseWithError(list<PQLToken>{
+        list<PQLToken> tokensList = list<PQLToken>{
             PQLToken("Modifies", PQLTokenType::NAME),
-                PQLToken("(", PQLTokenType::DELIMITER),
-                PQLToken("_", PQLTokenType::DELIMITER),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(")", PQLTokenType::DELIMITER)},
-            unordered_map<string, ArgumentType>{
-                {"v1", ArgumentType::VARIABLE},
-            { "s1", ArgumentType::STMT }});
-        testParseWithError(list<PQLToken>{
+            PQLToken("(", PQLTokenType::DELIMITER),
+            PQLToken("_", PQLTokenType::DELIMITER),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(")", PQLTokenType::DELIMITER)
+        };
+
+        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+            {"v1", ArgumentType::VARIABLE},
+            {"s1", ArgumentType::STMT}
+        };
+
+        testParseWithError(tokensList, declarationsMap);
+
+        tokensList = list<PQLToken>{
             PQLToken("Modifies", PQLTokenType::NAME),
-                PQLToken("(", PQLTokenType::DELIMITER),
-                PQLToken("s1", PQLTokenType::DELIMITER),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("s2", PQLTokenType::NAME),
-                PQLToken(")", PQLTokenType::DELIMITER)},
-            unordered_map<string, ArgumentType>{
-                {"s2", ArgumentType::STMT},
-            { "s1", ArgumentType::STMT }});
+            PQLToken("(", PQLTokenType::DELIMITER),
+            PQLToken("s1", PQLTokenType::DELIMITER),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("s2", PQLTokenType::NAME),
+            PQLToken(")", PQLTokenType::DELIMITER)
+        };
+
+        declarationsMap = unordered_map<string, ArgumentType>{
+            {"s2", ArgumentType::STMT},
+            {"s1", ArgumentType::STMT}
+        };
+
+        testParseWithError(tokensList, declarationsMap);
     }
 
 }

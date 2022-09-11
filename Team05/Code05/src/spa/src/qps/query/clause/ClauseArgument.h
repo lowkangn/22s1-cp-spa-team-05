@@ -2,12 +2,13 @@
 
 #include <string>
 #include <qps/query_parser/ArgumentType.h>
+#include <qps/exceptions/PQLError.h>
 
 using namespace std;
 
 class ClauseArgument {
 private:
-    string identifier;
+	string identifier;
 	ArgumentType type;
 public:
 	ClauseArgument(string identifier, ArgumentType type) {
@@ -15,10 +16,6 @@ public:
 		this->type = type;
 	};
 
-	bool isWildcard() {
-		return this->type == ArgumentType::WILDCARD;
-	}
-	
 	bool isStmtSynonym() {
 		return this->type == ArgumentType::STMT;
 	}
@@ -67,6 +64,10 @@ public:
 		return this->type == ArgumentType::STRING_LITERAL;
 	}
 
+	bool isWildcard() {
+		return this->type == ArgumentType::WILDCARD;
+	}
+
 	bool isSynonym() {
 		return isStmtSynonym()
 			|| isReadSynonym()
@@ -82,12 +83,12 @@ public:
 
 	bool isStmtRefNoWildcard() {
 		return isStmtSynonym()
-            || isReadSynonym()
-            || isPrintSynonym()
-            || isAssignSynonym()
-            || isCallSynonym()
-            || isWhileSynonym()
-            || isIfSynonym()
+			|| isReadSynonym()
+			|| isPrintSynonym()
+			|| isAssignSynonym()
+			|| isCallSynonym()
+			|| isWhileSynonym()
+			|| isIfSynonym()
 			|| isLineNumber();
 	}
 
@@ -96,6 +97,20 @@ public:
 			|| isVariableSynonym()
 			|| isConstantSynonym()
 			|| isStringLiteral();
+	}
+
+	int getLineNumber() {
+		if (!this->isLineNumber()) {
+			throw PQLError("Trying to get line number, but clause argument is not!");
+		}
+		return stoi(this->identifier);
+	}
+
+	string getIdentifier() {
+		if (this->isLineNumber()) {
+			throw PQLError("Trying to get identifier, but clause argument is a line number!");
+		}
+		return this->identifier;
 	}
 
 	friend bool operator== (ClauseArgument first, ClauseArgument second);

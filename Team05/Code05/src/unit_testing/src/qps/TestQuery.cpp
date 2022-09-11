@@ -18,29 +18,16 @@ TEST_CASE("Query: test operator==") {
         REQUIRE(actual == expected);
     };
 
-    Query firstQuery = Query(
-        shared_ptr<Clause>(new SelectClause(ClauseArgument("v", ArgumentType::VARIABLE))),
-        list<shared_ptr<Clause>>{
-            shared_ptr<Clause>(new ModifiesSClause(
-                ClauseArgument("1", ArgumentType::LINE_NUMBER),
-                ClauseArgument("v", ArgumentType::VARIABLE)))
-        });
+    shared_ptr<Clause> selectClause = shared_ptr<Clause>(new SelectClause(ClauseArgument("v", ArgumentType::VARIABLE)));
+    shared_ptr<Clause> modifiesSClause = shared_ptr<Clause>(new ModifiesSClause(ClauseArgument("1", ArgumentType::LINE_NUMBER),
+                                                                               ClauseArgument("v", ArgumentType::VARIABLE)));
+    shared_ptr<Clause> modifiesPClause = shared_ptr<Clause>(new ModifiesPClause(ClauseArgument("main", ArgumentType::PROCEDURE),
+                                                                                ClauseArgument("v", ArgumentType::VARIABLE)));
 
-    Query sameAsFirstQuery = Query(
-        shared_ptr<Clause>(new SelectClause(ClauseArgument("v", ArgumentType::VARIABLE))),
-        list<shared_ptr<Clause>>{
-        shared_ptr<Clause>(new ModifiesSClause(
-            ClauseArgument("1", ArgumentType::LINE_NUMBER),
-            ClauseArgument("v", ArgumentType::VARIABLE)))
-    });
+    Query firstQuery = Query(selectClause, list<shared_ptr<Clause>>{modifiesSClause});
+    Query sameAsFirstQuery = Query(selectClause, list<shared_ptr<Clause>>{modifiesSClause});
+    Query secondQuery = Query(selectClause, list<shared_ptr<Clause>>{modifiesPClause});
 
-    Query secondQuery = Query(
-        shared_ptr<Clause>(new SelectClause(ClauseArgument("v", ArgumentType::VARIABLE))),
-        list<shared_ptr<Clause>>{
-        shared_ptr<Clause>(new ModifiesPClause(
-            ClauseArgument("main", ArgumentType::PROCEDURE),
-            ClauseArgument("v", ArgumentType::VARIABLE)))
-    });
 
     SECTION("Equal") {
         testOperatorEquals(firstQuery, sameAsFirstQuery, true);

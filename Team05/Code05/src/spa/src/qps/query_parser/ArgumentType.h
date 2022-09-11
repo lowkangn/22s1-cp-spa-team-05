@@ -5,7 +5,6 @@
 using namespace std;
 
 enum class ArgumentType {
-    PROCEDURE,
     STMT,
     READ,
     PRINT,
@@ -13,6 +12,7 @@ enum class ArgumentType {
     CALL,
     WHILE,
     IF,
+    PROCEDURE,
     VARIABLE,
     CONSTANT,
     LINE_NUMBER,
