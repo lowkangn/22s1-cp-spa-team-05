@@ -10,6 +10,10 @@ public:
 		this->type = ASTNodeType::EXPRESSION;
 	};
 
+	bool isTerminal() {
+		return false;
+	}
+
 	shared_ptr<ASTNode> getLeftHandSide() {
 		// Should be a variable
 		return this->children[0];

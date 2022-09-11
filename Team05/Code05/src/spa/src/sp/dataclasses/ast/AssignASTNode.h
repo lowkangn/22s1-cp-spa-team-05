@@ -8,6 +8,10 @@ public:
 		this->type = ASTNodeType::ASSIGN;
 	}
 
+	bool isTerminal() {
+		return false;
+	}
+
 	shared_ptr<ASTNode> getLeftHandSide() {
 		// LHS is stored in index 0
 		return this->children[0];

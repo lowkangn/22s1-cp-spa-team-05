@@ -16,5 +16,9 @@ public:
 		return this->children[1];
 	}
 
+	bool isTerminal() override {
+		return false;
+	}
+
 	Entity extractEntity() override;
 };

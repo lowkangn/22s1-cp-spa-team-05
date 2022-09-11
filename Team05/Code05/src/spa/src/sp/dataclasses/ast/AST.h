@@ -80,9 +80,7 @@ public:
 	/*
 		Returns true if the ASTNode is terminal else false
 	*/
-	virtual bool isTerminal() {
-		return this->getChildren().size() == 0;
-	};
+	virtual bool isTerminal()  = 0;
 
 	/*
 		Returns an extracted entity from the ASTNode

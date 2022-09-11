@@ -10,6 +10,10 @@ public:
 		this->type = ASTNodeType::READ;
 	};
 
+	bool isTerminal() {
+		return false;
+	}
+
 	shared_ptr<ASTNode> getVariableToRead() {
 		return this->children[0];
 	}

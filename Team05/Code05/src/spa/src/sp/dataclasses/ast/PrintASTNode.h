@@ -10,6 +10,10 @@ public:
 		this->type = ASTNodeType::PRINT;
 	};
 
+	bool isTerminal() {
+		return false;
+	}
+
 	shared_ptr<ASTNode> getVariableToPrintNode() {
 		return this->children[0];
 	}

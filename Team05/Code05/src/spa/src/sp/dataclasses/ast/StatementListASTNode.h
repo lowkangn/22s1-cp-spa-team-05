@@ -9,5 +9,9 @@ public:
 		this->type = ASTNodeType::STMTLIST;
 	}
 
+	bool isTerminal() {
+		return false;
+	}
+
 	Entity extractEntity() override;
 };

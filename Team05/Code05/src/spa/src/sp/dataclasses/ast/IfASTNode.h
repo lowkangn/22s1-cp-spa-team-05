@@ -8,6 +8,10 @@ public:
 		this->type = ASTNodeType::IF;
 	}
 
+	bool isTerminal() {
+		return false;
+	}
+
 	shared_ptr<ASTNode> getCondition() {
 		return this->getChildren()[0];
 	}	
