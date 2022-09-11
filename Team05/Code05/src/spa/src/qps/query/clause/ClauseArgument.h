@@ -82,7 +82,7 @@ public:
 	}
 
     bool isStmtRefNoWildcard() {
-		return isStmtSynonym()
+        return isStmtSynonym()
             || isReadSynonym()
             || isPrintSynonym()
             || isAssignSynonym()
@@ -93,7 +93,7 @@ public:
 	}
 
     bool isEntRefNoWildcard() {
-		return isProcedureSynonym()
+        return isProcedureSynonym()
             || isVariableSynonym()
             || isConstantSynonym()
             || isStringLiteral();
