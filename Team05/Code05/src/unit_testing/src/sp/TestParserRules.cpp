@@ -45,7 +45,7 @@ TEST_CASE("Parser: test ::consumeTokens") {
             while (!remainingTokens.empty()) {
                 Token t1 = remainingTokens.front();
                 Token t2 = expectedTokens.front();
-                REQUIRE(t1.equals(t2));
+                REQUIRE(t1 == t2);
                 remainingTokens.pop_front();
                 expectedTokens.pop_front();
             }

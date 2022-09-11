@@ -28,7 +28,6 @@ TEST_CASE("ParserManager::parse works correctly") {
 		shared_ptr<ASTNode> root = parser.parse();
 
 		// ===== then =====
-		bool check = root->equals(expected);
 		REQUIRE(root->equals(expected));
 	};
 

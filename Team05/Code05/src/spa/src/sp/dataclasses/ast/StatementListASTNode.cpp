@@ -1,6 +1,6 @@
 #include <sp/dataclasses/ast/StatementListASTNode.h>
 
 Entity StatementListASTnode::extractEntity() {
-	Token undefinedToken = Token{ "", TokenType::INVALID };
-	return Entity{ EntityType::UNDEFINED, 1, undefinedToken };
+	Token undefinedToken = Token::getPlaceHolderToken();
+	return Entity{ EntityType::STMTLIST, 1, undefinedToken };
 }

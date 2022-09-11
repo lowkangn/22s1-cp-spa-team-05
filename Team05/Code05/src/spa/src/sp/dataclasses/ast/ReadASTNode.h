@@ -10,5 +10,9 @@ public:
 		this->type = ASTNodeType::READ;
 	};
 
+	shared_ptr<ASTNode> getVariableToRead() {
+		return this->children[0];
+	}
+
 	Entity extractEntity() override;
 };

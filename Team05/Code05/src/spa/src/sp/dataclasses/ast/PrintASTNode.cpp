@@ -3,5 +3,5 @@
 Entity PrintASTNode::extractEntity() {
 	Token token = this->getToken();
 	int lineNumber = this->getLineNumber();
-	return Entity{ EntityType::STMT, lineNumber, token };
+	return Entity{ EntityType::PRINT, lineNumber, token };
 }

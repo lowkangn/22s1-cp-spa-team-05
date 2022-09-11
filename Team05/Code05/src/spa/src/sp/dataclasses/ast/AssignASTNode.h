@@ -8,5 +8,15 @@ public:
 		this->type = ASTNodeType::ASSIGN;
 	}
 
+	shared_ptr<ASTNode> getLeftHandSide() {
+		// LHS is stored in index 0
+		return this->children[0];
+	}
+
+	shared_ptr<ASTNode> getRightHandSide() {
+		// RHS is stored in index 1
+		return this->children[1];
+	}
+
 	Entity extractEntity() override;
 };

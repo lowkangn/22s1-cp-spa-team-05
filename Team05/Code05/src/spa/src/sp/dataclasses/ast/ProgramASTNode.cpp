@@ -1,6 +1,6 @@
 #include <sp/dataclasses/ast/ProgramASTNode.h>
 
 Entity ProgramASTNode::extractEntity() {
-	Token undefinedToken = Token{ "", TokenType::INVALID };
-	return Entity{ EntityType::UNDEFINED, -1, undefinedToken };
+	Token undefinedToken = Token::getPlaceHolderToken();
+	return Entity{ EntityType::PROGRAM, -1, undefinedToken };
 }

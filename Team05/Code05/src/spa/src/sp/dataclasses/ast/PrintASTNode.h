@@ -10,5 +10,9 @@ public:
 		this->type = ASTNodeType::PRINT;
 	};
 
+	shared_ptr<ASTNode> getVariableToPrintNode() {
+		return this->children[0];
+	}
+
 	Entity extractEntity() override;
 };

@@ -12,7 +12,7 @@ using namespace std;
 /*
 	Enumeration of possible entity types.
 */
-enum class EntityType {PROGRAM, PROCEDURE, STMTLIST, STMT, VARIABLE, CONSTANT, LINENUMBER, UNDEFINED};
+enum class EntityType { PROGRAM, PROCEDURE, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT, EXPRESSION, LINENUMBER };
 
 class EntityIdentifier {
 private:
@@ -31,7 +31,7 @@ public:
     }
 
 	bool equals(EntityIdentifier& other) {
-		return this->token.equals(token) && this->asString == other.asString;
+		return this->token == token && this->asString == other.asString;
 	}
 };
 

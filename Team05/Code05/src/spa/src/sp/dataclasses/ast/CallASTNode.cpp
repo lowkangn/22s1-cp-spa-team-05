@@ -3,5 +3,5 @@
 Entity CallASTNode::extractEntity() {
 	Token callToken = this->getToken();
 	int lineNumber = this->getLineNumber();
-	return Entity{ EntityType::STMT, lineNumber, callToken };
+	return Entity{ EntityType::CALL, lineNumber, callToken };
 }

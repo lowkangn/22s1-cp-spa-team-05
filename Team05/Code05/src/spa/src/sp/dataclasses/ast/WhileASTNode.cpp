@@ -3,5 +3,5 @@
 Entity WhileASTNode::extractEntity() {
 	Token whileToken = this->getToken();
 	int lineNumber = this->getLineNumber();
-	return Entity{ EntityType::STMT, lineNumber, whileToken };
+	return Entity{ EntityType::WHILE, lineNumber, whileToken };
 }

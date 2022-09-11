@@ -45,16 +45,6 @@ public:
 	}
 
 	/*
-		Traverses the entire AST Tree and extracts all the relations
-	*/
-	void extractAll();
-
-	/*
-		Stores all the Relationships, Entities, Patterns into the PKB
-	*/
-	void storeAllRelations(shared_ptr<PKBUpdateHandler> pkb);
-
-	/*
 		Extracts all the Relationships from the AST
 	*/
 	vector<Relationship> extractRelationships(shared_ptr<ASTNode> ast);

@@ -15,8 +15,8 @@ vector<Entity> EntityExtractor::extract(shared_ptr<ASTNode> ast) {
 	
 	Entity toAdd = ast->extractEntity();
 
-	// Add Current node as an entity
-	if (toAdd.getType() != EntityType::UNDEFINED) {
+	// Only add Entities, Program and Stmtlist containers by themselves (nor do they contain line numbers) are not entities
+	if (!(toAdd.getType() == EntityType::PROGRAM || toAdd.getType() == EntityType::STMTLIST)) {
 		entities.push_back(toAdd);
 	}
 
@@ -24,11 +24,11 @@ vector<Entity> EntityExtractor::extract(shared_ptr<ASTNode> ast) {
 	if (!ast->isTerminal()) {
 		vector<shared_ptr<ASTNode>> children = ast->getChildren();
 		vector<Entity> extractedEntities;
-		// If an entity was extracted from the current node, we can skip the first child
-		// as it has already been extracted
+
 		for (int i = 0; i < children.size(); i++) {
 			shared_ptr<ASTNode> child = children[i];
 			extractedEntities = this->extract(child);
+			// Appending a vector to a vector https://stackoverflow.com/questions/2551775/appending-a-vector-to-a-vector
 			entities.insert(entities.end(), extractedEntities.begin(), extractedEntities.end());
 		}
 	}

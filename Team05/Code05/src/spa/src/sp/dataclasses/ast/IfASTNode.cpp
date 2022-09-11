@@ -4,5 +4,5 @@ Entity IfASTNode::extractEntity() {
 	Token ifToken = this->getToken();
 	int lineNumber = this->getLineNumber();
 
-	return Entity{ EntityType::STMT, lineNumber, ifToken };
+	return Entity{ EntityType::IF, lineNumber, ifToken };
 }

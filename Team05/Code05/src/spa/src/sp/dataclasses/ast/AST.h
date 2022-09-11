@@ -7,19 +7,18 @@
 #include <sp/dataclasses/design_objects/Entity.h>
 using namespace std;
 
-const int LEFT_CHILD = 0;
-const int RIGHT_CHILD = 1;
+// Default line number is -1 (For validation purposes)
+const int DEAFULT_LINE_NUMBER = -1;
 
-enum class ASTNodeType { PROGRAM, PROCEDURE, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT, EXPRESSION, UNDEFINED };
+enum class ASTNodeType { PROGRAM, PROCEDURE, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT, EXPRESSION };
 
 class ASTNode {
 
 private:
-	// Default line number is -1 (For validation purposes)
-	int lineNumber = -1;
+	int lineNumber = DEAFULT_LINE_NUMBER;
 	// Default is UNDEFINED
 protected:
-	ASTNodeType type = ASTNodeType::UNDEFINED;
+	ASTNodeType type;
 	Token token;
 	vector<shared_ptr<ASTNode>> children;
 public:
@@ -76,7 +75,7 @@ public:
 	/*
 		Checks if one node is equal to the other
 	*/
-	bool equals(shared_ptr<ASTNode> other);
+	bool equals(const shared_ptr<ASTNode> other) const;
 
 	/*
 		Returns true if the ASTNode is terminal else false

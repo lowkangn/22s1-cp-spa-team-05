@@ -3,5 +3,5 @@
 Entity AssignASTNode::extractEntity() {
 	Token assignToken = this->getToken();
 	int lineNumber = this->getLineNumber();
-	return Entity{ EntityType::STMT, lineNumber, assignToken };
+	return Entity{ EntityType::ASSIGN, lineNumber, assignToken };
 }

@@ -1,9 +1,8 @@
 #include "catch.hpp"
 #include <pkb/pkb_object/PKB.h>
-#include <pkb/pkb_object/PKB.cpp>
 #include <pkb/interfaces/PKBUpdateHandler.h>
 
-
+/*
 TEST_CASE("PKB: test add entity") {
 
 	auto testAddEntity = [](EntityPkbTableManager entityManagerPkb,
@@ -16,22 +15,26 @@ TEST_CASE("PKB: test add entity") {
 			for (auto& entity : entities) {
 				// convert entity to PkbEntity
 				int id;
-				if (entity.getType() == EntityType::STMT) {
+				EntityType entityType = entity.getType();
+				PkbEntity pkbEntity;
+				switch (entityType) {
+				case EntityType::READ:
+				case EntityType::ASSIGN:
+				case EntityType::CALL:
+				case EntityType::WHILE:
+				case EntityType::IF:
 					int line = entity.getLine();
-					PkbEntity pkbEntity = PkbEntity::generateStatement(entity.toString(), line);
-					id = entityManagerPkb.add(pkbEntity);
-					expectedResult.push_back(id);
+					pkbEntity = PkbEntity::generateStatement(entity.toString(), line);
+					break;
+				default:
+					pkbEntity = PkbEntity::generateVariable(entity.toString());
 				}
-				else {
-					PkbEntity pkbEntity = PkbEntity::generateVariable(entity.toString());
-					id = entityManagerPkb.add(pkbEntity);
-					expectedResult.push_back(id);
-				}
-				
+				id = entityManagerPkb.add(pkbEntity);
+				expectedResult.push_back(id);
+
 			};
 
-
-			REQUIRE(actualResult.size() == expectedResult.size());
+			REQUIRE(actualResult.size() == expectedResult.size());s
 
 			for (int i = 0; i < entities.size(); i++) {
 				REQUIRE(actualResult[i] == expectedResult[i]);
@@ -49,11 +52,7 @@ TEST_CASE("PKB: test add entity") {
 
 	Token tokenStmtX = Token("read x", TokenType::OPERATOR);
 	EntityIdentifier identifierStmtX = EntityIdentifier(tokenStmtX, "read x");
-	Entity entityStmtX = Entity(EntityType::STMT, 4, tokenStmtX);
-
-	Token tokenStmtY = Token("y = y + 1", TokenType::OPERATOR);
-	EntityIdentifier identifierStmtY = EntityIdentifier(tokenStmtY, "read x");
-	Entity entityStmtY = Entity(EntityType::STMT, 4, tokenStmtY);
+	Entity entityStmtX = Entity(EntityType::READ, 4, tokenStmtX);
 
 	/*
 	SECTION("Test single entity") {
@@ -68,8 +67,9 @@ TEST_CASE("PKB: test add entity") {
 	SECTION("Test combination of statements and entities") {
 		testAddEntity(entityManager, { entityStmtX, entityStmtY, entityX, entityY }, *ProgramKnowledgeBase::getInstance());
 	}
-	*/
 }
+*/
+
 
 TEST_CASE("PKB Add Modifies Relationships") {
 	auto testAddRelationship = [](EntityPkbTableManager entityManager,
@@ -85,10 +85,16 @@ TEST_CASE("PKB Add Modifies Relationships") {
 				int lhsPkbEntityId;
 				Entity lhs = relationships[i].getEntities()[0];
 				Entity rhs = relationships[i].getEntities()[1];
-				if (lhs.getType() == EntityType::STMT) {
+				EntityType lhsType = lhs.getType();
+				switch (lhsType) {
+				case EntityType::READ:
+				case EntityType::ASSIGN:
+				case EntityType::CALL:
+				case EntityType::WHILE:
+				case EntityType::IF:
 					lhsPkbEntityId = entityManager.add(PkbEntity::generateStatement(lhs.toString(), lhs.getLine()));
-				}
-				else {
+					break;
+				default:
 					lhsPkbEntityId = entityManager.add(PkbEntity::generateVariable(lhs.toString()));
 				}
 				int rhsPkbEntityId = entityManager.add(PkbEntity::generateVariable(rhs.toString()));
@@ -101,7 +107,7 @@ TEST_CASE("PKB Add Modifies Relationships") {
 
 	Token tokenStmtX = Token("read x", TokenType::OPERATOR);
 	EntityIdentifier identifierStmtX = EntityIdentifier(tokenStmtX, "read x");
-	Entity entityStmtX = Entity(EntityType::STMT, 4, tokenStmtX);
+	Entity entityStmtX = Entity(EntityType::READ, 4, tokenStmtX);
 
 	Token tokenX = Token("x", TokenType::NAME_OR_KEYWORD);
 	EntityIdentifier identifierX = EntityIdentifier(tokenX, "x");
@@ -109,7 +115,7 @@ TEST_CASE("PKB Add Modifies Relationships") {
 
 	Token tokenStmtY = Token("read Y", TokenType::OPERATOR);
 	EntityIdentifier identifierStmtY = EntityIdentifier(tokenStmtY, "read Y");
-	Entity entityStmtY = Entity(EntityType::STMT, 4, tokenStmtY);
+	Entity entityStmtY = Entity(EntityType::READ, 4, tokenStmtY);
 
 	Token tokenY = Token("Y", TokenType::NAME_OR_KEYWORD);
 	EntityIdentifier identifierY = EntityIdentifier(tokenY, "Y");
