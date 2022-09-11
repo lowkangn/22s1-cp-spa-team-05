@@ -18,8 +18,11 @@ public:
         constraintClauses = constraints;
     }
 
-    /* Returns the results obtained from each of this query's clauses. */
-    pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> execute();
+    /* Returns the results obtained from the query's SelectClause. */
+    shared_ptr<ClauseResult> executeSelect();
+
+	/* Returns the results obtained from the query's SuchThat clauses. */
+	list<shared_ptr<ClauseResult>> executeSuchThat();
 
 	friend bool operator==(Query first, Query second);
 };

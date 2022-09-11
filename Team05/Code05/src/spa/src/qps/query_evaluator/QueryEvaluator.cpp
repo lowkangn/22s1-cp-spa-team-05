@@ -1,10 +1,11 @@
 #include <set>
 #include "QueryEvaluator.h"
 
-set<string> QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results) {
+set<string> QueryEvaluator::combine(shared_ptr<ClauseResult> entitiesResultPointer,
+									list<shared_ptr<ClauseResult>> relationshipsResultPointers) {
 
-    EntityClauseResult entitiesResult = dereference(results.first);
-    list<RelationshipClauseResult> relationshipsResults = dereference(results.second);
+    EntityClauseResult entitiesResult = dereference(entitiesResultPointer);
+    list<RelationshipClauseResult> relationshipsResults = dereference(relationshipsResultPointers);
 
     // If result from SelectClause returns no entries, return empty set
     if (entitiesResult.isEmpty()) {
@@ -67,6 +68,7 @@ set<string> QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_p
 }
 
 set<string> QueryEvaluator::evaluate(Query query) {
-    pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results = query.execute();
-	return combine(results);
+    shared_ptr<ClauseResult> entitiesResultPointer = query.executeSelect();
+	list<shared_ptr<ClauseResult>> relationshipsResultPointers = query.executeSuchThat();
+	return combine(entitiesResultPointer, relationshipsResultPointers);
 }

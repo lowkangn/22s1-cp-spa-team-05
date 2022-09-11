@@ -61,12 +61,12 @@ private:
         return setToReturn;
     }
 
-    set<PQLEntity> intersectSets(set<PQLEntity> currentSet, set<PQLEntity> setToIntersect) {
-        set<PQLEntity> temp;
-        set_intersection(currentSet.begin(), currentSet.end(),
-                         setToIntersect.begin(), setToIntersect.end(),
-                         inserter(temp, temp.begin()));
-        return temp;
+    set<PQLEntity> intersectSets(set<PQLEntity> firstSet, set<PQLEntity> secondSet) {
+        set<PQLEntity> combined;
+        set_intersection(firstSet.begin(), firstSet.end(),
+						 secondSet.begin(), secondSet.end(),
+                         inserter(combined, combined.begin()));
+        return combined;
     }
 public:
     QueryEvaluator() {};
@@ -75,6 +75,7 @@ public:
 	set<string> evaluate(Query query);
 
 	/* Combines the results from the clauses of a query */
-    set<string> combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>);
+    set<string> combine(shared_ptr<ClauseResult> entitiesResultPointer,
+						list<shared_ptr<ClauseResult>> relationshipsResultPointers);
 
 };

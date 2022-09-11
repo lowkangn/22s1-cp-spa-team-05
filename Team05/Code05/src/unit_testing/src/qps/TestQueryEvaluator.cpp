@@ -7,13 +7,13 @@ using namespace std;
 // =============== UNIT TESTS ====================
 
 TEST_CASE("QueryEvaluator: test combine") {
-auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results,
-                                         set<string> expected) {
+auto testCombine = [](shared_ptr<ClauseResult> entitiesResultPointer,
+		list<shared_ptr<ClauseResult>> relationshipsResultPointers, set<string> expected) {
     // given
     QueryEvaluator evaluator = QueryEvaluator();
 
     // when
-    set<string> actual = evaluator.combine(results);
+    set<string> actual = evaluator.combine(entitiesResultPointer, relationshipsResultPointers);
 
     // then
     REQUIRE(actual == expected);
@@ -27,14 +27,11 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
         shared_ptr<ClauseResult> entityClauseResultWithVariable = shared_ptr<ClauseResult>(new EntityClauseResult(
                 variableArg,vector<PQLEntity>{varEntity}));
 
-        pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> combineInput = {
-                entityClauseResultWithVariable,
-                list<shared_ptr<ClauseResult>>{}
-        };
-
         set<string> expectedSet = set<string>{"x"};
 
-        testCombine(combineInput, expectedSet);
+        testCombine(entityClauseResultWithVariable,
+					list<shared_ptr<ClauseResult>>{},
+					expectedSet);
 
         // x = x + 1; constant c; Select c
         ClauseArgument constantArg = ClauseArgument("c", ArgumentType::CONSTANT);
@@ -42,28 +39,22 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
         shared_ptr<ClauseResult> entityClauseResultWithConstant = shared_ptr<ClauseResult>(new EntityClauseResult(
                 constantArg,vector<PQLEntity>{constEntity}));
 
-        combineInput = {
-                entityClauseResultWithConstant,
-                list<shared_ptr<ClauseResult>>{}
-        };
-
         expectedSet = set<string>{"1"};
 
-        testCombine(combineInput, expectedSet);
+        testCombine(entityClauseResultWithConstant,
+					list<shared_ptr<ClauseResult>>{},
+					expectedSet);
 
         // x = x + 1; procedure p; Select p
         ClauseArgument procArg = ClauseArgument("p", ArgumentType::PROCEDURE);
         shared_ptr<ClauseResult> entityClauseResultWithProcedure = shared_ptr<ClauseResult>(new EntityClauseResult(
                 procArg,vector<PQLEntity>{}));
 
-        combineInput = {
-                entityClauseResultWithProcedure,
-                list<shared_ptr<ClauseResult>>{}
-        };
-
         expectedSet = set<string>{};
 
-        testCombine(combineInput, expectedSet);
+        testCombine(entityClauseResultWithProcedure,
+					list<shared_ptr<ClauseResult>>{},
+					expectedSet);
     }
 
     SECTION("SelectClause with ModifiesSClause") {
@@ -90,27 +81,22 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
                 varArg,
                 vector<PQLRelationship>{relationship1, relationship2}));
 
-        pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> combineInput = {
-                assignEntityClauseResult,
-                list<shared_ptr<ClauseResult>>{assignAndVarRelationshipClauseResult}
-        };
-
         set<string> expectedSet = set<string>{"1", "2"};
 
         // x = x + 1; y = y + 1; assign a; variable v; Select a such that Modifies(a,v)
-        testCombine(combineInput, expectedSet);
+        testCombine(assignEntityClauseResult,
+					list<shared_ptr<ClauseResult>>{assignAndVarRelationshipClauseResult},
+					expectedSet);
 
         // x = x + 1; y = y + 1; assign a; variable v; Select v such that Modifies(a,v)
         shared_ptr<ClauseResult> varEntityClauseResult = shared_ptr<ClauseResult>(new EntityClauseResult(
                 varArg, varEntities));
 
-        combineInput = {
-                varEntityClauseResult,
-                list<shared_ptr<ClauseResult>>{assignAndVarRelationshipClauseResult}
-        };
         expectedSet = set<string>{"x", "y"};
 
-        testCombine(combineInput, expectedSet);
+        testCombine(varEntityClauseResult,
+					list<shared_ptr<ClauseResult>>{assignAndVarRelationshipClauseResult},
+					expectedSet);
     }
 
 }
