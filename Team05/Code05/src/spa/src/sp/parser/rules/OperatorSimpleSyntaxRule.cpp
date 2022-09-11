@@ -24,8 +24,8 @@ list<Token> OperatorSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	Token token = tokens.front();
 	tokens.pop_front();
 
-	// token should be a integer token
-	if (!token.isOperatorToken()) {
+	// token should be a operator token
+	if (!token.isOperatorToken() || !token.isRelationalOperator()) {
 		throw SimpleSyntaxParserException(string("Token should be an operator, but was: ") + token.getString());
 	}
 

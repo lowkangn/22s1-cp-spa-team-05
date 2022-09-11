@@ -31,6 +31,8 @@ const string PRINT_KEYWORD = "print";
 // delimiters
 const string OPEN_CURLY_BRACKET = "{";
 const string CLOSED_CURLY_BRACKET = "}";
+const string CLOSED_BRACKET = ")";
+const string OPEN_BRACKET = "(";
 const string SEMI_COLON = ";";
 
 // operators
@@ -48,6 +50,12 @@ const string LESSER_OPERATOR = "<";
 const string LESSER_THAN_EQUAL_OPERATOR = "<=";
 const string EQUALITY_OPERATOR = "==";
 const string NOT_EQUAL_OPERATOR = "!=";
+
+// Conditional operators
+const string NOT = "!";
+const string AND = "&&";
+const string OR = "||";
+
 
 
 /*
@@ -126,7 +134,7 @@ public:
 	}
 
 	// ===== Delimiter identifier ======
-	/* Checks if the token is an open bracket. */
+	/* Checks if the token is an open curly bracket. */
 	bool isOpenCurlyBracketToken() {
 		return (this->type == TokenType::DELIMITER) && (this->s == OPEN_CURLY_BRACKET);
 	}
@@ -134,6 +142,16 @@ public:
 	/* Checks if the token is a closed curly bracket.*/
 	bool isClosedCurlyBracketToken() {
 		return (this->type == TokenType::DELIMITER) && (this->s == CLOSED_CURLY_BRACKET);
+	}	
+
+	/* Checks if the token is an open bracket. */
+	bool isOpenBracketToken() {
+		return (this->type == TokenType::DELIMITER) && (this->s == OPEN_BRACKET);
+	}
+
+	/* Checks if the token is a closed bracket.*/
+	bool isClosedBracketToken() {
+		return (this->type == TokenType::DELIMITER) && (this->s == CLOSED_BRACKET);
 	}
 
 	/* Checks if the token is a closed curly bracket.*/
@@ -206,5 +224,22 @@ public:
 			|| this->isEqualityToken()
 			|| this->isNotEqualToken()
 			);
+	}
+
+	bool isNotOperator() {
+		return (this->type == TokenType::OPERATOR) && (this->s == NOT);
+	}
+
+	bool isAndOperator() {
+		return (this->type == TokenType::OPERATOR) && (this->s == AND);
+	}
+
+	bool isOrOperator() {
+		return (this->type == TokenType::OPERATOR) && (this->s == OR);
+	}
+
+	bool isConditionalOperator() {
+		return (this->isAndOperator()
+			|| this->isOrOperator());
 	}
 };

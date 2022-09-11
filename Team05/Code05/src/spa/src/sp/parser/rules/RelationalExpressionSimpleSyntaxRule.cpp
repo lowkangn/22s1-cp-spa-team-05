@@ -66,6 +66,11 @@ shared_ptr<ASTNode> RelationalExpressionSimpleSyntaxRule::constructNode() {
 		throw SimpleSyntaxParserException("Node is not initialized!");
 	}
 
+	// generate if needed
+	if (!this->generated) {
+		this->childRules = this->generateChildRules();
+	}
+
 	// create current node
 	Token lhsToken = this->tokens.front();
 	this->tokens.pop_front();
