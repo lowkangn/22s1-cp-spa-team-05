@@ -376,37 +376,44 @@ TEST_CASE("QPSTokenizer: test tokenize works correctly") {
     };
 
     SECTION("short input") {
-        test("variable v1; Select v1", list<PQLToken>{
-                PQLToken("variable", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME)
-        });
+        string testString = "variable v1; Select v1";
+
+        list<PQLToken> expectedTokensList = list<PQLToken>{
+            PQLToken("variable", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME)
+        };
+
+        test(testString, expectedTokensList);
     }
 
     SECTION("long input with spaces") {
-        test("stmt c; variable \t\tt \t, v1; \n Select t such \n\t that Modifies(c, v1)", list<PQLToken>{
-            PQLToken("stmt", PQLTokenType::NAME),
-                PQLToken("c", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("variable", PQLTokenType::NAME),
-                PQLToken("t", PQLTokenType::NAME),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("t", PQLTokenType::NAME),
-                PQLToken("such", PQLTokenType::NAME),
-                PQLToken("that", PQLTokenType::NAME),
-                PQLToken("Modifies", PQLTokenType::NAME),
-                PQLToken("(", PQLTokenType::DELIMITER),
-                PQLToken("c", PQLTokenType::NAME),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(")", PQLTokenType::DELIMITER),
+        string testString = "stmt c; variable \t\tt \t, v1; \n Select t such \n\t that Modifies(c, v1)";
 
-        });
+        list<PQLToken> expectedTokensList = list<PQLToken>{
+            PQLToken("stmt", PQLTokenType::NAME),
+            PQLToken("c", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("variable", PQLTokenType::NAME),
+            PQLToken("t", PQLTokenType::NAME),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("t", PQLTokenType::NAME),
+            PQLToken("such", PQLTokenType::NAME),
+            PQLToken("that", PQLTokenType::NAME),
+            PQLToken("Modifies", PQLTokenType::NAME),
+            PQLToken("(", PQLTokenType::DELIMITER),
+            PQLToken("c", PQLTokenType::NAME),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(")", PQLTokenType::DELIMITER)
+        };
+
+        test(testString, expectedTokensList);
     }
 
 }

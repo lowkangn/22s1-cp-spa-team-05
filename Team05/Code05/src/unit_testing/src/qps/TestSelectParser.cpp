@@ -25,19 +25,28 @@ TEST_CASE("SelectParser: test parseNoError") {
             REQUIRE(expected.equals(actualPtr.get()));
     };
 
-    SelectClause expected = SelectClause(ClauseArgument("v1", ArgumentType::VARIABLE));
-    testParseNoError(list<PQLToken>{
+    list<PQLToken> tokens = list<PQLToken>{
             PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME)},
-            unordered_map<string, ArgumentType>{ {"v1", ArgumentType::VARIABLE}},
-            expected);
+            PQLToken("v1", PQLTokenType::NAME)
+    };
 
-    expected = SelectClause(ClauseArgument("abcdefgLongName", ArgumentType::CONSTANT));
-    testParseNoError(list<PQLToken>{
+    unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
+        {"v1", ArgumentType::VARIABLE}
+    };
+
+    SelectClause expected = SelectClause(ClauseArgument("v1", ArgumentType::VARIABLE));
+
+    testParseNoError(tokens, declarations, expected);
+
+    tokens = list<PQLToken>{
         PQLToken("Select", PQLTokenType::NAME),
-            PQLToken("abcdefgLongName", PQLTokenType::NAME)},
-        unordered_map<string, ArgumentType>{ {"abcdefgLongName", ArgumentType::CONSTANT}},
-            expected);
+        PQLToken("abcdefgLongName", PQLTokenType::NAME)
+    };
+
+    declarations = unordered_map<string, ArgumentType>{{"abcdefgLongName", ArgumentType::CONSTANT}};
+    expected = SelectClause(ClauseArgument("abcdefgLongName", ArgumentType::CONSTANT));
+
+    testParseNoError(tokens, declarations, expected);
 }
 
 TEST_CASE("SelectParser: test parseWithError") {
@@ -51,29 +60,54 @@ TEST_CASE("SelectParser: test parseWithError") {
     };
 
     SECTION("Undeclared / mispelled synonym") {
-        testParseWithError(list<PQLToken>{
+        list<PQLToken> tokens = list<PQLToken>{
             PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME)},
-            unordered_map<string, ArgumentType>{ {"v2", ArgumentType::VARIABLE}});
-        testParseWithError(list<PQLToken>{
+            PQLToken("v1", PQLTokenType::NAME)
+        };
+
+        unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
+            {"v2", ArgumentType::VARIABLE}
+        };
+
+        testParseWithError(tokens, declarations);
+
+        tokens = list<PQLToken>{
             PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("abcdefgLongName", PQLTokenType::NAME)},
-            unordered_map<string, ArgumentType>{
-                {"v1", ArgumentType::VARIABLE}, {"v2", ArgumentType::CONSTANT}});
+            PQLToken("abcdefgLongName", PQLTokenType::NAME)
+        };
+
+        declarations = unordered_map<string, ArgumentType>{
+            {"v1", ArgumentType::VARIABLE},
+            {"v2", ArgumentType::CONSTANT}
+        };
+
+        testParseWithError(tokens, declarations);
     }
     
     SECTION("Selecting non-synonyms") {
-        testParseWithError(list<PQLToken>{
+        list<PQLToken> tokens = list<PQLToken>{
             PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("\"", PQLTokenType::DELIMITER),
-                PQLToken("main", PQLTokenType::NAME),
-                PQLToken("\"", PQLTokenType::DELIMITER)},
-            unordered_map<string, ArgumentType>{ {"v2", ArgumentType::VARIABLE}});
+            PQLToken("\"", PQLTokenType::DELIMITER),
+            PQLToken("main", PQLTokenType::NAME),
+            PQLToken("\"", PQLTokenType::DELIMITER)
+        };
 
-        testParseWithError(list<PQLToken>{
+        unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
+            {"v2", ArgumentType::VARIABLE}
+        };
+
+        testParseWithError(tokens, declarations);
+
+        tokens = list<PQLToken>{
             PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("1", PQLTokenType::INTEGER)},
-            unordered_map<string, ArgumentType>{
-                {"v1", ArgumentType::VARIABLE}, { "v2", ArgumentType::CONSTANT }});
+            PQLToken("1", PQLTokenType::INTEGER)
+        };
+
+        declarations = unordered_map<string, ArgumentType>{
+            {"v1", ArgumentType::VARIABLE},
+            {"v2", ArgumentType::CONSTANT}
+        };
+
+        testParseWithError(tokens, declarations);
     }
 }

@@ -88,7 +88,7 @@ public:
             || isCallSynonym()
             || isWhileSynonym()
             || isIfSynonym()
-			|| isLineNumber();
+            || isLineNumber();
 	}
 
 	bool isEntRefNoWildcard() {
