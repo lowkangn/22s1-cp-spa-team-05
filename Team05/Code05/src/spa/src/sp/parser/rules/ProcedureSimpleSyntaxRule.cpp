@@ -10,7 +10,7 @@
 #include <list>
 using namespace std;
 
-const int PROCEDURE_NAME = 0;
+const int PROCEDURE = 0;
 const int STMT_LST = 1;
 
 vector<shared_ptr<SimpleSyntaxRule>> ProcedureSimpleSyntaxRule::generateChildRules() {
@@ -103,7 +103,7 @@ shared_ptr<ASTNode> ProcedureSimpleSyntaxRule::constructNode() {
 	}
 
 	// create current node
-	shared_ptr<ASTNode> procedureNameNode = this->childRules[PROCEDURE_NAME]->constructNode();
+	shared_ptr<ASTNode> procedureNameNode = this->childRules[PROCEDURE]->constructNode();
 	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameNode->getToken()));
 
 	// create stmtlst node

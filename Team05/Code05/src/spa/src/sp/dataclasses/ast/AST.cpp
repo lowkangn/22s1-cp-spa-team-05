@@ -21,7 +21,7 @@ bool ASTNode::equals(const shared_ptr<ASTNode> other) const {
 	for (int i = 0; i < this->children.size(); i++) {
 		shared_ptr<ASTNode> child = this->children[i];
 		shared_ptr<ASTNode> otherChild = other->getChildren()[i];
-		if (!(child == otherChild)) {
+		if (!(child->equals(otherChild))) {
 			return false;
 		}
 	}
