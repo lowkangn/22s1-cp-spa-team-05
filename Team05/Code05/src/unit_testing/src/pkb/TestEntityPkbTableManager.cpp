@@ -115,29 +115,29 @@ TEST_CASE("EntityPkbTableManager: test clearDataBase") {
 }
 
 TEST_CASE("EntityPkbTableManager: test findStatement") {
-        auto testFindStatement = [](int lineNumber, int expectedResult) {
+		auto testFindStatement = [](int lineNumber, int expectedResult) {
 
-                EntityPkbTableManager entityManager = EntityPkbTableManager();
+				EntityPkbTableManager entityManager = EntityPkbTableManager();
+				
+				entityManager.add(PkbEntity::generateStatement("x = x + 1;", 8));
+				entityManager.add(PkbEntity::generateVariable("a"));
+				entityManager.add(PkbEntity::generateVariable("b"));
+				entityManager.add(PkbEntity::generateStatement("read x", 1));
+				entityManager.add(PkbEntity::generateStatement("read y", 4));
 
-                entityManager.add(PkbEntity::generateStatement("x = x + 1;", 8));
-                entityManager.add(PkbEntity::generateVariable("a"));
-                entityManager.add(PkbEntity::generateVariable("b"));
-                entityManager.add(PkbEntity::generateStatement("read x", 1));
-                entityManager.add(PkbEntity::generateStatement("read y", 4));
+				REQUIRE(entityManager.findStatement(lineNumber) == expectedResult);
+		};
 
-                REQUIRE(entityManager.findStatement(lineNumber) == expectedResult);
-        };
+		SECTION("Valid line number") {
+				testFindStatement(1, 3);
+				testFindStatement(4, 4);
+				testFindStatement(8, 0);
+		}
 
-        SECTION("Valid line number") {
-                testFindStatement(1, 3);
-                testFindStatement(4, 4);
-                testFindStatement(8, 0);
-        }
-
-        SECTION("Invalid line number") {
-                testFindStatement(2, -1);
-                testFindStatement(3, -1);
-        }
+		SECTION("Invalid line number") {
+				testFindStatement(2, -1);
+				testFindStatement(3, -1);
+		}
 }
 
 TEST_CASE("EntityPkbTableManager: test findVariableByString") {
