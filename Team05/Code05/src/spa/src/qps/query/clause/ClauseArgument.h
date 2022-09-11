@@ -2,6 +2,7 @@
 
 #include <string>
 #include <qps/query_parser/ArgumentType.h>
+#include <qps/exceptions/PQLError.h>
 
 using namespace std;
 
@@ -97,6 +98,20 @@ public:
 			|| isConstantSynonym()
 			|| isStringLiteral();
 	}
+
+    int getLineNumber() {
+        if (!this->isLineNumber()) {
+            throw PQLError("Trying to get line number, but clause argument is not!");
+        }
+        return stoi(this->identifier);
+    }
+
+    string getIdentifier() {
+        if (this->isLineNumber()) {
+            throw PQLError("Trying to get identifier, but clause argument is a line number!");
+        }
+        return this->identifier;
+    }
 
 	friend bool operator== (ClauseArgument first, ClauseArgument second);
 };
