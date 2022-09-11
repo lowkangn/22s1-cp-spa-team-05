@@ -9,10 +9,14 @@ public:
 	}
 
 	shared_ptr<ASTNode> getCondition() {
+		// Ensure While node only has 2 children
+		assert(this->getChildren().size() == 2);
 		return this->children[0];
 	}
 
 	shared_ptr<ASTNode> getStmtList() {
+		// Ensure While node only has 2 children
+		assert(this->getChildren().size() == 2);
 		return this->children[1];
 	}
 

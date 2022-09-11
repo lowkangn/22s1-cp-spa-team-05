@@ -21,19 +21,20 @@
 
 TEST_CASE("DesignExtractor: test : extractEntity()") {
 	auto test = [](shared_ptr<ASTNode> nodeToExtractFrom, vector<Entity> expectedEntity) {
-
+		//Given
 		shared_ptr<EntityExtractor> entityExtractor(new EntityExtractor());
 		shared_ptr<PatternExtractor> patternExtractor(new PatternExtractor());
-
 		shared_ptr<Extractor<Relationship>> modifiesExtractor = shared_ptr<Extractor<Relationship>>(new ModifiesExtractor());
-
 		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor };
 
 		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, relationExtractors);
+
 		extractor.setRootNode(nodeToExtractFrom);
 
+		// When
 		vector<Entity> entities = extractor.extractEntities(nodeToExtractFrom);
 
+		// Then
 		REQUIRE(entities.size() == expectedEntity.size());
 
 		for (int i = 0; i < entities.size(); i++) {
@@ -47,7 +48,7 @@ TEST_CASE("DesignExtractor: test : extractEntity()") {
 		2.	x = 1;
 		}
 	*/
-
+	// Creating tokens
 	Token programToken = Token{ PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD };
 	Token procedureToken = Token{ PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD };
 	Token procedureNameToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
@@ -58,6 +59,7 @@ TEST_CASE("DesignExtractor: test : extractEntity()") {
 	Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
 	Token assignToken = Token(EQUAL_OPERATOR, TokenType::OPERATOR);
 
+	// Creating nodes
 	shared_ptr<ASTNode> nodeToExtractFrom(new ProgramASTNode(programToken));
 
 	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
@@ -100,6 +102,7 @@ TEST_CASE("DesignExtractor: test : extractEntity()") {
 
 	nodeToExtractFrom->addChild(procedureNode);
 
+	// Creating relationships
 	vector<Entity> expectedEntities = vector<Entity>{ procedureEntity, readEntity, yEntity, assignEntity, xEntity, constantEntity };
 
 	test(nodeToExtractFrom, expectedEntities);
@@ -107,19 +110,19 @@ TEST_CASE("DesignExtractor: test : extractEntity()") {
 
 TEST_CASE("DesignExtractor: test : extractRelationships()") {
 	auto test = [](shared_ptr<ASTNode> nodeToExtractFrom, vector<Relationship> expectedRelationship) {
-
+		// Given
 		shared_ptr<EntityExtractor> entityExtractor(new EntityExtractor());
 		shared_ptr<PatternExtractor> patternExtractor(new PatternExtractor());
-
 		shared_ptr<Extractor<Relationship>> modifiesExtractor = shared_ptr<Extractor<Relationship>>(new ModifiesExtractor());
-
 		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor };
-
+		
 		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, relationExtractors);
 		extractor.setRootNode(nodeToExtractFrom);
 
+		// When
 		vector<Relationship> relationships = extractor.extractRelationships(nodeToExtractFrom);
 
+		// Then
 		REQUIRE(relationships.size() == expectedRelationship.size());
 
 		for (int i = 0; i < relationships.size(); i++) {
@@ -134,6 +137,7 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 		}
 	*/
 
+	// Creating tokens
 	Token programToken = Token{ PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD };
 	Token procedureToken = Token{ PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD };
 	Token procedureNameToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
@@ -144,6 +148,7 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 	Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
 	Token assignToken = Token(EQUAL_OPERATOR, TokenType::OPERATOR);
 
+	// Creating nodes
 	shared_ptr<ASTNode> nodeToExtractFrom(new ProgramASTNode(programToken));
 
 	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
@@ -186,6 +191,7 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 
 	nodeToExtractFrom->addChild(procedureNode);
 	
+	// Creating relationships
 	Relationship procedureModifiesy = Relationship(procedureEntity, yEntity, RelationshipType::MODIFIES);
 	Relationship procedureModifiesx = Relationship(procedureEntity, xEntity, RelationshipType::MODIFIES);
 

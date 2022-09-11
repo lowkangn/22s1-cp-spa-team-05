@@ -12,59 +12,42 @@ using namespace std;
 /*
 	Enumeration of possible entity types.
 */
-enum class EntityType { PROGRAM, PROCEDURE, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT, EXPRESSION, LINENUMBER };
+enum class EntityType { PROGRAM, PROCEDURE, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT, EXPRESSION };
 
-class EntityIdentifier {
-private:
-	Token token;
-	string asString;
-	// TODO: add validation at initialization
-public:
-	// Refer to https://stackoverflow.com/questions/68049611/no-default-constructor-exists-for-class-in-c for the following declaration usage
-	EntityIdentifier(const Token &token, const string asString) : token(token), asString(asString) {
-		this->token = token;
-		this->asString = asString;
-	}
-
-    string getString() {
-        return this->asString;
-    }
-
-	bool equals(EntityIdentifier& other) {
-		return this->token == token && this->asString == other.asString;
-	}
-};
-
-/*
-	Encapsulates an entity.
-*/
 class Entity {
-private:
-	EntityType type;
-	int line;
-	EntityIdentifier identifier;
-public:
-	Entity(EntityType type, int lineNumber, Token &token) : type(type), line(lineNumber), identifier(token, token.getString()) {
-		this->type = type;
-		this->line = lineNumber;
-		EntityIdentifier identifier = EntityIdentifier{token, token.getString()};
-		this->identifier = identifier;
-	}
-	 
-	EntityType getType() {
-		return this->type;
-	}
+	private:
+		EntityType type;
+		int line;
+		Token token;
+	public:
+		// Refer to https://stackoverflow.com/questions/68049611/no-default-constructor-exists-for-class-in-c for the following declaration usage
+		Entity(EntityType type, int lineNumber, Token& token) : type(type), line(lineNumber), token(token) {
+			this->type = type;
+			this->line = lineNumber;
+			this->token = token;
+		}
 
-    int getLine() {
-        return this->line;
-    }
+		EntityType getType() {
+			return this->type;
+		}
 
-    string toString() {
-        return this->identifier.getString();
-    }
+		int getLine() {
+			return this->line;
+		}
 
-	bool equals(Entity &other) {
-		return this->type == other.getType() && this->line == other.line && this->identifier.equals(other.identifier);
-	}
+		string toString() {
+			return this->token.getString();
+		}
+
+		bool equals(Entity& other) {
+			return this->type == other.getType() && this->line == other.line && (this->token == other.token);
+		}
+
+		bool isProgramEntity() {
+			return this->type == EntityType::PROGRAM;
+		}
+
+		bool isStmtLstEntity() {
+			return this->type == EntityType::STMTLIST;
+		}
 };
-

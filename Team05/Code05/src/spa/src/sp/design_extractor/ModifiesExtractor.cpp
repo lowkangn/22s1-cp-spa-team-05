@@ -65,7 +65,7 @@ vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifiesRelationships = vector<Relationship>();
 
 	// This is the Left hand side of the assign relation
-	auto assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
+	shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
 	shared_ptr<ASTNode> leftChild = assignNode->getLeftHandSide();
 
 	// Extracting tokens of the entity which is modified
@@ -80,8 +80,8 @@ vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 vector<Relationship> ModifiesExtractor::handleRead(shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifiesRelationships = vector<Relationship>();
 
-	// Sanity check that there is only one child since this is a read statement;
-	auto readNode = dynamic_pointer_cast<ReadASTNode>(ast);
+	// Cast to ReadASTNode
+	shared_ptr<ReadASTNode> readNode = dynamic_pointer_cast<ReadASTNode>(ast);
 	shared_ptr<ASTNode> child = readNode->getVariableToRead();
 
 	Entity leftHandSide = readNode->extractEntity();
@@ -102,11 +102,12 @@ vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast)
 
 vector<Relationship> ModifiesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 	// Get the name ASTNode
-	auto whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
+	shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
 	shared_ptr<ASTNode> child = whileNode->getStmtList();
 
 	Entity leftHandSide = whileNode->extractEntity();
 
+	// Recursively extract relations from the while block
 	vector<Relationship> extractedChildRelationships = recursiveContainerExtract(leftHandSide, child);
 
 	return extractedChildRelationships;
@@ -114,13 +115,14 @@ vector<Relationship> ModifiesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 
 vector<Relationship> ModifiesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 	// Get the name ASTNode
-	auto ifASTNode = dynamic_pointer_cast<IfASTNode>(ast);
+	shared_ptr<IfASTNode> ifASTNode = dynamic_pointer_cast<IfASTNode>(ast);
 	shared_ptr<ASTNode> thenChild = ifASTNode->getThenStatements();
 	shared_ptr<ASTNode> elseChild = ifASTNode->getElseStatements();
 
 
 	Entity leftHandSide = ifASTNode->extractEntity();
 
+	// Recursively extract relations from Then and else containers
 	vector<Relationship> extractedThenChildRelationships = recursiveContainerExtract(leftHandSide, thenChild);
 	vector<Relationship> extractedElseChildRelationships = recursiveContainerExtract(leftHandSide, elseChild);
 
@@ -144,8 +146,8 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 	switch (type) {
 	case ASTNodeType::ASSIGN:
 	{
-		// Get left child
-		auto assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
+		// Cast to AssignASTNode
+		shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
 		shared_ptr<ASTNode> leftChild = assignNode->getLeftHandSide();
 
 		Entity childEntity = leftChild->extractEntity();
@@ -156,10 +158,8 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 	}
 	case ASTNodeType::READ:
 	{
-		// Read should have only one child
-		assert(ast->getChildren().size() == 1);
-		// Get child
-		auto readNode = dynamic_pointer_cast<ReadASTNode>(ast);
+		// Cast to ReadASTNode
+		shared_ptr<ReadASTNode> readNode = dynamic_pointer_cast<ReadASTNode>(ast);
 		shared_ptr<ASTNode> child = readNode->getVariableToRead();
 
 		Entity childEntity = child->extractEntity();
@@ -170,7 +170,8 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 	}
 	case ASTNodeType::WHILE:
 	{
-		auto whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
+		// Cast to WhileASTNode
+		shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
 		shared_ptr<ASTNode> children = whileNode->getStmtList();
 
 		vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, children);
@@ -179,7 +180,8 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 	}
 	case ASTNodeType::IF:
 	{
-		auto ifNode = dynamic_pointer_cast<IfASTNode>(ast);
+		// Cast IfASTNode
+		shared_ptr<IfASTNode> ifNode = dynamic_pointer_cast<IfASTNode>(ast);
 		shared_ptr<ASTNode> thenChildren = ifNode->getThenStatements();
 		shared_ptr<ASTNode> elseChildren = ifNode->getElseStatements();
 

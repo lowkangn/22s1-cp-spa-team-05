@@ -16,7 +16,7 @@ vector<Entity> EntityExtractor::extract(shared_ptr<ASTNode> ast) {
 	Entity toAdd = ast->extractEntity();
 
 	// Only add Entities, Program and Stmtlist containers by themselves (nor do they contain line numbers) are not entities
-	if (!(toAdd.getType() == EntityType::PROGRAM || toAdd.getType() == EntityType::STMTLIST)) {
+	if (!(toAdd.isProgramEntity() || toAdd.isStmtLstEntity())) {
 		entities.push_back(toAdd);
 	}
 

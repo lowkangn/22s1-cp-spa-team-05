@@ -28,10 +28,13 @@ using namespace std;
 
 TEST_CASE("EntityExtractor: test extract") {
 	auto testExtract = [](shared_ptr<ASTNode> nodeToExtractFrom, vector<Entity> expectedEntityVector) {
+		// Given
 		EntityExtractor extractor = EntityExtractor();
 
+		// When
 		vector<Entity> extractedEntity = extractor.extract(nodeToExtractFrom);
 
+		// Tehn
 		REQUIRE(extractedEntity.size() == expectedEntityVector.size());
 
 		for (int i = 0; i < extractedEntity.size(); i++) {

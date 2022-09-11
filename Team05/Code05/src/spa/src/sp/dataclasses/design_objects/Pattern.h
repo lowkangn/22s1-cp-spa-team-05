@@ -6,6 +6,6 @@
 class Pattern {
 private: 
 	Entity entity;
-	vector<Token> lhs;
-	vector<Token> rhs;
+	string lhs;
+	string rhs;
 };
