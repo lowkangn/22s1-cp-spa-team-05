@@ -35,6 +35,20 @@ const string SEMI_COLON = ";";
 
 // operators
 const string EQUAL_OPERATOR = "=";
+const string PLUS_OPERATOR = "+";
+const string MINUS_OPERATOR = "-";
+const string MULTIPLY_OPERATOR = "*";
+const string DIVIDE_OPERATOR = "/";
+const string MODULUS_OPERATOR = "%";
+
+// relational operators
+const string GREATER_OPERATOR = ">";
+const string GREATER_THAN_EQUAL_OPERATOR = ">=";
+const string LESSER_OPERATOR = "<";
+const string LESSER_THAN_EQUAL_OPERATOR = "<=";
+const string EQUALITY_OPERATOR = "==";
+const string NOT_EQUAL_OPERATOR = "!=";
+
 
 /*
 	Encapsulates a token for backend use.
@@ -132,4 +146,65 @@ public:
 		return (this->type == TokenType::INTEGER);
 	}
 
+	bool isPlusToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == PLUS_OPERATOR);
+	}
+
+	bool isMinusToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == MINUS_OPERATOR);
+	}
+
+	bool isMultiplyToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == MULTIPLY_OPERATOR);
+	}
+
+	bool isDivideToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == DIVIDE_OPERATOR);
+	}
+
+	bool isModulusToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == MODULUS_OPERATOR);
+	}
+
+	bool isOperatorToken() {
+		return (this->isPlusToken()
+			|| this->isMinusToken()
+			|| this->isMultiplyToken()
+			|| this->isDivideToken()
+			|| this->isModulusToken());
+	}
+
+	bool isGreaterToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == GREATER_OPERATOR);
+	}
+
+	bool isGreaterThanEqualToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == GREATER_THAN_EQUAL_OPERATOR);
+	}
+
+	bool isLesserToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == LESSER_OPERATOR);
+	}
+
+	bool isLesserThanEqualToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == LESSER_THAN_EQUAL_OPERATOR);
+	}
+
+	bool isEqualityToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == EQUALITY_OPERATOR);
+	}
+
+	bool isNotEqualToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == NOT_EQUAL_OPERATOR);
+	}
+
+	bool isRelationalOperator() {
+		return (this->isGreaterToken()
+			|| this->isGreaterThanEqualToken()
+			|| this->isLesserToken()
+			|| this->isLesserThanEqualToken()
+			|| this->isEqualityToken()
+			|| this->isNotEqualToken()
+			);
+	}
 };

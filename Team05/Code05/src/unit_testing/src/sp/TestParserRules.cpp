@@ -21,6 +21,10 @@
 #include <sp/parser/rules/SimpleSyntaxRule.cpp>
 #include <sp/parser/rules/NameSimpleSyntaxRule.h>
 #include <sp/parser/rules/NameSimpleSyntaxRule.cpp>
+#include <sp/parser/rules/ExpressionSimpleSyntaxRule.h>
+#include <sp/parser/rules/ExpressionSimpleSyntaxRule.cpp>
+#include <sp/parser/rules/OperatorSimpleSyntaxRule.h>
+#include <sp/parser/rules/OperatorSimpleSyntaxRule.cpp>
 #include <sp/parser/rules/StatementListSimpleSyntaxRule.h>
 #include <sp/parser/rules/StatementListSimpleSyntaxRule.cpp>
 
@@ -370,8 +374,61 @@ TEST_CASE("Parser: test ::generateChildRules") {
         };
         test(AssignSimpleSyntaxRule(), tokensToConsume, expectedChildren);
     }
-    SECTION("AssignSimpleSyntaxRule: nested is the lhs and rhs, should have name lhs and expression rhs generated") {
-        // TODO
+
+    SECTION("AssignSimpleSyntaxRule: expression x = x + 1") {
+        list<Token> tokensToConsume = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(PLUS_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+        };
+
+        // create lhs rule
+        shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+        list<Token> tokensInLHSRule = { Token("soomevariable", TokenType::NAME_OR_KEYWORD) };
+        lhsRule->consumeTokens(tokensInLHSRule);
+
+        // create rhs rule
+        shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ExpressionSimpleSyntaxRule());
+        list<Token> tokensInRHSRule = { Token("x", TokenType::NAME_OR_KEYWORD), Token(PLUS_OPERATOR, TokenType::OPERATOR), Token("1", TokenType::INTEGER) };
+        rhsRule->consumeTokens(tokensInRHSRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            lhsRule,
+            rhsRule
+        };
+        test(AssignSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+
+    SECTION("AssignSimpleSyntaxRule: expression x = x + 1 - 3") {
+        list<Token> tokensToConsume = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(PLUS_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),            
+            Token(MINUS_OPERATOR, TokenType::OPERATOR),
+            Token("3", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+        };
+
+        // create lhs rule
+        shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+        list<Token> tokensInLHSRule = { Token("soomevariable", TokenType::NAME_OR_KEYWORD) };
+        lhsRule->consumeTokens(tokensInLHSRule);
+
+        // create rhs rule
+        shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ExpressionSimpleSyntaxRule());
+        list<Token> tokensInRHSRule = { Token("x", TokenType::NAME_OR_KEYWORD), Token(PLUS_OPERATOR, TokenType::OPERATOR), Token("1", TokenType::INTEGER), Token(MINUS_OPERATOR, TokenType::OPERATOR), Token("3", TokenType::INTEGER), };
+        rhsRule->consumeTokens(tokensInRHSRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            lhsRule,
+            rhsRule
+        };
+        test(AssignSimpleSyntaxRule(), tokensToConsume, expectedChildren);
     }
 
     // -------------------- StatementListSimpleSyntaxRule --------------------
@@ -585,6 +642,43 @@ TEST_CASE("Parser: test ::constructNode") {
 
         expectedASTNode->addChild(variableNode);
         expectedASTNode->addChild(constantNode);
+
+        test(rule, expectedASTNode);
+    }
+
+    SECTION("AssignSimpleSyntaxRule : constructNode -> x = x + 1") {
+        // x = x + 1;
+        Token leftHandSideToken = Token("x", TokenType::NAME_OR_KEYWORD);
+        Token equalsToken = Token(EQUAL_OPERATOR, TokenType::OPERATOR);
+        Token rightXToken = Token("x", TokenType::NAME_OR_KEYWORD);
+        Token plusToken = Token(PLUS_OPERATOR, TokenType::OPERATOR);
+        Token rightOneToken = Token("1", TokenType::INTEGER);
+        Token semiColon = Token(SEMI_COLON, TokenType::DELIMITER);
+        list<Token> tokensToConsume = { leftHandSideToken,  equalsToken, rightXToken, plusToken, rightOneToken, semiColon };
+
+        // Create rule
+        AssignSimpleSyntaxRule rule = AssignSimpleSyntaxRule();
+        list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+        vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+        // Create assign node
+        shared_ptr<ASTNode> expectedASTNode(new AssignASTNode(equalsToken));
+
+        // Create LHS
+        shared_ptr<ASTNode> variableNode(new VariableASTNode(leftHandSideToken));
+        shared_ptr<ASTNode> rhsXNode(new VariableASTNode(rightXToken));
+
+        // Create expression
+        shared_ptr<ASTNode> expressionNode(new ExpressionASTNode(plusToken));
+
+        // Create RHS
+        shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(rightOneToken));
+
+        expectedASTNode->addChild(variableNode);
+        expectedASTNode->addChild(expressionNode);
+
+        expressionNode->addChild(rhsXNode);
+        expressionNode->addChild(constantNode);
 
         test(rule, expectedASTNode);
     }

@@ -2,6 +2,7 @@
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 #include <sp/parser/rules/NameSimpleSyntaxRule.h>
 #include <sp/parser/rules/ConstantValueSimpleSyntaxRule.h>
+#include <sp/parser/rules/ExpressionSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/AssignASTNode.h>
@@ -31,12 +32,27 @@ vector<shared_ptr<SimpleSyntaxRule>> AssignSimpleSyntaxRule::generateChildRules(
 	tokens = lhsRulePointer->consumeTokens(tokens); // consume the tokens
 	childRules.push_back(lhsRulePointer);
 
-	// expression rule on rhs, consume remaining tokens
-	// NOTE: for MVP we only allow constant assignment
-	// TODO: do a proper expression
-	shared_ptr<SimpleSyntaxRule> rhsRulePointer = shared_ptr<SimpleSyntaxRule>(new ConstantValueSimpleSyntaxRule());
-	tokens = rhsRulePointer->consumeTokens(tokens);
-	childRules.push_back(rhsRulePointer);
+	// If more than one token left, it is an expression
+	if (tokens.size() > 1) {
+		// expression rule on rhs, consume remaining tokens
+		shared_ptr<SimpleSyntaxRule> rhsRulePointer = shared_ptr<SimpleSyntaxRule>(new ExpressionSimpleSyntaxRule());
+		tokens = rhsRulePointer->consumeTokens(tokens);
+		childRules.push_back(rhsRulePointer);
+	}
+	else {
+		// Either a name token or a contant token
+		if (tokens.front().isNameToken()) {
+			shared_ptr<SimpleSyntaxRule> rhsRulePointer = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+			tokens = rhsRulePointer->consumeTokens(tokens);
+			childRules.push_back(rhsRulePointer);
+		}
+		else {
+			shared_ptr<SimpleSyntaxRule> rhsRulePointer = shared_ptr<SimpleSyntaxRule>(new ConstantValueSimpleSyntaxRule());
+			tokens = rhsRulePointer->consumeTokens(tokens);
+			childRules.push_back(rhsRulePointer);
+		}
+
+	}
 
 	// should have no tokens left
 	if (!tokens.empty()) {
@@ -80,6 +96,7 @@ list<Token> AssignSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 		childTokens.push_back(token);
 		seenOneToken = true;
 	}
+
 	if (!seenSemiColon || !seenOneToken) {
 		throw SimpleSyntaxParserException("No terminal semicolon or too few tokens before, invalid assign statement!");
 	}
@@ -107,9 +124,6 @@ shared_ptr<ASTNode> AssignSimpleSyntaxRule::constructNode() {
 
 
 	shared_ptr<ASTNode> leftHandSide = this->childRules[LHS]->constructNode();
-
-	// NOTE: for MVP we only allow constant assignment
-	// TODO: do a proper expression
 	shared_ptr<ASTNode> rightHandSide = this->childRules[RHS]->constructNode();
 
 	assignNode->addChild(leftHandSide);
