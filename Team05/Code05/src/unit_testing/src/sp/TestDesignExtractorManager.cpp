@@ -105,7 +105,7 @@ TEST_CASE("DesignExtractor: test : extractEntity()") {
 	test(nodeToExtractFrom, expectedEntities);
 }
 
-TEST_CASE("DesignExtractor: test : extractModifies()") {
+TEST_CASE("DesignExtractor: test : extractRelationships()") {
 	auto test = [](shared_ptr<ASTNode> nodeToExtractFrom, vector<Relationship> expectedRelationship) {
 
 		shared_ptr<EntityExtractor> entityExtractor(new EntityExtractor());

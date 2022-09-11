@@ -31,9 +31,14 @@ public:
 	vector<Relationship> handleRead(shared_ptr<ASTNode> ast);
 
 	/*
-		This method extracts a modifies relationship from an container node
+		This method extracts a modifies relationship from an While node
 	*/
-	vector<Relationship> handleContainer(shared_ptr<ASTNode> ast);
+	vector<Relationship> handleWhile(shared_ptr<ASTNode> ast);
+
+	/*
+		This method extracts a modifies relationship from an If node
+	*/
+	vector<Relationship> handleIf(shared_ptr<ASTNode> ast);
 
 	/*
 		This method extracts a modifies relationship from an call node
@@ -43,5 +48,5 @@ public:
 	/*
 		This method recursively traverses the node adding the Modifies relationship for procedures
 	*/
-	vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& LHS, shared_ptr<ASTNode> ast);
+	vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& LHS, shared_ptr<ASTNode> ast);
 };

@@ -35,14 +35,14 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
 	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
-	Token lineNumber = Token("1", TokenType::INTEGER);
-	Entity lineEntity = Entity{ EntityType::LINENUMBER, LINENUMBER, lineNumber };
 
 	// x = x + 1
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
 	Token addToken = Token{ "+", TokenType::OPERATOR };
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
+
+	Entity assignEntity = Entity(EntityType::ASSIGN, 1, assignToken);
 
 	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 
@@ -66,7 +66,7 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 	addNode->addChild(constNode);
 
 
-	Relationship modifiesX = Relationship{ lineEntity, LHS, RelationshipType::MODIFIES };
+	Relationship modifiesX = Relationship{ assignEntity, LHS, RelationshipType::MODIFIES };
 
 	vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
 
@@ -108,8 +108,7 @@ TEST_CASE("ModifiesExtractor: test handleRead") {
 
 	readNode->addChild(x);
 
-	Token lineNumber = Token{ "1",TokenType::NAME_OR_KEYWORD };
-	Entity lineEntity = Entity{ EntityType::LINENUMBER, 1, lineNumber };
+	Entity lineEntity = Entity{ EntityType::READ, 1, readToken };
 	Entity xEntity = Entity{ EntityType::VARIABLE, 1, xToken };
 
 	Relationship readRelation = Relationship{ lineEntity, xEntity, RelationshipType::MODIFIES };
@@ -223,8 +222,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
 	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	Token lineNumber = Token("1", TokenType::INTEGER);
-	Entity lineEntity = Entity{ EntityType::LINENUMBER, LINENUMBER, lineNumber };
+	Entity assignEntity = Entity{ EntityType::ASSIGN, LINENUMBER, assignToken };
 
 
 	Entity yEntity = Entity{ EntityType::VARIABLE, LINENUMBER, yToken };
@@ -259,7 +257,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 	addNode2->addChild(y);
 
 
-	Relationship modifiesX = Relationship{ lineEntity, LHS, RelationshipType::MODIFIES };
+	Relationship modifiesX = Relationship{ assignEntity, LHS, RelationshipType::MODIFIES };
 
 	vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
 
