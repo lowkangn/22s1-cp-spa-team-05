@@ -160,3 +160,15 @@ public:
 	*/
 	shared_ptr<PKBUpdateHandler> getUpdateHandler();
 };
+
+// helper methods
+/*
+	A filter applied to a pkb entity. This is used
+	in filtering relationships by lhs and rhs.
+*/
+typedef bool (*PkbEntityFilter)(shared_ptr<PkbEntity> side);
+/*
+	Converts a clause argument to a filter that can be applied to a PkbEntity. This is used
+	in filtering relationships by lhs and rhs.
+*/
+PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg);

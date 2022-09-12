@@ -319,6 +319,114 @@ PkbRelationshipTable PKB::getTableByRelationshipType(PKBTrackedRelationshipType 
 	}
 }
 
+
+
+PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
+
+	// default filter is true
+	PkbEntityFilter filter = [](shared_ptr<PkbEntity> side) {
+		return true;
+	};
+
+	// depending on clause argument, we return the filter
+	if (arg.isWildcard()) {
+		return filter;
+	}
+	else if (arg.isVariableSynonym()) {
+		// return only true if entity is a variable
+		filter = [](shared_ptr<PkbEntity> side) {
+			return side->isVariable();
+		};
+	}
+	else if (arg.isProcedureSynonym()) {
+		// return only true if entity is a procedure
+		filter = [](shared_ptr<PkbEntity> side) {
+			return side->isProcedure();
+		};
+	}
+	else if (arg.isStmtSynonym()) {
+		// return only true if entity is a statement
+		filter = [](shared_ptr<PkbEntity> side) {
+			return side->isStatement();
+		};
+	}
+	else if (arg.isLineNumber()) {
+		// entity must be a statement matching line number
+	}
+	else if (arg.isStringLiteral()) {
+		// can be procedure or variable name
+
+	}
+	else if (arg.isAssignSynonym()) {
+		// return only true if entity is a an assign statement
+		filter = [](shared_ptr<PkbEntity> side) {
+			if (!side->isStatement()) {
+				return false;
+			}
+			// else, cast and check if assign
+			shared_ptr<PkbStatementEntity> cast = dynamic_cast<shared_ptr<PkbStatementEntity>>(side);
+			return cast->isAssignStatement();
+		};
+	}
+	else if (arg.isPrintSynonym()) {
+		// return only true if entity is a print statement
+		filter = [](shared_ptr<PkbEntity> side) {
+			if (!side->isStatement()) {
+				return false;
+			}
+			// else, cast and check if print
+			shared_ptr<PkbStatementEntity> cast = dynamic_cast<shared_ptr<PkbStatementEntity>>(side);
+			return cast->isPrintStatement();
+		};
+	}
+	else if (arg.isReadSynonym()) {
+		// return only true if entity is a read statement
+		filter = [](shared_ptr<PkbEntity> side) {
+			if (!side->isStatement()) {
+				return false;
+			}
+			// else, cast and check if read
+			shared_ptr<PkbStatementEntity> cast = dynamic_cast<shared_ptr<PkbStatementEntity>>(side);
+			return cast->isPrintStatement();
+		};
+	}
+	else if (arg.isCallSynonym()) {
+		// return only true if entity is a call statement
+		filter = [](shared_ptr<PkbEntity> side) {
+			if (!side->isStatement()) {
+				return false;
+			}
+			// else, cast and check if call
+			shared_ptr<PkbStatementEntity> cast = dynamic_cast<shared_ptr<PkbStatementEntity>>(side);
+			return cast->isCallStatement();
+		};
+	}
+	else if (arg.isWhileSynonym()) {
+		// return only true if entity is a while statement
+		filter = [](shared_ptr<PkbEntity> side) {
+			if (!side->isStatement()) {
+				return false;
+			}
+			// else, cast and check if while
+			shared_ptr<PkbStatementEntity> cast = dynamic_cast<shared_ptr<PkbStatementEntity>>(side);
+			return cast->isWhileStatement();
+		};
+	}
+	else if (arg.isIfSynonym()) {
+		// return only true if entity is if  statement
+		filter = [](shared_ptr<PkbEntity> side) {
+			if (!side->isStatement()) {
+				return false;
+			}
+			// else, cast and check if if
+			shared_ptr<PkbStatementEntity> cast = dynamic_cast<shared_ptr<PkbStatementEntity>>(side);
+			return cast->isIfStatement();
+		};
+	}
+
+	return filter;
+}
+
 vector<PQLRelationship> PKB::retrieveRelationshipsByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
 	// 1. get table based on type
 	PkbRelationshipTable table = this->getTableByRelationshipType(relationshipType);
@@ -327,17 +435,22 @@ vector<PQLRelationship> PKB::retrieveRelationshipsByTypeAndLhsRhs(PKBTrackedRela
 	// TODO: for now, we do a manual filter
 
 	// 3. if not, we have to manually filter
-	// 3.1 create lhs and rhs filters
-	// if wildcard, always true
-	// if statement variable, then check that is a statement
-	// if variable variable, then check that is a variable
-	// if procedure variable, then check that is 
-
-	for (shared_ptr<PkbRelationship> r : table.getAll())) {
-		
+	PkbEntityFilter lhsFilter = getFilterFromClauseArgument(lhs);
+	PkbEntityFilter rhsFilter = getFilterFromClauseArgument(rhs);
+	vector<PQLRelationship> out;
+	for (shared_ptr<PkbRelationship> r : table.getAll()) {
+		PkbEntity lhsEntity = r->getLhs();
+		PkbEntity rhsEntity = r->getRhs();
+		if (lhsFilter(lhsEntity) && rhsFilter(rhsEntity)) {
+			// create pql relationship
+			PQLEntity outLhs = this->pkbEntityToQpsPqlEntity(lhsEntity);
+			PQLEntity outRhs = this->pkbEntityToQpsPqlEntity(rhsEntity);
+			out.push_back(PQLRelationship(outLhs, outRhs);
+		}
 	}
-
+	return out;
 }
+
 
 PQLRelationship PKB::retrieveRelationshipByType(PKBTrackedRelationshipType relationshipType) {
 	// 1. get table based on type
