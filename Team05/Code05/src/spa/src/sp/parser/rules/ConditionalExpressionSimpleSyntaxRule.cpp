@@ -30,35 +30,35 @@ vector<shared_ptr<SimpleSyntaxRule>> ConditionalExpressionSimpleSyntaxRule::gene
 
 	if (token.isNotOperator()) {
 		shared_ptr<SimpleSyntaxRule> operatorRulePointer = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
-		tokens = operatorRulePointer.consume(tokens);
+		tokens = operatorRulePointer->consumeTokens(tokens);
 		this->setOperatorRule(operatorRulePointer);
 
 		shared_ptr<SimpleSyntaxRule> conditionalRulePointer = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
-		tokens = conditionalRulePointer.consume(tokens);
-		childRules.push_back(conditionalRulePointer)
+		tokens = conditionalRulePointer->consumeTokens(tokens);
+		childRules.push_back(conditionalRulePointer);
 	}
 	else if (token.isOpenBracketToken()) {
 		// First rule
 		shared_ptr<SimpleSyntaxRule> firstConditionalRulePointer = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
-		tokens = firstConditionalRulePointer.consume(tokens);
+		tokens = firstConditionalRulePointer->consumeTokens(tokens);
 		childRules.push_back(firstConditionalRulePointer);
 
 		shared_ptr<SimpleSyntaxRule> operatorRulePointer = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
-		tokens = operatorRulePointer.consume(tokens);
+		tokens = operatorRulePointer->consumeTokens(tokens);
 		this->setOperatorRule(operatorRulePointer);
 
 		// Second rule
 		shared_ptr<SimpleSyntaxRule> secondConditionalRulePointer = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
-		tokens = secondConditionalRulePointer.consume(tokens);
+		tokens = secondConditionalRulePointer->consumeTokens(tokens);
 		childRules.push_back(secondConditionalRulePointer);
 	}
 	else if (token.isNameToken()) {
 		shared_ptr<SimpleSyntaxRule> relationalRulePointer = shared_ptr<SimpleSyntaxRule>(new RelationalExpressionSimpleSyntaxRule());
-		tokens = relationalRulePointer.consume(tokens);
+		tokens = relationalRulePointer->consumeTokens(tokens);
 		childRules.push_back(relationalRulePointer);
 	}
 	else {
-		throw SimpleSyntaxParserException("Invalid token in Conditional Expression Rule ")
+		throw SimpleSyntaxParserException("Invalid token in Conditional Expression Rule ");
 	}
 
 	return childRules;
@@ -69,9 +69,9 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 	Token token = tokens.front();
 	bool isNotToken = false;
 
+	list<Token> childTokens;
 	// There are multiple relational expressions
 	if (token.isOpenBracketToken() || token.isNotOperator()) {
-		list<Token> childTokens;
 		
 		// Pop first relational expression
 		if (token.isNotOperator()) {
@@ -81,7 +81,7 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 			tokens.pop_front();
 		}
 
-		token = token.front();
+		token = tokens.front();
 		// Validate first expression
 		if (token.isOpenBracketToken()) {
 			bool seenCloseBracket = false;
@@ -96,7 +96,7 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 				childTokens.push_back(token);
 			}
 			if (!seenCloseBracket) {
-				throw SimpleSyntaxParserException("Missing closed bracket!")
+				throw SimpleSyntaxParserException("Missing closed bracket!");
 			}
 		}
 		else {
@@ -113,15 +113,13 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 			tokens.pop_front();
 			childTokens.push_back(token);
 
-
-			bool seenCloseBracket = false;
-
 			// validate the other relational expression
 			token = tokens.front();
 			tokens.pop_front();
 			if (!token.isOpenBracketToken()) {
 				throw SimpleSyntaxParserException("Conditional expression in conditional expressions should start with (");
 			}
+
 			bool seenCloseBracket = false;
 			while (!seenCloseBracket || !tokens.empty()) {
 				token = tokens.front();
@@ -172,5 +170,5 @@ shared_ptr<ASTNode> ConditionalExpressionSimpleSyntaxRule::constructNode() {
 	operatorNode->addChild(leftHandSideNode);
 	operatorNode->addChild(rightHandSideNode);
 
-	return operator;
+	return operatorNode;
 }

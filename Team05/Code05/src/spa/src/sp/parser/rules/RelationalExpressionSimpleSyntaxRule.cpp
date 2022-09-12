@@ -49,8 +49,8 @@ list<Token> RelationalExpressionSimpleSyntaxRule::consumeTokens(list<Token> toke
 	tokens.pop_front();
 
 	// token should be a name token
-	if (!token.isNameToken()) {
-		throw SimpleSyntaxParserException("Token should be a variable name!");
+	if (!token.isNameToken() && !token.isIntegerToken()) {
+		throw SimpleSyntaxParserException("Token should be a variable name or a constant token!");
 	}
 
 	childTokens.push_back(token);
@@ -80,7 +80,15 @@ shared_ptr<ASTNode> RelationalExpressionSimpleSyntaxRule::constructNode() {
 
 	shared_ptr<ASTNode> expressionNode(new ExpressionASTNode(relationalOperatorToken));
 	shared_ptr<ASTNode> leftHandSideNode(new VariableASTNode(lhsToken));
-	shared_ptr<ASTNode> rightHandSideNode(new VariableASTNode(rhsToken));
+
+	shared_ptr<ASTNode> rightHandSideNode;
+
+	if (rhsToken.isIntegerToken()) {
+		shared_ptr<ASTNode> rightHandSideNode (new ConstantValueASTNode(rhsToken));
+	}
+	else {
+		shared_ptr<ASTNode> rightHandSideNode(new VariableASTNode(rhsToken));
+	}
 
 	expressionNode->addChild(leftHandSideNode);
 	expressionNode->addChild(rightHandSideNode);

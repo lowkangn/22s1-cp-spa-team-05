@@ -10,7 +10,7 @@ class ConditionalExpressionSimpleSyntaxRule : public SimpleSyntaxRule {
 private:
 	shared_ptr<SimpleSyntaxRule> operatorRule;
 public:
-	RelationalExpressionSimpleSyntaxRule() {
+	ConditionalExpressionSimpleSyntaxRule() {
 		this->generated = false;
 		this->initialized = false;
 		this->operatorRule = shared_ptr<SimpleSyntaxRule>();

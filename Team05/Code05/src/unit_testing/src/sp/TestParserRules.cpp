@@ -23,6 +23,10 @@
 #include <sp/parser/rules/NameSimpleSyntaxRule.cpp>
 #include <sp/parser/rules/ExpressionSimpleSyntaxRule.h>
 #include <sp/parser/rules/ExpressionSimpleSyntaxRule.cpp>
+#include <sp/parser/rules/RelationalExpressionSimpleSyntaxRule.h>
+#include <sp/parser/rules/RelationalExpressionSimpleSyntaxRule.cpp>
+#include <sp/parser/rules/ConditionalExpressionSimpleSyntaxRule.h>
+#include <sp/parser/rules/ConditionalExpressionSimpleSyntaxRule.cpp>
 #include <sp/parser/rules/OperatorSimpleSyntaxRule.h>
 #include <sp/parser/rules/OperatorSimpleSyntaxRule.cpp>
 #include <sp/parser/rules/StatementListSimpleSyntaxRule.h>
@@ -296,6 +300,171 @@ TEST_CASE("Parser: test ::consumeTokens") {
         test(ProgramSimpleSyntaxRule(), tokens, expectedTokens);
     }
 
+    // -------------------- OperatorSimpleSyntaxRule --------------------
+    SECTION("OperatorSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("+", TokenType::OPERATOR),
+        };
+        list<Token> expectedTokens = {};
+        test(OperatorSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    SECTION("OperatorSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("-", TokenType::OPERATOR),
+        };
+        list<Token> expectedTokens = {};
+        test(OperatorSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    SECTION("OperatorSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("*", TokenType::OPERATOR),
+        };
+        list<Token> expectedTokens = {};
+        test(OperatorSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    SECTION("OperatorSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("/", TokenType::OPERATOR),
+        };
+        list<Token> expectedTokens = {};
+        test(OperatorSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    SECTION("OperatorSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("%", TokenType::OPERATOR),
+        };
+        list<Token> expectedTokens = {};
+        test(OperatorSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    SECTION("OperatorSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("%", TokenType::OPERATOR),
+        };
+        list<Token> expectedTokens = {};
+        test(OperatorSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    SECTION("OperatorSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("%", TokenType::OPERATOR),
+            Token("5", TokenType::INTEGER),
+            Token("+", TokenType::OPERATOR),
+            Token("2", TokenType::INTEGER)
+        };
+        list<Token> expectedTokens = { Token("5", TokenType::INTEGER),
+            Token("+", TokenType::OPERATOR),
+            Token("2", TokenType::INTEGER) };
+        test(OperatorSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+  
+    // -------------------- ExpressionSimpleSyntaxRule --------------------
+    SECTION("ExpressionSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token("%", TokenType::OPERATOR),
+            Token("5", TokenType::INTEGER),
+            Token("+", TokenType::OPERATOR),
+            Token("2", TokenType::INTEGER)
+        };
+        list<Token> expectedTokens = {};
+        test(ExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    // -------------------- ExpressionSimpleSyntaxRule --------------------
+    SECTION("ExpressionSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("y", TokenType::NAME_OR_KEYWORD),
+            Token("z", TokenType::NAME_OR_KEYWORD), // Illegal operator
+            Token("2", TokenType::INTEGER),
+            Token("+", TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token("+", TokenType::OPERATOR),
+            Token("10", TokenType::INTEGER)
+        };
+        list<Token> expectedTokens = {};
+        testThrowsException(ExpressionSimpleSyntaxRule(), tokens);
+    }
+
+   
+    // -------------------- RelationalExpressionSimpleSyntaxRule --------------------
+    SECTION("ProgramSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUALITY_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+        };
+        list<Token> expectedTokens = {};
+        test(RelationalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    // -------------------- RelationalExpressionSimpleSyntaxRule --------------------
+    SECTION("RelationalExpressionSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+        };
+        list<Token> expectedTokens = {};
+        test(RelationalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    // -------------------- RelationalExpressionSimpleSyntaxRule --------------------
+    SECTION("RelationalExpressionSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token("+", TokenType::OPERATOR),
+            Token("y", TokenType::NAME_OR_KEYWORD),
+        };
+        list<Token> expectedTokens = { Token("+", TokenType::OPERATOR),
+            Token("y", TokenType::NAME_OR_KEYWORD) };
+        test(RelationalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    // -------------------- RelationalExpressionSimpleSyntaxRule --------------------
+    SECTION("RelationalExpressionSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token("+", TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token("+", TokenType::OPERATOR),
+            Token("y", TokenType::NAME_OR_KEYWORD),
+        };
+        list<Token> expectedTokens = { Token("+", TokenType::OPERATOR),
+            Token("y", TokenType::NAME_OR_KEYWORD) };
+        testThrowsException(RelationalExpressionSimpleSyntaxRule(), tokens);
+    }
+
+   
+    // -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
+    SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("procedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("anotherProcedureName", TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("1", TokenType::INTEGER),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+        list<Token> expectedTokens = {};
+        test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+    }
 }
 
 TEST_CASE("Parser: test ::generateChildRules") {
