@@ -100,6 +100,11 @@ public:
 		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == READ_KEYWORD);
 	}
 
+	/* Checks if the token is the print keyword.*/
+	bool isPrintKeywordToken() {
+		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == PRINT_KEYWORD);
+	}
+
 	/* Checks if the token is the call keyword.*/
 	bool isCallKeywordToken() {
 		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == CLOSED_CURLY_BRACKET);

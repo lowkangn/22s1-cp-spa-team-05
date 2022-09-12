@@ -6,6 +6,7 @@
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 #include <sp/parser/rules/WhileSimpleSyntaxRule.h>
 #include <sp/parser/rules/IfSimpleSyntaxRule.h>
+#include <sp/parser/rules/PrintSimpleSyntaxRule.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <list>
 #include <sp/dataclasses/ast/StatementListASTNode.h>
@@ -74,6 +75,11 @@ vector<shared_ptr<SimpleSyntaxRule>> StatementListSimpleSyntaxRule::generateChil
 			shared_ptr<SimpleSyntaxRule> ifRulePointer = shared_ptr<SimpleSyntaxRule>(new IfSimpleSyntaxRule());
 			tokens = ifRulePointer->consumeTokens(tokens); // consume tokens
 			childRules.push_back(ifRulePointer); // add to children nodes in order
+		}
+		else if (token.isPrintKeywordToken()) {
+			shared_ptr<SimpleSyntaxRule> printRulePointer = shared_ptr<SimpleSyntaxRule>(new PrintSimpleSyntaxRule());
+			tokens = printRulePointer->consumeTokens(tokens); // consume tokens
+			childRules.push_back(printRulePointer); // add to children nodes in order
 		}
 		else if (token.isNameToken()) { // probably assign statement
 			shared_ptr<SimpleSyntaxRule> assignRulePointer = shared_ptr<SimpleSyntaxRule>(new AssignSimpleSyntaxRule());
