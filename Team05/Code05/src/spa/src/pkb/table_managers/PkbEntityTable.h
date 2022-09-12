@@ -3,6 +3,7 @@
 #include <pkb/design_objects/entities/PkbEntity.h>
 
 #include <unordered_map>
+#include <vector>
 #include <string>
 #include <memory>
 using namespace std;
@@ -26,4 +27,8 @@ public:
 	*/
 	shared_ptr<PkbEntity> get(string& key);
 
+	/*
+		Returns all items.
+	*/
+	vector<shared_ptr<PkbEntity>> getAll();
 };

@@ -50,6 +50,7 @@ public:
         return PkbStatementEntity(PkbStatementType::PRINT, lineNumber);
     }
 
+
     // ===== identifier methods ======
     bool isReadStatement() {
         return this->statementType == PkbStatementType::READ;
@@ -67,11 +68,19 @@ public:
         return this->statementType == PkbStatementType::IF;
     }
 
+    bool isCallStatement() {
+        return this->statementType == PkbStatementType::CALL;
+    }
+
     /*
         Returns a unique key.
     */
     string getKey() override {
         return stoi(this->lineNumber);
+    }
+
+    int getLineNumber() {
+        return this->lineNumber;
     }
 
     /*

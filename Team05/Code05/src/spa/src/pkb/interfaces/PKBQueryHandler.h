@@ -8,12 +8,12 @@
 
 enum class PKBTrackedStatementType {
     ALL,
-    STATEMENT,
     READ,
     PRINT,
     WHILE,
     IF,
     ASSIGN,
+    CALL,
 };
 
 enum class PKBTrackedRelationshipType {
@@ -43,7 +43,7 @@ public:
         NOTE: we should refactor such that it does not return a PQLEntity, but instead a ProcedurePQLEntity for safety.
         We can always up cast as needed, but down casting is bad practice.
     */
-    virtual vector<PQLEntity> retrieveProcedureEntitiesByName(string procedureName) = 0;
+    virtual PQLEntity retrieveProcedureEntityByName(string procedureName) = 0;
 
     /*
         Retrieves all procedure entities. 
@@ -64,7 +64,7 @@ public:
         a specific type constrained to line number, it's much easier, than making a query by 
         type and then filtering on your own.
     */
-    virtual vector<PQLEntity> retrieveStatementEntitiesByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) = 0;
+    virtual PQLEntity retrieveStatementEntityByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) = 0;
 
     /*
         Retrieves statement entities of a specific type.
@@ -77,11 +77,6 @@ public:
 
     // ===== Variables and constants =====
     /*
-        Retrieves all stored constants.
-    */
-    virtual vector<PQLEntity> retrieveAllConstants() = 0;
-
-    /*
         Retrieves all stored variables.
     */
     virtual vector<PQLEntity> retrieveAllVariables() = 0;
@@ -89,19 +84,18 @@ public:
     /*
         Retrieves variables by name.
     */
-    virtual vector<PQLEntity> retrieveVariablesByName(string name) = 0;
+    virtual PQLEntity retrieveVariableByName(string name) = 0;
 
 
     // ===== Relationships =====
     /*
         Retrieves all relationships of a specified supported type and a lhs and rhs. 
     */
-    virtual vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) = 0;
+    virtual vector<PQLRelationship> retrieveRelationshipsByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) = 0;
     
     /*
         Retrieves all relationships of a specified type.
     */
-    virtual vector<PQLRelationship> retrieveRelationshipByType(PKBTrackedRelationshipType relationshipType) = 0;
-
+    virtual vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) = 0;
     
 };

@@ -95,16 +95,59 @@ public:
 		Add extracted entities from the SP.
 	*/
 	void addEntities(vector<Entity> entities) override;
-	vector<PQLEntity> retrieveProcedureEntitiesByName(string procedureName) override;
+
+	/*
+		Retrieves all procedure entities by name.
+	*/
+	PQLEntity retrieveProcedureEntityByName(string procedureName) override;
+
+	/*
+		Retrieves all procedure entities.
+	*/
 	vector<PQLEntity> retrieveAllProcedureEntities() override;
-	vector<PQLEntity> retrieveStatementEntitiesByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
+
+	/*
+		Retrieves all statement entities by line number of a specified type.
+	*/
+	PQLEntity retrieveStatementEntityByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
+	
+	/*
+		Retrieves all statement entities of a specified type.
+	*/
 	vector<PQLEntity> retrieveStatementEntitiesByType(PKBTrackedStatementType pkbTrackedStatementType) override;
+	
+	/*
+		Retrieves all statement entities, regardless of type.
+	*/
 	vector<PQLEntity> retrieveAllStatementEntities() override;
-	vector<PQLEntity> retrieveAllConstants() override;
+	
+	/*
+		Retrieves all variables. 
+	*/
 	vector<PQLEntity> retrieveAllVariables() override;
-	vector<PQLEntity> retrieveVariablesByName(string name) override;
-	vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) override;
-	vector<PQLRelationship> retrieveRelationshipByType(PKBTrackedRelationshipType relationshipType) override;
-	PKBQueryHandler getQueryHandler();
-	PKBUpdateHandler getUpdateHandler();
+
+	/*
+		Retrieves all variables by a name.
+	*/
+	PQLEntity retrieveVariableByName(string name) override;
+
+	/*
+		Retrieves all relationships by a lhs, rhs for relationships of a specified type.
+	*/
+	vector<PQLRelationship> retrieveRelationshipsByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) override;
+	
+	/*
+		Retrieves all relationships of a specified type.
+	*/
+	vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) override;
+	
+	/*
+		Casts the PKB to its query handler interface as a shared pointer.
+	*/
+	shared_ptr<PKBQueryHandler> getQueryHandler();
+
+	/*
+		Casts the PKB to its update handler interface as a shared pointer.
+	*/
+	shared_ptr<PKBUpdateHandler> getUpdateHandler();
 };

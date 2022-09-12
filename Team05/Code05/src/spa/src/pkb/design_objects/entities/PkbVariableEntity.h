@@ -17,9 +17,18 @@ public:
 	/*
 		Boolean method to check if a given variable has this identifier.
 	*/
-	public bool hasIdentifier(string identifierToMatch) {
+	bool hasIdentifier(string identifierToMatch) {
 		return this->identifier == identifierToMatch;
 	}
+
+	/*
+		Gets the identifier.
+	*/
+	string getIdentifier() {
+		return this->identifier;
+	}
+
+
 
 	/*
 		Overriding the equals operator.

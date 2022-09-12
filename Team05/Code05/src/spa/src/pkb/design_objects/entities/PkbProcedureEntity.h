@@ -34,6 +34,13 @@ public:
 	string getKey() override {
 		return this->identifier;
 	}
+
+	/*
+		Gets the identifier.
+	*/
+	string getIdentifier() {
+		return this->identifier;
+	}
 };
 
 template <>
