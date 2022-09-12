@@ -26,24 +26,28 @@ private:
 
 public: 
     // ===== Factory methods to restrict the type =====
-    PkbStatementEntity createReadStatementEntity(int lineNumber) {
+    static PkbStatementEntity createReadStatementEntity(int lineNumber) {
         return PkbStatementEntity(PkbStatementType::READ, lineNumber);
     }
 
-    PkbStatementEntity createPrintStatementEntity(int lineNumber) {
-        return PkbStatementEntity(PkbStatementType::PRINT, lineNumber);
+    static PkbStatementEntity createCallStatementEntity(int lineNumber) {
+        return PkbStatementEntity(PkbStatementType::CALL, lineNumber);
     }
 
-    PkbStatementEntity createWhileStatementEntity(int lineNumber) {
+    static PkbStatementEntity createWhileStatementEntity(int lineNumber) {
         return PkbStatementEntity(PkbStatementType::WHILE, lineNumber);
     }
 
-    PkbStatementEntity createAssignStatementEntity(int lineNumber) {
+    static PkbStatementEntity createAssignStatementEntity(int lineNumber) {
         return PkbStatementEntity(PkbStatementType::ASSIGN, lineNumber);
     }
 
-    PkbStatementEntity createIfStatementEntity(int lineNumber) {
+    static PkbStatementEntity createIfStatementEntity(int lineNumber) {
         return PkbStatementEntity(PkbStatementType::IF, lineNumber);
+    }
+
+    static PkbStatementEntity createPrintStatementEntity(int lineNumber) {
+        return PkbStatementEntity(PkbStatementType::PRINT, lineNumber);
     }
 
     // ===== identifier methods ======

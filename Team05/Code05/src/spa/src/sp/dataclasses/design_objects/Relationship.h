@@ -6,6 +6,7 @@
 enum class RelationshipType {
     MODIFIES,
     USES,
+    USEST,
     FOLLOWS,
     FOLLOWST,
     PARENT,
@@ -24,19 +25,40 @@ public:
         this->type = type;
     }
 
-    vector<Entity> getEntities() {
-        vector<Entity> entities {
-            entity1,
-            entity2
-        };
-        return entities;
+    Entity getLhs() {
+        return this->entity1;
+    }
+    Entity getRhs() {
+        return this->entity2;
     }
 
     RelationshipType getType() {
-        return type;
+        return this->type;
     }
 
     bool equals(Relationship other) {
         return (this->type == other.type) && (this->entity1.equals(other.entity1)) && (this->entity2.equals(other.entity2));
+    }
+
+    bool isModifies() {
+        return this->type == RelationshipType::MODIFIES;
+    }
+    bool isFollowsStar() {
+        return this->type == RelationshipType::FOLLOWST;
+    }
+    bool isFollows() {
+        return this->type == RelationshipType::FOLLOWS;
+    }
+    bool isParent() {
+        return this->type == RelationshipType::PARENT;
+    }
+    bool isParentStar() {
+        return this->type == RelationshipType::PARENTT;
+    }
+    bool isUses() {
+        return this->type == RelationshipType::USES;
+    }
+    bool isUsesStar() {
+        return this->type == RelationshipType::USEST;
     }
 };

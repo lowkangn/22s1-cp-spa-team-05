@@ -35,7 +35,17 @@ class Entity {
 			return this->line;
 		}
 
+		/*
+			Converts object to a string representation.
+		*/
 		string toString() {
+			return this->token.getString();
+		}
+
+		/*
+			Gets the tokens as string.
+		*/
+		string getString() {
 			return this->token.getString();
 		}
 
@@ -55,6 +65,7 @@ class Entity {
 			return this->type == EntityType::STMTLIST;
 		}
 
+		
 		bool isReadEntity() {
 			return this->type == EntityType::READ;
 		}
@@ -77,6 +88,17 @@ class Entity {
 
 		bool isWhile() {
 			return this->type == EntityType::WHILE;
+		}
+
+		bool isStmtEntity() {
+			return (
+				this->isAssignEntity()
+				|| this->isCallEntity()
+				|| this->isIf()
+				|| this->isPrintEntity()
+				|| this->isReadEntity()
+				|| this->isWhile()
+				);
 		}
 		
 };
