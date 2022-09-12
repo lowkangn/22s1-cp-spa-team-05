@@ -17,6 +17,8 @@
 #include <sp/parser/rules/ProcedureSimpleSyntaxRule.cpp>
 #include <sp/parser/rules/ReadSimpleSyntaxRule.h>
 #include <sp/parser/rules/ReadSimpleSyntaxRule.cpp>
+#include <sp/parser/rules/PrintSimpleSyntaxRule.h>
+#include <sp/parser/rules/PrintSimpleSyntaxRule.cpp>
 #include <sp/parser/rules/SimpleSyntaxRule.h>
 #include <sp/parser/rules/SimpleSyntaxRule.cpp>
 #include <sp/parser/rules/NameSimpleSyntaxRule.h>
@@ -142,6 +144,42 @@ TEST_CASE("Parser: test ::consumeTokens") {
             Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
         };
         testThrowsException(ReadSimpleSyntaxRule(), tokens);
+    }
+
+    // -------------------- PrintSimpleSyntaxRule --------------------
+    SECTION("PrintSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token(PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        list<Token> expectedTokens = { Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD) };
+        test(PrintSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+    SECTION("PrintSimpleSyntaxRule: Missing read token") {
+        list<Token> tokens = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        testThrowsException(PrintSimpleSyntaxRule(), tokens);
+    }
+    SECTION("PrintSimpleSyntaxRule: Missing name token") {
+        list<Token> tokens = {
+            Token(PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        testThrowsException(PrintSimpleSyntaxRule(), tokens);
+    }
+    SECTION("PrintSimpleSyntaxRule: Missing semicolon token") {
+        list<Token> tokens = {
+            Token(PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token("othervariableonnextline", TokenType::NAME_OR_KEYWORD),
+        };
+        testThrowsException(PrintSimpleSyntaxRule(), tokens);
     }
 
     // -------------------- AssignSimpleSyntaxRule --------------------
@@ -712,6 +750,22 @@ TEST_CASE("Parser: test ::generateChildRules") {
             nameRule
         };
         test(ReadSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+
+    // -------------------- PrintSimpleSyntaxRule --------------------
+    SECTION("PrintSimpleSyntaxRule:") {
+        list<Token> tokensToConsume = {
+            Token(PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(SEMI_COLON, TokenType::DELIMITER),
+        };
+        shared_ptr<SimpleSyntaxRule> nameRule = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+        list<Token> tokensInNameRule = { Token("soomevariable", TokenType::NAME_OR_KEYWORD) };
+        nameRule->consumeTokens(tokensInNameRule);
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            nameRule
+        };
+        test(PrintSimpleSyntaxRule(), tokensToConsume, expectedChildren);
     }
 
     // -------------------- AssignSimpleSyntaxRule --------------------
