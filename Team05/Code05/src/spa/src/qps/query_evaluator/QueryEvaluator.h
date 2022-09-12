@@ -4,7 +4,6 @@
 #include <vector>
 #include <unordered_set>
 
-#include "../query/clause/ClauseResult.h"
 #include "../query/clause/EntityClauseResult.h"
 #include "../query/clause/RelationshipClauseResult.h"
 #include "../query/Query.h"
@@ -40,6 +39,6 @@ public:
 	unordered_set<string> evaluate(Query query);
 
 	/* Combines the results from the clauses of a query */
-    unordered_set<string> combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>);
+    unordered_set<string> combine(pair<shared_ptr<EntityClauseResult>, list<shared_ptr<RelationshipClauseResult>>> results);
 
 };

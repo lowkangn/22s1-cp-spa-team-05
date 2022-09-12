@@ -2,10 +2,9 @@
 
 #include <vector>
 #include "PQLEntity.h"
-#include "ClauseResult.h"
 #include "ClauseArgument.h"
 
-class EntityClauseResult : public ClauseResult {
+class EntityClauseResult {
 
 private:
     ClauseArgument arg;

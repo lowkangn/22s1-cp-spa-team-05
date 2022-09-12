@@ -1,9 +1,9 @@
 #include "Query.h"
 
-pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> Query::execute() {
-    shared_ptr<ClauseResult> entities = selectClause->execute();
-    list<shared_ptr<ClauseResult>> relationships;
-	list<shared_ptr<Clause>>::iterator iter = constraintClauses.begin();
+pair<shared_ptr<EntityClauseResult>, list<shared_ptr<RelationshipClauseResult>>> Query::execute() {
+    shared_ptr<EntityClauseResult> entities = selectClause->execute();
+    list<shared_ptr<RelationshipClauseResult>> relationships;
+	list<shared_ptr<SuchThatClause>>::iterator iter = constraintClauses.begin();
 	for (; iter != constraintClauses.end(); iter++) {
         relationships.push_back((*iter)->execute());
 	}
@@ -20,8 +20,8 @@ bool operator==(Query first, Query second) {
 		return false;
 	}
 	// check remaining clauses sequentially
-	list<shared_ptr<Clause>>::iterator firstIter = first.constraintClauses.begin();
-	list<shared_ptr<Clause>>::iterator secondIter = second.constraintClauses.begin();
+	list<shared_ptr<SuchThatClause>>::iterator firstIter = first.constraintClauses.begin();
+	list<shared_ptr<SuchThatClause>>::iterator secondIter = second.constraintClauses.begin();
 	while (firstIter != first.constraintClauses.end()) {
 		isClauseEqual = (*(*firstIter).get()).equals((*secondIter).get());
 		if (!isClauseEqual) {

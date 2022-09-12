@@ -1,5 +1,16 @@
 #include <qps/query_parser/parsers/SuchThatClauseParser.h>
 
+shared_ptr<SuchThatClause> SuchThatClauseParser::parse() {
+	PQLToken clauseTypeToken = this->tokens.front();
+	assert(isCorrectClauseType(clauseTypeToken));
+	this->tokens.pop_front();
+
+	list<ClauseArgument> args = extractArguments();
+	this->checkArguments(args);
+	this->isParseCompleted = true;
+	return createClause(clauseTypeToken, args);
+}
+
 list<ClauseArgument> SuchThatClauseParser::extractArguments() {
 	// check '('
 	consumeOpenBracket();

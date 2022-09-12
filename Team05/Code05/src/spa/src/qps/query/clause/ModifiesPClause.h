@@ -1,21 +1,17 @@
 #pragma once
 
 #include <string>
-#include "Clause.h"
-#include "ClauseResult.h"
+#include "SuchThatClause.h"
 #include "RelationshipClauseResult.h"
 #include "ClauseArgument.h"
 
-class ModifiesPClause : public Clause {
+class ModifiesPClause : public SuchThatClause {
 
-private:
-	ClauseArgument lhs;
-	ClauseArgument rhs;
 public:
 	ModifiesPClause(ClauseArgument lhs, ClauseArgument rhs)
-		: lhs(lhs), rhs(rhs) {};
+		: SuchThatClause(lhs, rhs) {};
 
-	shared_ptr<ClauseResult> execute() override;
+	shared_ptr<RelationshipClauseResult> execute() override;
 
-	bool equals(const Clause* other) override;
+	bool equals(const SuchThatClause* other) override;
 };

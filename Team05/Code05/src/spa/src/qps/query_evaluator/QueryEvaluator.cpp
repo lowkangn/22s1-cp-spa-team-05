@@ -1,18 +1,19 @@
 #include <unordered_set>
 #include "QueryEvaluator.h"
 
-unordered_set<string> QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results) {
+unordered_set<string> QueryEvaluator::combine(pair<shared_ptr<EntityClauseResult>,
+        list<shared_ptr<RelationshipClauseResult>>> results) {
 
     // Safe cast as we know results.first is the result of SelectClause's execute() which returns a ClauseResult pointer
     // pointing to an EntityClauseResult: https://stackoverflow.com/questions/1358143/downcasting-shared-ptrbase-to-shared-ptrderived
     // A bit sus but will work for now until we can do restructuring of Clause + ClauseResult
-    shared_ptr<EntityClauseResult> entitiesResult = static_pointer_cast<EntityClauseResult>(results.first);
+    shared_ptr<EntityClauseResult> entitiesResult = shared_ptr<EntityClauseResult>(results.first);
 
     list<shared_ptr<RelationshipClauseResult>> relationshipsResults;
     while (!results.second.empty()) {
         // Safe cast as we know results.second is the result of execute() (excluding SelectClause) which returns a
         // ClauseResult pointer pointing to a RelationshipClauseResult.
-        shared_ptr<RelationshipClauseResult> relationshipsResult = static_pointer_cast<RelationshipClauseResult>(
+        shared_ptr<RelationshipClauseResult> relationshipsResult = shared_ptr<RelationshipClauseResult>(
                 results.second.front());
         relationshipsResults.push_back(relationshipsResult);
         results.second.pop_front();
@@ -47,7 +48,7 @@ unordered_set<string> QueryEvaluator::combine(pair<shared_ptr<ClauseResult>, lis
 }
 
 unordered_set<string> QueryEvaluator::evaluate(Query query) {
-    pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results = query.execute();
+    pair<shared_ptr<EntityClauseResult>, list<shared_ptr<RelationshipClauseResult>>> results = query.execute();
 	return combine(results);
 }
 

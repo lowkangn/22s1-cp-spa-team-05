@@ -7,8 +7,8 @@ using namespace std;
 // =============== UNIT TESTS ====================
 
 TEST_CASE("QueryEvaluator: test combine") {
-auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> results,
-                                         unordered_set<string> expected) {
+auto testCombine = [](pair<shared_ptr<EntityClauseResult>,
+		list<shared_ptr<RelationshipClauseResult>>> results, unordered_set<string> expected) {
     // given
     QueryEvaluator evaluator = QueryEvaluator();
 
@@ -24,12 +24,13 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
         // x = x + 1; variable v; Select v
         ClauseArgument variableArg = ClauseArgument("v", ArgumentType::VARIABLE);
         PQLEntity varEntity = PQLEntity::generateVariable("x");
-        shared_ptr<ClauseResult> entityClauseResultWithVariable = shared_ptr<ClauseResult>(new EntityClauseResult(
-                variableArg,vector<PQLEntity>{varEntity}));
+        shared_ptr<EntityClauseResult> entityClauseResultWithVariable =
+				shared_ptr<EntityClauseResult>(new EntityClauseResult(
+						variableArg,vector<PQLEntity>{varEntity}));
 
-        pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> combineInput = {
+        pair<shared_ptr<EntityClauseResult>, list<shared_ptr<RelationshipClauseResult>>> combineInput = {
                 entityClauseResultWithVariable,
-                list<shared_ptr<ClauseResult>>{}
+                list<shared_ptr<RelationshipClauseResult>>{}
         };
 
         unordered_set<string> expectedSet = unordered_set<string>{"x"};
@@ -39,12 +40,13 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
         // x = x + 1; constant c; Select c
         ClauseArgument constantArg = ClauseArgument("c", ArgumentType::CONSTANT);
         PQLEntity constEntity = PQLEntity::generateConstant(1);
-        shared_ptr<ClauseResult> entityClauseResultWithConstant = shared_ptr<ClauseResult>(new EntityClauseResult(
-                constantArg,vector<PQLEntity>{constEntity}));
+        shared_ptr<EntityClauseResult> entityClauseResultWithConstant =
+				shared_ptr<EntityClauseResult>(new EntityClauseResult(
+						constantArg,vector<PQLEntity>{constEntity}));
 
         combineInput = {
                 entityClauseResultWithConstant,
-                list<shared_ptr<ClauseResult>>{}
+                list<shared_ptr<RelationshipClauseResult>>{}
         };
 
         expectedSet = unordered_set<string>{"1"};
@@ -53,12 +55,13 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
 
         // x = x + 1; procedure p; Select p
         ClauseArgument procArg = ClauseArgument("p", ArgumentType::PROCEDURE);
-        shared_ptr<ClauseResult> entityClauseResultWithProcedure = shared_ptr<ClauseResult>(new EntityClauseResult(
-                procArg,vector<PQLEntity>{}));
+        shared_ptr<EntityClauseResult> entityClauseResultWithProcedure =
+				shared_ptr<EntityClauseResult>(new EntityClauseResult(
+						procArg,vector<PQLEntity>{}));
 
         combineInput = {
                 entityClauseResultWithProcedure,
-                list<shared_ptr<ClauseResult>>{}
+                list<shared_ptr<RelationshipClauseResult>>{}
         };
 
         expectedSet = unordered_set<string>{};
@@ -82,17 +85,17 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
         vector<PQLEntity> stmtEntities = vector<PQLEntity>{relationship1Entity1, relationship2Entity1};
         vector<PQLEntity> varEntities = vector<PQLEntity>{relationship1Entity2, relationship2Entity2};
 
-        shared_ptr<ClauseResult> assignEntityClauseResult = shared_ptr<ClauseResult>(new EntityClauseResult(
-                assignArg, stmtEntities));
+        shared_ptr<EntityClauseResult> assignEntityClauseResult = shared_ptr<EntityClauseResult>(
+				new EntityClauseResult(assignArg, stmtEntities));
 
-        shared_ptr<ClauseResult> assignAndVarRelationshipClauseResult(new RelationshipClauseResult(
+        shared_ptr<RelationshipClauseResult> assignAndVarRelationshipClauseResult(new RelationshipClauseResult(
                 assignArg,
                 varArg,
                 vector<PQLRelationship>{relationship1, relationship2}));
 
-        pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>> combineInput = {
+        pair<shared_ptr<EntityClauseResult>, list<shared_ptr<RelationshipClauseResult>>> combineInput = {
                 assignEntityClauseResult,
-                list<shared_ptr<ClauseResult>>{assignAndVarRelationshipClauseResult}
+                list<shared_ptr<RelationshipClauseResult>>{assignAndVarRelationshipClauseResult}
         };
 
         unordered_set<string> expectedSet = unordered_set<string>{"1", "2"};
@@ -101,12 +104,12 @@ auto testCombine = [](pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResul
         testCombine(combineInput, expectedSet);
 
         // x = x + 1; y = y + 1; assign a; variable v; Select v such that Modifies(a,v)
-        shared_ptr<ClauseResult> varEntityClauseResult = shared_ptr<ClauseResult>(new EntityClauseResult(
-                varArg, varEntities));
+        shared_ptr<EntityClauseResult> varEntityClauseResult = shared_ptr<EntityClauseResult>(
+				new EntityClauseResult(varArg, varEntities));
 
         combineInput = {
                 varEntityClauseResult,
-                list<shared_ptr<ClauseResult>>{assignAndVarRelationshipClauseResult}
+                list<shared_ptr<RelationshipClauseResult>>{assignAndVarRelationshipClauseResult}
         };
         expectedSet = unordered_set<string>{"x", "y"};
 

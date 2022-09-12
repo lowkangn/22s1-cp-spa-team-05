@@ -20,9 +20,6 @@
 #include <pkb/table_managers/RelationshipPkbTableManager.h>
 #include <pkb/table_managers/UsesPkbTableManager.h>
 
-#include <qps/query/clause/Clause.h>
-
-
 using namespace std;
 
 class ProgramKnowledgeBase: public PKBUpdateHandler {

@@ -7,6 +7,7 @@
 #include <qps/query_parser/parsers/ClauseParser.h>
 #include <qps/query/clause/ModifiesSClause.h>
 #include <qps/query/clause/ModifiesPClause.h>
+#include <qps/query/clause/SuchThatClause.h>
 
 /* SuchThatClauseParser is an abstract class for the parsing of
    such that clauses. It implements the extraction of their arguments.
@@ -18,4 +19,17 @@ public:
 
 	/* Extracts the LHS and RHS arguments of the such that clause */
 	list<ClauseArgument> extractArguments();
+
+	/* Parses this parser's tokens into a Clause. (Template method:
+	   behaviour depends on implementation of virtual functions) */
+	shared_ptr<SuchThatClause> parse();
+
+	/* Returns true if the clauseTypeToken matches the clause that the Parser parses */
+	virtual bool isCorrectClauseType(PQLToken clauseTypeToken) = 0;
+
+	/* Checks that the arguments fulfill the constraints of the clause; throws a PQL error otherwise */
+	virtual void checkArguments(list<ClauseArgument>& args) = 0;
+
+	/* Creates the clause given the clause type and arguments */
+	virtual shared_ptr<SuchThatClause> createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) = 0;
 };

@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 #include "../../qps/query/clause/ClauseArgument.h"
-#include "../../qps/query/clause/ClauseResult.h"
 #include "../../qps/query/clause/PQLEntity.h"
 #include "../../qps/query/clause/PQLRelationship.h"
 
