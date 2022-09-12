@@ -1,11 +1,18 @@
 #include <set>
 #include "QueryEvaluator.h"
 
+set<string> QueryEvaluator::evaluate(Query query) {
+	shared_ptr<ClauseResult> entitiesResultPointer = query.executeSelect();
+	list<shared_ptr<ClauseResult>> relationshipsResultPointers = query.executeSuchThat();
+	return combine(entitiesResultPointer, relationshipsResultPointers);
+}
+
 set<string> QueryEvaluator::combine(shared_ptr<ClauseResult> entitiesResultPointer,
 									list<shared_ptr<ClauseResult>> relationshipsResultPointers) {
 
-    EntityClauseResult entitiesResult = dereference(entitiesResultPointer);
-    list<RelationshipClauseResult> relationshipsResults = dereference(relationshipsResultPointers);
+    EntityClauseResult entitiesResult = dereferenceEntitiesResultPointer(entitiesResultPointer);
+    list<RelationshipClauseResult> relationshipsResults =
+			dereferenceRelationshipsResultPointers(relationshipsResultPointers);
 
     // If result from SelectClause returns no entries, return empty set
     if (entitiesResult.isEmpty()) {
@@ -32,7 +39,8 @@ set<string> QueryEvaluator::combine(shared_ptr<ClauseResult> entitiesResultPoint
             continue;
         } else {
             // Extract entities corresponding to the matching ClauseArgument from the RelationshipClauseResult
-            set<PQLEntity> entitiesToIntersect = extractEntitySet(argumentFound, relationshipsResultIter->getRelationships());
+            set<PQLEntity> entitiesToIntersect = extractEntitySet(
+					argumentFound, relationshipsResultIter->getRelationships());
 
             // Intersect sets into entitiesToReturn
             if (relationshipsResultIter == relationshipsResults.begin()) {
@@ -67,8 +75,59 @@ set<string> QueryEvaluator::combine(shared_ptr<ClauseResult> entitiesResultPoint
     return entityStringsToReturn;
 }
 
-set<string> QueryEvaluator::evaluate(Query query) {
-    shared_ptr<ClauseResult> entitiesResultPointer = query.executeSelect();
-	list<shared_ptr<ClauseResult>> relationshipsResultPointers = query.executeSuchThat();
-	return combine(entitiesResultPointer, relationshipsResultPointers);
+RelationshipArgument QueryEvaluator::findDesiredArgument(ClauseArgument desiredArg,
+										 RelationshipClauseResult relationshipResultToCheck) {
+	if (desiredArg == relationshipResultToCheck.getFirstArg()) {
+		return RelationshipArgument::ARG1;
+	} else if (desiredArg == relationshipResultToCheck.getSecondArg()) {
+		return RelationshipArgument::ARG2;
+	} else {
+		return RelationshipArgument::NONE;
+	}
+}
+
+EntityClauseResult QueryEvaluator::dereferenceEntitiesResultPointer(shared_ptr<ClauseResult> entitiesResultPointer) {
+	// Safe cast as we know entitiesResultPointer is the result of SelectClause's execute() which returns a
+	// ClauseResult pointer pointing to an EntityClauseResult.
+	// https://stackoverflow.com/questions/1358143/downcasting-shared-ptrbase-to-shared-ptrderived
+	return *(static_pointer_cast<EntityClauseResult>(entitiesResultPointer));
+}
+
+list<RelationshipClauseResult> QueryEvaluator::dereferenceRelationshipsResultPointers(
+		list<shared_ptr<ClauseResult>> relationshipsResultPointers) {
+	list<RelationshipClauseResult> relationshipsToReturn;
+	for (shared_ptr<ClauseResult> relationshipsResultPointer : relationshipsResultPointers) {
+		// Safe cast as we know relationshipsResultPointers are the result of execute() (excluding SelectClause)
+		// which returns a ClauseResult pointer pointing to a RelationshipClauseResult.
+		relationshipsToReturn.push_back(
+				*(static_pointer_cast<RelationshipClauseResult>(relationshipsResultPointer)));
+	}
+	return relationshipsToReturn;
+}
+
+set<PQLEntity> QueryEvaluator::extractEntitySet(RelationshipArgument argToExtract,
+												vector<PQLRelationship> relationships) {
+	if (argToExtract == RelationshipArgument::NONE) {
+		throw PQLError("Attempted to extract PQLEntity set despite no matching declaration");
+	}
+
+	set<PQLEntity> setToReturn;
+	if (argToExtract == RelationshipArgument::ARG1) {
+		for (PQLRelationship relationship : relationships) {
+			setToReturn.insert(relationship.getFirstEntity());
+		}
+	} else {
+		for (PQLRelationship relationship : relationships) {
+			setToReturn.insert(relationship.getSecondEntity());
+		}
+	}
+	return setToReturn;
+}
+
+set<PQLEntity> QueryEvaluator::intersectSets(set<PQLEntity> firstSet, set<PQLEntity> secondSet) {
+	set<PQLEntity> combined;
+	set_intersection(firstSet.begin(), firstSet.end(),
+					 secondSet.begin(), secondSet.end(),
+					 inserter(combined, combined.begin()));
+	return combined;
 }

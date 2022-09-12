@@ -18,56 +18,6 @@ enum class RelationshipArgument {
 };
 
 class QueryEvaluator {
-private:
-    RelationshipArgument findDesiredArgument(ClauseArgument desiredArg,
-                                            RelationshipClauseResult relationshipResultToCheck) {
-        if (desiredArg == relationshipResultToCheck.getFirstArg()) {
-            return RelationshipArgument::ARG1;
-        } else if (desiredArg == relationshipResultToCheck.getSecondArg()) {
-            return RelationshipArgument::ARG2;
-        } else {
-            return RelationshipArgument::NONE;
-        }
-    }
-
-    EntityClauseResult dereference(shared_ptr<ClauseResult> entitiesResultPointer) {
-        // Safe cast as we know entitiesResultPointer is the result of SelectClause's execute() which returns a
-        // ClauseResult pointer pointing to an EntityClauseResult.
-        // https://stackoverflow.com/questions/1358143/downcasting-shared-ptrbase-to-shared-ptrderived
-        return *(static_pointer_cast<EntityClauseResult>(entitiesResultPointer));
-    }
-
-    list<RelationshipClauseResult> dereference(list<shared_ptr<ClauseResult>> relationshipsResultPointers) {
-        list<RelationshipClauseResult> relationshipsToReturn;
-        for (shared_ptr<ClauseResult> relationshipsResultPointer : relationshipsResultPointers) {
-            // Safe cast as we know relationshipsResultPointers are the result of execute() (excluding SelectClause)
-            // which returns a ClauseResult pointer pointing to a RelationshipClauseResult.
-            relationshipsToReturn.push_back(*(static_pointer_cast<RelationshipClauseResult>(relationshipsResultPointer)));
-        }
-        return relationshipsToReturn;
-    }
-
-    set<PQLEntity> extractEntitySet(RelationshipArgument arg, vector<PQLRelationship> relationships) {
-        set<PQLEntity> setToReturn;
-        if (arg == RelationshipArgument::ARG1) {
-            for (PQLRelationship relationship : relationships) {
-                setToReturn.insert(relationship.getFirstEntity());
-            }
-        } else {
-            for (PQLRelationship relationship : relationships) {
-                setToReturn.insert(relationship.getSecondEntity());
-            }
-        }
-        return setToReturn;
-    }
-
-    set<PQLEntity> intersectSets(set<PQLEntity> firstSet, set<PQLEntity> secondSet) {
-        set<PQLEntity> combined;
-        set_intersection(firstSet.begin(), firstSet.end(),
-						 secondSet.begin(), secondSet.end(),
-                         inserter(combined, combined.begin()));
-        return combined;
-    }
 public:
     QueryEvaluator() {};
 
@@ -77,5 +27,17 @@ public:
 	/* Combines the results from the clauses of a query */
     set<string> combine(shared_ptr<ClauseResult> entitiesResultPointer,
 						list<shared_ptr<ClauseResult>> relationshipsResultPointers);
+
+	RelationshipArgument findDesiredArgument(ClauseArgument desiredArg,
+											 RelationshipClauseResult relationshipResultToCheck);
+
+	EntityClauseResult dereferenceEntitiesResultPointer(shared_ptr<ClauseResult> entitiesResultPointer);
+
+	list<RelationshipClauseResult> dereferenceRelationshipsResultPointers(
+			list<shared_ptr<ClauseResult>> relationshipsResultPointers);
+
+	set<PQLEntity> extractEntitySet(RelationshipArgument argToExtract, vector<PQLRelationship> relationships);
+
+	set<PQLEntity> intersectSets(set<PQLEntity> firstSet, set<PQLEntity> secondSet);
 
 };
