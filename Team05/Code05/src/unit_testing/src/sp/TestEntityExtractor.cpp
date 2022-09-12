@@ -104,7 +104,7 @@ TEST_CASE("EntityExtractor: test extract") {
 		assignNode->addChild(constantNode);
 
 
-		vector<Entity> expectedEntity{ Entity{EntityType::ASSIGN, 1, assignToken}, Entity{EntityType::VARIABLE, 1, xToken}, Entity{EntityType::CONSTANT, 1, constantToken} };
+		vector<Entity> expectedEntity{ Entity{EntityType::ASSIGN, 1, assignToken}, Entity{EntityType::VARIABLE, 1, xToken} };
 
 		testExtract(assignNode, expectedEntity);
 

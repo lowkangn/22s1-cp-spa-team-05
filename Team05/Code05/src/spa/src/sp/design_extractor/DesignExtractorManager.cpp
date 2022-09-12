@@ -27,14 +27,6 @@ vector<Relationship> DesignExtractorManager::extractRelationships(shared_ptr<AST
 
 vector<Entity> DesignExtractorManager::extractEntities(shared_ptr<ASTNode> ast) {
 	vector<Entity> entities = this->entityExtractor.extract(ast);
-
-	// Fix to remove constant entities
-	// refer to https://www.techiedelight.com/how-to-filter-a-vector-in-cpp/
-	entities.erase(remove_if(entities.begin(), entities.end(), 
-		[](Entity entity) {
-		return entity.getType() == EntityType::CONSTANT;
-		}), entities.end());
-
 	return entities;
 }
 

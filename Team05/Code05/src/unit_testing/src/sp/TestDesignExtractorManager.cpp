@@ -103,7 +103,7 @@ TEST_CASE("DesignExtractor: test : extractEntity()") {
 	nodeToExtractFrom->addChild(procedureNode);
 
 	// Creating relationships
-	vector<Entity> expectedEntities = vector<Entity>{ procedureEntity, readEntity, yEntity, assignEntity, xEntity, constantEntity };
+	vector<Entity> expectedEntities = vector<Entity>{ procedureEntity, readEntity, yEntity, assignEntity, xEntity };
 
 	test(nodeToExtractFrom, expectedEntities);
 }

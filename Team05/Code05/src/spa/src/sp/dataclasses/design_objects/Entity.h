@@ -49,5 +49,9 @@ class Entity {
 
 		bool isStmtLstEntity() {
 			return this->type == EntityType::STMTLIST;
+		}		
+		
+		bool isConstantEntity() {
+			return this->type == EntityType::CONSTANT;
 		}
 };
