@@ -12,6 +12,9 @@
 #include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
 #include <qps/query/clause/PQLEntity.h>
 
+#include <iostream>
+using namespace std;
+
 shared_ptr<PkbEntity> PKB::spEntityToPkbEntity(Entity entity) {
 	if (entity.isVariableEntity()) {
 
@@ -117,40 +120,41 @@ void PKB::addRelationships(vector<Relationship> relationships) {
 
 		// depending on relationship type, we choose the table 
 		// and create the object as a casted shared pointer
+		
 		if (r.isFollows()) {
-			PkbRelationshipTable table = this->getFollowsTable();
+			shared_ptr<PkbRelationshipTable> table = this->getFollowsTable();
 			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbFollowsRelationship(lhs, rhs));
-			table.add(relationship);
+			table->add(relationship);
 		}
 		else if (r.isFollowsStar()) {
-			PkbRelationshipTable table = this->getFollowsStarTable();
+			shared_ptr<PkbRelationshipTable> table = this->getFollowsStarTable();
 			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(lhs, rhs));
-			table.add(relationship);
+			table->add(relationship);
 		}
 		else if (r.isParent()) {
-			PkbRelationshipTable table = this->getParentTable();
+			shared_ptr<PkbRelationshipTable> table = this->getParentTable();
 			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbParentRelationship(lhs, rhs));
-			table.add(relationship);
+			table->add(relationship);
 		}
 		else if (r.isParentStar()) {
-			PkbRelationshipTable table = this->getParentStarTable();
+			shared_ptr<PkbRelationshipTable> table = this->getParentStarTable();
 			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhs, rhs));
-			table.add(relationship);
+			table->add(relationship);
 		}
 		else if (r.isUses()) {
-			PkbRelationshipTable table = this->getUsesTable();
+			shared_ptr<PkbRelationshipTable> table = this->getUsesTable();
 			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhs, rhs));
-			table.add(relationship);
+			table->add(relationship);
 		}
 		else if (r.isModifies()) {
-			PkbRelationshipTable table = this->getModifiesTable();
+			shared_ptr<PkbRelationshipTable> table = this->getModifiesTable();
 			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs));
-			table.add(relationship);
+			table->add(relationship);
 		}
 		else if (r.isUsesStar()) {
-			PkbRelationshipTable table = this->getUsesStarTable();
+			shared_ptr<PkbRelationshipTable> table = this->getUsesStarTable();
 			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbUsesStarRelationship(lhs, rhs));
-			table.add(relationship);
+			table->add(relationship);
 		}
 		else {
 			throw PkbException("Unknown relationship being added to PKB!");
@@ -303,7 +307,7 @@ vector<PQLEntity> PKB::retrieveAllVariables() {
 	return out;
 }
 
-PkbRelationshipTable PKB::getTableByRelationshipType(PKBTrackedRelationshipType relationshipType) {
+shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelationshipType relationshipType) {
 	// based on relationship type, we get the specific table 
 	switch (relationshipType) {
 	case PKBTrackedRelationshipType::Follows:
@@ -332,7 +336,7 @@ PkbRelationshipTable PKB::getTableByRelationshipType(PKBTrackedRelationshipType 
 PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 
 	// default filter is true
-	PkbEntityFilter filter = [](shared_ptr<PkbEntity> side) {
+	PkbEntityFilter filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
 		return true;
 	};
 
@@ -342,32 +346,54 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 	}
 	else if (arg.isVariableSynonym()) {
 		// return only true if entity is a variable
-		filter = [](shared_ptr<PkbEntity> side) {
+		filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
 			return side->isVariable();
 		};
 	}
 	else if (arg.isProcedureSynonym()) {
 		// return only true if entity is a procedure
-		filter = [](shared_ptr<PkbEntity> side) {
+		filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
 			return side->isProcedure();
 		};
 	}
 	else if (arg.isStmtSynonym()) {
 		// return only true if entity is a statement
-		filter = [](shared_ptr<PkbEntity> side) {
+		filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
 			return side->isStatement();
 		};
 	}
 	else if (arg.isLineNumber()) {
 		// entity must be a statement matching line number
+		// return only true if entity has that line number
+		filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
+			if (!side->isStatement()) {
+				return false;
+			}
+			// else, cast and check if assign
+			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*side));
+			return cast->getLineNumber() == arg.getLineNumber();
+		};
 	}
 	else if (arg.isStringLiteral()) {
 		// can be procedure or variable name
+		filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
+			if (side->isVariable()) {
+				// castand check 
+				PkbVariableEntity* cast = dynamic_cast<PkbVariableEntity*>(&(*side));
+				return cast->getIdentifier() == arg.getIdentifier();
+			}
+			else if (side->isProcedure()) {
+				// castand check 
+				PkbProcedureEntity* cast = dynamic_cast<PkbProcedureEntity*>(&(*side));
+				return cast->getIdentifier() == arg.getIdentifier();
+			}
+			return false;
+		};
 
 	}
 	else if (arg.isAssignSynonym()) {
 		// return only true if entity is a an assign statement
-		filter = [](shared_ptr<PkbEntity> side) {
+		filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
 			if (!side->isStatement()) {
 				return false;
 			}
@@ -378,7 +404,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 	}
 	else if (arg.isPrintSynonym()) {
 		// return only true if entity is a print statement
-		filter = [](shared_ptr<PkbEntity> side) {
+		filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
 			if (!side->isStatement()) {
 				return false;
 			}
@@ -389,7 +415,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 	}
 	else if (arg.isReadSynonym()) {
 		// return only true if entity is a read statement
-		filter = [](shared_ptr<PkbEntity> side) {
+		filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
 			if (!side->isStatement()) {
 				return false;
 			}
@@ -400,7 +426,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 	}
 	else if (arg.isCallSynonym()) {
 		// return only true if entity is a call statement
-		filter = [](shared_ptr<PkbEntity> side) {
+		filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
 			if (!side->isStatement()) {
 				return false;
 			}
@@ -411,7 +437,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 	}
 	else if (arg.isWhileSynonym()) {
 		// return only true if entity is a while statement
-		filter = [](shared_ptr<PkbEntity> side) {
+		filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
 			if (!side->isStatement()) {
 				return false;
 			}
@@ -422,7 +448,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 	}
 	else if (arg.isIfSynonym()) {
 		// return only true if entity is if  statement
-		filter = [](shared_ptr<PkbEntity> side) {
+		filter = [](shared_ptr<PkbEntity> side, ClauseArgument arg) {
 			if (!side->isStatement()) {
 				return false;
 			}
@@ -437,7 +463,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 
 vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
 	// 1. get table based on type
-	PkbRelationshipTable table = this->getTableByRelationshipType(relationshipType);
+	shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(relationshipType);
 	// 2. if either side is exact, we can search by hash
 	// we create the key we are looking for based on lhs and rhs 
 	// TODO: for now, we do a manual filter
@@ -446,10 +472,12 @@ vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelat
 	PkbEntityFilter lhsFilter = getFilterFromClauseArgument(lhs);
 	PkbEntityFilter rhsFilter = getFilterFromClauseArgument(rhs);
 	vector<PQLRelationship> out;
-	for (shared_ptr<PkbRelationship> r : table.getAll()) {
+	for (shared_ptr<PkbRelationship> r : table->getAll()) {
 		shared_ptr<PkbEntity> lhsEntity = r->getLhs();
 		shared_ptr<PkbEntity> rhsEntity = r->getRhs();
-		if (lhsFilter(lhsEntity) && rhsFilter(rhsEntity)) {
+
+		
+		if (lhsFilter(lhsEntity, lhs) && rhsFilter(rhsEntity, rhs)) {
 			// create pql relationship
 			PQLEntity outLhs = this->pkbEntityToQpsPqlEntity(lhsEntity);
 			PQLEntity outRhs = this->pkbEntityToQpsPqlEntity(rhsEntity);
@@ -462,11 +490,11 @@ vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelat
 
 vector<PQLRelationship> PKB::retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) {
 	// 1. get table based on type
-	PkbRelationshipTable table = this->getTableByRelationshipType(relationshipType);
+	shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(relationshipType);
 
 	// 2. convert all to PQLRelationship
 	vector<PQLRelationship> out;
-	for (shared_ptr<PkbRelationship> r : table.getAll()) {
+	for (shared_ptr<PkbRelationship> r : table->getAll()) {
 		
 		PQLEntity lhs = this->pkbEntityToQpsPqlEntity(r->getLhs());
 		PQLEntity rhs = this->pkbEntityToQpsPqlEntity(r->getRhs());

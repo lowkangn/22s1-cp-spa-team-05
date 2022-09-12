@@ -33,38 +33,38 @@ private:
 	PkbEntityTable proceduresTable;
 
 	// relationships
-	map<string, PkbRelationshipTable> relationshipTables{
-		{FOLLOWS_TABLE, PkbRelationshipTable()},
-		{FOLLOWSSTAR_TABLE, PkbRelationshipTable()},
-		{PARENT_TABLE, PkbRelationshipTable()},
-		{PARENTSTAR_TABLE, PkbRelationshipTable()},
-		{USES_TABLE, PkbRelationshipTable()},
-		{USESSTAR_TABLE, PkbRelationshipTable()},
-		{MODIFIES_TABLE, PkbRelationshipTable()},
+	map<string, shared_ptr<PkbRelationshipTable>> relationshipTables{
+		{FOLLOWS_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{FOLLOWSSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{PARENT_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{PARENTSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{USES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{USESSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{MODIFIES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 	};
 
 	// patterns
 
 	// getters
-	PkbRelationshipTable getFollowsTable() {
+	shared_ptr<PkbRelationshipTable> getFollowsTable() {
 		return this->relationshipTables[FOLLOWS_TABLE];
 	}
-	PkbRelationshipTable getFollowsStarTable() {
+	shared_ptr<PkbRelationshipTable> getFollowsStarTable() {
 		return this->relationshipTables[FOLLOWSSTAR_TABLE];
 	}
-	PkbRelationshipTable getParentTable() {
+	shared_ptr<PkbRelationshipTable> getParentTable() {
 		return this->relationshipTables[PARENT_TABLE];
 	}
-	PkbRelationshipTable getParentStarTable() {
+	shared_ptr<PkbRelationshipTable> getParentStarTable() {
 		return this->relationshipTables[PARENTSTAR_TABLE];
 	}
-	PkbRelationshipTable getUsesTable() {
+	shared_ptr<PkbRelationshipTable> getUsesTable() {
 		return this->relationshipTables[USES_TABLE];
 	}
-	PkbRelationshipTable getUsesStarTable() {
+	shared_ptr<PkbRelationshipTable> getUsesStarTable() {
 		return this->relationshipTables[USESSTAR_TABLE];
 	}
-	PkbRelationshipTable getModifiesTable() {
+	shared_ptr<PkbRelationshipTable> getModifiesTable() {
 		return this->relationshipTables[MODIFIES_TABLE];
 	}
 
@@ -76,7 +76,7 @@ private:
 	/*
 		Maps the supported relationship types to an internal table.
 	*/
-	PkbRelationshipTable getTableByRelationshipType(PKBTrackedRelationshipType relationshipType);
+	shared_ptr<PkbRelationshipTable> getTableByRelationshipType(PKBTrackedRelationshipType relationshipType);
 
 	/*
 		Converts an internal Pkb entity to a pql entity used in the qps.
@@ -168,7 +168,7 @@ typedef bool (*PkbStatementEntityFilter)(PkbStatementEntity* statement);
 	A filter applied to a pkb entity. This is used
 	in filtering relationships by lhs and rhs.
 */
-typedef bool (*PkbEntityFilter)(shared_ptr<PkbEntity> side);
+typedef bool (*PkbEntityFilter)(shared_ptr<PkbEntity> side, ClauseArgument arg);
 /*
 	Converts a clause argument to a filter that can be applied to a PkbEntity. This is used
 	in filtering relationships by lhs and rhs.
