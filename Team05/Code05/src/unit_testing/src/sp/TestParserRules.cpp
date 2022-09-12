@@ -1875,7 +1875,6 @@ TEST_CASE("Parser: test ::constructNode") {
 
         test(rule, expectedASTNode);
     }
-
 };
 
 TEST_CASE("ProgramSimpleSyntaxRule test ::setLineNumber") {
