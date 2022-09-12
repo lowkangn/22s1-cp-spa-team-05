@@ -413,7 +413,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 			}
 			// else, cast and check if read
 			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*side));
-			return cast->isPrintStatement();
+			return cast->isReadStatement();
 		};
 	}
 	else if (arg.isCallSynonym()) {

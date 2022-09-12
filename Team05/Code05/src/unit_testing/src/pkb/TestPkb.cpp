@@ -594,8 +594,8 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		test(PKBTrackedRelationshipType::Uses, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3b: while and variable
-		// lhs = ClauseArgument("ifs", ArgumentType::IF);
-		rhs = ClauseArgument("w", ArgumentType::WHILE);
+		lhs = ClauseArgument("w", ArgumentType::WHILE);
+		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
 		expectedRelationships = {
 			
 		};
@@ -632,21 +632,120 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 	};
 
 	SECTION("Modifies") {
-		// test 1: assign and variable
+		/*
+			procedure p {
+			1.	x = 1;
+			2.	read x;
+			3.	if (x == 1) then {
+			4.		x = 2;	
+			5.		call p; // recursive call
+				}
 
-		// test 2: read and variable
+			}
+		*/
+		Entity procedure = Entity(EntityType::PROCEDURE, INVALID_LINE_NUMBER, Token("p", TokenType::NAME_OR_KEYWORD));
+		Entity x = Entity(EntityType::VARIABLE, INVALID_LINE_NUMBER, Token("x", TokenType::NAME_OR_KEYWORD));
+		Entity statement1 = Entity(EntityType::ASSIGN, 1, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity statement2 = Entity(EntityType::READ, 2, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity statement3 = Entity(EntityType::IF, 3, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity statement4 = Entity(EntityType::ASSIGN, 4, Token(INVALID_IDENTIFIER, TokenType::OPERATOR));
+		Entity statement5 = Entity(EntityType::CALL, 5, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		// vector of relationships to add
+		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
+			Relationship(
+				statement1,
+				x,
+				RelationshipType::MODIFIES
+			),
+			Relationship(
+				statement2,
+				x,
+				RelationshipType::MODIFIES
+			),
+			Relationship(
+				statement3,
+				x,
+				RelationshipType::MODIFIES
+			),
+			Relationship(
+				procedure,
+				x,
+				RelationshipType::MODIFIES
+			),
+			Relationship(
+				statement5,
+				x,
+				RelationshipType::MODIFIES
+			),
+		};
+		// shared, as PQLEntities
+		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
+		PQLEntity xResult = PQLEntity::generateVariable("x");
+		PQLEntity statementResult1 = PQLEntity::generateStatement(1);
+		PQLEntity statementResult2 = PQLEntity::generateStatement(2);
+		PQLEntity statementResult3 = PQLEntity::generateStatement(3);
+		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
+		PQLEntity statementResult5 = PQLEntity::generateStatement(5);
+
+		// test 1: assign and variable
+		ClauseArgument lhs = ClauseArgument("a", ArgumentType::ASSIGN);
+		ClauseArgument rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		vector<PQLRelationship> expectedRelationships = {
+			PQLRelationship(statementResult1, xResult),
+		};
+		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
+		// test 2: print and variable
+		lhs = ClauseArgument("r", ArgumentType::READ);
+		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		expectedRelationships = {
+			PQLRelationship(statementResult2, xResult),
+		};
+		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
+
 
 		// test 3a: if and variable
+		lhs = ClauseArgument("ifs", ArgumentType::IF);
+		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		expectedRelationships = {
+			PQLRelationship(statementResult3, xResult),
+		};
+		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3b: while and variable
+		lhs = ClauseArgument("w", ArgumentType::WHILE);
+		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		expectedRelationships = {
+
+		};
+		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: procedure and variable
+		lhs = ClauseArgument("p", ArgumentType::PROCEDURE);
+		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		expectedRelationships = {
+			PQLRelationship(procedureResult, xResult),
+		};
+		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 5: call and variable 
+		lhs = ClauseArgument("c", ArgumentType::CALL);
+		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		expectedRelationships = {
+			PQLRelationship(statementResult5, xResult),
+		};
+		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 6: rhs wildcard
-
-		// test 6: lhs wildcard
+		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
+		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		expectedRelationships = {
+			PQLRelationship(statementResult1, xResult),
+			PQLRelationship(statementResult2, xResult),
+			PQLRelationship(statementResult3, xResult),
+			PQLRelationship(statementResult5, xResult),
+			PQLRelationship(procedureResult, xResult),
+		};
+		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
 	};
 
 
