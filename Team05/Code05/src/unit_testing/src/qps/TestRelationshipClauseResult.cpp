@@ -15,9 +15,9 @@ TEST_CASE("RelationshipClauseResult: test operator==") {
         REQUIRE(actual == expected);
     };
 
-    ClauseArgument firstArg = ClauseArgument("v", ArgumentType::ENTREF_SYNONYM);
-    ClauseArgument firstArgAgain = ClauseArgument("v", ArgumentType::ENTREF_SYNONYM);
-    ClauseArgument secondArg = ClauseArgument("a", ArgumentType::STMTREF_SYNONYM);
+    ClauseArgument firstArg = ClauseArgument("v", ArgumentType::VARIABLE);
+    ClauseArgument firstArgAgain = ClauseArgument("v", ArgumentType::VARIABLE);
+    ClauseArgument secondArg = ClauseArgument("a", ArgumentType::ASSIGN);
     ClauseArgument thirdArg = ClauseArgument("1", ArgumentType::LINE_NUMBER);
 
     PQLEntity firstEntity = PQLEntity::generateVariable("x");
@@ -35,7 +35,7 @@ TEST_CASE("RelationshipClauseResult: test operator==") {
                            RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            true);
 
-        // Different arg but same parameters, same relationships
+        // Different args but same parameters, same relationships
         testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            RelationshipClauseResult(firstArgAgain, secondArg, vector<PQLRelationship>{firstRelationship}),
                            true);

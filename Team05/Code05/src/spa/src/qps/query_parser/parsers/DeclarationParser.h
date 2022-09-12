@@ -2,19 +2,19 @@
 
 #include <unordered_map>
 
-#include <qps/query_parser/DesignEntity.h>
+#include <qps/query_parser/ArgumentType.h>
 #include <qps/query_tokenizer/PQLToken.h>
 
 class DeclarationParser {
 private:
 	list<PQLToken> tokens;
-	unordered_map<string, DesignEntity> declarations;
+	unordered_map<string, ArgumentType> declarations;
 public:
 	DeclarationParser(list<PQLToken> tokens) {
 		this->tokens = tokens;
 	};
 
-	unordered_map<string, DesignEntity> getDeclarations() {
+	unordered_map<string, ArgumentType> getDeclarations() {
 		return this->declarations;
 	};
 
@@ -23,7 +23,7 @@ public:
 	};
 
 	/* Parses all declarations in the query. */
-	unordered_map<string, DesignEntity> parse();
+	unordered_map<string, ArgumentType> parse();
 
 	/**
 	 * Parses one declaration clause, defined
