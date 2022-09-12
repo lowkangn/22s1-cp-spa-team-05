@@ -62,7 +62,7 @@ Entity ProgramKnowledgeBase::retrieveKnowledge(PkbClause queryClause) {
     EntityPkbTableManager entityManager = EntityPkbTableManager();
     Token tokenX = Token("x", TokenType::NAME_OR_KEYWORD);
     EntityIdentifier identifierX = EntityIdentifier(tokenX, "x");
-    Entity entityX = Entity(EntityType::VARIABLE, 4, tokenX, "x");
+    Entity entityX = Entity(EntityType::VARIABLE, 4, tokenX);
     return entityX;
 }
 
@@ -95,6 +95,7 @@ void ProgramKnowledgeBase::addPattern(vector<Pattern> patterns) {
     int x;
 }
 
+/*
 vector<int> ProgramKnowledgeBase::addEntity(vector<Entity> entities) {
     vector<int> entityIdVector;
     for (auto &entity : entities) {
@@ -129,5 +130,4 @@ shared_ptr<EntityPkbTableManager> ProgramKnowledgeBase::_getEntitiesTable() {
 //vector<shared_ptr<Entity>> ProgramKnowledgeBase::_getAllEntities() {
 
 //}
-
-
+*/

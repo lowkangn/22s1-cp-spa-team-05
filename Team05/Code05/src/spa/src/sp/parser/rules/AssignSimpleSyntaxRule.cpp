@@ -3,7 +3,8 @@
 #include <sp/parser/rules/NameSimpleSyntaxRule.h>
 #include <sp/parser/rules/ConstantValueSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
+#include <sp/dataclasses/ast/AssignASTNode.h>
 #include <list>
 #include <memory>
 
@@ -102,17 +103,14 @@ shared_ptr<ASTNode> AssignSimpleSyntaxRule::constructNode() {
 
 	// create current node
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
-	shared_ptr<ASTNode> assignNode(new ASTNode(vector<Token>{assignToken}));
-	assignNode->setType(ASTNodeType::ASSIGN);
+	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 
 
 	shared_ptr<ASTNode> leftHandSide = this->childRules[LHS]->constructNode();
-	leftHandSide->setType(ASTNodeType::NAME);
 
 	// NOTE: for MVP we only allow constant assignment
 	// TODO: do a proper expression
 	shared_ptr<ASTNode> rightHandSide = this->childRules[RHS]->constructNode();
-	rightHandSide->setType(ASTNodeType::CONSTANT);
 
 	assignNode->addChild(leftHandSide);
 	assignNode->addChild(rightHandSide);

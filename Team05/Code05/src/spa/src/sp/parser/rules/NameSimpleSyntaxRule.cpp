@@ -1,6 +1,6 @@
 #include <sp/parser/rules/NameSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/VariableASTNode.h>
 #include <vector>
 using namespace std;
 
@@ -39,8 +39,7 @@ shared_ptr<ASTNode> NameSimpleSyntaxRule::constructNode() {
 	}
 
 	Token nameToken = this->tokens.front();
-	shared_ptr<ASTNode> nameNode(new ASTNode(vector<Token>{nameToken}));
-	nameNode->setType(ASTNodeType::NAME);
+	shared_ptr<ASTNode> nameNode(new VariableASTNode(nameToken));
 
 	return nameNode;
 }

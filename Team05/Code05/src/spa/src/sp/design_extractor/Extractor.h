@@ -1,5 +1,5 @@
 #pragma once
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 #include <vector>
 #include <memory>
 
