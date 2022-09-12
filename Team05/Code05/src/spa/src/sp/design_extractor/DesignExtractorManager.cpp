@@ -48,7 +48,7 @@ void DesignExtractorManager::extractAll() {
 
 void DesignExtractorManager::storeAllRelations(shared_ptr<PKBUpdateHandler> pkb) {
 
-	pkb->addEntity(this->entities);
-	pkb->addPattern(this->patterns);
-	pkb->addRelationship(this->relationships);
+	pkb->addEntities(this->entities);
+	pkb->addPatterns(this->patterns);
+	pkb->addRelationships(this->relationships);
 }

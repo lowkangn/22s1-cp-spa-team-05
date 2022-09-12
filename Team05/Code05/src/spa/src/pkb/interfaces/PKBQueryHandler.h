@@ -43,7 +43,7 @@ public:
         NOTE: we should refactor such that it does not return a PQLEntity, but instead a ProcedurePQLEntity for safety.
         We can always up cast as needed, but down casting is bad practice.
     */
-    vector<PQLEntity> retrieveProcedureEntitiesByName(string procedureName);
+    virtual vector<PQLEntity> retrieveProcedureEntitiesByName(string procedureName) = 0;
 
     /*
         Retrieves all procedure entities. 
@@ -51,7 +51,7 @@ public:
         NOTE: we should refactor such that it does not return a PQLEntity, but instead a ProcedurePQLEntity for safety.
         We can always up cast as needed, but down casting is bad practice.
     */
-    vector<PQLEntity> retrieveAllProcedureEntities();
+    virtual vector<PQLEntity> retrieveAllProcedureEntities() = 0;
 
     // ===== statements and specific statement types =====
 
@@ -64,44 +64,44 @@ public:
         a specific type constrained to line number, it's much easier, than making a query by 
         type and then filtering on your own.
     */
-    vector<PQLEntity> retrieveStatementEntitiesByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType);
+    virtual vector<PQLEntity> retrieveStatementEntitiesByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) = 0;
 
     /*
         Retrieves statement entities of a specific type.
     */
-    vector<PQLEntity> retrieveStatementEntitiesByType(PKBTrackedStatementType pkbTrackedStatementType);
+    virtual vector<PQLEntity> retrieveStatementEntitiesByType(PKBTrackedStatementType pkbTrackedStatementType) = 0;
     /*
         Retrieves all statement entities.
     */
-    vector<PQLEntity> retrieveAllStatementEntities();
+    virtual vector<PQLEntity> retrieveAllStatementEntities() = 0;
 
     // ===== Variables and constants =====
     /*
         Retrieves all stored constants.
     */
-    vector<PQLEntity> retrieveAllConstants();
+    virtual vector<PQLEntity> retrieveAllConstants() = 0;
 
     /*
         Retrieves all stored variables.
     */
-    vector<PQLEntity> retrieveAllVariables();
+    virtual vector<PQLEntity> retrieveAllVariables() = 0;
 
     /*
         Retrieves variables by name.
     */
-    vector<PQLEntity> retrieveVariablesByName(string name);
+    virtual vector<PQLEntity> retrieveVariablesByName(string name) = 0;
 
 
     // ===== Relationships =====
     /*
         Retrieves all relationships of a specified supported type and a lhs and rhs. 
     */
-    vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
+    virtual vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) = 0;
     
     /*
         Retrieves all relationships of a specified type.
     */
-    vector<PQLRelationship> retrieveRelationshipByType(PKBTrackedRelationshipType relationshipType);
+    virtual vector<PQLRelationship> retrieveRelationshipByType(PKBTrackedRelationshipType relationshipType) = 0;
 
     
 };

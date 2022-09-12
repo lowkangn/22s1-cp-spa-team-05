@@ -14,9 +14,7 @@ volatile bool AbstractWrapper::GlobalStop = false;
 
 // a default constructor
 TestWrapper::TestWrapper() {
-	this->pkb = ProgramKnowledgeBase::getInstance();
 	this->sp = SourceProcessor();
-]	// initialize qps
 }
 
 // method for parsing the SIMPLE source
@@ -26,7 +24,6 @@ void TestWrapper::parse(std::string filename) {
 	stream.open(filename);
 	
 	// parse
-	this->sp.tokenizeParseExtractAndUpdatePkb(stream, shared_ptr<PKBUpdateHandler>(this->pkb));
 
 	stream.close();
 }
