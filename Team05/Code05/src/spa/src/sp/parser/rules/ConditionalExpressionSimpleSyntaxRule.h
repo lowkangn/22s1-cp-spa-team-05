@@ -8,23 +8,18 @@ using namespace std;
 
 class ConditionalExpressionSimpleSyntaxRule : public SimpleSyntaxRule {
 private:
-	shared_ptr<SimpleSyntaxRule> operatorRule;
+	bool notOperatorUsed;
+	bool twoConditionals;
 public:
 	ConditionalExpressionSimpleSyntaxRule() {
 		this->generated = false;
 		this->initialized = false;
-		this->operatorRule = shared_ptr<SimpleSyntaxRule>();
-	}
-
-	void setOperatorRule(shared_ptr<SimpleSyntaxRule> operatorRule) {
-		this->operatorRule = operatorRule;
-	}
-
-	shared_ptr<SimpleSyntaxRule> getOperatorRule() {
-		return this->operatorRule;
+		this->notOperatorUsed = false;
+		this->twoConditionals = false;
 	}
 
 	vector<shared_ptr<SimpleSyntaxRule>> generateChildRules() override;
 	list<Token> consumeTokens(list<Token> tokens) override;
 	shared_ptr<ASTNode> constructNode() override;
+	list<Token> parseCondition(list<Token> &tokens);
 };

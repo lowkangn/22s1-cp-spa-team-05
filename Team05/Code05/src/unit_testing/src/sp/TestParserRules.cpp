@@ -443,26 +443,107 @@ TEST_CASE("Parser: test ::consumeTokens") {
 
    
     // -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
-    SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens") {
+    SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, just a relational operator test") {
         list<Token> tokens = {
-            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
-            Token("procedureName", TokenType::NAME_OR_KEYWORD),
-            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
             Token("soomevariable", TokenType::NAME_OR_KEYWORD),
-            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
-            Token("1", TokenType::INTEGER),
-            Token(SEMI_COLON, TokenType::DELIMITER),
-            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
-            Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD),
-            Token("anotherProcedureName", TokenType::NAME_OR_KEYWORD),
-            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
-            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
-            Token(EQUAL_OPERATOR, TokenType::OPERATOR),
-            Token("1", TokenType::INTEGER),
-            Token(SEMI_COLON, TokenType::DELIMITER),
-            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
         };
         list<Token> expectedTokens = {};
+        test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    // -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
+    SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, Not test") {
+        list<Token> tokens = {
+            Token(NOT, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER)
+        };
+        list<Token> expectedTokens = {};
+        test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    // -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
+    SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, two relational expressions") {
+        list<Token> tokens = {
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(AND, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER)
+        };
+        list<Token> expectedTokens = {};
+        test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    // -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
+    SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, doesnt consume extra tokens") {
+        list<Token> tokens = {
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(AND, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(CALL_KEYWORD, TokenType::DELIMITER),
+            Token("some random procedure", TokenType::NAME_OR_KEYWORD)
+        };
+        list<Token> expectedTokens = { Token(CALL_KEYWORD, TokenType::DELIMITER),
+            Token("some random procedure", TokenType::NAME_OR_KEYWORD) };
+        test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    // -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
+    SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, nested conditional expressions") {
+        // ((v >= x) || (q >= x)) && (soomevariable >= x)
+        list<Token> tokens = {
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("v", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(OR, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("q", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(AND, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("v", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(OR, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("q", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(CALL_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("main", TokenType::NAME_OR_KEYWORD)
+        };
+        list<Token> expectedTokens = { Token(CALL_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("main", TokenType::NAME_OR_KEYWORD) };
         test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
     }
 }
@@ -723,6 +804,229 @@ TEST_CASE("Parser: test ::generateChildRules") {
             procedure2
         };
         test(ProcedureSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+
+    // -------------------- ExpressionSimpleSyntaxRule --------------------
+    SECTION("ExpressionSimpleSyntaxRule: x % 5") {
+        list<Token> tokensToConsume = {
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token("%", TokenType::OPERATOR),
+            Token("5", TokenType::INTEGER),
+        };
+
+        // create lhs rule
+        shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+        list<Token> tokensInLHSRule = { Token("x", TokenType::NAME_OR_KEYWORD) };
+        lhsRule->consumeTokens(tokensInLHSRule);
+
+        // create operator rule
+        shared_ptr<SimpleSyntaxRule> operatorRule = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
+        list<Token> tokensInOperatorRule = { Token("%", TokenType::OPERATOR) };
+        operatorRule->consumeTokens(tokensInOperatorRule);
+
+        // create rhs rule
+        shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ConstantValueSimpleSyntaxRule());
+        list<Token> tokensInRHSRule = { Token("5", TokenType::INTEGER) };
+        rhsRule->consumeTokens(tokensInRHSRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            lhsRule,
+            operatorRule,
+            rhsRule
+        };
+        test(ExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+
+    SECTION("ExpressionSimpleSyntaxRule: x % 5 + 6") {
+        list<Token> tokensToConsume = {
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token("%", TokenType::OPERATOR),
+            Token("5", TokenType::INTEGER),
+            Token("+", TokenType::OPERATOR),
+            Token("6", TokenType::INTEGER),
+        };
+
+        // create lhs rule
+        shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+        list<Token> tokensInLHSRule = { Token("x", TokenType::NAME_OR_KEYWORD) };
+        lhsRule->consumeTokens(tokensInLHSRule);
+
+        // create operator rule
+        shared_ptr<SimpleSyntaxRule> operatorRule = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
+        list<Token> tokensInOperatorRule = { Token("%", TokenType::OPERATOR) };
+        operatorRule->consumeTokens(tokensInOperatorRule);
+
+        // create rhs rule
+        shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ExpressionSimpleSyntaxRule());
+        list<Token> tokensInRHSRule = { Token("5", TokenType::INTEGER), Token("+", TokenType::OPERATOR), Token("6", TokenType::INTEGER) };
+        rhsRule->consumeTokens(tokensInRHSRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            lhsRule,
+            operatorRule,
+            rhsRule
+        };
+        test(ExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+
+    // -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
+    SECTION("ConditionalExpressionSimpleSyntaxRule: x >= 5") {
+        list<Token> tokensToConsume = {
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+        };
+
+        // create relational rule
+        shared_ptr<SimpleSyntaxRule> relationalRule = shared_ptr<SimpleSyntaxRule>(new RelationalExpressionSimpleSyntaxRule());
+        list<Token> tokensRule = { Token("soomevariable", TokenType::NAME_OR_KEYWORD),Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD), };
+        relationalRule->consumeTokens(tokensRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            relationalRule,
+        };
+
+        test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }    
+
+    SECTION("ConditionalExpressionSimpleSyntaxRule: !(soomevariable >= x)") {
+        list<Token> tokensToConsume = {
+            Token(NOT, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER)
+        };
+
+        // create conditional rule
+        shared_ptr<SimpleSyntaxRule> conRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
+        list<Token> tokensInRHSRule = { Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+                                        Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+                                        Token("x", TokenType::NAME_OR_KEYWORD)};
+        conRule->consumeTokens(tokensInRHSRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            conRule
+        };
+        test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+
+    SECTION("ConditionalExpressionSimpleSyntaxRule: !(soomevariable >= x) && (soomevariable >= x)") {
+        list<Token> tokensToConsume = {
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(AND, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER)
+        };
+
+        // create lhs rule
+        shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
+        list<Token> tokensInLHSRule = { Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD) };
+        lhsRule->consumeTokens(tokensInLHSRule);
+
+        // create operator rule
+        shared_ptr<SimpleSyntaxRule> operatorRule = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
+        list<Token> tokensInOperatorRule = { Token(AND, TokenType::OPERATOR) };
+        operatorRule->consumeTokens(tokensInOperatorRule);
+
+        // create rhs rule
+        shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
+        list<Token> tokensInRHSRule = { Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD) };
+        rhsRule->consumeTokens(tokensInRHSRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            lhsRule,
+            operatorRule,
+            rhsRule
+        };
+        test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+  
+    SECTION("ConditionalExpressionSimpleSyntaxRule: ((v >= x) || (q >= x)) && ((v >= x) || (q >= x))") {
+        list<Token> tokensToConsume = {
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("v", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(OR, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("q", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(AND, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("v", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(OR, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("q", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+        };
+
+        // create lhs rule
+        shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
+        list<Token> tokensInLHSRule = { Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("v", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(OR, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("q", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER) };
+        lhsRule->consumeTokens(tokensInLHSRule);
+
+        // create operator rule
+        shared_ptr<SimpleSyntaxRule> operatorRule = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
+        list<Token> tokensInOperatorRule = { Token(AND, TokenType::OPERATOR) };
+        operatorRule->consumeTokens(tokensInOperatorRule);
+
+        // create rhs rule
+        shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
+        list<Token> tokensInRHSRule = { Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("v", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(OR, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("q", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER) };
+        rhsRule->consumeTokens(tokensInRHSRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            lhsRule,
+            operatorRule,
+            rhsRule
+        };
+        test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
     }
 }
 
