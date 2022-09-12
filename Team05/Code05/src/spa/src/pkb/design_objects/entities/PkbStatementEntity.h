@@ -79,7 +79,17 @@ public:
         return stoi(this->lineNumber);
     }
 
-    int getLineNumber() {
+    /*
+        Gets the identifier.
+    */
+    string getIdentifier() override {
+        throw PkbException("Statement does not have a identifier!");
+    }
+
+    /*
+        Gets the line number.
+    */
+    int getLineNumber() override {
         return this->lineNumber;
     }
 

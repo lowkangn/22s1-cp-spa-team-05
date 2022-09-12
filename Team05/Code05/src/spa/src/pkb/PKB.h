@@ -77,7 +77,16 @@ private:
 	*/
 	shared_ptr<PkbEntity> spEntityToPkbEntity(Entity entity);
 
-	
+	/*
+		Maps the supported relationship types to an internal table.
+	*/
+	PkbRelationshipTable getTableByRelationshipType(PKBTrackedRelationshipType relationshipType);
+
+	/*
+		Converts an internal Pkb entity to a pql entity used in the qps.
+	*/
+	PQLEntity pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity);
+
 public: 
 	PKB() {}
 
@@ -139,7 +148,7 @@ public:
 	/*
 		Retrieves all relationships of a specified type.
 	*/
-	vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) override;
+	PQLRelationship retrieveRelationshipByType(PKBTrackedRelationshipType relationshipType) override;
 	
 	/*
 		Casts the PKB to its query handler interface as a shared pointer.

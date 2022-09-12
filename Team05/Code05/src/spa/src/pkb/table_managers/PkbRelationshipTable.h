@@ -3,6 +3,7 @@
 #include <pkb/design_objects/relationships/PkbRelationship.h>
 
 #include <unordered_map>
+#include <vector>
 #include <string>
 #include <memory>
 using namespace std;
@@ -25,5 +26,10 @@ public:
 		we return NULL.
 	*/
 	shared_ptr<PkbRelationship> get(string& key);
+
+	/*
+		Returns all items.
+	*/
+	vector<shared_ptr<PkbRelationship>> getAll();
 
 };

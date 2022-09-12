@@ -24,7 +24,7 @@ enum class PKBTrackedRelationshipType {
     Uses,
     UsesStar,
     Modifies,
-    ModifieStar,
+    ModifiesStar,
 };
 
 
@@ -91,7 +91,7 @@ public:
     /*
         Retrieves all relationships of a specified supported type and a lhs and rhs. 
     */
-    virtual vector<PQLRelationship> retrieveRelationshipsByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) = 0;
+    virtual PQLRelationship retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) = 0;
     
     /*
         Retrieves all relationships of a specified type.

@@ -28,6 +28,14 @@ protected:
 	}
 
 public: 
+	shared_ptr<PkbEntity> getLhs() {
+		return this->lhs;
+	}
+
+	shared_ptr<PkbEntity> getRhs() {
+		return this->rhs;
+	}
+
 	bool isFollows() {
 		return this->relationshipType == PkbRelationshipType::FOLLOWS;
 	}

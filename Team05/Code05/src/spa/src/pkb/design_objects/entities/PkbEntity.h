@@ -30,4 +30,9 @@ public:
 	}
 
 	virtual string getKey() = 0;
+
+	virtual string getIdentifier() = 0;
+
+	virtual getLineNumber() = 0;
+
 };

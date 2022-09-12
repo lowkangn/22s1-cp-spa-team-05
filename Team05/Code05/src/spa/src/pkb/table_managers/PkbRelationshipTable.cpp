@@ -25,3 +25,11 @@ shared_ptr<PkbRelationship> PkbRelationshipTable::get(string& key) {
 	}
 	return this->table.at(key);
 }
+
+vector<shared_ptr<PkbRelationship>> PkbRelationshipTable::getAll() {
+	vector<shared_ptr<PkbRelationship>> output;
+	for (pair<string, shared_ptr<PkbRelationship>> const& keyValuePair : this->table) {
+		output.push_back(keyValuePair.second);
+	}
+	return output
+}

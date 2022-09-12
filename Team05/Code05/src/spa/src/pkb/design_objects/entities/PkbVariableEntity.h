@@ -24,8 +24,15 @@ public:
 	/*
 		Gets the identifier.
 	*/
-	string getIdentifier() {
+	string getIdentifier() override {
 		return this->identifier;
+	}
+
+	/*
+		Gets the line number.
+	*/
+	string getLineNumber() override {
+		throw PkbException("Variable does not have a line number!");
 	}
 
 
