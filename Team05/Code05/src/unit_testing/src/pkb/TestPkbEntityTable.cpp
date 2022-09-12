@@ -69,7 +69,7 @@ TEST_CASE("PkbEntityTable::getAll works correctly") {
 		// when 
 		for (shared_ptr<PkbEntity> e : expectedEntities) {
 			// add
-			table.add(r);
+			table.add(e);
 		}
 
 		// then 

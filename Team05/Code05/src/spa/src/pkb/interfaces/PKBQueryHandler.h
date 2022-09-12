@@ -33,7 +33,6 @@ enum class PKBTrackedRelationshipType {
  */
 class PKBQueryHandler {
 public:
-    PKBQueryHandler() {};
 
     // ===== procedure =====
 
@@ -91,7 +90,7 @@ public:
     /*
         Retrieves all relationships of a specified supported type and a lhs and rhs. 
     */
-    virtual PQLRelationship retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) = 0;
+    virtual vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) = 0;
     
     /*
         Retrieves all relationships of a specified type.

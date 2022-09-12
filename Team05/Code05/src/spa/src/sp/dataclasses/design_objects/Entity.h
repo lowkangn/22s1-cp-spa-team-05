@@ -7,7 +7,11 @@
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/design_objects/Entity.h>
 
+#include <string>
 using namespace std;
+
+const int INVALID_LINE_NUMBER = -1;
+const string INVALID_IDENTIFIER = "";
 
 /*
 	Enumeration of possible entity types.

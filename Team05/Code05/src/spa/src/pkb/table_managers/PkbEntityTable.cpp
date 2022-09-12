@@ -31,5 +31,5 @@ vector<shared_ptr<PkbEntity>> PkbEntityTable::getAll() {
 	for (pair<string, shared_ptr<PkbEntity>> const& keyValuePair : this->table) {
 		output.push_back(keyValuePair.second);
 	}
-	return output
+	return output;
 }

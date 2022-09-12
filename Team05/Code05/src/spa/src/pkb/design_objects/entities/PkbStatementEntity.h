@@ -101,4 +101,11 @@ public:
         return (other.lineNumber == this->lineNumber) && (other.statementType == this->statementType);
     }
 
+    bool equals(shared_ptr<PkbEntity> other) override {
+        if (!other->isStatement()) {
+            return false;
+        }
+        return this->getLineNumber() == other->getLineNumber();
+    }
+
 };

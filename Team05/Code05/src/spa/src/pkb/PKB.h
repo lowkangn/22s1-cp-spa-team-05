@@ -5,10 +5,9 @@
 #include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Entity.h>
-#include "../../qps/query/clause/ClauseArgument.h"
-#include "../../qps/query/clause/ClauseResult.h"
-#include "../../qps/query/clause/PQLEntity.h"
-#include "../../qps/query/clause/PQLRelationship.h"
+#include <qps/query/clause/ClauseArgument.h>
+#include <qps/query/clause/PQLEntity.h>
+#include <qps/query/clause/PQLRelationship.h>
 
 #include <pkb/table_managers/PkbEntityTable.h>
 #include <pkb/table_managers/PkbRelationshipTable.h>
@@ -18,16 +17,13 @@
 #include <vector>
 using namespace std;
 
-const map<PkbRelationshipType, string> pkbRelationshipTypeToTableKey{
-	{PkbRelationshipType::FOLLOWS, "follows"},
-	{PkbRelationshipType::FOLLOWSSTAR, "followsStar"},
-	{PkbRelationshipType::PARENT, "parent"},
-	{PkbRelationshipType::PARENTSTAR, "parentStar"},
-	{PkbRelationshipType::USES, "uses"},
-	{PkbRelationshipType::USESSTAR, "usesStar"},
-	{PkbRelationshipType::MODIFIES, "modifies"}
-};
-
+const string FOLLOWS_TABLE = "follows";
+const string FOLLOWSSTAR_TABLE = "followsStar";
+const string PARENT_TABLE = "parent";
+const string PARENTSTAR_TABLE = "parentStar";
+const string USES_TABLE = "uses";
+const string USESSTAR_TABLE = "usesStar";
+const string MODIFIES_TABLE = "modifies";
 
 class PKB : public PKBQueryHandler, public PKBUpdateHandler {
 private: 
@@ -38,38 +34,38 @@ private:
 
 	// relationships
 	map<string, PkbRelationshipTable> relationshipTables{
-		{pkbRelationshipTypeToTableKey[PkbRelationshipType::FOLLOWS], PkbRelationshipTable()},
-		{pkbRelationshipTypeToTableKey[PkbRelationshipType::FOLLOWSSTAR], PkbRelationshipTable()},
-		{pkbRelationshipTypeToTableKey[PkbRelationshipType::PARENT], PkbRelationshipTable()},
-		{pkbRelationshipTypeToTableKey[PkbRelationshipType::PARENTSTAR], PkbRelationshipTable()},
-		{pkbRelationshipTypeToTableKey[PkbRelationshipType::USES], PkbRelationshipTable()},
-		{pkbRelationshipTypeToTableKey[PkbRelationshipType::USESSTAR], PkbRelationshipTable()},
-		{pkbRelationshipTypeToTableKey[PkbRelationshipType::MODIFIES], PkbRelationshipTable()},
+		{FOLLOWS_TABLE, PkbRelationshipTable()},
+		{FOLLOWSSTAR_TABLE, PkbRelationshipTable()},
+		{PARENT_TABLE, PkbRelationshipTable()},
+		{PARENTSTAR_TABLE, PkbRelationshipTable()},
+		{USES_TABLE, PkbRelationshipTable()},
+		{USESSTAR_TABLE, PkbRelationshipTable()},
+		{MODIFIES_TABLE, PkbRelationshipTable()},
 	};
 
 	// patterns
 
 	// getters
 	PkbRelationshipTable getFollowsTable() {
-		return this->relationshipTables[pkbRelationshipTypeToTableKey[PkbRelationshipType::FOLLOWS];
+		return this->relationshipTables[FOLLOWS_TABLE];
 	}
 	PkbRelationshipTable getFollowsStarTable() {
-		return this->relationshipTables[pkbRelationshipTypeToTableKey[PkbRelationshipType::FOLLOWSSTAR];
+		return this->relationshipTables[FOLLOWSSTAR_TABLE];
 	}
 	PkbRelationshipTable getParentTable() {
-		return this->relationshipTables[pkbRelationshipTypeToTableKey[PkbRelationshipType::PARENT];
+		return this->relationshipTables[PARENT_TABLE];
 	}
 	PkbRelationshipTable getParentStarTable() {
-		return this->relationshipTables[pkbRelationshipTypeToTableKey[PkbRelationshipType::PARENTSTAR];
+		return this->relationshipTables[PARENTSTAR_TABLE];
 	}
 	PkbRelationshipTable getUsesTable() {
-		return this->relationshipTables[pkbRelationshipTypeToTableKey[PkbRelationshipType::USES];
+		return this->relationshipTables[USES_TABLE];
 	}
 	PkbRelationshipTable getUsesStarTable() {
-		return this->relationshipTables[pkbRelationshipTypeToTableKey[PkbRelationshipType::USESSTAR];
+		return this->relationshipTables[USESSTAR_TABLE];
 	}
 	PkbRelationshipTable getModifiesTable() {
-		return this->relationshipTables[pkbRelationshipTypeToTableKey[PkbRelationshipType::MODIFIES];
+		return this->relationshipTables[MODIFIES_TABLE];
 	}
 
 	/*
@@ -143,12 +139,12 @@ public:
 	/*
 		Retrieves all relationships by a lhs, rhs for relationships of a specified type.
 	*/
-	vector<PQLRelationship> retrieveRelationshipsByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) override;
+	vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) override;
 	
 	/*
 		Retrieves all relationships of a specified type.
 	*/
-	PQLRelationship retrieveRelationshipByType(PKBTrackedRelationshipType relationshipType) override;
+	vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) override;
 	
 	/*
 		Casts the PKB to its query handler interface as a shared pointer.
@@ -162,6 +158,12 @@ public:
 };
 
 // helper methods
+/*
+	A filter applied to a pkb entity. This is used
+	in filtering relationships by lhs and rhs.
+*/
+typedef bool (*PkbStatementEntityFilter)(PkbStatementEntity* statement);
+
 /*
 	A filter applied to a pkb entity. This is used
 	in filtering relationships by lhs and rhs.

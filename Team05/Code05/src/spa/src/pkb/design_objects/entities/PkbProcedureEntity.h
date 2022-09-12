@@ -49,4 +49,11 @@ public:
 	int getLineNumber() override {
 		throw PkbException("Procedure does not have a line number!");
 	}
+
+	bool equals(shared_ptr<PkbEntity> other) override {
+		if (!other->isProcedure()) {
+			return false;
+		}
+		return this->getIdentifier() == other->getIdentifier();
+	}
 };

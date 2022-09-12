@@ -51,4 +51,11 @@ public:
 	string getKey() override {
 		return this->identifier;
 	}
+
+	bool equals(shared_ptr<PkbEntity> other) override {
+		if (!other->isVariable()) {
+			return false;
+		}
+		return this->getIdentifier() == other->getIdentifier();
+	}
 };

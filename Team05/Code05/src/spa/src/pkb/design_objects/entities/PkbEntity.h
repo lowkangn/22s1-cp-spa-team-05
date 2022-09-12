@@ -35,4 +35,6 @@ public:
 
 	virtual int getLineNumber() = 0;
 
+	virtual bool equals(shared_ptr<PkbEntity> other) = 0;
+
 };
