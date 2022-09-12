@@ -390,18 +390,132 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		
 	};
 	SECTION("Parent") {
+		// shared, as if 4 statements in a block
+		Entity statement1 = Entity(EntityType::IF, 1, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity statement2 = Entity(EntityType::ASSIGN, 2, Token(INVALID_IDENTIFIER, TokenType::OPERATOR));
+		Entity statement3 = Entity(EntityType::IF, 3, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity statement4 = Entity(EntityType::CALL, 4, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
+			Relationship(
+				statement1,
+				statement2,
+				RelationshipType::PARENT
+			),
+			Relationship(
+				statement3,
+				statement4,
+				RelationshipType::PARENT
+			),
+		};
+		// shared, as PQLEntities
+		PQLEntity statementResult1 = PQLEntity::generateStatement(1);
+		PQLEntity statementResult2 = PQLEntity::generateStatement(2);
+		PQLEntity statementResult3 = PQLEntity::generateStatement(3);
+		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
+
 		// test 1: both statement synonyms
+		ClauseArgument lhs = ClauseArgument("s1", ArgumentType::STMT);
+		ClauseArgument rhs = ClauseArgument("s2", ArgumentType::STMT);
+		vector<PQLRelationship> expectedRelationships = {
+			PQLRelationship(statementResult1, statementResult2),
+			PQLRelationship(statementResult3, statementResult4),
+		};
+		test(PKBTrackedRelationshipType::Parent, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 2: one wildcard
+		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
+		rhs = ClauseArgument("s2", ArgumentType::STMT);
+		expectedRelationships = {
+			PQLRelationship(statementResult1, statementResult2),
+			PQLRelationship(statementResult3, statementResult4),
+		};
+		test(PKBTrackedRelationshipType::Parent, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3: both statement synonyms, but different types
+		lhs = ClauseArgument("a", ArgumentType::ASSIGN);
+		rhs = ClauseArgument("s", ArgumentType::STMT);
+		expectedRelationships = {
+		};
+		test(PKBTrackedRelationshipType::Parent, lhs, rhs, expectedRelationships, toAdd);
+
+		// test 4: one line number
+		lhs = ClauseArgument("3", ArgumentType::LINE_NUMBER);
+		rhs = ClauseArgument("s", ArgumentType::STMT);
+		expectedRelationships = {
+			PQLRelationship(statementResult3, statementResult4),
+		};
+		test(PKBTrackedRelationshipType::Parent, lhs, rhs, expectedRelationships, toAdd);
 	};
 	SECTION("ParentStar") {
+		// shared, as if 4 statements in a block
+		Entity statement1 = Entity(EntityType::IF, 1, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity statement2 = Entity(EntityType::ASSIGN, 2, Token(INVALID_IDENTIFIER, TokenType::OPERATOR));
+		Entity statement3 = Entity(EntityType::IF, 3, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity statement4 = Entity(EntityType::CALL, 4, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
+			Relationship(
+				statement1,
+				statement2,
+				RelationshipType::PARENTT
+			),
+			Relationship(
+				statement3,
+				statement4,
+				RelationshipType::PARENTT
+			),
+			Relationship(
+				statement1,
+				statement4,
+				RelationshipType::PARENTT
+			),
+			Relationship(
+				statement1,
+				statement3,
+				RelationshipType::PARENTT
+			),
+		};
+		// shared, as PQLEntities
+		PQLEntity statementResult1 = PQLEntity::generateStatement(1);
+		PQLEntity statementResult2 = PQLEntity::generateStatement(2);
+		PQLEntity statementResult3 = PQLEntity::generateStatement(3);
+		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
+
 		// test 1: both statement synonyms
+		ClauseArgument lhs = ClauseArgument("s1", ArgumentType::STMT);
+		ClauseArgument rhs = ClauseArgument("s2", ArgumentType::STMT);
+		vector<PQLRelationship> expectedRelationships = {
+			PQLRelationship(statementResult1, statementResult2),
+			PQLRelationship(statementResult3, statementResult4),
+			PQLRelationship(statementResult1, statementResult4),
+			PQLRelationship(statementResult1, statementResult3),
+		};
+		test(PKBTrackedRelationshipType::ParentStar, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 2: one wildcard
+		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
+		rhs = ClauseArgument("s2", ArgumentType::STMT);
+		expectedRelationships = {
+			PQLRelationship(statementResult1, statementResult2),
+			PQLRelationship(statementResult3, statementResult4),
+			PQLRelationship(statementResult1, statementResult4),
+			PQLRelationship(statementResult1, statementResult3),
+		};
+		test(PKBTrackedRelationshipType::ParentStar, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3: both statement synonyms, but different types
+		lhs = ClauseArgument("a", ArgumentType::ASSIGN);
+		rhs = ClauseArgument("s", ArgumentType::STMT);
+		expectedRelationships = {};
+		test(PKBTrackedRelationshipType::ParentStar, lhs, rhs, expectedRelationships, toAdd);
+
+		// test 4: one line number
+		lhs = ClauseArgument("3", ArgumentType::LINE_NUMBER);
+		rhs = ClauseArgument("s", ArgumentType::STMT);
+		expectedRelationships = {
+			PQLRelationship(statementResult3, statementResult4),
+		};
+		test(PKBTrackedRelationshipType::ParentStar, lhs, rhs, expectedRelationships, toAdd);
+		
 	};
 	SECTION("Uses") {
 		// test 1: assign and variable
