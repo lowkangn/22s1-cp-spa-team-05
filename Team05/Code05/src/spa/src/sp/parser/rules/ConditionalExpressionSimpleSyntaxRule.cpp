@@ -13,8 +13,8 @@
 
 using namespace std;
 
-const int CONDITIONAL_OPERATOR_RULE = 0;
-const int FIRST_RULE = 1;
+const int CONDITIONAL_OPERATOR_RULE = 1;
+const int FIRST_RULE = 0;
 const int SECOND_RULE = 2;
 
 vector<shared_ptr<SimpleSyntaxRule>> ConditionalExpressionSimpleSyntaxRule::generateChildRules() {

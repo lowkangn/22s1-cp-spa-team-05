@@ -1346,6 +1346,30 @@ TEST_CASE("Parser: test ::constructNode") {
         test(rule, expectedASTNode);
     }
 
+    // -------------------- PrintSimpleSyntaxRule --------------------
+    SECTION("PrintSimpleSyntaxRule : constructNode") {
+        // read soomevariable;
+        Token printToken = Token(PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD);
+        Token variable = Token("soomevariable", TokenType::NAME_OR_KEYWORD);
+        Token semiColon = Token(SEMI_COLON, TokenType::DELIMITER);
+        list<Token> tokensToConsume = { printToken,  variable, semiColon };
+
+        PrintSimpleSyntaxRule rule = PrintSimpleSyntaxRule();
+        list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+        vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+        // Create Read Node
+        shared_ptr<ASTNode> expectedASTNode(new PrintASTNode(printToken));
+
+        // Create variableNode
+        shared_ptr<ASTNode> variableNode(new VariableASTNode(variable));
+
+        expectedASTNode->addChild(variableNode);
+
+
+        test(rule, expectedASTNode);
+    }
+
     // -------------------- AssignSimpleSyntaxRule --------------------
     SECTION("AssignSimpleSyntaxRule : constructNode") {
         // x = 5;
@@ -1620,6 +1644,238 @@ TEST_CASE("Parser: test ::constructNode") {
 
         test(rule, expectedASTNode);
     }
+
+    // -------------------- OperatorSimpleSyntaxRule --------------------
+    SECTION("OperatorSimpleSyntaxRule : constructNode") {
+        // x = 5;
+        Token addToken = Token(PLUS_OPERATOR, TokenType::OPERATOR);
+        list<Token> tokensToConsume = { addToken };
+
+        // Create rule
+        OperatorSimpleSyntaxRule rule = OperatorSimpleSyntaxRule();
+        list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+        vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+        // Create assign node
+        shared_ptr<ASTNode> expectedASTNode(new ExpressionASTNode(addToken));
+
+        test(rule, expectedASTNode);
+    }
+
+    // -------------------- ExpressionSimpleSyntaxRule --------------------
+    SECTION("ExpressionSimpleSyntaxRule : constructNode") {
+        // x % 5;
+        Token xToken = Token("x", TokenType::NAME_OR_KEYWORD);
+        Token modToken = Token("%", TokenType::OPERATOR);
+        Token fiveToken = Token("5", TokenType::INTEGER);
+        list<Token> tokensToConsume = { xToken, modToken, fiveToken };
+
+        // Create rule
+        ExpressionSimpleSyntaxRule rule = ExpressionSimpleSyntaxRule();
+        list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+        vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+        // Create assign node
+        shared_ptr<ASTNode> expectedASTNode(new ExpressionASTNode(modToken));
+        shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
+        shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(fiveToken));
+
+        expectedASTNode->addChild(xNode);
+        expectedASTNode->addChild(constantNode);
+
+        test(rule, expectedASTNode);
+    }
+
+    // -------------------- RelationalExpressionSimpleSyntaxRule --------------------
+    SECTION("RelationalExpressionSimpleSyntaxRule : constructNode") {
+        // x >= y;
+        Token xToken = Token("x", TokenType::NAME_OR_KEYWORD);
+        Token greaterToken = Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR);
+        Token yToken = Token("y", TokenType::NAME_OR_KEYWORD);
+        list<Token> tokensToConsume = { xToken, greaterToken, yToken };
+
+        // Create rule
+        RelationalExpressionSimpleSyntaxRule rule = RelationalExpressionSimpleSyntaxRule();
+        list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+        vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+        // Create assign node
+        shared_ptr<ASTNode> expectedASTNode(new ExpressionASTNode(greaterToken));
+        shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
+        shared_ptr<ASTNode> yNode(new VariableASTNode(yToken));
+
+        expectedASTNode->addChild(xNode);
+        expectedASTNode->addChild(yNode);
+
+        test(rule, expectedASTNode);
+    }    
+    
+    // -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
+    SECTION("ConditionalExpressionSimpleSyntaxRule : constructNode") {
+        // (x > y) && (x > y);
+        Token openBracket = Token(OPEN_BRACKET, TokenType::DELIMITER);
+        Token variableX = Token("x", TokenType::NAME_OR_KEYWORD);
+        Token greaterThan = Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR);
+        Token variableY = Token("y", TokenType::NAME_OR_KEYWORD);
+        Token closedBracket = Token(CLOSED_BRACKET, TokenType::DELIMITER);
+        Token andToken = Token(AND, TokenType::OPERATOR);
+
+        list<Token> tokensToConsume = { openBracket, variableX, greaterThan, variableY, closedBracket, 
+                                        andToken,
+                                        openBracket, variableX, greaterThan, variableY, closedBracket };
+
+        // Create rule
+        ConditionalExpressionSimpleSyntaxRule rule = ConditionalExpressionSimpleSyntaxRule();
+        list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+        vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+        // Create assign node
+        shared_ptr<ASTNode> expectedASTNode(new ExpressionASTNode(andToken));
+        
+        shared_ptr<ASTNode> xOneNode(new VariableASTNode(variableX));
+        shared_ptr<ASTNode> yOneNode(new VariableASTNode(variableY));
+        shared_ptr<ASTNode> greaterThanOneNode(new ExpressionASTNode(greaterThan));
+        
+        shared_ptr<ASTNode> xTwoNode(new VariableASTNode(variableX));
+        shared_ptr<ASTNode> yTwoNode(new VariableASTNode(variableY));
+        shared_ptr<ASTNode> greaterThanTwoNode(new ExpressionASTNode(greaterThan));
+
+
+        expectedASTNode->addChild(greaterThanOneNode);
+        expectedASTNode->addChild(greaterThanTwoNode);
+
+        greaterThanOneNode->addChild(xOneNode);
+        greaterThanOneNode->addChild(yOneNode);
+        
+        greaterThanTwoNode->addChild(xTwoNode);
+        greaterThanTwoNode->addChild(yTwoNode);
+
+        test(rule, expectedASTNode);
+    }
+
+    // -------------------- WhileSimpleSyntaxRule --------------------
+    SECTION("WhileSimpleSyntaxRule : constructNode") {
+        // while (x > y) then { read x; } else  { read y;}
+        Token whileToken = Token(WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD);
+        Token variableX = Token("x", TokenType::NAME_OR_KEYWORD);
+        Token greaterThan = Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR);
+        Token variableY = Token("y", TokenType::NAME_OR_KEYWORD);
+        Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
+        Token semiColonToken = Token(SEMI_COLON, TokenType::DELIMITER);
+
+        list<Token> tokensToConsume = { Token(WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+                                        Token(OPEN_BRACKET, TokenType::DELIMITER),
+                                        variableX,
+                                        greaterThan,
+                                        variableY,
+                                        Token(CLOSED_BRACKET, TokenType::DELIMITER),
+                                        Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+                                        readToken,
+                                        variableX,
+                                        semiColonToken,
+                                        Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER), };
+
+        // Create rule
+        WhileSimpleSyntaxRule rule = WhileSimpleSyntaxRule();
+        list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+        vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+        // Create while node
+        shared_ptr<ASTNode> expectedASTNode(new WhileASTNode(whileToken));
+
+        // Create condition node
+        shared_ptr<ASTNode> xOneNode(new VariableASTNode(variableX));
+        shared_ptr<ASTNode> yOneNode(new VariableASTNode(variableY));
+        shared_ptr<ASTNode> condNode(new ExpressionASTNode(greaterThan));
+
+        condNode->addChild(xOneNode);
+        condNode->addChild(yOneNode);
+
+        // Create stmtlst node
+        shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(Token("", TokenType::DELIMITER)));
+
+        shared_ptr<ASTNode> readNode(new ReadASTNode(Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD)));
+        shared_ptr<ASTNode> xTwoNode(new VariableASTNode(variableX));
+
+        readNode->addChild(xTwoNode);
+        stmtLstNode->addChild(readNode);
+
+        expectedASTNode->addChild(condNode);
+        expectedASTNode->addChild(stmtLstNode);
+
+        test(rule, expectedASTNode);
+    }
+
+    // -------------------- IfSimpleSyntaxRule --------------------
+    SECTION("IfSimpleSyntaxRule : constructNode") {
+        // while (x > y) then { read x; } else  { read y;}
+        Token ifToken = Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD);
+        Token variableX = Token("x", TokenType::NAME_OR_KEYWORD);
+        Token greaterThan = Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR);
+        Token variableY = Token("y", TokenType::NAME_OR_KEYWORD);
+        Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
+        Token semiColonToken = Token(SEMI_COLON, TokenType::DELIMITER);
+
+        list<Token> tokensToConsume = { ifToken,
+                                        Token(OPEN_BRACKET, TokenType::DELIMITER),
+                                        variableX,
+                                        greaterThan,
+                                        variableY,
+                                        Token(CLOSED_BRACKET, TokenType::DELIMITER),
+                                        Token(THEN_KEYWORD, TokenType::NAME_OR_KEYWORD),
+                                        Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+                                        readToken,
+                                        variableX,
+                                        semiColonToken,
+                                        Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+                                        Token(ELSE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+                                        Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+                                        readToken,
+                                        variableY,
+                                        semiColonToken,
+                                        Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER), };
+
+        // Create rule
+        IfSimpleSyntaxRule rule = IfSimpleSyntaxRule();
+        list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+        vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+        // Create while node
+        shared_ptr<ASTNode> expectedASTNode(new IfASTNode(ifToken));
+
+        // Create condition node
+        shared_ptr<ASTNode> xOneNode(new VariableASTNode(variableX));
+        shared_ptr<ASTNode> yOneNode(new VariableASTNode(variableY));
+        shared_ptr<ASTNode> condNode(new ExpressionASTNode(greaterThan));
+
+        condNode->addChild(xOneNode);
+        condNode->addChild(yOneNode);
+
+        // Create then stmtlst node
+        shared_ptr<ASTNode> stmtLstOneNode(new StatementListASTnode(Token("", TokenType::DELIMITER)));
+
+        shared_ptr<ASTNode> readOneNode(new ReadASTNode(Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD)));
+        shared_ptr<ASTNode> xTwoNode(new VariableASTNode(variableX));
+
+        // Create else stmtlst node
+        shared_ptr<ASTNode> stmtLstTwoNode(new StatementListASTnode(Token("", TokenType::DELIMITER)));
+
+        shared_ptr<ASTNode> readTwoNode(new ReadASTNode(Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD)));
+        shared_ptr<ASTNode> yTwoNode(new VariableASTNode(variableY));
+
+        readOneNode->addChild(xTwoNode);
+        stmtLstOneNode->addChild(readOneNode);
+
+        readTwoNode->addChild(yTwoNode);
+        stmtLstTwoNode->addChild(readTwoNode);
+
+        expectedASTNode->addChild(condNode);
+        expectedASTNode->addChild(stmtLstOneNode);
+        expectedASTNode->addChild(stmtLstTwoNode);
+
+        test(rule, expectedASTNode);
+    }
+
 };
 
 TEST_CASE("ProgramSimpleSyntaxRule test ::setLineNumber") {
