@@ -26,22 +26,22 @@ shared_ptr<PkbEntity> PKB::spEntityToPkbEntity(Entity entity) {
 
 		// depending on type, we call factory method
 		if (entity.isPrintEntity()) {
-			PkbStatementEntity object = PkbStatementEntity::createPrintStatementEntity(lineNumber);
+			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createPrintStatementEntity(lineNumber);
 		}
 		else if (entity.isAssignEntity()) {
-			PkbStatementEntity object = PkbStatementEntity::createAssignStatementEntity(lineNumber);
+			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createAssignStatementEntity(lineNumber);
 		}
 		else if (entity.isIf()) {
-			PkbStatementEntity object = PkbStatementEntity::createIfStatementEntity(lineNumber);
+			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createIfStatementEntity(lineNumber);
 		}
 		else if (entity.isReadEntity()) {
-			PkbStatementEntity object = PkbStatementEntity::createReadStatementEntity(lineNumber);
+			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createReadStatementEntity(lineNumber);
 		}
 		else if (entity.isWhile()) {
-			PkbStatementEntity object = PkbStatementEntity::createWhileStatementEntity(lineNumber);
+			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createWhileStatementEntity(lineNumber);
 		}
 		else if (entity.isCallEntity()) {
-			PkbStatementEntity object = PkbStatementEntity::createCallStatementEntity(lineNumber);
+			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createCallStatementEntity(lineNumber);
 		}
 		else {
 			throw PkbException("Unknown statement type being passed to PKB!")

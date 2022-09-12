@@ -1,5 +1,6 @@
 #pragma once
 #include <pkb/design_objects/entities/PkbEntity.h>
+#include <pkb/PkbException.h>
 #include <string>
 using namespace std;
 /*
@@ -17,7 +18,7 @@ public:
 	/*
 		Boolean method to check if a given variable has this identifier.
 	*/
-	public bool hasIdentifier(string identifierToMatch) {
+	bool hasIdentifier(string identifierToMatch) {
 		return this->identifier == identifierToMatch;
 	}
 
@@ -45,17 +46,7 @@ public:
 	/*
 		Gets the line number.
 	*/
-	string getLineNumber() override {
+	int getLineNumber() override {
 		throw PkbException("Procedure does not have a line number!");
-	}
-};
-
-template <>
-struct hash<PkbProcedureEntity>
-{
-	size_t operator()(const PkbProcedureEntity& k) const
-	{
-		// Compute individual hash values for two data members and combine them using XOR and bit shifting
-		return hash<string>(k.getKey());
 	}
 };

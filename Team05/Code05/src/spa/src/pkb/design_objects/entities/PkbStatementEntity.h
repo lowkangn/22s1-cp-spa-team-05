@@ -1,6 +1,6 @@
 #pragma once
 #include <pkb/design_objects/entities/PkbEntity.h>
-
+#include <pkb/PkbException.h>
 #include <string>
 
 using namespace std;
@@ -14,7 +14,7 @@ enum class PkbStatementType {
     CALL,
 };
 
-class PkbStatementEntity : PkbEntity  {
+class PkbStatementEntity : public PkbEntity  {
 private: 
     
     PkbStatementType statementType;
@@ -26,28 +26,29 @@ private:
 
 public: 
     // ===== Factory methods to restrict the type =====
-    static PkbStatementEntity createReadStatementEntity(int lineNumber) {
-        return PkbStatementEntity(PkbStatementType::READ, lineNumber);
+
+    static shared_ptr<PkbStatementEntity> createReadStatementEntity(int lineNumber) {
+        return shared_ptr<PkbStatementEntity>(new PkbStatementEntity(PkbStatementType::READ, lineNumber));
     }
 
-    static PkbStatementEntity createCallStatementEntity(int lineNumber) {
-        return PkbStatementEntity(PkbStatementType::CALL, lineNumber);
+    static shared_ptr<PkbStatementEntity> createCallStatementEntity(int lineNumber) {
+        return shared_ptr<PkbStatementEntity>(new PkbStatementEntity(PkbStatementType::CALL, lineNumber));
     }
 
-    static PkbStatementEntity createWhileStatementEntity(int lineNumber) {
-        return PkbStatementEntity(PkbStatementType::WHILE, lineNumber);
+    static shared_ptr<PkbStatementEntity> createWhileStatementEntity(int lineNumber) {
+        return shared_ptr<PkbStatementEntity>(new PkbStatementEntity(PkbStatementType::WHILE, lineNumber));
     }
 
-    static PkbStatementEntity createAssignStatementEntity(int lineNumber) {
-        return PkbStatementEntity(PkbStatementType::ASSIGN, lineNumber);
+    static shared_ptr<PkbStatementEntity> createAssignStatementEntity(int lineNumber) {
+        return shared_ptr<PkbStatementEntity>(new PkbStatementEntity(PkbStatementType::ASSIGN, lineNumber));
     }
 
-    static PkbStatementEntity createIfStatementEntity(int lineNumber) {
-        return PkbStatementEntity(PkbStatementType::IF, lineNumber);
+    static shared_ptr<PkbStatementEntity> createIfStatementEntity(int lineNumber) {
+        return shared_ptr<PkbStatementEntity>(new PkbStatementEntity(PkbStatementType::IF, lineNumber));
     }
 
-    static PkbStatementEntity createPrintStatementEntity(int lineNumber) {
-        return PkbStatementEntity(PkbStatementType::PRINT, lineNumber);
+    static shared_ptr<PkbStatementEntity> createPrintStatementEntity(int lineNumber) {
+        return shared_ptr<PkbStatementEntity>(new PkbStatementEntity(PkbStatementType::PRINT, lineNumber));
     }
 
 
@@ -76,7 +77,7 @@ public:
         Returns a unique key.
     */
     string getKey() override {
-        return stoi(this->lineNumber);
+        return to_string(this->lineNumber);
     }
 
     /*
@@ -100,15 +101,4 @@ public:
         return (other.lineNumber == this->lineNumber) && (other.statementType == this->statementType);
     }
 
-};
-
-template <>
-struct hash<PkbStatementEntity>
-{
-    size_t operator()(const PkbStatementEntity& k) const
-    {
-        // no two statements should have the same line number. so we can 
-        // hash by line numbers.
-        return hash<int>(k.getKey());
-    }
 };

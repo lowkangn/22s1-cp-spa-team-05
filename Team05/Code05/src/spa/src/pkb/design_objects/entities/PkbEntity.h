@@ -33,6 +33,6 @@ public:
 
 	virtual string getIdentifier() = 0;
 
-	virtual getLineNumber() = 0;
+	virtual int getLineNumber() = 0;
 
 };

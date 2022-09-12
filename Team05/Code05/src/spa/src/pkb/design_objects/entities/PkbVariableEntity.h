@@ -1,5 +1,6 @@
 #pragma once
 #include <pkb/design_objects/entities/PkbEntity.h>
+#include <pkb/PkbException.h>
 #include <string>
 using namespace std;
 /*
@@ -31,7 +32,7 @@ public:
 	/*
 		Gets the line number.
 	*/
-	string getLineNumber() override {
+	int getLineNumber() override {
 		throw PkbException("Variable does not have a line number!");
 	}
 
@@ -49,15 +50,5 @@ public:
 	*/
 	string getKey() override {
 		return this->identifier;
-	}
-};
-
-template <>
-struct hash<PkbVariableEntity>
-{
-	size_t operator()(const PkbVariableEntity& k) const
-	{
-		// Compute individual hash values for two data members and combine them using XOR and bit shifting
-		return hash<string>(k.getKey());
 	}
 };
