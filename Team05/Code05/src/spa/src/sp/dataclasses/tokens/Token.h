@@ -24,6 +24,8 @@ const string READ_KEYWORD = "read";
 const string CALL_KEYWORD = "call";
 const string WHILE_KEYWORD = "while";
 const string IF_KEYWORD = "if";
+const string THEN_KEYWORD = "then";
+const string ELSE_KEYWORD = "else";
 const string PROGRAM_KEYWORD = "program";
 const string PRINT_KEYWORD = "print";
 
@@ -111,6 +113,16 @@ public:
 	/* Checks if the token is an if keyword.*/
 	bool isIfKeywordToken() {
 		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == IF_KEYWORD);
+	}
+
+	/* Checks if the token is an then keyword.*/
+	bool isThenKeywordToken() {
+		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == THEN_KEYWORD);
+	}
+
+	/* Checks if the token is an else keyword.*/
+	bool isElseKeywordToken() {
+		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == ELSE_KEYWORD);
 	}
 
 	/* Checks if the token is a name token.*/

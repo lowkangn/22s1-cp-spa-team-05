@@ -83,7 +83,6 @@ vector<shared_ptr<SimpleSyntaxRule>> StatementListSimpleSyntaxRule::generateChil
 }
 
 shared_ptr<ASTNode> StatementListSimpleSyntaxRule::constructNode() {
-	// TODO
 	// check that initialized correctly 
 	if (!this->initialized) {
 		throw SimpleSyntaxParserException("Node is not initialized!");

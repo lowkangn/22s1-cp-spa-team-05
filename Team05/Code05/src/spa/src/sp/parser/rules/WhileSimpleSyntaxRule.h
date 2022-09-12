@@ -7,6 +7,7 @@
 using namespace std;
 
 class WhileSimpleSyntaxRule : public SimpleSyntaxRule {
+
 public:
 	WhileSimpleSyntaxRule() {
 		this->generated = false;
