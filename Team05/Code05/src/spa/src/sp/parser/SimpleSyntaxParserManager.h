@@ -5,7 +5,8 @@
 #include <vector>
 using namespace std;
 
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
+#include <sp/dataclasses/ast/ProgramASTNode.h>
 #include <sp/dataclasses/tokens/Token.h>
 
 
@@ -17,7 +18,7 @@ using namespace std;
 class ParserManager {
 	
 private: 
-	ASTNode *root; // root node of constructed AST
+	shared_ptr<ASTNode> root; // root node of constructed AST
 	list<Token> tokens; // tokens to parse
 
 public:
@@ -29,10 +30,9 @@ public:
 	ParserManager(list<Token> tokens) {
 		this->tokens = tokens;
 
-		// AST node expects a vector
+		// AST node expects a token
 		// convert linkedlist to vector
-		vector<Token> tokensAsVector { begin(tokens), end(tokens) };
-		this->root = new ASTNode(tokensAsVector);
+		this->root = shared_ptr<ASTNode> (new ProgramASTNode(this->tokens.front()));
 	}
 
 	/*

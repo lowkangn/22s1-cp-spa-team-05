@@ -1,14 +1,15 @@
 // imported libraries
 #include <vector>
+#include <memory>
+
 
 // imported locally
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
+#include <sp/dataclasses/ast/AssignASTNode.h>
+#include <sp/dataclasses/ast/ReadASTNode.h>
+#include <sp/dataclasses/ast/WhileASTNode.h>
+#include <sp/dataclasses/ast/IfASTNode.h>
 #include <sp/design_extractor/ModifiesExtractor.h>
-#include <memory>
-#include <assert.h>
-
-
-
 
 vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
 
@@ -34,6 +35,21 @@ vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
 		modifies.insert(modifies.end(), extractedModifies.begin(), extractedModifies.end());
 		break;
 	}
+	case ASTNodeType::WHILE:
+	{	
+		vector<Relationship> extractedModifies = this->handleWhile(ast);
+		modifies.insert(modifies.end(), extractedModifies.begin(), extractedModifies.end());
+		break;
+	}
+	case ASTNodeType::IF:
+	{
+		vector<Relationship> extractedModifies = this->handleIf(ast);
+		modifies.insert(modifies.end(), extractedModifies.begin(), extractedModifies.end());
+		break;
+	}
+	// TODO (Not in milestone 1)
+	case ASTNodeType::CALL:
+		break;
 	default:
 		vector<shared_ptr<ASTNode>> children = ast->getChildren();
 		for (int i = 0; i < children.size(); i++) {
@@ -49,15 +65,12 @@ vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifiesRelationships = vector<Relationship>();
 
 	// This is the Left hand side of the assign relation
-	shared_ptr<ASTNode> left = ast->getChildren()[ASTNode::LEFT_CHILD];
-
+	shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
+	shared_ptr<ASTNode> leftChild = assignNode->getLeftHandSide();
 
 	// Extracting tokens of the entity which is modified
-	Token modifiedToken = left->getNameToken();
-	Entity modifiedEntity = Entity{ EntityType::VARIABLE, left->getLineNumber(), modifiedToken, modifiedToken.getString() };
-
-	Token lineNumber = Token{ to_string(left->getLineNumber()),TokenType::NAME_OR_KEYWORD };
-	Entity leftHandSide = Entity{ EntityType::LINENUMBER, ast->getLineNumber(), lineNumber, lineNumber.getString() };
+	Entity modifiedEntity = leftChild->extractEntity();
+	Entity leftHandSide = assignNode->extractEntity();
 
 	modifiesRelationships.push_back(Relationship{ leftHandSide, modifiedEntity, RelationshipType::MODIFIES });
 
@@ -67,15 +80,12 @@ vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 vector<Relationship> ModifiesExtractor::handleRead(shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifiesRelationships = vector<Relationship>();
 
-	// Sanity check that there is only one child since this is a read statement;
-	assert(ast->numChildren() == 1);
-	shared_ptr<ASTNode> child = ast->getChildren()[0];
+	// Cast to ReadASTNode
+	shared_ptr<ReadASTNode> readNode = dynamic_pointer_cast<ReadASTNode>(ast);
+	shared_ptr<ASTNode> child = readNode->getVariableToRead();
 
-	Token lineNumber = Token{ to_string(ast->getLineNumber()),TokenType::NAME_OR_KEYWORD };
-	Token childToken = child->getNameToken();
-
-	Entity leftHandSide = Entity{ EntityType::LINENUMBER, ast->getLineNumber(), lineNumber, lineNumber.getString() };
-	Entity rightHandSide = Entity{ EntityType::VARIABLE, child->getLineNumber(), childToken, childToken.getString() };
+	Entity leftHandSide = readNode->extractEntity();
+	Entity rightHandSide = child->extractEntity();
 
 	modifiesRelationships.push_back(Relationship{ leftHandSide, rightHandSide, RelationshipType::MODIFIES });
 
@@ -83,21 +93,45 @@ vector<Relationship> ModifiesExtractor::handleRead(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast) {
-	// Get the name ASTNode
-	shared_ptr<ASTNode> child = ast->getChildren()[ASTNode::LEFT_CHILD];
+	Entity leftHandSide = ast->extractEntity();
 
-	Token procedureName = child->getNameToken();
-
-	Entity leftHandSide = Entity{ EntityType::PROCEDURE, ast->getLineNumber(), procedureName, procedureName.getString() };
-
-	vector<Relationship> extractedChildRelationships = this->recursiveProcedureExtract(leftHandSide, ast);
+	vector<Relationship> extractedChildRelationships = recursiveContainerExtract(leftHandSide, ast);
 
 	return extractedChildRelationships;
 }
 
-// TODO in a future iteration
-vector<Relationship> ModifiesExtractor::handleContainer(shared_ptr<ASTNode> ast) {
-	return vector<Relationship>();
+vector<Relationship> ModifiesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
+	// Get the name ASTNode
+	shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
+	shared_ptr<ASTNode> child = whileNode->getStmtList();
+
+	Entity leftHandSide = whileNode->extractEntity();
+
+	// Recursively extract relations from the while block
+	vector<Relationship> extractedChildRelationships = recursiveContainerExtract(leftHandSide, child);
+
+	return extractedChildRelationships;
+}
+
+vector<Relationship> ModifiesExtractor::handleIf(shared_ptr<ASTNode> ast) {
+	// Get the name ASTNode
+	shared_ptr<IfASTNode> ifASTNode = dynamic_pointer_cast<IfASTNode>(ast);
+	shared_ptr<ASTNode> thenChild = ifASTNode->getThenStatements();
+	shared_ptr<ASTNode> elseChild = ifASTNode->getElseStatements();
+
+
+	Entity leftHandSide = ifASTNode->extractEntity();
+
+	// Recursively extract relations from Then and else containers
+	vector<Relationship> extractedThenChildRelationships = recursiveContainerExtract(leftHandSide, thenChild);
+	vector<Relationship> extractedElseChildRelationships = recursiveContainerExtract(leftHandSide, elseChild);
+
+	vector<Relationship> extractedChildRelationships = vector<Relationship>();
+
+	extractedChildRelationships.insert(extractedChildRelationships.end(), extractedThenChildRelationships.begin(), extractedThenChildRelationships.end());
+	extractedChildRelationships.insert(extractedChildRelationships.end(), extractedElseChildRelationships.begin(), extractedElseChildRelationships.end());
+
+	return extractedChildRelationships;
 }
 
 // TODO in a future iteration
@@ -105,38 +139,67 @@ vector<Relationship> ModifiesExtractor::handleCall(shared_ptr<ASTNode> ast) {
 	return vector<Relationship>();
 }
 
-// TODO Can maybe improve efficiency
-vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& leftHandSide, shared_ptr<ASTNode> ast) {
+vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHandSide, shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifiesRelationships = vector<Relationship>();
 	ASTNodeType type = ast->getType();
 
 	switch (type) {
 	case ASTNodeType::ASSIGN:
 	{
-		// Get left child
-		shared_ptr<ASTNode> leftChild = ast->getChildren()[ASTNode::LEFT_CHILD];
+		// Cast to AssignASTNode
+		shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
+		shared_ptr<ASTNode> leftChild = assignNode->getLeftHandSide();
 
-		Token childToken = leftChild->getNameToken();
-		Entity childEntity = Entity{ EntityType::VARIABLE, leftChild->getLineNumber(), childToken, childToken.getString() };
+		vector<Relationship> assignRelationship = handleAssign(ast);
+
+		Entity childEntity = leftChild->extractEntity();
 		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
 
 		modifiesRelationships.push_back(toAdd);
+		modifiesRelationships.insert(modifiesRelationships.end(), assignRelationship.begin(), assignRelationship.end());
 		break;
 	}
 	case ASTNodeType::READ:
 	{
-		// Read should have only one child
-		assert(ast->getChildren().size() == 1);
-		// Get child
-		shared_ptr<ASTNode> child = ast->getChildren()[0];
+		// Cast to ReadASTNode
+		shared_ptr<ReadASTNode> readNode = dynamic_pointer_cast<ReadASTNode>(ast);
+		shared_ptr<ASTNode> child = readNode->getVariableToRead();
 
-		assert(child->getType() == ASTNodeType::NAME);
-
-		Token childToken = child->getNameToken();
-		Entity childEntity = Entity{ EntityType::VARIABLE, child->getLineNumber(), childToken, childToken.getString() };
+		vector<Relationship> readRelationship = handleRead(ast);
+		
+		Entity childEntity = child->extractEntity();
 		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
 
 		modifiesRelationships.push_back(toAdd);
+		modifiesRelationships.insert(modifiesRelationships.end(), readRelationship.begin(), readRelationship.end());
+		break;
+	}
+	case ASTNodeType::WHILE:
+	{
+		// Cast to WhileASTNode
+		shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
+		shared_ptr<ASTNode> children = whileNode->getStmtList();
+
+		vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, children);
+		vector<Relationship> recursiveWhile = handleWhile(ast);
+		modifiesRelationships.insert(modifiesRelationships.end(), toAdd.begin(), toAdd.end());
+		break;
+	}
+	case ASTNodeType::IF:
+	{
+		// Cast IfASTNode
+		shared_ptr<IfASTNode> ifNode = dynamic_pointer_cast<IfASTNode>(ast);
+		shared_ptr<ASTNode> thenChildren = ifNode->getThenStatements();
+		shared_ptr<ASTNode> elseChildren = ifNode->getElseStatements();
+
+
+		vector<Relationship> toAddThen = recursiveContainerExtract(leftHandSide, thenChildren);
+		vector<Relationship> toAddElse = recursiveContainerExtract(leftHandSide, elseChildren);
+		vector<Relationship> recursiveIfRelations = handleIf(ast);
+
+		modifiesRelationships.insert(modifiesRelationships.end(), toAddThen.begin(), toAddThen.end());
+		modifiesRelationships.insert(modifiesRelationships.end(), toAddElse.begin(), toAddElse.end());
+		modifiesRelationships.insert(modifiesRelationships.end(), recursiveIfRelations.begin(), recursiveIfRelations.end());
 		break;
 	}
 	default:
@@ -145,7 +208,7 @@ vector<Relationship> ModifiesExtractor::recursiveProcedureExtract(Entity& leftHa
 		vector<shared_ptr<ASTNode>> children = ast->getChildren();
 		for (int i = 0; i < children.size(); i++) {
 			shared_ptr<ASTNode> child = children[i];
-			vector<Relationship> extractedModifies = recursiveProcedureExtract(leftHandSide, child);
+			vector<Relationship> extractedModifies = recursiveContainerExtract(leftHandSide, child);
 			modifiesRelationships.insert(modifiesRelationships.end(), extractedModifies.begin(), extractedModifies.end());
 		}
 	}

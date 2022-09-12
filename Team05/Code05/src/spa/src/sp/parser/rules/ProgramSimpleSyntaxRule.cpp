@@ -2,7 +2,7 @@
 #include <sp/parser/rules/ProcedureSimpleSyntaxRule.h>
 #include <sp/parser/rules/SimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/ProgramASTNode.h>
 
 vector<shared_ptr<SimpleSyntaxRule>> ProgramSimpleSyntaxRule::generateChildRules() {
 	
@@ -65,8 +65,7 @@ shared_ptr<ASTNode> ProgramSimpleSyntaxRule::constructNode() {
 
 	// create current node
 	Token programToken = Token{ PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	shared_ptr<ASTNode> node (new ASTNode(vector<Token>{programToken}));
-	node->setType(ASTNodeType::PROGRAM);
+	shared_ptr<ASTNode> node (new ProgramASTNode(programToken));
 
 	// for each rule, recursively create children and assign to children
 	for (auto rulePointer = this->childRules.begin(); rulePointer != this->childRules.end(); rulePointer++) {

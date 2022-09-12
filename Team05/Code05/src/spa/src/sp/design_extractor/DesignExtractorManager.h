@@ -7,7 +7,7 @@
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 #include <pkb/interfaces/PKBUpdateHandler.h>
 #include <sp/design_extractor/Extractor.h>
 
@@ -43,16 +43,6 @@ public:
 	void setRootNode(shared_ptr<ASTNode> ast) {
 		this->rootNode = ast;
 	}
-
-	/*
-		Traverses the entire AST Tree and extracts all the relations
-	*/
-	void extractAll();
-
-	/*
-		Stores all the Relationships, Entities, Patterns into the PKB
-	*/
-	void storeAllRelations(shared_ptr<PKBUpdateHandler> pkb);
 
 	/*
 		Extracts all the Relationships from the AST

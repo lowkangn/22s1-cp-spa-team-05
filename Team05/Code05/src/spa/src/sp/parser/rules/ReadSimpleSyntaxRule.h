@@ -1,7 +1,7 @@
 #pragma once
 #include <list>
 #include <vector>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/parser/rules/SimpleSyntaxRule.h>
 using namespace std;

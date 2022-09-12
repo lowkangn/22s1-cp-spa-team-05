@@ -34,21 +34,3 @@ vector<Pattern> DesignExtractorManager::extractPatterns(shared_ptr<ASTNode> ast)
 	vector<Pattern> patterns = this->patternExtractor.extract(ast);
 	return patterns;
 };
-
-void DesignExtractorManager::extractAll() {
-	vector<Relationship> extractedRelationships = this->extractRelationships(this->rootNode);
-	this->relationships.insert(this->relationships.end(), extractedRelationships.begin(), extractedRelationships.end());
-
-	vector<Entity> extractedEntities = this->extractEntities(this->rootNode);
-	this->entities.insert(this->entities.end(), extractedEntities.begin(), extractedEntities.end());
-	
-	vector<Pattern> extractedPatterns = this->extractPatterns(this->rootNode);
-	this->patterns.insert(this->patterns.end(), extractedPatterns.begin(), extractedPatterns.end());
-}
-
-void DesignExtractorManager::storeAllRelations(shared_ptr<PKBUpdateHandler> pkb) {
-
-	pkb->addEntities(this->entities);
-	pkb->addPatterns(this->patterns);
-	pkb->addRelationships(this->relationships);
-}
