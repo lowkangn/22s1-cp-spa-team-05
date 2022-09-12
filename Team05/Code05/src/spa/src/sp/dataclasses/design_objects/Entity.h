@@ -47,7 +47,36 @@ class Entity {
 			return this->type == EntityType::PROGRAM;
 		}
 
+		bool isProcedureEntity() {
+			return this->type == EntityType::PROCEDURE;
+		}
+
 		bool isStmtLstEntity() {
 			return this->type == EntityType::STMTLIST;
 		}
+
+		bool isReadEntity() {
+			return this->type == EntityType::READ;
+		}
+
+		bool isPrintEntity() {
+			return this->type == EntityType::PRINT;
+		}
+		bool isAssignEntity() {
+			return this->type == EntityType::ASSIGN;
+		}
+		bool isCallEntity() {
+			return this->type == EntityType::CALL;
+		}
+		bool isIf() {
+			return this->type == EntityType::IF;
+		}
+		bool isVariableEntity() {
+			return this->type == EntityType::VARIABLE;
+		}
+
+		bool isWhile() {
+			return this->type == EntityType::WHILE;
+		}
+		
 };

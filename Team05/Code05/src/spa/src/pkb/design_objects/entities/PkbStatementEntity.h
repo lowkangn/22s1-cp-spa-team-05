@@ -11,6 +11,7 @@ enum class PkbStatementType {
     WHILE,
     IF,
     ASSIGN,
+    CALL,
 };
 
 class PkbStatementEntity : PkbEntity  {
@@ -66,7 +67,7 @@ public:
         Returns a unique key.
     */
     string getKey() override {
-        return this->identifier;
+        return stoi(this->lineNumber);
     }
 
     /*

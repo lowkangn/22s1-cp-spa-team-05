@@ -9,20 +9,43 @@
 #include "../../qps/query/clause/ClauseResult.h"
 #include "../../qps/query/clause/PQLEntity.h"
 #include "../../qps/query/clause/PQLRelationship.h"
+#include <pkb/table_managers/PkbEntityTable.h>
 
 #include <string>
 #include <vector>
 using namespace std;
 
 class PKB : public PKBQueryHandler, public PKBUpdateHandler {
+private: 
+	// variables, statement and procedures
+	PkbEntityTable variableTable;
+	PkbEntityTable statementTable;
+	PkbEntityTable proceduresTable;
+
+	// relationships
+
+
+	// patterns
+	
 public: 
 	PKB() {
-		// initialize tables
-	}
+		// initialize entity tables
 
-	vector<int> addRelationships(vector<Relationship> relationships) override;
+	}
+	/*
+		Add extracted relationships from the SP.
+	*/
+	void addRelationships(vector<Relationship> relationships) override;
+	
+	/*
+		Add extracted patterns from the SP.
+	*/
 	void addPatterns(vector<Pattern> patterns) override;
-	vector<int> addEntities(vector<Entity> entities) override;
+
+	/*
+		Add extracted entities from the SP.
+	*/
+	void addEntities(vector<Entity> entities) override;
 	vector<PQLEntity> retrieveProcedureEntitiesByName(string procedureName) override;
 	vector<PQLEntity> retrieveAllProcedureEntities() override;
 	vector<PQLEntity> retrieveStatementEntitiesByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
