@@ -181,10 +181,10 @@ PQLEntity PKB::retrieveProcedureEntityByName(string procedureName) {
 vector<PQLEntity> PKB::retrieveAllProcedureEntities() {
 	vector<PQLEntity> out;
 	vector<shared_ptr<PkbEntity>> all = this->proceduresTable.getAll();
-	for (shared_ptr<PkbEntity> variable : all) {
+	for (shared_ptr<PkbEntity> procedure : all) {
 
 		// append to list
-		out.push_back(PQLEntity::generateVariable(variable->getIdentifier()));
+		out.push_back(PQLEntity::generateProcedure(procedure->getIdentifier()));
 	}
 	return out;
 }

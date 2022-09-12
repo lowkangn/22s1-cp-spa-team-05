@@ -18,6 +18,7 @@
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Entity.h>
 
+#include <algorithm>
 #include <memory>
 #include <string>
 using namespace std;
@@ -26,18 +27,16 @@ TEST_CASE("Test add and get procedure") {
 	auto test = [](vector<PQLEntity> expectedEntities, vector<Entity> toAdd) {
 		// given
 		PKB pkb;
-		shared_ptr<PKBUpdateHandler> pu = pkb.getUpdateHandler();
-		shared_ptr<PKBQueryHandler> pq = pkb.getQueryHandler();
 
 		// when 
-		pu->addEntities(toAdd);
+		pkb.addEntities(toAdd);
 
 		// then 
-		vector<PQLEntity> all = pq->retrieveAllProcedureEntities();
+		vector<PQLEntity> all = pkb.retrieveAllProcedureEntities();
 		REQUIRE(expectedEntities.size() == all.size());
 		for (int i = 0; i < expectedEntities.size(); i++) {
 			// retrieval all have been added
-			REQUIRE(expectedEntities[i] == all[i]);
+			REQUIRE(find(all.begin(), all.end(), expectedEntities[i]) != all.end());
 		}
 	};
 
@@ -60,26 +59,24 @@ TEST_CASE("Test add and get variables") {
 	auto test = [](vector<PQLEntity> expectedEntities, vector<Entity> toAdd) {
 		// given
 		PKB pkb;
-		shared_ptr<PKBUpdateHandler> pu = pkb.getUpdateHandler();
-		shared_ptr<PKBQueryHandler> pq = pkb.getQueryHandler();
 
 		// when 
-		pu->addEntities(toAdd);
+		pkb.addEntities(toAdd);
 
 		// then 
-		vector<PQLEntity> all = pq->retrieveAllVariables();
+		vector<PQLEntity> all = pkb.retrieveAllVariables();
 		REQUIRE(expectedEntities.size() == all.size());
 		for (int i = 0; i < expectedEntities.size(); i++) {
 			// retrieval all have been added
-			REQUIRE(expectedEntities[i] == all[i]);
+			REQUIRE(find(all.begin(), all.end(), expectedEntities[i]) != all.end());
 		}
 	};
 
 	SECTION("Add a bunch of variable") {
 		vector<PQLEntity> expectedEntities = {
-			PQLEntity::generateProcedure("v1"),
-			PQLEntity::generateProcedure("v2"),
-			PQLEntity::generateProcedure("v3")
+			PQLEntity::generateVariable("v1"),
+			PQLEntity::generateVariable("v2"),
+			PQLEntity::generateVariable("v3")
 		};
 		vector<Entity> toAdd = { // TODO: entity should use factory methods!
 			Entity(EntityType::VARIABLE, INVALID_LINE_NUMBER, Token("v1", TokenType::NAME_OR_KEYWORD)),
@@ -90,22 +87,21 @@ TEST_CASE("Test add and get variables") {
 	}
 }
 
+
 TEST_CASE("Test add and get statements") {
 	auto test = [](vector<PQLEntity> expectedEntities, vector<Entity> toAdd) {
 		// given
 		PKB pkb;
-		shared_ptr<PKBUpdateHandler> pu = pkb.getUpdateHandler();
-		shared_ptr<PKBQueryHandler> pq = pkb.getQueryHandler();
 
 		// when 
-		pu->addEntities(toAdd);
+		pkb.addEntities(toAdd);
 
 		// then 
-		vector<PQLEntity> all = pq->retrieveAllStatementEntities();
+		vector<PQLEntity> all = pkb.retrieveAllStatementEntities();
 		REQUIRE(expectedEntities.size() == all.size());
 		for (int i = 0; i < expectedEntities.size(); i++) {
 			// retrieval all have been added
-			REQUIRE(expectedEntities[i] == all[i]);
+			REQUIRE(find(all.begin(), all.end(), expectedEntities[i]) != all.end());
 		}
 	};
 
@@ -130,22 +126,21 @@ TEST_CASE("Test add and get statements") {
 	}
 }
 
+
 TEST_CASE("Test retrieve statements by type") {
 	auto test = [](vector<PQLEntity> expectedEntities, vector<Entity> toAdd, PKBTrackedStatementType pkbTrackedStatementType) {
 		// given
 		PKB pkb;
-		shared_ptr<PKBUpdateHandler> pu = pkb.getUpdateHandler();
-		shared_ptr<PKBQueryHandler> pq = pkb.getQueryHandler();
 
 		// when 
-		pu->addEntities(toAdd);
+		pkb.addEntities(toAdd);
 
 		// then 
-		vector<PQLEntity> all = pq->retrieveStatementEntitiesByType(pkbTrackedStatementType);
+		vector<PQLEntity> all = pkb.retrieveStatementEntitiesByType(pkbTrackedStatementType);
 		REQUIRE(expectedEntities.size() == all.size());
 		for (int i = 0; i < expectedEntities.size(); i++) {
 			// retrieval all have been added
-			REQUIRE(expectedEntities[i] == all[i]);
+			REQUIRE(find(all.begin(), all.end(), expectedEntities[i]) != all.end());
 		}
 	};
 
@@ -198,7 +193,7 @@ TEST_CASE("Test retrieve statements by type") {
 			PQLEntity::generateStatement(4)
 		};
 
-		test(expectedEntities, toAdd, PKBTrackedStatementType::ASSIGN);
+		test(expectedEntities, toAdd, PKBTrackedStatementType::CALL);
 	};
 	SECTION("One of each statement type, while") {
 		vector<PQLEntity> expectedEntities = {

@@ -25,7 +25,7 @@ TEST_CASE("PkbEntityTable::add and ::get works correctly") {
 		assert(expectedEntities.size() == keys.size());
 		for (int i = 0; i < keys.size(); i++) {
 			// retrieval by key matches expectation
-			REQUIRE(expectedEntities[i] == table.get(keys[i]));
+			REQUIRE(expectedEntities[i]->equals(table.get(keys[i])));
 		}
 	};
 
@@ -77,7 +77,7 @@ TEST_CASE("PkbEntityTable::getAll works correctly") {
 		REQUIRE(expectedEntities.size() == all.size());
 		for (int i = 0; i < expectedEntities.size(); i++) {
 			// matches expectation
-			REQUIRE(expectedEntities[i] == all[i]);
+			REQUIRE(find(all.begin(), all.end(), expectedEntities[i]) != all.end());
 		}
 	};
 	// tests
