@@ -4,11 +4,10 @@
 #include <qps/query_parser/parsers/SelectParser.h>
 #include <qps/query_parser/parsers/DeclarationParser.h>
 #include <qps/query_parser/parsers/ModifiesParser.h>
-#include <qps/query_parser/DesignEntity.h>
 
 Query QueryParser::parse() {
     DeclarationParser declParser = DeclarationParser(this->tokens);
-    unordered_map<string, DesignEntity> declarations = declParser.parse();
+    unordered_map<string, ArgumentType> declarations = declParser.parse();
 
     SelectParser selParser = SelectParser(declParser.getRemainingTokens(), declarations);
     shared_ptr<Clause> selectClause = selParser.parse();
@@ -22,7 +21,7 @@ Query QueryParser::parse() {
     return Query(selectClause, constraintClauses);
 }
 
-list<shared_ptr<Clause>> QueryParser::parseConstraints(unordered_map<string, DesignEntity> declarations) {
+list<shared_ptr<Clause>> QueryParser::parseConstraints(unordered_map<string, ArgumentType> declarations) {
     list<shared_ptr<Clause>> clauses;
     PQLToken token = this->tokens.front();
     while (!this->tokens.empty()) {
@@ -38,7 +37,7 @@ list<shared_ptr<Clause>> QueryParser::parseConstraints(unordered_map<string, Des
     return clauses;
 }
 
-shared_ptr<Clause> QueryParser::parseSuchThat(unordered_map<string, DesignEntity> declarations) {
+shared_ptr<Clause> QueryParser::parseSuchThat(unordered_map<string, ArgumentType> declarations) {
     if (this->tokens.empty() || !this->tokens.front().isThat()) {
         throw PQLError("Missing 'that' after 'such'");
     }

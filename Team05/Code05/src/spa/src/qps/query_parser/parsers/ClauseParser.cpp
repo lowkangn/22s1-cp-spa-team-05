@@ -1,19 +1,41 @@
 #include <qps/query_parser/parsers/ClauseParser.h>
 
-list<PQLToken> ClauseParser::getRemainingTokens() {
-	return this->tokens;
+shared_ptr<Clause> ClauseParser::parse() {
+	PQLToken clauseTypeToken = this->tokens.front();
+	assert(isCorrectClauseType(clauseTypeToken));
+	this->tokens.pop_front();
+
+	list<ClauseArgument> args = extractArguments();
+	this->checkArguments(args);
+	this->isParseCompleted = true;
+	return createClause(clauseTypeToken, args);
 }
 
 ClauseArgument ClauseParser::parseSynonym() {
-	PQLToken synonymToken = this->tokens.front();
-	if (declarations.count(synonymToken.getTokenString()) == 0) {
-		throw PQLError("Synonym not declared: " + synonymToken.getTokenString());
+    PQLToken synonymToken = this->tokens.front();
+    if (declarations.count(synonymToken.getTokenString()) == 0) {
+        throw PQLError("Synonym not declared: " + synonymToken.getTokenString());
+    }
+    this->tokens.pop_front();
+    return ClauseArgument(synonymToken.getTokenString(), declarations.at(synonymToken.getTokenString()));
+}
+
+ClauseArgument ClauseParser::parseOneArgument() {
+	PQLToken token = this->tokens.front();
+	if (token.isName()) {
+		return parseSynonym();
 	}
-	this->tokens.pop_front();
-	if (isStatementDesignEntity(declarations.at(synonymToken.getTokenString()))) {
-		return ClauseArgument(synonymToken.getTokenString(), ArgumentType::STMTREF_SYNONYM);
-	} else {
-		return ClauseArgument(synonymToken.getTokenString(), ArgumentType::ENTREF_SYNONYM);
+	else if (token.isQuote()) {
+		return parseStringLiteral();
+	}
+	else if (token.isInteger()) {
+		return parseStatementNumber();
+	}
+	else if (token.isUnderscore()) {
+		return parseWildcard();
+	}
+	else {
+		throw PQLError("Expected stmtRef or entRef, got: " + token.getTokenString());
 	}
 }
 
@@ -45,7 +67,7 @@ ClauseArgument ClauseParser::parseWildcard() {
 	return ClauseArgument(wildCardToken.getTokenString(), ArgumentType::WILDCARD);
 }
 
-void ClauseParser::consumeClauseOpen() {
+void ClauseParser::consumeOpenBracket() {
 	if (this->tokens.empty() || !this->tokens.front().isOpenBracket()) {
 		throw PQLError("Expected Open bracket");
 	}
@@ -55,7 +77,7 @@ void ClauseParser::consumeClauseOpen() {
 	}
 }
 
-void ClauseParser::consumeClauseMiddle() {
+void ClauseParser::consumeComma() {
 	if (this->tokens.empty() || !this->tokens.front().isComma()) {
 		throw PQLError("Expected Comma");
 	}
@@ -65,9 +87,16 @@ void ClauseParser::consumeClauseMiddle() {
 	}
 }
 
-void ClauseParser::consumeClauseClose() {
+void ClauseParser::consumeCloseBracket() {
 	if (this->tokens.empty() || !this->tokens.front().isCloseBracket()) {
 		throw PQLError("Expected Close bracket");
 	}
 	this->tokens.pop_front();
+}
+
+list<PQLToken> ClauseParser::getRemainingTokens() {
+	if (!this->isParseCompleted) {
+		throw PQLError("getRemainingTokens() called before parse()");
+	}
+	return this->tokens;
 }
