@@ -8,7 +8,6 @@
 #include <pkb/design_objects/relationships/PkbParentRelationship.h>
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
-#include <pkb/design_objects/relationships/PkbUsesStarRelationship.h>
 #include <pkb/table_managers/PkbRelationshipTable.h>
 #include <pkb/table_managers/PkbRelationshipTable.cpp>
 
@@ -51,7 +50,6 @@ TEST_CASE("PkbRelationshipTable::add and ::get works correctly") {
 			shared_ptr<PkbRelationship>(new PkbParentRelationship(lhs, rhs)),
 			shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhs, rhs)),
 			shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhs, rhs)),
-			shared_ptr<PkbRelationship>(new PkbUsesStarRelationship(lhs, rhs)),
 			shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs))
 		};
 		vector<string> expectedKeys = {
@@ -61,7 +59,6 @@ TEST_CASE("PkbRelationshipTable::add and ::get works correctly") {
 			lhsKey + rhsKey + string("3"),
 			lhsKey + rhsKey + string("4"),
 			lhsKey + rhsKey + string("5"),
-			lhsKey + rhsKey + string("6")
 		};
 		test(relationships, expectedKeys);
 	};
@@ -101,7 +98,6 @@ TEST_CASE("PkbRelationshipTable::getAll works correctly") {
 			shared_ptr<PkbRelationship>(new PkbParentRelationship(lhs, rhs)),
 			shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhs, rhs)),
 			shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhs, rhs)),
-			shared_ptr<PkbRelationship>(new PkbUsesStarRelationship(lhs, rhs)),
 			shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs))
 		};
 		test(relationships);

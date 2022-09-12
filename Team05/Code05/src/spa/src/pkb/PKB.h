@@ -22,7 +22,6 @@ const string FOLLOWSSTAR_TABLE = "followsStar";
 const string PARENT_TABLE = "parent";
 const string PARENTSTAR_TABLE = "parentStar";
 const string USES_TABLE = "uses";
-const string USESSTAR_TABLE = "usesStar";
 const string MODIFIES_TABLE = "modifies";
 
 class PKB : public PKBQueryHandler, public PKBUpdateHandler {
@@ -39,7 +38,6 @@ private:
 		{PARENT_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{PARENTSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{USES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
-		{USESSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{MODIFIES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 	};
 
@@ -60,9 +58,6 @@ private:
 	}
 	shared_ptr<PkbRelationshipTable> getUsesTable() {
 		return this->relationshipTables[USES_TABLE];
-	}
-	shared_ptr<PkbRelationshipTable> getUsesStarTable() {
-		return this->relationshipTables[USESSTAR_TABLE];
 	}
 	shared_ptr<PkbRelationshipTable> getModifiesTable() {
 		return this->relationshipTables[MODIFIES_TABLE];

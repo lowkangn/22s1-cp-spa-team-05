@@ -9,7 +9,6 @@
 #include <pkb/design_objects/relationships/PkbParentRelationship.h>
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
-#include <pkb/design_objects/relationships/PkbUsesStarRelationship.h>
 #include <pkb/PkbException.h>
 
 #include <memory>
@@ -148,14 +147,9 @@ TEST_CASE("PkbRelationship: test ::getKey") {
 		string expectedKey = lhsKey + rhsKey + string("4");
 		test(r, expectedKey);
 	};
-	SECTION("UsesStar") {
-		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbUsesStarRelationship(lhs, rhs));
-		string expectedKey = lhsKey + rhsKey + string("5");
-		test(r, expectedKey);
-	};
 	SECTION("Modifies") {
 		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs));
-		string expectedKey = lhsKey + rhsKey + string("6");
+		string expectedKey = lhsKey + rhsKey + string("5");
 		test(r, expectedKey);
 	};
 

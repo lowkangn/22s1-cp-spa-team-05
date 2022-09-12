@@ -76,11 +76,8 @@ public:
 		else if (this->isUses()) {
 			typeValue = "4";
 		}
-		else if (this->isUsesStar()) {
-			typeValue = "5";
-		}
 		else if (this->isModifies()) {
-			typeValue = "6";
+			typeValue = "5";
 		}
 		else {
 			throw PkbException("Unknown relationship type to be hashed.");

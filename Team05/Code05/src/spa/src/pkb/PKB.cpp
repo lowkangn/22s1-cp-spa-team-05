@@ -8,7 +8,6 @@
 #include <pkb/design_objects/relationships/PkbParentRelationship.h>
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
-#include <pkb/design_objects/relationships/PkbUsesStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
 #include <qps/query/clause/PQLEntity.h>
 
@@ -149,11 +148,6 @@ void PKB::addRelationships(vector<Relationship> relationships) {
 		else if (r.isModifies()) {
 			shared_ptr<PkbRelationshipTable> table = this->getModifiesTable();
 			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs));
-			table->add(relationship);
-		}
-		else if (r.isUsesStar()) {
-			shared_ptr<PkbRelationshipTable> table = this->getUsesStarTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbUsesStarRelationship(lhs, rhs));
 			table->add(relationship);
 		}
 		else {
@@ -320,8 +314,6 @@ shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelat
 		return this->getParentStarTable();
 	case PKBTrackedRelationshipType::Uses:
 		return this->getUsesTable();
-	case PKBTrackedRelationshipType::UsesStar:
-		throw PkbException("Not supported yet!");
 	case PKBTrackedRelationshipType::Modifies:
 		return this->getModifiesTable();
 	case PKBTrackedRelationshipType::ModifiesStar:
