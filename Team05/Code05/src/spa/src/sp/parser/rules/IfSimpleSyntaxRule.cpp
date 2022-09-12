@@ -36,7 +36,7 @@ vector<shared_ptr<SimpleSyntaxRule>> IfSimpleSyntaxRule::generateChildRules()
 	tokens = elseStmtListRule->consumeTokens(tokens); // consume the tokens
 	childRules.push_back(elseStmtListRule);
 
-	return childRules
+	return childRules;
 }
 
 list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
@@ -47,7 +47,7 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	Token token = tokens.front();
 
 	if (!token.isIfKeywordToken()) {
-		throw SimpleSyntaxParserException("No while token found in WhileSimpleSyntaxRule");
+		throw SimpleSyntaxParserException("No If token found in IfSimpleSyntaxRule");
 	}
 	tokens.pop_front();
 
@@ -56,15 +56,16 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// First token should be open brackets
 	token = tokens.front();
 	if (!token.isOpenBracketToken()) {
-		throw SimpleSyntaxParserException("While condition should start with an open bracket");
+		throw SimpleSyntaxParserException("If condition should start with an open bracket");
 	}
+	tokens.pop_front();
 
 	// get rest of the condition
-	int numOpenBracket = 0;
+	int numOpenBracket = 1;
 	bool seenCloseBracket = false;
 
 	while (!tokens.empty() && !seenCloseBracket) {
-		token = token.front();
+		token = tokens.front();
 		tokens.pop_front();
 
 		if (token.isOpenBracketToken()) {
@@ -74,6 +75,7 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 			numOpenBracket -= 1;
 			if (numOpenBracket == 0) {
 				seenCloseBracket = true;
+				break;
 			}
 		}
 		childTokens.push_back(token);
@@ -82,7 +84,7 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// get then token and stmt list
 	
 	// Next token should be then
-	Token token = tokens.front();
+	token = tokens.front();
 
 	if (!token.isThenKeywordToken()) {
 		throw SimpleSyntaxParserException("No then token found in IfSimpleSyntaxRule");
@@ -95,7 +97,7 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// get else token and stmt list
 
 	// Next token should be else
-	Token token = tokens.front();
+	token = tokens.front();
 
 	if (!token.isElseKeywordToken()) {
 		throw SimpleSyntaxParserException("No else token found in IfSimpleSyntaxRule");
@@ -147,17 +149,15 @@ list<Token> IfSimpleSyntaxRule::getStmtList(list<Token>& tokens)
 	if (!token.isOpenCurlyBracketToken()) {
 		throw SimpleSyntaxParserException(string("Expected first token to be open bracket, but was ") + token.getString());
 	}
-	tokens.pop_front();
 
 	// then we keep going until we hit }
 	bool seenCloseBracket = false;
-	while (!tokens.empty()) {
+	while (!tokens.empty() && !seenCloseBracket) {
 		token = tokens.front(); // read
 		tokens.pop_front(); // pop
 
 		if (token.isClosedCurlyBracketToken()) {
 			seenCloseBracket = true;
-			break;
 		}
 		childTokens.push_back(token); // insert all tokens in order within bracket
 	}

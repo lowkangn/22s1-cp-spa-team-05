@@ -29,6 +29,8 @@ vector<shared_ptr<SimpleSyntaxRule>> WhileSimpleSyntaxRule::generateChildRules()
 	shared_ptr<SimpleSyntaxRule> stmtListRule(new StatementListSimpleSyntaxRule);
 	tokens = stmtListRule->consumeTokens(tokens); // consume the tokens
 	childRules.push_back(stmtListRule);
+
+	return childRules;
 }
 
 list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
@@ -50,13 +52,14 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	if (!token.isOpenBracketToken()) {
 		throw SimpleSyntaxParserException("While condition should start with an open bracket");
 	}
+	tokens.pop_front();
 
 	// get rest of the condition
-	int numOpenBracket = 0;
+	int numOpenBracket = 1;
 	bool seenCloseBracket = false;
 
 	while (!tokens.empty() && !seenCloseBracket) {
-		token = token.front();
+		token = tokens.front();
 		tokens.pop_front();
 
 		if (token.isOpenBracketToken()) {
@@ -66,6 +69,7 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 			numOpenBracket -= 1;
 			if (numOpenBracket == 0) {
 				seenCloseBracket = true;
+				break;
 			}
 		}
 		childTokens.push_back(token);
@@ -78,21 +82,19 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// Second get statementlst
 	
 	// first token should be open bracket
-	Token token = tokens.front();
+	token = tokens.front();
 	if (!token.isOpenCurlyBracketToken()) {
 		throw SimpleSyntaxParserException(string("Expected first token to be open bracket, but was ") + token.getString());
 	}
-	tokens.pop_front();
 
 	// then we keep going until we hit }
-	bool seenCloseBracket = false;
-	while (!tokens.empty()) {
+	seenCloseBracket = false;
+	while (!tokens.empty() && !seenCloseBracket) {
 		token = tokens.front(); // read
 		tokens.pop_front(); // pop
 
 		if (token.isClosedCurlyBracketToken()) {
 			seenCloseBracket = true;
-			break;
 		}
 		childTokens.push_back(token); // insert all tokens in order within bracket
 	}

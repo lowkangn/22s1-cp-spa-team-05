@@ -4,6 +4,8 @@
 #include <sp/parser/rules/NameSimpleSyntaxRule.h>
 #include <sp/parser/rules/StatementListSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
+#include <sp/parser/rules/WhileSimpleSyntaxRule.h>
+#include <sp/parser/rules/IfSimpleSyntaxRule.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <list>
 #include <sp/dataclasses/ast/StatementListASTNode.h>
@@ -61,13 +63,17 @@ vector<shared_ptr<SimpleSyntaxRule>> StatementListSimpleSyntaxRule::generateChil
 			childRules.push_back(readRulePointer); // add to children nodes in order
 		}
 		else if (token.isCallKeywordToken()) { // call statement
-			// TODO - not needed for MVP
+			// TODO - not needed for Milestone 1
 		}
 		else if (token.isWhileKeywordToken()) { // while block
-			// TODO - not needed for MVP
+			shared_ptr<SimpleSyntaxRule> whileRulePointer = shared_ptr<SimpleSyntaxRule>(new WhileSimpleSyntaxRule());
+			tokens = whileRulePointer->consumeTokens(tokens); // consume tokens
+			childRules.push_back(whileRulePointer); // add to children nodes in order
 		}
 		else if (token.isIfKeywordToken()) { // if else statement
-			// TODO - not needed for MVP
+			shared_ptr<SimpleSyntaxRule> ifRulePointer = shared_ptr<SimpleSyntaxRule>(new IfSimpleSyntaxRule());
+			tokens = ifRulePointer->consumeTokens(tokens); // consume tokens
+			childRules.push_back(ifRulePointer); // add to children nodes in order
 		}
 		else if (token.isNameToken()) { // probably assign statement
 			shared_ptr<SimpleSyntaxRule> assignRulePointer = shared_ptr<SimpleSyntaxRule>(new AssignSimpleSyntaxRule());

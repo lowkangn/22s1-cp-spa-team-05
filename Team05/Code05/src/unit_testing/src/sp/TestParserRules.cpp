@@ -31,6 +31,10 @@
 #include <sp/parser/rules/OperatorSimpleSyntaxRule.cpp>
 #include <sp/parser/rules/StatementListSimpleSyntaxRule.h>
 #include <sp/parser/rules/StatementListSimpleSyntaxRule.cpp>
+#include <sp/parser/rules/WhileSimpleSyntaxRule.h>
+#include <sp/parser/rules/WhileSimpleSyntaxRule.cpp>
+#include <sp/parser/rules/IfSimpleSyntaxRule.h>
+#include <sp/parser/rules/IfSimpleSyntaxRule.cpp>
 
 #include <sp/dataclasses/tokens/Token.h>
 #include <list>
@@ -546,6 +550,118 @@ TEST_CASE("Parser: test ::consumeTokens") {
             Token("main", TokenType::NAME_OR_KEYWORD) };
         test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
     }
+
+    // -------------------- WhileSimpleSyntaxRule --------------------
+    SECTION("WhileSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token(WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD)
+        };
+        list<Token> expectedTokens = { Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD) };
+        test(WhileSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    // -------------------- WhileSimpleSyntaxRule --------------------
+    SECTION("WhileSimpleSyntaxRule: Consumes exactly correct tokens, with a nested condition") {
+        list<Token> tokens = {
+            Token(WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("v", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(OR, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("q", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD)
+        };
+        list<Token> expectedTokens = { Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD) };
+        test(WhileSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    // -------------------- IfSimpleSyntaxRule --------------------
+    SECTION("IfSimpleSyntaxRule: Consumes exactly correct tokens") {
+        list<Token> tokens = {
+            Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(THEN_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(ELSE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+        };
+        list<Token> expectedTokens = { Token(PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD), };
+        test(IfSimpleSyntaxRule(), tokens, expectedTokens);
+    }
+
+    // -------------------- IfSimpleSyntaxRule --------------------
+    SECTION("IfSimpleSyntaxRule: Consumes exactly correct tokens, with a nested condition") {
+        list<Token> tokens = {
+            Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("v", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(OR, TokenType::OPERATOR),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("q", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(THEN_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(ELSE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+        };
+        list<Token> expectedTokens = { Token(PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD), };
+        test(IfSimpleSyntaxRule(), tokens, expectedTokens);
+    }
 }
 
 TEST_CASE("Parser: test ::generateChildRules") {
@@ -1027,6 +1143,92 @@ TEST_CASE("Parser: test ::generateChildRules") {
             rhsRule
         };
         test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+
+    SECTION("WhileSimpleSyntaxRule: standard condition") {
+        list<Token> tokensToConsume = {
+            Token(WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+
+        // create conditional rule
+        shared_ptr<SimpleSyntaxRule> conRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
+        list<Token> tokensInConRule = { Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+                                        Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+                                        Token("x", TokenType::NAME_OR_KEYWORD) };
+        conRule->consumeTokens(tokensInConRule);
+
+        // Create stmtList rule
+        shared_ptr<SimpleSyntaxRule> stmtLstRule = shared_ptr<SimpleSyntaxRule>(new StatementListSimpleSyntaxRule());
+        list<Token> tokensInStmtLstRule = { Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER) };
+        stmtLstRule->consumeTokens(tokensInStmtLstRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            conRule,
+            stmtLstRule
+        };
+        test(WhileSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+    }
+
+    SECTION("IfSimpleSyntaxRule: standard condition") {
+        list<Token> tokensToConsume = {
+            Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_BRACKET, TokenType::DELIMITER),
+            Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+            Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_BRACKET, TokenType::DELIMITER),
+            Token(THEN_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(ELSE_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER),
+        };
+
+        // create conditional rule
+        shared_ptr<SimpleSyntaxRule> conRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
+        list<Token> tokensInConRule = { Token("soomevariable", TokenType::NAME_OR_KEYWORD),
+                                        Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR),
+                                        Token("x", TokenType::NAME_OR_KEYWORD) };
+        conRule->consumeTokens(tokensInConRule);
+
+        // Create stmtList rule
+        shared_ptr<SimpleSyntaxRule> thenStmtLstRule = shared_ptr<SimpleSyntaxRule>(new StatementListSimpleSyntaxRule());
+        list<Token> tokensInThenStmtLstRule = { Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER) };
+        thenStmtLstRule->consumeTokens(tokensInThenStmtLstRule);
+
+        shared_ptr<SimpleSyntaxRule> elseStmtLstRule = shared_ptr<SimpleSyntaxRule>(new StatementListSimpleSyntaxRule());
+        list<Token> tokensInElseStmtLstRule = { Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
+            Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD),
+            Token("x", TokenType::NAME_OR_KEYWORD),
+            Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER) };
+        elseStmtLstRule->consumeTokens(tokensInElseStmtLstRule);
+
+        vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+            conRule,
+            thenStmtLstRule,
+            elseStmtLstRule
+        };
+        test(IfSimpleSyntaxRule(), tokensToConsume, expectedChildren);
     }
 }
 
