@@ -5,5 +5,5 @@ using namespace std;
 
 class PkbUsesStarRelationship : public PkbRelationship {
 public:
-	PkbUsesStarRelationship(lhs shared_ptr<PkbEntity>, rhs shared_ptr<PkbEntity>) : PkbRelationship(lhs, rhs, PkbRelationshipType::USESSTAR)
+	PkbUsesStarRelationship(shared_ptr<PkbEntity> lhs, shared_ptr<PkbEntity> rhs) : PkbRelationship(lhs, rhs, PkbRelationshipType::USESSTAR) {}
 };

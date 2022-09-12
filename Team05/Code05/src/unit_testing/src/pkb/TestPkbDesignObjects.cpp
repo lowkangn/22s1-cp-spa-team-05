@@ -3,7 +3,15 @@
 #include <pkb/design_objects/entities/PkbProcedureEntity.h>
 #include <pkb/design_objects/entities/PkbVariableEntity.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
+#include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
+#include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
+#include <pkb/design_objects/relationships/PkbParentRelationship.h>
+#include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
+#include <pkb/design_objects/relationships/PkbUsesRelationship.h>
+#include <pkb/design_objects/relationships/PkbUsesStarRelationship.h>
 #include <pkb/PkbException.h>
+
 #include <memory>
 #include <string>
 using namespace std;
@@ -77,4 +85,80 @@ TEST_CASE("PkbEntity: test ::getIdentifier") {
 
 }
 
+TEST_CASE("PkbEntity: test ::getKey") {
+	auto test = [](shared_ptr<PkbEntity> entity, string expectedKey) {
+		// given, when, then
+		REQUIRE(entity->getKey() == expectedKey);
+	};
+
+	SECTION("Statement, expect statement number") {
+		string expectedKey = "1";
+		shared_ptr<PkbEntity> entity = shared_ptr<PkbEntity>(PkbStatementEntity::createReadStatementEntity(1));
+		test(entity, expectedKey);
+	};
+
+	SECTION("Variable, expect name") {
+		string expectedKey = "variable";
+		shared_ptr<PkbEntity> entity = shared_ptr<PkbEntity>(new PkbVariableEntity(expectedKey));
+		test(entity, expectedKey);
+	};
+
+	SECTION("Procedure, expect name") {
+		string expectedKey = "procedure";
+		shared_ptr<PkbEntity> entity = shared_ptr<PkbEntity>(new PkbProcedureEntity(expectedKey));
+		test(entity, expectedKey);
+	}
+}
+
+TEST_CASE("PkbRelationship: test ::getKey") {
+	auto test = [](shared_ptr<PkbRelationship> relationship, string expectedKey) {
+		// given, when, then
+		REQUIRE(relationship->getKey() == expectedKey);
+	};
+
+	// create lhs and rhs, to be shared
+	string lhsKey = "procedure";
+	string rhsKey = "variable";
+	shared_ptr<PkbEntity> lhs = shared_ptr<PkbEntity>(new PkbProcedureEntity(lhsKey));
+	shared_ptr<PkbEntity> rhs = shared_ptr<PkbEntity>(new PkbVariableEntity(rhsKey));
+
+	// tests
+	SECTION("Follows") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbFollowsRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("0");
+		test(r, expectedKey);
+	};
+	SECTION("FollowsStar") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("1");
+		test(r, expectedKey);
+	};
+	SECTION("Parent") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbParentRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("2");
+		test(r, expectedKey);
+	};
+	SECTION("ParentStar") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("3");
+		test(r, expectedKey);
+	};
+	SECTION("Uses") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("4");
+		test(r, expectedKey);
+	};
+	SECTION("UsesStar") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbUsesStarRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("5");
+		test(r, expectedKey);
+	};
+	SECTION("Modifies") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("6");
+		test(r, expectedKey);
+	};
+
+
+}
 	

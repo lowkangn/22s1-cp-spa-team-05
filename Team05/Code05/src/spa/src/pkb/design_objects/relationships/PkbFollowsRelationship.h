@@ -5,5 +5,5 @@ using namespace std;
 
 class PkbFollowsRelationship : public PkbRelationship {
 public:
-	PkbFollowsRelationship(lhs shared_ptr<PkbEntity>, rhs shared_ptr<PkbEntity>) : PkbRelationship(lhs, rhs, PkbRelationshipType::FOLLOWS)
+	PkbFollowsRelationship(shared_ptr<PkbEntity> lhs, shared_ptr<PkbEntity> rhs) : PkbRelationship(lhs, rhs, PkbRelationshipType::FOLLOWS) {}
 };

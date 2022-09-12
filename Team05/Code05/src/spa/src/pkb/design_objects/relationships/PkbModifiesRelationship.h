@@ -5,5 +5,5 @@ using namespace std;
 
 class PkbModifiesRelationship : public PkbRelationship {
 public:
-	PkbModifiesRelationship(lhs shared_ptr<PkbEntity>, rhs shared_ptr<PkbEntity>) : PkbRelationship(lhs, rhs, PkbRelationshipType::MODIFIES)
+	PkbModifiesRelationship(shared_ptr<PkbEntity> lhs, shared_ptr<PkbEntity> rhs) : PkbRelationship(lhs, rhs, PkbRelationshipType::MODIFIES) {}
 };

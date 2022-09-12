@@ -54,6 +54,9 @@ public:
 	bool isUsesStar() {
 		return this->relationshipType == PkbRelationshipType::USESSTAR;
 	}
+	bool isModifies() {
+		return this->relationshipType == PkbRelationshipType::MODIFIES;
+	}
 
 	string getKey() {
 		// get string of relationshiph type
@@ -76,8 +79,11 @@ public:
 		else if (this->isUsesStar()) {
 			typeValue = "5";
 		}
+		else if (this->isModifies()) {
+			typeValue = "6";
+		}
 		else {
-			throw PkbException("Unknown relationship type to be hashed.")
+			throw PkbException("Unknown relationship type to be hashed.");
 		}
 
 		// get key strings of lhs and rhs
@@ -87,15 +93,5 @@ public:
 		// create key from concatenating all 
 		string key = lhsKey + rhsKey + typeValue;
 		return key;
-	}
-};
-
-template <>
-struct hash<PkbRelationship>
-{
-	size_t operator()(const PkbRelationship& k) const
-	{	
-		return hash<string>(k.getKey());
-		
 	}
 };
