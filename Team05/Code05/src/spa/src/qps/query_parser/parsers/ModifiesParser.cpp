@@ -21,14 +21,14 @@ void ModifiesParser::checkArguments(list<ClauseArgument>& args) {
 	}
 }
 
-shared_ptr<Clause> ModifiesParser::createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) {
+shared_ptr<SuchThatClause> ModifiesParser::createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) {
 	//Modifies clause should have exactly 2 arguments
 	assert(args.size() == 2);
 
 	if (args.front().isStmtRefNoWildcard()) {
-		return shared_ptr<Clause>(new ModifiesSClause(args.front(), args.back()));
+		return shared_ptr<SuchThatClause>(new ModifiesSClause(args.front(), args.back()));
 	}
 	else {
-		return shared_ptr<Clause>(new ModifiesPClause(args.front(), args.back()));
+		return shared_ptr<SuchThatClause>(new ModifiesPClause(args.front(), args.back()));
 	}
 }

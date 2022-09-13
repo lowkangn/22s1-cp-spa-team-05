@@ -2,10 +2,9 @@
 
 #include <vector>
 #include "PQLRelationship.h"
-#include "ClauseResult.h"
 #include "ClauseArgument.h"
 
-class RelationshipClauseResult : public ClauseResult {
+class RelationshipClauseResult {
 
 private:
     ClauseArgument firstArg;

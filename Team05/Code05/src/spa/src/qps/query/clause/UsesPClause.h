@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Clause.h"
+#include "SuchThatClause.h"
 
-class UsesPClause : public Clause {
+class UsesPClause : public SuchThatClause {
 public:
-	shared_ptr<ClauseResult> execute() override;
+	shared_ptr<RelationshipClauseResult> execute() override;
 };

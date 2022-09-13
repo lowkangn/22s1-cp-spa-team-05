@@ -3,14 +3,14 @@
 #include "PQLEntity.h"
 #include "EntityClauseResult.h"
 
-shared_ptr<ClauseResult> SelectClause::execute() {
+shared_ptr<EntityClauseResult> SelectClause::execute() {
     // Not sure of the correct way to call this
 //    vector<PQLEntity> entities = PKBQueryHandler().retrieveKnowledge(toSelect);
 //    return shared_ptr<ClauseResult>(new EntityClauseResult(toSelect, entities));
-    return shared_ptr<ClauseResult>();
+    return shared_ptr<EntityClauseResult>();
 }
 
-bool SelectClause::equals(const Clause* other) {
+bool SelectClause::equals(const SelectClause* other) {
 	if (dynamic_cast<const SelectClause*>(other) == nullptr) {
 		return false;
 	}

@@ -19,7 +19,7 @@ TEST_CASE("SelectParser: test parseNoError") {
             SelectParser parser = SelectParser(tokens, declarations);
 
             // when
-            shared_ptr<Clause>  actualPtr = parser.parse();
+            shared_ptr<SelectClause> actualPtr = parser.parse();
 
             // then
             REQUIRE(expected.equals(actualPtr.get()));

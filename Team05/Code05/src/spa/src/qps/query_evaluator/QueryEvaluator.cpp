@@ -2,13 +2,13 @@
 #include "QueryEvaluator.h"
 
 set<string> QueryEvaluator::evaluate(Query query) {
-	shared_ptr<ClauseResult> entitiesResultPointer = query.executeSelect();
-	list<shared_ptr<ClauseResult>> relationshipsResultPointers = query.executeSuchThat();
+	shared_ptr<EntityClauseResult> entitiesResultPointer = query.executeSelect();
+	list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers = query.executeSuchThat();
 	return combine(entitiesResultPointer, relationshipsResultPointers);
 }
 
-set<string> QueryEvaluator::combine(shared_ptr<ClauseResult> entitiesResultPointer,
-									list<shared_ptr<ClauseResult>> relationshipsResultPointers) {
+set<string> QueryEvaluator::combine(shared_ptr<EntityClauseResult> entitiesResultPointer,
+									list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers) {
 
     EntityClauseResult entitiesResult = dereferenceEntitiesResultPointer(entitiesResultPointer);
     list<RelationshipClauseResult> relationshipsResults =
@@ -86,21 +86,15 @@ RelationshipArgument QueryEvaluator::findDesiredArgument(ClauseArgument desiredA
 	}
 }
 
-EntityClauseResult QueryEvaluator::dereferenceEntitiesResultPointer(shared_ptr<ClauseResult> entitiesResultPointer) {
-	// Safe cast as we know entitiesResultPointer is the result of SelectClause's execute() which returns a
-	// ClauseResult pointer pointing to an EntityClauseResult.
-	// https://stackoverflow.com/questions/1358143/downcasting-shared-ptrbase-to-shared-ptrderived
-	return *(static_pointer_cast<EntityClauseResult>(entitiesResultPointer));
+EntityClauseResult QueryEvaluator::dereferenceEntitiesResultPointer(shared_ptr<EntityClauseResult> entitiesResultPointer) {
+	return *entitiesResultPointer;
 }
 
 list<RelationshipClauseResult> QueryEvaluator::dereferenceRelationshipsResultPointers(
-		list<shared_ptr<ClauseResult>> relationshipsResultPointers) {
+		list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers) {
 	list<RelationshipClauseResult> relationshipsToReturn;
-	for (shared_ptr<ClauseResult> relationshipsResultPointer : relationshipsResultPointers) {
-		// Safe cast as we know relationshipsResultPointers are the result of execute() (excluding SelectClause)
-		// which returns a ClauseResult pointer pointing to a RelationshipClauseResult.
-		relationshipsToReturn.push_back(
-				*(static_pointer_cast<RelationshipClauseResult>(relationshipsResultPointer)));
+	for (shared_ptr<RelationshipClauseResult> relationshipsResultPointer : relationshipsResultPointers) {
+		relationshipsToReturn.push_back(*(relationshipsResultPointer));
 	}
 	return relationshipsToReturn;
 }

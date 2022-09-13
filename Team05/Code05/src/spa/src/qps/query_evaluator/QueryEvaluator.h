@@ -4,7 +4,6 @@
 #include <vector>
 #include <set>
 
-#include "../query/clause/ClauseResult.h"
 #include "../query/clause/EntityClauseResult.h"
 #include "../query/clause/RelationshipClauseResult.h"
 #include "../query/Query.h"
@@ -25,16 +24,16 @@ public:
 	set<string> evaluate(Query query);
 
 	/* Combines the results from the clauses of a query */
-    set<string> combine(shared_ptr<ClauseResult> entitiesResultPointer,
-						list<shared_ptr<ClauseResult>> relationshipsResultPointers);
+    set<string> combine(shared_ptr<EntityClauseResult> entitiesResultPointer,
+						list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers);
 
 	RelationshipArgument findDesiredArgument(ClauseArgument desiredArg,
 											 RelationshipClauseResult relationshipResultToCheck);
 
-	EntityClauseResult dereferenceEntitiesResultPointer(shared_ptr<ClauseResult> entitiesResultPointer);
+	EntityClauseResult dereferenceEntitiesResultPointer(shared_ptr<EntityClauseResult> entitiesResultPointer);
 
 	list<RelationshipClauseResult> dereferenceRelationshipsResultPointers(
-			list<shared_ptr<ClauseResult>> relationshipsResultPointers);
+			list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers);
 
 	set<PQLEntity> extractEntitySet(RelationshipArgument argToExtract, vector<PQLRelationship> relationships);
 

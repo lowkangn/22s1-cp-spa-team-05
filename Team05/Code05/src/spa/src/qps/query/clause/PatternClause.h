@@ -1,6 +1,6 @@
-#include "Clause.h"
+#include "SuchThatClause.h"
 
-class PatternClause : public Clause {
+class PatternClause : public SuchThatClause {
 public:
-    shared_ptr<ClauseResult> execute() override;
+    shared_ptr<RelationshipClauseResult> execute() override;
 };

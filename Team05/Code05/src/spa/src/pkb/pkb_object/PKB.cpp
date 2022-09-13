@@ -5,7 +5,6 @@
 #include <memory>
 #include <pkb/pkb_object/PKB.h>
 #include <sp/dataclasses/design_objects/Entity.h>
-#include <qps/query/clause/Clause.h>
 #include <pkb/table_managers/EntityPkbTableManager.h>
 #include <pkb/table_managers/FollowsPkbTableManager.h>
 #include <pkb/table_managers/FollowsTPkbTableManager.h>

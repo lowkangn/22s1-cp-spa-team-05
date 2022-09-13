@@ -18,5 +18,5 @@ public:
 
 	void checkArguments(list<ClauseArgument>& args) override;
 
-	shared_ptr<Clause> createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) override;
+	shared_ptr<SuchThatClause> createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) override;
 };
