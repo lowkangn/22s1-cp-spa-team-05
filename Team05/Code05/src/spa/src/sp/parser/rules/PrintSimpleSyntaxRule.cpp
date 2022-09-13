@@ -19,11 +19,11 @@ vector<shared_ptr<SimpleSyntaxRule>> PrintSimpleSyntaxRule::generateChildRules()
 
 list<Token> PrintSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 {
-	// a read statement consists of a read token, a variable name token that is not a reserved word 
+	// a print statement consists of a print token, a variable name token that is not a reserved word 
 	// and a semicolon
 	list<Token> childTokens;
 
-	// read token
+	// print token
 	Token token = tokens.front(); // read
 	tokens.pop_front(); // pop
 	if (!token.isPrintKeywordToken()) {
@@ -63,7 +63,7 @@ shared_ptr<ASTNode> PrintSimpleSyntaxRule::constructNode() {
 		this->childRules = this->generateChildRules();
 	}
 
-	// create read node
+	// create print node
 	Token readToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
 	shared_ptr<ASTNode> printNode(new PrintASTNode(readToken));
 

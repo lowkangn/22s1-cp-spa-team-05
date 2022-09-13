@@ -63,31 +63,31 @@ TEST_CASE("DesignExtractor: test : extractEntity()") {
 	shared_ptr<ASTNode> nodeToExtractFrom(new ProgramASTNode(programToken));
 
 	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
-	Entity procedureEntity = Entity{ EntityType::PROCEDURE, -1, procedureNameToken };
+	Entity procedureEntity = Entity::createProcedureEntity(procedureNameToken);
 
 	shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(stmtLstToken));
 
 	shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
 	xNode->setLineNumber(2);
-	Entity xEntity = Entity{ EntityType::VARIABLE, 2, xToken };
+	Entity xEntity = Entity::createVariableEntity(2, xToken);
 
 	shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constant));
 	constantNode->setLineNumber(2);
-	Entity constantEntity = Entity{ EntityType::CONSTANT, 2, constant };
+	Entity constantEntity = Entity::createConstantEntity(2, constant);
 
 
 	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 	assignNode->setLineNumber(2);
-	Entity assignEntity = Entity{ EntityType::ASSIGN, 2, assignToken };
+	Entity assignEntity = Entity::createAssignEntity(2);
 
 	shared_ptr<ASTNode> yNode(new VariableASTNode(yToken));
 	yNode->setLineNumber(1);
-	Entity yEntity = Entity{ EntityType::VARIABLE, 1, yToken };
+	Entity yEntity = Entity::createVariableEntity(1, yToken);
 
 
 	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
 	readNode->setLineNumber(1);
-	Entity readEntity = Entity{EntityType::READ, 1, readToken};
+	Entity readEntity = Entity::createReadEntity(1);
 
 
 	assignNode->addChild(xNode);
@@ -103,7 +103,7 @@ TEST_CASE("DesignExtractor: test : extractEntity()") {
 	nodeToExtractFrom->addChild(procedureNode);
 
 	// Creating relationships
-	vector<Entity> expectedEntities = vector<Entity>{ procedureEntity, readEntity, yEntity, assignEntity, xEntity };
+	vector<Entity> expectedEntities = vector<Entity>{ procedureEntity, readEntity, yEntity, assignEntity, xEntity, constantEntity };
 
 	test(nodeToExtractFrom, expectedEntities);
 }
@@ -115,7 +115,7 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 		shared_ptr<PatternExtractor> patternExtractor(new PatternExtractor());
 		shared_ptr<Extractor<Relationship>> modifiesExtractor = shared_ptr<Extractor<Relationship>>(new ModifiesExtractor());
 		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor };
-		
+
 		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, relationExtractors);
 		extractor.setRootNode(nodeToExtractFrom);
 
@@ -152,31 +152,31 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 	shared_ptr<ASTNode> nodeToExtractFrom(new ProgramASTNode(programToken));
 
 	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
-	Entity procedureEntity = Entity{ EntityType::PROCEDURE, -1, procedureNameToken };
+	Entity procedureEntity = Entity::createProcedureEntity(procedureNameToken);
 
 	shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(stmtLstToken));
 
 	shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
 	xNode->setLineNumber(2);
-	Entity xEntity = Entity{ EntityType::VARIABLE, 2, xToken };
+	Entity xEntity = Entity::createVariableEntity(2, xToken);
 
 	shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constant));
 	constantNode->setLineNumber(2);
-	Entity constantEntity = Entity{ EntityType::CONSTANT, 2, constant };
+	Entity constantEntity = Entity::createConstantEntity(2, constant);
 
 
 	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 	assignNode->setLineNumber(2);
-	Entity assignEntity = Entity{ EntityType::ASSIGN, 2, assignToken };
+	Entity assignEntity = Entity::createAssignEntity(2);
 
 	shared_ptr<ASTNode> yNode(new VariableASTNode(yToken));
 	yNode->setLineNumber(1);
-	Entity yEntity = Entity{ EntityType::VARIABLE, 1, yToken };
+	Entity yEntity = Entity::createVariableEntity(1, yToken);
 
 
 	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
 	readNode->setLineNumber(1);
-	Entity readEntity = Entity{ EntityType::READ, 1, readToken };
+	Entity readEntity = Entity::createReadEntity(1);
 
 
 	assignNode->addChild(xNode);

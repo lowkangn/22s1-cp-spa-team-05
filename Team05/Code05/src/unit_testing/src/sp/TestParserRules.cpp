@@ -1436,6 +1436,60 @@ TEST_CASE("Parser: test ::constructNode") {
         test(rule, expectedASTNode);
     }
 
+    SECTION("AssignSimpleSyntaxRule : constructNode -> x = x + 1 + (1 + x)") {
+        // x = x + 1;
+        Token leftHandSideToken = Token("x", TokenType::NAME_OR_KEYWORD);
+        Token equalsToken = Token(EQUAL_OPERATOR, TokenType::OPERATOR);
+        Token rightXToken = Token("x", TokenType::NAME_OR_KEYWORD);
+        Token plusToken = Token(PLUS_OPERATOR, TokenType::OPERATOR);
+        Token rightOneToken = Token("1", TokenType::INTEGER);
+        Token semiColon = Token(SEMI_COLON, TokenType::DELIMITER);
+        Token openBracket = Token(OPEN_BRACKET, TokenType::DELIMITER);
+        Token closedBracket = Token(CLOSED_BRACKET, TokenType::DELIMITER);
+        list<Token> tokensToConsume = { leftHandSideToken,  equalsToken,
+                                        rightXToken, plusToken, rightOneToken, plusToken, 
+                                        openBracket, rightOneToken, plusToken, rightXToken, closedBracket, semiColon };
+
+        // Create rule
+        AssignSimpleSyntaxRule rule = AssignSimpleSyntaxRule();
+        list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+        vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+        // Create assign node
+        shared_ptr<ASTNode> expectedASTNode(new AssignASTNode(equalsToken));
+
+        // Create LHS
+        shared_ptr<ASTNode> variableNode(new VariableASTNode(leftHandSideToken));
+        shared_ptr<ASTNode> rhsXOutNode(new VariableASTNode(rightXToken));
+        shared_ptr<ASTNode> rhsXInNode(new VariableASTNode(rightXToken));
+
+        // Create expressions
+        shared_ptr<ASTNode> expressionOneNode(new ExpressionASTNode(plusToken));
+        shared_ptr<ASTNode> expressionTwoNode(new ExpressionASTNode(plusToken));
+        shared_ptr<ASTNode> expressionBracketNode(new ExpressionASTNode(plusToken));
+        shared_ptr<ASTNode> bracketASTNode(new BracketsASTNode(Token::getPlaceHolderToken()));
+
+        // Create RHS
+        shared_ptr<ASTNode> constantOutNode(new ConstantValueASTNode(rightOneToken));
+        shared_ptr<ASTNode> constantInNode(new ConstantValueASTNode(rightOneToken));
+
+        expectedASTNode->addChild(variableNode);
+        expectedASTNode->addChild(expressionOneNode);
+
+        expressionOneNode->addChild(rhsXOutNode);
+        expressionOneNode->addChild(expressionTwoNode);
+
+        expressionTwoNode->addChild(constantOutNode);
+        expressionTwoNode->addChild(bracketASTNode);
+
+        bracketASTNode->addChild(expressionBracketNode);
+
+        expressionBracketNode->addChild(constantInNode);
+        expressionBracketNode->addChild(rhsXInNode);
+
+        test(rule, expectedASTNode);
+    }
+
     // -------------------- StatementListSimpleSyntaxRule --------------------
     SECTION("StatementListSimpleSyntaxRule : constructNode") {
 

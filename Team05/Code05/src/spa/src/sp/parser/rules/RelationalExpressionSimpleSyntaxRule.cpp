@@ -26,8 +26,8 @@ list<Token> RelationalExpressionSimpleSyntaxRule::consumeTokens(list<Token> toke
 	tokens.pop_front();
 
 	// token should be a name token
-	if (!token.isNameToken()) {
-		throw SimpleSyntaxParserException("Token should be a variable name!");
+	if (!token.isNameToken() && !token.isIntegerToken()) {
+		throw SimpleSyntaxParserException("Token should be a variable name or a constant value!");
 	}
 
 	// set state
@@ -44,7 +44,7 @@ list<Token> RelationalExpressionSimpleSyntaxRule::consumeTokens(list<Token> toke
 
 	childTokens.push_back(token);
 
-	// Last token should be a variable
+	// Last token should be a variable or constant value
 	token = tokens.front();
 	tokens.pop_front();
 
@@ -79,18 +79,32 @@ shared_ptr<ASTNode> RelationalExpressionSimpleSyntaxRule::constructNode() {
 	Token rhsToken = this->tokens.front();
 
 	shared_ptr<ASTNode> expressionNode(new ExpressionASTNode(relationalOperatorToken));
-	shared_ptr<ASTNode> leftHandSideNode(new VariableASTNode(lhsToken));
+
+	shared_ptr<ASTNode> leftHandSideNode;
+
+	if (rhsToken.isIntegerToken()) {
+		leftHandSideNode = shared_ptr<ASTNode>(new ConstantValueASTNode(lhsToken));
+	}
+	else if (rhsToken.isNameToken()) {
+		leftHandSideNode = shared_ptr<ASTNode> (new VariableASTNode(lhsToken));
+	}
+	else {
+		throw SimpleSyntaxParserException("Invalid left token found while generating ASTNode for RelationalExpressionSimpleSyntaxRule");
+	}
 
 	shared_ptr<ASTNode> rightHandSideNode;
 
 	if (rhsToken.isIntegerToken()) {
 		rightHandSideNode = shared_ptr<ASTNode>(new ConstantValueASTNode(rhsToken));
 	}
-	else {
+	else if (rhsToken.isNameToken()) {
 		rightHandSideNode = shared_ptr<ASTNode>(new VariableASTNode(rhsToken));
 	}
+	else {
+		throw SimpleSyntaxParserException("Invalid right token found while generating ASTNode for RelationalExpressionSimpleSyntaxRule");
+	}
 
-	expressionNode->addChild(leftHandSideNode);
+	expressionNode->addChild(leftHandSideNode); // Left child added before right child
 	expressionNode->addChild(rightHandSideNode);
 
 	return expressionNode;

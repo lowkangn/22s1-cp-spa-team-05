@@ -29,11 +29,13 @@ vector<shared_ptr<SimpleSyntaxRule>> ConditionalExpressionSimpleSyntaxRule::gene
 	
 	Token token = tokens.front();
 
+	// If not operator was found during consume tokens we process the inner expression recursively
 	if (this->notOperatorUsed) {
 		shared_ptr<SimpleSyntaxRule> conditionalRulePointer = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
 		tokens = conditionalRulePointer->consumeTokens(tokens);
 		childRules.push_back(conditionalRulePointer);
 	}
+	// If two expressions were found during consume tokens we process each expressions as indiviual conditional expressions
 	else if (this->twoConditionals) {
 		// First rule
 		shared_ptr<SimpleSyntaxRule> firstConditionalRulePointer = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
@@ -50,11 +52,12 @@ vector<shared_ptr<SimpleSyntaxRule>> ConditionalExpressionSimpleSyntaxRule::gene
 		tokens = secondConditionalRulePointer->consumeTokens(tokens);
 		childRules.push_back(secondConditionalRulePointer);
 	}
-	else if (token.isNameToken()) {
+	// If first token is a name token then we process the ConditionalExpression as a relational expression
+	else if (token.isNameToken() || token.isIntegerToken()) {
 		shared_ptr<SimpleSyntaxRule> relationalRulePointer = shared_ptr<SimpleSyntaxRule>(new RelationalExpressionSimpleSyntaxRule());
 		tokens = relationalRulePointer->consumeTokens(tokens);
 		childRules.push_back(relationalRulePointer);
-	}
+	} 
 	else {
 		throw SimpleSyntaxParserException("Invalid token in Conditional Expression Rule ");
 	}
@@ -69,20 +72,18 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 	list<Token> childTokens;
 	// It is a not operator encompassing a conditional expression
 	if (token.isNotOperator()) {
-		// Pop first relational expression
-		if (token.isNotOperator()) {
-			// Do not place Not operator back
-			this->notOperatorUsed = true;
-			tokens.pop_front();
-		}
+		// Do not place Not operator back
+		this->notOperatorUsed = true;
+		tokens.pop_front();
 
 		// Get conditional expr
-		childTokens = parseCondition(tokens);
+		childTokens = this->parseCondition(tokens);
 	}
+
 	// It is a standard conditional expression (cond_expr) OPERATOR (cond_expr)
 	else if (token.isOpenBracketToken()) {
 		// Get First Conditional Expression
-		list<Token> firstCondExpression = parseCondition(tokens);
+		list<Token> firstCondExpression = this->parseCondition(tokens);
 		childTokens.insert(childTokens.end(), firstCondExpression.begin(), firstCondExpression.end());
 
 		// Get Conditional Operator
@@ -151,9 +152,9 @@ shared_ptr<ASTNode> ConditionalExpressionSimpleSyntaxRule::constructNode() {
 		this->childRules = this->generateChildRules();
 	}
 
-	// Single relational term/ConditionalRule from Not operator
+	// Single relational expression
 	if (this->childRules.size() == 1) {
-		shared_ptr<SimpleSyntaxRule> childRule = this->childRules[0];
+		shared_ptr<SimpleSyntaxRule> childRule = this->childRules.front();
 		return childRule->constructNode();
 	} else {
 		shared_ptr<SimpleSyntaxRule> operatorRule = this->childRules[CONDITIONAL_OPERATOR_RULE];

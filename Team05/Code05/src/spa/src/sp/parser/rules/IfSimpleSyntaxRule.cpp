@@ -147,7 +147,7 @@ list<Token> IfSimpleSyntaxRule::getStmtList(list<Token>& tokens)
 	// first token should be open bracket
 	Token token = tokens.front();
 	if (!token.isOpenCurlyBracketToken()) {
-		throw SimpleSyntaxParserException(string("Expected first token to be open bracket, but was ") + token.getString());
+		throw SimpleSyntaxParserException(string("Expected first token to be open curly bracket, but was ") + token.getString());
 	}
 
 	// then we keep going until we hit }

@@ -8,9 +8,8 @@
 using namespace std;
 
 // Default line number is -1 (For validation purposes)
-const int DEAFULT_LINE_NUMBER = -1;
 
-enum class ASTNodeType { PROGRAM, PROCEDURE, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT, EXPRESSION };
+enum class ASTNodeType { PROGRAM, PROCEDURE, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT, EXPRESSION, BRACKETS };
 
 class ASTNode {
 

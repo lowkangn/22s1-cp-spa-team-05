@@ -1,6 +1,6 @@
 #include <sp/dataclasses/ast/ExpressionASTNode.h>
 
 Entity ExpressionASTNode::extractEntity() {
-	Token undefinedToken = Token{ "", TokenType::INVALID };
-	return Entity{ EntityType::EXPRESSION , 1, undefinedToken };
+	Token nodeToken = this->getToken();
+	return Entity::createExpressionEntity(1, nodeToken);
 }

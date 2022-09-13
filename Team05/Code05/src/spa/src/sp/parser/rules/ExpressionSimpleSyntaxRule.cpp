@@ -6,6 +6,7 @@
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/AssignASTNode.h>
+#include <sp/dataclasses/ast/BracketsASTNode.h>
 #include <list>
 #include <memory>
 
@@ -22,48 +23,72 @@ vector<shared_ptr<SimpleSyntaxRule>> ExpressionSimpleSyntaxRule::generateChildRu
 	}
 
 	// initialize outputs
-	list<Token> tokens = this->tokens;
 	vector<shared_ptr<SimpleSyntaxRule>> childRules;
 
-	// variable name on lhs 
-	if (!tokens.front().isNameToken()) {
-		throw SimpleSyntaxParserException("First token should be a variable!");
-	}
-	shared_ptr<SimpleSyntaxRule> lhsRulePointer = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
-	tokens = lhsRulePointer->consumeTokens(tokens); // consume the tokens
-	childRules.push_back(lhsRulePointer);
+	// lhs
+	list<Token> lhsTokens = this->lhsTokens;
 
+	// More than one term on the lhs, thus it is still an expression
+	if (lhsTokens.size() == 1) {
+		if (lhsTokens.front().isNameToken()) {
+			shared_ptr<SimpleSyntaxRule> lhsRulePointer = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+			lhsTokens = lhsRulePointer->consumeTokens(lhsTokens); // consume the tokens
+			childRules.push_back(lhsRulePointer);
+		}
+		else if (lhsTokens.front().isIntegerToken()) {
+			shared_ptr<SimpleSyntaxRule> lhsRulePointer = shared_ptr<SimpleSyntaxRule>(new ConstantValueSimpleSyntaxRule());
+			lhsTokens = lhsRulePointer->consumeTokens(lhsTokens); // consume the tokens
+			childRules.push_back(lhsRulePointer);
+		}
+		else {
+			throw SimpleSyntaxParserException("LHS of an expression must be another expression or a variable/constant");
+		}
+	}
+	// Means lhs is either variable or constant
+	else {
+		shared_ptr<SimpleSyntaxRule> lhsRulePointer = shared_ptr<SimpleSyntaxRule>(new ExpressionSimpleSyntaxRule());
+		childRules.push_back(lhsRulePointer);
+	}
+	
+	Token operatorToken = this->operatorToken;
+	// Have to put in list as the constructor for SimpleSyntaxRule takes in a list<Token>
+	list<Token> operatorTokenList;
+	operatorTokenList.push_back(operatorToken);
 	// Middle must be an operator
-	if (!tokens.front().isOperatorToken()) {
+	if (!operatorToken.isOperatorToken()) {
 		throw SimpleSyntaxParserException("Second token should be a operator!");
 	}
 	shared_ptr<SimpleSyntaxRule> operatorRulePointer = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
-	tokens = operatorRulePointer->consumeTokens(tokens); // consume the tokens
+	operatorTokenList = operatorRulePointer->consumeTokens(operatorTokenList); // consume the tokens
 	childRules.push_back(operatorRulePointer);
 
-	// RHS can be nested or the end of an expression
+	// RHS can be expression or a constant/variable
+	list<Token> rhsTokens = this->rhsTokens;
 	// if there is more than one token left then it is not terminal and another expression
-	if (tokens.size() == 1) {
+	if (rhsTokens.size() == 1) {
 		// Either a Name or a Constant
-		if (tokens.front().isNameToken()) {
+		if (rhsTokens.front().isNameToken()) {
 			shared_ptr<SimpleSyntaxRule> nameRulePointer = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
-			tokens = nameRulePointer->consumeTokens(tokens); // consume the tokens
+			rhsTokens = nameRulePointer->consumeTokens(rhsTokens); // consume the tokens
 			childRules.push_back(nameRulePointer);
 		}
-		else {
+		else if (rhsTokens.front().isIntegerToken()) {
 			shared_ptr<SimpleSyntaxRule> constantValueRulePointer = shared_ptr<SimpleSyntaxRule>(new ConstantValueSimpleSyntaxRule());
-			tokens = constantValueRulePointer->consumeTokens(tokens); // consume the tokens
+			rhsTokens = constantValueRulePointer->consumeTokens(rhsTokens); // consume the tokens
 			childRules.push_back(constantValueRulePointer);
+		}
+		else {
+			throw SimpleSyntaxParserException("Unrecognized token in the RHS of the expression");
 		}
 	}
 	else {
 		shared_ptr<SimpleSyntaxRule> expressionRulePointer = shared_ptr<SimpleSyntaxRule>(new ExpressionSimpleSyntaxRule());
-		tokens = expressionRulePointer->consumeTokens(tokens); // consume the tokens
+		rhsTokens = expressionRulePointer->consumeTokens(rhsTokens); // consume the tokens
 		childRules.push_back(expressionRulePointer);
 	}
 
 	// should have no tokens left
-	if (!tokens.empty()) {
+	if (!rhsTokens.empty() && !lhsTokens.empty()) {
 		throw SimpleSyntaxParserException("Should have no remaining tokens after parsing assign statement, but still has!");
 	}
 	return childRules;
@@ -71,36 +96,62 @@ vector<shared_ptr<SimpleSyntaxRule>> ExpressionSimpleSyntaxRule::generateChildRu
 
 list<Token> ExpressionSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 
-	list<Token> childTokens;
+	list<Token> lhsTokens;
+	list<Token> rhsTokens;
 
-	// should start with variable or constant
 	Token token = tokens.front(); // read
-	tokens.pop_front(); // pop
-	if (!token.isNameToken() && !token.isIntegerToken()) {
-		throw SimpleSyntaxParserException(string("Expected a name variable or constant, got: ") + token.getString());
+
+
+	// Check for brackets, if they are present means first term itself is an expression (Factor)
+	if (token.isOpenBracketToken()) {
+		lhsTokens = this->extractBracketTokens(tokens);
+		this->lhsBrackets = true;
 	}
-	childTokens.push_back(token); // we want the lhs variable
-
-	while (!tokens.empty()) {
-		// then operator 
-		token = tokens.front(); // read
-		if (!token.isOperatorToken()) {
-			throw SimpleSyntaxParserException(string("Expected a operator, got: ") + token.getString());
+	else {
+		// should start with variable or constant
+		if (!token.isNameToken() && !token.isIntegerToken()) {
+			throw SimpleSyntaxParserException(string("Expected a name variable or constant, got: ") + token.getString());
 		}
+		lhsTokens.push_back(token); // we want the lhs variable
 		tokens.pop_front(); // pop
-		childTokens.push_back(token); // we want the operator
+	}
 
-		// Another variable or constant
-		token = tokens.front(); // read
+	// Then operator
+	token = tokens.front(); // read
+	if (!token.isOperatorToken()) {
+		throw SimpleSyntaxParserException(string("Expected an operator got: ") + token.getString());
+	}
+	tokens.pop_front(); // pop
+	this->operatorToken = token; // we want the operator
+
+	// Check for brackets, if they are present then the second term itself is an expression (factor)
+	token = tokens.front();
+	if (token.isOpenBracketToken()) {
+		rhsTokens = this->extractBracketTokens(tokens);
+		this->rhsBrackets = true;
+	}
+	// It is a term
+	else {
+		// should start with variable or constant
+		token = tokens.front();
 		tokens.pop_front(); // pop
 		if (!token.isNameToken() && !token.isIntegerToken()) {
 			throw SimpleSyntaxParserException(string("Expected a name variable or constant, got: ") + token.getString());
 		}
-		childTokens.push_back(token); // we want the lhs variable
+		rhsTokens.push_back(token); // we want the lhs variable
+
+		// Append the rest of the expression
+		while (!tokens.empty()) {
+			// then operator 
+			token = tokens.front(); // read
+			tokens.pop_front(); // pop
+			rhsTokens.push_back(token);
+		}
 	}
 	
 	// then store state
-	this->tokens = childTokens;
+	this->lhsTokens = lhsTokens;
+	this->rhsTokens = rhsTokens;
 	this->initialized = true;
 	return tokens; // return remaining tokens
 }
@@ -117,11 +168,60 @@ shared_ptr<ASTNode> ExpressionSimpleSyntaxRule::constructNode() {
 	}
 
 	shared_ptr<ASTNode> operatorNode = this->childRules[OPERATOR_RULE]->constructNode();
-	shared_ptr<ASTNode> lhsNode = this->childRules[LHS_RULE]->constructNode();
+	shared_ptr<ASTNode> lhsNode = this->childRules[LHS_RULE]->constructNode(); 
 	shared_ptr<ASTNode> rhsNode = this->childRules[RHS_RULE]->constructNode();
 
-	operatorNode->addChild(lhsNode);
-	operatorNode->addChild(rhsNode);
+	shared_ptr<ASTNode> lhsBrackets(new BracketsASTNode(Token::getPlaceHolderToken()));
+	shared_ptr<ASTNode> rhsBrackets(new BracketsASTNode(Token::getPlaceHolderToken()));
+
+	if (this->lhsBrackets) {
+		lhsBrackets->addChild(lhsNode);
+		operatorNode->addChild(lhsBrackets);
+	}
+	else {
+		operatorNode->addChild(lhsNode); // LHS must be added before RHS
+	}
+
+	if (this->rhsBrackets) {
+		rhsBrackets->addChild(rhsNode);
+		operatorNode->addChild(rhsBrackets);
+	}
+	else {
+		operatorNode->addChild(rhsNode);
+	}
 
 	return operatorNode;
+}
+
+list<Token> ExpressionSimpleSyntaxRule::extractBracketTokens(list<Token> &tokens) {
+
+	list<Token> insideBracketTokens;
+
+	Token token = tokens.front();
+	tokens.pop_front();
+
+	if (!token.isOpenBracketToken()) {
+		throw SimpleSyntaxParserException("Cannot extract bracket tokens as it does not start with a bracket '('");
+	}
+
+	int numOpenBracket = 1;
+	bool seenClosedBracket = false;
+	while (!tokens.empty() && !seenClosedBracket) {
+		token = tokens.front();
+		tokens.pop_front();
+
+		if (token.isOpenBracketToken()) {
+			numOpenBracket += 1;
+		}
+		else if (token.isClosedBracketToken()) {
+			numOpenBracket -= 1;
+			if (numOpenBracket == 0) {
+				seenClosedBracket = true;
+				break;
+			}
+		}
+		insideBracketTokens.push_back(token);
+	}
+
+	return insideBracketTokens;
 }

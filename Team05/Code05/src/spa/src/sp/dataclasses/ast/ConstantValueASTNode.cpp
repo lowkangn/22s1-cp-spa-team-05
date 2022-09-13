@@ -5,7 +5,7 @@ Entity ConstantValueASTNode::extractEntity() {
 	Token nodeToken = this->getToken();
 	int lineNumber = this->getLineNumber();
 
-	return Entity{ EntityType::CONSTANT, lineNumber, nodeToken };
+	return Entity::createConstantEntity(lineNumber, nodeToken);
 }
 
 void ConstantValueASTNode::addChild(shared_ptr<ASTNode> child) {
