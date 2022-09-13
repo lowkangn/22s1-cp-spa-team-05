@@ -10,7 +10,7 @@ set<string> QueryEvaluator::evaluate(Query query) {
 set<string> QueryEvaluator::combine(shared_ptr<EntityClauseResult> entitiesResultPointer,
 									list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers) {
 
-    EntityClauseResult entitiesResult = dereferenceEntitiesResultPointer(entitiesResultPointer);
+    EntityClauseResult entitiesResult = *entitiesResultPointer;
     list<RelationshipClauseResult> relationshipsResults =
 			dereferenceRelationshipsResultPointers(relationshipsResultPointers);
 
@@ -86,15 +86,11 @@ RelationshipArgument QueryEvaluator::findDesiredArgument(ClauseArgument desiredA
 	}
 }
 
-EntityClauseResult QueryEvaluator::dereferenceEntitiesResultPointer(shared_ptr<EntityClauseResult> entitiesResultPointer) {
-	return *entitiesResultPointer;
-}
-
 list<RelationshipClauseResult> QueryEvaluator::dereferenceRelationshipsResultPointers(
 		list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers) {
 	list<RelationshipClauseResult> relationshipsToReturn;
 	for (shared_ptr<RelationshipClauseResult> relationshipsResultPointer : relationshipsResultPointers) {
-		relationshipsToReturn.push_back(*(relationshipsResultPointer));
+		relationshipsToReturn.push_back(*relationshipsResultPointer);
 	}
 	return relationshipsToReturn;
 }

@@ -30,8 +30,6 @@ public:
 	RelationshipArgument findDesiredArgument(ClauseArgument desiredArg,
 											 RelationshipClauseResult relationshipResultToCheck);
 
-	EntityClauseResult dereferenceEntitiesResultPointer(shared_ptr<EntityClauseResult> entitiesResultPointer);
-
 	list<RelationshipClauseResult> dereferenceRelationshipsResultPointers(
 			list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers);
 
