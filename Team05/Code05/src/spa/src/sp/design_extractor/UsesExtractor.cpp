@@ -1,8 +1,11 @@
 #include <vector>
-#include <sp/dataclasses/AST.h>
-#include <sp/design_extractor/UsesExtractor.h>
 #include <memory>
-#include <assert.h>
+#include <sp/dataclasses/ast/AST.h>
+#include <sp/dataclasses/ast/AssignASTNode.h>
+#include <sp/dataclasses/ast/ExpressionASTNode.h>
+#include <sp/dataclasses/ast/WhileASTNode.h>
+#include <sp/dataclasses/ast/IfASTNode.h>
+#include <sp/design_extractor/UsesExtractor.h>
 
 vector<Relationship> UsesExtractor::extract(shared_ptr<ASTNode> ast) {
 
@@ -59,11 +62,29 @@ vector<Relationship> UsesExtractor::extract(shared_ptr<ASTNode> ast) {
 
 // TODO in a future iteration
 vector<Relationship> UsesExtractor::handleProcedure(shared_ptr<ASTNode> ast) {
-	return vector<Relationship>();
+	Entity leftHandSide = ast->extractEntity();
+
+	vector<Relationship> extractedChildRelationships = recursiveContainerExtract(leftHandSide, ast);
+
+	return extractedChildRelationships;
 }
 
 vector<Relationship> UsesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
-	return vector<Relationship>();
+	vector<Relationship> usesRelationships = vector<Relationship>();
+
+	// This is the Right hand side of the assign relation
+	shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
+	shared_ptr<ASTNode> rightChild = assignNode->getRightHandSide();
+
+	vector<Entity> extractedVariables = extractVariables(rightChild);
+	Entity leftHandSide = assignNode->extractEntity();
+
+	for (int i = 0; i < extractedVariables.size(); i++) {
+		Entity usedVariable = extractedVariables[i];
+		usesRelationships.push_back(Relationship{ assignNode, usedVariable, RelationshipType::USES });
+	}
+
+	return usesRelationships;
 }
 
 vector<Relationship> UsesExtractor::handlePrint(shared_ptr<ASTNode> ast) {
@@ -80,5 +101,32 @@ vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 
 // TODO in a future iteration
 vector<Relationship> UsesExtractor::handleCall(shared_ptr<ASTNode> ast) {
+	return vector<Relationship>();
+}
+
+vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
+	vector<Entity> variables = vector<Entity>();
+
+	if (ast->getType(ASTNodeType::VARIABLE)) {
+		// Extract the variable and add it to the result.
+		Entity variable = ast->extractEntity();
+		variables.push_back(variable);
+	}
+	else if (ast->getType(ASTNodeType::EXPRESSION)) {
+		// Recursively extract the variables in the sub-expression.
+		shared_ptr<ExpressionASTNode> expressionNode = dynamic_pointer_cast<ExpressionASTNode>(ast);
+		shared_ptr<ASTNode> leftChild = expressionNode->getLeftHandSide();
+		shared_ptr<ASTNode> rightChild = expressionNode->getRightHandSide();
+
+		vector<Entity> variablesInLhs = extractVariables(leftChild);
+		variables.insert(variables.end(), variablesInLhs.begin(), variablesInLhs.end());
+
+		vector<Entity> variablesInRhs = extractVariables(rightChild);
+		variables.insert(variables.end(), variablesInRhs.begin(), variablesInRhs.end());
+	}
+	return variables;
+}
+
+vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSide, shared_ptr<ASTNode> ast) {
 	return vector<Relationship>();
 }

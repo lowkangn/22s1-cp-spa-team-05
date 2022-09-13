@@ -48,5 +48,5 @@ public:
 	/*
 		This method recursively traverses the node adding the Modifies relationship for procedures
 	*/
-	vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& LHS, shared_ptr<ASTNode> ast);
+	vector<Relationship> recursiveContainerExtract(Entity& LHS, shared_ptr<ASTNode> ast);
 };

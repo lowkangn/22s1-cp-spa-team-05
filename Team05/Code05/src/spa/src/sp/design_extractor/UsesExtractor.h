@@ -33,12 +33,12 @@ public:
 	vector<Relationship> handlePrint(shared_ptr<ASTNode> ast);
 
 	/*
-		This method extracts a modifies relationship from an While node
+		This method extracts a uses relationship from an While node
 	*/
 	vector<Relationship> handleWhile(shared_ptr<ASTNode> ast);
 
 	/*
-		This method extracts a modifies relationship from an If node
+		This method extracts a uses relationship from an If node
 	*/
 	vector<Relationship> handleIf(shared_ptr<ASTNode> ast);
 
@@ -46,4 +46,14 @@ public:
 		This method extracts a uses relationship from an call node
 	*/
 	vector<Relationship> handleCall(shared_ptr<ASTNode> ast);
+
+	/*
+		This method extracts all the variables from an expression node
+	*/
+	vector<Entity> extractVariables(shared_ptr<ASTNode> ast);
+
+	/*
+		This method recursively traverses the node adding the uses relationship for procedures
+	*/
+	vector<Relationship> recursiveContainerExtract(Entity& LHS, shared_ptr<ASTNode> ast);
 }
