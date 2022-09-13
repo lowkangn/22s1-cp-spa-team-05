@@ -321,4 +321,5 @@ TEST_CASE("QueryEvaluator: test combine") {
 
 // ==================== INTEGRATION TESTS ====================
 
+// TODO: Waiting for PKB interaction implementation
 TEST_CASE("QueryEvaluator: test evaluate") {}

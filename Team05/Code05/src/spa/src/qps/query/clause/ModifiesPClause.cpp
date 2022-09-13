@@ -4,9 +4,7 @@
 #include "../../../pkb/interfaces/PKBQueryHandler.h"
 
 shared_ptr<RelationshipClauseResult> ModifiesPClause::execute() {
-    // Not sure of the correct way to call this
-//    vector<PQLRelationship> relationships = PKBQueryHandler().retrieveKnowledge(ClauseType::ModifiesP, lhs, rhs);
-//    return shared_ptr<ClauseResult>(new RelationshipClauseResult(lhs, rhs, relationships));
+	// TODO: Waiting for PKB interaction implementation
     return shared_ptr<RelationshipClauseResult>();
 }
 

@@ -41,3 +41,10 @@ TEST_CASE("Query: test operator==") {
 
 }
 
+// =============== INTEGRATION TESTS ====================
+
+// TODO: Waiting for PKB interaction implementation
+TEST_CASE("Query: test evaluateSelect") {}
+
+// TODO: Waiting for PKB interaction implementation
+TEST_CASE("Query: test evaluateSuchThat") {}

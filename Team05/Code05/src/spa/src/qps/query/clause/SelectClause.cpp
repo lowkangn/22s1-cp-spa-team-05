@@ -4,9 +4,7 @@
 #include "EntityClauseResult.h"
 
 shared_ptr<EntityClauseResult> SelectClause::execute() {
-    // Not sure of the correct way to call this
-//    vector<PQLEntity> entities = PKBQueryHandler().retrieveKnowledge(toSelect);
-//    return shared_ptr<ClauseResult>(new EntityClauseResult(toSelect, entities));
+    // TODO: Waiting for PKB interaction implementation
     return shared_ptr<EntityClauseResult>();
 }
 
