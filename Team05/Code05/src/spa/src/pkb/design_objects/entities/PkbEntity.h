@@ -9,6 +9,9 @@ enum class PkbEntityType {
 	PROCEDURE
 };
 
+/*
+	Parent class for all variables, statements, constants and procedures.
+*/
 class PkbEntity {
 protected: 
 	PkbEntityType entityType;

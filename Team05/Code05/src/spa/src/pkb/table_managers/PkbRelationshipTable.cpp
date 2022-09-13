@@ -4,9 +4,9 @@
 using namespace std;
 
 
-string PkbRelationshipTable::add(shared_ptr<PkbRelationship> entity) {
+string PkbRelationshipTable::add(shared_ptr<PkbRelationship> relationship) {
 	// get key
-	string key = entity->getKey();
+	string key = relationship->getKey();
 
 	// check if item already in table
 	if (this->table.find(key) != this->table.end()) {
@@ -14,7 +14,7 @@ string PkbRelationshipTable::add(shared_ptr<PkbRelationship> entity) {
 	}
 
 	// store
-	this->table.insert({ key, entity });
+	this->table.insert({ key, relationship });
 	return key;
 }
 

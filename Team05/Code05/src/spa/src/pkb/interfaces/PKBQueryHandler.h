@@ -17,13 +17,12 @@ enum class PKBTrackedStatementType {
 };
 
 enum class PKBTrackedRelationshipType {
-    Follows,
-    FollowsStar,
-    Parent,
-    ParentStar,
-    Uses,
-    Modifies,
-    ModifiesStar,
+    FOLLOWS,
+    FOLLOWSSTAR,
+    PARENT,
+    PARENTSTAR,
+    USES,
+    MODIFIES,
 };
 
 

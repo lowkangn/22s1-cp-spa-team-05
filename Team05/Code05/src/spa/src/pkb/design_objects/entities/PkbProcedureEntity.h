@@ -16,13 +16,6 @@ public:
 	}
 
 	/*
-		Boolean method to check if a given variable has this identifier.
-	*/
-	bool hasIdentifier(string identifierToMatch) {
-		return this->identifier == identifierToMatch;
-	}
-
-	/*
 		Overriding the equals operator.
 	*/
 	const bool operator==(const PkbProcedureEntity& other) const {

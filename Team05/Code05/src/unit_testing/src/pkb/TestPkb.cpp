@@ -264,7 +264,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult3, statementResult4),
 
 		};
-		test(PKBTrackedRelationshipType::Follows, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::FOLLOWS, lhs, rhs, expectedRelationships, toAdd);
 
 
 		// test 2: one wildcard
@@ -276,7 +276,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult3, statementResult4),
 
 		};
-		test(PKBTrackedRelationshipType::Follows, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::FOLLOWS, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3: one a specific line
 		lhs = ClauseArgument("1", ArgumentType::LINE_NUMBER);
@@ -284,7 +284,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 		};
-		test(PKBTrackedRelationshipType::Follows, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::FOLLOWS, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: both different types
 		lhs = ClauseArgument("a", ArgumentType::ASSIGN);
@@ -292,7 +292,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(statementResult3, statementResult4),
 		};
-		test(PKBTrackedRelationshipType::Follows, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::FOLLOWS, lhs, rhs, expectedRelationships, toAdd);
 
 
 	};
@@ -352,7 +352,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult3, statementResult4),
 
 		};
-		test(PKBTrackedRelationshipType::FollowsStar, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::FOLLOWSSTAR, lhs, rhs, expectedRelationships, toAdd);
 
 
 		// test 2: one wildcard
@@ -367,7 +367,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult3, statementResult4),
 
 		};
-		test(PKBTrackedRelationshipType::FollowsStar, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::FOLLOWSSTAR, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3: one a specific line
 		lhs = ClauseArgument("1", ArgumentType::LINE_NUMBER);
@@ -377,7 +377,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult1, statementResult3),
 			PQLRelationship(statementResult1, statementResult4),
 		};
-		test(PKBTrackedRelationshipType::FollowsStar, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::FOLLOWSSTAR, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: both different types
 		lhs = ClauseArgument("a", ArgumentType::ASSIGN);
@@ -385,7 +385,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(statementResult3, statementResult4),
 		};
-		test(PKBTrackedRelationshipType::FollowsStar, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::FOLLOWSSTAR, lhs, rhs, expectedRelationships, toAdd);
 		
 	};
 	SECTION("Parent") {
@@ -419,7 +419,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult1, statementResult2),
 			PQLRelationship(statementResult3, statementResult4),
 		};
-		test(PKBTrackedRelationshipType::Parent, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::PARENT, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 2: one wildcard
 		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
@@ -428,14 +428,14 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult1, statementResult2),
 			PQLRelationship(statementResult3, statementResult4),
 		};
-		test(PKBTrackedRelationshipType::Parent, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::PARENT, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3: both statement synonyms, but different types
 		lhs = ClauseArgument("a", ArgumentType::ASSIGN);
 		rhs = ClauseArgument("s", ArgumentType::STMT);
 		expectedRelationships = {
 		};
-		test(PKBTrackedRelationshipType::Parent, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::PARENT, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: one line number
 		lhs = ClauseArgument("3", ArgumentType::LINE_NUMBER);
@@ -443,7 +443,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(statementResult3, statementResult4),
 		};
-		test(PKBTrackedRelationshipType::Parent, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::PARENT, lhs, rhs, expectedRelationships, toAdd);
 	};
 	SECTION("ParentStar") {
 		// shared, as if 4 statements in a block
@@ -488,7 +488,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult1, statementResult4),
 			PQLRelationship(statementResult1, statementResult3),
 		};
-		test(PKBTrackedRelationshipType::ParentStar, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 2: one wildcard
 		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
@@ -499,13 +499,13 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult1, statementResult4),
 			PQLRelationship(statementResult1, statementResult3),
 		};
-		test(PKBTrackedRelationshipType::ParentStar, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3: both statement synonyms, but different types
 		lhs = ClauseArgument("a", ArgumentType::ASSIGN);
 		rhs = ClauseArgument("s", ArgumentType::STMT);
 		expectedRelationships = {};
-		test(PKBTrackedRelationshipType::ParentStar, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: one line number
 		lhs = ClauseArgument("3", ArgumentType::LINE_NUMBER);
@@ -513,7 +513,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(statementResult3, statementResult4),
 		};
-		test(PKBTrackedRelationshipType::ParentStar, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs, expectedRelationships, toAdd);
 		
 	};
 	SECTION("Uses") {
@@ -575,7 +575,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		vector<PQLRelationship> expectedRelationships = {
 			PQLRelationship(statementResult1, xResult),
 		};
-		test(PKBTrackedRelationshipType::Uses, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 2: print and variable
 		lhs = ClauseArgument("pn", ArgumentType::PRINT);
@@ -583,7 +583,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(statementResult2, xResult),
 		};
-		test(PKBTrackedRelationshipType::Uses, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3a: if and variable
 		lhs = ClauseArgument("ifs", ArgumentType::IF);
@@ -591,7 +591,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(statementResult3, xResult),
 		};
-		test(PKBTrackedRelationshipType::Uses, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3b: while and variable
 		lhs = ClauseArgument("w", ArgumentType::WHILE);
@@ -599,7 +599,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			
 		};
-		test(PKBTrackedRelationshipType::Uses, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: procedure and variable
 		lhs = ClauseArgument("p", ArgumentType::PROCEDURE);
@@ -607,7 +607,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(procedureResult, xResult),
 		};
-		test(PKBTrackedRelationshipType::Uses, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 5: call and variable 
 		lhs = ClauseArgument("c", ArgumentType::CALL);
@@ -615,7 +615,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(statementResult4, xResult),
 		};
-		test(PKBTrackedRelationshipType::Uses, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 6: rhs wildcard
 		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
@@ -627,7 +627,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult4, xResult),
 			PQLRelationship(procedureResult, xResult),
 		};
-		test(PKBTrackedRelationshipType::Uses, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 	};
 
@@ -693,14 +693,14 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		vector<PQLRelationship> expectedRelationships = {
 			PQLRelationship(statementResult1, xResult),
 		};
-		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 		// test 2: print and variable
 		lhs = ClauseArgument("r", ArgumentType::READ);
 		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
 		expectedRelationships = {
 			PQLRelationship(statementResult2, xResult),
 		};
-		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 
 
 		// test 3a: if and variable
@@ -709,7 +709,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(statementResult3, xResult),
 		};
-		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3b: while and variable
 		lhs = ClauseArgument("w", ArgumentType::WHILE);
@@ -717,7 +717,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 
 		};
-		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: procedure and variable
 		lhs = ClauseArgument("p", ArgumentType::PROCEDURE);
@@ -725,7 +725,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(procedureResult, xResult),
 		};
-		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 5: call and variable 
 		lhs = ClauseArgument("c", ArgumentType::CALL);
@@ -733,7 +733,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			PQLRelationship(statementResult5, xResult),
 		};
-		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 6: rhs wildcard
 		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
@@ -745,7 +745,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult5, xResult),
 			PQLRelationship(procedureResult, xResult),
 		};
-		test(PKBTrackedRelationshipType::Modifies, lhs, rhs, expectedRelationships, toAdd);
+		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 	};
 
 

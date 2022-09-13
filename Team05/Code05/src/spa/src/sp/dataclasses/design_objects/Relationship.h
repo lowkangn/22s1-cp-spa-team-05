@@ -6,7 +6,6 @@
 enum class RelationshipType {
     MODIFIES,
     USES,
-    USEST,
     FOLLOWS,
     FOLLOWST,
     PARENT,
@@ -57,8 +56,5 @@ public:
     }
     bool isUses() {
         return this->type == RelationshipType::USES;
-    }
-    bool isUsesStar() {
-        return this->type == RelationshipType::USEST;
     }
 };

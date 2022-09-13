@@ -6,13 +6,12 @@
 #include <string>
 using namespace std;
 
-enum class PkbRelationshipType {
+enum PkbRelationshipType {
 	FOLLOWS,
 	FOLLOWSSTAR,
 	PARENT,
 	PARENTSTAR,
 	USES,
-	USESSTAR,
 	MODIFIES
 };
 
@@ -51,37 +50,14 @@ public:
 	bool isUses() {
 		return this->relationshipType == PkbRelationshipType::USES;
 	}
-	bool isUsesStar() {
-		return this->relationshipType == PkbRelationshipType::USESSTAR;
-	}
 	bool isModifies() {
 		return this->relationshipType == PkbRelationshipType::MODIFIES;
 	}
 
 	string getKey() {
-		// get string of relationshiph type
-		string typeValue;
-		if (this->isFollows()) {
-			typeValue = "0";
-		}
-		else if (this->isFollowsStar()) {
-			typeValue = "1";
-		}
-		else if (this->isParent()) {
-			typeValue = "2";
-		}
-		else if (this->isParentStar()) {
-			typeValue = "3";
-		}
-		else if (this->isUses()) {
-			typeValue = "4";
-		}
-		else if (this->isModifies()) {
-			typeValue = "5";
-		}
-		else {
-			throw PkbException("Unknown relationship type to be hashed.");
-		}
+		// get string of relationship type
+
+		string typeValue = to_string(this->relationshipType);
 
 		// get key strings of lhs and rhs
 		string lhsKey = this->lhs->getKey();
