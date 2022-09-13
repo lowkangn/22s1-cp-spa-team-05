@@ -152,12 +152,18 @@ list<Token> IfSimpleSyntaxRule::getStmtList(list<Token>& tokens)
 
 	// then we keep going until we hit }
 	bool seenCloseBracket = false;
+	int numCloseBracket = 0;
 	while (!tokens.empty() && !seenCloseBracket) {
 		token = tokens.front(); // read
 		tokens.pop_front(); // pop
 
-		if (token.isClosedCurlyBracketToken()) {
-			seenCloseBracket = true;
+		if (token.isOpenCurlyBracketToken()) {
+			numCloseBracket += 1;
+		} else if (token.isClosedCurlyBracketToken()) {
+			numCloseBracket -= 1;
+			if (numCloseBracket == 0) {
+				seenCloseBracket = true;
+			}
 		}
 		childTokens.push_back(token); // insert all tokens in order within bracket
 	}
