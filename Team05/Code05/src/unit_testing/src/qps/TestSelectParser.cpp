@@ -1,6 +1,5 @@
 #include "catch.hpp"
 #include <qps/query/clause/SelectClause.h>
-#include <qps/query/clause/SelectClause.cpp>
 #include <qps/query_parser/parsers/ClauseParser.h>
 #include <qps/query_parser/parsers/ClauseParser.cpp>
 #include <qps/query_parser/parsers/SelectParser.h>
