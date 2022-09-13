@@ -3,7 +3,7 @@
 #include <vector>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/design_extractor/Extractor.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 #include <memory>
 
 using namespace std;
@@ -56,4 +56,4 @@ public:
 		This method recursively traverses the node adding the uses relationship for procedures
 	*/
 	vector<Relationship> recursiveContainerExtract(Entity& LHS, shared_ptr<ASTNode> ast);
-}
+};
