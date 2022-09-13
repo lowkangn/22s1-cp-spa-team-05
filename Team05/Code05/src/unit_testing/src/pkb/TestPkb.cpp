@@ -86,6 +86,38 @@ TEST_CASE("Test add and get variables") {
 	}
 }
 
+TEST_CASE("Test add and get constants") {
+	auto test = [](vector<PQLEntity> expectedEntities, vector<Entity> toAdd) {
+		// given
+		PKB pkb;
+
+		// when 
+		pkb.addEntities(toAdd);
+
+		// then 
+		vector<PQLEntity> all = pkb.retrieveAllConstants();
+		REQUIRE(expectedEntities.size() == all.size());
+		for (int i = 0; i < expectedEntities.size(); i++) {
+			// retrieval all have been added
+			REQUIRE(find(all.begin(), all.end(), expectedEntities[i]) != all.end());
+		}
+	};
+
+	SECTION("Add a bunch of variable") {
+		vector<PQLEntity> expectedEntities = {
+			PQLEntity::generateConstant(1),
+			PQLEntity::generateConstant(2),
+			PQLEntity::generateConstant(3)
+		};
+		vector<Entity> toAdd = { // TODO: entity should use factory methods!
+			Entity(EntityType::CONSTANT, INVALID_LINE_NUMBER, Token("1", TokenType::INTEGER)),
+			Entity(EntityType::CONSTANT, INVALID_LINE_NUMBER, Token("2", TokenType::INTEGER)),
+			Entity(EntityType::CONSTANT, INVALID_LINE_NUMBER, Token("3", TokenType::INTEGER))
+		};
+		test(expectedEntities, toAdd);
+	}
+}
+
 TEST_CASE("Test add and get statements") {
 	auto test = [](vector<PQLEntity> expectedEntities, vector<Entity> toAdd) {
 		// given

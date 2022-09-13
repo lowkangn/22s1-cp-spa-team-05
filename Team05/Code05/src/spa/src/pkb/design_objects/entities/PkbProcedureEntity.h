@@ -43,6 +43,10 @@ public:
 		throw PkbException("Procedure does not have a line number!");
 	}
 
+	int getValue() override {
+		throw PkbException("Procedure does not have a value!");
+	}
+
 	bool equals(shared_ptr<PkbEntity> other) override {
 		if (!other->isProcedure()) {
 			return false;

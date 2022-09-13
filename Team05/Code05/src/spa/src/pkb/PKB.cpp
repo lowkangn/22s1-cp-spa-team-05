@@ -3,6 +3,7 @@
 #include <pkb/design_objects/entities/PkbProcedureEntity.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
 #include <pkb/design_objects/entities/PkbVariableEntity.h>
+#include <pkb/design_objects/entities/PkbConstantEntity.h>
 #include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbParentRelationship.h>
@@ -69,6 +70,11 @@ shared_ptr<PkbEntity> PKB::spEntityToPkbEntity(Entity entity) {
 		shared_ptr<PkbEntity> object = shared_ptr<PkbEntity>(new PkbProcedureEntity(identifier));
 		return object;
 	}
+	else if (entity.isConstantEntity()) {
+		int value = entity.getValue();
+		shared_ptr<PkbEntity> object = shared_ptr<PkbEntity>(new PkbConstantEntity(value));
+		return object;
+	}
 	else {
 		throw PkbException("Unknown entity type being passed to PKB!");
 	}
@@ -102,6 +108,9 @@ void PKB::addEntities(vector<Entity> entities) {
 		}
 		else if (entity.isProcedureEntity()) {
 			this->proceduresTable.add(object);
+		}
+		else if (entity.isConstantEntity()) {
+			this->constantsTable.add(object);
 		}
 		else {
 			// do nothing for now
@@ -300,6 +309,17 @@ vector<PQLEntity> PKB::retrieveAllVariables() {
 	}
 	return out;
 }
+
+vector<PQLEntity> PKB::retrieveAllConstants() {
+	vector<PQLEntity> out;
+	vector<shared_ptr<PkbEntity>> all = this->constantsTable.getAll();
+	for (shared_ptr<PkbEntity> variable : all) {
+		// append to list
+		out.push_back(PQLEntity::generateConstant(variable->getValue()));
+	}
+	return out;
+}
+
 
 shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelationshipType relationshipType) {
 	// based on relationship type, we get the specific table 

@@ -94,6 +94,11 @@ public:
         return this->lineNumber;
     }
 
+    int getValue() override {
+        throw PkbException("Statement does not have a value!");
+    }
+
+
     /*
         Overriding the equals operator.
     */

@@ -1,4 +1,5 @@
 #include <catch.hpp>
+#include <pkb/design_objects/entities/PkbConstantEntity.h>
 #include <pkb/design_objects/entities/PkbProcedureEntity.h>
 #include <pkb/design_objects/entities/PkbVariableEntity.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
@@ -46,6 +47,7 @@ TEST_CASE("PkbEntityTable::add and ::get works correctly") {
 			shared_ptr<PkbEntity>(PkbStatementEntity::createPrintStatementEntity(4)),
 			shared_ptr<PkbEntity>(PkbStatementEntity::createReadStatementEntity(5)),
 			shared_ptr<PkbEntity>(PkbStatementEntity::createWhileStatementEntity(6)),
+			shared_ptr<PkbEntity>(new PkbConstantEntity(1))
 		};
 		vector<string> expectedKeys = {
 			"procedure",
@@ -55,7 +57,8 @@ TEST_CASE("PkbEntityTable::add and ::get works correctly") {
 			"3",
 			"4",
 			"5",
-			"6"
+			"6",
+			"constant1"
 		};
 		test(relationships, expectedKeys);
 	};
@@ -91,6 +94,7 @@ TEST_CASE("PkbEntityTable::getAll works correctly") {
 			shared_ptr<PkbEntity>(PkbStatementEntity::createPrintStatementEntity(4)),
 			shared_ptr<PkbEntity>(PkbStatementEntity::createReadStatementEntity(5)),
 			shared_ptr<PkbEntity>(PkbStatementEntity::createWhileStatementEntity(6)),
+			shared_ptr<PkbEntity>(new PkbConstantEntity(1))
 		};
 		test(relationships);
 	};
@@ -120,6 +124,7 @@ TEST_CASE("PkbEntityTable throws when we try to add duplicate items") {
 			shared_ptr<PkbEntity>(PkbStatementEntity::createPrintStatementEntity(4)),
 			shared_ptr<PkbEntity>(PkbStatementEntity::createReadStatementEntity(5)),
 			shared_ptr<PkbEntity>(PkbStatementEntity::createWhileStatementEntity(6)),
+			shared_ptr<PkbEntity>(new PkbConstantEntity(1))
 		};
 		shared_ptr<PkbEntity> toAdd = shared_ptr<PkbEntity>(PkbStatementEntity::createAssignStatementEntity(1));
 		test(alreadyInTable, toAdd);

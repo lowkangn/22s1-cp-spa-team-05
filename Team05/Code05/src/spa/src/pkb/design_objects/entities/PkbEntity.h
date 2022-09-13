@@ -6,7 +6,8 @@ using namespace std;
 enum class PkbEntityType {
 	VARIABLE,
 	STATEMENT,
-	PROCEDURE
+	PROCEDURE,
+	CONSTANT,
 };
 
 /*
@@ -32,11 +33,17 @@ public:
 		return this->entityType == PkbEntityType::PROCEDURE;
 	}
 
+	bool isConstant() {
+		return this->entityType == PkbEntityType::CONSTANT;
+	}
+
 	virtual string getKey() = 0;
 
 	virtual string getIdentifier() = 0;
 
 	virtual int getLineNumber() = 0;
+
+	virtual int getValue() = 0;
 
 	virtual bool equals(shared_ptr<PkbEntity> other) = 0;
 

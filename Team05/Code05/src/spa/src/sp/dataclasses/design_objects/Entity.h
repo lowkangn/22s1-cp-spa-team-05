@@ -53,6 +53,16 @@ class Entity {
 			return this->token.getString();
 		}
 
+		/*
+			Gets the string in the token as an int.
+		*/
+		int getValue() {
+			if (!this->isConstantEntity()) {
+				throw logic_error("Entity is not a constant! No value to be gotten.");
+			}
+			return stoi(this->getString());
+		}
+
 		bool equals(Entity& other) {
 			return this->type == other.getType() && this->line == other.line && (this->token == other.token);
 		}
@@ -90,6 +100,9 @@ class Entity {
 			return this->type == EntityType::VARIABLE;
 		}
 
+		bool isConstantEntity() {
+			return this->type == EntityType::CONSTANT;
+		}
 		bool isWhile() {
 			return this->type == EntityType::WHILE;
 		}

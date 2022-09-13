@@ -30,6 +30,11 @@ public:
 	}
 
 
+	int getValue() override {
+		throw PkbException("Variable does not have a value!");
+	}
+
+
 
 	/*
 		Overriding the equals operator.

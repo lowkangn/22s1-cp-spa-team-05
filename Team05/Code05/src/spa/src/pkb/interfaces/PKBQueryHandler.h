@@ -83,6 +83,11 @@ public:
     */
     virtual PQLEntity retrieveVariableByName(string name) = 0;
 
+    /*
+        Retrieves all constants.
+    */
+    virtual vector<PQLEntity> retrieveAllConstants() = 0;
+
 
     // ===== Relationships =====
     /*

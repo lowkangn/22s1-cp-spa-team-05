@@ -31,6 +31,7 @@ private:
 	PkbEntityTable variableTable;
 	PkbEntityTable statementTable;
 	PkbEntityTable proceduresTable;
+	PkbEntityTable constantsTable;
 
 	// relationships
 	map<string, shared_ptr<PkbRelationshipTable>> relationshipTables{
@@ -126,6 +127,11 @@ public:
 		Retrieves all variables. 
 	*/
 	vector<PQLEntity> retrieveAllVariables() override;
+
+	/*
+		Retrieves all constants.
+	*/
+	vector<PQLEntity> retrieveAllConstants() override;
 
 	/*
 		Retrieves all variables by a name.
