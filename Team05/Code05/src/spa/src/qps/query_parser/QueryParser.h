@@ -36,4 +36,3 @@ public:
 
     shared_ptr<SuchThatClause> parseSuchThat(unordered_map<string, ArgumentType> declarations);
 };
-
