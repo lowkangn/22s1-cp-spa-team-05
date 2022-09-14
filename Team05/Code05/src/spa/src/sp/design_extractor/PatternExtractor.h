@@ -16,4 +16,10 @@ public:
 		overriden for each specific entity type.
 	*/
 	virtual vector<Pattern> extract(shared_ptr<ASTNode> ast) override;
+
+	Pattern handleIf(shared_ptr<ASTNode> ast);
+	Pattern handleAssign(shared_ptr<ASTNode> ast);
+	Pattern handleWhile(shared_ptr<ASTNode> ast);
+
+	string recursiveExtractExpression(shared_ptr<ASTNode> ast);
 };

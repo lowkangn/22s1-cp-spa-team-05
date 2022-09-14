@@ -5,3 +5,7 @@ Entity AssignASTNode::extractEntity() {
 	int lineNumber = this->getLineNumber();
 	return Entity::createAssignEntity(lineNumber);
 }
+
+string getLHSAsString() {
+
+}
