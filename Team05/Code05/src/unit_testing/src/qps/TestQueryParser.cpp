@@ -21,79 +21,82 @@ TEST_CASE("QueryParser: test parseNoError") {
 
     SECTION("Select clause only") {
         list<PQLToken> tokens = list<PQLToken>{
-                PQLToken("procedure", PQLTokenType::NAME),
-                PQLToken("p", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("p", PQLTokenType::NAME)
+            PQLToken("procedure", PQLTokenType::NAME),
+            PQLToken("p", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("p", PQLTokenType::NAME)
         };
-        Query query = Query(
-            shared_ptr<Clause>(new SelectClause(ClauseArgument("p", ArgumentType::ENTREF_SYNONYM))),
-            list<shared_ptr<Clause>>{});
+
+        shared_ptr<Clause> selectClause = shared_ptr<Clause>(new SelectClause(
+                ClauseArgument("p", ArgumentType::PROCEDURE)));
+        Query query = Query(selectClause, list<shared_ptr<Clause>>{});
+
         testParseNoError(tokens, query);
     }
 
     SECTION("Select and such that clause") {
         list<PQLToken> tokens = list<PQLToken>{
-                PQLToken("variable", PQLTokenType::NAME),
-                PQLToken("v", PQLTokenType::NAME),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("v1", PQLTokenType::NAME),
-                PQLToken("such", PQLTokenType::NAME),
-                PQLToken("that", PQLTokenType::NAME),
-                PQLToken("Modifies", PQLTokenType::NAME),
-                PQLToken("(", PQLTokenType::DELIMITER),
-                PQLToken("1", PQLTokenType::INTEGER),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("v", PQLTokenType::NAME),
-                PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken("variable", PQLTokenType::NAME),
+            PQLToken("v", PQLTokenType::NAME),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("v1", PQLTokenType::NAME),
+            PQLToken("such", PQLTokenType::NAME),
+            PQLToken("that", PQLTokenType::NAME),
+            PQLToken("Modifies", PQLTokenType::NAME),
+            PQLToken("(", PQLTokenType::DELIMITER),
+            PQLToken("1", PQLTokenType::INTEGER),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("v", PQLTokenType::NAME),
+            PQLToken(")", PQLTokenType::DELIMITER)
         };
-        Query query = Query(
-            shared_ptr<Clause>(new SelectClause(ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM))),
-            list<shared_ptr<Clause>>{
-            shared_ptr<Clause>(new ModifiesSClause(
+
+        shared_ptr<Clause> selectClause = shared_ptr<Clause>(new SelectClause(
+                ClauseArgument("v1", ArgumentType::VARIABLE)));
+        shared_ptr<Clause> modifiesClause = shared_ptr<Clause>(new ModifiesSClause(
                 ClauseArgument("1", ArgumentType::LINE_NUMBER),
-                ClauseArgument("v", ArgumentType::ENTREF_SYNONYM)))
-        });
+                ClauseArgument("v", ArgumentType::VARIABLE)));
+        Query query = Query(selectClause, list<shared_ptr<Clause>>{modifiesClause});
+
         testParseNoError(tokens, query);
 
         tokens = list<PQLToken>{
-                PQLToken("constant", PQLTokenType::NAME),
-                PQLToken("c", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("procedure", PQLTokenType::NAME),
-                PQLToken("p", PQLTokenType::NAME),
-                PQLToken(";", PQLTokenType::DELIMITER),
-                PQLToken("Select", PQLTokenType::NAME),
-                PQLToken("c", PQLTokenType::NAME),
-                PQLToken("such", PQLTokenType::NAME),
-                PQLToken("that", PQLTokenType::NAME),
-                PQLToken("Modifies", PQLTokenType::NAME),
-                PQLToken("(", PQLTokenType::DELIMITER),
-                PQLToken("p", PQLTokenType::NAME),
-                PQLToken(",", PQLTokenType::DELIMITER),
-                PQLToken("\"", PQLTokenType::DELIMITER),
-                PQLToken("x", PQLTokenType::NAME),
-                PQLToken("\"", PQLTokenType::DELIMITER),
-                PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken("constant", PQLTokenType::NAME),
+            PQLToken("c", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("procedure", PQLTokenType::NAME),
+            PQLToken("p", PQLTokenType::NAME),
+            PQLToken(";", PQLTokenType::DELIMITER),
+            PQLToken("Select", PQLTokenType::NAME),
+            PQLToken("c", PQLTokenType::NAME),
+            PQLToken("such", PQLTokenType::NAME),
+            PQLToken("that", PQLTokenType::NAME),
+            PQLToken("Modifies", PQLTokenType::NAME),
+            PQLToken("(", PQLTokenType::DELIMITER),
+            PQLToken("p", PQLTokenType::NAME),
+            PQLToken(",", PQLTokenType::DELIMITER),
+            PQLToken("\"", PQLTokenType::DELIMITER),
+            PQLToken("x", PQLTokenType::NAME),
+            PQLToken("\"", PQLTokenType::DELIMITER),
+            PQLToken(")", PQLTokenType::DELIMITER)
         };
-        query = Query(
-            shared_ptr<Clause>(new SelectClause(ClauseArgument("c", ArgumentType::ENTREF_SYNONYM))),
-            list<shared_ptr<Clause>>{
-            shared_ptr<Clause>(new ModifiesPClause(
-                ClauseArgument("p", ArgumentType::ENTREF_SYNONYM),
-                ClauseArgument("x", ArgumentType::STRING_LITERAL)))
-        });
+        selectClause = shared_ptr<Clause>(new SelectClause(
+                ClauseArgument("c", ArgumentType::CONSTANT)));
+        modifiesClause = shared_ptr<Clause>(new ModifiesPClause(
+                ClauseArgument("p", ArgumentType::PROCEDURE),
+                ClauseArgument("x", ArgumentType::STRING_LITERAL)));
+        query = Query(selectClause, list<shared_ptr<Clause>>{modifiesClause});
+
         testParseNoError(tokens, query);
     }
 }
 
 TEST_CASE("QueryParser: test parseConstraints") {
     auto testParseNoError = [](list<PQLToken> tokens, 
-        unordered_map<string, DesignEntity> declarations,
+        unordered_map<string, ArgumentType> declarations,
         list<shared_ptr<Clause>> expected) {
             // given
             QueryParser parser = QueryParser(tokens);
@@ -118,20 +121,27 @@ TEST_CASE("QueryParser: test parseConstraints") {
             REQUIRE(isEqual);
     };
 
-    list<shared_ptr<Clause>> expected;
-    expected.emplace_back(shared_ptr<Clause>(new ModifiesPClause(
-        ClauseArgument("s1", ArgumentType::STMTREF_SYNONYM),
-        ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM))));
-    testParseNoError(list<PQLToken>{
+    shared_ptr<Clause> modifiesClause = shared_ptr<Clause>(new ModifiesPClause(
+        ClauseArgument("s1", ArgumentType::STMT),
+        ClauseArgument("v1", ArgumentType::VARIABLE)));
+
+    list<PQLToken> tokens = list<PQLToken>{
         PQLToken("such", PQLTokenType::NAME),
-            PQLToken("that", PQLTokenType::NAME),
-            PQLToken("Modifies", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("s1", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)},
-        unordered_map<string, DesignEntity>{ {"v1", DesignEntity::VARIABLE},
-            { "s1", DesignEntity::STMT }},
-            expected);
+        PQLToken("that", PQLTokenType::NAME),
+        PQLToken("Modifies", PQLTokenType::NAME),
+        PQLToken("(", PQLTokenType::DELIMITER),
+        PQLToken("s1", PQLTokenType::NAME),
+        PQLToken(",", PQLTokenType::DELIMITER),
+        PQLToken("v1", PQLTokenType::NAME),
+        PQLToken(")", PQLTokenType::DELIMITER)
+    };
+
+    unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
+        {"v1", ArgumentType::VARIABLE},
+        { "s1", ArgumentType::STMT }
+    };
+
+    list<shared_ptr<Clause>> expected;
+    expected.emplace_back(modifiesClause);
+    testParseNoError(tokens, declarations, expected);
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <qps/query_tokenizer/PQLToken.h>
-#include <qps/query_parser/DesignEntity.h>
+#include <qps/query_parser/ArgumentType.h>
 #include <qps/query/Query.h>
 #include <list>
 #include <unordered_map>
@@ -32,8 +32,8 @@ public:
      */
     Query parse();
 
-    list<shared_ptr<Clause>> parseConstraints(unordered_map<string, DesignEntity> declarations);
+    list<shared_ptr<Clause>> parseConstraints(unordered_map<string, ArgumentType> declarations);
 
-    shared_ptr<Clause> parseSuchThat(unordered_map<string, DesignEntity> declarations);
+    shared_ptr<Clause> parseSuchThat(unordered_map<string, ArgumentType> declarations);
 };
 

@@ -15,9 +15,9 @@ TEST_CASE("EntityClauseResult: test operator==") {
         REQUIRE(actual == expected);
     };
 
-    ClauseArgument firstArg = ClauseArgument("v", ArgumentType::ENTREF_SYNONYM);
-    ClauseArgument firstArgAgain = ClauseArgument("v", ArgumentType::ENTREF_SYNONYM);
-    ClauseArgument secondArg = ClauseArgument("v1", ArgumentType::ENTREF_SYNONYM);
+    ClauseArgument firstArg = ClauseArgument("v", ArgumentType::VARIABLE);
+    ClauseArgument firstArgAgain = ClauseArgument("v", ArgumentType::VARIABLE);
+    ClauseArgument secondArg = ClauseArgument("v1", ArgumentType::VARIABLE);
 
     PQLEntity firstEntity = PQLEntity::generateVariable("x");
     PQLEntity firstEntityAgain = PQLEntity::generateVariable("x");
