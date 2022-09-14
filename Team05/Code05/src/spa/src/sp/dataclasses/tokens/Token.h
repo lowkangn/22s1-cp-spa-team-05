@@ -24,6 +24,8 @@ const string READ_KEYWORD = "read";
 const string CALL_KEYWORD = "call";
 const string WHILE_KEYWORD = "while";
 const string IF_KEYWORD = "if";
+const string THEN_KEYWORD = "then";
+const string ELSE_KEYWORD = "else";
 const string PROGRAM_KEYWORD = "program";
 const string PRINT_KEYWORD = "print";
 
@@ -31,10 +33,32 @@ const string PRINT_KEYWORD = "print";
 // delimiters
 const string OPEN_CURLY_BRACKET = "{";
 const string CLOSED_CURLY_BRACKET = "}";
+const string CLOSED_BRACKET = ")";
+const string OPEN_BRACKET = "(";
 const string SEMI_COLON = ";";
 
 // operators
 const string EQUAL_OPERATOR = "=";
+const string PLUS_OPERATOR = "+";
+const string MINUS_OPERATOR = "-";
+const string MULTIPLY_OPERATOR = "*";
+const string DIVIDE_OPERATOR = "/";
+const string MODULUS_OPERATOR = "%";
+
+// relational operators
+const string GREATER_OPERATOR = ">";
+const string GREATER_THAN_EQUAL_OPERATOR = ">=";
+const string LESSER_OPERATOR = "<";
+const string LESSER_THAN_EQUAL_OPERATOR = "<=";
+const string EQUALITY_OPERATOR = "==";
+const string NOT_EQUAL_OPERATOR = "!=";
+
+// Conditional operators
+const string NOT = "!";
+const string AND = "&&";
+const string OR = "||";
+
+
 
 /*
 	Encapsulates a token for backend use.
@@ -76,6 +100,11 @@ public:
 		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == READ_KEYWORD);
 	}
 
+	/* Checks if the token is the print keyword.*/
+	bool isPrintKeywordToken() {
+		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == PRINT_KEYWORD);
+	}
+
 	/* Checks if the token is the call keyword.*/
 	bool isCallKeywordToken() {
 		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == CLOSED_CURLY_BRACKET);
@@ -89,6 +118,16 @@ public:
 	/* Checks if the token is an if keyword.*/
 	bool isIfKeywordToken() {
 		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == IF_KEYWORD);
+	}
+
+	/* Checks if the token is an then keyword.*/
+	bool isThenKeywordToken() {
+		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == THEN_KEYWORD);
+	}
+
+	/* Checks if the token is an else keyword.*/
+	bool isElseKeywordToken() {
+		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == ELSE_KEYWORD);
 	}
 
 	/* Checks if the token is a name token.*/
@@ -112,7 +151,7 @@ public:
 	}
 
 	// ===== Delimiter identifier ======
-	/* Checks if the token is an open bracket. */
+	/* Checks if the token is an open curly bracket. */
 	bool isOpenCurlyBracketToken() {
 		return (this->type == TokenType::DELIMITER) && (this->s == OPEN_CURLY_BRACKET);
 	}
@@ -120,6 +159,16 @@ public:
 	/* Checks if the token is a closed curly bracket.*/
 	bool isClosedCurlyBracketToken() {
 		return (this->type == TokenType::DELIMITER) && (this->s == CLOSED_CURLY_BRACKET);
+	}	
+
+	/* Checks if the token is an open bracket. */
+	bool isOpenBracketToken() {
+		return (this->type == TokenType::DELIMITER) && (this->s == OPEN_BRACKET);
+	}
+
+	/* Checks if the token is a closed bracket.*/
+	bool isClosedBracketToken() {
+		return (this->type == TokenType::DELIMITER) && (this->s == CLOSED_BRACKET);
 	}
 
 	/* Checks if the token is a closed curly bracket.*/
@@ -132,4 +181,82 @@ public:
 		return (this->type == TokenType::INTEGER);
 	}
 
+	bool isPlusToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == PLUS_OPERATOR);
+	}
+
+	bool isMinusToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == MINUS_OPERATOR);
+	}
+
+	bool isMultiplyToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == MULTIPLY_OPERATOR);
+	}
+
+	bool isDivideToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == DIVIDE_OPERATOR);
+	}
+
+	bool isModulusToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == MODULUS_OPERATOR);
+	}
+
+	bool isOperatorToken() {
+		return (this->isPlusToken()
+			|| this->isMinusToken()
+			|| this->isMultiplyToken()
+			|| this->isDivideToken()
+			|| this->isModulusToken());
+	}
+
+	bool isGreaterToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == GREATER_OPERATOR);
+	}
+
+	bool isGreaterThanEqualToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == GREATER_THAN_EQUAL_OPERATOR);
+	}
+
+	bool isLesserToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == LESSER_OPERATOR);
+	}
+
+	bool isLesserThanEqualToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == LESSER_THAN_EQUAL_OPERATOR);
+	}
+
+	bool isEqualityToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == EQUALITY_OPERATOR);
+	}
+
+	bool isNotEqualToken() {
+		return (this->type == TokenType::OPERATOR) && (this->s == NOT_EQUAL_OPERATOR);
+	}
+
+	bool isRelationalOperator() {
+		return (this->isGreaterToken()
+			|| this->isGreaterThanEqualToken()
+			|| this->isLesserToken()
+			|| this->isLesserThanEqualToken()
+			|| this->isEqualityToken()
+			|| this->isNotEqualToken()
+			);
+	}
+
+	bool isNotOperator() {
+		return (this->type == TokenType::OPERATOR) && (this->s == NOT);
+	}
+
+	bool isAndOperator() {
+		return (this->type == TokenType::OPERATOR) && (this->s == AND);
+	}
+
+	bool isOrOperator() {
+		return (this->type == TokenType::OPERATOR) && (this->s == OR);
+	}
+
+	bool isConditionalOperator() {
+		return (this->isAndOperator()
+			|| this->isOrOperator());
+	}
 };

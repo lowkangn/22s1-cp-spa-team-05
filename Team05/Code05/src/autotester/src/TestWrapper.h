@@ -8,13 +8,11 @@
 // include your other headers here
 #include "AbstractWrapper.h"
 #include <common/FileIOManager.h>
-#include <pkb/pkb_object/PKB.h>
 #include <sp/SourceProcessor.h>
 
 class TestWrapper : public AbstractWrapper {
 private: 
 	FileIOManager io;
-	ProgramKnowledgeBase pkb;
 	SourceProcessor sp;
 public:
   // default constructor

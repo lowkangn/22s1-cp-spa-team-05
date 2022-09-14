@@ -39,7 +39,7 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 	const int LINENUMBER = 1;
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
+	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 	// x = x + 1
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
@@ -47,7 +47,7 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
 
-	Entity assignEntity = Entity(EntityType::ASSIGN, 1, assignToken);
+	Entity assignEntity = Entity::createAssignEntity(1);
 
 	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 
@@ -56,7 +56,7 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
 
 	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
-	Entity constEntity = Entity{ EntityType::CONSTANT, LINENUMBER, constToken };
+	Entity constEntity = Entity::createConstantEntity(LINENUMBER, constToken);
 
 
 	addNode->setLineNumber(1);
@@ -100,7 +100,7 @@ TEST_CASE("ModifiesExtractor: test handleRead") {
 	const int LINENUMBER = 1;
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
+	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 	// read x;
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
@@ -116,8 +116,8 @@ TEST_CASE("ModifiesExtractor: test handleRead") {
 
 	readNode->addChild(x);
 
-	Entity lineEntity = Entity{ EntityType::READ, 1, readToken };
-	Entity xEntity = Entity{ EntityType::VARIABLE, 1, xToken };
+	Entity lineEntity = Entity::createReadEntity(1);;
+	Entity xEntity = Entity::createVariableEntity(1, xToken);
 
 	Relationship readRelation = Relationship{ lineEntity, xEntity, RelationshipType::MODIFIES };
 
@@ -149,7 +149,7 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 	const int LINENUMBER = 1;
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
+	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 	/*
 		procedure main {
@@ -196,11 +196,11 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 	readNode->addChild(y);
 
 	// Creating Relationship
-	Entity procedureEntity = Entity{ EntityType::PROCEDURE, procedureNode->getLineNumber(), mainToken };
-	Entity xEntity = Entity{ EntityType::VARIABLE, x->getLineNumber(), xToken };
-	Entity yEntity = Entity{ EntityType::VARIABLE, y->getLineNumber(), yToken };
-	Entity assignEntity = Entity{ EntityType::ASSIGN, assignNode->getLineNumber(), assignToken };
-	Entity readEntity = Entity{ EntityType::READ, readNode->getLineNumber(), readToken };
+	Entity procedureEntity = Entity::createProcedureEntity(mainToken);
+	Entity xEntity = Entity::createVariableEntity(x->getLineNumber(), xToken);
+	Entity yEntity = Entity::createVariableEntity(y->getLineNumber(), yToken);
+	Entity assignEntity = Entity::createAssignEntity(assignNode->getLineNumber());
+	Entity readEntity = Entity::createReadEntity(readNode->getLineNumber());
 
 	Relationship procedureXRelation = Relationship{ procedureEntity, xEntity, RelationshipType::MODIFIES };
 	Relationship procedureYRelation = Relationship{ procedureEntity, yEntity, RelationshipType::MODIFIES };
@@ -234,7 +234,7 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 	const int LINENUMBER = 1;
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
+	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 	/*
 		procedure main {
@@ -307,9 +307,9 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 	exprNode->addChild(constNode);
 
 	// Creating Relationships
-	Entity whileEntity = Entity{ EntityType::WHILE, whileNode->getLineNumber(), whileToken };
-	Entity xEntity = Entity{ EntityType::VARIABLE, x->getLineNumber(), xToken };
-	Entity assignEntity = Entity{ EntityType::ASSIGN, assignNode->getLineNumber(), assignToken };
+	Entity whileEntity = Entity::createWhileEntity(whileNode->getLineNumber());
+	Entity xEntity = Entity::createVariableEntity(x->getLineNumber(), xToken);
+	Entity assignEntity = Entity::createAssignEntity(assignNode->getLineNumber());
 
 	Relationship whileRelation = Relationship{ whileEntity, xEntity, RelationshipType::MODIFIES };
 	Relationship assignRelation = Relationship{ assignEntity, xEntity, RelationshipType::MODIFIES };
@@ -341,7 +341,7 @@ TEST_CASE("ModifiesExtractor: test handleIf") {
 	const int LINENUMBER = 1;
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
+	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 	/*
 		procedure main {
@@ -398,11 +398,11 @@ TEST_CASE("ModifiesExtractor: test handleIf") {
 	assignYNode->addChild(constTwoNode);
 
 	// Creating Relationships
-	Entity ifEntity = Entity{ EntityType::IF, ifNode->getLineNumber(), ifToken };
-	Entity xEntity = Entity{ EntityType::VARIABLE, x->getLineNumber(), xToken };
-	Entity yEntity = Entity{ EntityType::VARIABLE, y->getLineNumber(), yToken };
-	Entity assignXEntity = Entity{ EntityType::ASSIGN, assignXNode->getLineNumber(), assignToken };
-	Entity assignYEntity = Entity{ EntityType::ASSIGN, assignYNode->getLineNumber(), assignToken };
+	Entity ifEntity = Entity::createIfEntity(ifNode->getLineNumber());
+	Entity xEntity = Entity::createVariableEntity(x->getLineNumber(), xToken);
+	Entity yEntity = Entity::createVariableEntity(y->getLineNumber(), yToken);
+	Entity assignXEntity = Entity::createAssignEntity(assignXNode->getLineNumber());
+	Entity assignYEntity = Entity::createAssignEntity(assignYNode->getLineNumber());
 
 	Relationship xRelation = Relationship{ ifEntity, xEntity, RelationshipType::MODIFIES };
 	Relationship yRelation = Relationship{ ifEntity, yEntity, RelationshipType::MODIFIES };
@@ -436,7 +436,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 	const int LINENUMBER = 1;
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
+	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 	// x = x + 1 + y
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
@@ -444,10 +444,10 @@ TEST_CASE("ModifiesExtractor: test extract") {
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
 	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	Entity assignEntity = Entity{ EntityType::ASSIGN, LINENUMBER, assignToken };
+	Entity assignEntity = Entity::createAssignEntity(LINENUMBER);;
 
 
-	Entity yEntity = Entity{ EntityType::VARIABLE, LINENUMBER, yToken };
+	Entity yEntity = Entity::createVariableEntity(LINENUMBER, yToken);
 
 	shared_ptr<ASTNode> LHSNode(new VariableASTNode(xToken));
 
@@ -461,7 +461,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 
 	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
 
-	Entity constEntity = Entity{ EntityType::CONSTANT, LINENUMBER, constToken };
+	Entity constEntity = Entity::createConstantEntity(LINENUMBER, constToken);
 
 
 	addNode1->setLineNumber(1);

@@ -5,11 +5,11 @@ Entity ConstantValueASTNode::extractEntity() {
 	Token nodeToken = this->getToken();
 	int lineNumber = this->getLineNumber();
 
-	return Entity{ EntityType::CONSTANT, lineNumber, nodeToken };
+	return Entity::createConstantEntity(lineNumber, nodeToken);
 }
 
 void ConstantValueASTNode::addChild(shared_ptr<ASTNode> child) {
-	throw ASTException("Cannot add child to constant value node");
+	throw ASTException("Cannot add	child to constant value node");
 }
 
 bool ConstantValueASTNode::isTerminal() {

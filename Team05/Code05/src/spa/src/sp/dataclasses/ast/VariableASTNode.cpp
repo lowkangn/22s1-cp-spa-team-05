@@ -8,5 +8,5 @@ Entity VariableASTNode::extractEntity() {
 	Token nodeToken = this->getToken();
 	int lineNumber = this->getLineNumber();
 
-	return Entity{ EntityType::VARIABLE, lineNumber, nodeToken };
+	return Entity::createVariableEntity(lineNumber, nodeToken);
 }

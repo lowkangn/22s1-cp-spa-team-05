@@ -19,7 +19,8 @@
 #include <sp/dataclasses/ast/VariableASTnode.cpp>
 #include <sp/dataclasses/ast/ConstantValueASTNode.h>
 #include <sp/dataclasses/ast/ConstantValueASTNode.cpp>
-#include <sp/dataclasses/ast/AST.h>
+#include <sp/dataclasses/ast/BracketsASTNode.h>
+#include <sp/dataclasses/ast/BracketsASTNode.cpp>
 #include <sp/dataclasses/ast/AST.h>
 #include <vector>
 #include <memory>
@@ -48,7 +49,7 @@ TEST_CASE("EntityExtractor: test extract") {
 		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
 		procedureNode->setLineNumber(1);
 
-		vector<Entity> expectedEntity{ Entity{EntityType::PROCEDURE, 1, procedureNameToken} };
+		vector<Entity> expectedEntity{ Entity::createProcedureEntity(procedureNameToken)};
 
 		testExtract(procedureNode, expectedEntity);
 	}
@@ -65,7 +66,7 @@ TEST_CASE("EntityExtractor: test extract") {
 
 		readNode->addChild(xNode);
 
-		vector<Entity> expectedEntity = vector<Entity>{ Entity(EntityType::READ, 1, readToken), Entity(EntityType::VARIABLE, 1, xToken) };
+		vector<Entity> expectedEntity = vector<Entity>{ Entity::createReadEntity(1), Entity::createVariableEntity(1, xToken) };
 
 		testExtract(readNode, expectedEntity);
 	}
@@ -81,7 +82,7 @@ TEST_CASE("EntityExtractor: test extract") {
 
 		printNode->addChild(yNode);
 
-		vector<Entity> expectedEntity{ Entity{EntityType::PRINT, 1, printToken}, Entity{EntityType::VARIABLE, 1, yToken } };
+		vector<Entity> expectedEntity{ Entity::createPrintEntity(1), Entity::createVariableEntity(1, yToken)};
 
 		testExtract(printNode, expectedEntity);
 	}
@@ -104,7 +105,7 @@ TEST_CASE("EntityExtractor: test extract") {
 		assignNode->addChild(constantNode);
 
 
-		vector<Entity> expectedEntity{ Entity{EntityType::ASSIGN, 1, assignToken}, Entity{EntityType::VARIABLE, 1, xToken}, Entity{EntityType::CONSTANT, 1, constantToken} };
+		vector<Entity> expectedEntity{ Entity::createAssignEntity(1), Entity::createVariableEntity(1, xToken), Entity::createConstantEntity(1, constantToken)};
 
 		testExtract(assignNode, expectedEntity);
 
@@ -115,7 +116,7 @@ TEST_CASE("EntityExtractor: test extract") {
 		shared_ptr<ASTNode> callNode(new CallASTNode(callNameToken));
 		callNode->setLineNumber(1);
 
-		vector<Entity> expectedEntity{ Entity{EntityType::CALL, 1, callNameToken} };
+		vector<Entity> expectedEntity{ Entity::createCallEntity(1)};
 
 		testExtract(callNode, expectedEntity);
 	}

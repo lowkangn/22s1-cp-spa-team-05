@@ -3,13 +3,12 @@
 #include <istream>
 #include <sstream>
 #include <pkb/interfaces/PKBUpdateHandler.h>
-#include <pkb/design_objects/PkbEntity.h>
-#include <pkb/design_objects/PkbRelationship.h>
-#include <pkb/pkb_object/PKB.h>
+//#include <pkb/pkb_object/PKB.h>
 #include <memory>
 
 
 using namespace std;
+/*
 TEST_CASE("Test Source Processor") {
 
 	auto test = [](string program, vector<PkbEntity>  expectedEntities, vector<PkbRelationship> expectedRelationships) {
@@ -41,10 +40,11 @@ TEST_CASE("Test Source Processor") {
 		// check that all relationships inside
 
 	};
-
-
+	
 	SECTION("Basic program") {
 		string program = "procedure someprocedure {\nx = 1;\nread y;}";
 	
 	}
+	
 }
+*/
