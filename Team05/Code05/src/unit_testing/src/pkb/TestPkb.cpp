@@ -46,9 +46,9 @@ TEST_CASE("Test add and get procedure") {
 			PQLEntity::generateProcedure("procedure3")
 		};
 		vector<Entity> toAdd = { // TODO: entity should use factory methods!
-			Entity(EntityType::PROCEDURE, INVALID_LINE_NUMBER, Token("procedure1", TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::PROCEDURE, INVALID_LINE_NUMBER, Token("procedure2", TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::PROCEDURE, INVALID_LINE_NUMBER, Token("procedure3", TokenType::NAME_OR_KEYWORD))
+			Entity::createProcedureEntity(Token("procedure1", TokenType::NAME_OR_KEYWORD)),
+			Entity::createProcedureEntity(Token("procedure2", TokenType::NAME_OR_KEYWORD)),
+			Entity::createProcedureEntity(Token("procedure3", TokenType::NAME_OR_KEYWORD)),
 		};
 		test(expectedEntities, toAdd);
 	}
@@ -78,9 +78,9 @@ TEST_CASE("Test add and get variables") {
 			PQLEntity::generateVariable("v3")
 		};
 		vector<Entity> toAdd = { // TODO: entity should use factory methods!
-			Entity(EntityType::VARIABLE, INVALID_LINE_NUMBER, Token("v1", TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::VARIABLE, INVALID_LINE_NUMBER, Token("v2", TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::VARIABLE, INVALID_LINE_NUMBER, Token("v3", TokenType::NAME_OR_KEYWORD))
+			Entity::createVariableEntity(INVALID_LINE_NUMBER, Token("v1", TokenType::NAME_OR_KEYWORD)),
+			Entity::createVariableEntity(INVALID_LINE_NUMBER, Token("v2", TokenType::NAME_OR_KEYWORD)),
+			Entity::createVariableEntity(INVALID_LINE_NUMBER, Token("v3", TokenType::NAME_OR_KEYWORD)),
 		};
 		test(expectedEntities, toAdd);
 	}
@@ -110,9 +110,9 @@ TEST_CASE("Test add and get constants") {
 			PQLEntity::generateConstant(3)
 		};
 		vector<Entity> toAdd = { // TODO: entity should use factory methods!
-			Entity(EntityType::CONSTANT, INVALID_LINE_NUMBER, Token("1", TokenType::INTEGER)),
-			Entity(EntityType::CONSTANT, INVALID_LINE_NUMBER, Token("2", TokenType::INTEGER)),
-			Entity(EntityType::CONSTANT, INVALID_LINE_NUMBER, Token("3", TokenType::INTEGER))
+			Entity::createConstantEntity(INVALID_LINE_NUMBER, Token("1", TokenType::INTEGER)),
+			Entity::createConstantEntity(INVALID_LINE_NUMBER, Token("2", TokenType::INTEGER)),
+			Entity::createConstantEntity(INVALID_LINE_NUMBER, Token("3", TokenType::INTEGER)),
 		};
 		test(expectedEntities, toAdd);
 	}
@@ -145,12 +145,12 @@ TEST_CASE("Test add and get statements") {
 			PQLEntity::generateStatement(6)
 		};
 		vector<Entity> toAdd = { // TODO: entity should use factory methods!
-			Entity(EntityType::READ, 1, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::PRINT, 2, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::ASSIGN, 3, Token(EQUAL_OPERATOR, TokenType::OPERATOR)),
-			Entity(EntityType::CALL, 4, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::WHILE, 5, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::IF, 6, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD))
+			Entity::createReadEntity(1),
+			Entity::createPrintEntity(2),
+			Entity::createAssignEntity(3),
+			Entity::createCallEntity(4),
+			Entity::createWhileEntity(5),
+			Entity::createIfEntity(6)
 		};
 		test(expectedEntities, toAdd);
 	}
@@ -175,12 +175,12 @@ TEST_CASE("Test retrieve statements by type") {
 
 	// shared statements
 	vector<Entity> toAdd = { // TODO: entity should use factory methods!
-			Entity(EntityType::READ, 1, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::PRINT, 2, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::ASSIGN, 3, Token(EQUAL_OPERATOR, TokenType::OPERATOR)),
-			Entity(EntityType::CALL, 4, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::WHILE, 5, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD)),
-			Entity(EntityType::IF, 6, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD))
+			Entity::createReadEntity(1),
+			Entity::createPrintEntity(2),
+			Entity::createAssignEntity(3),
+			Entity::createCallEntity(4),
+			Entity::createWhileEntity(5),
+			Entity::createIfEntity(6)
 	};
 
 	// tests
@@ -258,10 +258,10 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 	
 	SECTION("Follows") {
 		// shared, as if 4 statements in a block
-		Entity statement1 = Entity(EntityType::READ, 1, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement2 = Entity(EntityType::READ, 2, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement3 = Entity(EntityType::ASSIGN, 3, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement4 = Entity(EntityType::CALL, 4, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity statement1 = Entity::createReadEntity(1);
+		Entity statement2 = Entity::createReadEntity(2);
+		Entity statement3 = Entity::createAssignEntity(3);
+		Entity statement4 = Entity::createCallEntity(4);
 		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
 			Relationship(
 				statement1,
@@ -330,10 +330,10 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 	};
 	SECTION("FollowsStar") {
 		// shared, as if 4 statements in a block
-		Entity statement1 = Entity(EntityType::READ, 1, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement2 = Entity(EntityType::READ, 2, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement3 = Entity(EntityType::ASSIGN, 3, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement4 = Entity(EntityType::CALL, 4, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity statement1 = Entity::createReadEntity(1);
+		Entity statement2 = Entity::createReadEntity(2);
+		Entity statement3 = Entity::createAssignEntity(3);
+		Entity statement4 = Entity::createCallEntity(4);
 		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
 			Relationship(
 				statement1,
@@ -422,10 +422,10 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 	};
 	SECTION("Parent") {
 		// shared, as if 4 statements in a block
-		Entity statement1 = Entity(EntityType::IF, 1, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement2 = Entity(EntityType::ASSIGN, 2, Token(INVALID_IDENTIFIER, TokenType::OPERATOR));
-		Entity statement3 = Entity(EntityType::IF, 3, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement4 = Entity(EntityType::CALL, 4, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity statement1 = Entity::createIfEntity(1);
+		Entity statement2 = Entity::createAssignEntity(2);
+		Entity statement3 = Entity::createIfEntity(3);
+		Entity statement4 = Entity::createCallEntity(4);
 		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
 			Relationship(
 				statement1,
@@ -479,10 +479,10 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 	};
 	SECTION("ParentStar") {
 		// shared, as if 4 statements in a block
-		Entity statement1 = Entity(EntityType::IF, 1, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement2 = Entity(EntityType::ASSIGN, 2, Token(INVALID_IDENTIFIER, TokenType::OPERATOR));
-		Entity statement3 = Entity(EntityType::IF, 3, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement4 = Entity(EntityType::CALL, 4, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity statement1 = Entity::createIfEntity(1);
+		Entity statement2 = Entity::createAssignEntity(2);
+		Entity statement3 = Entity::createIfEntity(3);
+		Entity statement4 = Entity::createCallEntity(4);
 		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
 			Relationship(
 				statement1,
@@ -558,12 +558,12 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 				}
 			}
 		*/
-		Entity procedure = Entity(EntityType::PROCEDURE, INVALID_LINE_NUMBER, Token("p", TokenType::NAME_OR_KEYWORD));
-		Entity x = Entity(EntityType::VARIABLE, INVALID_LINE_NUMBER, Token("x", TokenType::NAME_OR_KEYWORD));
-		Entity statement1 = Entity(EntityType::ASSIGN, 1, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement2 = Entity(EntityType::PRINT, 2, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement3 = Entity(EntityType::IF, 3, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement4 = Entity(EntityType::CALL, 4, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity procedure = Entity::createProcedureEntity(Token("p", TokenType::NAME_OR_KEYWORD));
+		Entity x = Entity::createVariableEntity(INVALID_LINE_NUMBER, Token("x", TokenType::NAME_OR_KEYWORD));
+		Entity statement1 = Entity::createAssignEntity(1);
+		Entity statement2 = Entity::createPrintEntity(2);
+		Entity statement3 = Entity::createIfEntity(3);
+		Entity statement4 = Entity::createCallEntity(4);
 
 		// vector of relationships to add
 		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
@@ -675,13 +675,13 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 
 			}
 		*/
-		Entity procedure = Entity(EntityType::PROCEDURE, INVALID_LINE_NUMBER, Token("p", TokenType::NAME_OR_KEYWORD));
-		Entity x = Entity(EntityType::VARIABLE, INVALID_LINE_NUMBER, Token("x", TokenType::NAME_OR_KEYWORD));
-		Entity statement1 = Entity(EntityType::ASSIGN, 1, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement2 = Entity(EntityType::READ, 2, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement3 = Entity(EntityType::IF, 3, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
-		Entity statement4 = Entity(EntityType::ASSIGN, 4, Token(INVALID_IDENTIFIER, TokenType::OPERATOR));
-		Entity statement5 = Entity(EntityType::CALL, 5, Token(INVALID_IDENTIFIER, TokenType::NAME_OR_KEYWORD));
+		Entity procedure = Entity::createProcedureEntity(Token("p", TokenType::NAME_OR_KEYWORD));
+		Entity x = Entity::createVariableEntity(INVALID_LINE_NUMBER, Token("x", TokenType::NAME_OR_KEYWORD));
+		Entity statement1 = Entity::createAssignEntity(1);
+		Entity statement2 = Entity::createReadEntity(2);
+		Entity statement3 = Entity::createIfEntity(3);
+		Entity statement4 = Entity::createAssignEntity(4);
+		Entity statement5 = Entity::createCallEntity(5);
 		// vector of relationships to add
 		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
 			Relationship(

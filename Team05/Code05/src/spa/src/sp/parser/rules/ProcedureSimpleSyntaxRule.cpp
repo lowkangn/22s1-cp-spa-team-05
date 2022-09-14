@@ -71,16 +71,23 @@ list<Token> ProcedureSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 
 	// then we keep going until we hit a } 
 	bool seenCloseBracket = false;
+	int numOpenBracketSeen = 1;
 	while (!tokens.empty()) {
 		token = tokens.front(); // read
 		tokens.pop_front(); // pop
 		consumedTokens.push_back(token); // insert all tokens in order within bracket
 
-		if (token.isClosedCurlyBracketToken()) {
-			seenCloseBracket = true;
-			break;
+		if (token.isOpenBracketToken()) {
+			numOpenBracketSeen += 1;
+		} else if (token.isClosedCurlyBracketToken()) {
+			numOpenBracketSeen -= 1;
+			if (numOpenBracketSeen == 0) {
+				seenCloseBracket = true;
+				break;
+			}
 		}
 	}
+
 	// if no }, throw exception
 	if (!seenCloseBracket) {
 		throw SimpleSyntaxParserException("Missing closed bracket!");

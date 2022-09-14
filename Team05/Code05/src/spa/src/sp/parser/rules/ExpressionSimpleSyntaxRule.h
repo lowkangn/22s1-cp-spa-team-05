@@ -6,20 +6,22 @@
 #include <sp/parser/rules/SimpleSyntaxRule.h>
 using namespace std;
 
-class StatementListSimpleSyntaxRule : public SimpleSyntaxRule {
+class ExpressionSimpleSyntaxRule : public SimpleSyntaxRule {
+private:
 public:
-	StatementListSimpleSyntaxRule() {
+	list<Token> lhsTokens;
+	bool lhsBrackets = false;
+	Token operatorToken = Token::getPlaceHolderToken(); // Placeholder has to be replaced during initialization
+	list<Token> rhsTokens;
+	bool rhsBrackets = false;
+
+
+	ExpressionSimpleSyntaxRule() {
 		this->generated = false;
 		this->initialized = false;
 	}
 	vector<shared_ptr<SimpleSyntaxRule>> generateChildRules() override;
 	list<Token> consumeTokens(list<Token> tokens) override;
 	shared_ptr<ASTNode> constructNode() override;
-
-	bool isAssignStatement(list<Token> tokens);
-	bool isWhileStatement(list<Token> tokens);
-	bool isIfStatement(list<Token> tokens);
-	bool isPrintStatement(list<Token> tokens);
-	bool isReadStatement(list<Token> tokens);
-	bool isCallStatement(list<Token> tokens);
+	list<Token> extractBracketTokens(list<Token> &tokens);
 };

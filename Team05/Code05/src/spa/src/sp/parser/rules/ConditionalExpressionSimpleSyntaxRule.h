@@ -6,20 +6,20 @@
 #include <sp/parser/rules/SimpleSyntaxRule.h>
 using namespace std;
 
-class StatementListSimpleSyntaxRule : public SimpleSyntaxRule {
+class ConditionalExpressionSimpleSyntaxRule : public SimpleSyntaxRule {
+private:
+	bool notOperatorUsed;
+	bool twoConditionals;
 public:
-	StatementListSimpleSyntaxRule() {
+	ConditionalExpressionSimpleSyntaxRule() {
 		this->generated = false;
 		this->initialized = false;
+		this->notOperatorUsed = false;
+		this->twoConditionals = false;
 	}
+
 	vector<shared_ptr<SimpleSyntaxRule>> generateChildRules() override;
 	list<Token> consumeTokens(list<Token> tokens) override;
 	shared_ptr<ASTNode> constructNode() override;
-
-	bool isAssignStatement(list<Token> tokens);
-	bool isWhileStatement(list<Token> tokens);
-	bool isIfStatement(list<Token> tokens);
-	bool isPrintStatement(list<Token> tokens);
-	bool isReadStatement(list<Token> tokens);
-	bool isCallStatement(list<Token> tokens);
+	list<Token> parseCondition(list<Token> &tokens);
 };

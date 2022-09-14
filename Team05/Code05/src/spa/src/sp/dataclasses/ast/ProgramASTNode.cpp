@@ -2,5 +2,5 @@
 
 Entity ProgramASTNode::extractEntity() {
 	Token undefinedToken = Token::getPlaceHolderToken();
-	return Entity{ EntityType::PROGRAM, -1, undefinedToken };
+	return Entity::createProgramEntity();
 }
