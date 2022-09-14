@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pkb/design_objects/PkbStatementPattern.h>
+#include <pkb/design_objects/patterns/PkbStatementPattern.h>
 
 #include <unordered_map>
 #include <vector>
