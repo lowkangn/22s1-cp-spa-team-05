@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include <sp/design_extractor/UsesExtractor.h>
+#include <sp/design_extractor/UsesExtractor.cpp>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/ast/AST.h>
@@ -8,8 +9,6 @@
 #include <sp/dataclasses/ast/VariableASTNode.h>
 #include <sp/dataclasses/ast/ConstantValueASTNode.h>
 #include <sp/dataclasses/ast/ExpressionASTNode.h>
-#include <sp/dataclasses/ast/ExpressionASTNode.cpp>
-#include <sp/dataclasses/ast/StatementListASTNode.h>
 #include <sp/dataclasses/ast/AssignASTNode.h>
 
 using namespace std;
@@ -32,11 +31,7 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 		}
 
 	};
-	const int LINENUMBER = 1;
-
-	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity{ EntityType::VARIABLE, LINENUMBER, leftToken };
-
+	
 	// x = x + 1
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
 	Token addToken = Token{ "+", TokenType::OPERATOR };
@@ -50,9 +45,10 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 	shared_ptr<ASTNode> addNode(new ExpressionASTNode(addToken));
 
 	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
+	Entity xEntity = Entity{ EntityType::VARIABLE, 1, xToken };
 
 	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
-	Entity constEntity = Entity{ EntityType::CONSTANT, LINENUMBER, constToken };
+	Entity constEntity = Entity{ EntityType::CONSTANT, 1, constToken };
 
 
 	addNode->setLineNumber(1);
@@ -67,10 +63,9 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 	addNode->addChild(constNode);
 
 
-	Relationship usesX = Relationship{ assignEntity, LHS, RelationshipType::USES };
+	Relationship usesX = Relationship{ assignEntity, xEntity, RelationshipType::USES };
 
 	vector<Relationship> expectedResult = vector<Relationship>{ usesX };
 
 	handleAssign(assignNode, expectedResult);
-
 }

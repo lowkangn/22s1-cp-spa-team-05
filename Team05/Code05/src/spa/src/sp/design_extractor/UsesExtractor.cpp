@@ -80,8 +80,9 @@ vector<Relationship> UsesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	Entity leftHandSide = assignNode->extractEntity();
 
 	for (int i = 0; i < extractedVariables.size(); i++) {
+
 		Entity usedVariable = extractedVariables[i];
-		usesRelationships.push_back(Relationship{ assignNode, usedVariable, RelationshipType::USES });
+		usesRelationships.push_back(Relationship{ leftHandSide, usedVariable, RelationshipType::USES });
 	}
 
 	return usesRelationships;
@@ -107,12 +108,12 @@ vector<Relationship> UsesExtractor::handleCall(shared_ptr<ASTNode> ast) {
 vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
 	vector<Entity> variables = vector<Entity>();
 
-	if (ast->getType(ASTNodeType::VARIABLE)) {
+	if (ast->getType() == ASTNodeType::VARIABLE) {
 		// Extract the variable and add it to the result.
 		Entity variable = ast->extractEntity();
 		variables.push_back(variable);
 	}
-	else if (ast->getType(ASTNodeType::EXPRESSION)) {
+	else if (ast->getType() == ASTNodeType::EXPRESSION) {
 		// Recursively extract the variables in the sub-expression.
 		shared_ptr<ExpressionASTNode> expressionNode = dynamic_pointer_cast<ExpressionASTNode>(ast);
 		shared_ptr<ASTNode> leftChild = expressionNode->getLeftHandSide();
