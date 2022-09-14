@@ -93,7 +93,7 @@ class Entity {
 		}
 
 		static Entity createProcedureEntity(Token token) {
-			return Entity(EntityType::PROCEDURE, DEAFULT_LINE_NUMBER, Token::getPlaceHolderToken());
+			return Entity(EntityType::PROCEDURE, DEAFULT_LINE_NUMBER, token);
 		}
 
 		static Entity createStmtLstEntity() {
@@ -121,7 +121,7 @@ class Entity {
 		}
 
 		static Entity createIfEntity(int lineNumber) {
-			return Entity(EntityType::WHILE, lineNumber, Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD));
+			return Entity(EntityType::IF, lineNumber, Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD));
 		}
 
 		static Entity createVariableEntity(int lineNumber, Token token) {
@@ -159,10 +159,6 @@ class Entity {
 		}
 		bool isVariableEntity() {
 			return this->type == EntityType::VARIABLE;
-		}
-
-		bool isConstantEntity() {
-			return this->type == EntityType::CONSTANT;
 		}
 		bool isWhile() {
 			return this->type == EntityType::WHILE;
