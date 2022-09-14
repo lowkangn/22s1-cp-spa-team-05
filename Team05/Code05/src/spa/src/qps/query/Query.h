@@ -3,7 +3,7 @@
 #include <list>
 
 #include "qps/query/clause/SelectClause.h"
-#include "qps/query/clause/SuchThatClause.h"
+#include "qps/query/clause/RelationshipClause.h"
 #include <pkb/PKB.h>
 
 using namespace std;
@@ -11,11 +11,11 @@ using namespace std;
 class Query {
 private:
     shared_ptr<SelectClause> selectClause;
-    list<shared_ptr<SuchThatClause>> constraintClauses;
+    list<shared_ptr<RelationshipClause>> constraintClauses;
 public:
 
     /* Instantiates a Query object containing the clauses. */
-    Query(shared_ptr<SelectClause> select, list<shared_ptr<SuchThatClause>> constraints) {
+    Query(shared_ptr<SelectClause> select, list<shared_ptr<RelationshipClause>> constraints) {
         selectClause = select;
         constraintClauses = constraints;
     }

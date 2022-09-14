@@ -9,7 +9,7 @@ using namespace std;
 // =============== UNIT TESTS ====================
 
 TEST_CASE("ModifiesSClause: test equals") {
-	auto testEquals = [](const SuchThatClause* other, bool expected) {
+	auto testEquals = [](const RelationshipClause* other, bool expected) {
 		// given
 		ClauseArgument lhs = ClauseArgument("s", ArgumentType::STMT);
 		ClauseArgument rhs = ClauseArgument("v", ArgumentType::VARIABLE);
@@ -28,18 +28,18 @@ TEST_CASE("ModifiesSClause: test equals") {
 	ClauseArgument secondVarArg = ClauseArgument("v1", ArgumentType::VARIABLE);
 
 	SECTION("Equal") {
-		SuchThatClause* modifiesSClauseAgain = new ModifiesSClause(firstStmtArg, firstVarArg);
+		RelationshipClause* modifiesSClauseAgain = new ModifiesSClause(firstStmtArg, firstVarArg);
 		testEquals(modifiesSClauseAgain, true);
 	}
 
 	SECTION("Not equal, same types different identifiers") {
-		SuchThatClause* modifiesSClauseDiffLhsString = new ModifiesSClause(secondStmtArg, firstVarArg);
+		RelationshipClause* modifiesSClauseDiffLhsString = new ModifiesSClause(secondStmtArg, firstVarArg);
 		testEquals(modifiesSClauseDiffLhsString, false);
 
-		SuchThatClause* modifiesSClauseDiffRhsString = new ModifiesSClause(firstStmtArg, secondVarArg);
+		RelationshipClause* modifiesSClauseDiffRhsString = new ModifiesSClause(firstStmtArg, secondVarArg);
 		testEquals(modifiesSClauseDiffRhsString, false);
 
-		SuchThatClause* modifiesSClauseDiffStrings = new ModifiesSClause(secondStmtArg, secondVarArg);
+		RelationshipClause* modifiesSClauseDiffStrings = new ModifiesSClause(secondStmtArg, secondVarArg);
 		testEquals(modifiesSClauseDiffStrings, false);
 	}
 
@@ -61,16 +61,16 @@ TEST_CASE("ModifiesSClause: test equals") {
 
 	SECTION("Not equal, different types") {
 		for (ClauseArgument argument: otherArguments) {
-			SuchThatClause* modifiesSClauseDiffLhsArg = new ModifiesSClause(firstStmtArg, argument);
+			RelationshipClause* modifiesSClauseDiffLhsArg = new ModifiesSClause(firstStmtArg, argument);
 			testEquals(modifiesSClauseDiffLhsArg, false);
 
-			SuchThatClause* modifiesSClauseDiffRhsArg = new ModifiesSClause(argument, firstVarArg);
+			RelationshipClause* modifiesSClauseDiffRhsArg = new ModifiesSClause(argument, firstVarArg);
 			testEquals(modifiesSClauseDiffRhsArg, false);
 		}
 	}
 
 	SECTION("Not even a ModifiesSClause") {
-		SuchThatClause* modifiesPClause = new ModifiesPClause(procArg, firstVarArg);
+		RelationshipClause* modifiesPClause = new ModifiesPClause(procArg, firstVarArg);
 		testEquals(modifiesPClause, false);
 
 		// TODO: Add more when other Clause classes are implemented

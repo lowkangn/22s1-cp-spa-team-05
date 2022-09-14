@@ -19,14 +19,14 @@ TEST_CASE("Query: test operator==") {
     };
 
     shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(ClauseArgument("v", ArgumentType::VARIABLE)));
-    shared_ptr<SuchThatClause> modifiesSClause = shared_ptr<SuchThatClause>(new ModifiesSClause(ClauseArgument("1", ArgumentType::LINE_NUMBER),
-                                                                               ClauseArgument("v", ArgumentType::VARIABLE)));
-    shared_ptr<SuchThatClause> modifiesPClause = shared_ptr<SuchThatClause>(new ModifiesPClause(ClauseArgument("main", ArgumentType::PROCEDURE),
-                                                                                ClauseArgument("v", ArgumentType::VARIABLE)));
+    shared_ptr<RelationshipClause> modifiesSClause = shared_ptr<RelationshipClause>(new ModifiesSClause(ClauseArgument("1", ArgumentType::LINE_NUMBER),
+																										ClauseArgument("v", ArgumentType::VARIABLE)));
+    shared_ptr<RelationshipClause> modifiesPClause = shared_ptr<RelationshipClause>(new ModifiesPClause(ClauseArgument("main", ArgumentType::PROCEDURE),
+																										ClauseArgument("v", ArgumentType::VARIABLE)));
 
-    Query firstQuery = Query(selectClause, list<shared_ptr<SuchThatClause>>{modifiesSClause});
-    Query sameAsFirstQuery = Query(selectClause, list<shared_ptr<SuchThatClause>>{modifiesSClause});
-    Query secondQuery = Query(selectClause, list<shared_ptr<SuchThatClause>>{modifiesPClause});
+    Query firstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause});
+    Query sameAsFirstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause});
+    Query secondQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesPClause});
 
 
     SECTION("Equal") {

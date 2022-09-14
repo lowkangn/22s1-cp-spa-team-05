@@ -1,5 +1,5 @@
 #include "UsesSClause.h"
 
-shared_ptr<ClauseResult> UsesSClause::execute(shared_ptr<PKB> pkb) {
-    return shared_ptr<ClauseResult>();
+shared_ptr<RelationshipClauseResult> UsesSClause::execute(shared_ptr<PKB> pkb) {
+    return shared_ptr<RelationshipClauseResult>();
 }

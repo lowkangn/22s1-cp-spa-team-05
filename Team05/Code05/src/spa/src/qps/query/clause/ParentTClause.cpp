@@ -1,6 +1,6 @@
 #include "ParentTClause.h"
 
-shared_ptr<ClauseResult> ParentTClause::execute(shared_ptr<PKB> pkb) {
-    return shared_ptr<ClauseResult>();
+shared_ptr<RelationshipClauseResult> ParentTClause::execute(shared_ptr<PKB> pkb) {
+    return shared_ptr<RelationshipClauseResult>();
 }
 

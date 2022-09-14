@@ -14,15 +14,15 @@ Query QueryParser::parse() {
 
     this->tokens = selParser.getRemainingTokens();
     if (this->tokens.empty()) {
-        return Query(selectClause, list<shared_ptr<SuchThatClause>>{});
+        return Query(selectClause, list<shared_ptr<RelationshipClause>>{});
     }
-    list<shared_ptr<SuchThatClause>> constraintClauses = parseConstraints(declarations);
+    list<shared_ptr<RelationshipClause>> constraintClauses = parseConstraints(declarations);
 
     return Query(selectClause, constraintClauses);
 }
 
-list<shared_ptr<SuchThatClause>> QueryParser::parseConstraints(unordered_map<string, ArgumentType> declarations) {
-    list<shared_ptr<SuchThatClause>> clauses;
+list<shared_ptr<RelationshipClause>> QueryParser::parseConstraints(unordered_map<string, ArgumentType> declarations) {
+    list<shared_ptr<RelationshipClause>> clauses;
     PQLToken token = this->tokens.front();
     while (!this->tokens.empty()) {
         token = this->tokens.front();
@@ -37,7 +37,7 @@ list<shared_ptr<SuchThatClause>> QueryParser::parseConstraints(unordered_map<str
     return clauses;
 }
 
-shared_ptr<SuchThatClause> QueryParser::parseSuchThat(unordered_map<string, ArgumentType> declarations) {
+shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, ArgumentType> declarations) {
     if (this->tokens.empty() || !this->tokens.front().isThat()) {
         throw PQLError("Missing 'that' after 'such'");
     }
@@ -54,7 +54,7 @@ shared_ptr<SuchThatClause> QueryParser::parseSuchThat(unordered_map<string, Argu
         //create other SuchThatClauseParsers 
         //not needed for MVP
     }
-    shared_ptr<SuchThatClause> clause = parserPointer->parse();
+    shared_ptr<RelationshipClause> clause = parserPointer->parse();
     this->tokens = parserPointer->getRemainingTokens();
     return clause;
 }

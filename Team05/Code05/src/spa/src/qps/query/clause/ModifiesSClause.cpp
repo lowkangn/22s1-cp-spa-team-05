@@ -8,7 +8,7 @@ shared_ptr<RelationshipClauseResult> ModifiesSClause::execute(shared_ptr<PKB> pk
 	return shared_ptr<RelationshipClauseResult>(new RelationshipClauseResult(lhs, rhs, relationships));
 }
 
-bool ModifiesSClause::equals(const SuchThatClause* other) {
+bool ModifiesSClause::equals(const RelationshipClause* other) {
 	if (dynamic_cast<const ModifiesSClause*>(other) == nullptr) {
 		return false;
 	}
