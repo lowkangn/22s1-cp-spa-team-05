@@ -3,6 +3,5 @@
 
 Entity ProcedureASTNode::extractEntity() {
 	Token procedureToken = this->getToken();
-	int lineNumber = this->getLineNumber();
-	return Entity{ EntityType::PROCEDURE, lineNumber, procedureToken};
+	return Entity::createProcedureEntity(procedureToken);
 }
