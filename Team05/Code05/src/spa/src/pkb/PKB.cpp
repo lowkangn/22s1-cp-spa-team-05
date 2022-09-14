@@ -91,6 +91,8 @@ PQLEntity PKB::pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity) {
 	}
 	else if (entity->isStatement()) {
 		return PQLEntity::generateStatement(entity->getLineNumber());
+	} else {
+		throw PkbException("Unknown PkbEntity type being passed to QPS!");
 	}
 }
 
