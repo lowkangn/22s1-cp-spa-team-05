@@ -18,12 +18,16 @@ public:
 		Entity entity = Entity::createAssignEntity(lineNumber);
 		return Pattern(entity, lhs, rhs);
 	}
-	Pattern createIfPattern(int lineNumber, string lhs, string rhs) {
-		Entity entity = Entity::createAssignEntity(lineNumber);
+	static Pattern createIfPattern(int lineNumber, string lhs, string rhs) {
+		Entity entity = Entity::createIfEntity(lineNumber);
 		return Pattern(entity, lhs, rhs);
 	}
-	Pattern createWhilePattern(int lineNumber, string lhs, string rhs) {
-		Entity entity = Entity::createAssignEntity(lineNumber);
+	static Pattern createWhilePattern(int lineNumber, string lhs, string rhs) {
+		Entity entity = Entity::createWhileEntity(lineNumber);
 		return Pattern(entity, lhs, rhs);
+	}
+
+	bool equals(Pattern other) {
+		return this->entity.equals(other.entity) && this->lhs == other.lhs && this->rhs == other.rhs;
 	}
 };
