@@ -1,14 +1,14 @@
 #include "Query.h"
 
-shared_ptr<EntityClauseResult> Query::executeSelect() {
-    return selectClause->execute();
+shared_ptr<EntityClauseResult> Query::executeSelect(shared_ptr<PKB> pkb) {
+    return selectClause->execute(pkb);
 }
 
-list<shared_ptr<RelationshipClauseResult>> Query::executeSuchThat() {
+list<shared_ptr<RelationshipClauseResult>> Query::executeSuchThat(shared_ptr<PKB> pkb) {
 	list<shared_ptr<RelationshipClauseResult>> relationships;
 	list<shared_ptr<SuchThatClause>>::iterator iter = constraintClauses.begin();
 	for (; iter != constraintClauses.end(); iter++) {
-		relationships.push_back((*iter)->execute());
+		relationships.push_back((*iter)->execute(pkb));
 	}
 	return relationships;
 }

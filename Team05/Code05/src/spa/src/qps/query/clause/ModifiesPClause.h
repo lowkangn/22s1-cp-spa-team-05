@@ -11,7 +11,7 @@ public:
 	ModifiesPClause(ClauseArgument lhs, ClauseArgument rhs)
 		: SuchThatClause(lhs, rhs) {};
 
-	shared_ptr<RelationshipClauseResult> execute() override;
+	shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKB> pkb) override;
 
 	bool equals(const SuchThatClause* other) override;
 };

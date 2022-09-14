@@ -2,9 +2,10 @@
 #include "PQLRelationship.h"
 #include "RelationshipClauseResult.h"
 
-shared_ptr<RelationshipClauseResult> ModifiesSClause::execute() {
-	// TODO: Waiting for PKB interaction implementation
-    return shared_ptr<RelationshipClauseResult>();
+shared_ptr<RelationshipClauseResult> ModifiesSClause::execute(shared_ptr<PKB> pkb) {
+	vector<PQLRelationship> relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(
+			PKBTrackedRelationshipType::MODIFIES, lhs, rhs);
+	return shared_ptr<RelationshipClauseResult>(new RelationshipClauseResult(lhs, rhs, relationships));
 }
 
 bool ModifiesSClause::equals(const SuchThatClause* other) {

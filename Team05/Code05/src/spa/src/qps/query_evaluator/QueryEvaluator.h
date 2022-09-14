@@ -7,6 +7,7 @@
 #include "../query/clause/EntityClauseResult.h"
 #include "../query/clause/RelationshipClauseResult.h"
 #include "../query/Query.h"
+#include <pkb/PKB.h>
 
 using namespace std;
 
@@ -21,7 +22,7 @@ public:
     QueryEvaluator() {};
 
 	/* Returns the final result of a query */
-	set<string> evaluate(Query query);
+	set<string> evaluate(Query query, shared_ptr<PKB> pkb);
 
 	/* Combines the results from the clauses of a query */
     set<string> combine(shared_ptr<EntityClauseResult> entitiesResultPointer,

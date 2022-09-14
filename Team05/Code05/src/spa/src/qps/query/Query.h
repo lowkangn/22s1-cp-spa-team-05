@@ -4,6 +4,7 @@
 
 #include "qps/query/clause/SelectClause.h"
 #include "qps/query/clause/SuchThatClause.h"
+#include <pkb/PKB.h>
 
 using namespace std;
 
@@ -20,10 +21,10 @@ public:
     }
 
     /* Returns the results obtained from the query's SelectClause. */
-    shared_ptr<EntityClauseResult> executeSelect();
+    shared_ptr<EntityClauseResult> executeSelect(shared_ptr<PKB> pkb);
 
 	/* Returns the results obtained from the query's SuchThat clauses. */
-	list<shared_ptr<RelationshipClauseResult>> executeSuchThat();
+	list<shared_ptr<RelationshipClauseResult>> executeSuchThat(shared_ptr<PKB> pkb);
 
 	friend bool operator==(Query first, Query second);
 };

@@ -1,9 +1,9 @@
 #include <set>
 #include "QueryEvaluator.h"
 
-set<string> QueryEvaluator::evaluate(Query query) {
-	shared_ptr<EntityClauseResult> entitiesResultPointer = query.executeSelect();
-	list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers = query.executeSuchThat();
+set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKB> pkb) {
+	shared_ptr<EntityClauseResult> entitiesResultPointer = query.executeSelect(pkb);
+	list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers = query.executeSuchThat(pkb);
 	return combine(entitiesResultPointer, relationshipsResultPointers);
 }
 
