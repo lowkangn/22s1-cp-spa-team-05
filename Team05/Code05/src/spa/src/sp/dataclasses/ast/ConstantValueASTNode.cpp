@@ -9,7 +9,7 @@ Entity ConstantValueASTNode::extractEntity() {
 }
 
 void ConstantValueASTNode::addChild(shared_ptr<ASTNode> child) {
-	throw ASTException("Cannot add child to constant value node");
+	throw ASTException("Cannot add	child to constant value node");
 }
 
 bool ConstantValueASTNode::isTerminal() {
