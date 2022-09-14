@@ -32,40 +32,94 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 
 	};
 	
-	// x = x + 1
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
+	Token zToken = Token{ "z", TokenType::NAME_OR_KEYWORD };
 	Token addToken = Token{ "+", TokenType::OPERATOR };
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
 
-	Entity assignEntity = Entity(EntityType::ASSIGN, 1, assignToken);
+	Entity assignEntity = Entity::createAssignEntity(1);
+	Entity xEntity = Entity::createVariableEntity(1, xToken);
+	Entity yEntity = Entity::createVariableEntity(1, yToken);
+	Entity zEntity = Entity::createVariableEntity(1, zToken);
 
-	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+	SECTION("Only one variable on rhs") {
 
-	shared_ptr<ASTNode> addNode(new ExpressionASTNode(addToken));
+		// x = x + 1
+		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+		shared_ptr<ASTNode> addNode(new ExpressionASTNode(addToken));
+		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
+		
+		addNode->setLineNumber(1);
+		assignNode->setLineNumber(1);
+		xNode->setLineNumber(1);
+		constNode->setLineNumber(1);
 
-	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
-	Entity xEntity = Entity{ EntityType::VARIABLE, 1, xToken };
+		assignNode->addChild(xNode);
+		assignNode->addChild(addNode);
 
-	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
-	Entity constEntity = Entity{ EntityType::CONSTANT, 1, constToken };
+		addNode->addChild(xNode);
+		addNode->addChild(constNode);
 
+		Relationship usesX = Relationship{ assignEntity, xEntity, RelationshipType::USES };
 
-	addNode->setLineNumber(1);
-	assignNode->setLineNumber(1);
-	x->setLineNumber(1);
-	constNode->setLineNumber(1);
+		vector<Relationship> expectedResult = vector<Relationship>{ usesX };
 
-	assignNode->addChild(x);
-	assignNode->addChild(addNode);
+		handleAssign(assignNode, expectedResult);
+	}
+	
+	SECTION("More than one variable on rhs") {
 
-	addNode->addChild(x);
-	addNode->addChild(constNode);
+		// x = x + y + z
+		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+		shared_ptr<ASTNode> addNode1(new ExpressionASTNode(addToken));
+		shared_ptr<ASTNode> addNode2(new ExpressionASTNode(addToken));
+		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> yNode(new VariableASTNode(yToken));
+		shared_ptr<ASTNode> zNode(new VariableASTNode(zToken));
 
+		addNode1->setLineNumber(1);
+		addNode2->setLineNumber(1);
+		assignNode->setLineNumber(1);
+		xNode->setLineNumber(1);
+		yNode->setLineNumber(1);
+		zNode->setLineNumber(1);
 
-	Relationship usesX = Relationship{ assignEntity, xEntity, RelationshipType::USES };
+		assignNode->addChild(xNode);
+		assignNode->addChild(addNode2);
 
-	vector<Relationship> expectedResult = vector<Relationship>{ usesX };
+		addNode2->addChild(addNode1);
+		addNode2->addChild(zNode);
 
-	handleAssign(assignNode, expectedResult);
+		addNode1->addChild(xNode);
+		addNode1->addChild(yNode);
+
+		Relationship usesX = Relationship{ assignEntity, xEntity, RelationshipType::USES };
+		Relationship usesY = Relationship{ assignEntity, yEntity, RelationshipType::USES };
+		Relationship usesZ = Relationship{ assignEntity, zEntity, RelationshipType::USES };
+
+		vector<Relationship> expectedResult = vector<Relationship>{ usesX, usesY, usesZ };
+
+		handleAssign(assignNode, expectedResult);
+	}
+
+	SECTION("No variables on rhs") {
+		// x = 1
+		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
+
+		assignNode->setLineNumber(1);
+		xNode->setLineNumber(1);
+		constNode->setLineNumber(1);
+
+		assignNode->addChild(xNode);
+		assignNode->addChild(constNode);
+
+		vector<Relationship> expectedResult = vector<Relationship>();
+
+		handleAssign(assignNode, expectedResult);
+	}
 }
