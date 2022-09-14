@@ -3,8 +3,9 @@
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/AssignASTNode.h>
 #include <sp/dataclasses/ast/ExpressionASTNode.h>
-#include <sp/dataclasses/ast/WhileASTNode.h>
 #include <sp/dataclasses/ast/IfASTNode.h>
+#include <sp/dataclasses/ast/PrintASTNode.h>
+#include <sp/dataclasses/ast/WhileASTNode.h>
 #include <sp/design_extractor/UsesExtractor.h>
 
 vector<Relationship> UsesExtractor::extract(shared_ptr<ASTNode> ast) {
@@ -89,7 +90,11 @@ vector<Relationship> UsesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> UsesExtractor::handlePrint(shared_ptr<ASTNode> ast) {
-	return vector<Relationship>();
+	shared_ptr<PrintASTNode> printNode = dynamic_pointer_cast<PrintASTNode>(ast);
+
+	Entity printEntity = printNode->extractEntity();
+	Entity printedVariable = printNode->getVariableToPrintNode()->extractEntity();
+	return vector<Relationship>{ Relationship{ printEntity, printedVariable, RelationshipType::USES } };
 }
 
 vector<Relationship> UsesExtractor::handleWhile(shared_ptr<ASTNode> ast) {

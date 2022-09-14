@@ -123,3 +123,44 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 		handleAssign(assignNode, expectedResult);
 	}
 }
+
+TEST_CASE("UsesExtractor: test handlePrint") {
+
+
+	auto handlePrint = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
+		// Given
+		UsesExtractor extractor = UsesExtractor();
+
+		// When
+		vector<Relationship> extractedResult = extractor.handlePrint(ast);
+
+		// Then
+		REQUIRE(expectedResult.size() == extractedResult.size());
+
+		for (int i = 0; i < extractedResult.size(); i++) {
+			REQUIRE(extractedResult[i].equals(expectedResult[i]));
+		}
+
+	};
+
+	Token printToken = { PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
+	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+
+	Entity printEntity = Entity::createPrintEntity(1);
+	Entity xEntity = Entity::createVariableEntity(1, xToken);
+
+	// print x
+	shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
+	shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
+
+	printNode->setLineNumber(1);
+	xNode->setLineNumber(1);
+
+	printNode->addChild(xNode);
+
+	Relationship usesX = Relationship{ printEntity, xEntity, RelationshipType::USES };
+
+	vector<Relationship> expectedResult = vector<Relationship>{ usesX };
+	
+	handlePrint(printNode, expectedResult);
+}
