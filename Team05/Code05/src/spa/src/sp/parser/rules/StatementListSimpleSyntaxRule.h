@@ -15,4 +15,11 @@ public:
 	vector<shared_ptr<SimpleSyntaxRule>> generateChildRules() override;
 	list<Token> consumeTokens(list<Token> tokens) override;
 	shared_ptr<ASTNode> constructNode() override;
+
+	bool isAssignStatement(list<Token> tokens);
+	bool isWhileStatement(list<Token> tokens);
+	bool isIfStatement(list<Token> tokens);
+	bool isPrintStatement(list<Token> tokens);
+	bool isReadStatement(list<Token> tokens);
+	bool isCallStatement(list<Token> tokens);
 };

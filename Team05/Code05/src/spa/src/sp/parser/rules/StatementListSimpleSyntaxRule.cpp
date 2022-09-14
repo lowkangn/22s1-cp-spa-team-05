@@ -25,13 +25,18 @@ list<Token> StatementListSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 
 	// then we keep going until we hit }
 	bool seenCloseBracket = false;
+	int numOpenBracketSeen = 1;
 	while (!tokens.empty()) {
 		token = tokens.front(); // read
 		tokens.pop_front(); // pop
-		
-		if (token.isClosedCurlyBracketToken()) {
-			seenCloseBracket = true;
-			break;
+		if (token.isOpenCurlyBracketToken()) {
+			numOpenBracketSeen += 1;
+		} else if (token.isClosedCurlyBracketToken()) {
+			numOpenBracketSeen -= 1;
+			if (numOpenBracketSeen == 0) {
+				seenCloseBracket = true;
+				break;
+			}
 		}
 		childTokens.push_back(token); // insert all tokens in order within bracket
 	}
@@ -57,34 +62,33 @@ vector<shared_ptr<SimpleSyntaxRule>> StatementListSimpleSyntaxRule::generateChil
 	vector<shared_ptr<SimpleSyntaxRule>> childRules;
 	list<Token> tokens = this->tokens;
 	while (!tokens.empty()) {
-		Token token = tokens.front(); // read
-		if (token.isReadKeywordToken()) { // is read statement
-			shared_ptr<SimpleSyntaxRule> readRulePointer = shared_ptr<SimpleSyntaxRule>(new ReadSimpleSyntaxRule());
-			tokens = readRulePointer->consumeTokens(tokens); // consume tokens
-			childRules.push_back(readRulePointer); // add to children nodes in order
+		if (this->isReadStatement(tokens)) { // is read statement
+			shared_ptr<SimpleSyntaxRule> assignRulePointer = shared_ptr<SimpleSyntaxRule>(new ReadSimpleSyntaxRule());
+			tokens = assignRulePointer->consumeTokens(tokens);
+			childRules.push_back(assignRulePointer); // add to children nodes in order
 		}
-		else if (token.isCallKeywordToken()) { // call statement
+		else if (this->isCallStatement(tokens)) { // call statement
 			// TODO - not needed for Milestone 1
 		}
-		else if (token.isWhileKeywordToken()) { // while block
+		else if (this->isWhileStatement(tokens)) { // while block
 			shared_ptr<SimpleSyntaxRule> whileRulePointer = shared_ptr<SimpleSyntaxRule>(new WhileSimpleSyntaxRule());
 			tokens = whileRulePointer->consumeTokens(tokens); // consume tokens
 			childRules.push_back(whileRulePointer); // add to children nodes in order
 		}
-		else if (token.isIfKeywordToken()) { // if else statement
+		else if (this->isIfStatement(tokens)) { // if else statement
 			shared_ptr<SimpleSyntaxRule> ifRulePointer = shared_ptr<SimpleSyntaxRule>(new IfSimpleSyntaxRule());
 			tokens = ifRulePointer->consumeTokens(tokens); // consume tokens
 			childRules.push_back(ifRulePointer); // add to children nodes in order
 		}
-		else if (token.isPrintKeywordToken()) {
+		else if (this->isPrintStatement(tokens)) {
 			shared_ptr<SimpleSyntaxRule> printRulePointer = shared_ptr<SimpleSyntaxRule>(new PrintSimpleSyntaxRule());
 			tokens = printRulePointer->consumeTokens(tokens); // consume tokens
 			childRules.push_back(printRulePointer); // add to children nodes in order
 		}
-		else if (token.isNameToken()) { // probably assign statement
-			shared_ptr<SimpleSyntaxRule> assignRulePointer = shared_ptr<SimpleSyntaxRule>(new AssignSimpleSyntaxRule());
-			tokens = assignRulePointer->consumeTokens(tokens);
-			childRules.push_back(assignRulePointer); // add to children nodes in order
+		else if (this->isAssignStatement(tokens)) {
+			shared_ptr<SimpleSyntaxRule> readRulePointer = shared_ptr<SimpleSyntaxRule>(new AssignSimpleSyntaxRule());
+			tokens = readRulePointer->consumeTokens(tokens); // consume tokens
+			childRules.push_back(readRulePointer); // add to children nodes in order
 		}
 		else { // unknown
 			throw SimpleSyntaxParserException("Unknown token when trying to parse statementlist!");
@@ -117,4 +121,94 @@ shared_ptr<ASTNode> StatementListSimpleSyntaxRule::constructNode() {
 	}
 
 	return stmtLstNode;
+}
+
+bool StatementListSimpleSyntaxRule::isAssignStatement(list<Token> tokens) {
+	// Create Iterator
+	list<Token>::iterator it = tokens.begin();
+
+	Token firstElement = *it;
+	Token SecondElement = *(next(it));
+
+	// If first element is While
+	if (firstElement.isNameToken() && SecondElement.isEqualToken()) {
+		return true;
+	}
+
+	return false;
+}
+
+bool StatementListSimpleSyntaxRule::isWhileStatement(list<Token> tokens) {
+	// Create Iterator
+	list<Token>::iterator it = tokens.begin();
+
+	Token firstElement = *it;
+	Token SecondElement = *(next(it));
+
+	// If first element is While
+	if (firstElement.isWhileKeywordToken() && SecondElement.isOpenBracketToken()) {
+		return true;
+	}
+
+	return false;
+}
+
+bool StatementListSimpleSyntaxRule::isIfStatement(list<Token> tokens) {
+	// Create Iterator
+	list<Token>::iterator it = tokens.begin();
+
+	Token firstElement = *it;
+	Token SecondElement = *(next(it));
+
+	// If first element is While
+	if (firstElement.isIfKeywordToken() && SecondElement.isOpenBracketToken()) {
+		return true;
+	}
+
+	return false;
+}
+
+bool StatementListSimpleSyntaxRule::isPrintStatement(list<Token> tokens) {
+	// Create Iterator
+	list<Token>::iterator it = tokens.begin();
+
+	Token firstElement = *it;
+	Token SecondElement = *(next(it));
+
+	// If first element is While
+	if (firstElement.isPrintKeywordToken() && SecondElement.isNameToken()) {
+		return true;
+	}
+
+	return false;
+}
+
+bool StatementListSimpleSyntaxRule::isReadStatement(list<Token> tokens) {
+	// Create Iterator
+	list<Token>::iterator it = tokens.begin();
+
+	Token firstElement = *it;
+	Token SecondElement = *(next(it));
+
+	// If first element is While
+	if (firstElement.isReadKeywordToken() && SecondElement.isNameToken()) {
+		return true;
+	}
+
+	return false;
+}
+
+bool StatementListSimpleSyntaxRule::isCallStatement(list<Token> tokens) {
+	// Create Iterator
+	list<Token>::iterator it = tokens.begin();
+
+	Token firstElement = *it;
+	Token SecondElement = *(next(it));
+
+	// If first element is While
+	if (firstElement.isCallKeywordToken() && SecondElement.isNameToken()) {
+		return true;
+	}
+
+	return false;
 }
