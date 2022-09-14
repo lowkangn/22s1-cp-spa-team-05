@@ -97,7 +97,25 @@ vector<Relationship> UsesExtractor::handlePrint(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> UsesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
-	return vector<Relationship>();
+	vector<Relationship> usesRelationships = vector<Relationship>();
+
+	shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
+	shared_ptr<ASTNode> child = whileNode->getStmtList();
+
+	Entity leftHandSide = whileNode->extractEntity();
+
+	vector<Entity> whileConditionVariables = extractVariables(whileNode->getCondition());
+
+	for (int i = 0; i < whileConditionVariables.size(); i++) {
+		Relationship toAdd = Relationship{ leftHandSide, whileConditionVariables[i], RelationshipType::USES };
+		usesRelationships.push_back(toAdd);
+	}
+
+	// Recursively extract relations from the while block
+	vector<Relationship> extractedChildRelationships = recursiveContainerExtract(leftHandSide, child);
+	usesRelationships.insert(usesRelationships.end(), extractedChildRelationships.begin(), extractedChildRelationships.end());
+
+	return usesRelationships;
 }
 
 vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
@@ -168,6 +186,25 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSi
 
 		usesRelationships.push_back(toAdd);
 		usesRelationships.insert(usesRelationships.end(), printRelationship.begin(), printRelationship.end());
+		break;
+	}
+	case ASTNodeType::WHILE:
+	{
+		// Cast to WhileASTNode
+		shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
+		shared_ptr<ASTNode> children = whileNode->getStmtList();
+
+		vector<Entity> whileConditionVariables = extractVariables(whileNode->getCondition());
+
+		for (int i = 0; i < whileConditionVariables.size(); i++) {
+			Relationship toAdd = Relationship{ leftHandSide, whileConditionVariables[i], RelationshipType::USES };
+			usesRelationships.push_back(toAdd);
+		}
+
+		vector<Relationship> recursiveExtract = recursiveContainerExtract(leftHandSide, children);
+		vector<Relationship> recursiveWhile = handleWhile(ast);
+		usesRelationships.insert(usesRelationships.end(), recursiveExtract.begin(), recursiveExtract.end());
+		usesRelationships.insert(usesRelationships.end(), recursiveWhile.begin(), recursiveWhile.end());
 		break;
 	}
 	default:

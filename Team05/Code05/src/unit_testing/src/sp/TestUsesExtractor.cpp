@@ -32,13 +32,12 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 		for (int i = 0; i < extractedResult.size(); i++) {
 			REQUIRE(extractedResult[i].equals(expectedResult[i]));
 		}
-
 	};
 	
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
 	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
 	Token zToken = Token{ "z", TokenType::NAME_OR_KEYWORD };
-	Token addToken = Token{ "+", TokenType::OPERATOR };
+	Token addToken = Token{ PLUS_OPERATOR, TokenType::OPERATOR };
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
 
@@ -143,7 +142,6 @@ TEST_CASE("UsesExtractor: test handlePrint") {
 		for (int i = 0; i < extractedResult.size(); i++) {
 			REQUIRE(extractedResult[i].equals(expectedResult[i]));
 		}
-
 	};
 
 	Token printToken = { PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
@@ -184,7 +182,6 @@ TEST_CASE("UsesExtractor: test handleProcedure") {
 		for (int i = 0; i < extractedResult.size(); i++) {
 			REQUIRE(extractedResult[i].equals(expectedResult[i]));
 		}
-
 	};
 
 	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
@@ -204,7 +201,7 @@ TEST_CASE("UsesExtractor: test handleProcedure") {
 	Token printToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
 	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
 	Token stmtLst = Token{ "", TokenType::INVALID };
-
+	Token addToken = Token{ PLUS_OPERATOR, TokenType::OPERATOR };
 
 	// Creating nodes
 	shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
@@ -252,4 +249,100 @@ TEST_CASE("UsesExtractor: test handleProcedure") {
 	vector<Relationship> expectedResult = vector<Relationship>{ procedureYRelation, assignRelation, procedureZRelation, printRelation };
 
 	handleProcedure(procedureNode, expectedResult);
+}
+
+TEST_CASE("UsesExtractor: test handleWhile") {
+	auto handleWhile = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
+		// Given
+		UsesExtractor extractor = UsesExtractor();
+
+		// When
+		vector<Relationship> extractedResult = extractor.handleWhile(ast);
+
+		// Then
+		REQUIRE(expectedResult.size() == extractedResult.size());
+
+		for (int i = 0; i < extractedResult.size(); i++) {
+			REQUIRE(extractedResult[i].equals(expectedResult[i]));
+		}
+	};
+
+	/*
+		while (x != y) {
+			print z;
+			y = y + 1;
+		}
+	*/
+	// Creating tokens
+	Token whileToken = Token{ WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD };
+	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
+	Token zToken = Token{ "z", TokenType::NAME_OR_KEYWORD };
+	Token printToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
+	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
+	Token stmtLst = Token{ "", TokenType::INVALID };
+	Token constToken = Token{ "1", TokenType::INTEGER };
+	Token addToken = Token{ PLUS_OPERATOR, TokenType::OPERATOR };
+	Token notEqualToken = Token{ NOT_EQUAL_OPERATOR, TokenType::OPERATOR };
+
+	// Creating nodes
+	shared_ptr<ASTNode> whileNode(new WhileASTNode(whileToken));
+	shared_ptr<ASTNode> conditionNode(new ExpressionASTNode(notEqualToken));
+	shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(stmtLst));
+
+	shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
+	
+	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+	shared_ptr<ASTNode> addNode(new ExpressionASTNode(notEqualToken));
+	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
+
+	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
+	shared_ptr<ASTNode> y(new VariableASTNode(yToken));
+	shared_ptr<ASTNode> z(new VariableASTNode(zToken));
+	
+	x->setLineNumber(1);
+	y->setLineNumber(1);
+	z->setLineNumber(2);
+	whileNode->setLineNumber(1);
+	conditionNode->setLineNumber(1);
+	printNode->setLineNumber(2);
+	assignNode->setLineNumber(3);
+	addNode->setLineNumber(3);
+	constNode->setLineNumber(3);
+	
+	conditionNode->addChild(x);
+	conditionNode->addChild(y);
+
+	whileNode->addChild(conditionNode);
+	whileNode->addChild(stmtLstNode);
+
+	stmtLstNode->addChild(printNode);
+	stmtLstNode->addChild(assignNode);
+
+	addNode->addChild(y);
+	addNode->addChild(constNode);
+
+	assignNode->addChild(y);
+	assignNode->addChild(addNode);
+
+	printNode->addChild(z);
+
+	// Creating Relationship
+	Entity whileEntity = Entity::createWhileEntity(whileNode->getLineNumber());
+	Entity xEntity = Entity::createVariableEntity(x->getLineNumber(), xToken);
+	Entity yEntity = Entity::createVariableEntity(y->getLineNumber(), yToken);
+	Entity zEntity = Entity::createVariableEntity(z->getLineNumber(), zToken);
+	Entity assignEntity = Entity::createAssignEntity(assignNode->getLineNumber());
+	Entity printEntity = Entity::createPrintEntity(printNode->getLineNumber());
+
+	Relationship whileXRelation = Relationship{ whileEntity, xEntity, RelationshipType::USES };
+	Relationship whileYRelation = Relationship{ whileEntity, yEntity, RelationshipType::USES };
+	Relationship whileZRelation = Relationship{ whileEntity, zEntity, RelationshipType::USES };
+	Relationship assignRelation = Relationship{ assignEntity, yEntity, RelationshipType::USES };
+	Relationship printRelation = Relationship{ printEntity, zEntity, RelationshipType::USES };
+
+
+	vector<Relationship> expectedResult = vector<Relationship>{ whileXRelation, whileYRelation, whileZRelation, printRelation, whileYRelation, assignRelation };
+
+	handleWhile(whileNode, expectedResult);
 }
