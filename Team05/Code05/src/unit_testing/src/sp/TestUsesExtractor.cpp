@@ -6,10 +6,13 @@
 #include <sp/dataclasses/ast/AST.h>
 #include <vector>
 #include <memory>
-#include <sp/dataclasses/ast/VariableASTNode.h>
+#include <sp/dataclasses/ast/AssignASTNode.h>
 #include <sp/dataclasses/ast/ConstantValueASTNode.h>
 #include <sp/dataclasses/ast/ExpressionASTNode.h>
-#include <sp/dataclasses/ast/AssignASTNode.h>
+#include <sp/dataclasses/ast/ProcedureASTNode.h>
+#include <sp/dataclasses/ast/StatementListASTNode.h>
+#include <sp/dataclasses/ast/VariableASTNode.h>
+#include <iostream>
 
 using namespace std;
 
@@ -37,7 +40,7 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 	Token zToken = Token{ "z", TokenType::NAME_OR_KEYWORD };
 	Token addToken = Token{ "+", TokenType::OPERATOR };
 	Token constToken = Token{ "1", TokenType::INTEGER };
-	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
 
 	Entity assignEntity = Entity::createAssignEntity(1);
 	Entity xEntity = Entity::createVariableEntity(1, xToken);
@@ -163,4 +166,90 @@ TEST_CASE("UsesExtractor: test handlePrint") {
 	vector<Relationship> expectedResult = vector<Relationship>{ usesX };
 	
 	handlePrint(printNode, expectedResult);
+}
+
+TEST_CASE("UsesExtractor: test handleProcedure") {
+
+
+	auto handleProcedure = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
+		// Given
+		UsesExtractor extractor = UsesExtractor();
+
+		// When
+		vector<Relationship> extractedResult = extractor.handleProcedure(ast);
+
+		// Then
+		REQUIRE(expectedResult.size() == extractedResult.size());
+
+		for (int i = 0; i < extractedResult.size(); i++) {
+			REQUIRE(extractedResult[i].equals(expectedResult[i]));
+		}
+
+	};
+
+	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Entity LHS = Entity::createVariableEntity(1, leftToken);
+
+	/*
+		procedure main {
+			x = y;
+			print z;
+		}
+	*/
+	// Creating tokens
+	Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
+	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
+	Token zToken = Token{ "z", TokenType::NAME_OR_KEYWORD };
+	Token printToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
+	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
+	Token stmtLst = Token{ "", TokenType::INVALID };
+
+
+	// Creating nodes
+	shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
+
+	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(mainToken));
+
+	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+
+	shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(stmtLst));
+
+	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
+	shared_ptr<ASTNode> y(new VariableASTNode(yToken));
+	shared_ptr<ASTNode> z(new VariableASTNode(zToken));
+
+	x->setLineNumber(1);
+	y->setLineNumber(1);
+	z->setLineNumber(2);
+	assignNode->setLineNumber(1);
+	printNode->setLineNumber(2);
+
+	procedureNode->addChild(stmtLstNode);
+
+	stmtLstNode->addChild(assignNode);
+	stmtLstNode->addChild(printNode);
+
+	assignNode->addChild(x);
+	assignNode->addChild(y);
+
+	printNode->addChild(z);
+
+	// Creating Relationship
+	Entity procedureEntity = Entity::createProcedureEntity(mainToken);
+	Entity xEntity = Entity::createVariableEntity(x->getLineNumber(), xToken);
+	Entity yEntity = Entity::createVariableEntity(y->getLineNumber(), yToken);
+	Entity zEntity = Entity::createVariableEntity(z->getLineNumber(), zToken);
+	Entity assignEntity = Entity::createAssignEntity(assignNode->getLineNumber());
+	Entity printEntity = Entity::createPrintEntity(printNode->getLineNumber());
+
+	Relationship procedureYRelation = Relationship{ procedureEntity, yEntity, RelationshipType::USES };
+	Relationship procedureZRelation = Relationship{ procedureEntity, zEntity, RelationshipType::USES };
+	Relationship assignRelation = Relationship{ assignEntity, yEntity, RelationshipType::USES };
+	Relationship printRelation = Relationship{ printEntity, zEntity, RelationshipType::USES };
+
+
+	vector<Relationship> expectedResult = vector<Relationship>{ procedureYRelation, assignRelation, procedureZRelation, printRelation };
+
+	handleProcedure(procedureNode, expectedResult);
 }

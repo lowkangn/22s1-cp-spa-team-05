@@ -61,7 +61,6 @@ vector<Relationship> UsesExtractor::extract(shared_ptr<ASTNode> ast) {
 	return uses;
 }
 
-// TODO in a future iteration
 vector<Relationship> UsesExtractor::handleProcedure(shared_ptr<ASTNode> ast) {
 	Entity leftHandSide = ast->extractEntity();
 
@@ -134,5 +133,53 @@ vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSide, shared_ptr<ASTNode> ast) {
-	return vector<Relationship>();
+	vector<Relationship> usesRelationships = vector<Relationship>();
+	ASTNodeType type = ast->getType();
+
+	switch (type) {
+	case ASTNodeType::ASSIGN:
+	{
+		// Cast to AssignASTNode
+		shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
+		shared_ptr<ASTNode> rightChild = assignNode->getRightHandSide();
+
+		vector<Relationship> assignRelationship = handleAssign(ast);
+
+		vector<Entity> extractedVariables = extractVariables(rightChild);
+
+		for (int i = 0; i < extractedVariables.size(); i++) {
+
+			Entity usedVariable = extractedVariables[i];
+			usesRelationships.push_back(Relationship{ leftHandSide, usedVariable, RelationshipType::USES });
+		}
+		usesRelationships.insert(usesRelationships.end(), assignRelationship.begin(), assignRelationship.end());
+		break;
+	}
+	case ASTNodeType::PRINT:
+	{
+		// Cast to PrintASTNode
+		shared_ptr<PrintASTNode> printNode = dynamic_pointer_cast<PrintASTNode>(ast);
+		shared_ptr<ASTNode> child = printNode->getVariableToPrintNode();
+
+		vector<Relationship> printRelationship = handlePrint(ast);
+
+		Entity childEntity = child->extractEntity();
+		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::USES };
+
+		usesRelationships.push_back(toAdd);
+		usesRelationships.insert(usesRelationships.end(), printRelationship.begin(), printRelationship.end());
+		break;
+	}
+	default:
+	{
+		// Iterate through child nodes calling this function recursively
+		vector<shared_ptr<ASTNode>> children = ast->getChildren();
+		for (int i = 0; i < children.size(); i++) {
+			shared_ptr<ASTNode> child = children[i];
+			vector<Relationship> extractedUses = recursiveContainerExtract(leftHandSide, child);
+			usesRelationships.insert(usesRelationships.end(), extractedUses.begin(), extractedUses.end());
+		}
+	}
+	}
+	return usesRelationships;
 }
