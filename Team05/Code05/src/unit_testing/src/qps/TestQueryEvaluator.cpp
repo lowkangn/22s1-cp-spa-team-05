@@ -6,42 +6,6 @@ using namespace std;
 
 // ==================== UNIT TESTS ====================
 
-TEST_CASE("QueryEvaluator: test dereferenceRelationshipsResultPointers") {
-	auto testDereferenceRelationshipsResultPointers = [](
-			list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers, list<RelationshipClauseResult> expected) {
-		// given
-		QueryEvaluator evaluator = QueryEvaluator();
-
-		// when
-		list<RelationshipClauseResult> actual = evaluator.dereferenceRelationshipsResultPointers(
-				relationshipsResultPointers);
-
-		// then
-		REQUIRE(actual == expected);
-	};
-
-	ClauseArgument stmtArg = ClauseArgument("s", ArgumentType::LINE_NUMBER);
-	ClauseArgument varArg = ClauseArgument("v", ArgumentType::VARIABLE);
-
-	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
-	PQLEntity secondStmtEntity = PQLEntity::generateStatement(2);
-	PQLEntity firstVarEntity = PQLEntity::generateVariable("x");
-	PQLEntity secondVarEntity = PQLEntity::generateVariable("y");
-
-	PQLRelationship firstRelationship = PQLRelationship(firstStmtEntity, firstVarEntity);
-	PQLRelationship secondRelationship = PQLRelationship(secondStmtEntity, secondVarEntity);
-
-	shared_ptr<RelationshipClauseResult> testClauseResult = shared_ptr<RelationshipClauseResult>(new RelationshipClauseResult(
-			stmtArg, varArg, {firstRelationship, secondRelationship}));
-
-	RelationshipClauseResult expectedRelationshipClauseResult = RelationshipClauseResult(
-			stmtArg, varArg, {firstRelationship, secondRelationship});
-
-	testDereferenceRelationshipsResultPointers(
-			list<shared_ptr<RelationshipClauseResult>>{testClauseResult},
-			list<RelationshipClauseResult>{expectedRelationshipClauseResult});
-}
-
 TEST_CASE("QueryEvaluator: test combine") {
 	auto testCombine = [](shared_ptr<EntityClauseResult> entitiesResultPointer,
 		list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers, set<string> expected) {

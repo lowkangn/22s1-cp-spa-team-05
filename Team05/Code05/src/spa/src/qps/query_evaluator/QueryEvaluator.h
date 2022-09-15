@@ -29,13 +29,10 @@ public:
     set<string> combine(shared_ptr<EntityClauseResult> entitiesResultPointer,
 						list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers);
 
-	list<RelationshipClauseResult> dereferenceRelationshipsResultPointers(
-			list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers);
-
 	vector<PQLEntity> filterEntities(EntityClauseResult entitiesResult,
 									 list<RelationshipClauseResult> relationshipsResults);
 
-	vector<vector<PQLEntity>> getKeyOnlyTable(RelationshipClauseResult relationshipsResult);
+	vector<vector<PQLEntity>> getTable(RelationshipClauseResult relationshipsResult);
 
 	vector<vector<PQLEntity>> getKeyValueTable(RelationshipClauseResult relationshipsResult, KeyColumn keyColumn);
 
@@ -47,11 +44,15 @@ public:
 																			  int firstKey, int secondKey);
 
 	vector<vector<PQLEntity>> pairKeyTableJoin(
-			vector<pair<vector<PQLEntity>, vector<PQLEntity>>> currentTableKeyValuePairs,
-			vector<vector<PQLEntity>> tableToMerge);
+			vector<pair<vector<PQLEntity>, vector<PQLEntity>>> combinedTableKeyValuePairs,
+			vector<vector<PQLEntity>> tableToMergeKeyValuePairs);
 
 	vector<vector<PQLEntity>> singleKeyTableJoin(
-			vector<pair<PQLEntity, vector<PQLEntity>>> currentTableKeyValuePairs,
-			vector<vector<PQLEntity>> tableToMerge);
+			vector<pair<PQLEntity, vector<PQLEntity>>> combinedTableKeyValuePairs,
+			vector<vector<PQLEntity>> tableToMergeKeyValuePairs);
+
+	void combinedTableJoin(vector<vector<PQLEntity>>* combinedTable,
+						   vector<ClauseArgument>* argumentsInCombinedTable,
+						   list<RelationshipClauseResult>* relationshipsResults);
 
 };
