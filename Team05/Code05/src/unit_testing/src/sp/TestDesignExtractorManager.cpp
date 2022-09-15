@@ -192,10 +192,10 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 	nodeToExtractFrom->addChild(procedureNode);
 	
 	// Creating relationships
-	Relationship procedureModifiesy = Relationship(procedureEntity, yEntity, RelationshipType::MODIFIES);
-	Relationship procedureModifiesx = Relationship(procedureEntity, xEntity, RelationshipType::MODIFIES);
-	Relationship readModifiesY = Relationship(readEntity, yEntity, RelationshipType::MODIFIES);
-	Relationship assignModifiesX = Relationship(assignEntity, xEntity, RelationshipType::MODIFIES);
+	Relationship procedureModifiesy = Relationship::createModifiesRelationship(procedureEntity, yEntity);
+	Relationship procedureModifiesx = Relationship::createModifiesRelationship(procedureEntity, xEntity);
+	Relationship readModifiesY = Relationship::createModifiesRelationship(readEntity, yEntity);
+	Relationship assignModifiesX = Relationship::createModifiesRelationship(assignEntity, xEntity);
 
 
 

@@ -72,7 +72,7 @@ vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	Entity modifiedEntity = leftChild->extractEntity();
 	Entity leftHandSide = assignNode->extractEntity();
 
-	modifiesRelationships.push_back(Relationship{ leftHandSide, modifiedEntity, RelationshipType::MODIFIES });
+	modifiesRelationships.push_back(Relationship::createModifiesRelationship(leftHandSide, modifiedEntity));
 
 	return modifiesRelationships;
 }
@@ -87,7 +87,7 @@ vector<Relationship> ModifiesExtractor::handleRead(shared_ptr<ASTNode> ast) {
 	Entity leftHandSide = readNode->extractEntity();
 	Entity rightHandSide = child->extractEntity();
 
-	modifiesRelationships.push_back(Relationship{ leftHandSide, rightHandSide, RelationshipType::MODIFIES });
+	modifiesRelationships.push_back(Relationship::createModifiesRelationship(leftHandSide, rightHandSide));
 
 	return modifiesRelationships;
 }
@@ -153,7 +153,7 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		vector<Relationship> assignRelationship = handleAssign(ast);
 
 		Entity childEntity = leftChild->extractEntity();
-		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
+		Relationship toAdd = Relationship::createModifiesRelationship(leftHandSide, childEntity);
 
 		modifiesRelationships.push_back(toAdd);
 		modifiesRelationships.insert(modifiesRelationships.end(), assignRelationship.begin(), assignRelationship.end());
@@ -168,7 +168,7 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		vector<Relationship> readRelationship = handleRead(ast);
 		
 		Entity childEntity = child->extractEntity();
-		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
+		Relationship toAdd = Relationship::createModifiesRelationship(leftHandSide, childEntity);
 
 		modifiesRelationships.push_back(toAdd);
 		modifiesRelationships.insert(modifiesRelationships.end(), readRelationship.begin(), readRelationship.end());

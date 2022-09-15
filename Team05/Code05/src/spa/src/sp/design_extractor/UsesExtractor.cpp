@@ -102,7 +102,7 @@ vector<Relationship> UsesExtractor::handlePrint(shared_ptr<ASTNode> ast) {
 
 	Entity printEntity = printNode->extractEntity();
 	Entity printedVariable = printNode->getVariableToPrintNode()->extractEntity();
-	return vector<Relationship>{ Relationship{ printEntity, printedVariable, RelationshipType::USES } };
+	return vector<Relationship>{ Relationship::createUsesRelationship(printEntity, printedVariable) };
 }
 
 vector<Relationship> UsesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
@@ -182,7 +182,7 @@ vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
 
 void UsesExtractor::addRelationshipsWithVariables(vector<Relationship>& relationships, Entity& leftHandSide, vector<Entity>& variables) {
 	for (int i = 0; i < variables.size(); i++) {
-		Relationship toAdd = Relationship{ leftHandSide, variables[i], RelationshipType::USES };
+		Relationship toAdd = Relationship::createUsesRelationship(leftHandSide, variables[i]);
 		relationships.push_back(toAdd);
 	}
 }
@@ -210,7 +210,7 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSi
 		shared_ptr<ASTNode> child = printNode->getVariableToPrintNode();
 
 		Entity childEntity = child->extractEntity();
-		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::USES };
+		Relationship toAdd = Relationship::createUsesRelationship(leftHandSide, childEntity);
 
 		usesRelationships.push_back(toAdd);
 		break;

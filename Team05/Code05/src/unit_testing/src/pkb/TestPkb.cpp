@@ -262,22 +262,10 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		Entity statement2 = Entity::createReadEntity(2);
 		Entity statement3 = Entity::createAssignEntity(3);
 		Entity statement4 = Entity::createCallEntity(4);
-		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
-			Relationship(
-				statement1,
-				statement2,
-				RelationshipType::FOLLOWS
-			),
-			Relationship(
-				statement2,
-				statement3,
-				RelationshipType::FOLLOWS
-			),
-			Relationship(
-				statement3,
-				statement4,
-				RelationshipType::FOLLOWS
-			),
+		vector<Relationship> toAdd = {
+			Relationship::createFollowsRelationship(statement1, statement2),
+			Relationship::createFollowsRelationship(statement2, statement3),
+			Relationship::createFollowsRelationship(statement3,statement4),
 
 		};
 
@@ -334,37 +322,13 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		Entity statement2 = Entity::createReadEntity(2);
 		Entity statement3 = Entity::createAssignEntity(3);
 		Entity statement4 = Entity::createCallEntity(4);
-		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
-			Relationship(
-				statement1,
-				statement2,
-				RelationshipType::FOLLOWST
-			),
-			Relationship(
-				statement2,
-				statement3,
-				RelationshipType::FOLLOWST
-			),
-			Relationship(
-				statement3,
-				statement4,
-				RelationshipType::FOLLOWST
-			),
-			Relationship(
-				statement1,
-				statement3,
-				RelationshipType::FOLLOWST
-			),
-			Relationship(
-				statement1,
-				statement4,
-				RelationshipType::FOLLOWST
-			),
-			Relationship(
-				statement2,
-				statement4,
-				RelationshipType::FOLLOWST
-			)
+		vector<Relationship> toAdd = {
+			Relationship::createFollowsTRelationship(statement1, statement2),
+			Relationship::createFollowsTRelationship(statement2, statement3),
+			Relationship::createFollowsTRelationship(statement3, statement4),
+			Relationship::createFollowsTRelationship(statement1, statement3),
+			Relationship::createFollowsTRelationship(statement1, statement4),
+			Relationship::createFollowsTRelationship(statement2, statement4)
 		};
 		// shared, as PQLEntities
 		PQLEntity statementResult1 = PQLEntity::generateStatement(1);
@@ -426,17 +390,9 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		Entity statement2 = Entity::createAssignEntity(2);
 		Entity statement3 = Entity::createIfEntity(3);
 		Entity statement4 = Entity::createCallEntity(4);
-		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
-			Relationship(
-				statement1,
-				statement2,
-				RelationshipType::PARENT
-			),
-			Relationship(
-				statement3,
-				statement4,
-				RelationshipType::PARENT
-			),
+		vector<Relationship> toAdd = {
+			Relationship::createParentRelationship(statement1, statement2),
+			Relationship::createParentRelationship(statement3, statement4),
 		};
 		// shared, as PQLEntities
 		PQLEntity statementResult1 = PQLEntity::generateStatement(1);
@@ -483,27 +439,11 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		Entity statement2 = Entity::createAssignEntity(2);
 		Entity statement3 = Entity::createIfEntity(3);
 		Entity statement4 = Entity::createCallEntity(4);
-		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
-			Relationship(
-				statement1,
-				statement2,
-				RelationshipType::PARENTT
-			),
-			Relationship(
-				statement3,
-				statement4,
-				RelationshipType::PARENTT
-			),
-			Relationship(
-				statement1,
-				statement4,
-				RelationshipType::PARENTT
-			),
-			Relationship(
-				statement1,
-				statement3,
-				RelationshipType::PARENTT
-			),
+		vector<Relationship> toAdd = {
+			Relationship::createParentTRelationship(statement1, statement2),
+			Relationship::createParentTRelationship(statement3, statement4),
+			Relationship::createParentTRelationship(statement1, statement4),
+			Relationship::createParentTRelationship(statement1, statement3),
 		};
 		// shared, as PQLEntities
 		PQLEntity statementResult1 = PQLEntity::generateStatement(1);
@@ -566,32 +506,12 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		Entity statement4 = Entity::createCallEntity(4);
 
 		// vector of relationships to add
-		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
-			Relationship(
-				statement1,
-				x,
-				RelationshipType::USES
-			),
-			Relationship(
-				statement2,
-				x,
-				RelationshipType::USES
-			),
-			Relationship(
-				statement3,
-				x,
-				RelationshipType::USES
-			),
-			Relationship(
-				procedure,
-				x,
-				RelationshipType::USES
-			),
-			Relationship(
-				statement4,
-				x,
-				RelationshipType::USES
-			),
+		vector<Relationship> toAdd = {
+			Relationship::createUsesRelationship(statement1, x),
+			Relationship::createUsesRelationship(statement2, x),
+			Relationship::createUsesRelationship(statement3, x),
+			Relationship::createUsesRelationship(procedure, x),
+			Relationship::createUsesRelationship(statement4, x),
 		};
 		// shared, as PQLEntities
 		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
@@ -683,32 +603,12 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		Entity statement4 = Entity::createAssignEntity(4);
 		Entity statement5 = Entity::createCallEntity(5);
 		// vector of relationships to add
-		vector<Relationship> toAdd = { // TODO: entity should use factory methods!
-			Relationship(
-				statement1,
-				x,
-				RelationshipType::MODIFIES
-			),
-			Relationship(
-				statement2,
-				x,
-				RelationshipType::MODIFIES
-			),
-			Relationship(
-				statement3,
-				x,
-				RelationshipType::MODIFIES
-			),
-			Relationship(
-				procedure,
-				x,
-				RelationshipType::MODIFIES
-			),
-			Relationship(
-				statement5,
-				x,
-				RelationshipType::MODIFIES
-			),
+		vector<Relationship> toAdd = {
+			Relationship::createModifiesRelationship(statement1, x),
+			Relationship::createModifiesRelationship(statement2, x),
+			Relationship::createModifiesRelationship(statement3, x),
+			Relationship::createModifiesRelationship(procedure, x),
+			Relationship::createModifiesRelationship(statement5, x),
 		};
 		// shared, as PQLEntities
 		PQLEntity procedureResult = PQLEntity::generateProcedure("p");

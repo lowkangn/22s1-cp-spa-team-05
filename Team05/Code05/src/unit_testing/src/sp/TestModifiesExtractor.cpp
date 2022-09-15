@@ -71,7 +71,7 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 	addNode->addChild(constNode);
 
 
-	Relationship modifiesX = Relationship{ assignEntity, LHS, RelationshipType::MODIFIES };
+	Relationship modifiesX = Relationship::createModifiesRelationship(assignEntity, LHS);
 
 	vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
 
@@ -119,7 +119,7 @@ TEST_CASE("ModifiesExtractor: test handleRead") {
 	Entity lineEntity = Entity::createReadEntity(1);;
 	Entity xEntity = Entity::createVariableEntity(1, xToken);
 
-	Relationship readRelation = Relationship{ lineEntity, xEntity, RelationshipType::MODIFIES };
+	Relationship readRelation = Relationship::createModifiesRelationship(lineEntity, xEntity);
 
 
 	vector<Relationship> expectedResult = vector<Relationship>{ readRelation };
@@ -202,10 +202,10 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 	Entity assignEntity = Entity::createAssignEntity(assignNode->getLineNumber());
 	Entity readEntity = Entity::createReadEntity(readNode->getLineNumber());
 
-	Relationship procedureXRelation = Relationship{ procedureEntity, xEntity, RelationshipType::MODIFIES };
-	Relationship procedureYRelation = Relationship{ procedureEntity, yEntity, RelationshipType::MODIFIES };
-	Relationship assignRelation = Relationship{ assignEntity, xEntity, RelationshipType::MODIFIES };
-	Relationship readRelation = Relationship{ readEntity, yEntity, RelationshipType::MODIFIES };
+	Relationship procedureXRelation = Relationship::createModifiesRelationship(procedureEntity, xEntity);
+	Relationship procedureYRelation = Relationship::createModifiesRelationship(procedureEntity, yEntity);
+	Relationship assignRelation = Relationship::createModifiesRelationship(assignEntity, xEntity);
+	Relationship readRelation = Relationship::createModifiesRelationship(readEntity, yEntity);
 
 
 	vector<Relationship> expectedResult = vector<Relationship>{ procedureXRelation, assignRelation, procedureYRelation, readRelation };
@@ -311,8 +311,8 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 	Entity xEntity = Entity::createVariableEntity(x->getLineNumber(), xToken);
 	Entity assignEntity = Entity::createAssignEntity(assignNode->getLineNumber());
 
-	Relationship whileRelation = Relationship{ whileEntity, xEntity, RelationshipType::MODIFIES };
-	Relationship assignRelation = Relationship{ assignEntity, xEntity, RelationshipType::MODIFIES };
+	Relationship whileRelation = Relationship::createModifiesRelationship(whileEntity, xEntity);
+	Relationship assignRelation = Relationship::createModifiesRelationship(assignEntity, xEntity);
 
 
 	vector<Relationship> expectedResult = vector<Relationship>{ whileRelation, assignRelation };
@@ -404,10 +404,10 @@ TEST_CASE("ModifiesExtractor: test handleIf") {
 	Entity assignXEntity = Entity::createAssignEntity(assignXNode->getLineNumber());
 	Entity assignYEntity = Entity::createAssignEntity(assignYNode->getLineNumber());
 
-	Relationship xRelation = Relationship{ ifEntity, xEntity, RelationshipType::MODIFIES };
-	Relationship yRelation = Relationship{ ifEntity, yEntity, RelationshipType::MODIFIES };
-	Relationship assignXRelation = Relationship{ assignXEntity, xEntity, RelationshipType::MODIFIES };
-	Relationship assignYRelation = Relationship{ assignYEntity, yEntity, RelationshipType::MODIFIES };
+	Relationship xRelation = Relationship::createModifiesRelationship(ifEntity, xEntity);
+	Relationship yRelation = Relationship::createModifiesRelationship(ifEntity, yEntity);
+	Relationship assignXRelation = Relationship::createModifiesRelationship(assignXEntity, xEntity);
+	Relationship assignYRelation = Relationship::createModifiesRelationship(assignYEntity, yEntity);
 
 
 	vector<Relationship> expectedResult = vector<Relationship>{ xRelation, assignXRelation, yRelation, assignYRelation };
@@ -479,7 +479,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 	addNode2->addChild(y);
 
 
-	Relationship modifiesX = Relationship{ assignEntity, LHS, RelationshipType::MODIFIES };
+	Relationship modifiesX = Relationship::createModifiesRelationship(assignEntity, LHS);
 
 	vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
 

@@ -53,7 +53,7 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 		shared_ptr<ASTNode> addNode(new ExpressionASTNode(addToken));
 		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
 		shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
-		
+
 		addNode->setLineNumber(1);
 		assignNode->setLineNumber(1);
 		xNode->setLineNumber(1);
@@ -65,7 +65,7 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 		addNode->addChild(xNode);
 		addNode->addChild(constNode);
 
-		Relationship usesX = Relationship{ assignEntity, xEntity, RelationshipType::USES };
+		Relationship usesX = Relationship::createUsesRelationship(assignEntity, xEntity);
 
 		vector<Relationship> expectedResult = vector<Relationship>{ usesX };
 
@@ -98,9 +98,9 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 		addNode1->addChild(xNode);
 		addNode1->addChild(yNode);
 
-		Relationship usesX = Relationship{ assignEntity, xEntity, RelationshipType::USES };
-		Relationship usesY = Relationship{ assignEntity, yEntity, RelationshipType::USES };
-		Relationship usesZ = Relationship{ assignEntity, zEntity, RelationshipType::USES };
+		Relationship usesX = Relationship::createUsesRelationship(assignEntity, xEntity);
+		Relationship usesY = Relationship::createUsesRelationship(assignEntity, yEntity);
+		Relationship usesZ = Relationship::createUsesRelationship(assignEntity, zEntity);
 
 		vector<Relationship> expectedResult = vector<Relationship>{ usesX, usesY, usesZ };
 
@@ -159,7 +159,7 @@ TEST_CASE("UsesExtractor: test handlePrint") {
 
 	printNode->addChild(xNode);
 
-	Relationship usesX = Relationship{ printEntity, xEntity, RelationshipType::USES };
+	Relationship usesX = Relationship::createUsesRelationship(printEntity, xEntity);
 
 	vector<Relationship> expectedResult = vector<Relationship>{ usesX };
 	
@@ -237,8 +237,8 @@ TEST_CASE("UsesExtractor: test handleProcedure") {
 	Entity yEntity = Entity::createVariableEntity(y->getLineNumber(), yToken);
 	Entity zEntity = Entity::createVariableEntity(z->getLineNumber(), zToken);
 
-	Relationship procedureYRelation = Relationship{ procedureEntity, yEntity, RelationshipType::USES };
-	Relationship procedureZRelation = Relationship{ procedureEntity, zEntity, RelationshipType::USES };
+	Relationship procedureYRelation = Relationship::createUsesRelationship(procedureEntity, yEntity);
+	Relationship procedureZRelation = Relationship::createUsesRelationship(procedureEntity, zEntity);
 
 	vector<Relationship> expectedResult = vector<Relationship>{ procedureYRelation, procedureZRelation };
 
@@ -327,9 +327,9 @@ TEST_CASE("UsesExtractor: test handleWhile") {
 	Entity yEntity = Entity::createVariableEntity(y->getLineNumber(), yToken);
 	Entity zEntity = Entity::createVariableEntity(z->getLineNumber(), zToken);
 
-	Relationship whileXRelation = Relationship{ whileEntity, xEntity, RelationshipType::USES };
-	Relationship whileYRelation = Relationship{ whileEntity, yEntity, RelationshipType::USES };
-	Relationship whileZRelation = Relationship{ whileEntity, zEntity, RelationshipType::USES };
+	Relationship whileXRelation = Relationship::createUsesRelationship(whileEntity, xEntity);
+	Relationship whileYRelation = Relationship::createUsesRelationship(whileEntity, yEntity);
+	Relationship whileZRelation = Relationship::createUsesRelationship(whileEntity, zEntity);
 
 
 	vector<Relationship> expectedResult = vector<Relationship>{ whileXRelation, whileYRelation, whileZRelation, whileYRelation };
@@ -420,9 +420,9 @@ TEST_CASE("UsesExtractor: test handleIf") {
 	Entity yThenEntity = Entity::createVariableEntity(yThen->getLineNumber(), yToken);
 	Entity xElseEntity = Entity::createVariableEntity(xElse->getLineNumber(), xToken);
 
-	Relationship ifCondXRelation = Relationship{ ifEntity, xCondEntity, RelationshipType::USES };
-	Relationship ifThenYRelation = Relationship{ ifEntity, yThenEntity, RelationshipType::USES };
-	Relationship ifElseXRelation = Relationship{ ifEntity, xElseEntity, RelationshipType::USES };
+	Relationship ifCondXRelation = Relationship::createUsesRelationship(ifEntity, xCondEntity);
+	Relationship ifThenYRelation = Relationship::createUsesRelationship(ifEntity, yThenEntity);
+	Relationship ifElseXRelation = Relationship::createUsesRelationship(ifEntity, xElseEntity);
 
 
 	vector<Relationship> expectedResult = vector<Relationship>{ ifCondXRelation, ifThenYRelation, ifElseXRelation };
@@ -634,26 +634,26 @@ TEST_CASE("UsesExtractor: test extract") {
 	Entity x8Entity = Entity::createVariableEntity(x8Node->getLineNumber(), xToken);
 	
 	// Creating relationships
-	Relationship mainUsesXCond = Relationship{ procedureEntity, xCond, RelationshipType::USES };
-	Relationship mainUsesX4 = Relationship{ procedureEntity, x4Entity, RelationshipType::USES };
-	Relationship mainUsesY5 = Relationship{ procedureEntity, y5Entity, RelationshipType::USES };
-	Relationship mainUsesYCond = Relationship{ procedureEntity, yCondEntity, RelationshipType::USES };
-	Relationship mainUsesY7 = Relationship{ procedureEntity, y7Entity, RelationshipType::USES };
-	Relationship mainUsesX8 = Relationship{ procedureEntity, x8Entity, RelationshipType::USES };
+	Relationship mainUsesXCond = Relationship::createUsesRelationship(procedureEntity, xCond);
+	Relationship mainUsesX4 = Relationship::createUsesRelationship(procedureEntity, x4Entity);
+	Relationship mainUsesY5 = Relationship::createUsesRelationship(procedureEntity, y5Entity);
+	Relationship mainUsesYCond = Relationship::createUsesRelationship(procedureEntity, yCondEntity);
+	Relationship mainUsesY7 = Relationship::createUsesRelationship(procedureEntity, y7Entity);
+	Relationship mainUsesX8 = Relationship::createUsesRelationship(procedureEntity, x8Entity);
 
-	Relationship whileUsesXCond = Relationship{ whileEntity, xCond, RelationshipType::USES };
-	Relationship whileUsesX4 = Relationship{ whileEntity, x4Entity, RelationshipType::USES };
-	Relationship whileUsesY5 = Relationship{ whileEntity, y5Entity, RelationshipType::USES };
+	Relationship whileUsesXCond = Relationship::createUsesRelationship(whileEntity, xCond);
+	Relationship whileUsesX4 = Relationship::createUsesRelationship(whileEntity, x4Entity);
+	Relationship whileUsesY5 = Relationship::createUsesRelationship(whileEntity, y5Entity);
 
-	Relationship assign4UsesX4 = Relationship{ assign4Entity, x4Entity, RelationshipType::USES };
-	Relationship printUsesY5 = Relationship{ printEntity, y5Entity, RelationshipType::USES };
+	Relationship assign4UsesX4 = Relationship::createUsesRelationship(assign4Entity, x4Entity);
+	Relationship printUsesY5 = Relationship::createUsesRelationship(printEntity, y5Entity);
 
-	Relationship ifUsesYCond = Relationship{ ifEntity, yCondEntity, RelationshipType::USES };
-	Relationship ifUsesY7 = Relationship{ ifEntity, y7Entity, RelationshipType::USES };
-	Relationship ifUsesX8 = Relationship{ ifEntity, x8Entity, RelationshipType::USES };
+	Relationship ifUsesYCond = Relationship::createUsesRelationship(ifEntity, yCondEntity);
+	Relationship ifUsesY7 = Relationship::createUsesRelationship(ifEntity, y7Entity);
+	Relationship ifUsesX8 = Relationship::createUsesRelationship(ifEntity, x8Entity);
 	
-	Relationship assign7UsesY7 = Relationship{ assign7Entity, y7Entity, RelationshipType::USES };
-	Relationship assign8UsesX8 = Relationship{ assign8Entity, x8Entity, RelationshipType::USES };
+	Relationship assign7UsesY7 = Relationship::createUsesRelationship(assign7Entity, y7Entity);
+	Relationship assign8UsesX8 = Relationship::createUsesRelationship(assign8Entity, x8Entity);
 
 	vector<Relationship> expectedResult = vector<Relationship>{ mainUsesXCond, mainUsesX4, mainUsesY5, mainUsesYCond, mainUsesY7, mainUsesX8, 
 			whileUsesXCond, whileUsesX4, whileUsesY5, assign4UsesX4, printUsesY5, ifUsesYCond, ifUsesY7, ifUsesX8, assign7UsesY7, assign8UsesX8 };
