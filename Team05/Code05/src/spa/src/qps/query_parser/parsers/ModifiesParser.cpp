@@ -1,7 +1,10 @@
 #include <qps/query_parser/parsers/ModifiesParser.h>
 
-bool ModifiesParser::isCorrectClauseType(PQLToken clauseTypeToken) {
-	return clauseTypeToken.isModifies();
+PQLToken ModifiesParser::extractClauseType() {
+	PQLToken clauseTypeToken = this->tokens.front();
+	assert(clauseTypeToken.isModifies());
+	this->tokens.pop_front();
+	return clauseTypeToken;
 }
 
 void ModifiesParser::checkArguments(list<ClauseArgument>& args) {
