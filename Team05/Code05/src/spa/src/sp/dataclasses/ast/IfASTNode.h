@@ -8,7 +8,7 @@ public:
 		this->type = ASTNodeType::IF;
 	}
 
-	bool isTerminal() {
+	bool isTerminal() override {
 		return false;
 	}
 

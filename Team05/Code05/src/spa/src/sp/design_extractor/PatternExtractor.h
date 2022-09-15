@@ -28,7 +28,7 @@ public:
 	vector<Pattern> handleAssign(shared_ptr<ASTNode> ast);
 	vector<Pattern> handleWhile(shared_ptr<ASTNode> ast);
 	vector<Pattern> handleContainer(shared_ptr<ASTNode> ast);
-	string PatternExtractor::handleCondition(shared_ptr<ASTNode> ast);
+	string handleCondition(shared_ptr<ASTNode> ast);
 
 
 	string recursiveExtractExpression(shared_ptr<ASTNode> ast);

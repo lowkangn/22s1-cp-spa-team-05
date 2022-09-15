@@ -10,7 +10,7 @@ public:
 		this->type = ASTNodeType::PRINT;
 	};
 
-	bool isTerminal() {
+	bool isTerminal() override {
 		return false;
 	}
 
