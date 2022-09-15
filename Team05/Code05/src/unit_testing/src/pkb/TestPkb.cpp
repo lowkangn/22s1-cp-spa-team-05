@@ -9,6 +9,8 @@
 #include <pkb/design_objects/relationships/PkbParentRelationship.h>
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
+#include<pkb/table_managers/PkbPatternTable.h>
+#include<pkb/table_managers/PkbPatternTable.cpp>
 #include <pkb/PkbException.h>
 #include <pkb/PKB.h>
 #include <pkb/PKB.cpp>

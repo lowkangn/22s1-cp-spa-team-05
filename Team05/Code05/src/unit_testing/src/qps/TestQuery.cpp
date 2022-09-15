@@ -2,6 +2,7 @@
 #include <qps/query/Query.h>
 #include <qps/query/Query.cpp>
 #include <qps/query/clause/SelectClause.h>
+#include <qps/query/clause/SelectClause.cpp>
 #include <qps/query/clause/ModifiesSClause.h>
 #include <qps/query/clause/ModifiesPClause.h>
 
