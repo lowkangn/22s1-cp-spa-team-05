@@ -98,12 +98,24 @@ public:
 		return this->type == ASTNodeType::STMTLIST;
 	}
 
-	bool hasContainer() {
-		return this->isProgramNode() ||
-			   this->isProcedureNode() ||
-			   this-isStmtLstNode();
+	bool isWhileNode() {
+		return this->type == ASTNodeType::WHILE;
 	}
 
+	bool isIfNode() {
+		return this->type == ASTNodeType::IF;
+	}
 
-
+	bool hasContainer() {
+		return this->isProgramNode() ||
+			this->isProcedureNode() ||
+			this->isWhileNode() ||
+			this->isIfNode() ||
+			this->isStmtLstNode();
+	}
+		
+	bool hasCondition() {
+		return this->isWhileNode() ||
+				this->isIfNode();
+	}
 };

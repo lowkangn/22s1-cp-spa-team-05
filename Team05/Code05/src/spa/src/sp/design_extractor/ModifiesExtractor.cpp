@@ -58,11 +58,35 @@ vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
 	// If it is a container type we need to recursively extract children
 	if (ast->hasContainer()) {
 		vector<shared_ptr<ASTNode>> children = ast->getChildren();
-		for (int i = 0; i < children.size(); i++) {
-			shared_ptr<ASTNode> child = children[i];
-			vector<Relationship> extractedRelationships = this->extract(child);
-			modifies.insert(modifies.end(), extractedRelationships.begin(), extractedRelationships.end());
+		if (!ast->hasCondition()) {
+			for (int i = 0; i < children.size(); i++) {
+				shared_ptr<ASTNode> child = children[i];
+				vector<Relationship> extractedRelationships = this->extract(child);
+				modifies.insert(modifies.end(), extractedRelationships.begin(), extractedRelationships.end());
+			}
 		}
+		else {
+			if (ast->isIfNode()) {
+				shared_ptr<IfASTNode> ifASTNode = dynamic_pointer_cast<IfASTNode>(ast);
+				shared_ptr<ASTNode> thenChild = ifASTNode->getThenStatements();
+				shared_ptr<ASTNode> elseChild = ifASTNode->getElseStatements();
+
+				vector<Relationship> extractedThenRelationships = this->extract(thenChild);
+				modifies.insert(modifies.end(), extractedThenRelationships.begin(), extractedThenRelationships.end());
+
+				vector<Relationship> extractedElseRelationships = this->extract(elseChild);
+				modifies.insert(modifies.end(), extractedElseRelationships.begin(), extractedElseRelationships.end());
+			}
+			// Must be While
+			else {
+				shared_ptr<WhileASTNode> whileASTNode = dynamic_pointer_cast<WhileASTNode>(ast);
+				shared_ptr<ASTNode> childChildStmt = whileASTNode->getStmtList();
+
+				vector<Relationship> extractedRelationships = this->extract(childChildStmt);
+				modifies.insert(modifies.end(), extractedRelationships.begin(), extractedRelationships.end());
+			}
+		}
+
 	}
 
 	return modifies;
