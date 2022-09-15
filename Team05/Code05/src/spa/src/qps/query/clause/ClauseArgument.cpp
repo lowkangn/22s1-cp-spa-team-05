@@ -1,4 +1,4 @@
-#include "ClauseArgument.h"
+#include <qps/query/clause/ClauseArgument.h>
 
 
 bool operator== (ClauseArgument first, ClauseArgument second) {

@@ -1,7 +1,4 @@
-#include "ModifiesPClause.h"
-#include "PQLRelationship.h"
-#include "RelationshipClauseResult.h"
-#include "../../../pkb/interfaces/PKBQueryHandler.h"
+#include <qps/query/clause/ModifiesPClause.h>
 
 shared_ptr<RelationshipClauseResult> ModifiesPClause::execute(shared_ptr<PKB> pkb) {
 	vector<PQLRelationship> relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(

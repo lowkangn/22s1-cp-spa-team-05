@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "PQLEntity.h"
+#include <qps/query/clause/PQLEntity.h>
 
 using namespace std;
 

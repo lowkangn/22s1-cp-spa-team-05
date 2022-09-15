@@ -1,4 +1,4 @@
-#include "Query.h"
+#include <qps/query/Query.h>
 
 shared_ptr<EntityClauseResult> Query::executeSelect(shared_ptr<PKB> pkb) {
     return selectClause->execute(pkb);

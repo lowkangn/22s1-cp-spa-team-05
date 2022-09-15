@@ -2,8 +2,8 @@
 
 #include <list>
 
-#include "qps/query/clause/SelectClause.h"
-#include "qps/query/clause/RelationshipClause.h"
+#include <qps/query/clause/SelectClause.h>
+#include <qps/query/clause/RelationshipClause.h>
 #include <pkb/PKB.h>
 
 using namespace std;

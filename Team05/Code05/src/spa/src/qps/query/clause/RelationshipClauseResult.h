@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "PQLRelationship.h"
-#include "ClauseArgument.h"
+#include <qps/query/clause/PQLRelationship.h>
+#include <qps/query/clause/ClauseArgument.h>
 
 class RelationshipClauseResult {
 

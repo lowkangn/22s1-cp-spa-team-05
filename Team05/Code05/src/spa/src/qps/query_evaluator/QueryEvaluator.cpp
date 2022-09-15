@@ -1,5 +1,5 @@
 #include <set>
-#include "QueryEvaluator.h"
+#include <qps/query_evaluator/QueryEvaluator.h>
 
 set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKB> pkb) {
 	shared_ptr<EntityClauseResult> entitiesResultPointer = query.executeSelect(pkb);
@@ -12,7 +12,7 @@ set<string> QueryEvaluator::combine(shared_ptr<EntityClauseResult> entitiesResul
 
     EntityClauseResult entitiesResult = *entitiesResultPointer;
     list<RelationshipClauseResult> relationshipsResults =
-			dereferenceRelationshipsResultPointers(relationshipsResultPointers);
+			this->dereferenceRelationshipsResultPointers(relationshipsResultPointers);
 
     // If result from SelectClause returns no entries, return empty set
     if (entitiesResult.isEmpty()) {
@@ -31,7 +31,7 @@ set<string> QueryEvaluator::combine(shared_ptr<EntityClauseResult> entitiesResul
     list<RelationshipClauseResult>::iterator relationshipsResultIter = relationshipsResults.begin();
     for (; relationshipsResultIter != relationshipsResults.end(); relationshipsResultIter++) {
         // Check if either of its ClauseArguments match the EntityClauseResult's ClauseArgument
-        RelationshipArgument argumentFound = findDesiredArgument(entitiesResult.getArg(),
+        RelationshipArgument argumentFound = this->findDesiredArgument(entitiesResult.getArg(),
                                                                  *relationshipsResultIter);
 
         // If neither ClauseArgument matches, skip this RelationshipClauseResult
@@ -39,14 +39,14 @@ set<string> QueryEvaluator::combine(shared_ptr<EntityClauseResult> entitiesResul
             continue;
         } else {
             // Extract entities corresponding to the matching ClauseArgument from the RelationshipClauseResult
-            set<PQLEntity> entitiesToIntersect = extractEntitySet(
+            set<PQLEntity> entitiesToIntersect = this->extractEntitySet(
 					argumentFound, relationshipsResultIter->getRelationships());
 
             // Intersect sets into entitiesToReturn
             if (relationshipsResultIter == relationshipsResults.begin()) {
                 entitiesToReturn = entitiesToIntersect;
             } else {
-               entitiesToReturn = intersectSets(entitiesToReturn, entitiesToIntersect);
+               entitiesToReturn = this->intersectSets(entitiesToReturn, entitiesToIntersect);
 
                // If intersection returns empty set, no entities meet all constraints so return empty set
                if (entitiesToReturn.empty()) {

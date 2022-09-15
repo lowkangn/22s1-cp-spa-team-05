@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include "ClauseArgument.h"
-#include "RelationshipClauseResult.h"
+#include <qps/query/clause/ClauseArgument.h>
+#include <qps/query/clause/RelationshipClauseResult.h>
 #include <pkb/PKB.h>
 
 using namespace std;
