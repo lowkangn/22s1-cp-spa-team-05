@@ -654,6 +654,22 @@ TEST_CASE("QueryEvaluator: test combinedTableJoin") {
 	PQLEntity assignEntity = PQLEntity::generateStatement(7);
 	PQLEntity readEntity = PQLEntity::generateStatement(8);
 
+	SECTION("Empty table, no tables to merge") {
+		shared_ptr<vector<vector<PQLEntity>>> combinedTable = make_shared<vector<vector<PQLEntity>>>();
+		shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable = make_shared<vector<ClauseArgument>>();
+
+		vector<vector<PQLEntity>> expectedCombinedTable = {};
+
+		vector<ClauseArgument> expectedArguments = {};
+
+		testCombinedTableJoin(combinedTable,
+							  argumentsInCombinedTable,
+							  {},
+							  expectedCombinedTable,
+							  expectedArguments,
+							  true);
+	}
+
 	SECTION("All tables joined") {
 		// Create RelationshipClauseResult and set up base combinedTable
 		PQLRelationship firstResultFirstRelationship = PQLRelationship(firstStmtEntity, firstVarEntity);
@@ -717,8 +733,8 @@ TEST_CASE("QueryEvaluator: test combinedTableJoin") {
 		RelationshipClauseResult secondRelationshipsResult = RelationshipClauseResult(
 				stmtArg, constArg, {secondResultFirstRelationship});
 
-		vector<vector<PQLEntity>> expectedCombinedTable = {};
-		vector<ClauseArgument> expectedArguments = {stmtArg, varArg, constArg};
+		vector<vector<PQLEntity>> expectedCombinedTable = *combinedTable;
+		vector<ClauseArgument> expectedArguments = *argumentsInCombinedTable;
 
 		testCombinedTableJoin(combinedTable,
 							  argumentsInCombinedTable,
@@ -869,19 +885,125 @@ TEST_CASE("QueryEvaluator: test combinedTableJoin") {
 	}
 }
 
-TEST_CASE("QueryEvaluator: test filterEntities") {}
+TEST_CASE("QueryEvaluator: test filterEntities") {
+	auto testFilterEntities = [](EntityClauseResult entitiesResult,
+			list<RelationshipClauseResult> relationshipsResults, vector<PQLEntity> expected) {
+		// given
+		QueryEvaluator evaluator = QueryEvaluator();
+
+		// when
+		vector<PQLEntity> actual = evaluator.filterEntities(entitiesResult, relationshipsResults);
+
+		// then
+		REQUIRE(actual == expected);
+	};
+
+	ClauseArgument stmtArg = ClauseArgument("s", ArgumentType::STMT);
+	ClauseArgument varArg = ClauseArgument("v", ArgumentType::VARIABLE);
+	ClauseArgument procArg = ClauseArgument("p", ArgumentType::PROCEDURE);
+	ClauseArgument constArg = ClauseArgument("c", ArgumentType::CONSTANT);
+	ClauseArgument readArg = ClauseArgument("r", ArgumentType::READ);
+
+	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
+	PQLEntity secondStmtEntity = PQLEntity::generateStatement(2);
+	PQLEntity thirdStmtEntity = PQLEntity::generateStatement(3);
+	PQLEntity fourthStmtEntity = PQLEntity::generateStatement(4);
+
+	PQLEntity firstVarEntity = PQLEntity::generateVariable("x");
+	PQLEntity secondVarEntity = PQLEntity::generateVariable("y");
+	PQLEntity thirdVarEntity = PQLEntity::generateVariable("z");
+
+	PQLEntity firstProcEntity = PQLEntity::generateProcedure("testing");
+	PQLEntity secondProcEntity = PQLEntity::generateProcedure("so");
+	PQLEntity thirdProcEntity = PQLEntity::generateProcedure("cumbersome");
+
+	PQLEntity firstConstEntity = PQLEntity::generateConstant(4);
+	PQLEntity secondConstEntity = PQLEntity::generateConstant(5);
+	PQLEntity thirdConstEntity = PQLEntity::generateConstant(6);
+
+	PQLEntity assignEntity = PQLEntity::generateStatement(7);
+	PQLEntity readEntity = PQLEntity::generateStatement(8);
+
+	vector<PQLEntity> stmtEntities = {firstStmtEntity, secondStmtEntity, thirdStmtEntity};
+	vector<PQLEntity> varEntities = {firstVarEntity, secondVarEntity, thirdVarEntity};
+
+	EntityClauseResult stmtEntityClauseResult = EntityClauseResult(stmtArg, stmtEntities);
+	EntityClauseResult varEntityClauseResult = EntityClauseResult(varArg, varEntities);
+
+	SECTION("Empty list") {
+		testFilterEntities(stmtEntityClauseResult, {}, stmtEntities);
+		testFilterEntities(varEntityClauseResult, {}, varEntities);
+	}
+
+	SECTION("One RelationshipClauseResult with match") {
+		PQLRelationship firstRelationship = PQLRelationship(firstStmtEntity, firstVarEntity);
+		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
+				stmtArg, varArg, {firstRelationship});
+
+		vector<PQLEntity> expectedEntities = {firstStmtEntity};
+		testFilterEntities(stmtEntityClauseResult, {firstRelationshipsResult}, expectedEntities);
+
+		expectedEntities = {firstVarEntity};
+		testFilterEntities(varEntityClauseResult, {firstRelationshipsResult}, expectedEntities);
+	}
+
+	SECTION("One RelationshipClauseResult with no match") {
+		PQLRelationship firstRelationship = PQLRelationship(firstProcEntity, firstConstEntity);
+		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
+				procArg, constArg, {firstRelationship});
+
+		vector<PQLEntity> expectedEntities = stmtEntities;
+		testFilterEntities(stmtEntityClauseResult, {firstRelationshipsResult}, expectedEntities);
+	}
+
+	SECTION("Multiple RelationshipClauseResults with match") {
+		PQLRelationship firstRelationship = PQLRelationship(firstProcEntity, firstConstEntity);
+		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
+				procArg, constArg, {firstRelationship});
+
+		PQLRelationship secondRelationship = PQLRelationship(firstStmtEntity, firstProcEntity);
+		PQLRelationship thirdRelationship = PQLRelationship(secondStmtEntity, firstProcEntity);
+		RelationshipClauseResult secondRelationshipsResult = RelationshipClauseResult(
+				stmtArg, procArg, {secondRelationship, thirdRelationship});
+
+		PQLRelationship fourthRelationship = PQLRelationship(firstStmtEntity, firstProcEntity);
+		RelationshipClauseResult thirdRelationshipsResult = RelationshipClauseResult(
+				stmtArg, procArg, {fourthRelationship});
+
+		vector<PQLEntity> expectedEntities = {firstStmtEntity};
+		testFilterEntities(stmtEntityClauseResult,
+						   {firstRelationshipsResult, secondRelationshipsResult, thirdRelationshipsResult},
+						   expectedEntities);
+	}
+
+	SECTION("Multiple RelationshipClauseResults with no match") {
+		PQLRelationship firstRelationship = PQLRelationship(firstProcEntity, firstConstEntity);
+		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
+				procArg, constArg, {firstRelationship});
+
+		PQLRelationship secondRelationship = PQLRelationship(readEntity, firstProcEntity);
+		PQLRelationship thirdRelationship = PQLRelationship(readEntity, secondProcEntity);
+		RelationshipClauseResult secondRelationshipsResult = RelationshipClauseResult(
+				readArg, procArg, {secondRelationship, thirdRelationship});
+
+		vector<PQLEntity> expectedEntities = stmtEntities;
+		testFilterEntities(stmtEntityClauseResult,
+						   {firstRelationshipsResult, secondRelationshipsResult},
+						   expectedEntities);
+	}
+}
 
 TEST_CASE("QueryEvaluator: test combine") {
 	auto testCombine = [](shared_ptr<EntityClauseResult> entitiesResultPointer,
 		list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers, set<string> expected) {
-    // given
-    QueryEvaluator evaluator = QueryEvaluator();
+		// given
+		QueryEvaluator evaluator = QueryEvaluator();
 
-    // when
-    set<string> actual = evaluator.combine(entitiesResultPointer, relationshipsResultPointers);
+		// when
+		set<string> actual = evaluator.combine(entitiesResultPointer, relationshipsResultPointers);
 
-    // then
-    REQUIRE(actual == expected);
+		// then
+		REQUIRE(actual == expected);
     };
 
 

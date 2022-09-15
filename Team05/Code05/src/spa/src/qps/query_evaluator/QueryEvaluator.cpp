@@ -51,6 +51,8 @@ vector<PQLEntity> QueryEvaluator::filterEntities(EntityClauseResult entitiesResu
 	shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable =
 			shared_ptr<vector<ClauseArgument>>(new vector<ClauseArgument>());
 
+	bool matchingClauseFound = false;
+
 	// Find constraint clause with a clause argument matching select, initialise currentTable
 	for (RelationshipClauseResult relationshipsResult : relationshipsResults) {
 		if (entitiesResult.getArg() == relationshipsResult.getFirstArg() || entitiesResult.getArg() == relationshipsResult.getSecondArg()) {
@@ -66,6 +68,7 @@ vector<PQLEntity> QueryEvaluator::filterEntities(EntityClauseResult entitiesResu
 			// Remove since it has been added to the combined table
 			relationshipsResults.remove(relationshipsResult);
 
+			matchingClauseFound = true;
 			break;
 		}
 	}
@@ -79,7 +82,7 @@ vector<PQLEntity> QueryEvaluator::filterEntities(EntityClauseResult entitiesResu
 	}
 
 	// If combinedTable is still empty, means no clause has matching arguments but joining all clauses evaluates to true: return select entity list
-	if (combinedTable->empty()) {
+	if (!matchingClauseFound) {
 		return entitiesResult.getEntities();
 	}
 
@@ -139,6 +142,10 @@ bool QueryEvaluator::combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> com
 
 				newCombinedTable = this->pairKeyTableJoin(combinedTableKeyValuePairs, tableToMergeKeyValuePairs);
 
+				// If at any point a join returns no entries, the whole query has no solutions, so return false
+				if (newCombinedTable.empty()) {
+					return false;
+				}
 			}
 
 				// First clause argument already in table, table join on this common clause argument
@@ -150,6 +157,11 @@ bool QueryEvaluator::combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> com
 						*resultIter, KeyColumn::FIRST_COLUMN_KEY);
 
 				newCombinedTable = this->singleKeyTableJoin(combinedTableKeyValuePairs, tableToMergeKeyValuePairs);
+
+				// If at any point a join returns no entries, the whole query has no solutions, so return false
+				if (newCombinedTable.empty()) {
+					return false;
+				}
 
 				argumentsInCombinedTable->push_back(resultIter->getSecondArg());
 			}
@@ -164,17 +176,16 @@ bool QueryEvaluator::combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> com
 
 				newCombinedTable = this->singleKeyTableJoin(combinedTableKeyValuePairs, tableToMergeKeyValuePairs);
 
+				// If at any point a join returns no entries, the whole query has no solutions, so return false
+				if (newCombinedTable.empty()) {
+					return false;
+				}
+
 				argumentsInCombinedTable->push_back(resultIter->getFirstArg());
 			}
 
 			// Set new table
 			*combinedTable = newCombinedTable;
-
-			// If at any point a join returns no entries, the whole query has no solutions, so return false
-			if (combinedTable->empty()) {
-				return false;
-			}
-
 		}
 
 		// If with one iteration of the for loop, the remaining results have not been joined with combinedTable, treat them as boolean
