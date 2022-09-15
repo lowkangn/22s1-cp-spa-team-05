@@ -113,9 +113,4 @@ public:
 			this->isIfNode() ||
 			this->isStmtLstNode();
 	}
-		
-	bool hasCondition() {
-		return this->isWhileNode() ||
-				this->isIfNode();
-	}
 };
