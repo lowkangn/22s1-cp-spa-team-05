@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <unordered_set>
 
 #include "../query/clause/EntityClauseResult.h"
 #include "../query/clause/RelationshipClauseResult.h"
@@ -11,13 +12,13 @@
 
 using namespace std;
 
-enum class RelationshipArgument {
-    ARG1,
-    ARG2,
-    NONE
+enum class KeyColumn {
+	FIRST_COLUMN_KEY,
+	SECOND_COLUMN_KEY
 };
 
 class QueryEvaluator {
+
 public:
     QueryEvaluator() {};
 
@@ -28,14 +29,29 @@ public:
     set<string> combine(shared_ptr<EntityClauseResult> entitiesResultPointer,
 						list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers);
 
-	RelationshipArgument findDesiredArgument(ClauseArgument desiredArg,
-											 RelationshipClauseResult relationshipResultToCheck);
-
 	list<RelationshipClauseResult> dereferenceRelationshipsResultPointers(
 			list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers);
 
-	set<PQLEntity> extractEntitySet(RelationshipArgument argToExtract, vector<PQLRelationship> relationships);
+	vector<PQLEntity> filterEntities(EntityClauseResult entitiesResult,
+									 list<RelationshipClauseResult> relationshipsResults);
 
-	set<PQLEntity> intersectSets(set<PQLEntity> firstSet, set<PQLEntity> secondSet);
+	vector<vector<PQLEntity>> getKeyOnlyTable(RelationshipClauseResult relationshipsResult);
+
+	vector<vector<PQLEntity>> getKeyValueTable(RelationshipClauseResult relationshipsResult, KeyColumn keyColumn);
+
+	int findArgumentIndex(vector<ClauseArgument> argumentsInTable, ClauseArgument argToFind);
+
+	vector<pair<PQLEntity, vector<PQLEntity>>> convertToKeyValuePairs(vector<vector<PQLEntity>> table, int key);
+
+	vector<pair<vector<PQLEntity>, vector<PQLEntity>>> convertToKeyValuePairs(vector<vector<PQLEntity>> table,
+																			  int firstKey, int secondKey);
+
+	vector<vector<PQLEntity>> pairKeyTableJoin(
+			vector<pair<vector<PQLEntity>, vector<PQLEntity>>> currentTableKeyValuePairs,
+			vector<vector<PQLEntity>> tableToMerge);
+
+	vector<vector<PQLEntity>> singleKeyTableJoin(
+			vector<pair<PQLEntity, vector<PQLEntity>>> currentTableKeyValuePairs,
+			vector<vector<PQLEntity>> tableToMerge);
 
 };

@@ -113,6 +113,6 @@ public:
 		return this->identifier;
 	}
 
-	
+
 	friend bool operator== (ClauseArgument first, ClauseArgument second);
 };
