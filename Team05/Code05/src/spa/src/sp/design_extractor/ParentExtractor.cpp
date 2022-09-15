@@ -1,8 +1,7 @@
 #pragma once
 #include <vector>
-#include <sp/dataclasses/design_objects/Relationship.h>
+
 #include <sp/design_extractor/ParentExtractor.h>
-#include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/IfASTNode.h>
 #include <sp/dataclasses/ast/WhileASTNode.h>
 

@@ -4,6 +4,8 @@
 #include <sp/design_extractor/Extractor.h>
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <sp/dataclasses/ast/AST.h>
+#include <sp/dataclasses/ast/IfASTNode.h>
+#include <sp/dataclasses/ast/WhileASTNode.h>
 using namespace std;
 
 class ParentExtractor : Extractor<Relationship> {
