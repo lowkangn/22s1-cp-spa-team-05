@@ -205,15 +205,18 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 	{
 		// Cast to WhileASTNode
 		shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
-		shared_ptr<ASTNode> children = whileNode->getStmtList();
+		shared_ptr<ASTNode> childrenStmtLst = whileNode->getStmtList();
 
 		// Create relationship for parent of this container and the stmtlst inside this while node
-		vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, children);
+		for (shared_ptr<ASTNode> child : childrenStmtLst->getChildren()) {
+			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
+			modifiesRelationships.insert(modifiesRelationships.end(), toAdd.begin(), toAdd.end());
+		}
 
 		// Handle the while relationship by itself
 		vector<Relationship> recursiveWhile = handleWhile(ast);
 
-		modifiesRelationships.insert(modifiesRelationships.end(), toAdd.begin(), toAdd.end());
+		modifiesRelationships.insert(modifiesRelationships.end(), recursiveWhile.begin(), recursiveWhile.end());
 		break;
 	}
 	case ASTNodeType::IF:
@@ -223,21 +226,25 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		shared_ptr<ASTNode> thenChildren = ifNode->getThenStatements();
 		shared_ptr<ASTNode> elseChildren = ifNode->getElseStatements();
 
+
 		// Create relationship for parent of this container and the then and else stmtlst inside this if node
-		vector<Relationship> toAddThen = recursiveContainerExtract(leftHandSide, thenChildren);
-		vector<Relationship> toAddElse = recursiveContainerExtract(leftHandSide, elseChildren);
+		for (shared_ptr<ASTNode> child : thenChildren->getChildren()) {
+			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
+			modifiesRelationships.insert(modifiesRelationships.end(), toAdd.begin(), toAdd.end());
+		}
 
-		// Handle the if relationship by itself
+		// Create relationship for parent of this container and the stmtlst inside this while node
+		for (shared_ptr<ASTNode> child : elseChildren->getChildren()) {
+			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
+			modifiesRelationships.insert(modifiesRelationships.end(), toAdd.begin(), toAdd.end());
+		}
 		vector<Relationship> recursiveIfRelations = handleIf(ast);
-
-		modifiesRelationships.insert(modifiesRelationships.end(), toAddThen.begin(), toAddThen.end());
-		modifiesRelationships.insert(modifiesRelationships.end(), toAddElse.begin(), toAddElse.end());
 		modifiesRelationships.insert(modifiesRelationships.end(), recursiveIfRelations.begin(), recursiveIfRelations.end());
 		break;
-	}
+	} 
 	default:
 	{
-		throw ASTException("Unrecognized ASTNode in container");
+		// No entities to be extracted
 	}
 	}
 	return modifiesRelationships;
