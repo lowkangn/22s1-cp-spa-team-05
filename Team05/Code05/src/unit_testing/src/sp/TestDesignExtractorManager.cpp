@@ -199,7 +199,7 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 
 
 
-	vector<Relationship> expectedRelation = vector<Relationship>{ procedureModifiesy,readModifiesY, procedureModifiesx, assignModifiesX };
+	vector<Relationship> expectedRelation = vector<Relationship>{ procedureModifiesy, procedureModifiesx, readModifiesY, assignModifiesX };
 
 	test(nodeToExtractFrom, expectedRelation);
 }

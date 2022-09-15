@@ -18,6 +18,7 @@ vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifies = vector<Relationship>();
 	ASTNodeType type = ast->getType();
 
+	// Stmt types
 	switch (type) {
 	case ASTNodeType::ASSIGN:
 	{
@@ -52,18 +53,18 @@ vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
 	// TODO (Not in milestone 1)
 	case ASTNodeType::CALL:
 		break;
-	case ASTNodeType::PROGRAM: {
+	}
+
+	// If it is a container type we need to recursively extract children
+	if (ast->hasContainer()) {
 		vector<shared_ptr<ASTNode>> children = ast->getChildren();
 		for (int i = 0; i < children.size(); i++) {
 			shared_ptr<ASTNode> child = children[i];
 			vector<Relationship> extractedRelationships = this->extract(child);
 			modifies.insert(modifies.end(), extractedRelationships.begin(), extractedRelationships.end());
 		}
-		break;
 	}
-	default:
-		throw ASTException("Unrecognized ASTNode type");
-	}
+
 	return modifies;
 }
 
@@ -105,7 +106,7 @@ vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast)
 	shared_ptr<ProcedureASTNode> procedureNode = dynamic_pointer_cast<ProcedureASTNode>(ast);
 	shared_ptr<ASTNode> childContainer = procedureNode->getStmtLst();
 
-	// Iterate through children and extract relationships
+	// Iterate through children and extract Procedure Stmt relationships
 	for (shared_ptr<ASTNode> child : childContainer->getChildren()) {
 		vector <Relationship> extractedRelationships = recursiveContainerExtract(leftHandSide, child);
 		extractedChildRelationships.insert(extractedChildRelationships.end(), extractedRelationships.begin(), extractedRelationships.end());
@@ -123,7 +124,7 @@ vector<Relationship> ModifiesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 
 	Entity leftHandSide = whileNode->extractEntity();
 
-	// Extract relationship from the child stmtlst
+	// Iterate through children and extract While Stmt relationships
 	for (shared_ptr<ASTNode> child : childStmtLst->getChildren()) {
 		vector <Relationship> extractedRelationships = recursiveContainerExtract(leftHandSide, child);
 		extractedChildRelationships.insert(extractedChildRelationships.end(), extractedRelationships.begin(), extractedRelationships.end());
@@ -143,7 +144,7 @@ vector<Relationship> ModifiesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 
 	Entity leftHandSide = ifASTNode->extractEntity();
 
-	// Recursively extract relations from Then and else containers
+	// Iterate through children and extract If Stmt relationships
 	for (shared_ptr<ASTNode> child : thenChild->getChildren()) {
 		vector <Relationship> extractedThenRelationships = recursiveContainerExtract(leftHandSide, child);
 		extractedChildRelationships.insert(extractedChildRelationships.end(), extractedThenRelationships.begin(), extractedThenRelationships.end());
@@ -173,15 +174,11 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
 		shared_ptr<ASTNode> leftChild = assignNode->getLeftHandSide();
 
-		// Get assign relationship
-		vector<Relationship> assignRelationship = handleAssign(ast);
-
 		// Create relationship for parent of this container
 		Entity childEntity = leftChild->extractEntity();
 		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
 
 		modifiesRelationships.push_back(toAdd);
-		modifiesRelationships.insert(modifiesRelationships.end(), assignRelationship.begin(), assignRelationship.end());
 		break;
 	}
 	case ASTNodeType::READ:
@@ -190,15 +187,11 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		shared_ptr<ReadASTNode> readNode = dynamic_pointer_cast<ReadASTNode>(ast);
 		shared_ptr<ASTNode> child = readNode->getVariableToRead();
 		
-		// Get read relationship
-		vector<Relationship> readRelationship = handleRead(ast);
-		
 		// Create relationship for parent of this container
 		Entity childEntity = child->extractEntity();
 		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::MODIFIES };
 
 		modifiesRelationships.push_back(toAdd);
-		modifiesRelationships.insert(modifiesRelationships.end(), readRelationship.begin(), readRelationship.end());
 		break;
 	}
 	case ASTNodeType::WHILE:
@@ -212,11 +205,6 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
 			modifiesRelationships.insert(modifiesRelationships.end(), toAdd.begin(), toAdd.end());
 		}
-
-		// Handle the while relationship by itself
-		vector<Relationship> recursiveWhile = handleWhile(ast);
-
-		modifiesRelationships.insert(modifiesRelationships.end(), recursiveWhile.begin(), recursiveWhile.end());
 		break;
 	}
 	case ASTNodeType::IF:
@@ -237,8 +225,6 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
 			modifiesRelationships.insert(modifiesRelationships.end(), toAdd.begin(), toAdd.end());
 		}
-		vector<Relationship> recursiveIfRelations = handleIf(ast);
-		modifiesRelationships.insert(modifiesRelationships.end(), recursiveIfRelations.begin(), recursiveIfRelations.end());
 		break;
 	} 
 	}
