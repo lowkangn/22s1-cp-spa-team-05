@@ -34,12 +34,12 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 		}
 	};
 	
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	Token zToken = Token{ "z", TokenType::NAME_OR_KEYWORD };
-	Token addToken = Token{ PLUS_OPERATOR, TokenType::OPERATOR };
-	Token constToken = Token{ "1", TokenType::INTEGER };
-	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token zToken = Token::createNameOrKeywordToken("z");
+	Token addToken = Token::createPlusToken();
+	Token constToken = Token::createIntegerToken("1");
+	Token assignToken = Token::createEqualsToken();
 
 	Entity assignEntity = Entity::createAssignEntity(1);
 	Entity xEntity = Entity::createVariableEntity(1, xToken);
@@ -71,7 +71,7 @@ TEST_CASE("UsesExtractor: test handleAssign") {
 
 		handleAssign(assignNode, expectedResult);
 	}
-	
+
 	SECTION("More than one variable on rhs") {
 
 		// x = x + y + z
@@ -144,8 +144,8 @@ TEST_CASE("UsesExtractor: test handlePrint") {
 		}
 	};
 
-	Token printToken = { PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token printToken = Token::createPrintToken();
+	Token xToken = Token::createNameOrKeywordToken("x");
 
 	Entity printEntity = Entity::createPrintEntity(1);
 	Entity xEntity = Entity::createVariableEntity(1, xToken);
@@ -162,7 +162,7 @@ TEST_CASE("UsesExtractor: test handlePrint") {
 	Relationship usesX = Relationship::createUsesRelationship(printEntity, xEntity);
 
 	vector<Relationship> expectedResult = vector<Relationship>{ usesX };
-	
+
 	handlePrint(printNode, expectedResult);
 }
 
@@ -184,7 +184,7 @@ TEST_CASE("UsesExtractor: test handleProcedure") {
 		}
 	};
 
-	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token leftToken = Token::createNameOrKeywordToken("x");
 	Entity LHS = Entity::createVariableEntity(1, leftToken);
 
 	/*
@@ -194,14 +194,14 @@ TEST_CASE("UsesExtractor: test handleProcedure") {
 		}
 	*/
 	// Creating tokens
-	Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	Token zToken = Token{ "z", TokenType::NAME_OR_KEYWORD };
-	Token printToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
-	Token stmtLst = Token{ "", TokenType::INVALID };
-	Token addToken = Token{ PLUS_OPERATOR, TokenType::OPERATOR };
+	Token mainToken = Token::createNameOrKeywordToken("");
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token zToken = Token::createNameOrKeywordToken("z");
+	Token printToken = Token::createPrintToken();
+	Token assignToken = Token::createEqualsToken();
+	Token stmtLst = Token::createPlaceholderToken();
+	Token addToken = Token::createPlusToken();
 
 	// Creating nodes
 	shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
@@ -210,7 +210,7 @@ TEST_CASE("UsesExtractor: test handleProcedure") {
 
 	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 
-	shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(stmtLst));
+	shared_ptr<ASTNode> stmtLstNode(new StatementListASTNode(stmtLst));
 
 	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
 	shared_ptr<ASTNode> y(new VariableASTNode(yToken));
@@ -268,24 +268,24 @@ TEST_CASE("UsesExtractor: test handleWhile") {
 		}
 	*/
 	// Creating tokens
-	Token whileToken = Token{ WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	Token zToken = Token{ "z", TokenType::NAME_OR_KEYWORD };
-	Token printToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
-	Token stmtLst = Token{ "", TokenType::INVALID };
-	Token constToken = Token{ "1", TokenType::INTEGER };
-	Token addToken = Token{ PLUS_OPERATOR, TokenType::OPERATOR };
-	Token notEqualToken = Token{ NOT_EQUAL_OPERATOR, TokenType::OPERATOR };
+	Token whileToken = Token::createWhileToken();
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token zToken = Token::createNameOrKeywordToken("z");
+	Token printToken = Token::createPrintToken();
+	Token assignToken = Token::createEqualsToken();
+	Token stmtLst = Token::createPlaceholderToken();
+	Token constToken = Token::createIntegerToken("1");
+	Token addToken = Token::createPlusToken();
+	Token notEqualToken = Token::createNotEqualsToken();
 
 	// Creating nodes
 	shared_ptr<ASTNode> whileNode(new WhileASTNode(whileToken));
 	shared_ptr<ASTNode> conditionNode(new ExpressionASTNode(notEqualToken));
-	shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(stmtLst));
+	shared_ptr<ASTNode> stmtLstNode(new StatementListASTNode(stmtLst));
 
 	shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
-	
+
 	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 	shared_ptr<ASTNode> addNode(new ExpressionASTNode(notEqualToken));
 	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
@@ -293,7 +293,7 @@ TEST_CASE("UsesExtractor: test handleWhile") {
 	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
 	shared_ptr<ASTNode> y(new VariableASTNode(yToken));
 	shared_ptr<ASTNode> z(new VariableASTNode(zToken));
-	
+
 	x->setLineNumber(1);
 	y->setLineNumber(1);
 	z->setLineNumber(2);
@@ -303,7 +303,7 @@ TEST_CASE("UsesExtractor: test handleWhile") {
 	assignNode->setLineNumber(3);
 	addNode->setLineNumber(3);
 	constNode->setLineNumber(3);
-	
+
 	conditionNode->addChild(x);
 	conditionNode->addChild(y);
 
@@ -361,13 +361,13 @@ TEST_CASE("UsesExtractor: test handleIf") {
 		}
 	*/
 	// Creating tokens
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	Token constToken = Token{ "0", TokenType::INTEGER };
-	Token ifToken = Token{ IF_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token equalityToken = Token{ EQUALITY_OPERATOR, TokenType::OPERATOR };
-	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
-	Token stmtLst = Token{ "", TokenType::INVALID };
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token constToken = Token::createIntegerToken("0");
+	Token ifToken = Token::createIfToken();
+	Token equalityToken = Token::createEqualityToken();
+	Token assignToken = Token::createEqualsToken();
+	Token stmtLst = Token::createPlaceholderToken();
 
 	// Creating nodes
 	shared_ptr<ASTNode> ifNode(new IfASTNode(ifToken));
@@ -379,8 +379,8 @@ TEST_CASE("UsesExtractor: test handleIf") {
 	shared_ptr<ASTNode> assignXNode(new AssignASTNode(assignToken));
 	shared_ptr<ASTNode> assignYNode(new AssignASTNode(assignToken));
 
-	shared_ptr<ASTNode> thenStmtLstNode(new StatementListASTnode(stmtLst));
-	shared_ptr<ASTNode> elseStmtLstNode(new StatementListASTnode(stmtLst));
+	shared_ptr<ASTNode> thenStmtLstNode(new StatementListASTNode(stmtLst));
+	shared_ptr<ASTNode> elseStmtLstNode(new StatementListASTNode(stmtLst));
 
 	shared_ptr<ASTNode> xThen(new VariableASTNode(xToken));
 	shared_ptr<ASTNode> yThen(new VariableASTNode(yToken));
@@ -464,28 +464,28 @@ TEST_CASE("UsesExtractor: test extract") {
 		}
 	*/
 	// Creating tokens
-	Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
-	Token notEqualToken = Token{ NOT_EQUAL_OPERATOR, TokenType::OPERATOR };
-	Token greaterToken = Token{ GREATER_OPERATOR, TokenType::OPERATOR };
-	Token minusToken = Token{ MINUS_OPERATOR, TokenType::OPERATOR };
-	Token constThreeToken = Token{ "3", TokenType::INTEGER };	
-	Token constZeroToken = Token{ "0", TokenType::INTEGER };
-	Token constOneToken = Token{ "1", TokenType::INTEGER };
-	Token constFiveToken = Token{ "5", TokenType::INTEGER };
-	Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token whileToken = Token{ WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token printToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token ifToken = Token{ IF_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token stmtListToken = Token{ "", TokenType::INVALID };
+	Token mainToken = Token::createNameOrKeywordToken("main");
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token assignToken = Token::createEqualsToken();
+	Token notEqualToken = Token::createNotEqualsToken();
+	Token greaterToken = Token::createGreaterThanToken();
+	Token minusToken = Token::createMinusToken();
+	Token constThreeToken = Token::createIntegerToken("3");
+	Token constZeroToken = Token::createIntegerToken("0");
+	Token constOneToken = Token::createIntegerToken("1");
+	Token constFiveToken = Token::createIntegerToken("5");
+	Token readToken = Token::createReadToken();
+	Token whileToken = Token::createWhileToken();
+	Token printToken = Token::createPrintToken();
+	Token ifToken = Token::createIfToken();
+	Token stmtListToken = Token::createPlaceholderToken();
 	
 	// Creating AST nodes
 	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(mainToken));
 
 	// Line 1 (x = 3)
-	shared_ptr<ASTNode> mainStmtList(new StatementListASTnode(stmtListToken));
+	shared_ptr<ASTNode> mainStmtList(new StatementListASTNode(stmtListToken));
 	shared_ptr<ASTNode> x1Node(new VariableASTNode(xToken));
 	shared_ptr<ASTNode> assign1Node(new AssignASTNode(assignToken));
 	shared_ptr<ASTNode> constThreeNode(new ConstantValueASTNode(constThreeToken));
@@ -513,7 +513,7 @@ TEST_CASE("UsesExtractor: test extract") {
 	notEqualNode->setLineNumber(3);
 
 	// Line 4 (x = x - 1)
-	shared_ptr<ASTNode> whileStmtList(new StatementListASTnode(stmtListToken));
+	shared_ptr<ASTNode> whileStmtList(new StatementListASTNode(stmtListToken));
 	shared_ptr<ASTNode> x4LhsNode(new VariableASTNode(xToken));
 	shared_ptr<ASTNode> x4RhsNode(new VariableASTNode(xToken));
 	shared_ptr<ASTNode> assign4Node(new AssignASTNode(assignToken));
@@ -545,7 +545,7 @@ TEST_CASE("UsesExtractor: test extract") {
 	constFiveNode->setLineNumber(6);
 
 	// Line 7 (x = y)
-	shared_ptr<ASTNode> thenStmtList(new StatementListASTnode(stmtListToken));
+	shared_ptr<ASTNode> thenStmtList(new StatementListASTNode(stmtListToken));
 	shared_ptr<ASTNode> assign7Node(new AssignASTNode(assignToken));
 	shared_ptr<ASTNode> x7Node(new VariableASTNode(xToken));
 	shared_ptr<ASTNode> y7Node(new VariableASTNode(yToken));
@@ -555,7 +555,7 @@ TEST_CASE("UsesExtractor: test extract") {
 	y7Node->setLineNumber(7);
 
 	// Line 8 (y = x)
-	shared_ptr<ASTNode> elseStmtList(new StatementListASTnode(stmtListToken));
+	shared_ptr<ASTNode> elseStmtList(new StatementListASTNode(stmtListToken));
 	shared_ptr<ASTNode> assign8Node(new AssignASTNode(assignToken));
 	shared_ptr<ASTNode> y8Node(new VariableASTNode(yToken));
 	shared_ptr<ASTNode> x8Node(new VariableASTNode(xToken));

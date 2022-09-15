@@ -54,10 +54,10 @@ TEST_CASE("PatternExtractor: test handleAssign") {
 	SECTION("Test Assign") {
 		vector<Pattern> expectedPattern{ Pattern::createAssignPattern(1, "x", "x1+") };
 
-		Token assignToken = Token{ "=", TokenType::OPERATOR };
-		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-		Token constantToken = Token{ "1", TokenType::INTEGER };
-		Token plusToken = Token{ "+", TokenType::OPERATOR };
+		Token assignToken = Token::createEqualsToken();
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token constantToken = Token::createIntegerToken("1");
+		Token plusToken = Token::createPlusToken();
 
 		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 		shared_ptr<ASTNode> x1Node(new VariableASTNode(xToken));
@@ -78,10 +78,10 @@ TEST_CASE("PatternExtractor: test handleAssign") {
 	SECTION("Test Assign with brackets") {
 		vector<Pattern> expectedPattern{ Pattern::createAssignPattern(1, "x", "x1x++") };
 
-		Token assignToken = Token{ "=", TokenType::OPERATOR };
-		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-		Token constantToken = Token{ "1", TokenType::INTEGER };
-		Token plusToken = Token{ "+", TokenType::OPERATOR };
+		Token assignToken = Token::createEqualsToken();
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token constantToken = Token::createIntegerToken("1");
+		Token plusToken = Token::createPlusToken();
 
 		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 		shared_ptr<ASTNode> x1Node(new VariableASTNode(xToken));
@@ -125,12 +125,12 @@ TEST_CASE("PatternExtractor: test handleIf") {
 		// if (x > y) then { read x; } else  { read y;}
 		vector<Pattern> expectedPattern{ Pattern::createIfPattern(1, "x y") };
 
-		Token ifToken = Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD);
-		Token variableX = Token("x", TokenType::NAME_OR_KEYWORD);
-		Token greaterThan = Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR);
-		Token variableY = Token("y", TokenType::NAME_OR_KEYWORD);
-		Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
-		Token semiColonToken = Token(SEMI_COLON, TokenType::DELIMITER);
+		Token ifToken = Token::createIfToken();
+		Token variableX = Token::createNameOrKeywordToken("x");
+		Token greaterThan = Token::createGreaterThanEqualToken();
+		Token variableY = Token::createNameOrKeywordToken("y");
+		Token readToken = Token::createReadToken();
+		Token semiColonToken = Token::createSemicolonToken();
 
 		// Create if node
 		shared_ptr<ASTNode> expectedASTNode(new IfASTNode(ifToken));
@@ -144,15 +144,15 @@ TEST_CASE("PatternExtractor: test handleIf") {
 		condNode->addChild(yOneNode);
 
 		// Create then stmtlst node
-		shared_ptr<ASTNode> stmtLstOneNode(new StatementListASTnode(Token("", TokenType::DELIMITER)));
+		shared_ptr<ASTNode> stmtLstOneNode(new StatementListASTNode(Token::createPlaceholderToken()));
 
-		shared_ptr<ASTNode> readOneNode(new ReadASTNode(Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD)));
+		shared_ptr<ASTNode> readOneNode(new ReadASTNode(Token::createReadToken()));
 		shared_ptr<ASTNode> xTwoNode(new VariableASTNode(variableX));
 
 		// Create else stmtlst node
-		shared_ptr<ASTNode> stmtLstTwoNode(new StatementListASTnode(Token("", TokenType::DELIMITER)));
+		shared_ptr<ASTNode> stmtLstTwoNode(new StatementListASTNode(Token::createPlaceholderToken()));
 
-		shared_ptr<ASTNode> readTwoNode(new ReadASTNode(Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD)));
+		shared_ptr<ASTNode> readTwoNode(new ReadASTNode(Token::createReadToken()));
 		shared_ptr<ASTNode> yTwoNode(new VariableASTNode(variableY));
 
 		readOneNode->addChild(xTwoNode);
@@ -188,12 +188,12 @@ TEST_CASE("PatternExtractor: test handleWhile") {
 		vector<Pattern> expectedPattern{ Pattern::createWhilePattern(1, "x y") };
 
 		// while (x > y) then { read x; } else  { read y;}
-		Token whileToken = Token(WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD);
-		Token variableX = Token("x", TokenType::NAME_OR_KEYWORD);
-		Token greaterThan = Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR);
-		Token variableY = Token("y", TokenType::NAME_OR_KEYWORD);
-		Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
-		Token semiColonToken = Token(SEMI_COLON, TokenType::DELIMITER);
+		Token whileToken = Token::createWhileToken();
+		Token variableX = Token::createNameOrKeywordToken("x");
+		Token greaterThan = Token::createGreaterThanEqualToken();
+		Token variableY = Token::createNameOrKeywordToken("y");
+		Token readToken = Token::createReadToken();
+		Token semiColonToken = Token::createSemicolonToken();
 
 		// Create while node
 		shared_ptr<ASTNode> expectedASTNode(new WhileASTNode(whileToken));
@@ -207,9 +207,9 @@ TEST_CASE("PatternExtractor: test handleWhile") {
 		condNode->addChild(yOneNode);
 
 		// Create stmtlst node
-		shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(Token("", TokenType::DELIMITER)));
+		shared_ptr<ASTNode> stmtLstNode(new StatementListASTNode(Token::createPlaceholderToken()));
 
-		shared_ptr<ASTNode> readNode(new ReadASTNode(Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD)));
+		shared_ptr<ASTNode> readNode(new ReadASTNode(Token::createReadToken()));
 		shared_ptr<ASTNode> xTwoNode(new VariableASTNode(variableX));
 
 		readNode->addChild(xTwoNode);
@@ -240,16 +240,16 @@ TEST_CASE("PatternExtractor: test extract") {
 
 	SECTION("Test extract") {
 		// if (x > y) then { while (y == 5) { read x } } else  { x = x + (5 + x) ;}
-		Token whileToken = Token(WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD);
-		Token variableX = Token("x", TokenType::NAME_OR_KEYWORD);
-		Token greaterThan = Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR);
-		Token equalityToken = Token(EQUALITY_OPERATOR, TokenType::OPERATOR);
-		Token variableY = Token("y", TokenType::NAME_OR_KEYWORD);
-		Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
-		Token programToken = Token(PROGRAM_KEYWORD, TokenType::INVALID);
-		Token ifToken = Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD);
-		Token mainToken = Token("main", TokenType::NAME_OR_KEYWORD);
-		Token constantToken = Token("5", TokenType::INTEGER);
+		Token whileToken = Token::createWhileToken();
+		Token variableX = Token::createNameOrKeywordToken("x");
+		Token greaterThan = Token::createGreaterThanEqualToken();
+		Token equalityToken = Token::createEqualityToken();
+		Token variableY = Token::createNameOrKeywordToken("y");
+		Token readToken = Token::createReadToken();
+		Token programToken = Token::createProgramToken();
+		Token ifToken = Token::createIfToken();
+		Token mainToken = Token::createNameOrKeywordToken("main");
+		Token constantToken = Token::createIntegerToken("5");
 
 		// Create program
 		shared_ptr<ASTNode> programASTNode(new ProgramASTNode(programToken));
@@ -260,7 +260,7 @@ TEST_CASE("PatternExtractor: test extract") {
 		programASTNode->addChild(mainASTNode);
 
 		// Procedure stmtlst
-		shared_ptr<ASTNode> mainStmtLstNode(new StatementListASTnode(Token("", TokenType::DELIMITER)));
+		shared_ptr<ASTNode> mainStmtLstNode(new StatementListASTNode(Token::createPlaceholderToken()));
 
 		mainASTNode->addChild(mainStmtLstNode);
 
@@ -277,7 +277,7 @@ TEST_CASE("PatternExtractor: test extract") {
 		condNode->addChild(yOneNode);
 
 		// Create then stmtlst node
-		shared_ptr<ASTNode> thenStmtLstNode(new StatementListASTnode(Token("", TokenType::DELIMITER)));
+		shared_ptr<ASTNode> thenStmtLstNode(new StatementListASTNode(Token::createPlaceholderToken()));
 
 		// create while node
 		shared_ptr<ASTNode> whileASTNode(new WhileASTNode(whileToken));
@@ -295,9 +295,9 @@ TEST_CASE("PatternExtractor: test extract") {
 		whileASTNode->addChild(whileCondNode);
 
 		// create while stmtlst node
-		shared_ptr<ASTNode> whileStmtLstNode(new StatementListASTnode(Token("", TokenType::DELIMITER)));
+		shared_ptr<ASTNode> whileStmtLstNode(new StatementListASTNode(Token::createPlaceholderToken()));
 
-		shared_ptr<ASTNode> readNode(new ReadASTNode(Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD)));
+		shared_ptr<ASTNode> readNode(new ReadASTNode(Token::createReadToken()));
 		shared_ptr<ASTNode> xTwoNode(new VariableASTNode(variableX));
 
 		whileStmtLstNode->addChild(readNode);
@@ -306,11 +306,11 @@ TEST_CASE("PatternExtractor: test extract") {
 		whileASTNode->addChild(whileStmtLstNode);
 
 		// create else stmtlst node
-		shared_ptr<ASTNode> elseStmtLstNode(new StatementListASTnode(Token("", TokenType::DELIMITER)));
+		shared_ptr<ASTNode> elseStmtLstNode(new StatementListASTNode(Token::createPlaceholderToken()));
 
 		// create assign node
-		Token assignToken = Token{ "=", TokenType::OPERATOR };
-		Token plusToken = Token{ "+", TokenType::OPERATOR };
+		Token assignToken = Token::createEqualsToken();
+		Token plusToken = Token::createPlusToken();
 
 		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 		shared_ptr<ASTNode> x1Node(new VariableASTNode(variableX));

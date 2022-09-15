@@ -1,5 +1,5 @@
 #include <sp/dataclasses/ast/StatementListASTNode.h>
 
-Entity StatementListASTnode::extractEntity() {
+Entity StatementListASTNode::extractEntity() {
 	return Entity::createStmtLstEntity();
 }

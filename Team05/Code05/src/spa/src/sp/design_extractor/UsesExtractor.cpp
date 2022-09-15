@@ -89,7 +89,7 @@ vector<Relationship> UsesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
 	shared_ptr<ASTNode> rightChild = assignNode->getRightHandSide();
 
-	vector<Entity> extractedVariables = extractVariables(rightChild);
+	vector<Entity> extractedVariables = this->extractVariables(rightChild);
 	Entity leftHandSide = assignNode->extractEntity();
 
 	addRelationshipsWithVariables(usesRelationships, leftHandSide, extractedVariables);
@@ -113,7 +113,7 @@ vector<Relationship> UsesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 
 	Entity leftHandSide = whileNode->extractEntity();
 
-	vector<Entity> whileConditionVariables = extractVariables(whileNode->getCondition());
+	vector<Entity> whileConditionVariables = this->extractVariables(whileNode->getCondition());
 	addRelationshipsWithVariables(usesRelationships, leftHandSide, whileConditionVariables);
 
 	// Iterate through children and extract While Stmt relationships
@@ -135,7 +135,7 @@ vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 
 	Entity leftHandSide = ifASTNode->extractEntity();
 
-	vector<Entity> conditionVariables = extractVariables(condition);
+	vector<Entity> conditionVariables = this->extractVariables(condition);
 	addRelationshipsWithVariables(usesRelationships, leftHandSide, conditionVariables);
 
 	// Iterate through children and extract If Stmt relationships
@@ -173,10 +173,10 @@ vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
 		shared_ptr<ASTNode> leftChild = expressionNode->getLeftHandSide();
 		shared_ptr<ASTNode> rightChild = expressionNode->getRightHandSide();
 
-		vector<Entity> variablesInLhs = extractVariables(leftChild);
+		vector<Entity> variablesInLhs = this->extractVariables(leftChild);
 		variables.insert(variables.end(), variablesInLhs.begin(), variablesInLhs.end());
 
-		vector<Entity> variablesInRhs = extractVariables(rightChild);
+		vector<Entity> variablesInRhs = this->extractVariables(rightChild);
 		variables.insert(variables.end(), variablesInRhs.begin(), variablesInRhs.end());
 	}
 	return variables;
@@ -200,7 +200,7 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSi
 		shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
 		shared_ptr<ASTNode> rightChild = assignNode->getRightHandSide();
 
-		vector<Entity> extractedVariables = extractVariables(rightChild);
+		vector<Entity> extractedVariables = this->extractVariables(rightChild);
 		addRelationshipsWithVariables(usesRelationships, leftHandSide, extractedVariables);
 
 		break;
@@ -224,7 +224,7 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSi
 		shared_ptr<ASTNode> condition = whileNode->getCondition();
 		shared_ptr<ASTNode> childrenStmtLst = whileNode->getStmtList();
 		
-		vector<Entity> conditionVariables = extractVariables(condition);
+		vector<Entity> conditionVariables = this->extractVariables(condition);
 		addRelationshipsWithVariables(usesRelationships, leftHandSide, conditionVariables);
 
 		// Create relationship for parent of this container and the stmtlst inside this while node
@@ -242,7 +242,7 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSi
 		shared_ptr<ASTNode> thenChildren = ifNode->getThenStatements();
 		shared_ptr<ASTNode> elseChildren = ifNode->getElseStatements();
 
-		vector<Entity> conditionVariables = extractVariables(condition);
+		vector<Entity> conditionVariables = this->extractVariables(condition);
 		addRelationshipsWithVariables(usesRelationships, leftHandSide, conditionVariables);
 
 		// Create relationship for parent of this container and the then and else stmtlst inside this if node

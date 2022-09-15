@@ -108,7 +108,7 @@ shared_ptr<ASTNode> AssignSimpleSyntaxRule::constructNode() {
 	}
 
 	// create current node
-	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	Token assignToken = Token::createEqualsToken();
 	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 
 

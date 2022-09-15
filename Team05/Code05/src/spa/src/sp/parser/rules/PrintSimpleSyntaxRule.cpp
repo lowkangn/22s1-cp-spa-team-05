@@ -58,7 +58,7 @@ shared_ptr<ASTNode> PrintSimpleSyntaxRule::constructNode() {
 	}
 
 	// create print node
-	Token readToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
+	Token readToken = Token::createPrintToken();
 	shared_ptr<ASTNode> printNode(new PrintASTNode(readToken));
 
 	// create child variable node

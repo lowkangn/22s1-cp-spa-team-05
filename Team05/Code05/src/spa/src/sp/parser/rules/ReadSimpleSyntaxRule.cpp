@@ -59,7 +59,7 @@ shared_ptr<ASTNode> ReadSimpleSyntaxRule::constructNode() {
 	}
 
 	// create read node
-	Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
+	Token readToken = Token::createReadToken();
 	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
 
 	// create child variable node
