@@ -62,7 +62,7 @@ vector<Pattern> PatternExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 	// extract from condition
 	shared_ptr<ASTNode> condNode = whileNode->getCondition();
 	string condString = this->handleCondition(condNode);
-	Pattern pattern = Pattern::createWhilePattern(whileNode->getLineNumber(), WHILE_KEYWORD, condString);
+	Pattern pattern = Pattern::createWhilePattern(whileNode->getLineNumber(), condString);
 
 	extractedPatterns.push_back(pattern);
 
@@ -85,7 +85,7 @@ vector<Pattern> PatternExtractor::handleIf(shared_ptr<ASTNode> ast) {
 	// extract from condition
 	shared_ptr<ASTNode> condNode = ifNode->getCondition();
 	string condString = this->handleCondition(condNode);
-	Pattern pattern = Pattern::createIfPattern(ifNode->getLineNumber(), IF_KEYWORD, condString);
+	Pattern pattern = Pattern::createIfPattern(ifNode->getLineNumber(), condString);
 
 	extractedPatterns.insert(extractedPatterns.end(), elseExtractedPatterns.begin(), elseExtractedPatterns.end());
 	extractedPatterns.push_back(pattern);
@@ -160,6 +160,7 @@ string PatternExtractor::recursiveExtractExpression(shared_ptr<ASTNode> ast) {
 		assert(ast->getType() == ASTNodeType::EXPRESSION);
 		shared_ptr<ExpressionASTNode> expressionNode = dynamic_pointer_cast<ExpressionASTNode> (ast);
 		string operatorString = expressionNode->getToken().getString();
+		// Returns infix initially, will converted to postfix in the handleAssign
 		return recursiveExtractExpression(expressionNode->getLeftHandSide()) + operatorString + recursiveExtractExpression(expressionNode->getRightHandSide());
 	}
 	else {

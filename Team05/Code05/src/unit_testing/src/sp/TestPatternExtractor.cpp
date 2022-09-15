@@ -123,7 +123,7 @@ TEST_CASE("PatternExtractor: test handleIf") {
 
 	SECTION("Test If") {
 		// if (x > y) then { read x; } else  { read y;}
-		vector<Pattern> expectedPattern{ Pattern::createIfPattern(1, IF_KEYWORD, "x y") };
+		vector<Pattern> expectedPattern{ Pattern::createIfPattern(1, "x y") };
 
 		Token ifToken = Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD);
 		Token variableX = Token("x", TokenType::NAME_OR_KEYWORD);
@@ -185,7 +185,7 @@ TEST_CASE("PatternExtractor: test handleWhile") {
 	};
 
 	SECTION("Test while") {
-		vector<Pattern> expectedPattern{ Pattern::createWhilePattern(1, WHILE_KEYWORD, "x y") };
+		vector<Pattern> expectedPattern{ Pattern::createWhilePattern(1, "x y") };
 
 		// while (x > y) then { read x; } else  { read y;}
 		Token whileToken = Token(WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD);
@@ -337,9 +337,9 @@ TEST_CASE("PatternExtractor: test extract") {
 		ifASTNode->addChild(thenStmtLstNode);
 		ifASTNode->addChild(elseStmtLstNode);
 
-		vector<Pattern> expectedPattern{ Pattern::createWhilePattern(-1, WHILE_KEYWORD, "y"), 
+		vector<Pattern> expectedPattern{ Pattern::createWhilePattern(-1, "y"), 
 										 Pattern::createAssignPattern(-1, "x", "x5x++"), 
-										 Pattern::createIfPattern(-1, IF_KEYWORD, "x y") };
+										 Pattern::createIfPattern(-1, "x y") };
 
 		test(ifASTNode, expectedPattern);
 	}

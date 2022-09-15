@@ -22,13 +22,13 @@ public:
 		Entity entity = Entity::createAssignEntity(lineNumber);
 		return Pattern(entity, lhs, rhs);
 	}
-	static Pattern createIfPattern(int lineNumber, string lhs, string rhs) {
+	static Pattern createIfPattern(int lineNumber, string rhs) {
 		Entity entity = Entity::createIfEntity(lineNumber);
-		return Pattern(entity, lhs, rhs);
+		return Pattern(entity, IF_KEYWORD, rhs);
 	}
-	static Pattern createWhilePattern(int lineNumber, string lhs, string rhs) {
+	static Pattern createWhilePattern(int lineNumber, string rhs) {
 		Entity entity = Entity::createWhileEntity(lineNumber);
-		return Pattern(entity, lhs, rhs);
+		return Pattern(entity, WHILE_KEYWORD, rhs);
 	}
 
 	bool equals(Pattern other) {
