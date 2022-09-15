@@ -70,11 +70,11 @@ vector<Relationship> ParentTExtractor::recursiveExtractFromContainer(shared_ptr<
 			parentRelationships.push_back(parent);
 			
 			// Extract deeper nested stmtlsts
-			shared_ptr<IfASTNode> ifNode = dynamic_pointer_cast<IfASTNode>(ast);
+			shared_ptr<IfASTNode> ifNode = dynamic_pointer_cast<IfASTNode>(child);
 			Entity ifEntity = ifNode->extractEntity();
 
-			vector<Relationship> thenRelations = this->recursiveExtractFromContainer(ifNode->getThenStatements(), ifEntity);
-			vector<Relationship> elseRelations = this->recursiveExtractFromContainer(ifNode->getElseStatements(), ifEntity);
+			vector<Relationship> thenRelations = this->recursiveExtractFromContainer(ifNode->getThenStatements(), leftHandSide);
+			vector<Relationship> elseRelations = this->recursiveExtractFromContainer(ifNode->getElseStatements(), leftHandSide);
 
 			parentRelationships.insert(parentRelationships.begin(), thenRelations.begin(), thenRelations.end());
 			parentRelationships.insert(parentRelationships.begin(), elseRelations.begin(), elseRelations.end());
@@ -83,7 +83,7 @@ vector<Relationship> ParentTExtractor::recursiveExtractFromContainer(shared_ptr<
 		}
 		case ASTNodeType::WHILE: 
 		{
-			shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
+			shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(child);
 			Relationship parent = Relationship(leftHandSide, child->extractEntity(), RelationshipType::PARENTT);
 			
 			// Extract this node as a Relationship

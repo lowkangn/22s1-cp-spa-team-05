@@ -1,12 +1,11 @@
 #include "catch.hpp"
+#include <vector>
+#include <memory>
 
-#include <sp/design_extractor/ParentExtractor.h>
-#include <sp/design_extractor/ParentExtractor.cpp>
+#include <sp/design_extractor/ParentTExtractor.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/ast/AST.h>
-#include <vector>
-#include <memory>
 #include <sp/dataclasses/ast/VariableASTNode.h>
 #include <sp/dataclasses/ast/ConstantValueASTNode.h>
 #include <sp/dataclasses/ast/ExpressionASTNode.h>
@@ -24,78 +23,10 @@ using namespace std;
 TEST_CASE("ParentTExtractor: test recursiveExtractFromContainer") {
 	auto test = [](shared_ptr<ASTNode> containerAstNode, Entity leftHandSide, vector<Relationship> expectedResult) {
 		// Given
-		ParentExtractor extractor = ParentExtractor();
+		ParentTExtractor extractor = ParentTExtractor();
 
 		// When
-		vector<Relationship> extractedRelationships = extractor.extractFromContainer(containerAstNode, leftHandSide);
-
-		// Then
-		REQUIRE(extractedRelationships.size() == expectedResult.size());
-
-		for (int i = 0; i < extractedRelationships.size(); i++) {
-			REQUIRE(extractedRelationships[i].equals(expectedResult[i]));
-		}
-	};
-
-	SECTION("nested stmt lst node") {
-		Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token assignToken = Token{ "=", TokenType::OPERATOR };
-		Token callToken = Token{ CALL_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token ifToken = Token{ IF_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token whileToken = Token{ WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD };
-
-		Entity ifParentEntity = Entity::createIfEntity(1);
-
-		// Stmtlst node
-		shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(Token::getPlaceHolderToken()));
-
-		// Add some statements
-
-		shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
-		readNode->setLineNumber(2);
-		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
-		assignNode->setLineNumber(3);
-		shared_ptr<ASTNode> callNode(new CallASTNode(Token::getPlaceHolderToken()));
-		callNode->setLineNumber(4);
-
-
-		// Doesnt have to be full implemented as extractFromContainer is shallow (extract method handles nested containers)
-		shared_ptr<ASTNode> IfNode(new IfASTNode(ifToken));
-		IfNode->setLineNumber(5);
-		shared_ptr<ASTNode> whileNode(new WhileASTNode(whileToken));
-		whileNode->setLineNumber(6);
-
-		Entity readEntity = Entity::createReadEntity(2);
-		Entity assignEntity = Entity::createAssignEntity(3);
-		Entity callEntity = Entity::createCallEntity(4);
-		Entity ifEntity = Entity::createIfEntity(5);
-		Entity whileEntity = Entity::createWhileEntity(6);
-
-		stmtLstNode->addChild(readNode);
-		stmtLstNode->addChild(assignNode);
-		stmtLstNode->addChild(callNode);
-		stmtLstNode->addChild(IfNode);
-		stmtLstNode->addChild(whileNode);
-
-		Relationship readParent = Relationship(ifParentEntity, readEntity, RelationshipType::PARENT);
-		Relationship assignParent = Relationship(ifParentEntity, assignEntity, RelationshipType::PARENT);
-		Relationship callParent = Relationship(ifParentEntity, callEntity, RelationshipType::PARENT);
-		Relationship ifParent = Relationship(ifParentEntity, ifEntity, RelationshipType::PARENT);
-		Relationship whileParent = Relationship(ifParentEntity, whileEntity, RelationshipType::PARENT);
-
-		vector<Relationship> expectedResult{ readParent , assignParent, callParent, ifParent, whileParent };
-
-		test(stmtLstNode, ifParentEntity, expectedResult);
-	}
-}
-
-TEST_CASE("ParentExtractor: test extract") {
-	auto test = [](shared_ptr<ASTNode> astNode, vector<Relationship> expectedResult) {
-		// Given
-		ParentExtractor extractor = ParentExtractor();
-
-		// When
-		vector<Relationship> extractedRelationships = extractor.extract(astNode);
+		vector<Relationship> extractedRelationships = extractor.recursiveExtractFromContainer(containerAstNode, leftHandSide);
 
 		// Then
 		REQUIRE(extractedRelationships.size() == expectedResult.size());
@@ -106,19 +37,7 @@ TEST_CASE("ParentExtractor: test extract") {
 		}
 	};
 
-	SECTION("Test nested") {
-		/*
-			procedure main {
-			1.	while (x > 0) {
-			2.		if (x > 0) then {
-			3.			read x;
-					} else {
-			4.			read y;
-					}
-				}
-			}
-		*/
-
+	SECTION("nested stmt lst node") {
 		Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
 		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
 		Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
@@ -126,10 +45,6 @@ TEST_CASE("ParentExtractor: test extract") {
 		Token whileToken = Token{ WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD };
 		Token ifToken = Token{ IF_KEYWORD, TokenType::NAME_OR_KEYWORD };
 		Token greaterThan = Token{ GREATER_OPERATOR, TokenType::OPERATOR };
-
-		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(mainToken));
-		shared_ptr<ASTNode> mainStmtList(new StatementListASTnode(Token::getPlaceHolderToken()));
-		procedureNode->addChild(mainStmtList);
 
 		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
 		xNode->setLineNumber(3);
@@ -144,8 +59,6 @@ TEST_CASE("ParentExtractor: test extract") {
 
 		shared_ptr<ASTNode> whileNode(new WhileASTNode(whileToken));
 		whileNode->setLineNumber(1);
-
-		mainStmtList->addChild(whileNode);
 
 		shared_ptr<ASTNode> whileStmtLstNode(new StatementListASTnode(Token::getPlaceHolderToken()));
 		shared_ptr<ASTNode> whileCond(new ExpressionASTNode(greaterThan));
@@ -176,14 +89,34 @@ TEST_CASE("ParentExtractor: test extract") {
 		Entity readYEntity = Entity::createReadEntity(4);
 
 		// Creating Relationships
-		Relationship whileParentIf = Relationship(whileEntity, ifEntity, RelationshipType::PARENT);
-		Relationship ifParentX = Relationship(ifEntity, readXEntity, RelationshipType::PARENT);
-		Relationship ifParentY = Relationship(ifEntity, readYEntity, RelationshipType::PARENT);
+		Relationship whileParentIf = Relationship(whileEntity, ifEntity, RelationshipType::PARENTT);
+		Relationship whileParentX = Relationship(whileEntity, readXEntity, RelationshipType::PARENTT);
+		Relationship whileParentY = Relationship(whileEntity, readYEntity, RelationshipType::PARENTT);
 
-		vector<Relationship> expectedParentRelationships{ ifParentY, ifParentX, whileParentIf };
+		vector<Relationship> expectedParentRelationships{ whileParentY, whileParentX, whileParentIf };
 
-		test(procedureNode, expectedParentRelationships);
+		test(whileStmtLstNode, whileEntity, expectedParentRelationships);
 	}
+}
+
+
+TEST_CASE("ParentTExtractor: test extract") {
+	auto test = [](shared_ptr<ASTNode> astNode, vector<Relationship> expectedResult) {
+		// Given
+		ParentTExtractor extractor = ParentTExtractor();
+
+		// When
+		vector<Relationship> extractedRelationships = extractor.extract(astNode);
+
+		// Then
+		REQUIRE(extractedRelationships.size() == expectedResult.size());
+
+		for (int i = 0; i < extractedRelationships.size(); i++) {
+			bool check = extractedRelationships[i].equals(expectedResult[i]);
+			REQUIRE(extractedRelationships[i].equals(expectedResult[i]));
+		}
+	};
+
 
 	SECTION("Full test") {
 		/*
@@ -194,10 +127,10 @@ TEST_CASE("ParentExtractor: test extract") {
 			4.     x = x - 1
 			5.     print y;
 			}
-			6. if (y > 5) then {
-			7.     x = y;
-			} else {
-			8.     y = x;
+			6.     if (y > 5) then {
+			7.        x = y;
+			}      else {
+			8.        y = x;
 			}
 		}
 		*/
@@ -308,7 +241,6 @@ TEST_CASE("ParentExtractor: test extract") {
 		mainStmtList->addChild(assign1Node);
 		mainStmtList->addChild(readNode);
 		mainStmtList->addChild(whileNode);
-		mainStmtList->addChild(ifNode);
 
 		assign1Node->addChild(x1Node);
 		assign1Node->addChild(constThreeNode);
@@ -323,6 +255,7 @@ TEST_CASE("ParentExtractor: test extract") {
 
 		whileStmtList->addChild(assign4Node);
 		whileStmtList->addChild(printNode);
+		whileStmtList->addChild(ifNode);
 
 		assign4Node->addChild(x4LhsNode);
 		assign4Node->addChild(minusNode);
@@ -373,13 +306,16 @@ TEST_CASE("ParentExtractor: test extract") {
 		Entity y8Entity = Entity::createVariableEntity(y8Node->getLineNumber(), yToken);
 
 		// Creating Relationships
-		Relationship whileParentX = Relationship(whileEntity, assign4Entity, RelationshipType::PARENT);
-		Relationship whileParentPrint = Relationship(whileEntity, printEntity, RelationshipType::PARENT);
+		Relationship whileParentX = Relationship(whileEntity, assign4Entity, RelationshipType::PARENTT);
+		Relationship whileParentPrint = Relationship(whileEntity, printEntity, RelationshipType::PARENTT);
+		Relationship whileParentAssignX = Relationship(whileEntity, assign7Entity, RelationshipType::PARENTT);
+		Relationship whileParentAssignY = Relationship(whileEntity, assign8Entity, RelationshipType::PARENTT);
+		Relationship whileParentIf = Relationship(whileEntity, ifEntity, RelationshipType::PARENTT);
 
-		Relationship ifParentX = Relationship(ifEntity, assign7Entity, RelationshipType::PARENT);
-		Relationship ifParentY = Relationship(ifEntity, assign8Entity, RelationshipType::PARENT);
+		Relationship ifParentX = Relationship(ifEntity, assign7Entity, RelationshipType::PARENTT);
+		Relationship ifParentY = Relationship(ifEntity, assign8Entity, RelationshipType::PARENTT);
 
-		vector<Relationship> expectedParentRelationships{ ifParentY, ifParentX , whileParentX, whileParentPrint };
+		vector<Relationship> expectedParentRelationships{ ifParentY, ifParentX , whileParentAssignY, whileParentAssignX, whileParentX, whileParentPrint, whileParentIf };
 
 		test(procedureNode, expectedParentRelationships);
 	}
