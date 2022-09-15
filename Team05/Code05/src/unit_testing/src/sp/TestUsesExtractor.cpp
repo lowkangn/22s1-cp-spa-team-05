@@ -346,3 +346,89 @@ TEST_CASE("UsesExtractor: test handleWhile") {
 
 	handleWhile(whileNode, expectedResult);
 }
+
+TEST_CASE("UsesExtractor: test handleIf") {
+	auto handleIf = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
+		// Given
+		UsesExtractor extractor = UsesExtractor();
+
+		// When
+		vector<Relationship> extractedResult = extractor.handleIf(ast);
+
+		// Then
+		REQUIRE(expectedResult.size() == extractedResult.size());
+
+		for (int i = 0; i < extractedResult.size(); i++) {
+			REQUIRE(extractedResult[i].equals(expectedResult[i]));
+		}
+	};
+
+	/*
+		1. if (x == 0) then {
+		2. 	   x = y;
+		}  else {
+		3.     y = x;
+		}
+	*/
+	// Creating tokens
+	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
+	Token constToken = Token{ "0", TokenType::INTEGER };
+	Token ifToken = Token{ IF_KEYWORD, TokenType::NAME_OR_KEYWORD };
+	Token equalityToken = Token{ "==", TokenType::OPERATOR };
+	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	Token stmtLst = Token{ "", TokenType::INVALID };
+
+	// Creating nodes
+	shared_ptr<ASTNode> ifNode(new IfASTNode(ifToken));
+
+	shared_ptr<ASTNode> condNode(new ExpressionASTNode(equalityToken));
+	shared_ptr<ASTNode> xCond(new VariableASTNode(xToken));
+	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
+
+	shared_ptr<ASTNode> assignXNode(new AssignASTNode(assignToken));
+	shared_ptr<ASTNode> assignYNode(new AssignASTNode(assignToken));
+
+	shared_ptr<ASTNode> thenStmtLstNode(new StatementListASTnode(stmtLst));
+	shared_ptr<ASTNode> elseStmtLstNode(new StatementListASTnode(stmtLst));
+
+	shared_ptr<ASTNode> xThen(new VariableASTNode(xToken));
+	shared_ptr<ASTNode> yThen(new VariableASTNode(yToken));
+
+	shared_ptr<ASTNode> yElse (new VariableASTNode(yToken));
+	shared_ptr<ASTNode> xElse(new VariableASTNode(xToken));
+
+	ifNode->addChild(condNode);
+	ifNode->addChild(thenStmtLstNode);
+	ifNode->addChild(elseStmtLstNode);
+
+	condNode->addChild(xCond);
+	condNode->addChild(constNode);
+
+	thenStmtLstNode->addChild(assignXNode);
+	assignXNode->addChild(xThen);
+	assignXNode->addChild(yThen);
+
+	elseStmtLstNode->addChild(assignYNode);
+	assignYNode->addChild(yThen);
+	assignYNode->addChild(xThen);
+
+	// Creating Relationships
+	Entity ifEntity = Entity::createIfEntity(ifNode->getLineNumber());
+	Entity xCondEntity = Entity::createVariableEntity(xCond->getLineNumber(), xToken);
+	Entity yThenEntity = Entity::createVariableEntity(yThen->getLineNumber(), yToken);
+	Entity xElseEntity = Entity::createVariableEntity(xElse->getLineNumber(), xToken);
+	Entity assignXEntity = Entity::createAssignEntity(assignXNode->getLineNumber());
+	Entity assignYEntity = Entity::createAssignEntity(assignYNode->getLineNumber());
+
+	Relationship ifCondXRelation = Relationship{ ifEntity, xCondEntity, RelationshipType::USES };
+	Relationship ifElseXRelation = Relationship{ ifEntity, xElseEntity, RelationshipType::USES };
+	Relationship ifThenYRelation = Relationship{ ifEntity, yThenEntity, RelationshipType::USES };
+	Relationship assignXRelation = Relationship{ assignXEntity, yThenEntity, RelationshipType::USES };
+	Relationship assignYRelation = Relationship{ assignYEntity, xElseEntity, RelationshipType::USES };
+
+
+	vector<Relationship> expectedResult = vector<Relationship>{ ifCondXRelation, ifThenYRelation, assignXRelation, ifElseXRelation, assignYRelation };
+
+	handleIf(ifNode, expectedResult);
+}

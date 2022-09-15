@@ -112,6 +112,8 @@ vector<Relationship> UsesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
+	vector<Relationship> usesRelationships = vector<Relationship>();
+
 	shared_ptr<IfASTNode> ifASTNode = dynamic_pointer_cast<IfASTNode>(ast);
 	shared_ptr<ASTNode> condition = ifASTNode->getCondition();
 	shared_ptr<ASTNode> thenChild = ifASTNode->getThenStatements();
@@ -119,11 +121,12 @@ vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 
 	Entity leftHandSide = ifASTNode->extractEntity();
 
+	vector<Entity> conditionVariables = extractVariables(condition);
+	addRelationshipsWithVariables(usesRelationships, leftHandSide, conditionVariables);
+
 	// Recursively extract relations from Then and else containers
 	vector<Relationship> extractedThenChildRelationships = recursiveContainerExtract(leftHandSide, thenChild);
 	vector<Relationship> extractedElseChildRelationships = recursiveContainerExtract(leftHandSide, elseChild);
-
-	vector<Relationship> usesRelationships = vector<Relationship>();
 
 	usesRelationships.insert(usesRelationships.end(), extractedThenChildRelationships.begin(), extractedThenChildRelationships.end());
 	usesRelationships.insert(usesRelationships.end(), extractedElseChildRelationships.begin(), extractedElseChildRelationships.end());
@@ -214,6 +217,26 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& LHS, share
 
 		usesRelationships.insert(usesRelationships.end(), recursiveExtract.begin(), recursiveExtract.end());
 		usesRelationships.insert(usesRelationships.end(), recursiveWhile.begin(), recursiveWhile.end());
+		break;
+	}
+	case ASTNodeType::IF:
+	{
+		// Cast IfASTNode
+		shared_ptr<IfASTNode> ifNode = dynamic_pointer_cast<IfASTNode>(ast);
+		shared_ptr<ASTNode> condition = ifNode->getCondition();
+		shared_ptr<ASTNode> thenChildren = ifNode->getThenStatements();
+		shared_ptr<ASTNode> elseChildren = ifNode->getElseStatements();
+
+		vector<Entity> conditionVariables = extractVariables(condition);
+		addRelationshipsWithVariables(usesRelationships, LHS, conditionVariables);
+
+		vector<Relationship> toAddThen = recursiveContainerExtract(LHS, thenChildren);
+		vector<Relationship> toAddElse = recursiveContainerExtract(LHS, elseChildren);
+		vector<Relationship> recursiveIfRelations = handleIf(ast);
+
+		usesRelationships.insert(usesRelationships.end(), toAddThen.begin(), toAddThen.end());
+		usesRelationships.insert(usesRelationships.end(), toAddElse.begin(), toAddElse.end());
+		usesRelationships.insert(usesRelationships.end(), recursiveIfRelations.begin(), recursiveIfRelations.end());
 		break;
 	}
 	default:

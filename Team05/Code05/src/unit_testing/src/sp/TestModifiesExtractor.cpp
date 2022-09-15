@@ -43,9 +43,9 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 
 	// x = x + 1
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token addToken = Token{ "+", TokenType::OPERATOR };
+	Token addToken = Token{ PLUS_OPERATOR, TokenType::OPERATOR };
 	Token constToken = Token{ "1", TokenType::INTEGER };
-	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
 
 	Entity assignEntity = Entity::createAssignEntity(1);
 
@@ -104,7 +104,7 @@ TEST_CASE("ModifiesExtractor: test handleRead") {
 
 	// read x;
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
+	Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
 
 
 	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
@@ -162,8 +162,8 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
 	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
 	Token constToken = Token{ "1", TokenType::INTEGER };
-	Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
-	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
+	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
 	Token stmtLst = Token{ "", TokenType::INVALID };
 
 
@@ -251,8 +251,8 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token whileToken = Token{ WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD };
 	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
-	Token minusToken = Token{ "-", TokenType::OPERATOR};
-	Token equalityToken = Token{ "!=", TokenType::OPERATOR};
+	Token minusToken = Token{ MINUS_OPERATOR, TokenType::OPERATOR};
+	Token equalityToken = Token{ NOT_EQUAL_OPERATOR, TokenType::OPERATOR};
 	Token stmtLst = Token::getPlaceHolderToken();
 
 
@@ -323,7 +323,7 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 TEST_CASE("ModifiesExtractor: test handleIf") {
 
 
-	auto handleProcedure = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
+	auto handleIf = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
 		// Given
 		ModifiesExtractor extractor = ModifiesExtractor();
 
@@ -359,8 +359,8 @@ TEST_CASE("ModifiesExtractor: test handleIf") {
 	Token constOneToken = Token{ "1", TokenType::INTEGER };
 	Token constTwoToken = Token{ "2", TokenType::INTEGER };
 	Token ifToken = Token{ IF_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token equalityToken = Token{ "==", TokenType::OPERATOR};
-	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	Token equalityToken = Token{ EQUALITY_OPERATOR, TokenType::OPERATOR};
+	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
 	Token stmtLst = Token{ "", TokenType::INVALID };
 
 	// Creating nodes
@@ -412,7 +412,7 @@ TEST_CASE("ModifiesExtractor: test handleIf") {
 
 	vector<Relationship> expectedResult = vector<Relationship>{ xRelation, assignXRelation, yRelation, assignYRelation };
 
-	handleProcedure(ifNode, expectedResult);
+	handleIf(ifNode, expectedResult);
 
 }
 
@@ -440,9 +440,9 @@ TEST_CASE("ModifiesExtractor: test extract") {
 
 	// x = x + 1 + y
 	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token addToken = Token{ "+", TokenType::OPERATOR };
+	Token addToken = Token{ PLUS_OPERATOR, TokenType::OPERATOR };
 	Token constToken = Token{ "1", TokenType::INTEGER };
-	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
 	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
 	Entity assignEntity = Entity::createAssignEntity(LINENUMBER);;
 
