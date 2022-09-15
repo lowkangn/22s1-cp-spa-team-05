@@ -1,6 +1,5 @@
 #include "catch.hpp"
 #include "../../../spa/src/qps/query/clause/PQLEntity.h"
-#include "../../../spa/src/qps/query/clause/PQLEntity.cpp"
 
 using namespace std;
 

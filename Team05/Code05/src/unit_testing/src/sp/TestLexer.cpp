@@ -2,7 +2,7 @@
 #include <sstream>
 #include <string>
 #include <list>
-#include <sp/lexer/Lexer.cpp>
+#include <sp/lexer/Lexer.h>
 #include <iostream>
 using namespace std;
 

@@ -3,9 +3,7 @@
 #include <list>
 #include <qps/exceptions/PQLError.h>
 #include <qps/query_parser/ArgumentType.h>
-#include <qps/query_parser/ArgumentType.cpp>
 #include <qps/query_parser/parsers/DeclarationParser.h>
-#include <qps/query_parser/parsers/DeclarationParser.cpp>
 #include <unordered_map>
 
 using namespace std;

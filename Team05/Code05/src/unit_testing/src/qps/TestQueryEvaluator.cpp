@@ -1,6 +1,5 @@
 #include "catch.hpp"
 #include <qps/query_evaluator/QueryEvaluator.h>
-#include <qps/query_evaluator/QueryEvaluator.cpp>
 
 using namespace std;
 

@@ -1,10 +1,4 @@
 #include <sp/parser/rules/PrintSimpleSyntaxRule.h>
-#include <sp/parser/rules/NameSimpleSyntaxRule.h>
-#include <sp/parser/rules/SimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/ast/PrintASTNode.h>
-#include <list>
-
 
 vector<shared_ptr<SimpleSyntaxRule>> PrintSimpleSyntaxRule::generateChildRules()
 {

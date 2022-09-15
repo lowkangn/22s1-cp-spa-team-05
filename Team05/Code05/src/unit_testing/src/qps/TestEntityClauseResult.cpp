@@ -1,6 +1,5 @@
 #include "catch.hpp"
 #include "../../../spa/src/qps/query/clause/EntityClauseResult.h"
-#include "../../../spa/src/qps/query/clause/EntityClauseResult.cpp"
 
 using namespace std;
 

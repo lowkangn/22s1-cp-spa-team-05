@@ -4,7 +4,6 @@
 #include <pkb/design_objects/entities/PkbVariableEntity.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
 #include <pkb/table_managers/PkbEntityTable.h>
-#include <pkb/table_managers/PkbEntityTable.cpp>
 
 #include <vector>
 #include <string>
