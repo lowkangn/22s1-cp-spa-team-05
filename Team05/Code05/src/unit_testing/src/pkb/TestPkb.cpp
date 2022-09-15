@@ -779,6 +779,132 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 	};
+}
 
+TEST_CASE("Test containsEntity") {
+	auto test = [](vector<Entity> entitiesToAdd, Entity entityToTest, bool expected) {
+		// given
+		PKB pkb;
+
+		// when 
+		pkb.addEntities(entitiesToAdd);
+		bool extractedBool = pkb.containsEntity(entityToTest);
+
+		// then 
+		REQUIRE(extractedBool == expected);
+	};
+	/*
+		procedure main {
+			x = 1
+		}
+	*/
+
+	// Create tokens
+	Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
+	Token xTokenMain = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	Token constToken = Token{ "1", TokenType::INTEGER };
+
+	// Create entities
+	Entity procedureMainEntity = Entity::createProcedureEntity(mainToken);
+	Entity xEntity = Entity::createVariableEntity(1, xTokenMain);
+	Entity assignEntity = Entity::createAssignEntity(1);
+	Entity constEntity = Entity::createConstantEntity(1, constToken);
+
+	vector<Entity> entitiesToAdd { procedureMainEntity, xEntity, assignToken, constEntity };
+
+	// Test entities not in PKB
+	// create tokens
+	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
+	Token constTokenTest = Token{ "2", TokenType::INTEGER };
+	Token testToken = Token{ "testprocedure", TokenType::NAME_OR_KEYWORD };
+
+	Entity procedureTestEntity = Entity::createProcedureEntity(testToken);
+	Entity yEntity = Entity::createVariableEntity(1, yToken);
+	Entity constEntityTest = Entity::createConstantEntity(1, constTokenTest);
+
+	test(entitiesToAdd, procedureMainEntity, true);
+	test(entitiesToAdd, xEntity, true);
+	test(entitiesToAdd, assignEntity, true);
+	test(entitiesToAdd, constEntity, true);
+
+	test(entitiesToAdd, procedureTestEntity, false);
+	test(entitiesToAdd, yEntity, false);
+	test(entitiesToAdd, constEntityTest, false);
+
+}
+
+TEST_CASE("Test containsRelationship") {
+	auto test = [](vector<Relationship> relationshipsToAdd, Relationship relationshipToTest, bool expected) {
+		// given
+		PKB pkb;
+
+		// when 
+		pkb.addRelationships(entitiesToAdd);
+		bool extractedBool = pkb.containsRelationship(relationshipToTest);
+
+		// then 
+		REQUIRE(extractedBool == expected);
+	};
+
+	/*
+			procedure main {
+				1. x = 1
+			}
+
+			procedure readY {
+				2. read y
+			}
+		*/
+
+	// Create tokens
+	// main
+	Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
+	Token xTokenMain = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	Token constToken = Token{ "1", TokenType::INTEGER };
+
+	// readY
+	Token readYToken = Token{ "readY", TokenType::NAME_OR_KEYWORD };
+	Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
+	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
+
+	// tokens for full program
+	Token stmtLstToken = Token::getPlaceHolderToken();
+	Token rootNodeToken = Token::getPlaceHolderToken();
+
+
+	// Create entities and relationships
+	Entity programEntity = Entity::createProgramEntity();
+	Entity procedureMainEntity = Entity::createProcedureEntity(mainToken);
+	Entity procedureReadYEntity = Entity::createProcedureEntity(readYToken);
+
+	Entity xEntity = Entity::createVariableEntity(1, xTokenMain);
+	Entity assignEntity = Entity::createAssignEntity(1);
+
+	Entity yEntity = Entity::createVariableEntity(2, yToken);
+	Entity readEntity = Entity::createReadEntity(2);
+
+	Relationship procedureXRelationship = Relationship{ procedureMainEntity, xEntity, RelationshipType::MODIFIES };
+	Relationship procedureYRelationship = Relationship{ procedureReadYEntity, yEntity, RelationshipType::MODIFIES };
+	Relationship assignRelation = Relationship{ assignEntity, xEntity, RelationshipType::MODIFIES };
+	Relationship readRelation = Relationship{ readEntity, yEntity, RelationshipType::MODIFIES };
+
+	vector <Relationship> relationshipsToAdd = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation };
+
+	test(relationshipsToAdd, procedureXRelationship, true);
+	test(relationshipsToAdd, procedureYRelationship, true);
+	test(relationshipsToAdd, assignRelation, true);
+	test(relationshipsToAdd, readRelation, true);
+
+	// test relationships not in PKB
+	Token zToken = Token{ "z", TokenType::NAME_OR_KEYWORD };
+	Token testToken = Token{ "testprocedure", TokenType::NAME_OR_KEYWORD };
+
+	Entity zEntity = Entity::createVariableEntity(3, zToken);
+	Entity procedureTestEntity = Entity::createProcedureEntity(testToken);
+
+	Relationship procedureZRelationship = Relationship{ procedureTestEntity, zEntity, RelationshipType::MODIFIES };
+	test(relationshipsToAdd, procedureZRelationship, false);
 
 }

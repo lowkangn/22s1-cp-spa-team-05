@@ -15,6 +15,7 @@
 #include <sp/dataclasses/ast/IfASTNode.h>
 #include <sp/dataclasses/ast/AssignASTNode.h>
 #include <sp/dataclasses/ast/ReadASTNode.h>
+#include <sp/dataclasses/ast/ProgramASTNode.h>
 
 using namespace std;
 
@@ -79,6 +80,47 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 
 }
 
+TEST_CASE("ModifiesExtractor: test handleAssign exceptions") {
+
+	auto handleAssignException = [](shared_ptr<ASTNode> ast) {
+		// Given
+		ModifiesExtractor extractor = ModifiesExtractor();
+
+		// from https://stackoverflow.com/a/28797665
+		bool exceptionThrown = false;
+		// When
+		try {
+			vector<Relationship> extractedResult = extractor.handleAssign(ast);
+		}
+		catch(ASTException&) {
+			exceptionThrown = true;
+		}
+		REQUIRE(exceptionThrown);
+	};
+
+	// Test exception on valid read node for handleAssign
+	const int LINENUMBER = 1;
+
+	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
+
+	// read x;
+	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
+
+
+	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
+
+	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
+
+	x->setLineNumber(1);
+	readNode->setLineNumber(1);
+
+	readNode->addChild(x);
+
+	handleAssignException(readNode);
+}
+
 TEST_CASE("ModifiesExtractor: test handleRead") {
 
 
@@ -121,11 +163,65 @@ TEST_CASE("ModifiesExtractor: test handleRead") {
 
 	Relationship readRelation = Relationship{ lineEntity, xEntity, RelationshipType::MODIFIES };
 
-
 	vector<Relationship> expectedResult = vector<Relationship>{ readRelation };
 
 	testHandleRead(readNode, expectedResult);
 
+}
+
+TEST_CASE("ModifiesExtractor: test exceptions") {
+	auto handleReadException = [](shared_ptr<ASTNode> ast) {
+		// Given
+		ModifiesExtractor extractor = ModifiesExtractor();
+
+		// from https://stackoverflow.com/a/28797665
+		bool exceptionThrown = false;
+		// When
+		try {
+			vector<Relationship> extractedResult = extractor.handleRead(ast);
+		}
+		catch (ASTException&) {
+			exceptionThrown = true;
+		}
+		REQUIRE(exceptionThrown);
+	};
+
+	const int LINENUMBER = 1;
+
+	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
+
+	// should throw exception on non-read node e.g. assign node
+	// x = x + 1
+	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token addToken = Token{ "+", TokenType::OPERATOR };
+	Token constToken = Token{ "1", TokenType::INTEGER };
+	Token assignToken = Token{ "=", TokenType::OPERATOR };
+
+	Entity assignEntity = Entity::createAssignEntity(1);
+
+	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+
+	shared_ptr<ASTNode> addNode(new ExpressionASTNode(addToken));
+
+	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
+
+	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
+	Entity constEntity = Entity::createConstantEntity(LINENUMBER, constToken);
+
+
+	addNode->setLineNumber(1);
+	assignNode->setLineNumber(1);
+	x->setLineNumber(1);
+	constNode->setLineNumber(1);
+
+	assignNode->addChild(x);
+	assignNode->addChild(addNode);
+
+	addNode->addChild(x);
+	addNode->addChild(constNode);
+
+	handleReadException(assignNode);
 }
 
 TEST_CASE("ModifiesExtractor: test handleProcedure") {
@@ -164,7 +260,7 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 	Token constToken = Token{ "1", TokenType::INTEGER };
 	Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
 	Token assignToken = Token{ "=", TokenType::OPERATOR };
-	Token stmtLst = Token{ "", TokenType::INVALID };
+	Token stmtLst = Token::getPlaceHolderToken();
 
 
 	// Creating nodes
@@ -427,61 +523,165 @@ TEST_CASE("ModifiesExtractor: test extract") {
 
 		// Then
 		REQUIRE(expectedResult.size() == extractedResult.size());
-
+		
+		/* 
+			Refactored this test case: cannot guarantee that order of traversal in extractedResult same as order in expectedResult. 
+			Generalised this test case to check if extracted relationships are contained in expected result
+		*/
 		for (int i = 0; i < extractedResult.size(); i++) {
-			REQUIRE(extractedResult[i].equals(expectedResult[i]));
+			bool isInExpectedResult = false;
+			for (int j = 0; j < expectedResult.size(); j++) {
+				isInExpectedResult = isInExpectedResult || extractedResult[i].equals(expectedResult[j]);
+				if (isInExpectedResult) break;
+			}
+			REQUIRE(isInExpectedResult);
 		}
+		
 	};
+	
+	SECTION("Test extract on single statement") {
+		const int LINENUMBER = 1;
 
-	const int LINENUMBER = 1;
+		Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+		Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
-	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
-
-	// x = x + 1 + y
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token addToken = Token{ "+", TokenType::OPERATOR };
-	Token constToken = Token{ "1", TokenType::INTEGER };
-	Token assignToken = Token{ "=", TokenType::OPERATOR };
-	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	Entity assignEntity = Entity::createAssignEntity(LINENUMBER);;
-
-
-	Entity yEntity = Entity::createVariableEntity(LINENUMBER, yToken);
-
-	shared_ptr<ASTNode> LHSNode(new VariableASTNode(xToken));
-
-	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
-
-	shared_ptr<ASTNode> addNode1(new ExpressionASTNode(addToken));
-	shared_ptr<ASTNode> addNode2(new ExpressionASTNode(addToken));
-
-	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
-	shared_ptr<ASTNode> y(new VariableASTNode(yToken));
-
-	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
-
-	Entity constEntity = Entity::createConstantEntity(LINENUMBER, constToken);
+		// x = x + 1 + y
+		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+		Token addToken = Token{ "+", TokenType::OPERATOR };
+		Token constToken = Token{ "1", TokenType::INTEGER };
+		Token assignToken = Token{ "=", TokenType::OPERATOR };
+		Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
+		Entity assignEntity = Entity::createAssignEntity(LINENUMBER);;
 
 
-	addNode1->setLineNumber(1);
-	assignNode->setLineNumber(1);
-	x->setLineNumber(1);
-	y->setLineNumber(1);
-	constNode->setLineNumber(1);
+		Entity yEntity = Entity::createVariableEntity(LINENUMBER, yToken);
 
-	assignNode->addChild(x);
-	assignNode->addChild(addNode1);
+		shared_ptr<ASTNode> LHSNode(new VariableASTNode(xToken));
 
-	addNode1->addChild(x);
-	addNode1->addChild(addNode2);
-	addNode2->addChild(constNode);
-	addNode2->addChild(y);
+		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+
+		shared_ptr<ASTNode> addNode1(new ExpressionASTNode(addToken));
+		shared_ptr<ASTNode> addNode2(new ExpressionASTNode(addToken));
+
+		shared_ptr<ASTNode> x(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> y(new VariableASTNode(yToken));
+
+		shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
+
+		Entity constEntity = Entity::createConstantEntity(LINENUMBER, constToken);
 
 
-	Relationship modifiesX = Relationship{ assignEntity, LHS, RelationshipType::MODIFIES };
+		addNode1->setLineNumber(1);
+		assignNode->setLineNumber(1);
+		x->setLineNumber(1);
+		y->setLineNumber(1);
+		constNode->setLineNumber(1);
 
-	vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
+		assignNode->addChild(x);
+		assignNode->addChild(addNode1);
 
-	testExtract(assignNode, expectedResult);
+		addNode1->addChild(x);
+		addNode1->addChild(addNode2);
+		addNode2->addChild(constNode);
+		addNode2->addChild(y);
+
+
+		Relationship modifiesX = Relationship{ assignEntity, LHS, RelationshipType::MODIFIES };
+
+		vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
+
+		testExtract(assignNode, expectedResult);
+	}
+	
+	
+	SECTION("Test extract from root program node") {
+		/*
+			procedure main {
+				1. x = 1
+			}
+
+			procedure readY {
+				2. read y
+			}
+		*/
+		
+		const int LINENUMBER = 1;
+
+		// Create tokens
+		// main
+		Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
+		Token xTokenMain = Token{ "x", TokenType::NAME_OR_KEYWORD };
+		Token assignToken = Token{ "=", TokenType::OPERATOR };
+		Token constToken = Token{ "1", TokenType::INTEGER };
+
+		// readY
+		Token readYToken = Token{ "readY", TokenType::NAME_OR_KEYWORD };
+		Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
+		Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
+
+		// tokens for full program
+		Token stmtLstToken = Token::getPlaceHolderToken();
+		Token rootNodeToken = Token::getPlaceHolderToken();
+
+		// creating nodes
+		shared_ptr<ASTNode> rootProgramNode(new ProgramASTNode(rootNodeToken));
+		shared_ptr<ASTNode> procedureMainNode(new ProcedureASTNode(mainToken));
+		shared_ptr<ASTNode> procedureReadYNode(new ProcedureASTNode(readYToken));
+
+		shared_ptr<ASTNode> stmtLstMain(new StatementListASTnode(stmtLstToken));
+		shared_ptr<ASTNode> stmtLstReadY(new StatementListASTnode(stmtLstToken));
+
+		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+		shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
+
+		shared_ptr<ASTNode> x(new VariableASTNode(xTokenMain));
+		shared_ptr<ASTNode> y(new VariableASTNode(yToken));
+		shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
+
+		x->setLineNumber(1);
+		constNode->setLineNumber(1);
+		y->setLineNumber(2);
+		readNode->setLineNumber(2);
+
+		rootProgramNode->addChild(procedureMainNode);
+		rootProgramNode->addChild(procedureReadYNode);
+
+		procedureMainNode->addChild(stmtLstMain);
+		procedureReadYNode->addChild(stmtLstReadY);
+
+		stmtLstMain->addChild(assignNode);
+		stmtLstReadY->addChild(readNode);
+
+		assignNode->addChild(x);
+		assignNode->addChild(constNode);
+
+		readNode->addChild(y);
+
+		// Create entities
+		Entity programEntity = Entity::createProgramEntity();
+		Entity procedureMainEntity = Entity::createProcedureEntity(mainToken);
+		Entity procedureReadYEntity = Entity::createProcedureEntity(readYToken);
+
+
+		Entity xEntity = Entity::createVariableEntity(x->getLineNumber(), xTokenMain);
+		Entity assignEntity = Entity::createAssignEntity(assignNode->getLineNumber());
+
+		Entity yEntity = Entity::createVariableEntity(y->getLineNumber(), yToken);
+		Entity readEntity = Entity::createReadEntity(readNode->getLineNumber());
+
+		Relationship procedureXRelationship = Relationship{ procedureMainEntity, xEntity, RelationshipType::MODIFIES };
+		Relationship procedureYRelationship = Relationship{ procedureReadYEntity, yEntity, RelationshipType::MODIFIES };
+		Relationship assignRelation = Relationship{ assignEntity, xEntity, RelationshipType::MODIFIES };
+		Relationship readRelation = Relationship{ readEntity, yEntity, RelationshipType::MODIFIES };
+
+		vector <Relationship> expectedResult = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation };
+
+		testExtract(rootProgramNode, expectedResult);
+		
+	}
+	
+
+	
+
+
 }

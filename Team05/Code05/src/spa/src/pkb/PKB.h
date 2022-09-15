@@ -159,6 +159,17 @@ public:
 		Casts the PKB to its update handler interface as a shared pointer.
 	*/
 	shared_ptr<PKBUpdateHandler> getUpdateHandler();
+
+	/*
+	*	Checks if SP entity exists in PKB
+	*/
+	bool containsEntity(Entity entity);
+
+	/*
+	*	Checks if SP Relationship exists in PKB
+	*/
+	bool containsRelationship(Relationship relationship);
+
 };
 
 // helper methods
