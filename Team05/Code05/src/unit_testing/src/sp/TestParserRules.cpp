@@ -1862,7 +1862,7 @@ TEST_CASE("Parser: test ::constructNode") {
 
     // -------------------- IfSimpleSyntaxRule --------------------
     SECTION("IfSimpleSyntaxRule : constructNode") {
-        // while (x > y) then { read x; } else  { read y;}
+        // if (x > y) then { read x; } else  { read y;}
         Token ifToken = Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD);
         Token variableX = Token("x", TokenType::NAME_OR_KEYWORD);
         Token greaterThan = Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR);
