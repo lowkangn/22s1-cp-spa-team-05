@@ -19,6 +19,9 @@ protected:
 	shared_ptr<PkbStatementEntity> statement;
 	/*
 		Vector of strings that can be matched.
+
+		NOTE: we expect the internal strings to be postfix
+		e.g. x + z * y -> +x*zy. This allows us to model a tree with strings.
 	*/
 	vector<string> strings; 
 
@@ -35,6 +38,9 @@ public :
 	/*
 		Takes in a vector of regex strings and returns true if all strings 
 		match on all strings within the pattern.
+
+		NOTE: we expect the internal strings to be postfix 
+		e.g. x + z * y -> +x*zy. This allows us to model a tree with strings.
 	*/
 	bool isRegexMatch(vector<string> regexStrings) {
 		if (regexStrings.size() != this->strings.size()) {
