@@ -32,8 +32,7 @@ public:
      */
     Query parse();
 
-    list<shared_ptr<Clause>> parseConstraints(unordered_map<string, ArgumentType> declarations);
+    list<shared_ptr<RelationshipClause>> parseConstraints(unordered_map<string, ArgumentType> declarations);
 
-    shared_ptr<Clause> parseSuchThat(unordered_map<string, ArgumentType> declarations);
+    shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType> declarations);
 };
-

@@ -21,7 +21,7 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
             ModifiesParser parser = ModifiesParser(tokens, declarations);
 
             // when
-            shared_ptr<Clause>  actualPtr = parser.parse();
+            shared_ptr<RelationshipClause> actualPtr = parser.parse();
 
             // then
             REQUIRE(expected.equals(actualPtr.get()));
@@ -73,7 +73,7 @@ TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
             ModifiesParser parser = ModifiesParser(tokens, declarations);
 
             // when
-            shared_ptr<Clause>  actualPtr = parser.parse();
+            shared_ptr<RelationshipClause> actualPtr = parser.parse();
 
             // then
             REQUIRE(expected.equals(actualPtr.get()));

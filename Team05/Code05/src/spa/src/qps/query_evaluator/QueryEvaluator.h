@@ -2,44 +2,40 @@
 
 #include <string>
 #include <vector>
-#include <unordered_set>
+#include <set>
 
-#include "../query/clause/ClauseResult.h"
-#include "../query/clause/EntityClauseResult.h"
-#include "../query/clause/RelationshipClauseResult.h"
-#include "../query/Query.h"
+#include <qps/query/clause/EntityClauseResult.h>
+#include <qps/query/clause/RelationshipClauseResult.h>
+#include <qps/query/Query.h>
+#include <pkb/PKB.h>
 
 using namespace std;
 
-enum class DeclarationCheckOutput {
+enum class RelationshipArgument {
     ARG1,
     ARG2,
     NONE
 };
 
 class QueryEvaluator {
-private:
-    DeclarationCheckOutput checkDeclaration(shared_ptr<EntityClauseResult> entityResult,
-                                            shared_ptr<RelationshipClauseResult> relationshipResult) {
-        if (entityResult->getArg() == relationshipResult->getFirstArg()) {
-            return DeclarationCheckOutput::ARG1;
-        } else if (entityResult->getArg() == relationshipResult->getSecondArg()) {
-            return DeclarationCheckOutput::ARG2;
-        } else {
-            return DeclarationCheckOutput::NONE;
-        }
-    }
-
-    void filterEntitiesToReturn(unordered_set<string>* currEntitiesToReturn,
-                                shared_ptr<EntityClauseResult> entitiesResult,
-                                shared_ptr<RelationshipClauseResult> relationshipsResult);
 public:
     QueryEvaluator() {};
 
 	/* Returns the final result of a query */
-	unordered_set<string> evaluate(Query query);
+	set<string> evaluate(Query query, shared_ptr<PKB> pkb);
 
 	/* Combines the results from the clauses of a query */
-    unordered_set<string> combine(pair<shared_ptr<ClauseResult>, list<shared_ptr<ClauseResult>>>);
+    set<string> combine(shared_ptr<EntityClauseResult> entitiesResultPointer,
+						list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers);
+
+	RelationshipArgument findDesiredArgument(ClauseArgument desiredArg,
+											 RelationshipClauseResult relationshipResultToCheck);
+
+	list<RelationshipClauseResult> dereferenceRelationshipsResultPointers(
+			list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers);
+
+	set<PQLEntity> extractEntitySet(RelationshipArgument argToExtract, vector<PQLRelationship> relationships);
+
+	set<PQLEntity> intersectSets(set<PQLEntity> firstSet, set<PQLEntity> secondSet);
 
 };

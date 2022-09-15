@@ -9,6 +9,8 @@
 #include <pkb/design_objects/relationships/PkbParentRelationship.h>
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
+#include <pkb/design_objects/patterns/PkbStatementPattern.h>
+
 #include <pkb/PkbException.h>
 
 #include <memory>
@@ -155,4 +157,114 @@ TEST_CASE("PkbRelationship: test ::getKey") {
 
 
 }
-	
+
+TEST_CASE("PkbStatementPattern::getKey") {
+	auto test = [](shared_ptr<PkbStatementPattern> pattern, string expectedKey) {
+		// given, when, then
+		REQUIRE(pattern->getKey() == expectedKey);
+	};
+
+	SECTION("Assign pattern") {
+		vector<string> strings = {
+			"x",
+			"x+1"
+		};
+		shared_ptr<PkbStatementEntity> assignStatement = shared_ptr<PkbStatementEntity>(PkbStatementEntity::createAssignStatementEntity(1));
+		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+		string expectedKey = "xx+1" + assignStatement->getKey();
+		test(pattern, expectedKey);
+	};
+
+}
+
+TEST_CASE("PkbStatementPattern::regexMatch") {
+	// test on https://regex101.com/
+	auto test = [](shared_ptr<PkbStatementPattern> pattern, vector<string> regexStringsToMatch, bool shouldThrow, bool shouldMatch) {
+		// given, when, then
+		if (shouldThrow) {
+			REQUIRE_THROWS_AS(pattern->isRegexMatch(regexStringsToMatch), PkbException);
+		}
+		else {
+			REQUIRE(pattern->isRegexMatch(regexStringsToMatch) == shouldMatch);
+		}
+	};
+
+
+	SECTION("Should match, _; _+_") {
+		vector<string> strings = {
+			"x",
+			"x+1"
+		};
+		vector<string> regexStringsToMatch = {
+			".*",
+			".*\\+.*" // escape the + character
+		};
+		bool shouldThrow = false;
+		bool shouldMatch = true;
+		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	};
+
+	SECTION("Should match, _; _x_") {
+		vector<string> strings = {
+			"x",
+			"x+1"
+		};
+		vector<string> regexStringsToMatch = {
+			".*",
+			".*x.*"
+		};
+		bool shouldThrow = false;
+		bool shouldMatch = true;
+		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	};
+
+	SECTION("Should match, x; _") {
+		vector<string> strings = {
+			"x",
+			"x+1"
+		};
+		vector<string> regexStringsToMatch = {
+			"x",
+			".*"
+		};
+		bool shouldThrow = false;
+		bool shouldMatch = true;
+		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	};
+
+	SECTION("Should throw due to length mismatch") {
+		vector<string> strings = {
+			"x",
+			"x+1"
+		};
+		vector<string> regexStringsToMatch = {
+		};
+		bool shouldThrow = true;
+		bool shouldMatch = true;
+		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	};
+
+	SECTION("Should not match, _;x") {
+		vector<string> strings = {
+			"x",
+			"x+1"
+		};
+		vector<string> regexStringsToMatch = {
+			".*",
+			"x"
+		};
+		bool shouldThrow = false;
+		bool shouldMatch = false;
+		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	};
+}

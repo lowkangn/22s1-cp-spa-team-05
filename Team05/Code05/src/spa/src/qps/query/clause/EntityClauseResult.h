@@ -1,11 +1,10 @@
 #pragma once
 
 #include <vector>
-#include "PQLEntity.h"
-#include "ClauseResult.h"
-#include "ClauseArgument.h"
+#include <qps/query/clause/PQLEntity.h>
+#include <qps/query/clause/ClauseArgument.h>
 
-class EntityClauseResult : public ClauseResult {
+class EntityClauseResult {
 
 private:
     ClauseArgument arg;
@@ -22,6 +21,10 @@ public:
     }
     vector<PQLEntity> getEntities() {
         return this->entities;
+    }
+
+    bool isEmpty() {
+        return this->entities.empty();
     }
 
     friend bool operator==(EntityClauseResult first, EntityClauseResult second);

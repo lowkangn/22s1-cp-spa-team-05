@@ -1,21 +1,17 @@
 #pragma once
 
 #include <string>
-#include "Clause.h"
-#include "ClauseResult.h"
-#include "RelationshipClauseResult.h"
-#include "ClauseArgument.h"
+#include <qps/query/clause/RelationshipClause.h>
+#include <qps/query/clause/RelationshipClauseResult.h>
+#include <qps/query/clause/ClauseArgument.h>
 
-class ModifiesPClause : public Clause {
+class ModifiesPClause : public RelationshipClause {
 
-private:
-	ClauseArgument lhs;
-	ClauseArgument rhs;
 public:
 	ModifiesPClause(ClauseArgument lhs, ClauseArgument rhs)
-		: lhs(lhs), rhs(rhs) {};
+		: RelationshipClause(lhs, rhs) {};
 
-	shared_ptr<ClauseResult> execute() override;
+	shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKB> pkb) override;
 
-	bool equals(const Clause* other) override;
+	bool equals(const RelationshipClause* other) override;
 };
