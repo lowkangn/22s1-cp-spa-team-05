@@ -1,10 +1,10 @@
 #include <qps/query/Query.h>
 
-shared_ptr<EntityClauseResult> Query::executeSelect(shared_ptr<PKB> pkb) {
+shared_ptr<EntityClauseResult> Query::executeSelect(shared_ptr<PKBQueryHandler> pkb) {
     return selectClause->execute(pkb);
 }
 
-list<shared_ptr<RelationshipClauseResult>> Query::executeSuchThat(shared_ptr<PKB> pkb) {
+list<shared_ptr<RelationshipClauseResult>> Query::executeSuchThat(shared_ptr<PKBQueryHandler> pkb) {
 	list<shared_ptr<RelationshipClauseResult>> relationships;
 	list<shared_ptr<RelationshipClause>>::iterator iter = constraintClauses.begin();
 	for (; iter != constraintClauses.end(); iter++) {

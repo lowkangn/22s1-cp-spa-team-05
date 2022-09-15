@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <algorithm>
 
 #include <qps/query/clause/EntityClauseResult.h>
 #include <qps/query/clause/RelationshipClauseResult.h>
@@ -22,7 +23,7 @@ public:
     QueryEvaluator() {};
 
 	/* Returns the final result of a query */
-	set<string> evaluate(Query query, shared_ptr<PKB> pkb);
+	set<string> evaluate(Query query, shared_ptr<PKBQueryHandler> pkb);
 
 	/* Combines the results from the clauses of a query */
     set<string> combine(shared_ptr<EntityClauseResult> entitiesResultPointer,

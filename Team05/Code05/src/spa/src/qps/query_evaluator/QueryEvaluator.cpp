@@ -1,7 +1,6 @@
-#include <set>
 #include <qps/query_evaluator/QueryEvaluator.h>
 
-set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKB> pkb) {
+set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pkb) {
 	shared_ptr<EntityClauseResult> entitiesResultPointer = query.executeSelect(pkb);
 	list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers = query.executeSuchThat(pkb);
 	return combine(entitiesResultPointer, relationshipsResultPointers);

@@ -9,11 +9,14 @@
 #include "AbstractWrapper.h"
 #include <common/FileIOManager.h>
 #include <sp/SourceProcessor.h>
+#include <pkb/PKB.h>
+#include <qps/QPS.h>
 
 class TestWrapper : public AbstractWrapper {
 private: 
 	FileIOManager io;
 	SourceProcessor sp;
+	PKB pkb;
 public:
   // default constructor
   TestWrapper();

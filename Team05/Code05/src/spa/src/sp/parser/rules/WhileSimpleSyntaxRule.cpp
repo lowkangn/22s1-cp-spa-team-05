@@ -1,11 +1,4 @@
 #include <sp/parser/rules/WhileSimpleSyntaxRule.h>
-#include <sp/parser/rules/ConditionalExpressionSimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/parser/rules/StatementListSimpleSyntaxRule.h>
-#include <sp/dataclasses/ast/WhileASTNode.h>
-#include <sp/dataclasses/ast/AST.h>
-#include <list>
-#include <memory>
 
 const int WHILE_CONDITION_RULE = 0;
 const int STMT_LIST_RULE = 1;

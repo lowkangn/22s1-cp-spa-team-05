@@ -10,10 +10,8 @@
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
 #include<pkb/table_managers/PkbPatternTable.h>
-#include<pkb/table_managers/PkbPatternTable.cpp>
 #include <pkb/PkbException.h>
 #include <pkb/PKB.h>
-#include <pkb/PKB.cpp>
 
 #include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
@@ -825,15 +823,18 @@ TEST_CASE("Test containsEntity") {
 	Entity yEntity = Entity::createVariableEntity(1, yToken);
 	Entity constEntityTest = Entity::createConstantEntity(1, constTokenTest);
 
-	test(entitiesToAdd, procedureMainEntity, true);
-	test(entitiesToAdd, xEntity, true);
-	test(entitiesToAdd, assignEntity, true);
-	test(entitiesToAdd, constEntity, true);
+	SECTION("Test for entities inside PKB") {
+		test(entitiesToAdd, procedureMainEntity, true);
+		test(entitiesToAdd, xEntity, true);
+		test(entitiesToAdd, assignEntity, true);
+		test(entitiesToAdd, constEntity, true);
+	}
 
-	test(entitiesToAdd, procedureTestEntity, false);
-	test(entitiesToAdd, yEntity, false);
-	test(entitiesToAdd, constEntityTest, false);
-
+	SECTION("Test for entities not in PKB") {
+		test(entitiesToAdd, procedureTestEntity, false);
+		test(entitiesToAdd, yEntity, false);
+		test(entitiesToAdd, constEntityTest, false);
+	}
 }
 
 
@@ -896,19 +897,23 @@ TEST_CASE("Test containsRelationship") {
 
 	vector <Relationship> relationshipsToAdd = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation };
 
-	test(relationshipsToAdd, procedureXRelationship, true);
-	test(relationshipsToAdd, procedureYRelationship, true);
-	test(relationshipsToAdd, assignRelation, true);
-	test(relationshipsToAdd, readRelation, true);
+	SECTION("Test for relationships inside PKB") {
+		test(relationshipsToAdd, procedureXRelationship, true);
+		test(relationshipsToAdd, procedureYRelationship, true);
+		test(relationshipsToAdd, assignRelation, true);
+		test(relationshipsToAdd, readRelation, true);
+	}
 
-	// test relationships not in PKB
-	Token zToken = Token{ "z", TokenType::NAME_OR_KEYWORD };
-	Token testToken = Token{ "testprocedure", TokenType::NAME_OR_KEYWORD };
+	SECTION("Test for relationships not in PKB") {
+		// test relationships not in PKB
+		Token zToken = Token{ "z", TokenType::NAME_OR_KEYWORD };
+		Token testToken = Token{ "testprocedure", TokenType::NAME_OR_KEYWORD };
 
-	Entity zEntity = Entity::createVariableEntity(3, zToken);
-	Entity procedureTestEntity = Entity::createProcedureEntity(testToken);
+		Entity zEntity = Entity::createVariableEntity(3, zToken);
+		Entity procedureTestEntity = Entity::createProcedureEntity(testToken);
 
-	Relationship procedureZRelationship = Relationship{ procedureTestEntity, zEntity, RelationshipType::MODIFIES };
-	test(relationshipsToAdd, procedureZRelationship, false);
+		Relationship procedureZRelationship = Relationship{ procedureTestEntity, zEntity, RelationshipType::MODIFIES };
+		test(relationshipsToAdd, procedureZRelationship, false);
+	}
 
 }

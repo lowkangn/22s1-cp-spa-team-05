@@ -4,11 +4,9 @@
 #include <sp/design_extractor/EntityExtractor.h>
 #include <sp/design_extractor/PatternExtractor.h>
 #include <sp/design_extractor/ModifiesExtractor.h>
-
 #include <sp/design_extractor/DesignExtractorManager.h>
-
 #include <sp/dataclasses/tokens/Token.h>
-
+#include <sp/SourceProcessor.h>
 #include <list>
 #include <memory>
 
