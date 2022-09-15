@@ -5,6 +5,7 @@
 #include <sp/dataclasses/ast/ExpressionASTNode.h>
 #include <sp/dataclasses/ast/IfASTNode.h>
 #include <sp/dataclasses/ast/PrintASTNode.h>
+#include <sp/dataclasses/ast/ProcedureASTNode.h>
 #include <sp/dataclasses/ast/WhileASTNode.h>
 #include <sp/design_extractor/UsesExtractor.h>
 
@@ -50,7 +51,10 @@ vector<Relationship> UsesExtractor::extract(shared_ptr<ASTNode> ast) {
 		uses.insert(uses.end(), extractedUses.begin(), extractedUses.end());
 		break;
 	}
-	default:
+	}
+
+	// If it is a container type we need to recursively extract children
+	if (ast->hasContainer()) {
 		vector<shared_ptr<ASTNode>> children = ast->getChildren();
 		for (int i = 0; i < children.size(); i++) {
 			shared_ptr<ASTNode> child = children[i];
@@ -58,13 +62,22 @@ vector<Relationship> UsesExtractor::extract(shared_ptr<ASTNode> ast) {
 			uses.insert(uses.end(), extractedRelationships.begin(), extractedRelationships.end());
 		}
 	}
+
 	return uses;
 }
 
 vector<Relationship> UsesExtractor::handleProcedure(shared_ptr<ASTNode> ast) {
 	Entity leftHandSide = ast->extractEntity();
 
-	vector<Relationship> extractedChildRelationships = recursiveContainerExtract(leftHandSide, ast);
+	vector<Relationship> extractedChildRelationships;
+	shared_ptr<ProcedureASTNode> procedureNode = dynamic_pointer_cast<ProcedureASTNode>(ast);
+	shared_ptr<ASTNode> childContainer = procedureNode->getStmtLst();
+
+	// Iterate through children and extract Procedure Stmt relationships
+	for (shared_ptr<ASTNode> child : childContainer->getChildren()) {
+		vector <Relationship> extractedRelationships = recursiveContainerExtract(leftHandSide, child);
+		extractedChildRelationships.insert(extractedChildRelationships.end(), extractedRelationships.begin(), extractedRelationships.end());
+	}
 
 	return extractedChildRelationships;
 }
@@ -96,17 +109,18 @@ vector<Relationship> UsesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 	vector<Relationship> usesRelationships = vector<Relationship>();
 
 	shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
-	shared_ptr<ASTNode> child = whileNode->getStmtList();
+	shared_ptr<ASTNode> childStmtLst = whileNode->getStmtList();
 
 	Entity leftHandSide = whileNode->extractEntity();
 
 	vector<Entity> whileConditionVariables = extractVariables(whileNode->getCondition());
 	addRelationshipsWithVariables(usesRelationships, leftHandSide, whileConditionVariables);
 
-	// Recursively extract relations from the while block
-	vector<Relationship> extractedChildRelationships = recursiveContainerExtract(leftHandSide, child);
-
-	usesRelationships.insert(usesRelationships.end(), extractedChildRelationships.begin(), extractedChildRelationships.end());
+	// Iterate through children and extract While Stmt relationships
+	for (shared_ptr<ASTNode> child : childStmtLst->getChildren()) {
+		vector <Relationship> extractedRelationships = recursiveContainerExtract(leftHandSide, child);
+		usesRelationships.insert(usesRelationships.end(), extractedRelationships.begin(), extractedRelationships.end());
+	}
 
 	return usesRelationships;
 }
@@ -124,12 +138,16 @@ vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 	vector<Entity> conditionVariables = extractVariables(condition);
 	addRelationshipsWithVariables(usesRelationships, leftHandSide, conditionVariables);
 
-	// Recursively extract relations from Then and else containers
-	vector<Relationship> extractedThenChildRelationships = recursiveContainerExtract(leftHandSide, thenChild);
-	vector<Relationship> extractedElseChildRelationships = recursiveContainerExtract(leftHandSide, elseChild);
+	// Iterate through children and extract If Stmt relationships
+	for (shared_ptr<ASTNode> child : thenChild->getChildren()) {
+		vector <Relationship> extractedThenRelationships = recursiveContainerExtract(leftHandSide, child);
+		usesRelationships.insert(usesRelationships.end(), extractedThenRelationships.begin(), extractedThenRelationships.end());
+	}
 
-	usesRelationships.insert(usesRelationships.end(), extractedThenChildRelationships.begin(), extractedThenChildRelationships.end());
-	usesRelationships.insert(usesRelationships.end(), extractedElseChildRelationships.begin(), extractedElseChildRelationships.end());
+	for (shared_ptr<ASTNode> child : elseChild->getChildren()) {
+		vector <Relationship> extractedElseRelationships = recursiveContainerExtract(leftHandSide, child);
+		usesRelationships.insert(usesRelationships.end(), extractedElseRelationships.begin(), extractedElseRelationships.end());
+	}
 
 	return usesRelationships;
 }
@@ -162,14 +180,14 @@ vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
 	return variables;
 }
 
-void UsesExtractor::addRelationshipsWithVariables(vector<Relationship>& relationships, Entity& LHS, vector<Entity>& variables) {
+void UsesExtractor::addRelationshipsWithVariables(vector<Relationship>& relationships, Entity& leftHandSide, vector<Entity>& variables) {
 	for (int i = 0; i < variables.size(); i++) {
-		Relationship toAdd = Relationship{ LHS, variables[i], RelationshipType::USES };
+		Relationship toAdd = Relationship{ leftHandSide, variables[i], RelationshipType::USES };
 		relationships.push_back(toAdd);
 	}
 }
 
-vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& LHS, shared_ptr<ASTNode> ast) {
+vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSide, shared_ptr<ASTNode> ast) {
 	vector<Relationship> usesRelationships = vector<Relationship>();
 	ASTNodeType type = ast->getType();
 
@@ -180,12 +198,9 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& LHS, share
 		shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
 		shared_ptr<ASTNode> rightChild = assignNode->getRightHandSide();
 
-		vector<Relationship> assignRelationship = handleAssign(ast);
-
 		vector<Entity> extractedVariables = extractVariables(rightChild);
-		addRelationshipsWithVariables(usesRelationships, LHS, extractedVariables);
+		addRelationshipsWithVariables(usesRelationships, leftHandSide, extractedVariables);
 
-		usesRelationships.insert(usesRelationships.end(), assignRelationship.begin(), assignRelationship.end());
 		break;
 	}
 	case ASTNodeType::PRINT:
@@ -194,29 +209,27 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& LHS, share
 		shared_ptr<PrintASTNode> printNode = dynamic_pointer_cast<PrintASTNode>(ast);
 		shared_ptr<ASTNode> child = printNode->getVariableToPrintNode();
 
-		vector<Relationship> printRelationship = handlePrint(ast);
-
 		Entity childEntity = child->extractEntity();
-		Relationship toAdd = Relationship{ LHS, childEntity, RelationshipType::USES };
+		Relationship toAdd = Relationship{ leftHandSide, childEntity, RelationshipType::USES };
 
 		usesRelationships.push_back(toAdd);
-		usesRelationships.insert(usesRelationships.end(), printRelationship.begin(), printRelationship.end());
 		break;
 	}
 	case ASTNodeType::WHILE:
 	{
 		// Cast to WhileASTNode
 		shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
-		shared_ptr<ASTNode> children = whileNode->getStmtList();
+		shared_ptr<ASTNode> condition = whileNode->getCondition();
+		shared_ptr<ASTNode> childrenStmtLst = whileNode->getStmtList();
+		
+		vector<Entity> conditionVariables = extractVariables(condition);
+		addRelationshipsWithVariables(usesRelationships, leftHandSide, conditionVariables);
 
-		vector<Entity> whileConditionVariables = extractVariables(whileNode->getCondition());
-		addRelationshipsWithVariables(usesRelationships, LHS, whileConditionVariables);
-
-		vector<Relationship> recursiveExtract = recursiveContainerExtract(LHS, children);
-		vector<Relationship> recursiveWhile = handleWhile(ast);
-
-		usesRelationships.insert(usesRelationships.end(), recursiveExtract.begin(), recursiveExtract.end());
-		usesRelationships.insert(usesRelationships.end(), recursiveWhile.begin(), recursiveWhile.end());
+		// Create relationship for parent of this container and the stmtlst inside this while node
+		for (shared_ptr<ASTNode> child : childrenStmtLst->getChildren()) {
+			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
+			usesRelationships.insert(usesRelationships.end(), toAdd.begin(), toAdd.end());
+		}
 		break;
 	}
 	case ASTNodeType::IF:
@@ -228,26 +241,19 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& LHS, share
 		shared_ptr<ASTNode> elseChildren = ifNode->getElseStatements();
 
 		vector<Entity> conditionVariables = extractVariables(condition);
-		addRelationshipsWithVariables(usesRelationships, LHS, conditionVariables);
+		addRelationshipsWithVariables(usesRelationships, leftHandSide, conditionVariables);
 
-		vector<Relationship> toAddThen = recursiveContainerExtract(LHS, thenChildren);
-		vector<Relationship> toAddElse = recursiveContainerExtract(LHS, elseChildren);
-		vector<Relationship> recursiveIfRelations = handleIf(ast);
-
-		usesRelationships.insert(usesRelationships.end(), toAddThen.begin(), toAddThen.end());
-		usesRelationships.insert(usesRelationships.end(), toAddElse.begin(), toAddElse.end());
-		usesRelationships.insert(usesRelationships.end(), recursiveIfRelations.begin(), recursiveIfRelations.end());
-		break;
-	}
-	default:
-	{
-		// Iterate through child nodes calling this function recursively
-		vector<shared_ptr<ASTNode>> children = ast->getChildren();
-		for (int i = 0; i < children.size(); i++) {
-			shared_ptr<ASTNode> child = children[i];
-			vector<Relationship> extractedUses = recursiveContainerExtract(LHS, child);
-			usesRelationships.insert(usesRelationships.end(), extractedUses.begin(), extractedUses.end());
+		// Create relationship for parent of this container and the then and else stmtlst inside this if node
+		for (shared_ptr<ASTNode> child : thenChildren->getChildren()) {
+			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
+			usesRelationships.insert(usesRelationships.end(), toAdd.begin(), toAdd.end());
 		}
+
+		for (shared_ptr<ASTNode> child : elseChildren->getChildren()) {
+			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
+			usesRelationships.insert(usesRelationships.end(), toAdd.begin(), toAdd.end());
+		}
+		break;
 	}
 	}
 	return usesRelationships;
