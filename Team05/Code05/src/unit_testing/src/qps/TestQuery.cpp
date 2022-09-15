@@ -18,15 +18,15 @@ TEST_CASE("Query: test operator==") {
         REQUIRE(actual == expected);
     };
 
-    shared_ptr<Clause> selectClause = shared_ptr<Clause>(new SelectClause(ClauseArgument("v", ArgumentType::VARIABLE)));
-    shared_ptr<Clause> modifiesSClause = shared_ptr<Clause>(new ModifiesSClause(ClauseArgument("1", ArgumentType::LINE_NUMBER),
-                                                                               ClauseArgument("v", ArgumentType::VARIABLE)));
-    shared_ptr<Clause> modifiesPClause = shared_ptr<Clause>(new ModifiesPClause(ClauseArgument("main", ArgumentType::PROCEDURE),
-                                                                                ClauseArgument("v", ArgumentType::VARIABLE)));
+    shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(ClauseArgument("v", ArgumentType::VARIABLE)));
+    shared_ptr<RelationshipClause> modifiesSClause = shared_ptr<RelationshipClause>(new ModifiesSClause(ClauseArgument("1", ArgumentType::LINE_NUMBER),
+																										ClauseArgument("v", ArgumentType::VARIABLE)));
+    shared_ptr<RelationshipClause> modifiesPClause = shared_ptr<RelationshipClause>(new ModifiesPClause(ClauseArgument("main", ArgumentType::PROCEDURE),
+																										ClauseArgument("v", ArgumentType::VARIABLE)));
 
-    Query firstQuery = Query(selectClause, list<shared_ptr<Clause>>{modifiesSClause});
-    Query sameAsFirstQuery = Query(selectClause, list<shared_ptr<Clause>>{modifiesSClause});
-    Query secondQuery = Query(selectClause, list<shared_ptr<Clause>>{modifiesPClause});
+    Query firstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause});
+    Query sameAsFirstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause});
+    Query secondQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesPClause});
 
 
     SECTION("Equal") {
@@ -41,3 +41,10 @@ TEST_CASE("Query: test operator==") {
 
 }
 
+// =============== INTEGRATION TESTS ====================
+
+// TODO: Waiting for PKB interaction implementation
+TEST_CASE("Query: test evaluateSelect") {}
+
+// TODO: Waiting for PKB interaction implementation
+TEST_CASE("Query: test evaluateSuchThat") {}

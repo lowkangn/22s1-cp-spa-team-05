@@ -1,6 +1,6 @@
-#include "FollowsClause.h"
+#include <qps/query/clause/FollowsClause.h>
 
-shared_ptr<ClauseResult> FollowsClause::execute() {
-    return shared_ptr<ClauseResult>();
+shared_ptr<RelationshipClauseResult> FollowsClause::execute(shared_ptr<PKB> pkb) {
+    return shared_ptr<RelationshipClauseResult>();
 }
 

@@ -1,6 +1,6 @@
-#include "Clause.h"
+#include <qps/query/clause/RelationshipClause.h>
 
-class ParentTClause : public Clause {
+class ParentTClause : public RelationshipClause {
 public:
-    shared_ptr<ClauseResult> execute() override;
+    shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKB> pkb) override;
 };

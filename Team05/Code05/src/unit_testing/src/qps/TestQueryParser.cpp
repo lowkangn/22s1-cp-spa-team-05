@@ -28,9 +28,9 @@ TEST_CASE("QueryParser: test parseNoError") {
             PQLToken("p", PQLTokenType::NAME)
         };
 
-        shared_ptr<Clause> selectClause = shared_ptr<Clause>(new SelectClause(
+        shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(
                 ClauseArgument("p", ArgumentType::PROCEDURE)));
-        Query query = Query(selectClause, list<shared_ptr<Clause>>{});
+        Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{});
 
         testParseNoError(tokens, query);
     }
@@ -54,12 +54,12 @@ TEST_CASE("QueryParser: test parseNoError") {
             PQLToken(")", PQLTokenType::DELIMITER)
         };
 
-        shared_ptr<Clause> selectClause = shared_ptr<Clause>(new SelectClause(
+        shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(
                 ClauseArgument("v1", ArgumentType::VARIABLE)));
-        shared_ptr<Clause> modifiesClause = shared_ptr<Clause>(new ModifiesSClause(
+        shared_ptr<RelationshipClause> modifiesClause = shared_ptr<RelationshipClause>(new ModifiesSClause(
                 ClauseArgument("1", ArgumentType::LINE_NUMBER),
                 ClauseArgument("v", ArgumentType::VARIABLE)));
-        Query query = Query(selectClause, list<shared_ptr<Clause>>{modifiesClause});
+        Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause});
 
         testParseNoError(tokens, query);
 
@@ -83,12 +83,12 @@ TEST_CASE("QueryParser: test parseNoError") {
             PQLToken("\"", PQLTokenType::DELIMITER),
             PQLToken(")", PQLTokenType::DELIMITER)
         };
-        selectClause = shared_ptr<Clause>(new SelectClause(
+        selectClause = shared_ptr<SelectClause>(new SelectClause(
                 ClauseArgument("c", ArgumentType::CONSTANT)));
-        modifiesClause = shared_ptr<Clause>(new ModifiesPClause(
+        modifiesClause = shared_ptr<RelationshipClause>(new ModifiesPClause(
                 ClauseArgument("p", ArgumentType::PROCEDURE),
                 ClauseArgument("x", ArgumentType::STRING_LITERAL)));
-        query = Query(selectClause, list<shared_ptr<Clause>>{modifiesClause});
+        query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause});
 
         testParseNoError(tokens, query);
     }
@@ -97,18 +97,18 @@ TEST_CASE("QueryParser: test parseNoError") {
 TEST_CASE("QueryParser: test parseConstraints") {
     auto testParseNoError = [](list<PQLToken> tokens, 
         unordered_map<string, ArgumentType> declarations,
-        list<shared_ptr<Clause>> expected) {
+        list<shared_ptr<RelationshipClause>> expected) {
             // given
             QueryParser parser = QueryParser(tokens);
 
             // when
-            list<shared_ptr<Clause>> actual = parser.parseConstraints(declarations);
+            list<shared_ptr<RelationshipClause>> actual = parser.parseConstraints(declarations);
             bool isEqual = actual.size() == expected.size();
             if (isEqual) {
                 while (!actual.empty()) {
                     //temporarily use casting to check equality for now
-                    shared_ptr<Clause>  actualPtr = actual.front();
-                    shared_ptr<Clause>  expectedPtr = expected.front();
+                    shared_ptr<RelationshipClause> actualPtr = actual.front();
+                    shared_ptr<RelationshipClause> expectedPtr = expected.front();
                     shared_ptr<ModifiesSClause> expectedClause = dynamic_pointer_cast<ModifiesSClause>(actualPtr);
 
                     isEqual = isEqual && (*expectedClause.get()).equals(actualPtr.get());
@@ -121,7 +121,7 @@ TEST_CASE("QueryParser: test parseConstraints") {
             REQUIRE(isEqual);
     };
 
-    shared_ptr<Clause> modifiesClause = shared_ptr<Clause>(new ModifiesPClause(
+    shared_ptr<RelationshipClause> modifiesClause = shared_ptr<RelationshipClause>(new ModifiesPClause(
         ClauseArgument("s1", ArgumentType::STMT),
         ClauseArgument("v1", ArgumentType::VARIABLE)));
 
@@ -141,7 +141,7 @@ TEST_CASE("QueryParser: test parseConstraints") {
         { "s1", ArgumentType::STMT }
     };
 
-    list<shared_ptr<Clause>> expected;
+    list<shared_ptr<RelationshipClause>> expected;
     expected.emplace_back(modifiesClause);
     testParseNoError(tokens, declarations, expected);
 }

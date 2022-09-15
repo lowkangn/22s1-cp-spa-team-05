@@ -1,18 +1,17 @@
 #pragma once
 
 #include <string>
-#include "Clause.h"
-#include "ClauseResult.h"
-#include "ClauseArgument.h"
-#include "EntityClauseResult.h"
+#include <qps/query/clause/ClauseArgument.h>
+#include <qps/query/clause/EntityClauseResult.h>
+#include <pkb/PKB.h>
 
 using namespace std;
 
-class SelectClause : public Clause {
+class SelectClause {
 private:
 	ClauseArgument toSelect;
 public:
 	SelectClause(ClauseArgument toSelect) : toSelect(toSelect) {};
-	shared_ptr<ClauseResult> execute() override;
-	bool equals(const Clause* other) override;
+	shared_ptr<EntityClauseResult> execute(shared_ptr<PKB> pkb);
+	bool equals(const SelectClause* other);
 };

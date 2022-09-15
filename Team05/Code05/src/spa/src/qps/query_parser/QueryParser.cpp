@@ -10,19 +10,19 @@ Query QueryParser::parse() {
     unordered_map<string, ArgumentType> declarations = declParser.parse();
 
     SelectParser selParser = SelectParser(declParser.getRemainingTokens(), declarations);
-    shared_ptr<Clause> selectClause = selParser.parse();
+    shared_ptr<SelectClause> selectClause = selParser.parse();
 
     this->tokens = selParser.getRemainingTokens();
     if (this->tokens.empty()) {
-        return Query(selectClause, list<shared_ptr<Clause>>{});
+        return Query(selectClause, list<shared_ptr<RelationshipClause>>{});
     }
-    list<shared_ptr<Clause>> constraintClauses = parseConstraints(declarations);
+    list<shared_ptr<RelationshipClause>> constraintClauses = parseConstraints(declarations);
 
     return Query(selectClause, constraintClauses);
 }
 
-list<shared_ptr<Clause>> QueryParser::parseConstraints(unordered_map<string, ArgumentType> declarations) {
-    list<shared_ptr<Clause>> clauses;
+list<shared_ptr<RelationshipClause>> QueryParser::parseConstraints(unordered_map<string, ArgumentType> declarations) {
+    list<shared_ptr<RelationshipClause>> clauses;
     PQLToken token = this->tokens.front();
     while (!this->tokens.empty()) {
         token = this->tokens.front();
@@ -37,7 +37,7 @@ list<shared_ptr<Clause>> QueryParser::parseConstraints(unordered_map<string, Arg
     return clauses;
 }
 
-shared_ptr<Clause> QueryParser::parseSuchThat(unordered_map<string, ArgumentType> declarations) {
+shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, ArgumentType> declarations) {
     if (this->tokens.empty() || !this->tokens.front().isThat()) {
         throw PQLError("Missing 'that' after 'such'");
     }
@@ -54,7 +54,7 @@ shared_ptr<Clause> QueryParser::parseSuchThat(unordered_map<string, ArgumentType
         //create other SuchThatClauseParsers 
         //not needed for MVP
     }
-    shared_ptr<Clause> clause = parserPointer->parse();
+    shared_ptr<RelationshipClause> clause = parserPointer->parse();
     this->tokens = parserPointer->getRemainingTokens();
     return clause;
 }
