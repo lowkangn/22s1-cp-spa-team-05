@@ -1,6 +1,8 @@
 #include "catch.hpp"
 #include <qps/query_evaluator/QueryEvaluator.h>
 
+#include <memory>
+
 using namespace std;
 
 // ==================== UNIT TESTS ====================
@@ -125,7 +127,7 @@ TEST_CASE("QueryEvaluator: test getKeyValueTable") {
 }
 
 TEST_CASE("QueryEvaluator: test convertToKeyValuePairsNoError with single key") {
-	auto testConvertToKeyValuePairsNoErrorSingleKey = [](vector<vector<PQLEntity>> table, int key,
+	auto testConvertToKeyValuePairsSingleKeyNoError = [](vector<vector<PQLEntity>> table, int key,
 			vector<pair<PQLEntity, vector<PQLEntity>>> expected) {
 		// given
 		QueryEvaluator evaluator = QueryEvaluator();
@@ -186,15 +188,15 @@ TEST_CASE("QueryEvaluator: test convertToKeyValuePairsNoError with single key") 
 			{thirdConstEntity, thirdRow}
 	};
 
-	testConvertToKeyValuePairsNoErrorSingleKey(table, firstColumnKey, firstColumnKeyExpectedPairs);
-	testConvertToKeyValuePairsNoErrorSingleKey(table, secondColumnKey, secondColumnKeyExpectedPairs);
-	testConvertToKeyValuePairsNoErrorSingleKey(table, thirdColumnKey, thirdColumnKeyExpectedPairs);
-	testConvertToKeyValuePairsNoErrorSingleKey(table, fourthColumnKey, fourthColumnKeyExpectedPairs);
+	testConvertToKeyValuePairsSingleKeyNoError(table, firstColumnKey, firstColumnKeyExpectedPairs);
+	testConvertToKeyValuePairsSingleKeyNoError(table, secondColumnKey, secondColumnKeyExpectedPairs);
+	testConvertToKeyValuePairsSingleKeyNoError(table, thirdColumnKey, thirdColumnKeyExpectedPairs);
+	testConvertToKeyValuePairsSingleKeyNoError(table, fourthColumnKey, fourthColumnKeyExpectedPairs);
 
 }
 
 TEST_CASE("QueryEvaluator: test convertToKeyValuePairsWithError with single key") {
-	auto testConvertToKeyValuePairsWithErrorSingleKey = [](vector<vector<PQLEntity>> table, int key) {
+	auto testConvertToKeyValuePairsSingleKeyWithError = [](vector<vector<PQLEntity>> table, int key) {
 		// given
 		QueryEvaluator evaluator = QueryEvaluator();
 
@@ -211,20 +213,20 @@ TEST_CASE("QueryEvaluator: test convertToKeyValuePairsWithError with single key"
 		vector<PQLEntity> firstRow = {firstStmtEntity, firstVarEntity, firstProcEntity, firstConstEntity};
 		vector<vector<PQLEntity>> table = {firstRow};
 
-		testConvertToKeyValuePairsWithErrorSingleKey(table, -1);
-		testConvertToKeyValuePairsWithErrorSingleKey(table, 4);
+		testConvertToKeyValuePairsSingleKeyWithError(table, -1);
+		testConvertToKeyValuePairsSingleKeyWithError(table, 4);
 	}
 
 	SECTION("Empty table") {
 		vector<vector<PQLEntity>> emptyTable = {};
-		testConvertToKeyValuePairsWithErrorSingleKey(emptyTable, 0);
+		testConvertToKeyValuePairsSingleKeyWithError(emptyTable, 0);
 	}
 
 }
 
 TEST_CASE("QueryEvaluator: test convertToKeyValuePairsNoError with pair key") {
 
-	auto testConvertToKeyValuePairsNoErrorPairKey = [](vector<vector<PQLEntity>> table,
+	auto testConvertToKeyValuePairsPairKeyNoError = [](vector<vector<PQLEntity>> table,
 			int firstKey, int secondKey, vector<pair<vector<PQLEntity>, vector<PQLEntity>>> expected) {
 		// given
 		QueryEvaluator evaluator = QueryEvaluator();
@@ -283,16 +285,16 @@ TEST_CASE("QueryEvaluator: test convertToKeyValuePairsNoError with pair key") {
 	};
 
 
-	testConvertToKeyValuePairsNoErrorPairKey(table,adjacentColumnsFirstKey,
+	testConvertToKeyValuePairsPairKeyNoError(table,adjacentColumnsFirstKey,
 											 adjacentColumnsSecondKey, expectedPairsAdjacentColumnsKey);
-	testConvertToKeyValuePairsNoErrorPairKey(table, splitColumnsFirstKey,
+	testConvertToKeyValuePairsPairKeyNoError(table, splitColumnsFirstKey,
 											 splitColumnsSecondKey, expectedPairsSplitColumnsKey);
-	testConvertToKeyValuePairsNoErrorPairKey(table, reverseOrderColumnsFirstKey,
+	testConvertToKeyValuePairsPairKeyNoError(table, reverseOrderColumnsFirstKey,
 											 reverseOrderColumnsSecondKey, expectedPairsReverseOrderColumnsKey);
 }
 
 TEST_CASE("QueryEvaluator: test convertToKeyValuePairsWithError with pair key") {
-	auto testConvertToKeyValuePairsWithErrorPairKey = [](vector<vector<PQLEntity>> table, int firstKey, int secondKey) {
+	auto testConvertToKeyValuePairsPairKeyWithError = [](vector<vector<PQLEntity>> table, int firstKey, int secondKey) {
 		// given
 		QueryEvaluator evaluator = QueryEvaluator();
 
@@ -323,33 +325,549 @@ TEST_CASE("QueryEvaluator: test convertToKeyValuePairsWithError with pair key") 
 
 	SECTION("Invalid key") {
 		// Should show first key error message
-		testConvertToKeyValuePairsWithErrorPairKey(table, -1, 0);
+		testConvertToKeyValuePairsPairKeyWithError(table, -1, 0);
 
 		// Should show second key error message
-		testConvertToKeyValuePairsWithErrorPairKey(table, 0, -1);
+		testConvertToKeyValuePairsPairKeyWithError(table, 0, -1);
 
 		// Should show first key error message (checks first then second)
-		testConvertToKeyValuePairsWithErrorPairKey(table, -1, -1);
+		testConvertToKeyValuePairsPairKeyWithError(table, -1, -1);
 	}
 
 	SECTION("Duplicate key") {
-		testConvertToKeyValuePairsWithErrorPairKey(table, 0, 0);
-		testConvertToKeyValuePairsWithErrorPairKey(table, 1, 1);
-		testConvertToKeyValuePairsWithErrorPairKey(table, 2, 2);
-		testConvertToKeyValuePairsWithErrorPairKey(table, 3, 3);
+		testConvertToKeyValuePairsPairKeyWithError(table, 0, 0);
+		testConvertToKeyValuePairsPairKeyWithError(table, 1, 1);
+		testConvertToKeyValuePairsPairKeyWithError(table, 2, 2);
+		testConvertToKeyValuePairsPairKeyWithError(table, 3, 3);
 	}
 
 	SECTION("Empty table") {
 		vector<vector<PQLEntity>> emptyTable = {};
-		testConvertToKeyValuePairsWithErrorPairKey(emptyTable, 0, 0);
+		testConvertToKeyValuePairsPairKeyWithError(emptyTable, 0, 0);
 	}
 }
 
-TEST_CASE("QueryEvaluator: test singleKeyTableJoin") {}
+TEST_CASE("QueryEvaluator: test singleKeyTableJoinNoError") {
+	auto testSingleKeyTableJoinNoError = [](vector<pair<PQLEntity, vector<PQLEntity>>> combinedTableKeyValuePairs,
+			vector<vector<PQLEntity>> tableToMerge, vector<vector<PQLEntity>> expected) {
 
-TEST_CASE("QueryEvaluator: test pairKeyTableJoin") {}
+		// given
+		QueryEvaluator evaluator = QueryEvaluator();
 
-TEST_CASE("QueryEvaluator: test combinedTableJoin") {}
+		// when
+		vector<vector<PQLEntity>> actual = evaluator.singleKeyTableJoin(combinedTableKeyValuePairs, tableToMerge);
+
+		// then
+		REQUIRE(actual == expected);
+
+	};
+
+	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
+	PQLEntity secondStmtEntity = PQLEntity::generateStatement(2);
+	PQLEntity thirdStmtEntity = PQLEntity::generateStatement(3);
+
+	PQLEntity firstVarEntity = PQLEntity::generateVariable("x");
+	PQLEntity secondVarEntity = PQLEntity::generateVariable("y");
+	PQLEntity thirdVarEntity = PQLEntity::generateVariable("z");
+
+	PQLEntity firstProcEntity = PQLEntity::generateProcedure("p1");
+	PQLEntity secondProcEntity = PQLEntity::generateProcedure("p2");
+	PQLEntity thirdProcEntity = PQLEntity::generateProcedure("p3");
+
+	SECTION("Tables have matching keys") {
+		vector<PQLEntity> firstTableFirstRow = {firstStmtEntity, firstVarEntity};
+		vector<PQLEntity> firstTableSecondRow = {secondStmtEntity, secondVarEntity};
+		vector<PQLEntity> firstTableThirdRow = {thirdStmtEntity, thirdVarEntity};
+
+		vector<vector<PQLEntity>> firstTable = {firstTableFirstRow, firstTableSecondRow, firstTableThirdRow};
+
+		vector<pair<PQLEntity, vector<PQLEntity>>> firstTableKeyValuePairs = {
+				{firstVarEntity,  firstTableFirstRow},
+				{secondVarEntity, firstTableSecondRow},
+				{thirdVarEntity,  firstTableThirdRow}
+		};
+
+		vector<PQLEntity> secondTableFirstRow = {firstVarEntity, firstProcEntity};
+		vector<PQLEntity> secondTableSecondRow = {firstVarEntity, secondProcEntity};
+		vector<PQLEntity> secondTableThirdRow = {secondVarEntity, firstProcEntity};
+		vector<PQLEntity> secondTableFourthRow = {secondVarEntity, secondProcEntity};
+
+		vector<vector<PQLEntity>> secondTable = {secondTableFirstRow, secondTableSecondRow, secondTableThirdRow,
+												 secondTableFourthRow};
+
+		vector<vector<PQLEntity>> expected = {
+				{firstStmtEntity,  firstVarEntity,  firstProcEntity},
+				{firstStmtEntity,  firstVarEntity,  secondProcEntity},
+				{secondStmtEntity, secondVarEntity, firstProcEntity},
+				{secondStmtEntity, secondVarEntity, secondProcEntity}
+		};
+
+		testSingleKeyTableJoinNoError(firstTableKeyValuePairs, secondTable, expected);
+	}
+
+	SECTION("Tables have no matching keys") {
+		vector<PQLEntity> firstTableFirstRow = {firstStmtEntity, firstVarEntity};
+		vector<vector<PQLEntity>> firstTable = {firstTableFirstRow};
+		vector<pair<PQLEntity, vector<PQLEntity>>> firstTableKeyValuePairs = {
+				{firstVarEntity,  firstTableFirstRow}
+		};
+
+		vector<PQLEntity> secondTableFirstRow = {secondVarEntity, secondProcEntity};
+		vector<PQLEntity> secondTableSecondRow = {secondVarEntity, thirdProcEntity};
+		vector<PQLEntity> secondTableThirdRow = {thirdVarEntity, secondProcEntity};
+		vector<PQLEntity> secondTableFourthRow = {thirdVarEntity, thirdProcEntity};
+		vector<vector<PQLEntity>> secondTable = {secondTableFirstRow, secondTableSecondRow, secondTableThirdRow,
+												 secondTableFourthRow};
+
+		vector<vector<PQLEntity>> expected = {};
+
+		testSingleKeyTableJoinNoError(firstTableKeyValuePairs, secondTable, expected);
+	}
+}
+
+TEST_CASE("QueryEvaluator: test singleKeyTableJoinWithError") {
+	auto testSingleKeyTableJoinWithError = [](
+			vector<pair<PQLEntity, vector<PQLEntity>>> combinedTableKeyValuePairs,
+			vector<vector<PQLEntity>> tableToMerge) {
+
+		// given
+		QueryEvaluator evaluator = QueryEvaluator();
+
+		// when and then
+		REQUIRE_THROWS_AS(evaluator.singleKeyTableJoin(combinedTableKeyValuePairs, tableToMerge), PQLError);
+
+	};
+
+	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
+	PQLEntity secondStmtEntity = PQLEntity::generateStatement(2);
+	PQLEntity thirdStmtEntity = PQLEntity::generateStatement(3);
+
+	PQLEntity firstVarEntity = PQLEntity::generateVariable("x");
+	PQLEntity secondVarEntity = PQLEntity::generateVariable("y");
+	PQLEntity thirdVarEntity = PQLEntity::generateVariable("z");
+
+	PQLEntity firstProcEntity = PQLEntity::generateProcedure("p1");
+	PQLEntity secondProcEntity = PQLEntity::generateProcedure("p2");
+	PQLEntity thirdProcEntity = PQLEntity::generateProcedure("p3");
+
+	SECTION("combinedTable is empty") {
+		vector<pair<PQLEntity, vector<PQLEntity>>> emptyFirstTableKeyValuePairs = {};
+
+		vector<PQLEntity> secondTableFirstRow = {secondVarEntity, secondProcEntity};
+		vector<PQLEntity> secondTableSecondRow = {secondVarEntity, thirdProcEntity};
+		vector<PQLEntity> secondTableThirdRow = {thirdVarEntity, secondProcEntity};
+		vector<PQLEntity> secondTableFourthRow = {thirdVarEntity, thirdProcEntity};
+		vector<vector<PQLEntity>> secondTable = {secondTableFirstRow, secondTableSecondRow, secondTableThirdRow,
+												 secondTableFourthRow};
+
+		testSingleKeyTableJoinWithError(emptyFirstTableKeyValuePairs, secondTable);
+	}
+
+	SECTION("tableToMerge is empty") {
+		vector<PQLEntity> firstTableFirstRow = {firstStmtEntity, firstVarEntity};
+		vector<vector<PQLEntity>> firstTable = {firstTableFirstRow};
+		vector<pair<PQLEntity, vector<PQLEntity>>> firstTableKeyValuePairs = {{firstVarEntity,  firstTableFirstRow}};
+
+		vector<vector<PQLEntity>> emptySecondTable = {};
+
+		testSingleKeyTableJoinWithError(firstTableKeyValuePairs, emptySecondTable);
+	}
+}
+
+TEST_CASE("QueryEvaluator: test pairKeyTableJoinNoError") {
+	auto testPairKeyTableJoinNoError = [](vector<pair<vector<PQLEntity>, vector<PQLEntity>>> combinedTableKeyValuePairs,
+											vector<vector<PQLEntity>> tableToMerge, vector<vector<PQLEntity>> expected) {
+
+		// given
+		QueryEvaluator evaluator = QueryEvaluator();
+
+		// when
+		vector<vector<PQLEntity>> actual = evaluator.pairKeyTableJoin(combinedTableKeyValuePairs, tableToMerge);
+
+		// then
+		REQUIRE(actual == expected);
+
+	};
+
+	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
+	PQLEntity secondStmtEntity = PQLEntity::generateStatement(2);
+	PQLEntity thirdStmtEntity = PQLEntity::generateStatement(3);
+	PQLEntity fourthStmtEntity = PQLEntity::generateStatement(4);
+
+	PQLEntity firstVarEntity = PQLEntity::generateVariable("x");
+	PQLEntity secondVarEntity = PQLEntity::generateVariable("y");
+	PQLEntity thirdVarEntity = PQLEntity::generateVariable("z");
+	PQLEntity fourthVarEntity = PQLEntity::generateVariable("zz");
+
+	PQLEntity firstProcEntity = PQLEntity::generateProcedure("p1");
+	PQLEntity secondProcEntity = PQLEntity::generateProcedure("p2");
+	PQLEntity thirdProcEntity = PQLEntity::generateProcedure("p3");
+
+	SECTION("Tables have matching keys") {
+		vector<PQLEntity> firstTableFirstRow = {firstStmtEntity, firstVarEntity, firstProcEntity};
+		vector<PQLEntity> firstTableSecondRow = {secondStmtEntity, secondVarEntity, secondProcEntity};
+		vector<PQLEntity> firstTableThirdRow = {thirdStmtEntity, thirdVarEntity, thirdProcEntity};
+
+		vector<vector<PQLEntity>> firstTable = {firstTableFirstRow, firstTableSecondRow, firstTableThirdRow};
+
+		vector<pair<vector<PQLEntity>, vector<PQLEntity>>> firstTableKeyValuePairs = {
+				{{firstStmtEntity, firstVarEntity}, firstTableFirstRow},
+				{{secondStmtEntity, secondVarEntity}, firstTableSecondRow},
+				{{thirdStmtEntity, thirdVarEntity}, firstTableThirdRow}
+		};
+
+		vector<PQLEntity> secondTableFirstRow = {firstStmtEntity, firstVarEntity};
+		vector<PQLEntity> secondTableSecondRow = {secondStmtEntity, secondVarEntity};
+		vector<PQLEntity> secondTableThirdRow = {thirdStmtEntity, thirdVarEntity};
+		vector<PQLEntity> secondTableFourthRow = {fourthStmtEntity, fourthVarEntity};
+
+		vector<vector<PQLEntity>> secondTable = {secondTableFirstRow, secondTableSecondRow, secondTableThirdRow,
+												 secondTableFourthRow};
+
+		vector<vector<PQLEntity>> expected = {
+				{firstStmtEntity,  firstVarEntity,  firstProcEntity},
+				{secondStmtEntity, secondVarEntity, secondProcEntity},
+				{thirdStmtEntity, thirdVarEntity, thirdProcEntity}
+		};
+
+		testPairKeyTableJoinNoError(firstTableKeyValuePairs, secondTable, expected);
+	}
+
+	SECTION("Tables have no matching keys") {
+		vector<PQLEntity> firstTableFirstRow = {firstStmtEntity, firstVarEntity, firstProcEntity};
+		vector<PQLEntity> firstTableSecondRow = {secondStmtEntity, secondVarEntity, secondProcEntity};
+
+		vector<vector<PQLEntity>> firstTable = {firstTableFirstRow, firstTableSecondRow};
+
+		vector<pair<vector<PQLEntity>, vector<PQLEntity>>> firstTableKeyValuePairs = {
+				{{firstStmtEntity, firstVarEntity}, firstTableFirstRow},
+				{{secondStmtEntity, secondVarEntity}, firstTableSecondRow}
+		};
+
+		vector<PQLEntity> secondTableFirstRow = {thirdStmtEntity, thirdVarEntity};
+		vector<PQLEntity> secondTableSecondRow = {fourthStmtEntity, fourthVarEntity};
+
+		vector<vector<PQLEntity>> secondTable = {secondTableFirstRow, secondTableSecondRow};
+
+		vector<vector<PQLEntity>> expected = {};
+
+		testPairKeyTableJoinNoError(firstTableKeyValuePairs, secondTable, expected);
+	}
+}
+
+TEST_CASE("QueryEvaluator: test pairKeyTableJoinWithError") {
+	auto testPairKeyTableJoinWithError = [](
+			vector<pair<vector<PQLEntity>, vector<PQLEntity>>> combinedTableKeyValuePairs,
+			vector<vector<PQLEntity>> tableToMerge) {
+
+		// given
+		QueryEvaluator evaluator = QueryEvaluator();
+
+		// when and then
+		REQUIRE_THROWS_AS(evaluator.pairKeyTableJoin(combinedTableKeyValuePairs, tableToMerge), PQLError);
+
+	};
+
+	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
+	PQLEntity secondStmtEntity = PQLEntity::generateStatement(2);
+	PQLEntity thirdStmtEntity = PQLEntity::generateStatement(3);
+
+	PQLEntity firstVarEntity = PQLEntity::generateVariable("x");
+	PQLEntity secondVarEntity = PQLEntity::generateVariable("y");
+	PQLEntity thirdVarEntity = PQLEntity::generateVariable("z");
+
+	PQLEntity firstProcEntity = PQLEntity::generateProcedure("p1");
+	PQLEntity secondProcEntity = PQLEntity::generateProcedure("p2");
+	PQLEntity thirdProcEntity = PQLEntity::generateProcedure("p3");
+
+	SECTION("combinedTable is empty") {
+		vector<pair<vector<PQLEntity>, vector<PQLEntity>>> emptyFirstTableKeyValuePairs = {};
+
+		vector<PQLEntity> secondTableFirstRow = {secondVarEntity, secondProcEntity};
+		vector<PQLEntity> secondTableSecondRow = {secondVarEntity, thirdProcEntity};
+		vector<PQLEntity> secondTableThirdRow = {thirdVarEntity, secondProcEntity};
+		vector<PQLEntity> secondTableFourthRow = {thirdVarEntity, thirdProcEntity};
+		vector<vector<PQLEntity>> secondTable = {secondTableFirstRow, secondTableSecondRow, secondTableThirdRow,
+												 secondTableFourthRow};
+
+		testPairKeyTableJoinWithError(emptyFirstTableKeyValuePairs, secondTable);
+	}
+
+	SECTION("tableToMerge is empty") {
+		vector<PQLEntity> firstTableFirstRow = {firstStmtEntity, firstVarEntity, firstProcEntity};
+		vector<vector<PQLEntity>> firstTable = {firstTableFirstRow};
+		vector<pair<vector<PQLEntity>, vector<PQLEntity>>> firstTableKeyValuePairs = {
+				{{firstStmtEntity, firstVarEntity}, firstTableFirstRow}
+		};
+
+		vector<vector<PQLEntity>> emptySecondTable = {};
+
+		testPairKeyTableJoinWithError(firstTableKeyValuePairs, emptySecondTable);
+	}
+}
+
+TEST_CASE("QueryEvaluator: test combinedTableJoin") {
+	auto testCombinedTableJoin = [](
+			shared_ptr<vector<vector<PQLEntity>>> combinedTable,
+			shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable,
+			list<RelationshipClauseResult> relationshipsResults,
+			vector<vector<PQLEntity>> expectedCombinedTable,
+			vector<ClauseArgument> expectedArguments,
+			bool expectedBool) {
+
+		// given
+		QueryEvaluator evaluator = QueryEvaluator();
+
+		// when
+		bool actual = evaluator.combinedTableJoin(combinedTable, argumentsInCombinedTable, relationshipsResults);
+
+		// then
+		REQUIRE(actual == expectedBool);
+		REQUIRE(*combinedTable == expectedCombinedTable);
+		REQUIRE(*argumentsInCombinedTable == expectedArguments);
+
+	};
+
+	ClauseArgument stmtArg = ClauseArgument("s", ArgumentType::STMT);
+	ClauseArgument varArg = ClauseArgument("v", ArgumentType::VARIABLE);
+	ClauseArgument procArg = ClauseArgument("p", ArgumentType::PROCEDURE);
+	ClauseArgument constArg = ClauseArgument("c", ArgumentType::CONSTANT);
+	ClauseArgument assignArg = ClauseArgument("a", ArgumentType::ASSIGN);
+	ClauseArgument readArg = ClauseArgument("r", ArgumentType::READ);
+
+	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
+	PQLEntity secondStmtEntity = PQLEntity::generateStatement(2);
+	PQLEntity thirdStmtEntity = PQLEntity::generateStatement(3);
+
+	PQLEntity firstVarEntity = PQLEntity::generateVariable("x");
+	PQLEntity secondVarEntity = PQLEntity::generateVariable("y");
+	PQLEntity thirdVarEntity = PQLEntity::generateVariable("z");
+
+	PQLEntity firstProcEntity = PQLEntity::generateProcedure("testing");
+	PQLEntity secondProcEntity = PQLEntity::generateProcedure("so");
+	PQLEntity thirdProcEntity = PQLEntity::generateProcedure("cumbersome");
+
+	PQLEntity firstConstEntity = PQLEntity::generateConstant(4);
+	PQLEntity secondConstEntity = PQLEntity::generateConstant(5);
+	PQLEntity thirdConstEntity = PQLEntity::generateConstant(6);
+
+	PQLEntity assignEntity = PQLEntity::generateStatement(7);
+	PQLEntity readEntity = PQLEntity::generateStatement(8);
+
+	SECTION("All tables joined") {
+		// Create RelationshipClauseResult and set up base combinedTable
+		PQLRelationship firstResultFirstRelationship = PQLRelationship(firstStmtEntity, firstVarEntity);
+		PQLRelationship firstResultSecondRelationship = PQLRelationship(secondStmtEntity, secondVarEntity);
+		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
+				stmtArg, varArg, {firstResultFirstRelationship, firstResultSecondRelationship});
+
+		shared_ptr<vector<vector<PQLEntity>>> combinedTable = make_shared<vector<vector<PQLEntity>>>();
+		*combinedTable = {
+				{firstStmtEntity, firstVarEntity},
+				{secondStmtEntity, secondVarEntity}
+		};
+
+		shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable = make_shared<vector<ClauseArgument>>();
+		*argumentsInCombinedTable = {stmtArg, varArg};
+
+		// Create other RelationshipClauseResults
+		PQLRelationship secondResultFirstRelationship = PQLRelationship(firstProcEntity, firstConstEntity);
+		PQLRelationship secondResultSecondRelationship = PQLRelationship(secondProcEntity, secondConstEntity);
+		RelationshipClauseResult secondRelationshipsResult = RelationshipClauseResult(
+				procArg, constArg, {secondResultFirstRelationship, secondResultSecondRelationship});
+
+		PQLRelationship thirdResultFirstRelationship = PQLRelationship(firstProcEntity, firstVarEntity);
+		PQLRelationship thirdResultSecondRelationship = PQLRelationship(secondProcEntity, secondVarEntity);
+		RelationshipClauseResult thirdRelationshipsResult = RelationshipClauseResult(
+				procArg, varArg, {thirdResultFirstRelationship, thirdResultSecondRelationship});
+
+		vector<vector<PQLEntity>> expectedCombinedTable = {
+				{firstStmtEntity, firstVarEntity, firstProcEntity, firstConstEntity},
+				{secondStmtEntity, secondVarEntity, secondProcEntity, secondConstEntity}
+		};
+
+		vector<ClauseArgument> expectedArguments = {stmtArg, varArg, procArg, constArg};
+
+		testCombinedTableJoin(combinedTable,
+							  argumentsInCombinedTable,
+							  {secondRelationshipsResult, thirdRelationshipsResult},
+							  expectedCombinedTable,
+							  expectedArguments,
+							  true);
+	}
+
+	SECTION("Empty table resulting from joining") {
+		// Create RelationshipClauseResult and set up base combinedTable
+		PQLRelationship firstResultFirstRelationship = PQLRelationship(firstStmtEntity, firstVarEntity);
+		PQLRelationship firstResultSecondRelationship = PQLRelationship(secondStmtEntity, secondVarEntity);
+		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
+				stmtArg, varArg, {firstResultFirstRelationship, firstResultSecondRelationship});
+
+		shared_ptr<vector<vector<PQLEntity>>> combinedTable = make_shared<vector<vector<PQLEntity>>>();
+		*combinedTable = {
+				{firstStmtEntity, firstVarEntity},
+				{secondStmtEntity, secondVarEntity}
+		};
+
+		shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable = make_shared<vector<ClauseArgument>>();
+		*argumentsInCombinedTable = {stmtArg, varArg};
+
+		// Create other RelationshipClauseResults
+		PQLRelationship secondResultFirstRelationship = PQLRelationship(thirdStmtEntity, firstConstEntity);
+		RelationshipClauseResult secondRelationshipsResult = RelationshipClauseResult(
+				stmtArg, constArg, {secondResultFirstRelationship});
+
+		vector<vector<PQLEntity>> expectedCombinedTable = {};
+		vector<ClauseArgument> expectedArguments = {stmtArg, varArg, constArg};
+
+		testCombinedTableJoin(combinedTable,
+							  argumentsInCombinedTable,
+							  {secondRelationshipsResult},
+							  expectedCombinedTable,
+							  expectedArguments,
+							  false);
+	}
+
+	SECTION("One table not joined") {
+		// Create RelationshipClauseResult and set up base combinedTable
+		PQLRelationship firstResultFirstRelationship = PQLRelationship(firstStmtEntity, firstVarEntity);
+		PQLRelationship firstResultSecondRelationship = PQLRelationship(secondStmtEntity, secondVarEntity);
+		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
+				stmtArg, varArg, {firstResultFirstRelationship, firstResultSecondRelationship});
+
+		shared_ptr<vector<vector<PQLEntity>>> combinedTable = make_shared<vector<vector<PQLEntity>>>();
+		*combinedTable = {
+				{firstStmtEntity, firstVarEntity},
+				{secondStmtEntity, secondVarEntity}
+		};
+
+		shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable = make_shared<vector<ClauseArgument>>();
+		*argumentsInCombinedTable = {stmtArg, varArg};
+
+		// Create other RelationshipClauseResults
+		PQLRelationship secondResultFirstRelationship = PQLRelationship(firstProcEntity, firstConstEntity);
+		RelationshipClauseResult secondRelationshipsResult = RelationshipClauseResult(
+				procArg, constArg, {secondResultFirstRelationship});
+
+		vector<vector<PQLEntity>> expectedCombinedTable = *combinedTable;
+		vector<ClauseArgument> expectedArguments = *argumentsInCombinedTable;
+
+		testCombinedTableJoin(combinedTable,
+							  argumentsInCombinedTable,
+							  {secondRelationshipsResult},
+							  expectedCombinedTable,
+							  expectedArguments,
+							  true);
+	}
+
+	SECTION("Two tables not joined, those two cannot join") {
+		// Create RelationshipClauseResult and set up base combinedTable
+		PQLRelationship firstResultFirstRelationship = PQLRelationship(firstStmtEntity, firstVarEntity);
+		PQLRelationship firstResultSecondRelationship = PQLRelationship(secondStmtEntity, secondVarEntity);
+		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
+				stmtArg, varArg, {firstResultFirstRelationship, firstResultSecondRelationship});
+
+		shared_ptr<vector<vector<PQLEntity>>> combinedTable = make_shared<vector<vector<PQLEntity>>>();
+		*combinedTable = {
+				{firstStmtEntity, firstVarEntity},
+				{secondStmtEntity, secondVarEntity}
+		};
+
+		shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable = make_shared<vector<ClauseArgument>>();
+		*argumentsInCombinedTable = {stmtArg, varArg};
+
+		// Create other RelationshipClauseResults
+		PQLRelationship secondResultFirstRelationship = PQLRelationship(firstProcEntity, firstConstEntity);
+		RelationshipClauseResult secondRelationshipsResult = RelationshipClauseResult(
+				procArg, constArg, {secondResultFirstRelationship});
+
+		PQLRelationship thirdResultFirstRelationship = PQLRelationship(assignEntity, readEntity);
+		RelationshipClauseResult thirdRelationshipsResult = RelationshipClauseResult(
+				assignArg, readArg, {thirdResultFirstRelationship});
+
+		vector<vector<PQLEntity>> expectedCombinedTable = *combinedTable;
+		vector<ClauseArgument> expectedArguments = *argumentsInCombinedTable;
+
+		testCombinedTableJoin(combinedTable,
+							  argumentsInCombinedTable,
+							  {secondRelationshipsResult, thirdRelationshipsResult},
+							  expectedCombinedTable,
+							  expectedArguments,
+							  true);
+	}
+
+	SECTION("Two tables not joined, those two can join and return empty table") {
+		// Create RelationshipClauseResult and set up base combinedTable
+		PQLRelationship firstResultFirstRelationship = PQLRelationship(firstStmtEntity, firstVarEntity);
+		PQLRelationship firstResultSecondRelationship = PQLRelationship(secondStmtEntity, secondVarEntity);
+		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
+				stmtArg, varArg, {firstResultFirstRelationship, firstResultSecondRelationship});
+
+		shared_ptr<vector<vector<PQLEntity>>> combinedTable = make_shared<vector<vector<PQLEntity>>>();
+		*combinedTable = {
+				{firstStmtEntity, firstVarEntity},
+				{secondStmtEntity, secondVarEntity}
+		};
+
+		shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable = make_shared<vector<ClauseArgument>>();
+		*argumentsInCombinedTable = {stmtArg, varArg};
+
+		// Create other RelationshipClauseResults
+		PQLRelationship secondResultFirstRelationship = PQLRelationship(firstProcEntity, firstConstEntity);
+		RelationshipClauseResult secondRelationshipsResult = RelationshipClauseResult(
+				procArg, constArg, {secondResultFirstRelationship});
+
+		PQLRelationship thirdResultFirstRelationship = PQLRelationship(secondProcEntity, readEntity);
+		RelationshipClauseResult thirdRelationshipsResult = RelationshipClauseResult(
+				procArg, readArg, {thirdResultFirstRelationship});
+
+		vector<vector<PQLEntity>> expectedCombinedTable = *combinedTable;
+		vector<ClauseArgument> expectedArguments = *argumentsInCombinedTable;
+
+		testCombinedTableJoin(combinedTable,
+							  argumentsInCombinedTable,
+							  {secondRelationshipsResult, thirdRelationshipsResult},
+							  expectedCombinedTable,
+							  expectedArguments,
+							  false);
+	}
+
+	SECTION("Two tables not joined, those two can join and return non-empty table") {
+		// Create RelationshipClauseResult and set up base combinedTable
+		PQLRelationship firstResultFirstRelationship = PQLRelationship(firstStmtEntity, firstVarEntity);
+		PQLRelationship firstResultSecondRelationship = PQLRelationship(secondStmtEntity, secondVarEntity);
+		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
+				stmtArg, varArg, {firstResultFirstRelationship, firstResultSecondRelationship});
+
+		shared_ptr<vector<vector<PQLEntity>>> combinedTable = make_shared<vector<vector<PQLEntity>>>();
+		*combinedTable = {
+				{firstStmtEntity, firstVarEntity},
+				{secondStmtEntity, secondVarEntity}
+		};
+
+		shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable = make_shared<vector<ClauseArgument>>();
+		*argumentsInCombinedTable = {stmtArg, varArg};
+
+		// Create other RelationshipClauseResults
+		PQLRelationship secondResultFirstRelationship = PQLRelationship(firstProcEntity, firstConstEntity);
+		RelationshipClauseResult secondRelationshipsResult = RelationshipClauseResult(
+				procArg, constArg, {secondResultFirstRelationship});
+
+		PQLRelationship thirdResultFirstRelationship = PQLRelationship(firstProcEntity, readEntity);
+		RelationshipClauseResult thirdRelationshipsResult = RelationshipClauseResult(
+				procArg, readArg, {thirdResultFirstRelationship});
+
+		vector<vector<PQLEntity>> expectedCombinedTable = *combinedTable;
+		vector<ClauseArgument> expectedArguments = *argumentsInCombinedTable;
+
+		testCombinedTableJoin(combinedTable,
+							  argumentsInCombinedTable,
+							  {secondRelationshipsResult, thirdRelationshipsResult},
+							  expectedCombinedTable,
+							  expectedArguments,
+							  true);
+	}
+}
 
 TEST_CASE("QueryEvaluator: test filterEntities") {}
 

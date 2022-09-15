@@ -112,6 +112,9 @@ bool QueryEvaluator::combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> com
 
 			if (combinedTable->empty()) {
 				*combinedTable = this->getTable(*resultIter);
+				argumentsInCombinedTable->push_back(resultIter->getFirstArg());
+				argumentsInCombinedTable->push_back(resultIter->getSecondArg());
+				continue;
 			}
 
 			// If equals -1, means ClauseArguments not yet in combined table
@@ -135,6 +138,7 @@ bool QueryEvaluator::combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> com
 				vector<vector<PQLEntity>> tableToMergeKeyValuePairs = this->getTable(*resultIter);
 
 				newCombinedTable = this->pairKeyTableJoin(combinedTableKeyValuePairs, tableToMergeKeyValuePairs);
+
 			}
 
 				// First clause argument already in table, table join on this common clause argument
@@ -146,6 +150,7 @@ bool QueryEvaluator::combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> com
 						*resultIter, KeyColumn::FIRST_COLUMN_KEY);
 
 				newCombinedTable = this->singleKeyTableJoin(combinedTableKeyValuePairs, tableToMergeKeyValuePairs);
+
 				argumentsInCombinedTable->push_back(resultIter->getSecondArg());
 			}
 
@@ -158,16 +163,17 @@ bool QueryEvaluator::combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> com
 						*resultIter, KeyColumn::SECOND_COLUMN_KEY);
 
 				newCombinedTable = this->singleKeyTableJoin(combinedTableKeyValuePairs, tableToMergeKeyValuePairs);
-				argumentsInCombinedTable->push_back(resultIter->getFirstArg());
-			}
 
-			// If at any point a join returns no entries, the whole query has no solutions, so return false
-			if (newCombinedTable.empty()) {
-				return false;
+				argumentsInCombinedTable->push_back(resultIter->getFirstArg());
 			}
 
 			// Set new table
 			*combinedTable = newCombinedTable;
+
+			// If at any point a join returns no entries, the whole query has no solutions, so return false
+			if (combinedTable->empty()) {
+				return false;
+			}
 
 		}
 
@@ -233,10 +239,10 @@ int QueryEvaluator::findArgumentIndex(vector<ClauseArgument> argumentsInTable, C
 
 vector<pair<PQLEntity, vector<PQLEntity>>> QueryEvaluator::convertToKeyValuePairs(vector<vector<PQLEntity>> table, int key) {
 	if (table.empty()) {
-		throw PQLError("Cannot convert empty table");
+		throw PQLError("convertToKeyValuePairs: Cannot convert empty table");
 	}
 	if (key < 0 || key >= table[0].size()) {
-		throw PQLError("Key provided out of range of table columns");
+		throw PQLError("convertToKeyValuePairs: Key provided out of range of table columns");
 	}
 	vector<pair<PQLEntity, vector<PQLEntity>>> keyValuePairs;
 	for (vector<PQLEntity> row : table) {
@@ -248,16 +254,16 @@ vector<pair<PQLEntity, vector<PQLEntity>>> QueryEvaluator::convertToKeyValuePair
 
 vector<pair<vector<PQLEntity>, vector<PQLEntity>>> QueryEvaluator::convertToKeyValuePairs(vector<vector<PQLEntity>> table, int firstKey, int secondKey) {
 	if (table.empty()) {
-		throw PQLError("Cannot convert empty table");
+		throw PQLError("convertToKeyValuePairs: Cannot convert empty table");
 	}
 	if (firstKey < 0 || firstKey >= table[0].size()) {
-		throw PQLError("First key provided out of range of table columns");
+		throw PQLError("convertToKeyValuePairs: First key provided out of range of table columns");
 	}
 	if (secondKey < 0 || secondKey >= table[0].size()) {
-		throw PQLError("Second key provided out of range of table columns");
+		throw PQLError("convertToKeyValuePairs: Second key provided out of range of table columns");
 	}
 	if (firstKey == secondKey) {
-		throw PQLError("Both keys have the same value");
+		throw PQLError("convertToKeyValuePairs: Both keys have the same value");
 	}
 	vector<pair<vector<PQLEntity>, vector<PQLEntity>>> keyValuePairs;
 	for (vector<PQLEntity> row : table) {
@@ -271,7 +277,14 @@ vector<pair<vector<PQLEntity>, vector<PQLEntity>>> QueryEvaluator::convertToKeyV
 
 vector<vector<PQLEntity>> QueryEvaluator::pairKeyTableJoin(
 		vector<pair<vector<PQLEntity>, vector<PQLEntity>>> combinedTableKeyValuePairs,
-		vector<vector<PQLEntity>> tableToMerge) {
+		vector<vector<PQLEntity>> tableToMergeKeyValuePairs) {
+
+	if (combinedTableKeyValuePairs.empty()) {
+		throw PQLError("pairKeyTableJoin: Cannot convert empty combinedTable");
+	}
+	if (tableToMergeKeyValuePairs.empty()) {
+		throw PQLError("pairKeyTableJoin: Cannot convert empty tableToMerge");
+	}
 
 	// Create multimap
 	multimap<vector<PQLEntity>, vector<PQLEntity>> combinedTableMap;
@@ -284,14 +297,15 @@ vector<vector<PQLEntity>> QueryEvaluator::pairKeyTableJoin(
 	// Create output table
 	vector<vector<PQLEntity>> output;
 
-	for (vector<PQLEntity> row : tableToMerge) {
+	for (vector<PQLEntity> row : tableToMergeKeyValuePairs) {
 		// For each key in the tableToMerge, find set of values with this same key in combinedTable (multimap uses a range)
 		pair<multimap<vector<PQLEntity>, vector<PQLEntity>>::iterator, multimap<vector<PQLEntity>, vector<PQLEntity>>::iterator> range;
 		range = combinedTableMap.equal_range(row);
 
 		// Each value in range is an entry in new table, so add to new table
 		for (multimap<vector<PQLEntity>, vector<PQLEntity>>::iterator mapIter = range.first; mapIter != range.second; mapIter++) {
-			output.push_back(mapIter->second);
+			vector<PQLEntity> rowToAdd = mapIter->second;
+			output.push_back(rowToAdd);
 		}
 	}
 	return output;
@@ -299,7 +313,14 @@ vector<vector<PQLEntity>> QueryEvaluator::pairKeyTableJoin(
 
 vector<vector<PQLEntity>> QueryEvaluator::singleKeyTableJoin(
 		vector<pair<PQLEntity, vector<PQLEntity>>> combinedTableKeyValuePairs,
-		vector<vector<PQLEntity>> tableToMerge) {
+		vector<vector<PQLEntity>> tableToMergeKeyValuePairs) {
+
+	if (combinedTableKeyValuePairs.empty()) {
+		throw PQLError("singleKeyTableJoin: Cannot convert empty combinedTable");
+	}
+	if (tableToMergeKeyValuePairs.empty()) {
+		throw PQLError("singleKeyTableJoin: Cannot convert empty tableToMerge");
+	}
 
 	// Create multimap
 	multimap<PQLEntity, vector<PQLEntity>> combinedTableMap;
@@ -312,15 +333,16 @@ vector<vector<PQLEntity>> QueryEvaluator::singleKeyTableJoin(
 	// Create output table
 	vector<vector<PQLEntity>> output;
 
-	for (vector<PQLEntity> row : tableToMerge) {
+	for (vector<PQLEntity> row : tableToMergeKeyValuePairs) {
 		// For each key in the tableToMerge, find set of values with this same key in combinedTable (multimap uses a range)
 		pair<multimap<PQLEntity, vector<PQLEntity>>::iterator, multimap<PQLEntity, vector<PQLEntity>>::iterator> range;
 		range = combinedTableMap.equal_range(row[0]);
 
 		// Each value in range combined with corresponding value in tableToMerge is an entry in new table, so add to new table
 		for (multimap<PQLEntity, vector<PQLEntity>>::iterator mapIter = range.first; mapIter != range.second; mapIter++) {
-			(mapIter->second).push_back(row[1]);
-			output.push_back(mapIter->second);
+			vector<PQLEntity> rowToAdd = mapIter->second;
+			rowToAdd.push_back(row[1]);
+			output.push_back(rowToAdd);
 		}
 	}
 	return output;
