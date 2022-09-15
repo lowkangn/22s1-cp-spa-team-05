@@ -71,8 +71,10 @@ vector<PQLEntity> QueryEvaluator::filterEntities(EntityClauseResult entitiesResu
 		}
 	}
 
-	// If at any point a table join returns no entries, return no entries
+	// Join tables
 	bool hasEntries = combinedTableJoin(combinedTable, argumentsInCombinedTable, relationshipsResults);
+
+	// If at any point a table join returns no entries, return no entries
 	if (!hasEntries) {
 		return vector<PQLEntity>{};
 	}
@@ -231,6 +233,12 @@ int QueryEvaluator::findArgumentIndex(vector<ClauseArgument> argumentsInTable, C
 }
 
 vector<pair<PQLEntity, vector<PQLEntity>>> QueryEvaluator::convertToKeyValuePairs(vector<vector<PQLEntity>> table, int key) {
+	if (table.empty()) {
+		throw PQLError("Cannot convert empty table");
+	}
+	if (key < 0 || key >= table[0].size()) {
+		throw PQLError("Key provided out of range of table columns");
+	}
 	vector<pair<PQLEntity, vector<PQLEntity>>> keyValuePairs;
 	for (vector<PQLEntity> row : table) {
 		PQLEntity keyEntity = row[key];
@@ -240,6 +248,18 @@ vector<pair<PQLEntity, vector<PQLEntity>>> QueryEvaluator::convertToKeyValuePair
 }
 
 vector<pair<vector<PQLEntity>, vector<PQLEntity>>> QueryEvaluator::convertToKeyValuePairs(vector<vector<PQLEntity>> table, int firstKey, int secondKey) {
+	if (table.empty()) {
+		throw PQLError("Cannot convert empty table");
+	}
+	if (firstKey < 0 || firstKey >= table[0].size()) {
+		throw PQLError("First key provided out of range of table columns");
+	}
+	if (secondKey < 0 || secondKey >= table[0].size()) {
+		throw PQLError("Second key provided out of range of table columns");
+	}
+	if (firstKey == secondKey) {
+		throw PQLError("Both keys have the same value");
+	}
 	vector<pair<vector<PQLEntity>, vector<PQLEntity>>> keyValuePairs;
 	for (vector<PQLEntity> row : table) {
 		PQLEntity firstKeyEntity = row[firstKey];
