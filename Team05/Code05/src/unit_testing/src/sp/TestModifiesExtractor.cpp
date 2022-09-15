@@ -8,7 +8,6 @@
 #include <sp/dataclasses/ast/VariableASTNode.h>
 #include <sp/dataclasses/ast/ConstantValueASTNode.h>
 #include <sp/dataclasses/ast/ExpressionASTNode.h>
-#include <sp/dataclasses/ast/ExpressionASTNode.cpp>
 #include <sp/dataclasses/ast/ProcedureASTNode.h>
 #include <sp/dataclasses/ast/StatementListASTNode.h>
 #include <sp/dataclasses/ast/WhileASTNode.h>

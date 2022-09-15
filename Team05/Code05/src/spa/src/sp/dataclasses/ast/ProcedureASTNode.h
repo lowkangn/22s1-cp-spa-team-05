@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sp/dataclasses/ast/ProcedureASTNode.h>
+#include <sp/dataclasses/ast/AST.h>
 
 class ProcedureASTNode : public ASTNode {
 public:

@@ -1,8 +1,4 @@
 #include <sp/parser/rules/ProgramSimpleSyntaxRule.h>
-#include <sp/parser/rules/ProcedureSimpleSyntaxRule.h>
-#include <sp/parser/rules/SimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/ast/ProgramASTNode.h>
 
 vector<shared_ptr<SimpleSyntaxRule>> ProgramSimpleSyntaxRule::generateChildRules() {
 	

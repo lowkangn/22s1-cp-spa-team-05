@@ -11,7 +11,6 @@
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
 #include <pkb/PkbException.h>
 #include <pkb/PKB.h>
-#include <pkb/PKB.cpp>
 
 #include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/design_objects/Relationship.h>

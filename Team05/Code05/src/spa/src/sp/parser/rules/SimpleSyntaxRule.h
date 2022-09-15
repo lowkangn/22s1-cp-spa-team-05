@@ -2,9 +2,10 @@
 
 #include <list>
 #include <vector>
+#include <memory>
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/tokens/Token.h>
-#include <memory>
+#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 
 using namespace std;
 

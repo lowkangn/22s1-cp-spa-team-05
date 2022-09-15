@@ -1,22 +1,17 @@
 #include "catch.hpp"
 #include <sp/design_extractor/DesignExtractorManager.h>
-#include <sp/design_extractor/DesignExtractorManager.cpp>
 #include <sp/design_extractor/ModifiesExtractor.h>
-#include <sp/design_extractor/ModifiesExtractor.cpp>
 #include <sp/design_extractor/Extractor.h>
 #include <sp/design_extractor/PatternExtractor.h>
-#include <sp/design_extractor/PatternExtractor.cpp>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/ProcedureASTNode.h>
 #include <sp/dataclasses/ast/ConstantValueASTNode.h>
 #include <sp/dataclasses/ast/VariableASTNode.h>
 #include <sp/dataclasses/ast/StatementListASTNode.h>
-#include <sp/dataclasses/ast/StatementListASTNode.cpp>
 #include <sp/dataclasses/ast/ProgramASTNode.h>
 #include <sp/dataclasses/ast/ReadASTNode.h>
 #include <sp/dataclasses/ast/AssignASTNode.h>
-#include <sp/dataclasses/ast/ProgramASTNode.cpp>
 #include <pkb/interfaces/PKBUpdateHandler.h>
 
 TEST_CASE("DesignExtractor: test : extractEntity()") {
