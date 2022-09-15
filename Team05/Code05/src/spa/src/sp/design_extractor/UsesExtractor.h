@@ -55,7 +55,7 @@ public:
 	/*
 		This method forms uses relationships between the given LHS entity and all the given variables
 	*/
-	vector<Relationship> formRelationshipsWithVariables(Entity& LHS, vector<Entity>& variables);
+	void addRelationshipsWithVariables(vector<Relationship>& relationships, Entity& LHS, vector<Entity>& variables);
 
 	/*
 		This method recursively traverses the node adding the uses relationship for procedures

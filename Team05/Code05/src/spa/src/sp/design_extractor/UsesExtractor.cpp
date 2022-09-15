@@ -79,9 +79,7 @@ vector<Relationship> UsesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	vector<Entity> extractedVariables = extractVariables(rightChild);
 	Entity leftHandSide = assignNode->extractEntity();
 
-	vector<Relationship> relationshipsWithVariables = formRelationshipsWithVariables(leftHandSide, extractedVariables);
-
-	usesRelationships.insert(usesRelationships.end(), relationshipsWithVariables.begin(), relationshipsWithVariables.end());
+	addRelationshipsWithVariables(usesRelationships, leftHandSide, extractedVariables);
 
 	return usesRelationships;
 }
@@ -103,12 +101,11 @@ vector<Relationship> UsesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 	Entity leftHandSide = whileNode->extractEntity();
 
 	vector<Entity> whileConditionVariables = extractVariables(whileNode->getCondition());
-	vector<Relationship> relationshipsWithVariables = formRelationshipsWithVariables(leftHandSide, whileConditionVariables);
+	addRelationshipsWithVariables(usesRelationships, leftHandSide, whileConditionVariables);
 
 	// Recursively extract relations from the while block
 	vector<Relationship> extractedChildRelationships = recursiveContainerExtract(leftHandSide, child);
 
-	usesRelationships.insert(usesRelationships.end(), relationshipsWithVariables.begin(), relationshipsWithVariables.end());
 	usesRelationships.insert(usesRelationships.end(), extractedChildRelationships.begin(), extractedChildRelationships.end());
 
 	return usesRelationships;
@@ -162,14 +159,11 @@ vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
 	return variables;
 }
 
-vector<Relationship> UsesExtractor::formRelationshipsWithVariables(Entity& LHS, vector<Entity>& variables) {
-	vector<Relationship> usesRelationships = vector<Relationship>();
-
+void UsesExtractor::addRelationshipsWithVariables(vector<Relationship>& relationships, Entity& LHS, vector<Entity>& variables) {
 	for (int i = 0; i < variables.size(); i++) {
 		Relationship toAdd = Relationship{ LHS, variables[i], RelationshipType::USES };
-		usesRelationships.push_back(toAdd);
+		relationships.push_back(toAdd);
 	}
-	return usesRelationships;
 }
 
 vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& LHS, shared_ptr<ASTNode> ast) {
@@ -186,9 +180,8 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& LHS, share
 		vector<Relationship> assignRelationship = handleAssign(ast);
 
 		vector<Entity> extractedVariables = extractVariables(rightChild);
-		vector<Relationship> relationshipsWithVariables = formRelationshipsWithVariables(LHS, extractedVariables);
+		addRelationshipsWithVariables(usesRelationships, LHS, extractedVariables);
 
-		usesRelationships.insert(usesRelationships.end(), relationshipsWithVariables.begin(), relationshipsWithVariables.end());
 		usesRelationships.insert(usesRelationships.end(), assignRelationship.begin(), assignRelationship.end());
 		break;
 	}
@@ -214,12 +207,11 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& LHS, share
 		shared_ptr<ASTNode> children = whileNode->getStmtList();
 
 		vector<Entity> whileConditionVariables = extractVariables(whileNode->getCondition());
-		vector<Relationship> relationshipsWithVariables = formRelationshipsWithVariables(LHS, whileConditionVariables);
+		addRelationshipsWithVariables(usesRelationships, LHS, whileConditionVariables);
 
 		vector<Relationship> recursiveExtract = recursiveContainerExtract(LHS, children);
 		vector<Relationship> recursiveWhile = handleWhile(ast);
 
-		usesRelationships.insert(usesRelationships.end(), relationshipsWithVariables.begin(), relationshipsWithVariables.end());
 		usesRelationships.insert(usesRelationships.end(), recursiveExtract.begin(), recursiveExtract.end());
 		usesRelationships.insert(usesRelationships.end(), recursiveWhile.begin(), recursiveWhile.end());
 		break;
