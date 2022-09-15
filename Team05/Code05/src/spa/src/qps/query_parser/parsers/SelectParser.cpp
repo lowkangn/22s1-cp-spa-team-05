@@ -1,5 +1,16 @@
 #include <qps/query_parser/parsers/SelectParser.h>
 
+shared_ptr<SelectClause> SelectParser::parse() {
+	PQLToken clauseTypeToken = this->tokens.front();
+	assert(isCorrectClauseType(clauseTypeToken));
+	this->tokens.pop_front();
+
+	list<ClauseArgument> args = extractArguments();
+	this->checkArguments(args);
+	this->isParseCompleted = true;
+	return createClause(clauseTypeToken, args);
+}
+
 bool SelectParser::isCorrectClauseType(PQLToken clauseTypeToken) {
 	return clauseTypeToken.isSelect();
 }
@@ -26,6 +37,6 @@ void SelectParser::checkArguments(list<ClauseArgument>& args) {
 	}
 }
 
-shared_ptr<Clause> SelectParser::createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) {
-	return shared_ptr<Clause>(new SelectClause(args.front()));
+shared_ptr<SelectClause> SelectParser::createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) {
+	return shared_ptr<SelectClause>(new SelectClause(args.front()));
 }

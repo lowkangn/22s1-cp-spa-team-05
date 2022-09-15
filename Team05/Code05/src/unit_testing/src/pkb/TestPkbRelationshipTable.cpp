@@ -80,7 +80,7 @@ TEST_CASE("PkbRelationshipTable::getAll works correctly") {
 		REQUIRE(expectedRelationships.size() == all.size());
 		for (int i = 0; i < expectedRelationships.size(); i++) {
 			// matches expectation
-			REQUIRE(expectedRelationships[i] == all[i]);
+			REQUIRE(find(all.begin(), all.end(), expectedRelationships[i]) != all.end());
 		}
 	};
 

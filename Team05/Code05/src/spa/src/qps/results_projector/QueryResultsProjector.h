@@ -2,7 +2,7 @@
 
 #include <list>
 #include <string>
-#include <unordered_set>
+#include <set>
 
 using namespace std;
 
@@ -11,9 +11,9 @@ using namespace std;
 	the autotester. */
 class QueryResultsProjector {
 private:
-	unordered_set<string> evaluatorResults;
+	set<string> evaluatorResults;
 public:
-	QueryResultsProjector(unordered_set<string>& evaluatorResults) 
+	QueryResultsProjector(set<string>& evaluatorResults)
 		: evaluatorResults(evaluatorResults) {};
 
 	void populateResultsList(list<string>& autotesterResults) {

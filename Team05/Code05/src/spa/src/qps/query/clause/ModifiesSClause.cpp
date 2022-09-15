@@ -1,16 +1,12 @@
-#include "ModifiesSClause.h"
-#include "PQLRelationship.h"
-#include "RelationshipClauseResult.h"
-#include "../../../pkb/interfaces/PKBQueryHandler.h"
+#include <qps/query/clause/ModifiesSClause.h>
 
-shared_ptr<ClauseResult> ModifiesSClause::execute() {
-    // Not sure of the correct way to call this
-//    vector<PQLRelationship> relationships = PKBQueryHandler().retrieveKnowledge(ClauseType::ModifiesS, lhs, rhs);
-//    return shared_ptr<ClauseResult>(new RelationshipClauseResult(lhs, rhs, relationships));
-    return shared_ptr<ClauseResult>();
+shared_ptr<RelationshipClauseResult> ModifiesSClause::execute(shared_ptr<PKB> pkb) {
+	vector<PQLRelationship> relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(
+			PKBTrackedRelationshipType::MODIFIES, lhs, rhs);
+	return shared_ptr<RelationshipClauseResult>(new RelationshipClauseResult(lhs, rhs, relationships));
 }
 
-bool ModifiesSClause::equals (const Clause* other) {
+bool ModifiesSClause::equals(const RelationshipClause* other) {
 	if (dynamic_cast<const ModifiesSClause*>(other) == nullptr) {
 		return false;
 	}

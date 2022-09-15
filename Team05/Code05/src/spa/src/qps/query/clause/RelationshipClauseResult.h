@@ -1,11 +1,10 @@
 #pragma once
 
 #include <vector>
-#include "PQLRelationship.h"
-#include "ClauseResult.h"
-#include "ClauseArgument.h"
+#include <qps/query/clause/PQLRelationship.h>
+#include <qps/query/clause/ClauseArgument.h>
 
-class RelationshipClauseResult : public ClauseResult {
+class RelationshipClauseResult {
 
 private:
     ClauseArgument firstArg;
@@ -30,6 +29,10 @@ public:
 
     vector<PQLRelationship> getRelationships() {
         return this->relationships;
+    }
+
+    bool isEmpty() {
+        return this->relationships.empty();
     }
 
     friend bool operator==(RelationshipClauseResult first, RelationshipClauseResult second);

@@ -1,16 +1,5 @@
 #include <qps/query_parser/parsers/ClauseParser.h>
 
-shared_ptr<Clause> ClauseParser::parse() {
-	PQLToken clauseTypeToken = this->tokens.front();
-	assert(isCorrectClauseType(clauseTypeToken));
-	this->tokens.pop_front();
-
-	list<ClauseArgument> args = extractArguments();
-	this->checkArguments(args);
-	this->isParseCompleted = true;
-	return createClause(clauseTypeToken, args);
-}
-
 ClauseArgument ClauseParser::parseSynonym() {
     PQLToken synonymToken = this->tokens.front();
     if (declarations.count(synonymToken.getTokenString()) == 0) {

@@ -21,14 +21,14 @@ const string THAT = "that";
 const string PATTERN = "pattern";
 
 // keywords for identifying Clause type
-const string MODIFIES = "Modifies";
-const string FOLLOW = "Follows";
+const string PQL_MODIFIES = "Modifies";
+const string PQL_FOLLOWS = "Follows";
 
 // delimiters
 const string SEMICOLON = ";";
 const string COMMA = ",";
-const string OPEN_BRACKET = "(";
-const string CLOSE_BRACKET = ")";
+const string PQL_OPEN_BRACKET = "(";
+const string PQL_CLOSED_BRACKET = ")";
 const string QUOTE = "\"";
 const string UNDERSCORE = "_";
 
@@ -112,11 +112,11 @@ public:
     }
 
     bool isOpenBracket() {
-        return isDelimiter() && tokenString == OPEN_BRACKET;
+        return isDelimiter() && tokenString == PQL_OPEN_BRACKET;
     }
 
     bool isCloseBracket() {
-        return isDelimiter() && tokenString == CLOSE_BRACKET;
+        return isDelimiter() && tokenString == PQL_CLOSED_BRACKET;
     }
 
     bool isQuote() {
@@ -144,7 +144,7 @@ public:
 
     // Clause Type indicators
     bool isModifies() {
-        return isName() && tokenString == MODIFIES;
+        return isName() && tokenString == PQL_MODIFIES;
     }
 };
 

@@ -1,5 +1,5 @@
-#include "UsesPClause.h"
+#include <qps/query/clause/UsesPClause.h>
 
-shared_ptr<ClauseResult> UsesPClause::execute() {
-    return shared_ptr<ClauseResult>();
+shared_ptr<RelationshipClauseResult> UsesPClause::execute(shared_ptr<PKB> pkb) {
+    return shared_ptr<RelationshipClauseResult>();
 }

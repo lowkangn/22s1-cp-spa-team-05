@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Clause.h"
+#include <qps/query/clause/RelationshipClause.h>
 
-class FollowsTClause : public Clause {
+class FollowsTClause : public RelationshipClause {
 public:
-    shared_ptr<ClauseResult> execute() override;
+    shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKB> pkb) override;
 };
