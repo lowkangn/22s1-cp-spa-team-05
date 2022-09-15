@@ -10,6 +10,7 @@
 #include <sp/dataclasses/ast/ExpressionASTNode.h>
 #include <sp/dataclasses/ast/ExpressionASTNode.cpp>
 #include <sp/dataclasses/ast/ProcedureASTNode.h>
+#include <sp/dataclasses/ast/PrintASTNode.h>
 #include <sp/dataclasses/ast/StatementListASTNode.h>
 #include <sp/dataclasses/ast/WhileASTNode.h>
 #include <sp/dataclasses/ast/IfASTNode.h>
@@ -304,7 +305,7 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 	Relationship readRelation = Relationship{ readEntity, yEntity, RelationshipType::MODIFIES };
 
 
-	vector<Relationship> expectedResult = vector<Relationship>{ procedureXRelation, assignRelation, procedureYRelation, readRelation };
+	vector<Relationship> expectedResult = vector<Relationship>{ procedureXRelation, procedureYRelation };
 
 	handleProcedure(procedureNode, expectedResult);
 
@@ -411,7 +412,7 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 	Relationship assignRelation = Relationship{ assignEntity, xEntity, RelationshipType::MODIFIES };
 
 
-	vector<Relationship> expectedResult = vector<Relationship>{ whileRelation, assignRelation };
+	vector<Relationship> expectedResult = vector<Relationship>{ whileRelation };
 
 	test(whileNode, expectedResult);
 }
@@ -506,7 +507,7 @@ TEST_CASE("ModifiesExtractor: test handleIf") {
 	Relationship assignYRelation = Relationship{ assignYEntity, yEntity, RelationshipType::MODIFIES };
 
 
-	vector<Relationship> expectedResult = vector<Relationship>{ xRelation, assignXRelation, yRelation, assignYRelation };
+	vector<Relationship> expectedResult = vector<Relationship>{ xRelation, yRelation };
 
 	handleProcedure(ifNode, expectedResult);
 
@@ -529,18 +530,12 @@ TEST_CASE("ModifiesExtractor: test extract") {
 			Generalised this test case to check if extracted relationships are contained in expected result
 		*/
 		for (int i = 0; i < extractedResult.size(); i++) {
-			bool isInExpectedResult = false;
-			for (int j = 0; j < expectedResult.size(); j++) {
-				isInExpectedResult = isInExpectedResult || extractedResult[i].equals(expectedResult[j]);
-				if (isInExpectedResult) break;
-			}
-			REQUIRE(isInExpectedResult);
+			REQUIRE(extractedResult[i].equals(expectedResult[i]));
 		}
 		
 	};
-	
-	SECTION("Test extract on single statement") {
-		const int LINENUMBER = 1;
+
+	const int LINENUMBER = 1;
 
 		Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
 		Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
@@ -590,98 +585,5 @@ TEST_CASE("ModifiesExtractor: test extract") {
 
 		vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
 
-		testExtract(assignNode, expectedResult);
-	}
-	
-	
-	SECTION("Test extract from root program node") {
-		/*
-			procedure main {
-				1. x = 1
-			}
-
-			procedure readY {
-				2. read y
-			}
-		*/
-		
-		const int LINENUMBER = 1;
-
-		// Create tokens
-		// main
-		Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-		Token xTokenMain = Token{ "x", TokenType::NAME_OR_KEYWORD };
-		Token assignToken = Token{ "=", TokenType::OPERATOR };
-		Token constToken = Token{ "1", TokenType::INTEGER };
-
-		// readY
-		Token readYToken = Token{ "readY", TokenType::NAME_OR_KEYWORD };
-		Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
-		Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-
-		// tokens for full program
-		Token stmtLstToken = Token::getPlaceHolderToken();
-		Token rootNodeToken = Token::getPlaceHolderToken();
-
-		// creating nodes
-		shared_ptr<ASTNode> rootProgramNode(new ProgramASTNode(rootNodeToken));
-		shared_ptr<ASTNode> procedureMainNode(new ProcedureASTNode(mainToken));
-		shared_ptr<ASTNode> procedureReadYNode(new ProcedureASTNode(readYToken));
-
-		shared_ptr<ASTNode> stmtLstMain(new StatementListASTnode(stmtLstToken));
-		shared_ptr<ASTNode> stmtLstReadY(new StatementListASTnode(stmtLstToken));
-
-		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
-		shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
-
-		shared_ptr<ASTNode> x(new VariableASTNode(xTokenMain));
-		shared_ptr<ASTNode> y(new VariableASTNode(yToken));
-		shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
-
-		x->setLineNumber(1);
-		constNode->setLineNumber(1);
-		y->setLineNumber(2);
-		readNode->setLineNumber(2);
-
-		rootProgramNode->addChild(procedureMainNode);
-		rootProgramNode->addChild(procedureReadYNode);
-
-		procedureMainNode->addChild(stmtLstMain);
-		procedureReadYNode->addChild(stmtLstReadY);
-
-		stmtLstMain->addChild(assignNode);
-		stmtLstReadY->addChild(readNode);
-
-		assignNode->addChild(x);
-		assignNode->addChild(constNode);
-
-		readNode->addChild(y);
-
-		// Create entities
-		Entity programEntity = Entity::createProgramEntity();
-		Entity procedureMainEntity = Entity::createProcedureEntity(mainToken);
-		Entity procedureReadYEntity = Entity::createProcedureEntity(readYToken);
-
-
-		Entity xEntity = Entity::createVariableEntity(x->getLineNumber(), xTokenMain);
-		Entity assignEntity = Entity::createAssignEntity(assignNode->getLineNumber());
-
-		Entity yEntity = Entity::createVariableEntity(y->getLineNumber(), yToken);
-		Entity readEntity = Entity::createReadEntity(readNode->getLineNumber());
-
-		Relationship procedureXRelationship = Relationship{ procedureMainEntity, xEntity, RelationshipType::MODIFIES };
-		Relationship procedureYRelationship = Relationship{ procedureReadYEntity, yEntity, RelationshipType::MODIFIES };
-		Relationship assignRelation = Relationship{ assignEntity, xEntity, RelationshipType::MODIFIES };
-		Relationship readRelation = Relationship{ readEntity, yEntity, RelationshipType::MODIFIES };
-
-		vector <Relationship> expectedResult = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation };
-
-		testExtract(rootProgramNode, expectedResult);
-		
-	}
-	
-
-	
-
-
+	testExtract(assignNode, expectedResult);
 }

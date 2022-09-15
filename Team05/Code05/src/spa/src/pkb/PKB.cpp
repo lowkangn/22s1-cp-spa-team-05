@@ -104,27 +104,27 @@ shared_ptr<PkbRelationship> PKB::spRelationshipToPkbRelationship(Relationship re
 	shared_ptr<PkbEntity> rhsToPkbEntity = this->spEntityToPkbEntity(rhs);
 
 	if (relationship.isFollows()) {
-		shared_ptr<PkbRelationship> pkbRelationship = new shared_ptr<PkbRelationship>(new PkbFollowsRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbFollowsRelationship(lhsToPkbEntity, rhsToPkbEntity));
 		return pkbRelationship;
 	}
 	else if (relationship.isFollowsStar()) {
-		shared_ptr<PkbRelationship> pkbRelationship = new shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
 		return pkbRelationship;
 	}
 	else if (relationship.isModifies()) {
-		shared_ptr<PkbRelationship> pkbRelationship = new shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhsToPkbEntity, rhsToPkbEntity));
 		return pkbRelationship;
 	}
 	else if (relationship.isParent()) {
-		shared_ptr<PkbRelationship> pkbRelationship = new shared_ptr<PkbRelationship>(new PkbParentRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbParentRelationship(lhsToPkbEntity, rhsToPkbEntity));
 		return pkbRelationship;
 	}
 	else if (relationship.isParentStar()) {
-		shared_ptr<PkbRelationship> pkbRelationship = new shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
 		return pkbRelationship;
 	}
 	else if (relationship.isUses()) {
-		shared_ptr<PkbRelationship> pkbRelationship = new shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhsToPkbEntity, rhsToPkbEntity));
 		return pkbRelationship;
 	}
 	else {
@@ -161,41 +161,34 @@ void PKB::addEntities(vector<Entity> entities) {
 void PKB::addRelationships(vector<Relationship> relationships) {
 	for (Relationship r : relationships) {
 		// convert lhs and rhs to entities
-		shared_ptr<PkbEntity> lhs = this->spEntityToPkbEntity(r.getLhs());
-		shared_ptr<PkbEntity> rhs = this->spEntityToPkbEntity(r.getRhs());
+		shared_ptr<PkbRelationship> pkbRelationship = spRelationshipToPkbRelationship(r);
 
 		// depending on relationship type, we choose the table 
 		// and create the object as a casted shared pointer
 		
 		if (r.isFollows()) {
 			shared_ptr<PkbRelationshipTable> table = this->getFollowsTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbFollowsRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else if (r.isFollowsStar()) {
 			shared_ptr<PkbRelationshipTable> table = this->getFollowsStarTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else if (r.isParent()) {
 			shared_ptr<PkbRelationshipTable> table = this->getParentTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbParentRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else if (r.isParentStar()) {
 			shared_ptr<PkbRelationshipTable> table = this->getParentStarTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else if (r.isUses()) {
 			shared_ptr<PkbRelationshipTable> table = this->getUsesTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else if (r.isModifies()) {
 			shared_ptr<PkbRelationshipTable> table = this->getModifiesTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else {
 			throw PkbException("Unknown relationship being added to PKB!");
@@ -575,7 +568,7 @@ shared_ptr<PKBUpdateHandler> PKB::getUpdateHandler() {
 }
 
 bool PKB::containsEntity(Entity entity) {
-	shared_ptr<PkbEntity> entitytoPkbEntity = spEntityToPkbEntity(Entity);
+	shared_ptr<PkbEntity> entitytoPkbEntity = spEntityToPkbEntity(entity);
 	string key = entitytoPkbEntity->getKey();
 
 	if (entitytoPkbEntity->isStatement()) {
@@ -587,31 +580,33 @@ bool PKB::containsEntity(Entity entity) {
 	else if (entitytoPkbEntity->isProcedure()) {
 		return this->proceduresTable.get(key) != NULL;
 	}
-	else if (entityToPkbEntity->isConstant()) {
+	else if (entitytoPkbEntity->isConstant()) {
 		return this->constantsTable.get(key) != NULL;
 	}
-	else {
-		throw PkbException("Entity of unknown type cannot be checked in PKB")
-	}
+	else return false;
 }
 
 bool PKB::containsRelationship(Relationship relationship) {
 	shared_ptr<PkbRelationship> relationshiptoPkbRelationship = spRelationshipToPkbRelationship(relationship);
-	string key = relationshiptoPkbRelationship.getKey();
+	string key = relationshiptoPkbRelationship->getKey();
 
 	if (relationshiptoPkbRelationship->isFollows()) {
-		return this->getFollowsTable().get(key) != NULL;
+		return this->getFollowsTable()->get(key) != NULL;
 	}
 	else if (relationshiptoPkbRelationship->isFollowsStar()) {
-		return this->getFollowsStarTable().get(key) != NULL;
+		return this->getFollowsStarTable()->get(key) != NULL;
 	}
 	else if (relationshiptoPkbRelationship->isParent()) {
-		return this->getParentTable().get(key) != NULL;
+		return this->getParentTable()->get(key) != NULL;
 	}
 	else if (relationshiptoPkbRelationship->isParentStar()) {
-		return this->getParentStarTable().get(key) != NULL;
+		return this->getParentStarTable()->get(key) != NULL;
 	}
-	else if (relationshiptoPkbRelationship->isFollowsStar()) {
-		return this->getFollowsStarTable().get(key) != NULL;
+	else if (relationshiptoPkbRelationship->isUses()) {
+		return this->getUsesTable()->get(key) != NULL;
 	}
+	else if (relationshiptoPkbRelationship->isModifies()) {
+		return this->getModifiesTable()->get(key) != NULL;
+	}
+	else return false;
 }

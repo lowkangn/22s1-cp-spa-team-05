@@ -73,6 +73,11 @@ private:
 	shared_ptr<PkbEntity> spEntityToPkbEntity(Entity entity);
 
 	/*
+		Converts SP relationship to a PKB relationship
+	*/
+	shared_ptr<PkbRelationship> spRelationshipToPkbRelationship(Relationship relationship);
+
+	/*
 		Maps the supported relationship types to an internal table.
 	*/
 	shared_ptr<PkbRelationshipTable> getTableByRelationshipType(PKBTrackedRelationshipType relationshipType);

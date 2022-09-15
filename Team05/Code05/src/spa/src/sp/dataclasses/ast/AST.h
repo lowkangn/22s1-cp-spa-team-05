@@ -86,4 +86,31 @@ public:
 	*/
 	virtual Entity extractEntity() = 0;
 
+	bool isProgramNode() {
+		return this->type == ASTNodeType::PROGRAM;
+	}
+
+	bool isProcedureNode() {
+		return this->type == ASTNodeType::PROCEDURE;
+	}
+
+	bool isStmtLstNode() {
+		return this->type == ASTNodeType::STMTLIST;
+	}
+
+	bool isWhileNode() {
+		return this->type == ASTNodeType::WHILE;
+	}
+
+	bool isIfNode() {
+		return this->type == ASTNodeType::IF;
+	}
+
+	bool hasContainer() {
+		return this->isProgramNode() ||
+			this->isProcedureNode() ||
+			this->isWhileNode() ||
+			this->isIfNode() ||
+			this->isStmtLstNode();
+	}
 };

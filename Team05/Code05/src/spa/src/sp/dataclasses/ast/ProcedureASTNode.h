@@ -12,5 +12,10 @@ public:
 		return false;
 	}
 
+	shared_ptr<ASTNode> getStmtLst() {
+		assert(this->children.size() == 1);
+		return this->children[0];
+	}
+
 	Entity extractEntity() override;
 };

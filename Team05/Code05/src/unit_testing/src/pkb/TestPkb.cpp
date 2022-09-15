@@ -9,6 +9,8 @@
 #include <pkb/design_objects/relationships/PkbParentRelationship.h>
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
+#include<pkb/table_managers/PkbPatternTable.h>
+#include<pkb/table_managers/PkbPatternTable.cpp>
 #include <pkb/PkbException.h>
 #include <pkb/PKB.h>
 #include <pkb/PKB.cpp>
@@ -811,7 +813,7 @@ TEST_CASE("Test containsEntity") {
 	Entity assignEntity = Entity::createAssignEntity(1);
 	Entity constEntity = Entity::createConstantEntity(1, constToken);
 
-	vector<Entity> entitiesToAdd { procedureMainEntity, xEntity, assignToken, constEntity };
+	vector<Entity> entitiesToAdd = vector<Entity>{ procedureMainEntity, xEntity, assignEntity, constEntity };
 
 	// Test entities not in PKB
 	// create tokens
@@ -834,13 +836,14 @@ TEST_CASE("Test containsEntity") {
 
 }
 
+
 TEST_CASE("Test containsRelationship") {
 	auto test = [](vector<Relationship> relationshipsToAdd, Relationship relationshipToTest, bool expected) {
 		// given
 		PKB pkb;
 
 		// when 
-		pkb.addRelationships(entitiesToAdd);
+		pkb.addRelationships(relationshipsToAdd);
 		bool extractedBool = pkb.containsRelationship(relationshipToTest);
 
 		// then 
@@ -859,6 +862,7 @@ TEST_CASE("Test containsRelationship") {
 
 	// Create tokens
 	// main
+
 	Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
 	Token xTokenMain = Token{ "x", TokenType::NAME_OR_KEYWORD };
 	Token assignToken = Token{ "=", TokenType::OPERATOR };

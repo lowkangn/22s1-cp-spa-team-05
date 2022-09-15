@@ -67,4 +67,8 @@ public:
 		string key = lhsKey + rhsKey + typeValue;
 		return key;
 	}
+
+	bool equals(PkbRelationship other) {
+		return (this->relationshipType == other.relationshipType) && (this->lhs->equals(other.getLhs())) && (this->rhs->equals(other.getRhs())) && (this->getKey() == other.getKey());
+	}
 };
