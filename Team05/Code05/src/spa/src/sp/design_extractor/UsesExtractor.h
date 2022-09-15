@@ -53,6 +53,11 @@ public:
 	vector<Entity> extractVariables(shared_ptr<ASTNode> ast);
 
 	/*
+		This method forms uses relationships between the given LHS entity and all the given variables
+	*/
+	vector<Relationship> formRelationshipsWithVariables(Entity& LHS, vector<Entity>& variables);
+
+	/*
 		This method recursively traverses the node adding the uses relationship for procedures
 	*/
 	vector<Relationship> recursiveContainerExtract(Entity& LHS, shared_ptr<ASTNode> ast);
