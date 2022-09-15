@@ -51,8 +51,8 @@ public:
 			vector<pair<PQLEntity, vector<PQLEntity>>> combinedTableKeyValuePairs,
 			vector<vector<PQLEntity>> tableToMergeKeyValuePairs);
 
-	void combinedTableJoin(vector<vector<PQLEntity>>* combinedTable,
-						   vector<ClauseArgument>* argumentsInCombinedTable,
-						   list<RelationshipClauseResult>* relationshipsResults);
+	bool combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> combinedTable,
+						   shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable,
+						   list<RelationshipClauseResult> relationshipsResults);
 
 };
