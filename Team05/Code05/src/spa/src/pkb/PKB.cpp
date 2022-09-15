@@ -169,7 +169,22 @@ void PKB::addRelationships(vector<Relationship> relationships) {
 }
 
 void PKB::addPatterns(vector<Pattern> patterns) {
-	// do nothing
+	// for every pattern
+	for (Pattern p : patterns) {
+		// only assign is supported
+		if (!p.isAssignPattern()) { 
+			throw PkbException("Only assign pattern is supported!");
+		}
+		// we get the strings
+		vector<string> strings = {
+			p.getLhs(),
+			p.getRhs()
+		};
+
+		// we create the required pattern
+		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(p.getEntity().getLine(), strings);
+		this->assignPatterns.add(pattern);
+	}
 }
 
 PQLEntity PKB::retrieveProcedureEntityByName(string procedureName) {

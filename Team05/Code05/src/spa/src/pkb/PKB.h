@@ -11,6 +11,7 @@
 
 #include <pkb/table_managers/PkbEntityTable.h>
 #include <pkb/table_managers/PkbRelationshipTable.h>
+#include <pkb/table_managers/PkbPatternTable.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
 
 #include <map>
@@ -44,6 +45,7 @@ private:
 	};
 
 	// patterns
+	PkbPatternTable assignPatterns;
 
 	// getters
 	shared_ptr<PkbRelationshipTable> getFollowsTable() {
