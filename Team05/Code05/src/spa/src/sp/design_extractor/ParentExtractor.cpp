@@ -12,7 +12,7 @@ vector<Relationship> ParentExtractor::extract(shared_ptr<ASTNode> ast) {
 	vector<Relationship> extractedParentRelationships;
 
 	if (ast->isIfNode()) {
-		shared_ptr<IfASTNode> ifNode = dynamic_cast<IfASTNode>(ast);
+		shared_ptr<IfASTNode> ifNode = dynamic_pointer_cast<IfASTNode>(ast);
 
 		Entity ifEntity = ifNode->extractEntity();
 		
@@ -23,7 +23,7 @@ vector<Relationship> ParentExtractor::extract(shared_ptr<ASTNode> ast) {
 		extractedParentRelationships.insert(extractedParentRelationships.begin(), elseRelations.begin(), elseRelations.end());
 	}
 	else if (ast->isWhileNode()) {
-		shared_ptr<WhileASTNode> whileNode = dynamic_cast<WhileASTNode>(ast);
+		shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
 
 		Entity whileEntity = whileNode->extractEntity();
 
@@ -44,8 +44,12 @@ vector<Relationship> ParentExtractor::extract(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> ParentExtractor::extractFromContainer(shared_ptr<ASTNode> containerASTNode, Entity leftHandSide) {
+	// Sanity check
+	assert(containerASTNode->isStmtLstNode());
+
 	vector<Relationship> parentRelationships;
 
+	// Find statements and create relationship
 	for (shared_ptr<ASTNode> child : containerASTNode->getChildren()) {
 		ASTNodeType astType = child->getType();
 
@@ -54,6 +58,7 @@ vector<Relationship> ParentExtractor::extractFromContainer(shared_ptr<ASTNode> c
 		case ASTNodeType::ASSIGN:
 		case ASTNodeType::IF:
 		case ASTNodeType::WHILE:
+		case ASTNodeType::PRINT:
 		case ASTNodeType::CALL:
 			Relationship parent = Relationship(leftHandSide, child->extractEntity(), RelationshipType::PARENT);
 			parentRelationships.push_back(parent);
