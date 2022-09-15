@@ -1,9 +1,5 @@
-// imported libraries
-#include <vector>
-
-
-// imported locally
 #include <sp/design_extractor/PatternExtractor.h>
+<<<<<<< HEAD
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/BracketsASTNode.h>
 #include <sp/dataclasses/ast/ExpressionASTNode.h>
@@ -14,6 +10,8 @@
 #include <sp/dataclasses/design_objects/Pattern.h>
 
 using namespace std;
+=======
+>>>>>>> master
 
 vector<Pattern> PatternExtractor::extract(shared_ptr<ASTNode> ast) {
 	ASTNodeType astType = ast->getType();
