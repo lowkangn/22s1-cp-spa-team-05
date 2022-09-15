@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "PQLEntity.h"
-#include "ClauseArgument.h"
+#include <qps/query/clause/PQLEntity.h>
+#include <qps/query/clause/ClauseArgument.h>
 
 class EntityClauseResult {
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <string>
-#include "RelationshipClause.h"
-#include "RelationshipClauseResult.h"
-#include "ClauseArgument.h"
+#include <qps/query/clause/RelationshipClause.h>
+#include <qps/query/clause/RelationshipClauseResult.h>
+#include <qps/query/clause/ClauseArgument.h>
 
 class ModifiesSClause : public RelationshipClause {
 public:

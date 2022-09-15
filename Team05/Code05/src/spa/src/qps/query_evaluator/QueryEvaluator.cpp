@@ -1,5 +1,5 @@
 #include <set>
-#include "QueryEvaluator.h"
+#include <qps/query_evaluator/QueryEvaluator.h>
 
 set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKB> pkb) {
 	shared_ptr<EntityClauseResult> entitiesResultPointer = query.executeSelect(pkb);
@@ -12,7 +12,7 @@ set<string> QueryEvaluator::combine(shared_ptr<EntityClauseResult> entitiesResul
 
     EntityClauseResult entitiesResult = *entitiesResultPointer;
     list<RelationshipClauseResult> relationshipsResults =
-			dereferenceRelationshipsResultPointers(relationshipsResultPointers);
+			this->dereferenceRelationshipsResultPointers(relationshipsResultPointers);
 
     // If result from SelectClause returns no entries, return empty set
     if (entitiesResult.isEmpty()) {
@@ -56,7 +56,7 @@ vector<PQLEntity> QueryEvaluator::filterEntities(EntityClauseResult entitiesResu
 
 	for (RelationshipClauseResult relationshipsResult : relationshipsResults) {
 		if (entitiesResult.getArg() == relationshipsResult.getFirstArg() || entitiesResult.getArg() == relationshipsResult.getSecondArg()) {
-			vector<vector<PQLEntity>> tableToAdd = getKeyOnlyTable(relationshipsResult);
+			vector<vector<PQLEntity>> tableToAdd = this->getKeyOnlyTable(relationshipsResult);
 			currentTable = tableToAdd;
 			argumentsInCurrentTable.push_back(relationshipsResult.getFirstArg());
 			argumentsInCurrentTable.push_back(relationshipsResult.getSecondArg());
@@ -78,8 +78,8 @@ vector<PQLEntity> QueryEvaluator::filterEntities(EntityClauseResult entitiesResu
 		for (; resultIter != resultsLeft.end(); resultIter++) {
 
 			// If equals -1, means ClauseArguments not yet in combined table
-			int firstArgIndex = findArgumentIndex(argumentsInCurrentTable, resultIter->getFirstArg());
-			int secondArgIndex = findArgumentIndex(argumentsInCurrentTable, resultIter->getSecondArg());
+			int firstArgIndex = this->findArgumentIndex(argumentsInCurrentTable, resultIter->getFirstArg());
+			int secondArgIndex = this->findArgumentIndex(argumentsInCurrentTable, resultIter->getSecondArg());
 
 
 			if (firstArgIndex == -1 && secondArgIndex == -1) {
@@ -88,21 +88,21 @@ vector<PQLEntity> QueryEvaluator::filterEntities(EntityClauseResult entitiesResu
 			} else {
 				vector<vector<PQLEntity>> combinedTable;
 				if (firstArgIndex != -1 && secondArgIndex != -1) {
-					vector<pair<vector<PQLEntity>, vector<PQLEntity>>> currentTableKeyValuePairs = convertToKeyValuePairs(
+					vector<pair<vector<PQLEntity>, vector<PQLEntity>>> currentTableKeyValuePairs = this->convertToKeyValuePairs(
 							currentTable, firstArgIndex, secondArgIndex);
-					vector<vector<PQLEntity>> tableToMerge = getKeyOnlyTable(*resultIter);
-					combinedTable = pairKeyTableJoin(currentTableKeyValuePairs, tableToMerge);
+					vector<vector<PQLEntity>> tableToMerge = this->getKeyOnlyTable(*resultIter);
+					combinedTable = this->pairKeyTableJoin(currentTableKeyValuePairs, tableToMerge);
 				} else if (firstArgIndex != -1) {
-					vector<pair<PQLEntity, vector<PQLEntity>>> currentTableKeyValuePairs = convertToKeyValuePairs(
+					vector<pair<PQLEntity, vector<PQLEntity>>> currentTableKeyValuePairs = this->convertToKeyValuePairs(
 							combinedTable, firstArgIndex);
-					vector<vector<PQLEntity>> tableToMerge = getKeyValueTable(*resultIter, KeyColumn::FIRST_COLUMN_KEY);
-					combinedTable = singleKeyTableJoin(currentTableKeyValuePairs, tableToMerge);
+					vector<vector<PQLEntity>> tableToMerge = this->getKeyValueTable(*resultIter, KeyColumn::FIRST_COLUMN_KEY);
+					combinedTable = this->singleKeyTableJoin(currentTableKeyValuePairs, tableToMerge);
 					argumentsInCurrentTable.push_back(resultIter->getSecondArg());
 				} else {
-					vector<pair<PQLEntity, vector<PQLEntity>>> currentTableKeyValuePairs = convertToKeyValuePairs(
+					vector<pair<PQLEntity, vector<PQLEntity>>> currentTableKeyValuePairs = this->convertToKeyValuePairs(
 							combinedTable, secondArgIndex);
-					vector<vector<PQLEntity>> tableToMerge = getKeyValueTable(*resultIter, KeyColumn::SECOND_COLUMN_KEY);
-					combinedTable = singleKeyTableJoin(currentTableKeyValuePairs, tableToMerge);
+					vector<vector<PQLEntity>> tableToMerge = this->getKeyValueTable(*resultIter, KeyColumn::SECOND_COLUMN_KEY);
+					combinedTable = this->singleKeyTableJoin(currentTableKeyValuePairs, tableToMerge);
 					argumentsInCurrentTable.push_back(resultIter->getFirstArg());
 				}
 				currentTable = combinedTable;
@@ -130,7 +130,7 @@ vector<PQLEntity> QueryEvaluator::filterEntities(EntityClauseResult entitiesResu
 
 vector<vector<PQLEntity>> QueryEvaluator::getKeyOnlyTable(RelationshipClauseResult relationshipsResult) {
 
-	return getKeyValueTable(relationshipsResult, KeyColumn::FIRST_COLUMN_KEY);
+	return this->getKeyValueTable(relationshipsResult, KeyColumn::FIRST_COLUMN_KEY);
 }
 
 vector<vector<PQLEntity>> QueryEvaluator::getKeyValueTable(RelationshipClauseResult relationshipsResult, KeyColumn keyColumn) {

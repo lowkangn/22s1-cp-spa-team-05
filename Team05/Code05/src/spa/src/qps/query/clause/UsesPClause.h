@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RelationshipClause.h"
+#include <qps/query/clause/RelationshipClause.h>
 
 class UsesPClause : public RelationshipClause {
 public:

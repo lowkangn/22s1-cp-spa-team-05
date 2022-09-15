@@ -1,4 +1,4 @@
-#include "RelationshipClause.h"
+#include <qps/query/clause/RelationshipClause.h>
 
 class PatternClause : public RelationshipClause {
 public:

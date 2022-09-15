@@ -1,7 +1,4 @@
-#include "SelectClause.h"
-#include "PQLEntity.h"
-#include "EntityClauseResult.h"
-#include <pkb/PKB.h>
+#include <qps/query/clause/SelectClause.h>
 
 shared_ptr<EntityClauseResult> SelectClause::execute(shared_ptr<PKB> pkb) {
 	if (!toSelect.isSynonym()) {

@@ -5,9 +5,9 @@
 #include <set>
 #include <unordered_set>
 
-#include "../query/clause/EntityClauseResult.h"
-#include "../query/clause/RelationshipClauseResult.h"
-#include "../query/Query.h"
+#include <qps/query/clause/EntityClauseResult.h>
+#include <qps/query/clause/RelationshipClauseResult.h>
+#include <qps/query/Query.h>
 #include <pkb/PKB.h>
 
 using namespace std;

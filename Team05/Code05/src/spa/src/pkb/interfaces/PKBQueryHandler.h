@@ -99,4 +99,6 @@ public:
     */
     virtual vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) = 0;
     
+    // ===== Pattern =====
+    
 };
