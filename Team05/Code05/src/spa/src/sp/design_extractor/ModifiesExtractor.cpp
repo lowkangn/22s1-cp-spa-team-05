@@ -233,7 +233,6 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 			modifiesRelationships.insert(modifiesRelationships.end(), toAdd.begin(), toAdd.end());
 		}
 
-		// Create relationship for parent of this container and the stmtlst inside this while node
 		for (shared_ptr<ASTNode> child : elseChildren->getChildren()) {
 			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
 			modifiesRelationships.insert(modifiesRelationships.end(), toAdd.begin(), toAdd.end());
@@ -242,10 +241,6 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		modifiesRelationships.insert(modifiesRelationships.end(), recursiveIfRelations.begin(), recursiveIfRelations.end());
 		break;
 	} 
-	default:
-	{
-		// No entities to be extracted
-	}
 	}
 	return modifiesRelationships;
 }
