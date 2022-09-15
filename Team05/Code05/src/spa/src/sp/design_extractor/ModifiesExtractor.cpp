@@ -106,7 +106,6 @@ vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast)
 	shared_ptr<ASTNode> childContainer = procedureNode->getStmtLst();
 
 	// Iterate through children and extract relationships
-
 	for (shared_ptr<ASTNode> child : childContainer->getChildren()) {
 		vector <Relationship> extractedRelationships = recursiveContainerExtract(leftHandSide, child);
 		extractedChildRelationships.insert(extractedChildRelationships.end(), extractedRelationships.begin(), extractedRelationships.end());
