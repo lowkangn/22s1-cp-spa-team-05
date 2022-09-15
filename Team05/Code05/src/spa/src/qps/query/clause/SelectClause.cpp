@@ -1,6 +1,6 @@
 #include <qps/query/clause/SelectClause.h>
 
-shared_ptr<EntityClauseResult> SelectClause::execute(shared_ptr<PKB> pkb) {
+shared_ptr<EntityClauseResult> SelectClause::execute(shared_ptr<PKBQueryHandler> pkb) {
 	if (!toSelect.isSynonym()) {
 		throw PQLError("SelectClause argument is not a synonym");
 	}

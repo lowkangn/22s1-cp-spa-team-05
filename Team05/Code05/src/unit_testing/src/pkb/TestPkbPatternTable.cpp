@@ -2,7 +2,6 @@
 
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
 #include <pkb/table_managers/PkbPatternTable.h>
-#include <pkb/table_managers/PkbPatternTable.cpp>
 #include <pkb/design_objects/patterns/PkbStatementPattern.h>
 
 #include <vector>

@@ -1,6 +1,5 @@
 #include "catch.hpp"
 #include <qps/query/clause/SelectClause.h>
-#include <qps/query/clause/SelectClause.cpp>
 
 using namespace std;
 

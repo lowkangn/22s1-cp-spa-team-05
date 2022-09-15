@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pkb/design_objects/entities/PkbEntity.h>
+#include <pkb/PkbException.h>
 
 #include <unordered_map>
 #include <vector>

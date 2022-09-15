@@ -1,7 +1,6 @@
 #include "catch.hpp"
 #include <list>
 #include <qps/query/clause/ClauseArgument.h>
-#include <qps/query/clause/ClauseArgument.cpp>
 
 
 using namespace std;

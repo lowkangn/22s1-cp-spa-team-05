@@ -3,6 +3,9 @@
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/parser/rules/SimpleSyntaxRule.h>
+#include <sp/parser/rules/ProcedureSimpleSyntaxRule.h>
+#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
+#include <sp/dataclasses/ast/ProgramASTNode.h>
 
 #include <memory>
 #include <list>
