@@ -113,4 +113,12 @@ public:
 			this->isIfNode() ||
 			this->isStmtLstNode();
 	}
+
+	bool isVariable() {
+		return this->type == ASTNodeType::VARIABLE;
+	}
+
+	bool isExpression() {
+		return this->type == ASTNodeType::EXPRESSION;
+	}
 };

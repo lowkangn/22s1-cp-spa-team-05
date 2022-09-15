@@ -139,12 +139,14 @@ vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 	addRelationshipsWithVariables(usesRelationships, leftHandSide, conditionVariables);
 
 	// Iterate through children and extract If Stmt relationships
-	for (shared_ptr<ASTNode> child : thenChild->getChildren()) {
+	vector<shared_ptr<ASTNode>> childrenInThen = thenChild->getChildren();
+	for (shared_ptr<ASTNode> child : childrenInThen) {
 		vector <Relationship> extractedThenRelationships = recursiveContainerExtract(leftHandSide, child);
 		usesRelationships.insert(usesRelationships.end(), extractedThenRelationships.begin(), extractedThenRelationships.end());
 	}
 
-	for (shared_ptr<ASTNode> child : elseChild->getChildren()) {
+	vector<shared_ptr<ASTNode>> childrenInElse = elseChild->getChildren();
+	for (shared_ptr<ASTNode> child : childrenInElse) {
 		vector <Relationship> extractedElseRelationships = recursiveContainerExtract(leftHandSide, child);
 		usesRelationships.insert(usesRelationships.end(), extractedElseRelationships.begin(), extractedElseRelationships.end());
 	}
@@ -154,18 +156,18 @@ vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 
 // TODO in a future iteration
 vector<Relationship> UsesExtractor::handleCall(shared_ptr<ASTNode> ast) {
-	return vector<Relationship>();
+	throw ASTException("Method not implemented!");
 }
 
 vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
 	vector<Entity> variables = vector<Entity>();
 
-	if (ast->getType() == ASTNodeType::VARIABLE) {
+	if (ast->isVariable()) {
 		// Extract the variable and add it to the result.
 		Entity variable = ast->extractEntity();
 		variables.push_back(variable);
 	}
-	else if (ast->getType() == ASTNodeType::EXPRESSION) {
+	else if (ast->isExpression()) {
 		// Recursively extract the variables in the sub-expression.
 		shared_ptr<ExpressionASTNode> expressionNode = dynamic_pointer_cast<ExpressionASTNode>(ast);
 		shared_ptr<ASTNode> leftChild = expressionNode->getLeftHandSide();
