@@ -1,16 +1,4 @@
 #include <sp/parser/rules/ExpressionSimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/parser/rules/NameSimpleSyntaxRule.h>
-#include <sp/parser/rules/ConstantValueSimpleSyntaxRule.h>
-#include <sp/parser/rules/OperatorSimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/ast/AST.h>
-#include <sp/dataclasses/ast/AssignASTNode.h>
-#include <sp/dataclasses/ast/BracketsASTNode.h>
-#include <list>
-#include <memory>
-
-using namespace std;
 
 const int OPERATOR_RULE = 1;
 const int LHS_RULE = 0;

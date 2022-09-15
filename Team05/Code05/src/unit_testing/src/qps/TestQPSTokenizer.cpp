@@ -3,7 +3,6 @@
 #include <string>
 #include <list>
 #include <qps/query_tokenizer/QPSTokenizer.h>
-#include <qps/query_tokenizer/QPSTokenizer.cpp>
 #include <iostream>
 using namespace std;
 

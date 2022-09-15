@@ -1,6 +1,5 @@
 #include <catch.hpp>
 #include <sp/parser/SimpleSyntaxParserManager.h>
-#include <sp/parser/SimpleSyntaxParserManager.cpp>
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/ProgramASTNode.h>
 #include <sp/dataclasses/ast/ConstantValueASTNode.h>

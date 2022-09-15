@@ -1,12 +1,8 @@
 #include "catch.hpp"
 #include <qps/query/clause/ModifiesSClause.h>
-#include <qps/query/clause/ModifiesSClause.cpp>
 #include <qps/query/clause/ModifiesPClause.h>
-#include <qps/query/clause/ModifiesPClause.cpp>
 #include <qps/query_parser/parsers/SuchThatClauseParser.h>
-#include <qps/query_parser/parsers/SuchThatClauseParser.cpp>
 #include <qps/query_parser/parsers/ModifiesParser.h>
-#include <qps/query_parser/parsers/ModifiesParser.cpp>
 
 
 using namespace std;

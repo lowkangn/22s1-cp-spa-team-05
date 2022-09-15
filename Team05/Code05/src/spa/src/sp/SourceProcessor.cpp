@@ -9,7 +9,7 @@
 #include <sp/design_extractor/DesignExtractorManager.h>
 
 #include <sp/dataclasses/tokens/Token.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 
 #include <list>
 #include <memory>
@@ -33,12 +33,9 @@ void SourceProcessor::tokenizeParseExtractAndUpdatePkb(istream& filestream, shar
 	shared_ptr<Extractor<Relationship>> modifiesExtractor = shared_ptr<Extractor<Relationship>>(new ModifiesExtractor());
 	
 	// put relationship extractors into a vector
-	vector<shared_ptr<Extractor<Relationship>>> = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor };
+	vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor };
 
 	// create manager
 	DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, relationExtractors);
-
-	extractor.extractAll();
-	extractor.storeAllRelations(*pkb)
 
 }

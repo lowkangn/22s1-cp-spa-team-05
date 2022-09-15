@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include <qps/query/clause/ModifiesSClause.h>
+#include <qps/query/clause/ModifiesPClause.h>
 #include <qps/query_parser/QueryParser.h>
-#include <qps/query_parser/QueryParser.cpp>
 
 
 using namespace std;

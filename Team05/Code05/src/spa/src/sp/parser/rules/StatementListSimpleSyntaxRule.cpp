@@ -1,16 +1,4 @@
-#include <sp/parser/rules/ProcedureSimpleSyntaxRule.h>
-#include <sp/parser/rules/ReadSimpleSyntaxRule.h>
-#include <sp/parser/rules/AssignSimpleSyntaxRule.h>
-#include <sp/parser/rules/NameSimpleSyntaxRule.h>
 #include <sp/parser/rules/StatementListSimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/parser/rules/WhileSimpleSyntaxRule.h>
-#include <sp/parser/rules/IfSimpleSyntaxRule.h>
-#include <sp/parser/rules/PrintSimpleSyntaxRule.h>
-#include <sp/dataclasses/tokens/Token.h>
-#include <list>
-#include <sp/dataclasses/ast/StatementListASTNode.h>
-using namespace std;
 
 list<Token> StatementListSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	// a statement list lies between { and }, so we consume only the middle ones

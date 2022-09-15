@@ -12,6 +12,6 @@ private:
 	ClauseArgument toSelect;
 public:
 	SelectClause(ClauseArgument toSelect) : toSelect(toSelect) {};
-	shared_ptr<EntityClauseResult> execute(shared_ptr<PKB> pkb);
+	shared_ptr<EntityClauseResult> execute(shared_ptr<PKBQueryHandler> pkb);
 	bool equals(const SelectClause* other);
 };

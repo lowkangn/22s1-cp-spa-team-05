@@ -1,7 +1,4 @@
 #include <sp/parser/rules/NameSimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/ast/VariableASTNode.h>
-#include <vector>
 using namespace std;
 
 vector<shared_ptr<SimpleSyntaxRule>> NameSimpleSyntaxRule::generateChildRules() {

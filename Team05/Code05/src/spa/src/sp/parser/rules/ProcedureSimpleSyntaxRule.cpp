@@ -1,14 +1,4 @@
 #include <sp/parser/rules/ProcedureSimpleSyntaxRule.h>
-#include <sp/parser/rules/ReadSimpleSyntaxRule.h>
-#include <sp/parser/rules/AssignSimpleSyntaxRule.h>
-#include <sp/parser/rules/NameSimpleSyntaxRule.h>
-#include <sp/parser/rules/StatementListSimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/ast/ProcedureASTNode.h>
-#include <sp/dataclasses/ast/StatementListASTNode.h>
-
-#include <list>
-using namespace std;
 
 const int PROCEDURE = 0;
 const int STMT_LST = 1;
