@@ -130,7 +130,7 @@ TEST_CASE("PatternExtractor: test handleIf") {
 		Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
 		Token semiColonToken = Token(SEMI_COLON, TokenType::DELIMITER);
 
-		// Create while node
+		// Create if node
 		shared_ptr<ASTNode> expectedASTNode(new IfASTNode(ifToken));
 
 		// Create condition node
@@ -182,7 +182,7 @@ TEST_CASE("PatternExtractor: test handleWhile") {
 		}
 	};
 
-	SECTION("Test If") {
+	SECTION("Test while") {
 		vector<Pattern> expectedPattern{ Pattern::createWhilePattern(1, WHILE_KEYWORD, "x y") };
 
 		// while (x > y) then { read x; } else  { read y;}
@@ -192,18 +192,6 @@ TEST_CASE("PatternExtractor: test handleWhile") {
 		Token variableY = Token("y", TokenType::NAME_OR_KEYWORD);
 		Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
 		Token semiColonToken = Token(SEMI_COLON, TokenType::DELIMITER);
-
-		list<Token> tokensToConsume = { Token(WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD),
-										Token(OPEN_BRACKET, TokenType::DELIMITER),
-										variableX,
-										greaterThan,
-										variableY,
-										Token(CLOSED_BRACKET, TokenType::DELIMITER),
-										Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER),
-										readToken,
-										variableX,
-										semiColonToken,
-										Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER), };
 
 		// Create while node
 		shared_ptr<ASTNode> expectedASTNode(new WhileASTNode(whileToken));

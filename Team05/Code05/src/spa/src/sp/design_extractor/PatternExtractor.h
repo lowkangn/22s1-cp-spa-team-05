@@ -32,7 +32,7 @@ public:
 	*/
 	// refer to https://www.tutorialspoint.com/Convert-Infix-to-Postfix-Expression#:~:text=To%20convert%20infix%20expression%20to,maintaining%20the%20precedence%20of%20them.
 	int precedence(char c) {
-		if (c == '/' || c == '*') {
+		if (c == '/' || c == '*' || c == '%') {
 			return 2;
 		}
 		else if (c == '+' || c == '-') {
