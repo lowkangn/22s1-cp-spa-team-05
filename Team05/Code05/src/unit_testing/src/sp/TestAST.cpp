@@ -4,7 +4,6 @@
 #include <sp/dataclasses/ast/ConstantValueASTNode.h>
 #include <sp/dataclasses/ast/VariableASTNode.h>
 #include <sp/dataclasses/ast/IfASTNode.h>
-#include <sp/dataclasses/ast/IfASTNode.cpp>
 #include <sp/dataclasses/ast/WhileASTNode.h>
 #include <sp/dataclasses/ast/ReadASTNode.h>
 #include <sp/dataclasses/ast/ProgramASTNode.h>

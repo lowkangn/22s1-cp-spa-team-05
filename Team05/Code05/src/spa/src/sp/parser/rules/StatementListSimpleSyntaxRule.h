@@ -3,7 +3,17 @@
 #include <vector>
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/tokens/Token.h>
+#include <sp/dataclasses/ast/StatementListASTNode.h>
 #include <sp/parser/rules/SimpleSyntaxRule.h>
+#include <sp/parser/rules/ProcedureSimpleSyntaxRule.h>
+#include <sp/parser/rules/ReadSimpleSyntaxRule.h>
+#include <sp/parser/rules/AssignSimpleSyntaxRule.h>
+#include <sp/parser/rules/NameSimpleSyntaxRule.h>
+#include <sp/parser/rules/WhileSimpleSyntaxRule.h>
+#include <sp/parser/rules/IfSimpleSyntaxRule.h>
+#include <sp/parser/rules/PrintSimpleSyntaxRule.h>
+#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
+
 using namespace std;
 
 class StatementListSimpleSyntaxRule : public SimpleSyntaxRule {

@@ -1,6 +1,4 @@
 #include <sp/parser/rules/ConstantValueSimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/ast/ConstantValueASTNode.h>
 
 vector<shared_ptr<SimpleSyntaxRule>> ConstantValueSimpleSyntaxRule::generateChildRules() {
 	// must be initialized

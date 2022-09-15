@@ -1,17 +1,4 @@
 #include <sp/parser/rules/ConditionalExpressionSimpleSyntaxRule.h>
-#include <sp/parser/rules/RelationalExpressionSimpleSyntaxRule.h>
-#include <sp/parser/rules/OperatorSimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/parser/rules/NameSimpleSyntaxRule.h>
-#include <sp/parser/rules/ConstantValueSimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/ast/AST.h>
-#include <sp/dataclasses/ast/ExpressionASTNode.h>
-#include <sp/dataclasses/ast/VariableASTNode.h>
-#include <list>
-#include <memory>
-
-using namespace std;
 
 const int CONDITIONAL_OPERATOR_RULE = 1;
 const int FIRST_RULE = 0;

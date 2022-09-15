@@ -1,6 +1,5 @@
 #include "catch.hpp"
 #include "../../../spa/src/qps/query/clause/RelationshipClauseResult.h"
-#include "../../../spa/src/qps/query/clause/RelationshipClauseResult.cpp"
 
 using namespace std;
 

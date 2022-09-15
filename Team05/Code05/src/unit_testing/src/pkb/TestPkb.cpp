@@ -13,7 +13,6 @@
 #include<pkb/table_managers/PkbPatternTable.cpp>
 #include <pkb/PkbException.h>
 #include <pkb/PKB.h>
-#include <pkb/PKB.cpp>
 
 #include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/design_objects/Relationship.h>

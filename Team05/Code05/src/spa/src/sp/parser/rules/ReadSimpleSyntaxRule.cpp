@@ -1,9 +1,4 @@
 #include <sp/parser/rules/ReadSimpleSyntaxRule.h>
-#include <sp/parser/rules/NameSimpleSyntaxRule.h>
-#include <sp/parser/rules/SimpleSyntaxRule.h>
-#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
-#include <sp/dataclasses/ast/ReadASTNode.h>
-#include <list>
 
 
 vector<shared_ptr<SimpleSyntaxRule>> ReadSimpleSyntaxRule::generateChildRules()

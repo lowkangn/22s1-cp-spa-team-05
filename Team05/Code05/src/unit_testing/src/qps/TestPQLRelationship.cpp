@@ -1,6 +1,5 @@
 #include "catch.hpp"
 #include "../../../spa/src/qps/query/clause/PQLRelationship.h"
-#include "../../../spa/src/qps/query/clause/PQLRelationship.cpp"
 
 using namespace std;
 

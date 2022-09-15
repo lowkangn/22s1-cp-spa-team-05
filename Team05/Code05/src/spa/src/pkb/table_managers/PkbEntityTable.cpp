@@ -1,7 +1,4 @@
 #include <pkb/table_managers/PkbEntityTable.h>
-#include <pkb/PkbException.h>
-
-using namespace std;
 
 
 string PkbEntityTable::add(shared_ptr<PkbEntity> entity) {
