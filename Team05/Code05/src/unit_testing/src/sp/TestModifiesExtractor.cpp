@@ -675,25 +675,25 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		Entity y8Entity = Entity::createVariableEntity(y8Node->getLineNumber(), yToken);
 
 		// Creating relationships
-		Relationship mainModifiesX1 = Relationship{ procedureEntity, x1Entity, RelationshipType::MODIFIES };
-		Relationship mainModifiesY2 = Relationship{ procedureEntity, y2Entity, RelationshipType::MODIFIES };
-		Relationship mainModifiesX4 = Relationship{ procedureEntity, x4Entity, RelationshipType::MODIFIES };
-		Relationship mainModifiesX7 = Relationship{ procedureEntity, x7Entity, RelationshipType::MODIFIES };
-		Relationship mainModifiesY8 = Relationship{ procedureEntity, y8Entity, RelationshipType::MODIFIES };
+		Relationship mainModifiesX1 = Relationship::createModifiesRelationship(procedureEntity, x1Entity);
+		Relationship mainModifiesY2 = Relationship::createModifiesRelationship(procedureEntity, y2Entity);
+		Relationship mainModifiesX4 = Relationship::createModifiesRelationship(procedureEntity, x4Entity);
+		Relationship mainModifiesX7 = Relationship::createModifiesRelationship(procedureEntity, x7Entity);
+		Relationship mainModifiesY8 = Relationship::createModifiesRelationship(procedureEntity, y8Entity);
 
-		Relationship readModifiesX4 = Relationship{ readEntity, y2Entity, RelationshipType::MODIFIES };
+		Relationship readModifiesX4 = Relationship::createModifiesRelationship(readEntity, y2Entity);
 
-		Relationship whileModifiesX4 = Relationship{ whileEntity, x4Entity, RelationshipType::MODIFIES};
+		Relationship whileModifiesX4 = Relationship::createModifiesRelationship(whileEntity, x4Entity);
 
-		Relationship assign1ModifiesX1 = Relationship{ assign1Entity, x1Entity, RelationshipType::MODIFIES };
+		Relationship assign1ModifiesX1 = Relationship::createModifiesRelationship(assign1Entity, x1Entity);
 
-		Relationship assign4ModifiesX4 = Relationship{ assign4Entity, x4Entity, RelationshipType::MODIFIES };
+		Relationship assign4ModifiesX4 = Relationship::createModifiesRelationship(assign4Entity, x4Entity);
 
-		Relationship ifModifiesX7 = Relationship{ ifEntity, x7Entity, RelationshipType::MODIFIES };
-		Relationship ifModifiesY8 = Relationship{ ifEntity, y8Entity, RelationshipType::MODIFIES };
+		Relationship ifModifiesX7 = Relationship::createModifiesRelationship(ifEntity, x7Entity);
+		Relationship ifModifiesY8 = Relationship::createModifiesRelationship(ifEntity, y8Entity);
 
-		Relationship assign7ModifiesX7 = Relationship{ assign7Entity, x7Entity, RelationshipType::MODIFIES };
-		Relationship assign8ModifiesY8 = Relationship{ assign8Entity, y8Entity, RelationshipType::MODIFIES };
+		Relationship assign7ModifiesX7 = Relationship::createModifiesRelationship(assign7Entity, x7Entity);
+		Relationship assign8ModifiesY8 = Relationship::createModifiesRelationship(assign8Entity, y8Entity);
 
 		vector<Relationship> expectedResult = vector<Relationship>{ mainModifiesX1, mainModifiesY2, mainModifiesX4, mainModifiesX7, 
 																	mainModifiesY8, assign1ModifiesX1, readModifiesX4, whileModifiesX4, assign4ModifiesX4,
