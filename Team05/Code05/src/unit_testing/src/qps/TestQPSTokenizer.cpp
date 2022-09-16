@@ -378,11 +378,11 @@ TEST_CASE("QPSTokenizer: test tokenize works correctly") {
         string testString = "variable v1; Select v1";
 
         list<PQLToken> expectedTokensList = list<PQLToken>{
-            PQLToken("variable", PQLTokenType::NAME),
-            PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER),
-            PQLToken("Select", PQLTokenType::NAME),
-            PQLToken("v1", PQLTokenType::NAME)
+            PQLToken::createNameToken("variable"),
+            PQLToken::createNameToken("v1"),
+            PQLToken::createDelimiterToken(";"),
+            PQLToken::createNameToken("Select"),
+            PQLToken::createNameToken("v1")
         };
 
         test(testString, expectedTokensList);
@@ -392,24 +392,24 @@ TEST_CASE("QPSTokenizer: test tokenize works correctly") {
         string testString = "stmt c; variable \t\tt \t, v1; \n Select t such \n\t that Modifies(c, v1)";
 
         list<PQLToken> expectedTokensList = list<PQLToken>{
-            PQLToken("stmt", PQLTokenType::NAME),
-            PQLToken("c", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER),
-            PQLToken("variable", PQLTokenType::NAME),
-            PQLToken("t", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER),
-            PQLToken("Select", PQLTokenType::NAME),
-            PQLToken("t", PQLTokenType::NAME),
-            PQLToken("such", PQLTokenType::NAME),
-            PQLToken("that", PQLTokenType::NAME),
-            PQLToken("Modifies", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("c", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("stmt"),
+            PQLToken::createNameToken("c"),
+            PQLToken::createDelimiterToken(";"),
+            PQLToken::createNameToken("variable"),
+            PQLToken::createNameToken("t"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("v1"),
+            PQLToken::createDelimiterToken(";"),
+            PQLToken::createNameToken("Select"),
+            PQLToken::createNameToken("t"),
+            PQLToken::createNameToken("such"),
+            PQLToken::createNameToken("that"),
+            PQLToken::createNameToken("Modifies"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("c"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("v1"),
+            PQLToken::createDelimiterToken(")")
         };
 
         test(testString, expectedTokensList);

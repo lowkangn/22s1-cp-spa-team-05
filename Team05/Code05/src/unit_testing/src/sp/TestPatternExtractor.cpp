@@ -71,7 +71,7 @@ TEST_CASE("PatternExtractor: test handleAssign") {
 
 		expressionNode->addChild(x2Node);
 		expressionNode->addChild(constantNode);
-		
+
 		test(assignNode, expectedPattern);
 	}
 
@@ -283,7 +283,7 @@ TEST_CASE("PatternExtractor: test extract") {
 		shared_ptr<ASTNode> whileASTNode(new WhileASTNode(whileToken));
 
 		thenStmtLstNode->addChild(whileASTNode);
-		
+
 		// create while condition
 		shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constantToken));
 		shared_ptr<ASTNode> whileYOneNode(new VariableASTNode(variableY));
@@ -337,8 +337,8 @@ TEST_CASE("PatternExtractor: test extract") {
 		ifASTNode->addChild(thenStmtLstNode);
 		ifASTNode->addChild(elseStmtLstNode);
 
-		vector<Pattern> expectedPattern{ Pattern::createWhilePattern(-1, "y"), 
-										 Pattern::createAssignPattern(-1, "x", "x5x++"), 
+		vector<Pattern> expectedPattern{ Pattern::createWhilePattern(-1, "y"),
+										 Pattern::createAssignPattern(-1, "x", "x5x++"),
 										 Pattern::createIfPattern(-1, "x y") };
 
 		test(ifASTNode, expectedPattern);
