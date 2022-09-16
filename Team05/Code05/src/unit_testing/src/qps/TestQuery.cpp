@@ -24,9 +24,9 @@ TEST_CASE("Query: test operator==") {
     shared_ptr<RelationshipClause> modifiesPClause = shared_ptr<RelationshipClause>(new ModifiesPClause(ClauseArgument::createProcedureArg("main"),
 																										ClauseArgument::createVariableArg("v")));
 
-    Query firstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause});
-    Query sameAsFirstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause});
-    Query secondQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesPClause});
+    Query firstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause}, list<shared_ptr<PatternClause>>{});
+    Query sameAsFirstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause}, list<shared_ptr<PatternClause>>{});
+    Query secondQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesPClause}, list<shared_ptr<PatternClause>>{});
 
 
     SECTION("Equal") {

@@ -21,7 +21,7 @@ ClauseArgument ClauseParser::parseOneArgument() {
 		return parseStatementNumber();
 	}
 	else if (token.isUnderscore()) {
-		return parseWildcard();
+		return parseWildcardOrStringWithWildcards();
 	}
 	else {
 		throw PQLError("Expected stmtRef or entRef, got: " + token.getTokenString());
@@ -50,10 +50,21 @@ ClauseArgument ClauseParser::parseStatementNumber() {
 	return ClauseArgument::createLineNumberArg(stmtNumToken.getTokenString());
 }
 
-ClauseArgument ClauseParser::parseWildcard() {
+ClauseArgument ClauseParser::parseWildcardOrStringWithWildcards() {
 	PQLToken wildCardToken = this->tokens.front();
 	this->tokens.pop_front();
-	return ClauseArgument::createWildcardArg();
+
+	if(!this->tokens.front().isQuote()) {
+		return ClauseArgument::createWildcardArg();
+	}
+
+	ClauseArgument stringLiteral = this->parseStringLiteral();
+
+	if(this->tokens.empty() || !this->tokens.front().isUnderscore()) {
+		throw PQLError("Expected closing underscore");
+	}
+	this->tokens.pop_front();
+	return ClauseArgument::createStringWithWildCardsArg(stringLiteral.getIdentifier());
 }
 
 void ClauseParser::consumeOpenBracket() {

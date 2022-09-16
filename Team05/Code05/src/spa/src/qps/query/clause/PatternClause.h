@@ -1,6 +1,23 @@
-#include <qps/query/clause/RelationshipClause.h>
+#pragma once
 
-class PatternClause : public RelationshipClause {
+#include <string>
+#include <memory>
+#include <qps/query/clause/ClauseArgument.h>
+#include <qps/query/clause/RelationshipClauseResult.h>
+#include <pkb/PKB.h>
+
+using namespace std;
+
+class PatternClause {
+protected:
+	ClauseArgument patternArg;
+	ClauseArgument lhs;
+	ClauseArgument rhs;
+
 public:
-    shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) override;
+	PatternClause(ClauseArgument patternArg, ClauseArgument lhs, ClauseArgument rhs) : patternArg(patternArg), lhs(lhs), rhs(rhs) {};
+
+	virtual shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) = 0;
+
+	virtual bool equals(shared_ptr<PatternClause> other) = 0;
 };

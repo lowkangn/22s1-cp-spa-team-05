@@ -36,7 +36,7 @@ protected:
 
 	ClauseArgument parseStatementNumber();
 
-	ClauseArgument parseWildcard();
+	ClauseArgument parseWildcardOrStringWithWildcards();
 
 	/* ==== Methods ensure a delimiter is present and consume it ==== */
 	

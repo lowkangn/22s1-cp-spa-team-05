@@ -27,8 +27,8 @@ public:
     /* Returns the results obtained from the query's SelectClause. */
     shared_ptr<EntityClauseResult> executeSelect(shared_ptr<PKBQueryHandler> pkb);
 
-	/* Returns the results obtained from the query's SuchThat clauses. */
-	list<shared_ptr<RelationshipClauseResult>> executeSuchThat(shared_ptr<PKBQueryHandler> pkb);
+	/* Returns the results obtained from the query's SuchThat and Pattern clauses. */
+	list<shared_ptr<RelationshipClauseResult>> executeSuchThatAndPattern(shared_ptr<PKBQueryHandler> pkb);
 
 	friend bool operator==(Query first, Query second);
 };

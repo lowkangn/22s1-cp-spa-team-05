@@ -21,8 +21,8 @@ Query QueryParser::parse() {
         return Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
     }
 
-    shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClauses;
-	shared_ptr<list<shared_ptr<PatternClause>>> patternClauses;
+	shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClauses = make_shared<list<shared_ptr<RelationshipClause>>>();
+	shared_ptr<list<shared_ptr<PatternClause>>> patternClauses =  make_shared<list<shared_ptr<PatternClause>>>();
 
 	parseConstraints(suchThatClauses, patternClauses, declarations);
 
@@ -33,7 +33,6 @@ void QueryParser::parseConstraints(shared_ptr<list<shared_ptr<RelationshipClause
 								   shared_ptr<list<shared_ptr<PatternClause>>> patternClauses,
 								   unordered_map<string, ArgumentType> declarations) {
 
-    list<shared_ptr<RelationshipClause>> clauses;
     PQLToken token = this->tokens.front();
     while (!this->tokens.empty()) {
         token = this->tokens.front();
@@ -42,7 +41,7 @@ void QueryParser::parseConstraints(shared_ptr<list<shared_ptr<RelationshipClause
             suchThatClauses->emplace_back(parseSuchThat(declarations));
         }
         else if (token.isPattern()) {
-			suchThatClauses->emplace_back(parsePattern(declarations));
+			patternClauses->emplace_back(parsePattern(declarations));
         }
     }
 }

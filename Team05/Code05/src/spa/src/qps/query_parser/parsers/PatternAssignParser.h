@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include <qps/query_parser/parsers/PatternParser.h>
+#include <qps/query/clause/PatternAssignClause.h>
 
 class PatternAssignParser : public PatternParser {
 public:
