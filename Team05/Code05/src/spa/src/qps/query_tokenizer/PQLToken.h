@@ -24,6 +24,8 @@ const string PATTERN = "pattern";
 const string PQL_MODIFIES = "Modifies";
 const string PQL_FOLLOWS = "Follows";
 const string PQL_USES = "Uses";
+const string PQL_PARENT = "Parent";
+const string PQL_STAR_MODIFIER = "*";
 
 // delimiters
 const string SEMICOLON = ";";
@@ -166,6 +168,14 @@ public:
 
     bool isUses() {
         return isName() && tokenString == PQL_USES;
+    }
+
+    bool isParent() {
+        return isName() && tokenString == PQL_PARENT;
+    }
+
+    bool isStarModifier() {
+        return tokenString == PQL_STAR_MODIFIER;
     }
 };
 
