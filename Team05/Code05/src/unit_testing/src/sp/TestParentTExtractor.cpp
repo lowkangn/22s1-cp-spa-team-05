@@ -38,13 +38,13 @@ TEST_CASE("ParentTExtractor: test recursiveExtractFromContainer") {
 	};
 
 	SECTION("nested stmt lst node") {
-		Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-		Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-		Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token whileToken = Token{ WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token ifToken = Token{ IF_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token greaterThan = Token{ GREATER_OPERATOR, TokenType::OPERATOR };
+		Token mainToken = Token::createNameOrKeywordToken("main");
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token yToken = Token::createNameOrKeywordToken("y");
+		Token readToken = Token::createReadToken();
+		Token whileToken = Token::createWhileToken();
+		Token ifToken = Token::createIfToken();
+		Token greaterThan = Token::createGreaterThanToken();
 
 		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
 		xNode->setLineNumber(3);
@@ -60,7 +60,7 @@ TEST_CASE("ParentTExtractor: test recursiveExtractFromContainer") {
 		shared_ptr<ASTNode> whileNode(new WhileASTNode(whileToken));
 		whileNode->setLineNumber(1);
 
-		shared_ptr<ASTNode> whileStmtLstNode(new StatementListASTnode(Token::getPlaceHolderToken()));
+		shared_ptr<ASTNode> whileStmtLstNode(new StatementListASTNode(Token::getPlaceHolderToken()));
 		shared_ptr<ASTNode> whileCond(new ExpressionASTNode(greaterThan));
 
 		whileNode->addChild(whileCond);
@@ -72,8 +72,8 @@ TEST_CASE("ParentTExtractor: test recursiveExtractFromContainer") {
 
 		whileStmtLstNode->addChild(ifNode);
 
-		shared_ptr<ASTNode> thenStmtLstNode(new StatementListASTnode(Token::getPlaceHolderToken()));
-		shared_ptr<ASTNode> elseStmtLstNode(new StatementListASTnode(Token::getPlaceHolderToken()));
+		shared_ptr<ASTNode> thenStmtLstNode(new StatementListASTNode(Token::getPlaceHolderToken()));
+		shared_ptr<ASTNode> elseStmtLstNode(new StatementListASTNode(Token::getPlaceHolderToken()));
 
 		ifNode->addChild(ifCond);
 		ifNode->addChild(thenStmtLstNode);
@@ -89,9 +89,9 @@ TEST_CASE("ParentTExtractor: test recursiveExtractFromContainer") {
 		Entity readYEntity = Entity::createReadEntity(4);
 
 		// Creating Relationships
-		Relationship whileParentIf = Relationship(whileEntity, ifEntity, RelationshipType::PARENTT);
-		Relationship whileParentX = Relationship(whileEntity, readXEntity, RelationshipType::PARENTT);
-		Relationship whileParentY = Relationship(whileEntity, readYEntity, RelationshipType::PARENTT);
+		Relationship whileParentIf = Relationship::createParentTRelationship(whileEntity, ifEntity);
+		Relationship whileParentX = Relationship::createParentTRelationship(whileEntity, readXEntity);
+		Relationship whileParentY = Relationship::createParentTRelationship(whileEntity, readYEntity);
 
 		vector<Relationship> expectedParentRelationships{ whileParentY, whileParentX, whileParentIf };
 
@@ -136,28 +136,28 @@ TEST_CASE("ParentTExtractor: test extract") {
 		*/
 
 		// Creating tokens
-		Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-		Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-		Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
-		Token notEqualToken = Token{ NOT_EQUAL_OPERATOR, TokenType::OPERATOR };
-		Token greaterToken = Token{ GREATER_OPERATOR, TokenType::OPERATOR };
-		Token minusToken = Token{ MINUS_OPERATOR, TokenType::OPERATOR };
-		Token constThreeToken = Token{ "3", TokenType::INTEGER };
-		Token constZeroToken = Token{ "0", TokenType::INTEGER };
-		Token constOneToken = Token{ "1", TokenType::INTEGER };
-		Token constFiveToken = Token{ "5", TokenType::INTEGER };
-		Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token whileToken = Token{ WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token printToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token ifToken = Token{ IF_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token stmtListToken = Token{ "", TokenType::INVALID };
+		Token mainToken = Token::createNameOrKeywordToken("main");
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token yToken = Token::createNameOrKeywordToken("y");
+		Token assignToken = Token::createEqualsToken();
+		Token notEqualToken = Token::createNotEqualsToken();
+		Token greaterToken = Token::createGreaterThanToken();
+		Token minusToken = Token::createMinusToken();
+		Token constThreeToken = Token::createIntegerToken("3");
+		Token constZeroToken = Token::createIntegerToken("0");
+		Token constOneToken = Token::createIntegerToken("1");
+		Token constFiveToken = Token::createIntegerToken("5");
+		Token readToken = Token::createReadToken();
+		Token whileToken = Token::createWhileToken();
+		Token printToken = Token::createPrintToken();
+		Token ifToken = Token::createIfToken();
+		Token stmtListToken = Token::createPlaceholderToken();
 
 		// Creating AST nodes
 		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(mainToken));
 
 		// Line 1 (x = 3)
-		shared_ptr<ASTNode> mainStmtList(new StatementListASTnode(stmtListToken));
+		shared_ptr<ASTNode> mainStmtList(new StatementListASTNode(stmtListToken));
 		shared_ptr<ASTNode> x1Node(new VariableASTNode(xToken));
 		shared_ptr<ASTNode> assign1Node(new AssignASTNode(assignToken));
 		shared_ptr<ASTNode> constThreeNode(new ConstantValueASTNode(constThreeToken));
@@ -185,7 +185,7 @@ TEST_CASE("ParentTExtractor: test extract") {
 		notEqualNode->setLineNumber(3);
 
 		// Line 4 (x = x - 1)
-		shared_ptr<ASTNode> whileStmtList(new StatementListASTnode(stmtListToken));
+		shared_ptr<ASTNode> whileStmtList(new StatementListASTNode(stmtListToken));
 		shared_ptr<ASTNode> x4LhsNode(new VariableASTNode(xToken));
 		shared_ptr<ASTNode> x4RhsNode(new VariableASTNode(xToken));
 		shared_ptr<ASTNode> assign4Node(new AssignASTNode(assignToken));
@@ -217,7 +217,7 @@ TEST_CASE("ParentTExtractor: test extract") {
 		constFiveNode->setLineNumber(6);
 
 		// Line 7 (x = y)
-		shared_ptr<ASTNode> thenStmtList(new StatementListASTnode(stmtListToken));
+		shared_ptr<ASTNode> thenStmtList(new StatementListASTNode(stmtListToken));
 		shared_ptr<ASTNode> assign7Node(new AssignASTNode(assignToken));
 		shared_ptr<ASTNode> x7Node(new VariableASTNode(xToken));
 		shared_ptr<ASTNode> y7Node(new VariableASTNode(yToken));
@@ -227,7 +227,7 @@ TEST_CASE("ParentTExtractor: test extract") {
 		y7Node->setLineNumber(7);
 
 		// Line 8 (y = x)
-		shared_ptr<ASTNode> elseStmtList(new StatementListASTnode(stmtListToken));
+		shared_ptr<ASTNode> elseStmtList(new StatementListASTNode(stmtListToken));
 		shared_ptr<ASTNode> assign8Node(new AssignASTNode(assignToken));
 		shared_ptr<ASTNode> y8Node(new VariableASTNode(yToken));
 		shared_ptr<ASTNode> x8Node(new VariableASTNode(xToken));
@@ -306,14 +306,14 @@ TEST_CASE("ParentTExtractor: test extract") {
 		Entity y8Entity = Entity::createVariableEntity(y8Node->getLineNumber(), yToken);
 
 		// Creating Relationships
-		Relationship whileParentX = Relationship(whileEntity, assign4Entity, RelationshipType::PARENTT);
-		Relationship whileParentPrint = Relationship(whileEntity, printEntity, RelationshipType::PARENTT);
-		Relationship whileParentAssignX = Relationship(whileEntity, assign7Entity, RelationshipType::PARENTT);
-		Relationship whileParentAssignY = Relationship(whileEntity, assign8Entity, RelationshipType::PARENTT);
-		Relationship whileParentIf = Relationship(whileEntity, ifEntity, RelationshipType::PARENTT);
+		Relationship whileParentX = Relationship::createParentTRelationship(whileEntity, assign4Entity);
+		Relationship whileParentPrint = Relationship::createParentTRelationship(whileEntity, printEntity);
+		Relationship whileParentAssignX = Relationship::createParentTRelationship(whileEntity, assign7Entity);
+		Relationship whileParentAssignY = Relationship::createParentTRelationship(whileEntity, assign8Entity);
+		Relationship whileParentIf = Relationship::createParentTRelationship(whileEntity, ifEntity);
 
-		Relationship ifParentX = Relationship(ifEntity, assign7Entity, RelationshipType::PARENTT);
-		Relationship ifParentY = Relationship(ifEntity, assign8Entity, RelationshipType::PARENTT);
+		Relationship ifParentX = Relationship::createParentTRelationship(ifEntity, assign7Entity);
+		Relationship ifParentY = Relationship::createParentTRelationship(ifEntity, assign8Entity);
 
 		vector<Relationship> expectedParentRelationships{ ifParentY, ifParentX , whileParentAssignY, whileParentAssignX, whileParentX, whileParentPrint, whileParentIf };
 

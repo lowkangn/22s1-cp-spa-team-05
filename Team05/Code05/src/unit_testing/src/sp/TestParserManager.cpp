@@ -38,14 +38,14 @@ TEST_CASE("ParserManager::parse works correctly") {
 		 */
 
 		 // create token list with variable alias'
-		Token procedureKeywordToken = Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD);
-		Token procedureNameToken = Token("someprocedure", TokenType::NAME_OR_KEYWORD);
-		Token openCurlyBracketToken = Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER);
-		Token xVariableToken = Token("x", TokenType::NAME_OR_KEYWORD);
-		Token equalsToken = Token(EQUAL_OPERATOR, TokenType::OPERATOR);
-		Token integerToken = Token("1", TokenType::INTEGER);
-		Token semiColonToken = Token(SEMI_COLON, TokenType::DELIMITER);
-		Token closedCurlyBracketToken = Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER);
+		Token procedureKeywordToken = Token::createProcedureToken();
+		Token procedureNameToken = Token::createNameOrKeywordToken("someprocedure");
+		Token openCurlyBracketToken = Token::createOpenCurlyBracketToken();
+		Token xVariableToken = Token::createNameOrKeywordToken("x");
+		Token equalsToken = Token::createEqualsToken();
+		Token integerToken = Token::createIntegerToken("1");
+		Token semiColonToken = Token::createSemicolonToken();
+		Token closedCurlyBracketToken = Token::createCloseCurlyBracketToken();
 
 		list<Token> tokens = {
 			procedureKeywordToken,
@@ -60,13 +60,13 @@ TEST_CASE("ParserManager::parse works correctly") {
 
 		// create the correct ASTNode
 		// 1. the root program node
-		shared_ptr<ASTNode> expectedProgramNode(new ProgramASTNode(Token{ PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD }));
+		shared_ptr<ASTNode> expectedProgramNode(new ProgramASTNode(Token::createProgramToken()));
 
 		// 2. program node has a procedure node as sole child 
 		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
 		expectedProgramNode->addChild(procedureNode);
 
-		shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(Token("", TokenType::DELIMITER)));
+		shared_ptr<ASTNode> stmtLstNode(new StatementListASTNode(Token::createPlaceholderToken()));
 		procedureNode->addChild(stmtLstNode);
 
 		// 4. statement list node has one child, which is an assign node

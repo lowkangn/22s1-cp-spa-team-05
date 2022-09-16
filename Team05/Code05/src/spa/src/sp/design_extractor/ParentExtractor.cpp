@@ -51,7 +51,7 @@ vector<Relationship> ParentExtractor::extractFromContainer(shared_ptr<ASTNode> c
 	// Find statements and create relationship
 	for (shared_ptr<ASTNode> child : containerASTNode->getChildren()) {
 		if (child->isStatement()) {
-			Relationship parent = Relationship(leftHandSide, child->extractEntity(), RelationshipType::PARENT);
+			Relationship parent = Relationship::createParentRelationship(leftHandSide, child->extractEntity());
 			parentRelationships.push_back(parent);
 		}
 	}

@@ -54,7 +54,7 @@ vector<Relationship> ParentTExtractor::recursiveExtractFromContainer(shared_ptr<
 
 		if (child->isIfNode()) {
 			// Extract this node as a Relationship
-			Relationship parent = Relationship(leftHandSide, child->extractEntity(), RelationshipType::PARENTT);
+			Relationship parent = Relationship::createParentTRelationship(leftHandSide, child->extractEntity());
 			parentRelationships.push_back(parent);
 
 			// Extract deeper nested stmtlsts
@@ -69,7 +69,7 @@ vector<Relationship> ParentTExtractor::recursiveExtractFromContainer(shared_ptr<
 		}
 		else if (child->isWhileNode()) {
 			shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(child);
-			Relationship parent = Relationship(leftHandSide, child->extractEntity(), RelationshipType::PARENTT);
+			Relationship parent = Relationship::createParentTRelationship(leftHandSide, child->extractEntity());
 
 			// Extract this node as a Relationship
 			parentRelationships.push_back(parent);
@@ -80,7 +80,7 @@ vector<Relationship> ParentTExtractor::recursiveExtractFromContainer(shared_ptr<
 			parentRelationships.insert(parentRelationships.begin(), whileParentRelations.begin(), whileParentRelations.end());
 		}
 		else if (child->isStatement()) {
-			Relationship parent = Relationship(leftHandSide, child->extractEntity(), RelationshipType::PARENTT);
+			Relationship parent = Relationship::createParentTRelationship(leftHandSide, child->extractEntity());
 			parentRelationships.push_back(parent);
 		}
 	}

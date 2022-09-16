@@ -129,13 +129,21 @@ public:
 			this->isIfNode() ||
 			this->isStmtLstNode();
 	}
-
-	bool isStmt() {
+	
+	bool isStatement() {
 		return this->isReadNode() ||
 			this->isAssignNode() ||
 			this->isIfNode() ||
 			this->isWhileNode() ||
 			this->isPrintNode() ||
 			this->isCallNode();
+	}
+
+	bool isVariable() {
+		return this->type == ASTNodeType::VARIABLE;
+	}
+
+	bool isExpression() {
+		return this->type == ASTNodeType::EXPRESSION;
 	}
 };
