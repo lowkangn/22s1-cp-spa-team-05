@@ -12,19 +12,19 @@ shared_ptr<RelationshipClauseResult> PatternAssignClause::execute(shared_ptr<PKB
 
 	if (lhs.isStringLiteral()) {
 		if (rhs.isWildcard()) {
-
+			//pkb->retrieveAssignRelationshipsWithRhsWildcard(lhsString);
 		} else if (rhs.isStringLiteral()) {
-
+			//pkb->retrieveAssignRelationships(lhsString, rhsString, hasWildcards = false);
 		} else if (rhs.isStringWithWildcards()) {
-
+			//pkb->retrieveAssignRelationships(lhsString, rhsString, hasWildcards = true);
 		}
 	} else if (lhs.isWildcard() || lhs.isVariableSynonym()) {
 		if (rhs.isWildcard()) {
-
+			//pkb->retrieveAssignRelationshipsWithLhsRhsWildcard();
 		} else if (rhs.isStringLiteral()) {
-
+			//pkb->retrieveAssignRelationshipsWithLhsWildcard(rhsString, hasWildcards = false);
 		} else if (rhs.isStringWithWildcards()) {
-
+			//pkb->retrieveAssignRelationshipsWithLhsWildcard(rhsString, hasWildcards = true);
 		}
 	}
 
