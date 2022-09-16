@@ -23,6 +23,8 @@ const string PATTERN = "pattern";
 // keywords for identifying Clause type
 const string PQL_MODIFIES = "Modifies";
 const string PQL_FOLLOWS = "Follows";
+const string PQL_PARENT = "Parent";
+const string PQL_STAR_MODIFIER = "*";
 
 // delimiters
 const string SEMICOLON = ";";
@@ -145,6 +147,14 @@ public:
     // Clause Type indicators
     bool isModifies() {
         return isName() && tokenString == PQL_MODIFIES;
+    }
+
+    bool isParent() {
+        return isName() && tokenString == PQL_PARENT;
+    }
+
+    bool isStarModifier() {
+        return tokenString == PQL_STAR_MODIFIER;
     }
 };
 
