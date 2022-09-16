@@ -23,6 +23,7 @@ const string PATTERN = "pattern";
 // keywords for identifying Clause type
 const string PQL_MODIFIES = "Modifies";
 const string PQL_FOLLOWS = "Follows";
+const string PQL_USES = "Uses";
 
 // delimiters
 const string SEMICOLON = ";";
@@ -145,6 +146,10 @@ public:
     // Clause Type indicators
     bool isModifies() {
         return isName() && tokenString == PQL_MODIFIES;
+    }
+
+    bool isUses() {
+        return isName() && tokenString == PQL_USES;
     }
 };
 
