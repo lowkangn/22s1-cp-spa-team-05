@@ -4,6 +4,7 @@
 #include <qps/query_parser/parsers/SelectParser.h>
 #include <qps/query_parser/parsers/DeclarationParser.h>
 #include <qps/query_parser/parsers/ModifiesParser.h>
+#include <qps/query_parser/parsers/ParentParser.h>
 
 Query QueryParser::parse() {
     DeclarationParser declParser = DeclarationParser(this->tokens);
@@ -50,9 +51,10 @@ shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, 
 
     if (token.isModifies()) {
         parserPointer = shared_ptr<SuchThatClauseParser>(new ModifiesParser(this->tokens, declarations));
+    } else if (token.isParent()) {
+        parserPointer = shared_ptr<SuchThatClauseParser>(new ParentParser(this->tokens, declarations));
     } else {
-        //create other SuchThatClauseParsers 
-        //not needed for MVP
+        //TODO: add more such that clauses
     }
     shared_ptr<RelationshipClause> clause = parserPointer->parse();
     this->tokens = parserPointer->getRemainingTokens();
