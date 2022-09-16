@@ -5,7 +5,6 @@
 #include <qps/query/clause/UsesPClause.h>
 
 #include <list>
-#include <iostream>
 
 using namespace std;
 

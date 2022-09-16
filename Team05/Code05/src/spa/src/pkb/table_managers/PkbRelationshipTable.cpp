@@ -1,12 +1,19 @@
 #include <pkb/table_managers/PkbRelationshipTable.h>
 #include <pkb/PkbException.h>
 
+#include <iostream>
+
 using namespace std;
 
 
 string PkbRelationshipTable::add(shared_ptr<PkbRelationship> relationship) {
 	// get key
 	string key = relationship->getKey();
+
+	// check if item already in table
+	if (this->table.find(key) != this->table.end()) {
+		cout << "Item already in table!";
+	}
 
 	// store
 	this->table.insert({ key, relationship });

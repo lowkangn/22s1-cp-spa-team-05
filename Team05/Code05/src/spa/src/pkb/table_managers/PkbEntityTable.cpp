@@ -1,9 +1,15 @@
 #include <pkb/table_managers/PkbEntityTable.h>
 
+#include <iostream>
 
 string PkbEntityTable::add(shared_ptr<PkbEntity> entity) {
 	// get key
 	string key = entity->getKey();
+
+	// check if item already in table
+	if (this->table.find(key) != this->table.end()) {
+		cout << "Item already in table!";
+	}
 
 	// store
 	this->table.insert({ key, entity });
