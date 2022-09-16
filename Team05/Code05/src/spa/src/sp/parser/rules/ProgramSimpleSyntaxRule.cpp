@@ -60,7 +60,7 @@ shared_ptr<ASTNode> ProgramSimpleSyntaxRule::constructNode() {
 	}
 
 	// create current node
-	Token programToken = Token{ PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD };
+	Token programToken = Token::createProgramToken();
 	shared_ptr<ASTNode> node (new ProgramASTNode(programToken));
 
 	// for each rule, recursively create children and assign to children

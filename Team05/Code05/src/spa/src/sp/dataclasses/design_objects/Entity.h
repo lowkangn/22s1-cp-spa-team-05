@@ -101,27 +101,27 @@ class Entity {
 		}
 
 		static Entity createReadEntity(int lineNumber) {
-			return Entity(EntityType::READ, lineNumber, Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD));
+			return Entity(EntityType::READ, lineNumber, Token::createReadToken());
 		}
 
 		static Entity createPrintEntity(int lineNumber) {
-			return Entity(EntityType::PRINT, lineNumber, Token(PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD));
+			return Entity(EntityType::PRINT, lineNumber, Token::createPrintToken());
 		}
 
 		static Entity createAssignEntity(int lineNumber) {
-			return Entity(EntityType::ASSIGN, lineNumber, Token(EQUAL_OPERATOR, TokenType::OPERATOR));
+			return Entity(EntityType::ASSIGN, lineNumber, Token::createEqualsToken());
 		}
 
 		static Entity createCallEntity(int lineNumber) {
-			return Entity(EntityType::CALL, lineNumber, Token(CALL_KEYWORD, TokenType::NAME_OR_KEYWORD));
+			return Entity(EntityType::CALL, lineNumber, Token::createCallToken());
 		}
 
 		static Entity createWhileEntity(int lineNumber) {
-			return Entity(EntityType::WHILE, lineNumber, Token(WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD));
+			return Entity(EntityType::WHILE, lineNumber, Token::createWhileToken());
 		}
 
 		static Entity createIfEntity(int lineNumber) {
-			return Entity(EntityType::IF, lineNumber, Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD));
+			return Entity(EntityType::IF, lineNumber, Token::createIfToken());
 		}
 
 		static Entity createVariableEntity(int lineNumber, Token token) {
