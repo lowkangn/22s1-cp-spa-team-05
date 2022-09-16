@@ -99,6 +99,7 @@ namespace {
 			   } else {
 			8.     y = z;
 			   }
+		}
 	*/
 
 	// Initialise tokens
@@ -192,13 +193,20 @@ namespace {
 
 	// Clause Arguments
 	ClauseArgument stmtArg = ClauseArgument::createStmtArg("s");
+	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
 	ClauseArgument variableArg = ClauseArgument::createVariableArg("v");
 	ClauseArgument ifArg = ClauseArgument::createIfArg("if");
 	ClauseArgument whileArg = ClauseArgument::createWhileArg("while");
 	ClauseArgument lineOneArg = ClauseArgument::createLineNumberArg("1");
+	ClauseArgument lineTwoArg = ClauseArgument::createLineNumberArg("2");
+	ClauseArgument lineSixArg = ClauseArgument::createLineNumberArg("6");
+	ClauseArgument lineSevenArg = ClauseArgument::createLineNumberArg("7");
 	ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
 	ClauseArgument readArg = ClauseArgument::createReadArg("rr");
 	ClauseArgument printArg = ClauseArgument::createPrintArg("pp");
+	ClauseArgument xLiteralArg = ClauseArgument::createStringLiteralArg("x");
+	ClauseArgument yLiteralArg = ClauseArgument::createStringLiteralArg("y");
+	ClauseArgument aLiteralArg = ClauseArgument::createStringLiteralArg("a");
 };
 
 TEST_CASE("UsesSClause: test execute") {
@@ -211,8 +219,6 @@ TEST_CASE("UsesSClause: test execute") {
 			// when
 			shared_ptr<RelationshipClauseResult> resPtr = usesSClause.execute(pkbInterface);
 			RelationshipClauseResult actualClauseResult = *resPtr;
-
-			REQUIRE(actualClauseResult.getRelationships().size() == expectedClauseResult.getRelationships().size());
 
 			// then
 			REQUIRE(actualClauseResult == expectedClauseResult);
@@ -243,7 +249,122 @@ TEST_CASE("UsesSClause: test execute") {
 	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(stmtArg, variableArg,
 		expectedRetrievedFromPkb);
 
-	SECTION("Two stmt synoynms - all statement uses") {
+	SECTION("One stmt synonym and one variable synonym - all statement uses") {
 		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Other stmtRef synonyms - non empty results") {
+		clause = UsesSClause(ifArg, variableArg);
+		expectedRetrievedFromPkb = { pqlUsesIf6Y, pqlUsesIf6Z };
+		expectedClauseResult = RelationshipClauseResult(ifArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesSClause(whileArg, variableArg);
+		expectedRetrievedFromPkb = { pqlUsesW3X, pqlUsesW3Z };
+		expectedClauseResult = RelationshipClauseResult(whileArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesSClause(assignArg, variableArg);
+		expectedRetrievedFromPkb = { pqlUsesA2Y, pqlUsesA5X, pqlUsesA8Z };
+		expectedClauseResult = RelationshipClauseResult(assignArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesSClause(printArg, variableArg);
+		expectedRetrievedFromPkb = { pqlUsesP4Z };
+		expectedClauseResult = RelationshipClauseResult(printArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Line numbers - non empty results") {
+		clause = UsesSClause(lineTwoArg, variableArg);
+		expectedRetrievedFromPkb = { pqlUsesA2Y };
+		expectedClauseResult = RelationshipClauseResult(lineTwoArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesSClause(lineSixArg, variableArg);
+		expectedRetrievedFromPkb = { pqlUsesIf6Y, pqlUsesIf6Z };
+		expectedClauseResult = RelationshipClauseResult(lineSixArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Line numbers - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = UsesSClause(lineOneArg, variableArg);
+		expectedClauseResult = RelationshipClauseResult(lineOneArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesSClause(lineSevenArg, variableArg);
+		expectedClauseResult = RelationshipClauseResult(lineSevenArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("String literal - non empty results") {
+		clause = UsesSClause(whileArg, xLiteralArg);
+		expectedRetrievedFromPkb = { pqlUsesW3X };
+		expectedClauseResult = RelationshipClauseResult(whileArg, xLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesSClause(assignArg, xLiteralArg);
+		expectedRetrievedFromPkb = { pqlUsesA5X };
+		expectedClauseResult = RelationshipClauseResult(assignArg, xLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("String literal - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = UsesSClause(ifArg, xLiteralArg);
+		expectedClauseResult = RelationshipClauseResult(ifArg, xLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesSClause(ifArg, aLiteralArg);
+		expectedClauseResult = RelationshipClauseResult(ifArg, aLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Line Number and string literal - non empty results") {
+		clause = UsesSClause(lineSixArg, yLiteralArg);
+		expectedRetrievedFromPkb = { pqlUsesIf6Y };
+		expectedClauseResult = RelationshipClauseResult(lineSixArg, yLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Line Number and string literal - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = UsesSClause(lineTwoArg, xLiteralArg);
+		expectedClauseResult = RelationshipClauseResult(lineTwoArg, xLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	/* Corresponds to the following SIMPLE source (with line numbers)
+		procedure main {
+			1. read y;
+			2. x = y;
+		}
+	*/
+
+	// ------ PKB ------ 
+	shared_ptr<PKB> pkbSimpleProgram = shared_ptr<PKB>(new PKB());
+
+	vector<Entity> entitiesSimpleProgram{ mainEntity, readEntity, y1Entity, a2Entity, x2Entity, y2Entity };
+
+	vector<Relationship> relationshipsSimpleProgram{ usesMainY2, usesA2Y2 };
+
+	pkbSimpleProgram->addEntities(entitiesSimpleProgram);
+	pkbSimpleProgram->addRelationships(relationshipsSimpleProgram);
+
+	// ------ QPS ------ 
+	SECTION("Other stmtRef synonyms - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = UsesSClause(ifArg, variableArg);
+		expectedClauseResult = RelationshipClauseResult(ifArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkbSimpleProgram);
+
+		clause = UsesSClause(whileArg, variableArg);
+		expectedClauseResult = RelationshipClauseResult(whileArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkbSimpleProgram);
 	}
 }
