@@ -8,7 +8,7 @@ using namespace std;
 TEST_CASE("SelectClause: test equals") {
 	auto testEquals = [](const SelectClause* other, bool expected) {
 		// given
-		SelectClause selectClause = SelectClause(ClauseArgument("v", ArgumentType::VARIABLE));
+		SelectClause selectClause = SelectClause(ClauseArgument::generateVariableArg("v"));
 
 		// when
 		bool actual = selectClause.equals(other);
@@ -17,10 +17,10 @@ TEST_CASE("SelectClause: test equals") {
 		REQUIRE(actual == expected);
 	};
 
-	ClauseArgument varArg = ClauseArgument("v", ArgumentType::VARIABLE);
-	ClauseArgument assignArgSameIdentifier = ClauseArgument("v", ArgumentType::ASSIGN);
-	ClauseArgument varArgDifferentIdentifier = ClauseArgument("a", ArgumentType::VARIABLE);
-	ClauseArgument assignArg = ClauseArgument("a", ArgumentType::ASSIGN);
+	ClauseArgument varArg = ClauseArgument::generateVariableArg("v");
+	ClauseArgument assignArgSameIdentifier = ClauseArgument::generateAssignArg("v");
+	ClauseArgument varArgDifferentIdentifier = ClauseArgument::generateVariableArg("a");
+	ClauseArgument assignArg = ClauseArgument::generateAssignArg("a");
 
 	SelectClause* firstSelectClause = new SelectClause(varArg);
 	SelectClause* secondSelectClause = new SelectClause(assignArgSameIdentifier);

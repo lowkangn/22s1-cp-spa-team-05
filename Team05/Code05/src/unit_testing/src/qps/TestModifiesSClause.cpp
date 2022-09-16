@@ -11,8 +11,8 @@ using namespace std;
 TEST_CASE("ModifiesSClause: test equals") {
 	auto testEquals = [](const RelationshipClause* other, bool expected) {
 		// given
-		ClauseArgument lhs = ClauseArgument("s", ArgumentType::STMT);
-		ClauseArgument rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		ClauseArgument lhs = ClauseArgument::generateStmtArg("s");
+		ClauseArgument rhs = ClauseArgument::generateVariableArg("v");
 		ModifiesSClause modifiesSClause = ModifiesSClause(lhs, rhs);
 
 		// when
@@ -22,10 +22,10 @@ TEST_CASE("ModifiesSClause: test equals") {
 		REQUIRE(actual == expected);
 	};
 
-	ClauseArgument firstStmtArg = ClauseArgument("s", ArgumentType::STMT);
-	ClauseArgument secondStmtArg = ClauseArgument("s1", ArgumentType::STMT);
-	ClauseArgument firstVarArg = ClauseArgument("v", ArgumentType::VARIABLE);
-	ClauseArgument secondVarArg = ClauseArgument("v1", ArgumentType::VARIABLE);
+	ClauseArgument firstStmtArg = ClauseArgument::generateStmtArg("s");
+	ClauseArgument secondStmtArg = ClauseArgument::generateStmtArg("s1");
+	ClauseArgument firstVarArg = ClauseArgument::generateVariableArg("v");
+	ClauseArgument secondVarArg = ClauseArgument::generateVariableArg("v1");
 
 	SECTION("Equal") {
 		RelationshipClause* modifiesSClauseAgain = new ModifiesSClause(firstStmtArg, firstVarArg);
@@ -43,17 +43,17 @@ TEST_CASE("ModifiesSClause: test equals") {
 		testEquals(modifiesSClauseDiffStrings, false);
 	}
 
-	ClauseArgument readArg = ClauseArgument("r", ArgumentType::READ);
-	ClauseArgument printArg = ClauseArgument("p", ArgumentType::PRINT);
-	ClauseArgument assignArg = ClauseArgument("a", ArgumentType::ASSIGN);
-	ClauseArgument callArg = ClauseArgument("c", ArgumentType::CALL);
-	ClauseArgument whileArg = ClauseArgument("w", ArgumentType::WHILE);
-	ClauseArgument ifArg = ClauseArgument("i", ArgumentType::IF);
-	ClauseArgument procArg = ClauseArgument("p", ArgumentType::PROCEDURE);
-	ClauseArgument constArg = ClauseArgument("c", ArgumentType::CONSTANT);
-	ClauseArgument lineNumArg = ClauseArgument("1", ArgumentType::LINE_NUMBER);
-	ClauseArgument stringLitArg = ClauseArgument("x", ArgumentType::STRING_LITERAL);
-	ClauseArgument wildcardArg = ClauseArgument("_", ArgumentType::WILDCARD);
+	ClauseArgument procArg = ClauseArgument::generateProcedureArg("p");
+	ClauseArgument assignArg = ClauseArgument::generateAssignArg("a");
+	ClauseArgument constArg = ClauseArgument::generateConstantArg("4");
+	ClauseArgument readArg = ClauseArgument::generateReadArg("r");
+	ClauseArgument printArg = ClauseArgument::generatePrintArg("pr");
+	ClauseArgument callArg = ClauseArgument::generateCallArg("c");
+	ClauseArgument whileArg = ClauseArgument::generateWhileArg("w");
+	ClauseArgument ifArg = ClauseArgument::generateIfArg("i");
+	ClauseArgument lineNumArg = ClauseArgument::generateLineNumberArg("5");
+	ClauseArgument stringLitArg = ClauseArgument::generateStringLiteralArg("x");
+	ClauseArgument wildcardArg = ClauseArgument::generateWildcardArg();
 
 	list<ClauseArgument> otherArguments = list<ClauseArgument>{procArg, readArg, printArg, assignArg, callArg,
 															   whileArg, ifArg, constArg, lineNumArg, stringLitArg,
