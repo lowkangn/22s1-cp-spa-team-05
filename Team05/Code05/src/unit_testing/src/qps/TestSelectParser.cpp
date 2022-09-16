@@ -23,8 +23,8 @@ TEST_CASE("SelectParser: test parseNoError") {
     };
 
     list<PQLToken> tokens = list<PQLToken>{
-            PQLToken("Select", PQLTokenType::NAME),
-            PQLToken("v1", PQLTokenType::NAME)
+            PQLToken::createNameToken("Select"),
+            PQLToken::createNameToken("v1")
     };
 
     unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
@@ -36,8 +36,8 @@ TEST_CASE("SelectParser: test parseNoError") {
     testParseNoError(tokens, declarations, expected);
 
     tokens = list<PQLToken>{
-        PQLToken("Select", PQLTokenType::NAME),
-        PQLToken("abcdefgLongName", PQLTokenType::NAME)
+        PQLToken::createNameToken("Select"),
+        PQLToken::createNameToken("abcdefgLongName")
     };
 
     declarations = unordered_map<string, ArgumentType>{{"abcdefgLongName", ArgumentType::CONSTANT}};
@@ -58,8 +58,8 @@ TEST_CASE("SelectParser: test parseWithError") {
 
     SECTION("Undeclared / mispelled synonym") {
         list<PQLToken> tokens = list<PQLToken>{
-            PQLToken("Select", PQLTokenType::NAME),
-            PQLToken("v1", PQLTokenType::NAME)
+            PQLToken::createNameToken("Select"),
+            PQLToken::createNameToken("v1")
         };
 
         unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
@@ -69,8 +69,8 @@ TEST_CASE("SelectParser: test parseWithError") {
         testParseWithError(tokens, declarations);
 
         tokens = list<PQLToken>{
-            PQLToken("Select", PQLTokenType::NAME),
-            PQLToken("abcdefgLongName", PQLTokenType::NAME)
+            PQLToken::createNameToken("Select"),
+            PQLToken::createNameToken("abcdefgLongName")
         };
 
         declarations = unordered_map<string, ArgumentType>{
@@ -83,10 +83,10 @@ TEST_CASE("SelectParser: test parseWithError") {
     
     SECTION("Selecting non-synonyms") {
         list<PQLToken> tokens = list<PQLToken>{
-            PQLToken("Select", PQLTokenType::NAME),
-            PQLToken("\"", PQLTokenType::DELIMITER),
-            PQLToken("main", PQLTokenType::NAME),
-            PQLToken("\"", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Select"),
+            PQLToken::createDelimiterToken("\""),
+            PQLToken::createNameToken("main"),
+            PQLToken::createDelimiterToken("\"")
         };
 
         unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
@@ -96,8 +96,8 @@ TEST_CASE("SelectParser: test parseWithError") {
         testParseWithError(tokens, declarations);
 
         tokens = list<PQLToken>{
-            PQLToken("Select", PQLTokenType::NAME),
-            PQLToken("1", PQLTokenType::INTEGER)
+            PQLToken::createNameToken("Select"),
+            PQLToken::createIntegerToken("1")
         };
 
         declarations = unordered_map<string, ArgumentType>{

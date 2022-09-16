@@ -50,8 +50,6 @@ private:
      */
     PQLTokenType tokenType;
 
-public:
-
     /**
      *
      * @param tokenString
@@ -60,6 +58,24 @@ public:
     PQLToken(string tokenString, PQLTokenType tokenType) {
         this->tokenString = tokenString;
         this->tokenType = tokenType;
+    }
+
+public:
+    // Factory methods
+    static PQLToken createDelimiterToken(string tokenString) {
+        return PQLToken(tokenString, PQLTokenType::DELIMITER);
+    }
+
+    static PQLToken createIntegerToken(string tokenString) {
+        return PQLToken(tokenString, PQLTokenType::INTEGER);
+    }
+
+    static PQLToken createNameToken(string tokenString) {
+        return PQLToken(tokenString, PQLTokenType::NAME);
+    }
+
+    static PQLToken createOperatorToken(string tokenString) {
+        return PQLToken(tokenString, PQLTokenType::OPERATOR);
     }
 
     /**

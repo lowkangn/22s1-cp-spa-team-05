@@ -24,12 +24,12 @@ TEST_CASE("UsesParser: test parseUsesSNoError") {
     };
 
     list<PQLToken> tokensList = list<PQLToken>{
-        PQLToken("Uses", PQLTokenType::NAME),
-        PQLToken("(", PQLTokenType::DELIMITER),
-        PQLToken("s1", PQLTokenType::NAME),
-        PQLToken(",", PQLTokenType::DELIMITER),
-        PQLToken("v1", PQLTokenType::NAME),
-        PQLToken(")", PQLTokenType::DELIMITER)
+        PQLToken::createNameToken("Uses"),
+        PQLToken::createDelimiterToken("("),
+        PQLToken::createNameToken("s1"),
+        PQLToken::createDelimiterToken(","),
+        PQLToken::createNameToken("v1"),
+        PQLToken::createDelimiterToken(")")
     };
 
     unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
@@ -44,14 +44,14 @@ TEST_CASE("UsesParser: test parseUsesSNoError") {
     testParseNoError(tokensList, declarationsMap, expected);
 
     tokensList = list<PQLToken>{
-        PQLToken("Uses", PQLTokenType::NAME),
-        PQLToken("(", PQLTokenType::DELIMITER),
-        PQLToken("1", PQLTokenType::INTEGER),
-        PQLToken(",", PQLTokenType::DELIMITER),
-        PQLToken("\"", PQLTokenType::DELIMITER),
-        PQLToken("x", PQLTokenType::NAME),
-        PQLToken("\"", PQLTokenType::DELIMITER),
-        PQLToken(")", PQLTokenType::DELIMITER)
+        PQLToken::createNameToken("Uses"),
+        PQLToken::createDelimiterToken("("),
+        PQLToken::createIntegerToken("1"),
+        PQLToken::createDelimiterToken(","),
+        PQLToken::createDelimiterToken("\""),
+        PQLToken::createNameToken("x"),
+        PQLToken::createDelimiterToken("\""),
+        PQLToken::createDelimiterToken(")")
     };
 
     expected = UsesSClause(
@@ -76,14 +76,14 @@ TEST_CASE("UsesParser: test parseUsesPNoError") {
     };
 
     list<PQLToken> tokensList = list<PQLToken>{
-        PQLToken("Uses", PQLTokenType::NAME),
-        PQLToken("(", PQLTokenType::DELIMITER),
-        PQLToken("\"", PQLTokenType::DELIMITER),
-        PQLToken("x", PQLTokenType::NAME),
-        PQLToken("\"", PQLTokenType::DELIMITER),
-        PQLToken(",", PQLTokenType::DELIMITER),
-        PQLToken("v1", PQLTokenType::NAME),
-        PQLToken(")", PQLTokenType::DELIMITER)
+        PQLToken::createNameToken("Uses"),
+        PQLToken::createDelimiterToken("("),
+        PQLToken::createDelimiterToken("\""),
+        PQLToken::createNameToken("x"),
+        PQLToken::createDelimiterToken("\""),
+        PQLToken::createDelimiterToken(","),
+        PQLToken::createNameToken("v1"),
+        PQLToken::createDelimiterToken(")")
     };
 
     unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
@@ -111,8 +111,8 @@ TEST_CASE("UsesParser: test parseWithError") {
     SECTION("Undeclared / misspelled synonym") {
 
         list<PQLToken> tokensList = list<PQLToken>{
-            PQLToken("Uses", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Uses"),
+            PQLToken::createDelimiterToken("(")
         };
 
         unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
@@ -122,12 +122,12 @@ TEST_CASE("UsesParser: test parseWithError") {
         testParseWithError(tokensList, declarationsMap);
 
         tokensList = list<PQLToken>{
-            PQLToken("Uses", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("s1", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Uses"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("s1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("v1"),
+            PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{
@@ -140,12 +140,12 @@ TEST_CASE("UsesParser: test parseWithError") {
 
     SECTION("Illegal arguments") {
         list<PQLToken> tokensList = list<PQLToken>{
-            PQLToken("Uses", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("_", PQLTokenType::DELIMITER),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Uses"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createDelimiterToken("_"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("v1"),
+            PQLToken::createDelimiterToken(")")
         };
 
         unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
@@ -156,12 +156,12 @@ TEST_CASE("UsesParser: test parseWithError") {
         testParseWithError(tokensList, declarationsMap);
 
         tokensList = list<PQLToken>{
-            PQLToken("Uses", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("s1", PQLTokenType::DELIMITER),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("s2", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Uses"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createDelimiterToken("s1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("s2"),
+            PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{
