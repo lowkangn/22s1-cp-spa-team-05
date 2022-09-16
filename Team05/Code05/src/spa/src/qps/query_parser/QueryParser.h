@@ -3,6 +3,7 @@
 #include <qps/query_tokenizer/PQLToken.h>
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query/Query.h>
+#include <qps/query/clause/PatternClause.h>
 #include <list>
 #include <unordered_map>
 
@@ -32,7 +33,11 @@ public:
      */
     Query parse();
 
-    list<shared_ptr<RelationshipClause>> parseConstraints(unordered_map<string, ArgumentType> declarations);
+	void parseConstraints(shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClauses,
+						  shared_ptr<list<shared_ptr<PatternClause>>> patternClauses,
+						  unordered_map<string, ArgumentType> declarations);
 
     shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType> declarations);
+
+	shared_ptr<PatternClause> parsePattern(unordered_map<string, ArgumentType> declarations);
 };
