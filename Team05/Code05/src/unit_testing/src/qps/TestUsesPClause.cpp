@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include <qps/query/clause/ModifiesSClause.h>
 #include <qps/query/clause/ModifiesPClause.h>
-#include <qps/query/clause/UsesSClause.h>
+#include <qps/query/clause/UsesPClause.h>
 #include <qps/query/clause/UsesPClause.h>
 
 #include <list>
@@ -20,7 +20,6 @@ TEST_CASE("UsesPClause: test equals") {
 
 		// when
 		bool actual = usesPClause.equals(other);
-
 
 		// then
 		REQUIRE(actual == expected);
@@ -74,7 +73,7 @@ TEST_CASE("UsesPClause: test equals") {
 	}
 
 	SECTION("Not even a UsesPClause") {
-		shared_ptr<RelationshipClause> usesSClause(new UsesSClause(stmtArg, firstVarArg));
+		shared_ptr<RelationshipClause> usesSClause(new UsesPClause(stmtArg, firstVarArg));
 		testEquals(usesSClause, false);
 
 		// TODO: Add more when other Clause classes are implemented
@@ -192,7 +191,7 @@ namespace {
 };
 
 TEST_CASE("UsesPClause: test execute") {
-	auto testExecute = [](UsesSClause usesSClause,
+	auto testExecute = [](UsesPClause usesSClause,
 		RelationshipClauseResult expectedClauseResult,
 		shared_ptr<PKB> pkb) {
 			// given
@@ -201,7 +200,7 @@ TEST_CASE("UsesPClause: test execute") {
 			// when
 			shared_ptr<RelationshipClauseResult> resPtr = usesSClause.execute(pkbInterface);
 			RelationshipClauseResult actualClauseResult = *resPtr;
-
+			
 			// then
 			REQUIRE(actualClauseResult == expectedClauseResult);
 
@@ -223,7 +222,7 @@ TEST_CASE("UsesPClause: test execute") {
 
 
 	// ------ QPS ------ 
-	UsesSClause clause = UsesSClause(procedureArg, variableArg);
+	UsesPClause clause = UsesPClause(procedureArg, variableArg);
 
 	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlUsesMainY, pqlUsesMainX, pqlUsesMainZ, pqlUsesTestB, pqlUsesTestY };
 
@@ -233,4 +232,27 @@ TEST_CASE("UsesPClause: test execute") {
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
+	SECTION("Procedure string literal - non empty results") {
+		clause = UsesPClause(mainLiteralArg, variableArg);
+		expectedRetrievedFromPkb = { pqlUsesMainY, pqlUsesMainX, pqlUsesMainZ };
+		expectedClauseResult = RelationshipClauseResult(mainLiteralArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesPClause(testLiteralArg, variableArg);
+		expectedRetrievedFromPkb = { pqlUsesTestB, pqlUsesTestY };
+		expectedClauseResult = RelationshipClauseResult(testLiteralArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Procedure and variable string literals - non empty results") {
+		clause = UsesPClause(mainLiteralArg, xLiteralArg);
+		expectedRetrievedFromPkb = { pqlUsesMainX };
+		expectedClauseResult = RelationshipClauseResult(mainLiteralArg, xLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesPClause(testLiteralArg, yLiteralArg);
+		expectedRetrievedFromPkb = { pqlUsesTestY };
+		expectedClauseResult = RelationshipClauseResult(testLiteralArg, yLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
 }
