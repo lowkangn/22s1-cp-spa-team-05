@@ -69,6 +69,6 @@ public:
 	}
 
 	bool equals(PkbRelationship other) {
-		return (this->relationshipType == other.relationshipType) && (this->lhs->equals(other.getLhs()));
+		return (this->relationshipType == other.relationshipType) && (this->lhs->equals(other.getLhs())) && (this->rhs->equals(other.getRhs()));
 	}
 };
