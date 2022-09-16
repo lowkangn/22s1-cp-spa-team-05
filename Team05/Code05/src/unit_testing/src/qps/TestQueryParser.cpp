@@ -166,7 +166,7 @@ TEST_CASE("QueryParser: test parseConstraints Parent") {
                     shared_ptr<RelationshipClause> expectedPtr = expected.front();
                     shared_ptr<ParentTClause> expectedClause = dynamic_pointer_cast<ParentTClause>(actualPtr);
 
-                    isEqual = isEqual && (*expectedClause.get()).equals(actualPtr.get());
+                    isEqual = isEqual && (*expectedClause.get()).equals(actualPtr);
                     actual.pop_front();
                     expected.pop_front();
                 }
@@ -177,19 +177,19 @@ TEST_CASE("QueryParser: test parseConstraints Parent") {
     };
 
     shared_ptr<RelationshipClause> parentTClause = shared_ptr<RelationshipClause>(new ParentTClause(
-        ClauseArgument("s1", ArgumentType::STMT),
-        ClauseArgument("5", ArgumentType::LINE_NUMBER)));
+        ClauseArgument::createStmtArg("s1"),
+        ClauseArgument::createLineNumberArg("5")));
 
     list<PQLToken> tokens = list<PQLToken>{
-        PQLToken("such", PQLTokenType::NAME),
-        PQLToken("that", PQLTokenType::NAME),
-        PQLToken("Parent", PQLTokenType::NAME),
-        PQLToken("*", PQLTokenType::OPERATOR),
-        PQLToken("(", PQLTokenType::DELIMITER),
-        PQLToken("s1", PQLTokenType::NAME),
-        PQLToken(",", PQLTokenType::DELIMITER),
-        PQLToken("5", PQLTokenType::INTEGER),
-        PQLToken(")", PQLTokenType::DELIMITER)
+        PQLToken::createNameToken("such"),
+        PQLToken::createNameToken("that"),
+        PQLToken::createNameToken("Parent"),
+        PQLToken::createOperatorToken("*"),
+        PQLToken::createDelimiterToken("("),
+        PQLToken::createNameToken("s1"),
+        PQLToken::createDelimiterToken(","),
+        PQLToken::createIntegerToken("5"),
+        PQLToken::createDelimiterToken(")")
     };
 
     unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{

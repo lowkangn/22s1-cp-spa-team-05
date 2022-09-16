@@ -85,6 +85,3 @@ TEST_CASE("UsesSClause: test equals") {
 }
 
 // =============== INTEGRATION TESTS ====================
-
-// TODO: Requires PKB interaction implementation
-TEST_CASE("UsesSClause: test execute") {}
