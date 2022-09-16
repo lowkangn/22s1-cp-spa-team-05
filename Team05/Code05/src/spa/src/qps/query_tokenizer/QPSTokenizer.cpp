@@ -73,7 +73,7 @@ PQLToken QPSTokenizer::extractNameFromStream(istream& stream) {
     while (isalnum(stream.peek())) {
         word += char(stream.get());
     }
-    return PQLToken(word, PQLTokenType::NAME);
+    return PQLToken::createNameToken(word);
 }
 
 PQLToken QPSTokenizer::extractIntegerFromStream(istream& stream) {
@@ -88,19 +88,19 @@ PQLToken QPSTokenizer::extractIntegerFromStream(istream& stream) {
         throw PQLError("Alphabetical character cannot follow integer: " + integer + " followed by " + next);
     }
 
-    return PQLToken(integer, PQLTokenType::INTEGER);
+    return PQLToken::createIntegerToken(integer);
 }
 
 PQLToken QPSTokenizer::extractDelimiterFromStream(istream& stream) {
     string del;
     del += char(stream.get());
-    return PQLToken(del, PQLTokenType::DELIMITER);
+    return PQLToken::createDelimiterToken (del);
 }
 
 PQLToken QPSTokenizer::extractOperatorFromStream(istream& stream) {
     string op;
     op += char(stream.get());
-    return PQLToken(op, PQLTokenType::OPERATOR);
+    return PQLToken::createOperatorToken(op);
 }
 
 void QPSTokenizer::skipWhitespaceOrNewlineInStream(istream& stream) {

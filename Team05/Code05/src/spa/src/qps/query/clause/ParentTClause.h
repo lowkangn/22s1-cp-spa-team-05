@@ -8,5 +8,5 @@ public:
         : RelationshipClause(lhs, rhs) {};
 
     shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) override;
-    bool equals(const RelationshipClause* other) override;
+    bool equals(shared_ptr<RelationshipClause> other) override;
 };

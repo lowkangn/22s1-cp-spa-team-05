@@ -1,20 +1,20 @@
 #include "catch.hpp"
-#include <qps/query/clause/ModifiesSClause.h>
-#include <qps/query/clause/ModifiesPClause.h>
+#include <qps/query/clause/UsesSClause.h>
+#include <qps/query/clause/UsesPClause.h>
 #include <qps/query_parser/parsers/SuchThatClauseParser.h>
-#include <qps/query_parser/parsers/ModifiesParser.h>
+#include <qps/query_parser/parsers/UsesParser.h>
 
 
 using namespace std;
 
 // =============== UNIT TESTS ====================
 
-TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
+TEST_CASE("UsesParser: test parseUsesSNoError") {
     auto testParseNoError = [](list<PQLToken> tokens,
         unordered_map<string, ArgumentType> declarations,
-        ModifiesSClause expected) {
+        UsesSClause expected) {
             // given
-            ModifiesParser parser = ModifiesParser(tokens, declarations);
+            UsesParser parser = UsesParser(tokens, declarations);
 
             // when
             shared_ptr<RelationshipClause> actualPtr = parser.parse();
@@ -24,7 +24,7 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
     };
 
     list<PQLToken> tokensList = list<PQLToken>{
-        PQLToken::createNameToken("Modifies"),
+        PQLToken::createNameToken("Uses"),
         PQLToken::createDelimiterToken("("),
         PQLToken::createNameToken("s1"),
         PQLToken::createDelimiterToken(","),
@@ -37,14 +37,14 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
         {"s1", ArgumentType::STMT}
     };
 
-    ModifiesSClause expected = ModifiesSClause(
+    UsesSClause expected = UsesSClause(
         ClauseArgument::createStmtArg("s1"),
         ClauseArgument::createVariableArg("v1"));
 
     testParseNoError(tokensList, declarationsMap, expected);
 
     tokensList = list<PQLToken>{
-        PQLToken::createNameToken("Modifies"),
+        PQLToken::createNameToken("Uses"),
         PQLToken::createDelimiterToken("("),
         PQLToken::createIntegerToken("1"),
         PQLToken::createDelimiterToken(","),
@@ -54,19 +54,19 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
         PQLToken::createDelimiterToken(")")
     };
 
-    expected = ModifiesSClause(
+    expected = UsesSClause(
         ClauseArgument::createLineNumberArg("1"),
         ClauseArgument::createStringLiteralArg("x"));
 
-    testParseNoError(tokensList,unordered_map<string, ArgumentType>{}, expected);
+    testParseNoError(tokensList, unordered_map<string, ArgumentType>{}, expected);
 }
 
-TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
+TEST_CASE("UsesParser: test parseUsesPNoError") {
     auto testParseNoError = [](list<PQLToken> tokens,
         unordered_map<string, ArgumentType> declarations,
-        ModifiesPClause expected) {
+        UsesPClause expected) {
             // given
-            ModifiesParser parser = ModifiesParser(tokens, declarations);
+            UsesParser parser = UsesParser(tokens, declarations);
 
             // when
             shared_ptr<RelationshipClause> actualPtr = parser.parse();
@@ -76,7 +76,7 @@ TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
     };
 
     list<PQLToken> tokensList = list<PQLToken>{
-        PQLToken::createNameToken("Modifies"),
+        PQLToken::createNameToken("Uses"),
         PQLToken::createDelimiterToken("("),
         PQLToken::createDelimiterToken("\""),
         PQLToken::createNameToken("x"),
@@ -90,7 +90,7 @@ TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
         {"v1", ArgumentType::VARIABLE}
     };
 
-    ModifiesPClause expected = ModifiesPClause(
+    UsesPClause expected = UsesPClause(
         ClauseArgument::createStringLiteralArg("x"),
         ClauseArgument::createVariableArg("v1"));
 
@@ -98,11 +98,11 @@ TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
 }
 
 
-TEST_CASE("ModifiesParser: test parseWithError") {
+TEST_CASE("UsesParser: test parseWithError") {
     auto testParseWithError = [](list<PQLToken> tokens,
         unordered_map<string, ArgumentType> declarations) {
             // given
-            ModifiesParser parser = ModifiesParser(tokens, declarations);
+            UsesParser parser = UsesParser(tokens, declarations);
 
             // then
             REQUIRE_THROWS_AS(parser.parse(), PQLError);
@@ -111,7 +111,7 @@ TEST_CASE("ModifiesParser: test parseWithError") {
     SECTION("Undeclared / misspelled synonym") {
 
         list<PQLToken> tokensList = list<PQLToken>{
-            PQLToken::createNameToken("Modifies"),
+            PQLToken::createNameToken("Uses"),
             PQLToken::createDelimiterToken("(")
         };
 
@@ -122,7 +122,7 @@ TEST_CASE("ModifiesParser: test parseWithError") {
         testParseWithError(tokensList, declarationsMap);
 
         tokensList = list<PQLToken>{
-            PQLToken::createNameToken("Modifies"),
+            PQLToken::createNameToken("Uses"),
             PQLToken::createDelimiterToken("("),
             PQLToken::createNameToken("s1"),
             PQLToken::createDelimiterToken(","),
@@ -140,7 +140,7 @@ TEST_CASE("ModifiesParser: test parseWithError") {
 
     SECTION("Illegal arguments") {
         list<PQLToken> tokensList = list<PQLToken>{
-            PQLToken::createNameToken("Modifies"),
+            PQLToken::createNameToken("Uses"),
             PQLToken::createDelimiterToken("("),
             PQLToken::createDelimiterToken("_"),
             PQLToken::createDelimiterToken(","),
@@ -156,7 +156,7 @@ TEST_CASE("ModifiesParser: test parseWithError") {
         testParseWithError(tokensList, declarationsMap);
 
         tokensList = list<PQLToken>{
-            PQLToken::createNameToken("Modifies"),
+            PQLToken::createNameToken("Uses"),
             PQLToken::createDelimiterToken("("),
             PQLToken::createDelimiterToken("s1"),
             PQLToken::createDelimiterToken(","),
