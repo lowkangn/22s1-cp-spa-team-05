@@ -38,14 +38,14 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 	};
 	const int LINENUMBER = 1;
 
-	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token leftToken = Token::createNameOrKeywordToken("x");
 	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 	// x = x + 1
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token addToken = Token{ "+", TokenType::OPERATOR };
-	Token constToken = Token{ "1", TokenType::INTEGER };
-	Token assignToken = Token{ "=", TokenType::OPERATOR };
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token addToken = Token::createPlusToken();
+	Token constToken = Token::createIntegerToken("1");
+	Token assignToken = Token::createEqualsToken();
 
 	Entity assignEntity = Entity::createAssignEntity(1);
 
@@ -71,7 +71,7 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 	addNode->addChild(constNode);
 
 
-	Relationship modifiesX = Relationship{ assignEntity, LHS, RelationshipType::MODIFIES };
+	Relationship modifiesX = Relationship::createModifiesRelationship(assignEntity, LHS);
 
 	vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
 
@@ -99,12 +99,12 @@ TEST_CASE("ModifiesExtractor: test handleRead") {
 	};
 	const int LINENUMBER = 1;
 
-	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token leftToken = Token::createNameOrKeywordToken("x");
 	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 	// read x;
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token readToken = Token::createReadToken();
 
 
 	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
@@ -119,7 +119,7 @@ TEST_CASE("ModifiesExtractor: test handleRead") {
 	Entity lineEntity = Entity::createReadEntity(1);;
 	Entity xEntity = Entity::createVariableEntity(1, xToken);
 
-	Relationship readRelation = Relationship{ lineEntity, xEntity, RelationshipType::MODIFIES };
+	Relationship readRelation = Relationship::createModifiesRelationship(lineEntity, xEntity);
 
 
 	vector<Relationship> expectedResult = vector<Relationship>{ readRelation };
@@ -148,7 +148,7 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 	};
 	const int LINENUMBER = 1;
 
-	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token leftToken = Token::createNameOrKeywordToken("x");
 	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 	/*
@@ -158,13 +158,13 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 		}
 	*/
 	// Creating tokens
-	Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	Token constToken = Token{ "1", TokenType::INTEGER };
-	Token readToken = Token{ "read", TokenType::NAME_OR_KEYWORD };
-	Token assignToken = Token{ "=", TokenType::OPERATOR };
-	Token stmtLst = Token{ "", TokenType::INVALID };
+	Token mainToken = Token::createNameOrKeywordToken("main");
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token constToken = Token::createIntegerToken("1");
+	Token readToken = Token::createReadToken();
+	Token assignToken = Token::createEqualsToken();
+	Token stmtLst = Token::createPlaceholderToken();
 
 
 	// Creating nodes
@@ -174,7 +174,7 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 
 	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
 
-	shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(stmtLst));
+	shared_ptr<ASTNode> stmtLstNode(new StatementListASTNode(stmtLst));
 
 	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
 	shared_ptr<ASTNode> y(new VariableASTNode(yToken));
@@ -202,10 +202,10 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 	Entity assignEntity = Entity::createAssignEntity(assignNode->getLineNumber());
 	Entity readEntity = Entity::createReadEntity(readNode->getLineNumber());
 
-	Relationship procedureXRelation = Relationship{ procedureEntity, xEntity, RelationshipType::MODIFIES };
-	Relationship procedureYRelation = Relationship{ procedureEntity, yEntity, RelationshipType::MODIFIES };
-	Relationship assignRelation = Relationship{ assignEntity, xEntity, RelationshipType::MODIFIES };
-	Relationship readRelation = Relationship{ readEntity, yEntity, RelationshipType::MODIFIES };
+	Relationship procedureXRelation = Relationship::createModifiesRelationship(procedureEntity, xEntity);
+	Relationship procedureYRelation = Relationship::createModifiesRelationship(procedureEntity, yEntity);
+	Relationship assignRelation = Relationship::createModifiesRelationship(assignEntity, xEntity);
+	Relationship readRelation = Relationship::createModifiesRelationship(readEntity, yEntity);
 
 
 	vector<Relationship> expectedResult = vector<Relationship>{ procedureXRelation, procedureYRelation };
@@ -233,7 +233,7 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 	};
 	const int LINENUMBER = 1;
 
-	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token leftToken = Token::createNameOrKeywordToken("x");
 	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 	/*
@@ -245,14 +245,14 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 	*/
 
 	// Creating tokens
-	Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token zeroToken = Token{ "1", TokenType::INTEGER };
-	Token constToken = Token{ "1", TokenType::INTEGER };
-	Token whileToken = Token{ WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
-	Token minusToken = Token{ "-", TokenType::OPERATOR};
-	Token equalityToken = Token{ "!=", TokenType::OPERATOR};
+	Token mainToken = Token::createNameOrKeywordToken("main");
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token zeroToken = Token::createIntegerToken("0");
+	Token constToken = Token::createIntegerToken("1");
+	Token whileToken = Token::createWhileToken();
+	Token assignToken = Token::createEqualsToken();
+	Token minusToken = Token::createMinusToken();
+	Token equalityToken = Token::createNotEqualsToken();
 	Token stmtLst = Token::getPlaceHolderToken();
 
 
@@ -260,7 +260,7 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 	shared_ptr<ASTNode> whileNode(new WhileASTNode(whileToken));
 	whileNode->setLineNumber(1);
 
-	shared_ptr<ASTNode> whileStmtLstNode(new StatementListASTnode(stmtLst));
+	shared_ptr<ASTNode> whileStmtLstNode(new StatementListASTNode(stmtLst));
 
 	shared_ptr<ASTNode> conditionNode(new ExpressionASTNode(equalityToken));
 	conditionNode->setLineNumber(1);
@@ -268,7 +268,7 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 	shared_ptr<ASTNode> xCond(new VariableASTNode(xToken));
 	xCond->setLineNumber(1);
 
-	
+
 	shared_ptr<ASTNode> constZeroNode(new ConstantValueASTNode(zeroToken));
 	constZeroNode->setLineNumber(1);
 
@@ -311,8 +311,8 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 	Entity xEntity = Entity::createVariableEntity(x->getLineNumber(), xToken);
 	Entity assignEntity = Entity::createAssignEntity(assignNode->getLineNumber());
 
-	Relationship whileRelation = Relationship{ whileEntity, xEntity, RelationshipType::MODIFIES };
-	Relationship assignRelation = Relationship{ assignEntity, xEntity, RelationshipType::MODIFIES };
+	Relationship whileRelation = Relationship::createModifiesRelationship(whileEntity, xEntity);
+	Relationship assignRelation = Relationship::createModifiesRelationship(assignEntity, xEntity);
 
 
 	vector<Relationship> expectedResult = vector<Relationship>{ whileRelation };
@@ -323,7 +323,7 @@ TEST_CASE("ModifiesExtractor: test handleWhile") {
 TEST_CASE("ModifiesExtractor: test handleIf") {
 
 
-	auto handleProcedure = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
+	auto handleIf = [](shared_ptr<ASTNode> ast, vector<Relationship> expectedResult) {
 		// Given
 		ModifiesExtractor extractor = ModifiesExtractor();
 
@@ -340,7 +340,7 @@ TEST_CASE("ModifiesExtractor: test handleIf") {
 	};
 	const int LINENUMBER = 1;
 
-	Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+	Token leftToken = Token::createNameOrKeywordToken("x");
 	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 	/*
@@ -353,15 +353,15 @@ TEST_CASE("ModifiesExtractor: test handleIf") {
 		}
 	*/
 	// Creating tokens
-	Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-	Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-	Token constZeroToken = Token{ "0", TokenType::INTEGER };
-	Token constOneToken = Token{ "1", TokenType::INTEGER };
-	Token constTwoToken = Token{ "2", TokenType::INTEGER };
-	Token ifToken = Token{ IF_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token equalityToken = Token{ "==", TokenType::OPERATOR};
-	Token assignToken = Token{ "=", TokenType::OPERATOR };
-	Token stmtLst = Token{ "", TokenType::INVALID };
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token constZeroToken = Token::createIntegerToken("0");
+	Token constOneToken = Token::createIntegerToken("1");
+	Token constTwoToken = Token::createIntegerToken("2");
+	Token ifToken = Token::createIfToken();
+	Token equalityToken = Token::createEqualityToken();
+	Token assignToken = Token::createEqualsToken();
+	Token stmtLst = Token::createPlaceholderToken();
 
 	// Creating nodes
 	shared_ptr<ASTNode> ifNode(new IfASTNode(ifToken));
@@ -373,12 +373,12 @@ TEST_CASE("ModifiesExtractor: test handleIf") {
 	shared_ptr<ASTNode> assignXNode(new AssignASTNode(assignToken));
 	shared_ptr<ASTNode> assignYNode(new AssignASTNode(assignToken));
 
-	shared_ptr<ASTNode> thenStmtLstNode(new StatementListASTnode(stmtLst));
-	shared_ptr<ASTNode> elseStmtLstNode(new StatementListASTnode(stmtLst));
+	shared_ptr<ASTNode> thenStmtLstNode(new StatementListASTNode(stmtLst));
+	shared_ptr<ASTNode> elseStmtLstNode(new StatementListASTNode(stmtLst));
 
 	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
 	shared_ptr<ASTNode> constOneNode(new ConstantValueASTNode(constOneToken));
-	
+
 	shared_ptr<ASTNode> y(new VariableASTNode(yToken));
 	shared_ptr<ASTNode> constTwoNode(new ConstantValueASTNode(constTwoToken));
 
@@ -404,15 +404,15 @@ TEST_CASE("ModifiesExtractor: test handleIf") {
 	Entity assignXEntity = Entity::createAssignEntity(assignXNode->getLineNumber());
 	Entity assignYEntity = Entity::createAssignEntity(assignYNode->getLineNumber());
 
-	Relationship xRelation = Relationship{ ifEntity, xEntity, RelationshipType::MODIFIES };
-	Relationship yRelation = Relationship{ ifEntity, yEntity, RelationshipType::MODIFIES };
-	Relationship assignXRelation = Relationship{ assignXEntity, xEntity, RelationshipType::MODIFIES };
-	Relationship assignYRelation = Relationship{ assignYEntity, yEntity, RelationshipType::MODIFIES };
+	Relationship xRelation = Relationship::createModifiesRelationship(ifEntity, xEntity);
+	Relationship yRelation = Relationship::createModifiesRelationship(ifEntity, yEntity);
+	Relationship assignXRelation = Relationship::createModifiesRelationship(assignXEntity, xEntity);
+	Relationship assignYRelation = Relationship::createModifiesRelationship(assignYEntity, yEntity);
 
 
 	vector<Relationship> expectedResult = vector<Relationship>{ xRelation, yRelation };
 
-	handleProcedure(ifNode, expectedResult);
+	handleIf(ifNode, expectedResult);
 
 }
 
@@ -437,16 +437,16 @@ TEST_CASE("ModifiesExtractor: test extract") {
 	SECTION("Test 1") {
 		const int LINENUMBER = 1;
 
-		Token leftToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
+		Token leftToken = Token::createNameOrKeywordToken("x");
 		Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
 
 		// x = x + 1 + y
-		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-		Token addToken = Token{ "+", TokenType::OPERATOR };
-		Token constToken = Token{ "1", TokenType::INTEGER };
-		Token assignToken = Token{ "=", TokenType::OPERATOR };
-		Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-		Entity assignEntity = Entity::createAssignEntity(LINENUMBER);;
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token addToken = Token::createPlusToken();
+		Token constToken = Token::createIntegerToken("1");
+		Token assignToken = Token::createEqualsToken();
+		Token yToken = Token::createNameOrKeywordToken("y");
+	Entity assignEntity = Entity::createAssignEntity(LINENUMBER);;
 
 
 		Entity yEntity = Entity::createVariableEntity(LINENUMBER, yToken);
@@ -481,7 +481,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		addNode2->addChild(y);
 
 
-		Relationship modifiesX = Relationship{ assignEntity, LHS, RelationshipType::MODIFIES };
+	Relationship modifiesX = Relationship::createModifiesRelationship(assignEntity, LHS);
 
 		vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
 
@@ -505,28 +505,28 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		}
 	*/
 	// Creating tokens
-		Token mainToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-		Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-		Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
-		Token notEqualToken = Token{ NOT_EQUAL_OPERATOR, TokenType::OPERATOR };
-		Token greaterToken = Token{ GREATER_OPERATOR, TokenType::OPERATOR };
-		Token minusToken = Token{ MINUS_OPERATOR, TokenType::OPERATOR };
-		Token constThreeToken = Token{ "3", TokenType::INTEGER };
-		Token constZeroToken = Token{ "0", TokenType::INTEGER };
-		Token constOneToken = Token{ "1", TokenType::INTEGER };
-		Token constFiveToken = Token{ "5", TokenType::INTEGER };
-		Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token whileToken = Token{ WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token printToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token ifToken = Token{ IF_KEYWORD, TokenType::NAME_OR_KEYWORD };
-		Token stmtListToken = Token{ "", TokenType::INVALID };
+		Token mainToken = Token::createNameOrKeywordToken("main");
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token yToken = Token::createNameOrKeywordToken("y");
+		Token assignToken = Token::createEqualsToken();
+		Token notEqualToken = Token::createNotEqualsToken();
+		Token greaterToken = Token::createGreaterThanToken();
+		Token minusToken = Token::createMinusToken();
+		Token constThreeToken = Token::createIntegerToken("3");
+		Token constZeroToken = Token::createIntegerToken("0");
+		Token constOneToken = Token::createIntegerToken("1");
+		Token constFiveToken = Token::createIntegerToken("5");
+		Token readToken = Token::createReadToken();
+		Token whileToken = Token::createWhileToken();
+		Token printToken = Token::createPrintToken();
+		Token ifToken = Token::createIfToken();
+		Token stmtListToken = Token::createPlaceholderToken();
 
 		// Creating AST nodes
 		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(mainToken));
 
 		// Line 1 (x = 3)
-		shared_ptr<ASTNode> mainStmtList(new StatementListASTnode(stmtListToken));
+		shared_ptr<ASTNode> mainStmtList(new StatementListASTNode(stmtListToken));
 		shared_ptr<ASTNode> x1Node(new VariableASTNode(xToken));
 		shared_ptr<ASTNode> assign1Node(new AssignASTNode(assignToken));
 		shared_ptr<ASTNode> constThreeNode(new ConstantValueASTNode(constThreeToken));
@@ -554,7 +554,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		notEqualNode->setLineNumber(3);
 
 		// Line 4 (x = x - 1)
-		shared_ptr<ASTNode> whileStmtList(new StatementListASTnode(stmtListToken));
+		shared_ptr<ASTNode> whileStmtList(new StatementListASTNode(stmtListToken));
 		shared_ptr<ASTNode> x4LhsNode(new VariableASTNode(xToken));
 		shared_ptr<ASTNode> x4RhsNode(new VariableASTNode(xToken));
 		shared_ptr<ASTNode> assign4Node(new AssignASTNode(assignToken));
@@ -586,7 +586,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		constFiveNode->setLineNumber(6);
 
 		// Line 7 (x = y)
-		shared_ptr<ASTNode> thenStmtList(new StatementListASTnode(stmtListToken));
+		shared_ptr<ASTNode> thenStmtList(new StatementListASTNode(stmtListToken));
 		shared_ptr<ASTNode> assign7Node(new AssignASTNode(assignToken));
 		shared_ptr<ASTNode> x7Node(new VariableASTNode(xToken));
 		shared_ptr<ASTNode> y7Node(new VariableASTNode(yToken));
@@ -596,7 +596,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		y7Node->setLineNumber(7);
 
 		// Line 8 (y = x)
-		shared_ptr<ASTNode> elseStmtList(new StatementListASTnode(stmtListToken));
+		shared_ptr<ASTNode> elseStmtList(new StatementListASTNode(stmtListToken));
 		shared_ptr<ASTNode> assign8Node(new AssignASTNode(assignToken));
 		shared_ptr<ASTNode> y8Node(new VariableASTNode(yToken));
 		shared_ptr<ASTNode> x8Node(new VariableASTNode(xToken));
@@ -675,25 +675,25 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		Entity y8Entity = Entity::createVariableEntity(y8Node->getLineNumber(), yToken);
 
 		// Creating relationships
-		Relationship mainModifiesX1 = Relationship{ procedureEntity, x1Entity, RelationshipType::MODIFIES };
-		Relationship mainModifiesY2 = Relationship{ procedureEntity, y2Entity, RelationshipType::MODIFIES };
-		Relationship mainModifiesX4 = Relationship{ procedureEntity, x4Entity, RelationshipType::MODIFIES };
-		Relationship mainModifiesX7 = Relationship{ procedureEntity, x7Entity, RelationshipType::MODIFIES };
-		Relationship mainModifiesY8 = Relationship{ procedureEntity, y8Entity, RelationshipType::MODIFIES };
+		Relationship mainModifiesX1 = Relationship::createModifiesRelationship(procedureEntity, x1Entity);
+		Relationship mainModifiesY2 = Relationship::createModifiesRelationship(procedureEntity, y2Entity);
+		Relationship mainModifiesX4 = Relationship::createModifiesRelationship(procedureEntity, x4Entity);
+		Relationship mainModifiesX7 = Relationship::createModifiesRelationship(procedureEntity, x7Entity);
+		Relationship mainModifiesY8 = Relationship::createModifiesRelationship(procedureEntity, y8Entity);
 
-		Relationship readModifiesX4 = Relationship{ readEntity, y2Entity, RelationshipType::MODIFIES };
+		Relationship readModifiesX4 = Relationship::createModifiesRelationship(readEntity, y2Entity);
 
-		Relationship whileModifiesX4 = Relationship{ whileEntity, x4Entity, RelationshipType::MODIFIES};
+		Relationship whileModifiesX4 = Relationship::createModifiesRelationship(whileEntity, x4Entity);
 
-		Relationship assign1ModifiesX1 = Relationship{ assign1Entity, x1Entity, RelationshipType::MODIFIES };
+		Relationship assign1ModifiesX1 = Relationship::createModifiesRelationship(assign1Entity, x1Entity);
 
-		Relationship assign4ModifiesX4 = Relationship{ assign4Entity, x4Entity, RelationshipType::MODIFIES };
+		Relationship assign4ModifiesX4 = Relationship::createModifiesRelationship(assign4Entity, x4Entity);
 
-		Relationship ifModifiesX7 = Relationship{ ifEntity, x7Entity, RelationshipType::MODIFIES };
-		Relationship ifModifiesY8 = Relationship{ ifEntity, y8Entity, RelationshipType::MODIFIES };
+		Relationship ifModifiesX7 = Relationship::createModifiesRelationship(ifEntity, x7Entity);
+		Relationship ifModifiesY8 = Relationship::createModifiesRelationship(ifEntity, y8Entity);
 
-		Relationship assign7ModifiesX7 = Relationship{ assign7Entity, x7Entity, RelationshipType::MODIFIES };
-		Relationship assign8ModifiesY8 = Relationship{ assign8Entity, y8Entity, RelationshipType::MODIFIES };
+		Relationship assign7ModifiesX7 = Relationship::createModifiesRelationship(assign7Entity, x7Entity);
+		Relationship assign8ModifiesY8 = Relationship::createModifiesRelationship(assign8Entity, y8Entity);
 
 		vector<Relationship> expectedResult = vector<Relationship>{ mainModifiesX1, mainModifiesY2, mainModifiesX4, mainModifiesX7, 
 																	mainModifiesY8, assign1ModifiesX1, readModifiesX4, whileModifiesX4, assign4ModifiesX4,

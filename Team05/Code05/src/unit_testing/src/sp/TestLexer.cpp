@@ -395,27 +395,27 @@ TEST_CASE("Lexer: test tokenize works correctly") {
 
     SECTION("Single line") {
         test("a + b = c", list<Token>{
-            Token("a", TokenType::NAME_OR_KEYWORD), 
-                Token("+", TokenType::OPERATOR), 
-                Token("b", TokenType::NAME_OR_KEYWORD), 
-                Token("=", TokenType::OPERATOR),
-                Token("c", TokenType::NAME_OR_KEYWORD)
+            Token::createNameOrKeywordToken("a"), 
+                Token::createPlusToken(),
+                Token::createNameOrKeywordToken("b"),
+                Token::createEqualsToken(),
+                Token::createNameOrKeywordToken("c")
         });
     }
 
     SECTION("Multiple lines") {
         test("a + b = c;\nd+e=f", list<Token>{
-            Token("a", TokenType::NAME_OR_KEYWORD),
-                Token("+", TokenType::OPERATOR),
-                Token("b", TokenType::NAME_OR_KEYWORD),
-                Token("=", TokenType::OPERATOR),
-                Token("c", TokenType::NAME_OR_KEYWORD),
-                Token(SEMI_COLON, TokenType::DELIMITER),
-                Token("d", TokenType::NAME_OR_KEYWORD),
-                Token("+", TokenType::OPERATOR),
-                Token("e", TokenType::NAME_OR_KEYWORD),
-                Token("=", TokenType::OPERATOR),
-                Token("f", TokenType::NAME_OR_KEYWORD)
+            Token::createNameOrKeywordToken("a"),
+                Token::createPlusToken(),
+                Token::createNameOrKeywordToken("b"),
+                Token::createEqualsToken(),
+                Token::createNameOrKeywordToken("c"),
+                Token::createSemicolonToken(),
+                Token::createNameOrKeywordToken("d"),
+                Token::createPlusToken(),
+                Token::createNameOrKeywordToken("e"),
+                Token::createEqualsToken(),
+                Token::createNameOrKeywordToken("f")
         });
     }
 

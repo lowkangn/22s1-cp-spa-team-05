@@ -119,7 +119,7 @@ shared_ptr<ASTNode> IfSimpleSyntaxRule::constructNode()
 		this->childRules = this->generateChildRules();
 	}
 
-	Token ifToken = Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD);
+	Token ifToken = Token::createIfToken();
 
 	shared_ptr<ASTNode> ifNode(new IfASTNode(ifToken));
 	shared_ptr<ASTNode> conditionNode = this->childRules[IF_CONDITION_RULE]->constructNode();

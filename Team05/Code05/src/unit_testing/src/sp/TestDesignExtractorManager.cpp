@@ -44,15 +44,15 @@ TEST_CASE("DesignExtractor: test : extractEntity()") {
 		}
 	*/
 	// Creating tokens
-	Token programToken = Token{ PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token procedureToken = Token{ PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token procedureNameToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-	Token stmtLstToken = Token("", TokenType::DELIMITER);
-	Token xToken = Token("x", TokenType::NAME_OR_KEYWORD);
-	Token yToken = Token("y", TokenType::NAME_OR_KEYWORD);
-	Token constant = Token("1", TokenType::INTEGER);
-	Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
-	Token assignToken = Token(EQUAL_OPERATOR, TokenType::OPERATOR);
+	Token programToken = Token::createProgramToken();
+	Token procedureToken = Token::createProcedureToken();
+	Token procedureNameToken = Token::createNameOrKeywordToken("main");
+	Token stmtLstToken = Token::createPlaceholderToken();
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token constant = Token::createIntegerToken("1");
+	Token readToken = Token::createReadToken();
+	Token assignToken = Token::createEqualsToken();
 
 	// Creating nodes
 	shared_ptr<ASTNode> nodeToExtractFrom(new ProgramASTNode(programToken));
@@ -60,7 +60,7 @@ TEST_CASE("DesignExtractor: test : extractEntity()") {
 	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
 	Entity procedureEntity = Entity::createProcedureEntity(procedureNameToken);
 
-	shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(stmtLstToken));
+	shared_ptr<ASTNode> stmtLstNode(new StatementListASTNode(stmtLstToken));
 
 	shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
 	xNode->setLineNumber(2);
@@ -133,15 +133,15 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 	*/
 
 	// Creating tokens
-	Token programToken = Token{ PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token procedureToken = Token{ PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD };
-	Token procedureNameToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
-	Token stmtLstToken = Token("", TokenType::DELIMITER);
-	Token xToken = Token("x", TokenType::NAME_OR_KEYWORD);
-	Token yToken = Token("y", TokenType::NAME_OR_KEYWORD);
-	Token constant = Token("1", TokenType::INTEGER);
-	Token readToken = Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
-	Token assignToken = Token(EQUAL_OPERATOR, TokenType::OPERATOR);
+	Token programToken = Token::createProgramToken();;
+	Token procedureToken = Token::createProcedureToken();;
+	Token procedureNameToken = Token::createNameOrKeywordToken("main");
+	Token stmtLstToken = Token::createPlaceholderToken();
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token constant = Token::createIntegerToken("1");
+	Token readToken = Token::createReadToken();
+	Token assignToken = Token::createEqualsToken();
 
 	// Creating nodes
 	shared_ptr<ASTNode> nodeToExtractFrom(new ProgramASTNode(programToken));
@@ -149,7 +149,7 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
 	Entity procedureEntity = Entity::createProcedureEntity(procedureNameToken);
 
-	shared_ptr<ASTNode> stmtLstNode(new StatementListASTnode(stmtLstToken));
+	shared_ptr<ASTNode> stmtLstNode(new StatementListASTNode(stmtLstToken));
 
 	shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
 	xNode->setLineNumber(2);
@@ -187,10 +187,10 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 	nodeToExtractFrom->addChild(procedureNode);
 	
 	// Creating relationships
-	Relationship procedureModifiesy = Relationship(procedureEntity, yEntity, RelationshipType::MODIFIES);
-	Relationship procedureModifiesx = Relationship(procedureEntity, xEntity, RelationshipType::MODIFIES);
-	Relationship readModifiesY = Relationship(readEntity, yEntity, RelationshipType::MODIFIES);
-	Relationship assignModifiesX = Relationship(assignEntity, xEntity, RelationshipType::MODIFIES);
+	Relationship procedureModifiesy = Relationship::createModifiesRelationship(procedureEntity, yEntity);
+	Relationship procedureModifiesx = Relationship::createModifiesRelationship(procedureEntity, xEntity);
+	Relationship readModifiesY = Relationship::createModifiesRelationship(readEntity, yEntity);
+	Relationship assignModifiesX = Relationship::createModifiesRelationship(assignEntity, xEntity);
 
 
 

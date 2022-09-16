@@ -34,7 +34,7 @@ TEST_CASE("EntityExtractor: test extract") {
 	};
 
 	SECTION("procedure main") {
-		Token procedureNameToken = Token{ "main", TokenType::NAME_OR_KEYWORD };
+		Token procedureNameToken = Token::createNameOrKeywordToken("main");
 
 		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
 		procedureNode->setLineNumber(1);
@@ -45,8 +45,8 @@ TEST_CASE("EntityExtractor: test extract") {
 	}
 
 	SECTION("read x") {
-		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-		Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token readToken = Token::createReadToken();
 
 		shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
 		readNode->setLineNumber(1);
@@ -61,8 +61,8 @@ TEST_CASE("EntityExtractor: test extract") {
 		testExtract(readNode, expectedEntity);
 	}
 	SECTION("print y") {
-		Token yToken = Token{ "y", TokenType::NAME_OR_KEYWORD };
-		Token printToken = Token{ PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD };
+		Token yToken = Token::createNameOrKeywordToken("y");
+		Token printToken = Token::createPrintToken();
 
 		shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
 		printNode->setLineNumber(1);
@@ -77,9 +77,9 @@ TEST_CASE("EntityExtractor: test extract") {
 		testExtract(printNode, expectedEntity);
 	}
 	SECTION("x = 1") {
-		Token xToken = Token{ "x", TokenType::NAME_OR_KEYWORD };
-		Token assignToken = Token{ EQUAL_OPERATOR, TokenType::OPERATOR };
-		Token constantToken = Token{ "1", TokenType::INTEGER };
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token assignToken = Token::createEqualsToken();
+		Token constantToken = Token::createIntegerToken("1");
 
 
 		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
@@ -101,7 +101,7 @@ TEST_CASE("EntityExtractor: test extract") {
 
 	}
 	SECTION("call somefunction") {
-		Token callNameToken = Token{ "somefunction", TokenType::NAME_OR_KEYWORD };
+		Token callNameToken = Token::createNameOrKeywordToken("somefunction");
 
 		shared_ptr<ASTNode> callNode(new CallASTNode(callNameToken));
 		callNode->setLineNumber(1);
