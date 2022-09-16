@@ -101,21 +101,28 @@ namespace {
 			6. print b;
 			7. x = y;
 		}
+
+		procedure noUses {
+			8. read y;
+		}
 	*/
 
 	// Initialise tokens
 	Token mainToken = Token::createNameOrKeywordToken("main");
 	Token testToken = Token::createNameOrKeywordToken("test");
+	Token noUsesToken = Token::createNameOrKeywordToken("noUses");
 	Token yToken = Token::createNameOrKeywordToken("y");
 	Token xToken = Token::createNameOrKeywordToken("x");
 	Token zToken = Token::createNameOrKeywordToken("z");
 	Token bToken = Token::createNameOrKeywordToken("b");
 	Token zeroToken = Token::createIntegerToken("0");
 	Token oneToken = Token::createIntegerToken("1");
+	Token readToken = Token::createNameOrKeywordToken("read");
 
 	// Initialise entities
 	Entity mainEntity = Entity::createProcedureEntity(mainToken);
 	Entity testEntity = Entity::createProcedureEntity(testToken);
+	Entity noUsesEntity = Entity::createProcedureEntity(noUsesToken);
 
 	Entity read1Entity = Entity::createReadEntity(1);
 	Entity y1Entity = Entity::createVariableEntity(1, yToken);
@@ -142,6 +149,9 @@ namespace {
 	Entity a7Entity = Entity::createAssignEntity(7);
 	Entity x7Entity = Entity::createVariableEntity(7, xToken);
 	Entity y7Entity = Entity::createVariableEntity(7, yToken);
+
+	Entity readEntity = Entity::createReadEntity(8);
+	Entity y8Entity = Entity::createVariableEntity(8, yToken);
 
 	// Initialise uses relationships
 	Relationship usesMainY2 = Relationship::createUsesRelationship(mainEntity, y2Entity);
@@ -185,9 +195,11 @@ namespace {
 	ClauseArgument variableArg = ClauseArgument::createVariableArg("v");
 	ClauseArgument mainLiteralArg = ClauseArgument::createStringLiteralArg("main");
 	ClauseArgument testLiteralArg = ClauseArgument::createStringLiteralArg("test");
+	ClauseArgument noUsesLiteralArg = ClauseArgument::createStringLiteralArg("noUses");
 	ClauseArgument xLiteralArg = ClauseArgument::createStringLiteralArg("x");
 	ClauseArgument yLiteralArg = ClauseArgument::createStringLiteralArg("y");
 	ClauseArgument aLiteralArg = ClauseArgument::createStringLiteralArg("a");
+	ClauseArgument bLiteralArg = ClauseArgument::createStringLiteralArg("b");
 };
 
 TEST_CASE("UsesPClause: test execute") {
@@ -210,9 +222,9 @@ TEST_CASE("UsesPClause: test execute") {
 	// ------ PKB ------ 
 	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
 
-	vector<Entity> entities{ mainEntity, testEntity, read1Entity, y1Entity, a2Entity, x2Entity, y2Entity, 
+	vector<Entity> entities{ mainEntity, testEntity, noUsesEntity, read1Entity, y1Entity, a2Entity, x2Entity, y2Entity,
 		whileEntity, xCondEntity, zeroConstEntity, print4Entity, z4Entity, a5Entity, x5LhsEntity, x5RhsEntity, 
-		oneConstEntity, print6Entity, b6Entity, a7Entity, x7Entity, y7Entity };
+		oneConstEntity, print6Entity, b6Entity, a7Entity, x7Entity, y7Entity, readEntity, y8Entity };
 
 	vector<Relationship> relationships{ usesMainY2,usesMainXCond, usesMainZ4, usesMainX5, usesTestB6, usesTestY7, usesA2Y2, 
 		usesW3XCond, usesW3Z4, usesW3X5, usesP4Z4, usesA5X5, usesP6B6, usesA7Y7 };
@@ -244,6 +256,34 @@ TEST_CASE("UsesPClause: test execute") {
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
+	SECTION("Procedure string literal - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = UsesPClause(noUsesLiteralArg, variableArg);
+		expectedClauseResult = RelationshipClauseResult(noUsesLiteralArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Variable string literal - non empty results") {
+		clause = UsesPClause(procedureArg, yLiteralArg);
+		expectedRetrievedFromPkb = { pqlUsesMainY, pqlUsesTestY };
+		expectedClauseResult = RelationshipClauseResult(procedureArg, yLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesPClause(procedureArg, xLiteralArg);
+		expectedRetrievedFromPkb = { pqlUsesMainX };
+		expectedClauseResult = RelationshipClauseResult(procedureArg, xLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Variable string literal - non empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = UsesPClause(procedureArg, aLiteralArg);
+		expectedClauseResult = RelationshipClauseResult(procedureArg, aLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
 	SECTION("Procedure and variable string literals - non empty results") {
 		clause = UsesPClause(mainLiteralArg, xLiteralArg);
 		expectedRetrievedFromPkb = { pqlUsesMainX };
@@ -253,6 +293,18 @@ TEST_CASE("UsesPClause: test execute") {
 		clause = UsesPClause(testLiteralArg, yLiteralArg);
 		expectedRetrievedFromPkb = { pqlUsesTestY };
 		expectedClauseResult = RelationshipClauseResult(testLiteralArg, yLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Procedure and variable string literals - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = UsesPClause(mainLiteralArg, bLiteralArg);
+		expectedClauseResult = RelationshipClauseResult(mainLiteralArg, bLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesPClause(testLiteralArg, xLiteralArg);
+		expectedClauseResult = RelationshipClauseResult(testLiteralArg, xLiteralArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 }
