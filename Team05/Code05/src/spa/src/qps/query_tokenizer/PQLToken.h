@@ -23,6 +23,9 @@ const string PATTERN = "pattern";
 // keywords for identifying Clause type
 const string PQL_MODIFIES = "Modifies";
 const string PQL_FOLLOWS = "Follows";
+const string PQL_USES = "Uses";
+const string PQL_PARENT = "Parent";
+const string PQL_STAR_MODIFIER = "*";
 
 // delimiters
 const string SEMICOLON = ";";
@@ -49,8 +52,6 @@ private:
      */
     PQLTokenType tokenType;
 
-public:
-
     /**
      *
      * @param tokenString
@@ -59,6 +60,24 @@ public:
     PQLToken(string tokenString, PQLTokenType tokenType) {
         this->tokenString = tokenString;
         this->tokenType = tokenType;
+    }
+
+public:
+    // Factory methods
+    static PQLToken createDelimiterToken(string tokenString) {
+        return PQLToken(tokenString, PQLTokenType::DELIMITER);
+    }
+
+    static PQLToken createIntegerToken(string tokenString) {
+        return PQLToken(tokenString, PQLTokenType::INTEGER);
+    }
+
+    static PQLToken createNameToken(string tokenString) {
+        return PQLToken(tokenString, PQLTokenType::NAME);
+    }
+
+    static PQLToken createOperatorToken(string tokenString) {
+        return PQLToken(tokenString, PQLTokenType::OPERATOR);
     }
 
     /**
@@ -145,6 +164,18 @@ public:
     // Clause Type indicators
     bool isModifies() {
         return isName() && tokenString == PQL_MODIFIES;
+    }
+
+    bool isUses() {
+        return isName() && tokenString == PQL_USES;
+    }
+
+    bool isParent() {
+        return isName() && tokenString == PQL_PARENT;
+    }
+
+    bool isStarModifier() {
+        return tokenString == PQL_STAR_MODIFIER;
     }
 };
 

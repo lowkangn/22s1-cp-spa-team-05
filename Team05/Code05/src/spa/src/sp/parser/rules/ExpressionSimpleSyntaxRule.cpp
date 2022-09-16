@@ -159,8 +159,10 @@ shared_ptr<ASTNode> ExpressionSimpleSyntaxRule::constructNode() {
 	shared_ptr<ASTNode> lhsNode = this->childRules[LHS_RULE]->constructNode(); 
 	shared_ptr<ASTNode> rhsNode = this->childRules[RHS_RULE]->constructNode();
 
-	shared_ptr<ASTNode> lhsBrackets(new BracketsASTNode(Token::getPlaceHolderToken()));
-	shared_ptr<ASTNode> rhsBrackets(new BracketsASTNode(Token::getPlaceHolderToken()));
+	Token lhsToken = Token::getPlaceHolderToken();
+	Token rhsToken = Token::getPlaceHolderToken();
+	shared_ptr<ASTNode> lhsBrackets(new BracketsASTNode(lhsToken));
+	shared_ptr<ASTNode> rhsBrackets(new BracketsASTNode(rhsToken));
 
 	if (this->lhsBrackets) {
 		lhsBrackets->addChild(lhsNode);

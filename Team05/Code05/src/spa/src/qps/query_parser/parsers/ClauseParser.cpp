@@ -6,7 +6,7 @@ ClauseArgument ClauseParser::parseSynonym() {
         throw PQLError("Synonym not declared: " + synonymToken.getTokenString());
     }
     this->tokens.pop_front();
-    return ClauseArgument(synonymToken.getTokenString(), declarations.at(synonymToken.getTokenString()));
+    return ClauseArgument::createArgument(synonymToken.getTokenString(), declarations.at(synonymToken.getTokenString()));
 }
 
 ClauseArgument ClauseParser::parseOneArgument() {
@@ -41,19 +41,19 @@ ClauseArgument ClauseParser::parseStringLiteral() {
 		throw PQLError("Expected closing quote");
 	}
 	this->tokens.pop_front();
-	return ClauseArgument(token.getTokenString(), ArgumentType::STRING_LITERAL);
+	return ClauseArgument::createStringLiteralArg(token.getTokenString());
 }
 
 ClauseArgument ClauseParser::parseStatementNumber() {
 	PQLToken stmtNumToken = this->tokens.front();
 	this->tokens.pop_front();
-	return ClauseArgument(stmtNumToken.getTokenString(), ArgumentType::LINE_NUMBER);
+	return ClauseArgument::createLineNumberArg(stmtNumToken.getTokenString());
 }
 
 ClauseArgument ClauseParser::parseWildcard() {
 	PQLToken wildCardToken = this->tokens.front();
 	this->tokens.pop_front();
-	return ClauseArgument(wildCardToken.getTokenString(), ArgumentType::WILDCARD);
+	return ClauseArgument::createWildcardArg();
 }
 
 void ClauseParser::consumeOpenBracket() {

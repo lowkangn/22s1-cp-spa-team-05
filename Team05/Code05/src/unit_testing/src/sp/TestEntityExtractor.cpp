@@ -8,7 +8,7 @@
 #include <sp/dataclasses/ast/CallASTNode.h>
 #include <sp/dataclasses/ast/WhileASTNode.h>
 #include <sp/dataclasses/ast/PrintASTNode.h>
-#include <sp/dataclasses/ast/VariableASTnode.h>
+#include <sp/dataclasses/ast/VariableASTNode.h>
 #include <sp/dataclasses/ast/ConstantValueASTNode.h>
 #include <sp/dataclasses/ast/BracketsASTNode.h>
 #include <sp/dataclasses/ast/AST.h>

@@ -17,12 +17,12 @@ public:
 	SuchThatClauseParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
 		ClauseParser(tokens, declarations) {};
 
-	/* Extracts the LHS and RHS arguments of the such that clause */
-	list<ClauseArgument> extractArguments();
-
 	/* Parses this parser's tokens into a Clause. (Template method:
 	   behaviour depends on implementation of virtual functions) */
 	shared_ptr<RelationshipClause> parse();
+
+	/* Extracts the LHS and RHS arguments of the such that clause */
+	list<ClauseArgument> extractArguments();
 
 	/* Returns true if the clauseTypeToken matches the clause that the Parser parses */
 	virtual bool isCorrectClauseType(PQLToken clauseTypeToken) = 0;

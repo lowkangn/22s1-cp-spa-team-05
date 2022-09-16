@@ -15,7 +15,7 @@ public:
 		return this->children[0];
 	}
 
-	bool isTerminal() {
+	bool isTerminal() override {
 		return false;
 	}
 

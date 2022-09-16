@@ -11,7 +11,7 @@ public:
 		this->type = ASTNodeType::EXPRESSION;
 	};
 
-	bool isTerminal() {
+	bool isTerminal() override {
 		return false;
 	}
 

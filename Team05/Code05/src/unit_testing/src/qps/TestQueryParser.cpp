@@ -1,6 +1,10 @@
 #include "catch.hpp"
 #include <qps/query/clause/ModifiesSClause.h>
 #include <qps/query/clause/ModifiesPClause.h>
+#include <qps/query/clause/ParentClause.h>
+#include <qps/query/clause/ParentTClause.h>
+#include <qps/query/clause/UsesSClause.h>
+#include <qps/query/clause/UsesPClause.h>
 #include <qps/query_parser/QueryParser.h>
 
 
@@ -21,15 +25,15 @@ TEST_CASE("QueryParser: test parseNoError") {
 
     SECTION("Select clause only") {
         list<PQLToken> tokens = list<PQLToken>{
-            PQLToken("procedure", PQLTokenType::NAME),
-            PQLToken("p", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER),
-            PQLToken("Select", PQLTokenType::NAME),
-            PQLToken("p", PQLTokenType::NAME)
+            PQLToken::createNameToken("procedure"),
+            PQLToken::createNameToken("p"),
+            PQLToken::createDelimiterToken(";"),
+            PQLToken::createNameToken("Select"),
+            PQLToken::createNameToken("p")
         };
 
         shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(
-                ClauseArgument("p", ArgumentType::PROCEDURE)));
+                ClauseArgument::createProcedureArg("p")));
         Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{});
 
         testParseNoError(tokens, query);
@@ -37,64 +41,64 @@ TEST_CASE("QueryParser: test parseNoError") {
 
     SECTION("Select and such that clause") {
         list<PQLToken> tokens = list<PQLToken>{
-            PQLToken("variable", PQLTokenType::NAME),
-            PQLToken("v", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER),
-            PQLToken("Select", PQLTokenType::NAME),
-            PQLToken("v1", PQLTokenType::NAME),
-            PQLToken("such", PQLTokenType::NAME),
-            PQLToken("that", PQLTokenType::NAME),
-            PQLToken("Modifies", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("1", PQLTokenType::INTEGER),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("v", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("variable"),
+            PQLToken::createNameToken("v"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("v1"),
+            PQLToken::createDelimiterToken(";"),
+            PQLToken::createNameToken("Select"),
+            PQLToken::createNameToken("v1"),
+            PQLToken::createNameToken("such"),
+            PQLToken::createNameToken("that"),
+            PQLToken::createNameToken("Modifies"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createIntegerToken("1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("v"),
+            PQLToken::createDelimiterToken(")")
         };
 
         shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(
-                ClauseArgument("v1", ArgumentType::VARIABLE)));
+                ClauseArgument::createVariableArg("v1")));
         shared_ptr<RelationshipClause> modifiesClause = shared_ptr<RelationshipClause>(new ModifiesSClause(
-                ClauseArgument("1", ArgumentType::LINE_NUMBER),
-                ClauseArgument("v", ArgumentType::VARIABLE)));
+                ClauseArgument::createLineNumberArg("1"),
+                ClauseArgument::createVariableArg("v")));
         Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause});
 
         testParseNoError(tokens, query);
 
         tokens = list<PQLToken>{
-            PQLToken("constant", PQLTokenType::NAME),
-            PQLToken("c", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER),
-            PQLToken("procedure", PQLTokenType::NAME),
-            PQLToken("p", PQLTokenType::NAME),
-            PQLToken(";", PQLTokenType::DELIMITER),
-            PQLToken("Select", PQLTokenType::NAME),
-            PQLToken("c", PQLTokenType::NAME),
-            PQLToken("such", PQLTokenType::NAME),
-            PQLToken("that", PQLTokenType::NAME),
-            PQLToken("Modifies", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("p", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("\"", PQLTokenType::DELIMITER),
-            PQLToken("x", PQLTokenType::NAME),
-            PQLToken("\"", PQLTokenType::DELIMITER),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("constant"),
+            PQLToken::createNameToken("c"),
+            PQLToken::createDelimiterToken(";"),
+            PQLToken::createNameToken("procedure"),
+            PQLToken::createNameToken("p"),
+            PQLToken::createDelimiterToken(";"),
+            PQLToken::createNameToken("Select"),
+            PQLToken::createNameToken("c"),
+            PQLToken::createNameToken("such"),
+            PQLToken::createNameToken("that"),
+            PQLToken::createNameToken("Modifies"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("p"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createDelimiterToken("\""),
+            PQLToken::createNameToken("x"),
+            PQLToken::createDelimiterToken("\""),
+            PQLToken::createDelimiterToken(")")
         };
         selectClause = shared_ptr<SelectClause>(new SelectClause(
-                ClauseArgument("c", ArgumentType::CONSTANT)));
+                ClauseArgument::createConstantArg("c")));
         modifiesClause = shared_ptr<RelationshipClause>(new ModifiesPClause(
-                ClauseArgument("p", ArgumentType::PROCEDURE),
-                ClauseArgument("x", ArgumentType::STRING_LITERAL)));
+                ClauseArgument::createProcedureArg("p"),
+                ClauseArgument::createStringLiteralArg("x")));
         query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause});
 
         testParseNoError(tokens, query);
     }
 }
 
-TEST_CASE("QueryParser: test parseConstraints") {
+TEST_CASE("QueryParser: test parseConstraints Modifies") {
     auto testParseNoError = [](list<PQLToken> tokens, 
         unordered_map<string, ArgumentType> declarations,
         list<shared_ptr<RelationshipClause>> expected) {
@@ -111,7 +115,7 @@ TEST_CASE("QueryParser: test parseConstraints") {
                     shared_ptr<RelationshipClause> expectedPtr = expected.front();
                     shared_ptr<ModifiesSClause> expectedClause = dynamic_pointer_cast<ModifiesSClause>(actualPtr);
 
-                    isEqual = isEqual && (*expectedClause.get()).equals(actualPtr.get());
+                    isEqual = isEqual && (*expectedClause.get()).equals(actualPtr);
                     actual.pop_front();
                     expected.pop_front();
                 }
@@ -122,26 +126,133 @@ TEST_CASE("QueryParser: test parseConstraints") {
     };
 
     shared_ptr<RelationshipClause> modifiesClause = shared_ptr<RelationshipClause>(new ModifiesPClause(
-        ClauseArgument("s1", ArgumentType::STMT),
-        ClauseArgument("v1", ArgumentType::VARIABLE)));
+        ClauseArgument::createStmtArg("s1"),
+        ClauseArgument::createVariableArg("v1")));
 
     list<PQLToken> tokens = list<PQLToken>{
-        PQLToken("such", PQLTokenType::NAME),
-        PQLToken("that", PQLTokenType::NAME),
-        PQLToken("Modifies", PQLTokenType::NAME),
-        PQLToken("(", PQLTokenType::DELIMITER),
-        PQLToken("s1", PQLTokenType::NAME),
-        PQLToken(",", PQLTokenType::DELIMITER),
-        PQLToken("v1", PQLTokenType::NAME),
-        PQLToken(")", PQLTokenType::DELIMITER)
+        PQLToken::createNameToken("such"),
+        PQLToken::createNameToken("that"),
+        PQLToken::createNameToken("Modifies"),
+        PQLToken::createDelimiterToken("("),
+        PQLToken::createNameToken("s1"),
+        PQLToken::createDelimiterToken(","),
+        PQLToken::createNameToken("v1"),
+        PQLToken::createDelimiterToken(")")
     };
 
     unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
-        {"v1", ArgumentType::VARIABLE},
+        { "v1", ArgumentType::VARIABLE },
         { "s1", ArgumentType::STMT }
     };
 
     list<shared_ptr<RelationshipClause>> expected;
     expected.emplace_back(modifiesClause);
     testParseNoError(tokens, declarations, expected);
+
+}
+
+TEST_CASE("QueryParser: test parseConstraints Parent") {
+    auto testParseNoError = [](list<PQLToken> tokens,
+        unordered_map<string, ArgumentType> declarations,
+        list<shared_ptr<RelationshipClause>> expected) {
+            // given
+            QueryParser parser = QueryParser(tokens);
+
+            // when
+            list<shared_ptr<RelationshipClause>> actual = parser.parseConstraints(declarations);
+            bool isEqual = actual.size() == expected.size();
+            if (isEqual) {
+                while (!actual.empty()) {
+                    //temporarily use casting to check equality for now
+                    shared_ptr<RelationshipClause> actualPtr = actual.front();
+                    shared_ptr<RelationshipClause> expectedPtr = expected.front();
+                    shared_ptr<ParentTClause> expectedClause = dynamic_pointer_cast<ParentTClause>(actualPtr);
+
+                    isEqual = isEqual && (*expectedClause.get()).equals(actualPtr);
+                    actual.pop_front();
+                    expected.pop_front();
+                }
+            }
+
+            // then
+            REQUIRE(isEqual);
+    };
+
+    shared_ptr<RelationshipClause> parentTClause = shared_ptr<RelationshipClause>(new ParentTClause(
+        ClauseArgument::createStmtArg("s1"),
+        ClauseArgument::createLineNumberArg("5")));
+
+    list<PQLToken> tokens = list<PQLToken>{
+        PQLToken::createNameToken("such"),
+        PQLToken::createNameToken("that"),
+        PQLToken::createNameToken("Parent"),
+        PQLToken::createOperatorToken("*"),
+        PQLToken::createDelimiterToken("("),
+        PQLToken::createNameToken("s1"),
+        PQLToken::createDelimiterToken(","),
+        PQLToken::createIntegerToken("5"),
+        PQLToken::createDelimiterToken(")")
+    };
+
+    unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
+        { "v1", ArgumentType::VARIABLE },
+        { "s1", ArgumentType::STMT }
+    };
+
+    list<shared_ptr<RelationshipClause>> expected;
+    expected.emplace_back(parentTClause);
+    testParseNoError(tokens, declarations, expected);
+}
+
+TEST_CASE("QueryParser: test parseConstraints Uses") {
+    auto testParseNoError = [](list<PQLToken> tokens,
+        unordered_map<string, ArgumentType> declarations,
+        list<shared_ptr<RelationshipClause>> expected) {
+            // given
+            QueryParser parser = QueryParser(tokens);
+
+            // when
+            list<shared_ptr<RelationshipClause>> actual = parser.parseConstraints(declarations);
+            bool isEqual = actual.size() == expected.size();
+            if (isEqual) {
+                while (!actual.empty()) {
+                    //temporarily use casting to check equality for now
+                    shared_ptr<RelationshipClause> actualPtr = actual.front();
+                    shared_ptr<RelationshipClause> expectedPtr = expected.front();
+                    shared_ptr<UsesSClause> expectedClause = dynamic_pointer_cast<UsesSClause>(actualPtr);
+
+                    isEqual = isEqual && (*expectedClause.get()).equals(actualPtr);
+                    actual.pop_front();
+                    expected.pop_front();
+                }
+            }
+
+            // then
+            REQUIRE(isEqual);
+    };
+
+    shared_ptr<RelationshipClause> usesSClause = shared_ptr<RelationshipClause>(new UsesSClause(
+        ClauseArgument::createStmtArg("s1"),
+        ClauseArgument::createVariableArg("v1")));
+
+    list<PQLToken> tokens = list<PQLToken>{
+        PQLToken::createNameToken("such"),
+        PQLToken::createNameToken("that"),
+        PQLToken::createNameToken("Uses"),
+        PQLToken::createDelimiterToken("("),
+        PQLToken::createNameToken("s1"),
+        PQLToken::createDelimiterToken(","),
+        PQLToken::createNameToken("v1"),
+        PQLToken::createDelimiterToken(")")
+    };
+
+    unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
+        { "v1", ArgumentType::VARIABLE },
+        { "s1", ArgumentType::STMT }
+    };
+
+    list<shared_ptr<RelationshipClause>> expected;
+    expected.emplace_back(usesSClause);
+    testParseNoError(tokens, declarations, expected);
+
 }

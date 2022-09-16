@@ -10,8 +10,11 @@ set<string> QueryEvaluator::combine(shared_ptr<EntityClauseResult> entitiesResul
 									list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers) {
 
     EntityClauseResult entitiesResult = *entitiesResultPointer;
-    list<RelationshipClauseResult> relationshipsResults =
-			this->dereferenceRelationshipsResultPointers(relationshipsResultPointers);
+
+	list<RelationshipClauseResult> relationshipsResults;
+	for (shared_ptr<RelationshipClauseResult> relationshipsResultPointer : relationshipsResultPointers) {
+		relationshipsResults.push_back(*relationshipsResultPointer);
+	}
 
     // If result from SelectClause returns no entries, return empty set
     if (entitiesResult.isEmpty()) {
@@ -25,98 +28,270 @@ set<string> QueryEvaluator::combine(shared_ptr<EntityClauseResult> entitiesResul
         }
     }
 
-    set<PQLEntity> entitiesToReturn;
+	// Filter results to get set of entities that meet all constraints
+    vector<PQLEntity> entitiesToReturn = filterEntities(entitiesResult, relationshipsResults);
 
-    list<RelationshipClauseResult>::iterator relationshipsResultIter = relationshipsResults.begin();
-    for (; relationshipsResultIter != relationshipsResults.end(); relationshipsResultIter++) {
-        // Check if either of its ClauseArguments match the EntityClauseResult's ClauseArgument
-        RelationshipArgument argumentFound = this->findDesiredArgument(entitiesResult.getArg(),
-                                                                 *relationshipsResultIter);
+	// Convert set of entities into set of entity strings
+	set<string> entityStringsToReturn;
 
-        // If neither ClauseArgument matches, skip this RelationshipClauseResult
-        if (argumentFound == RelationshipArgument::NONE) {
-            continue;
-        } else {
-            // Extract entities corresponding to the matching ClauseArgument from the RelationshipClauseResult
-            set<PQLEntity> entitiesToIntersect = this->extractEntitySet(
-					argumentFound, relationshipsResultIter->getRelationships());
-
-            // Intersect sets into entitiesToReturn
-            if (relationshipsResultIter == relationshipsResults.begin()) {
-                entitiesToReturn = entitiesToIntersect;
-            } else {
-               entitiesToReturn = this->intersectSets(entitiesToReturn, entitiesToIntersect);
-
-               // If intersection returns empty set, no entities meet all constraints so return empty set
-               if (entitiesToReturn.empty()) {
-                   return set<string>();
-               }
-            }
-        }
-    }
-
-    // If at this stage entitiesToReturn is empty, means that all RelationshipClauseResults were skipped
-    // Hence, entitiesToReturn is just the list of entities in entitiesResult
-    if (entitiesToReturn.empty()) {
-        vector<PQLEntity> selectedEntities = entitiesResult.getEntities();
-        for (PQLEntity entity : selectedEntities) {
-            entitiesToReturn.insert(entity);
-        }
-    }
-
-    // Convert set of entities into set of entity strings
-    set<string> entityStringsToReturn;
-
-    for (PQLEntity entity : entitiesToReturn) {
-        entityStringsToReturn.insert(entity.toString());
-    }
-
-    return entityStringsToReturn;
-}
-
-RelationshipArgument QueryEvaluator::findDesiredArgument(ClauseArgument desiredArg,
-										 RelationshipClauseResult relationshipResultToCheck) {
-	if (desiredArg == relationshipResultToCheck.getFirstArg()) {
-		return RelationshipArgument::ARG1;
-	} else if (desiredArg == relationshipResultToCheck.getSecondArg()) {
-		return RelationshipArgument::ARG2;
-	} else {
-		return RelationshipArgument::NONE;
-	}
-}
-
-list<RelationshipClauseResult> QueryEvaluator::dereferenceRelationshipsResultPointers(
-		list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers) {
-	list<RelationshipClauseResult> relationshipsToReturn;
-	for (shared_ptr<RelationshipClauseResult> relationshipsResultPointer : relationshipsResultPointers) {
-		relationshipsToReturn.push_back(*relationshipsResultPointer);
-	}
-	return relationshipsToReturn;
-}
-
-set<PQLEntity> QueryEvaluator::extractEntitySet(RelationshipArgument argToExtract,
-												vector<PQLRelationship> relationships) {
-	if (argToExtract == RelationshipArgument::NONE) {
-		throw PQLError("Attempted to extract PQLEntity set despite no matching declaration");
+	for (PQLEntity entity : entitiesToReturn) {
+		entityStringsToReturn.insert(entity.toString());
 	}
 
-	set<PQLEntity> setToReturn;
-	if (argToExtract == RelationshipArgument::ARG1) {
-		for (PQLRelationship relationship : relationships) {
-			setToReturn.insert(relationship.getFirstEntity());
-		}
-	} else {
-		for (PQLRelationship relationship : relationships) {
-			setToReturn.insert(relationship.getSecondEntity());
+	return entityStringsToReturn;
+}
+
+vector<PQLEntity> QueryEvaluator::filterEntities(EntityClauseResult entitiesResult,
+											list<RelationshipClauseResult> relationshipsResults) {
+
+	shared_ptr<vector<vector<PQLEntity>>> combinedTable =
+			shared_ptr<vector<vector<PQLEntity>>>(new vector<vector<PQLEntity>>());
+
+	// vector to keep track of arguments already in combinedTable
+	shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable =
+			shared_ptr<vector<ClauseArgument>>(new vector<ClauseArgument>());
+
+	bool matchingClauseFound = false;
+
+	// Find constraint clause with a clause argument matching select, initialise currentTable
+	for (RelationshipClauseResult relationshipsResult : relationshipsResults) {
+		if (entitiesResult.getArg() == relationshipsResult.getFirstArg() || entitiesResult.getArg() == relationshipsResult.getSecondArg()) {
+
+			// Key or value does not matter at this point, arbitrarily set first column to be key
+			vector<vector<PQLEntity>> tableToAdd = this->getTable(relationshipsResult);
+			*combinedTable = tableToAdd;
+
+			// Add clause arguments from this RelationshipClauseResult to vector for keeping track of columns in combined table
+			argumentsInCombinedTable->push_back(relationshipsResult.getFirstArg());
+			argumentsInCombinedTable->push_back(relationshipsResult.getSecondArg());
+
+			// Remove since it has been added to the combined table
+			relationshipsResults.remove(relationshipsResult);
+
+			matchingClauseFound = true;
+			break;
 		}
 	}
-	return setToReturn;
+
+	// Join tables
+	bool hasEntries = combinedTableJoin(combinedTable, argumentsInCombinedTable, relationshipsResults);
+
+	// If at any point a table join returns no entries, return no entries
+	if (!hasEntries) {
+		return vector<PQLEntity>{};
+	}
+
+	// If combinedTable is still empty, means no clause has matching arguments but joining all clauses evaluates to true: return select entity list
+	if (!matchingClauseFound) {
+		return entitiesResult.getEntities();
+	}
+
+	// From combined table, pull out column of entities that match select clause argument
+	vector<PQLEntity> entitiesToReturn;
+
+	// In the combined table, find the column with clause argument matching the select clause argument
+	for (int i = 0; i < argumentsInCombinedTable->size(); i++) {
+		if (entitiesResult.hasArg(argumentsInCombinedTable->at(i))) {
+			// For each row, get the PQLEntity in that column and add to entitiesToReturn
+			for (vector<PQLEntity> row : *combinedTable) {
+				entitiesToReturn.push_back(row[i]);
+			}
+			break;
+		}
+	}
+
+	return entitiesToReturn;
 }
 
-set<PQLEntity> QueryEvaluator::intersectSets(set<PQLEntity> firstSet, set<PQLEntity> secondSet) {
-	set<PQLEntity> combined;
-	set_intersection(firstSet.begin(), firstSet.end(),
-					 secondSet.begin(), secondSet.end(),
-					 inserter(combined, combined.begin()));
-	return combined;
+bool QueryEvaluator::combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> combinedTable,
+									   shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable,
+									   list<RelationshipClauseResult> relationshipsResults) {
+
+	list<RelationshipClauseResult> resultsLeft = relationshipsResults;
+	while (!resultsLeft.empty()) {
+
+		shared_ptr<list<RelationshipClauseResult>> resultsSkipped = make_shared<list<RelationshipClauseResult>>();
+
+		list<RelationshipClauseResult>::iterator resultIter = resultsLeft.begin();
+		for (; resultIter != resultsLeft.end(); resultIter++) {
+
+			bool doesTableHaveEntries = this->createNewTable(combinedTable, argumentsInCombinedTable, resultsSkipped, *resultIter);
+			if (!doesTableHaveEntries) {
+				return false;
+			}
+
+		}
+
+		// If with one iteration of the for loop, the remaining results have not been joined with combinedTable, treat them as boolean
+		if (resultsLeft == *resultsSkipped) {
+			// If there is one result left that cannot be joined with combinedTable, it can be treated as true and ignored
+			// Hence, combinedTable is the final table, return true
+			if (resultsLeft.size() == 1) {
+				return true;
+			}
+			// If there are two or more results left, there is a possibility that joining these could return no entries
+			// Hence, we recurse and join these tables with combineTableJoin
+			else {
+				// Data in these fields are not needed, only the end result boolean of the recursive call
+				shared_ptr<vector<vector<PQLEntity>>> innerCombinedTable =
+						shared_ptr<vector<vector<PQLEntity>>>(new vector<vector<PQLEntity>>());
+				shared_ptr<vector<ClauseArgument>> innerArguments =
+						shared_ptr<vector<ClauseArgument>>(new vector<ClauseArgument>());
+				return combinedTableJoin(innerCombinedTable, innerArguments, resultsLeft);
+			}
+		}
+
+		// If not, repeat
+		resultsLeft = *resultsSkipped;
+	}
+
+	// If all results are joined, combinedTable is the final table, return true;
+	return true;
 }
+
+vector<vector<PQLEntity>> QueryEvaluator::getTable(RelationshipClauseResult relationshipsResult) {
+
+	return this->getKeyValueTable(relationshipsResult, KeyColumn::FIRST_COLUMN_KEY);
+}
+
+vector<vector<PQLEntity>> QueryEvaluator::getKeyValueTable(RelationshipClauseResult relationshipsResult, KeyColumn keyColumn) {
+
+	vector<PQLRelationship> relationships = relationshipsResult.getRelationships();
+	vector<vector<PQLEntity>> output;
+
+	// For output table, standardise first column as key, second column as value
+	for (PQLRelationship relationship : relationships) {
+		if (keyColumn == KeyColumn::FIRST_COLUMN_KEY) {
+			output.push_back(vector<PQLEntity>{relationship.getFirstEntity(), relationship.getSecondEntity()});
+		} else if (keyColumn == KeyColumn::SECOND_COLUMN_KEY) {
+			output.push_back(vector<PQLEntity>{relationship.getSecondEntity(), relationship.getFirstEntity()});
+		} else {
+			throw PQLError("getKeyValueTable: invalid keyColumn");
+		}
+	}
+
+	return output;
+}
+
+int QueryEvaluator::findArgumentIndex(vector<ClauseArgument> argumentsInTable, ClauseArgument argToFind) {
+	int argIndex = -1;
+	for (int i = 0; i < argumentsInTable.size(); i++) {
+		if (argumentsInTable[i] == argToFind) {
+			argIndex = i;
+			break;
+		}
+	}
+	return argIndex;
+}
+
+vector<pair<PQLEntity, vector<PQLEntity>>> QueryEvaluator::convertToKeyValuePairs(vector<vector<PQLEntity>> table, int key) {
+	if (table.empty()) {
+		throw PQLError("convertToKeyValuePairs: Cannot convert empty table");
+	}
+	if (key < 0 || key >= table[0].size()) {
+		throw PQLError("convertToKeyValuePairs: Key provided out of range of table columns");
+	}
+	vector<pair<PQLEntity, vector<PQLEntity>>> keyValuePairs;
+	for (vector<PQLEntity> row : table) {
+		PQLEntity keyEntity = row[key];
+		keyValuePairs.emplace_back(keyEntity, row);
+	}
+	return keyValuePairs;
+}
+
+vector<pair<vector<PQLEntity>, vector<PQLEntity>>> QueryEvaluator::convertToKeyValuePairs(vector<vector<PQLEntity>> table, int firstKey, int secondKey) {
+	if (table.empty()) {
+		throw PQLError("convertToKeyValuePairs: Cannot convert empty table");
+	}
+	if (firstKey < 0 || firstKey >= table[0].size()) {
+		throw PQLError("convertToKeyValuePairs: First key provided out of range of table columns");
+	}
+	if (secondKey < 0 || secondKey >= table[0].size()) {
+		throw PQLError("convertToKeyValuePairs: Second key provided out of range of table columns");
+	}
+	if (firstKey == secondKey) {
+		throw PQLError("convertToKeyValuePairs: Both keys have the same value");
+	}
+	vector<pair<vector<PQLEntity>, vector<PQLEntity>>> keyValuePairs;
+	for (vector<PQLEntity> row : table) {
+		PQLEntity firstKeyEntity = row[firstKey];
+		PQLEntity secondKeyEntity = row[secondKey];
+		vector<PQLEntity> keyEntities = {firstKeyEntity, secondKeyEntity};
+		keyValuePairs.emplace_back(keyEntities, row);
+	}
+	return keyValuePairs;
+}
+
+vector<vector<PQLEntity>> QueryEvaluator::pairKeyTableJoin(
+		vector<pair<vector<PQLEntity>, vector<PQLEntity>>> combinedTableKeyValuePairs,
+		vector<vector<PQLEntity>> tableToMergeKeyValuePairs) {
+
+	if (combinedTableKeyValuePairs.empty()) {
+		throw PQLError("pairKeyTableJoin: Cannot convert empty combinedTable");
+	}
+	if (tableToMergeKeyValuePairs.empty()) {
+		throw PQLError("pairKeyTableJoin: Cannot convert empty tableToMerge");
+	}
+
+	// Create multimap
+	multimap<vector<PQLEntity>, vector<PQLEntity>> combinedTableMap;
+
+	// Add combinedTable key-value pairs to multimap
+	for (pair<vector<PQLEntity>, vector<PQLEntity>> keyValuePair : combinedTableKeyValuePairs) {
+		combinedTableMap.insert(keyValuePair);
+	}
+
+	// Create output table
+	vector<vector<PQLEntity>> output;
+
+	for (vector<PQLEntity> row : tableToMergeKeyValuePairs) {
+		// For each key in the tableToMerge, find set of values with this same key in combinedTable (multimap uses a range)
+		pair<multimap<vector<PQLEntity>, vector<PQLEntity>>::iterator, multimap<vector<PQLEntity>, vector<PQLEntity>>::iterator> range;
+		range = combinedTableMap.equal_range(row);
+
+		// Each value in range is an entry in new table, so add to new table
+		for (multimap<vector<PQLEntity>, vector<PQLEntity>>::iterator mapIter = range.first; mapIter != range.second; mapIter++) {
+			vector<PQLEntity> rowToAdd = mapIter->second;
+			output.push_back(rowToAdd);
+		}
+	}
+	return output;
+}
+
+vector<vector<PQLEntity>> QueryEvaluator::singleKeyTableJoin(
+		vector<pair<PQLEntity, vector<PQLEntity>>> combinedTableKeyValuePairs,
+		vector<vector<PQLEntity>> tableToMergeKeyValuePairs) {
+
+	if (combinedTableKeyValuePairs.empty()) {
+		throw PQLError("singleKeyTableJoin: Cannot convert empty combinedTable");
+	}
+	if (tableToMergeKeyValuePairs.empty()) {
+		throw PQLError("singleKeyTableJoin: Cannot convert empty tableToMerge");
+	}
+
+	// Create multimap
+	multimap<PQLEntity, vector<PQLEntity>> combinedTableMap;
+
+	// Add combinedTable key-value pairs to multimap
+	for (pair<PQLEntity, vector<PQLEntity>> keyValuePair : combinedTableKeyValuePairs) {
+		combinedTableMap.insert(keyValuePair);
+	}
+
+	// Create output table
+	vector<vector<PQLEntity>> output;
+
+	for (vector<PQLEntity> row : tableToMergeKeyValuePairs) {
+		// For each key in the tableToMerge, find set of values with this same key in combinedTable (multimap uses a range)
+		pair<multimap<PQLEntity, vector<PQLEntity>>::iterator, multimap<PQLEntity, vector<PQLEntity>>::iterator> range;
+		range = combinedTableMap.equal_range(row[0]);
+
+		// Each value in range combined with corresponding value in tableToMerge is an entry in new table, so add to new table
+		for (multimap<PQLEntity, vector<PQLEntity>>::iterator mapIter = range.first; mapIter != range.second; mapIter++) {
+			vector<PQLEntity> rowToAdd = mapIter->second;
+			rowToAdd.push_back(row[1]);
+			output.push_back(rowToAdd);
+		}
+	}
+	return output;
+}
+
