@@ -99,3 +99,33 @@ TEST_CASE("PkbEntityTable::getAll works correctly") {
 	};
 
 }
+
+//TEST_CASE("PkbEntityTable throws when we try to add duplicate items") {
+//	auto test = [](vector<shared_ptr<PkbEntity>> alreadyInTable, shared_ptr<PkbEntity> toAdd) {
+//		// given
+//		PkbEntityTable table;
+//		for (shared_ptr<PkbEntity> e : alreadyInTable) {
+//			// add
+//			table.add(e);
+//		}
+//		// when & then
+//		REQUIRE_THROWS_AS(table.add(toAdd), PkbException);
+//
+//	};
+//
+//	SECTION("One entry per entity type") {
+//		vector<shared_ptr<PkbEntity>> alreadyInTable = {
+//			shared_ptr<PkbEntity>(new PkbProcedureEntity("procedure")),
+//			shared_ptr<PkbEntity>(new PkbVariableEntity("variable")),
+//			shared_ptr<PkbEntity>(PkbStatementEntity::createAssignStatementEntity(1)),
+//			shared_ptr<PkbEntity>(PkbStatementEntity::createCallStatementEntity(2)),
+//			shared_ptr<PkbEntity>(PkbStatementEntity::createIfStatementEntity(3)),
+//			shared_ptr<PkbEntity>(PkbStatementEntity::createPrintStatementEntity(4)),
+//			shared_ptr<PkbEntity>(PkbStatementEntity::createReadStatementEntity(5)),
+//			shared_ptr<PkbEntity>(PkbStatementEntity::createWhileStatementEntity(6)),
+//			shared_ptr<PkbEntity>(new PkbConstantEntity(1))
+//		};
+//		shared_ptr<PkbEntity> toAdd = shared_ptr<PkbEntity>(PkbStatementEntity::createAssignStatementEntity(1));
+//		test(alreadyInTable, toAdd);
+//	};
+//}
