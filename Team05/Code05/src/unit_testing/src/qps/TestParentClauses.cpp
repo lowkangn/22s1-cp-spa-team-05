@@ -50,7 +50,7 @@ TEST_CASE("ParentClause: test equals") {
 	}
 }
 
-TEST_CASE("ParentStarClause: test equals") {
+TEST_CASE("ParentTClause: test equals") {
 	auto testEquals = [](const RelationshipClause* other, bool expected) {
 		// given
 		ClauseArgument lhs = ClauseArgument("s1", ArgumentType::STMT);
@@ -94,7 +94,21 @@ TEST_CASE("ParentStarClause: test equals") {
 // =============== INTEGRATION TESTS ====================
 // this prevents other files from using these variables
 namespace {
-	//initialise entities
+	/* Corresponds to the following SIMPLE source (with line numbers)
+		procedure main {
+	1:		while (x > 1) {
+	2:			y = x + 1;
+	3:			if (x > 1) then {
+	4:				read x;
+				} else {
+	5:				read y;
+				}
+			}
+	6:		print x;
+		}
+	*/
+
+	// Initialise statement entities
 	Entity w1 = Entity::createWhileEntity(1);
 	Entity a1 = Entity::createAssignEntity(2);
 	Entity i1 = Entity::createIfEntity(3);
@@ -102,13 +116,19 @@ namespace {
 	Entity r2 = Entity::createReadEntity(5);
 	Entity p1 = Entity::createPrintEntity(6);
 
-	//initialise parent relationships
+	// Initialise some additional non-statement entities to check they are not returned
+	Entity main = Entity::createProcedureEntity(Token::createNameOrKeywordToken("main"));
+	Entity x = Entity::createVariableEntity(1, Token::createNameOrKeywordToken("x"));
+	Entity y = Entity::createVariableEntity(2, Token::createNameOrKeywordToken("y"));
+	Entity oneEntity = Entity::createConstantEntity(3, Token::createIntegerToken("1"));
+
+	// Initialise parent relationships
 	Relationship parentW1A1 = Relationship::createParentRelationship(w1, a1);
 	Relationship parentW1I1 = Relationship::createParentRelationship(w1, i1);
 	Relationship parentI1R1 = Relationship::createParentRelationship(i1, r1);
 	Relationship parentI1R2 = Relationship::createParentRelationship(i1, r2);
 
-	//initialise parentStar relationships
+	// Initialise parentStar relationships
 	Relationship parentStarW1A1 = Relationship::createParentTRelationship(w1, a1);
 	Relationship parentStarW1I1 = Relationship::createParentTRelationship(w1, i1);
 	Relationship parentStarI1R1 = Relationship::createParentTRelationship(i1, r1);
@@ -117,7 +137,7 @@ namespace {
 	Relationship parentStarW1R2 = Relationship::createParentTRelationship(w1, r2);
 
 
-	// Initialise corresponding PQLEntities and PQLRleationships
+	// Initialise corresponding PQLEntities and PQLRelationships
 	PQLEntity pqlW1 = PQLEntity::generateStatement(1);
 	PQLEntity pqlA1 = PQLEntity::generateStatement(2);
 	PQLEntity pqlI1 = PQLEntity::generateStatement(3);
@@ -170,7 +190,7 @@ TEST_CASE("ParentClause: test execute") {
 
 	// ------ PKB ------ 
 	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
-	vector<Entity> entities{ w1, a1, i1, r1, r2, p1 };
+	vector<Entity> entities{ w1, a1, i1, r1, r2, p1, main, x, y, oneEntity };
 	vector<Relationship> relationships{ parentW1A1, parentW1I1, parentI1R1, parentI1R2,
 		parentStarW1A1, parentStarW1I1, parentStarI1R1, parentStarI1R2, parentStarW1R1, parentStarW1R2 };
 	pkb -> addEntities(entities);
@@ -239,7 +259,7 @@ TEST_CASE("ParentClause: test execute") {
 
 }
 
-TEST_CASE("ParentStarClause: test execute") {
+TEST_CASE("ParentTClause: test execute") {
 	auto testExecute = [](ParentTClause parentTClause,
 		RelationshipClauseResult expectedClauseResult,
 		shared_ptr<PKB> pkb) {
@@ -257,7 +277,7 @@ TEST_CASE("ParentStarClause: test execute") {
 
 	// ------ PKB ------ 
 	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
-	vector<Entity> entities{ w1, a1, i1, r1, r2, p1 };
+	vector<Entity> entities{ w1, a1, i1, r1, r2, p1, main, x, y, oneEntity };
 	vector<Relationship> relationships{
 		parentW1A1,
 		parentW1I1,
