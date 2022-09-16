@@ -20,6 +20,98 @@ enum class KeyColumn {
 
 class QueryEvaluator {
 
+private:
+	bool createNewTable(shared_ptr<vector<vector<PQLEntity>>> combinedTable,
+						shared_ptr<vector<ClauseArgument>> argumentsInCombinedTable,
+						shared_ptr<list<RelationshipClauseResult>> resultsSkipped,
+						RelationshipClauseResult relationshipsResult) {
+
+		if (combinedTable->empty()) {
+			*combinedTable = this->getTable(relationshipsResult);
+			argumentsInCombinedTable->push_back(relationshipsResult.getFirstArg());
+			argumentsInCombinedTable->push_back(relationshipsResult.getSecondArg());
+			return true;
+		}
+
+		// If equals -1, means ClauseArguments not yet in combined table
+		int firstArgIndex = this->findArgumentIndex(*argumentsInCombinedTable, relationshipsResult.getFirstArg());
+		int secondArgIndex = this->findArgumentIndex(*argumentsInCombinedTable, relationshipsResult.getSecondArg());
+
+		// Neither clause argument already in currentTable so cannot join, so skip
+		if (firstArgIndex == -1 && secondArgIndex == -1) {
+			resultsSkipped->push_back(relationshipsResult);
+			return true;
+		}
+
+		// Create new table
+		vector<vector<PQLEntity>> newCombinedTable;
+
+		// Both clause arguments already in table, table join on these common clause arguments
+		if (firstArgIndex != -1 && secondArgIndex != -1) {
+			newCombinedTable = this->makeKeyValuePairsAndJoin(combinedTable, relationshipsResult, firstArgIndex, secondArgIndex);
+
+			// If at any point a join returns no entries, the whole query has no solutions, so return false
+			if (newCombinedTable.empty()) {
+				return false;
+			}
+		}
+
+			// First clause argument already in table, table join on this common clause argument
+		else if (firstArgIndex != -1) {
+			newCombinedTable = makeKeyValuePairsAndJoin(combinedTable, relationshipsResult, firstArgIndex,
+														KeyColumn::FIRST_COLUMN_KEY);
+
+			// If at any point a join returns no entries, the whole query has no solutions, so return false
+			if (newCombinedTable.empty()) {
+				return false;
+			}
+
+			argumentsInCombinedTable->push_back(relationshipsResult.getSecondArg());
+		}
+
+			// Second clause argument already in table, table join on this common clause argument
+		else {
+			newCombinedTable = makeKeyValuePairsAndJoin(combinedTable, relationshipsResult, secondArgIndex,
+														KeyColumn::SECOND_COLUMN_KEY);
+
+			// If at any point a join returns no entries, the whole query has no solutions, so return false
+			if (newCombinedTable.empty()) {
+				return false;
+			}
+
+			argumentsInCombinedTable->push_back(relationshipsResult.getFirstArg());
+		}
+
+		// Set new table
+		*combinedTable = newCombinedTable;
+		return true;
+	}
+
+	vector<vector<PQLEntity>> makeKeyValuePairsAndJoin(shared_ptr<vector<vector<PQLEntity>>> combinedTable,
+													   RelationshipClauseResult relationshipsResult,
+													   int firstArgIndex, int secondArgIndex) {
+		vector<pair<vector<PQLEntity>, vector<PQLEntity>>> combinedTableKeyValuePairs = this->convertToKeyValuePairs(
+				*combinedTable, firstArgIndex, secondArgIndex);
+
+		vector<vector<PQLEntity>> tableToMergeKeyValuePairs = this->getTable(relationshipsResult);
+
+		return this->pairKeyTableJoin(combinedTableKeyValuePairs, tableToMergeKeyValuePairs);
+	}
+
+	vector<vector<PQLEntity>> makeKeyValuePairsAndJoin(shared_ptr<vector<vector<PQLEntity>>> combinedTable,
+													   RelationshipClauseResult relationshipsResult,
+													   int argIndex, KeyColumn keyColumn) {
+
+		vector<pair<PQLEntity, vector<PQLEntity>>> combinedTableKeyValuePairs = this->convertToKeyValuePairs(
+				*combinedTable, argIndex);
+
+		vector<vector<PQLEntity>> tableToMergeKeyValuePairs = this->getKeyValueTable(relationshipsResult, keyColumn);
+
+		return this->singleKeyTableJoin(combinedTableKeyValuePairs, tableToMergeKeyValuePairs);
+	}
+
+
+
 public:
     QueryEvaluator() {};
 

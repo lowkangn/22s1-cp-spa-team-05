@@ -89,8 +89,10 @@ vector<PQLEntity> QueryEvaluator::filterEntities(EntityClauseResult entitiesResu
 	// From combined table, pull out column of entities that match select clause argument
 	vector<PQLEntity> entitiesToReturn;
 
+	// In the combined table, find the column with clause argument matching the select clause argument
 	for (int i = 0; i < argumentsInCombinedTable->size(); i++) {
-		if ((*argumentsInCombinedTable)[i] == entitiesResult.getArg()) {
+		if (entitiesResult.hasArg(argumentsInCombinedTable->at(i))) {
+			// For each row, get the PQLEntity in that column and add to entitiesToReturn
 			for (vector<PQLEntity> row : *combinedTable) {
 				entitiesToReturn.push_back(row[i]);
 			}
@@ -108,88 +110,20 @@ bool QueryEvaluator::combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> com
 	list<RelationshipClauseResult> resultsLeft = relationshipsResults;
 	while (!resultsLeft.empty()) {
 
-		list<RelationshipClauseResult> resultsSkipped;
+		shared_ptr<list<RelationshipClauseResult>> resultsSkipped = make_shared<list<RelationshipClauseResult>>();
 
 		list<RelationshipClauseResult>::iterator resultIter = resultsLeft.begin();
 		for (; resultIter != resultsLeft.end(); resultIter++) {
 
-			if (combinedTable->empty()) {
-				*combinedTable = this->getTable(*resultIter);
-				argumentsInCombinedTable->push_back(resultIter->getFirstArg());
-				argumentsInCombinedTable->push_back(resultIter->getSecondArg());
-				continue;
+			bool doesTableHaveEntries = this->createNewTable(combinedTable, argumentsInCombinedTable, resultsSkipped, *resultIter);
+			if (!doesTableHaveEntries) {
+				return false;
 			}
 
-			// If equals -1, means ClauseArguments not yet in combined table
-			int firstArgIndex = this->findArgumentIndex(*argumentsInCombinedTable, resultIter->getFirstArg());
-			int secondArgIndex = this->findArgumentIndex(*argumentsInCombinedTable, resultIter->getSecondArg());
-
-			// Neither clause argument already in currentTable so cannot join, so skip
-			if (firstArgIndex == -1 && secondArgIndex == -1) {
-				resultsSkipped.push_back(*resultIter);
-				continue;
-			}
-
-			// Create new table
-			vector<vector<PQLEntity>> newCombinedTable;
-
-			// Both clause arguments already in table, table join on these common clause arguments
-			if (firstArgIndex != -1 && secondArgIndex != -1) {
-				vector<pair<vector<PQLEntity>, vector<PQLEntity>>> combinedTableKeyValuePairs = this->convertToKeyValuePairs(
-						*combinedTable, firstArgIndex, secondArgIndex);
-
-				vector<vector<PQLEntity>> tableToMergeKeyValuePairs = this->getTable(*resultIter);
-
-				newCombinedTable = this->pairKeyTableJoin(combinedTableKeyValuePairs, tableToMergeKeyValuePairs);
-
-				// If at any point a join returns no entries, the whole query has no solutions, so return false
-				if (newCombinedTable.empty()) {
-					return false;
-				}
-			}
-
-				// First clause argument already in table, table join on this common clause argument
-			else if (firstArgIndex != -1) {
-				vector<pair<PQLEntity, vector<PQLEntity>>> combinedTableKeyValuePairs = this->convertToKeyValuePairs(
-						*combinedTable, firstArgIndex);
-
-				vector<vector<PQLEntity>> tableToMergeKeyValuePairs = this->getKeyValueTable(
-						*resultIter, KeyColumn::FIRST_COLUMN_KEY);
-
-				newCombinedTable = this->singleKeyTableJoin(combinedTableKeyValuePairs, tableToMergeKeyValuePairs);
-
-				// If at any point a join returns no entries, the whole query has no solutions, so return false
-				if (newCombinedTable.empty()) {
-					return false;
-				}
-
-				argumentsInCombinedTable->push_back(resultIter->getSecondArg());
-			}
-
-				// Second clause argument already in table, table join on this common clause argument
-			else {
-				vector<pair<PQLEntity, vector<PQLEntity>>> combinedTableKeyValuePairs = this->convertToKeyValuePairs(
-						*combinedTable, secondArgIndex);
-
-				vector<vector<PQLEntity>> tableToMergeKeyValuePairs = this->getKeyValueTable(
-						*resultIter, KeyColumn::SECOND_COLUMN_KEY);
-
-				newCombinedTable = this->singleKeyTableJoin(combinedTableKeyValuePairs, tableToMergeKeyValuePairs);
-
-				// If at any point a join returns no entries, the whole query has no solutions, so return false
-				if (newCombinedTable.empty()) {
-					return false;
-				}
-
-				argumentsInCombinedTable->push_back(resultIter->getFirstArg());
-			}
-
-			// Set new table
-			*combinedTable = newCombinedTable;
 		}
 
 		// If with one iteration of the for loop, the remaining results have not been joined with combinedTable, treat them as boolean
-		if (resultsLeft == resultsSkipped) {
+		if (resultsLeft == *resultsSkipped) {
 			// If there is one result left that cannot be joined with combinedTable, it can be treated as true and ignored
 			// Hence, combinedTable is the final table, return true
 			if (resultsLeft.size() == 1) {
@@ -208,7 +142,7 @@ bool QueryEvaluator::combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> com
 		}
 
 		// If not, repeat
-		resultsLeft = resultsSkipped;
+		resultsLeft = *resultsSkipped;
 	}
 
 	// If all results are joined, combinedTable is the final table, return true;
@@ -229,8 +163,10 @@ vector<vector<PQLEntity>> QueryEvaluator::getKeyValueTable(RelationshipClauseRes
 	for (PQLRelationship relationship : relationships) {
 		if (keyColumn == KeyColumn::FIRST_COLUMN_KEY) {
 			output.push_back(vector<PQLEntity>{relationship.getFirstEntity(), relationship.getSecondEntity()});
-		} else {
+		} else if (keyColumn == KeyColumn::SECOND_COLUMN_KEY) {
 			output.push_back(vector<PQLEntity>{relationship.getSecondEntity(), relationship.getFirstEntity()});
+		} else {
+			throw PQLError("getKeyValueTable: invalid keyColumn");
 		}
 	}
 
