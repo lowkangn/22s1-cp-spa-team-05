@@ -20,15 +20,15 @@ TEST_CASE("ParentParser: test parseParentNoError") {
             shared_ptr<RelationshipClause> actualPtr = parser.parse();
 
             // then
-            REQUIRE(expected.equals(actualPtr.get()));
+            REQUIRE(expected.equals(actualPtr));
     };
     list<PQLToken> tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("s1", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("a1", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("s1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("a1"),
+            PQLToken::createDelimiterToken(")")
     };
 
     unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
@@ -37,8 +37,8 @@ TEST_CASE("ParentParser: test parseParentNoError") {
     };
 
     ParentClause expected = ParentClause(
-        ClauseArgument::generateStmtArg("s1"),
-        ClauseArgument::generateAssignArg("a1"));
+        ClauseArgument::createStmtArg("s1"),
+        ClauseArgument::createAssignArg("a1"));
 
 
     SECTION("2 synonyms") {
@@ -46,12 +46,12 @@ TEST_CASE("ParentParser: test parseParentNoError") {
     }
     SECTION("1 synonym, 1 line number") {
         tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("w1", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("1", PQLTokenType::INTEGER),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("w1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createIntegerToken("1"),
+            PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{
@@ -59,19 +59,19 @@ TEST_CASE("ParentParser: test parseParentNoError") {
         };
 
         expected = ParentClause(
-            ClauseArgument::generateWhileArg("w1"),
-            ClauseArgument::generateLineNumberArg("1"));
+            ClauseArgument::createWhileArg("w1"),
+            ClauseArgument::createLineNumberArg("1"));
 
         testParseNoError(tokensList, declarationsMap, expected);
     }
     SECTION("1 line number, 1 wildcard") {
         tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("4", PQLTokenType::INTEGER),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("_", PQLTokenType::DELIMITER),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createIntegerToken("4"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createDelimiterToken("_"),
+            PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{
@@ -79,19 +79,19 @@ TEST_CASE("ParentParser: test parseParentNoError") {
         };
 
         expected = ParentClause(
-            ClauseArgument::generateLineNumberArg("4"),
-            ClauseArgument::generateWildcardArg());
+            ClauseArgument::createLineNumberArg("4"),
+            ClauseArgument::createWildcardArg());
 
         testParseNoError(tokensList, declarationsMap, expected);
     }
     SECTION("1 wildcard, 1 synonym") {
         tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("_", PQLTokenType::DELIMITER),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("r1", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createDelimiterToken("_"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("r1"),
+            PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{
@@ -99,8 +99,8 @@ TEST_CASE("ParentParser: test parseParentNoError") {
         };
 
         expected = ParentClause(
-            ClauseArgument::generateWildcardArg(),
-            ClauseArgument::generateReadArg("r1"));
+            ClauseArgument::createWildcardArg(),
+            ClauseArgument::createReadArg("r1"));
 
         testParseNoError(tokensList, declarationsMap, expected);
     }
@@ -117,16 +117,16 @@ TEST_CASE("ParentParser: test parseParentTNoError") {
             shared_ptr<RelationshipClause> actualPtr = parser.parse();
 
             // then
-            REQUIRE(expected.equals(actualPtr.get()));
+            REQUIRE(expected.equals(actualPtr));
     };
     list<PQLToken> tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("*", PQLTokenType::DELIMITER),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("i1", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("p1", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("*"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("i1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("p1"),
+            PQLToken::createDelimiterToken(")")
     };
 
     unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
@@ -135,8 +135,8 @@ TEST_CASE("ParentParser: test parseParentTNoError") {
     };
 
     ParentTClause expected = ParentTClause(
-        ClauseArgument::generateIfArg("i1"),
-        ClauseArgument::generatePrintArg("p1"));
+        ClauseArgument::createIfArg("i1"),
+        ClauseArgument::createPrintArg("p1"));
 
 
     SECTION("2 synonyms") {
@@ -145,13 +145,13 @@ TEST_CASE("ParentParser: test parseParentTNoError") {
 
     SECTION("non-container as first argument") {
         tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("*", PQLTokenType::DELIMITER),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("a1", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("_", PQLTokenType::DELIMITER),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("*"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("a1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createDelimiterToken("_"),
+            PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{
@@ -159,27 +159,27 @@ TEST_CASE("ParentParser: test parseParentTNoError") {
         };
 
         expected = ParentTClause(
-            ClauseArgument::generateAssignArg("a1"),
-            ClauseArgument::generateWildcardArg());
+            ClauseArgument::createAssignArg("a1"),
+            ClauseArgument::createWildcardArg());
 
         testParseNoError(tokensList, declarationsMap, expected);
     }
     SECTION("2 wildcards") {
         tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("*", PQLTokenType::DELIMITER),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("_", PQLTokenType::DELIMITER),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("_", PQLTokenType::DELIMITER),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("*"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createDelimiterToken("_"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createDelimiterToken("_"),
+            PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{};
 
         expected = ParentTClause(
-				ClauseArgument::generateWildcardArg(),
-				ClauseArgument::generateWildcardArg());
+            ClauseArgument::createWildcardArg(),
+            ClauseArgument::createWildcardArg());
 
         testParseNoError(tokensList, declarationsMap, expected);
     }
@@ -197,12 +197,12 @@ TEST_CASE("ParentParser: test parseWithError") {
     };
 
     list<PQLToken> tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("v1", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("s1", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("v1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("s1"),
+            PQLToken::createDelimiterToken(")")
     };
 
     unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
@@ -215,12 +215,12 @@ TEST_CASE("ParentParser: test parseWithError") {
 
     SECTION("Illegal arguments: procedure") {
         tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("proc1", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("s2", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("proc1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("s2"),
+            PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{
@@ -233,12 +233,12 @@ TEST_CASE("ParentParser: test parseWithError") {
 
     SECTION("Illegal arguments: procedure") {
         tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("s2", PQLTokenType::NAME),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("c", PQLTokenType::NAME),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("s2"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createNameToken("c"),
+            PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{
@@ -251,15 +251,15 @@ TEST_CASE("ParentParser: test parseWithError") {
 
     SECTION("Illegal arguments: name string") {
         tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("*", PQLTokenType::DELIMITER),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("s1", PQLTokenType::DELIMITER),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("\"", PQLTokenType::DELIMITER),
-            PQLToken("someString", PQLTokenType::NAME),
-            PQLToken("\"", PQLTokenType::DELIMITER),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("*"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createDelimiterToken("s1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createDelimiterToken("\""),
+            PQLToken::createNameToken("someString"),
+            PQLToken::createDelimiterToken("\""),
+            PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{
@@ -271,15 +271,15 @@ TEST_CASE("ParentParser: test parseWithError") {
 
     SECTION("Illegal arguments: number string (constant)") {
         tokensList = list<PQLToken>{
-            PQLToken("Parent", PQLTokenType::NAME),
-            PQLToken("*", PQLTokenType::DELIMITER),
-            PQLToken("(", PQLTokenType::DELIMITER),
-            PQLToken("s1", PQLTokenType::DELIMITER),
-            PQLToken(",", PQLTokenType::DELIMITER),
-            PQLToken("\"", PQLTokenType::DELIMITER),
-            PQLToken("12", PQLTokenType::NAME),
-            PQLToken("\"", PQLTokenType::DELIMITER),
-            PQLToken(")", PQLTokenType::DELIMITER)
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("*"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createDelimiterToken("s1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createDelimiterToken("\""),
+            PQLToken::createNameToken("12"),
+            PQLToken::createDelimiterToken("\""),
+            PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{

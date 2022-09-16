@@ -14,10 +14,10 @@ TEST_CASE("RelationshipClauseResult: test operator==") {
         REQUIRE(actual == expected);
     };
 
-    ClauseArgument firstArg = ClauseArgument::generateVariableArg("v");
-    ClauseArgument firstArgAgain = ClauseArgument::generateVariableArg("v");
-    ClauseArgument secondArg = ClauseArgument::generateAssignArg("a");
-    ClauseArgument thirdArg = ClauseArgument::generateLineNumberArg("1");
+    ClauseArgument firstArg = ClauseArgument::createVariableArg("v");
+    ClauseArgument firstArgAgain = ClauseArgument::createVariableArg("v");
+    ClauseArgument secondArg = ClauseArgument::createAssignArg("a");
+    ClauseArgument thirdArg = ClauseArgument::createLineNumberArg("1");
 
     PQLEntity firstEntity = PQLEntity::generateVariable("x");
     PQLEntity secondEntity = PQLEntity::generateVariable("y");

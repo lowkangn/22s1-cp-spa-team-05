@@ -9,10 +9,10 @@ using namespace std;
 // =============== UNIT TESTS ====================
 
 TEST_CASE("ModifiesPClause: test equals") {
-	auto testEquals = [](const RelationshipClause* other, bool expected) {
+	auto testEquals = [](shared_ptr<RelationshipClause> other, bool expected) {
 		// given
-		ClauseArgument lhs = ClauseArgument::generateProcedureArg("p");
-		ClauseArgument rhs = ClauseArgument::generateVariableArg("v");
+		ClauseArgument lhs = ClauseArgument::createProcedureArg("p");
+		ClauseArgument rhs = ClauseArgument::createVariableArg("v");
 		ModifiesPClause modifiesPClause = ModifiesPClause(lhs, rhs);
 
 		// when
@@ -22,38 +22,38 @@ TEST_CASE("ModifiesPClause: test equals") {
 		REQUIRE(actual == expected);
 	};
 
-	ClauseArgument firstProcArg = ClauseArgument::generateProcedureArg("p");
-	ClauseArgument secondProcArg = ClauseArgument::generateProcedureArg("p1");
-	ClauseArgument firstVarArg = ClauseArgument::generateVariableArg("v");
-	ClauseArgument secondVarArg = ClauseArgument::generateVariableArg("v1");
+	ClauseArgument firstProcArg = ClauseArgument::createProcedureArg("p");
+	ClauseArgument secondProcArg = ClauseArgument::createProcedureArg("sp1");
+	ClauseArgument firstVarArg = ClauseArgument::createVariableArg("v");
+	ClauseArgument secondVarArg = ClauseArgument::createVariableArg("v1");
 
 	SECTION("Equal") {
-		RelationshipClause* modifiesPClauseAgain = new ModifiesPClause(firstProcArg, firstVarArg);
+		shared_ptr<RelationshipClause> modifiesPClauseAgain(new ModifiesPClause(firstProcArg, firstVarArg));
 		testEquals(modifiesPClauseAgain, true);
 	}
 
 	SECTION("Not equal, same types different identifiers") {
-		RelationshipClause* modifiesPClauseDiffLhsString = new ModifiesPClause(secondProcArg, firstVarArg);
+		shared_ptr<RelationshipClause> modifiesPClauseDiffLhsString(new ModifiesPClause(secondProcArg, firstVarArg));
 		testEquals(modifiesPClauseDiffLhsString, false);
 
-		RelationshipClause* modifiesPClauseDiffRhsString = new ModifiesPClause(firstProcArg, secondVarArg);
+		shared_ptr<RelationshipClause> modifiesPClauseDiffRhsString(new ModifiesPClause(firstProcArg, secondVarArg));
 		testEquals(modifiesPClauseDiffRhsString, false);
 
-		RelationshipClause* modifiesPClauseDiffStrings = new ModifiesPClause(secondProcArg, secondVarArg);
+		shared_ptr<RelationshipClause> modifiesPClauseDiffStrings(new ModifiesPClause(secondProcArg, secondVarArg));
 		testEquals(modifiesPClauseDiffStrings, false);
 	}
 
-	ClauseArgument stmtArg = ClauseArgument::generateStmtArg("s");
-	ClauseArgument assignArg = ClauseArgument::generateAssignArg("a");
-	ClauseArgument constArg = ClauseArgument::generateConstantArg("4");
-	ClauseArgument readArg = ClauseArgument::generateReadArg("r");
-	ClauseArgument printArg = ClauseArgument::generatePrintArg("pr");
-	ClauseArgument callArg = ClauseArgument::generateCallArg("c");
-	ClauseArgument whileArg = ClauseArgument::generateWhileArg("w");
-	ClauseArgument ifArg = ClauseArgument::generateIfArg("i");
-	ClauseArgument lineNumArg = ClauseArgument::generateLineNumberArg("5");
-	ClauseArgument stringLitArg = ClauseArgument::generateStringLiteralArg("x");
-	ClauseArgument wildcardArg = ClauseArgument::generateWildcardArg();
+	ClauseArgument stmtArg = ClauseArgument::createStmtArg("s");
+	ClauseArgument readArg = ClauseArgument::createReadArg("r");
+	ClauseArgument printArg = ClauseArgument::createPrintArg("p");
+	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
+	ClauseArgument callArg = ClauseArgument::createCallArg("c");
+	ClauseArgument whileArg = ClauseArgument::createWhileArg("w");
+	ClauseArgument ifArg = ClauseArgument::createIfArg("i");
+	ClauseArgument constArg = ClauseArgument::createConstantArg("c");
+	ClauseArgument lineNumArg = ClauseArgument::createLineNumberArg("1");
+	ClauseArgument stringLitArg = ClauseArgument::createStringLiteralArg("x");
+	ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
 
 	list<ClauseArgument> otherArguments = list<ClauseArgument>{stmtArg, readArg, printArg, assignArg, callArg,
 															   whileArg, ifArg, constArg, lineNumArg, stringLitArg,
@@ -61,16 +61,16 @@ TEST_CASE("ModifiesPClause: test equals") {
 
 	SECTION("Not equal, different types") {
 		for (ClauseArgument argument: otherArguments) {
-			RelationshipClause* modifiesPClauseDiffLhsArg = new ModifiesPClause(firstProcArg, argument);
+			shared_ptr<RelationshipClause> modifiesPClauseDiffLhsArg(new ModifiesPClause(firstProcArg, argument));
 			testEquals(modifiesPClauseDiffLhsArg, false);
 
-			RelationshipClause* modifiesPClauseDiffRhsArg = new ModifiesPClause(argument, firstVarArg);
+			shared_ptr<RelationshipClause> modifiesPClauseDiffRhsArg(new ModifiesPClause(argument, firstVarArg));
 			testEquals(modifiesPClauseDiffRhsArg, false);
 		}
 	}
 
 	SECTION("Not even a ModifiesPClause") {
-		RelationshipClause* modifiesSClause = new ModifiesSClause(stmtArg, firstVarArg);
+		shared_ptr<RelationshipClause> modifiesSClause(new ModifiesSClause(stmtArg, firstVarArg));
 		testEquals(modifiesSClause, false);
 
 		// TODO: Add more when other Clause classes are implemented

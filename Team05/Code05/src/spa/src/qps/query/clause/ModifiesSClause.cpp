@@ -6,10 +6,10 @@ shared_ptr<RelationshipClauseResult> ModifiesSClause::execute(shared_ptr<PKBQuer
 	return shared_ptr<RelationshipClauseResult>(new RelationshipClauseResult(lhs, rhs, relationships));
 }
 
-bool ModifiesSClause::equals(const RelationshipClause* other) {
-	if (dynamic_cast<const ModifiesSClause*>(other) == nullptr) {
+bool ModifiesSClause::equals(shared_ptr<RelationshipClause> other) {
+	if (dynamic_pointer_cast<ModifiesSClause>(other) == nullptr) {
 		return false;
 	}
-	ModifiesSClause otherModifies = *dynamic_cast<const ModifiesSClause*>(other);
-	return this->lhs == otherModifies.lhs && this->rhs == otherModifies.rhs;
+	shared_ptr<ModifiesSClause> otherModifies = dynamic_pointer_cast<ModifiesSClause>(other);
+	return (this->lhs == otherModifies->lhs) && (this->rhs == otherModifies->rhs);
 }

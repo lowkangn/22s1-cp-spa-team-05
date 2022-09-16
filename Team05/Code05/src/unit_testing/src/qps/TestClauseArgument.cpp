@@ -17,22 +17,22 @@ TEST_CASE("ClauseArgument: test isSynonym") {
     };
 
     SECTION("Is a synonym") {
-        testIsSynonym(ClauseArgument::generateStmtArg("s"), true);
-        testIsSynonym(ClauseArgument::generateReadArg("r"), true);
-        testIsSynonym(ClauseArgument::generatePrintArg("p"), true);
-        testIsSynonym(ClauseArgument::generateAssignArg("a"), true);
-        testIsSynonym(ClauseArgument::generateCallArg("c"), true);
-        testIsSynonym(ClauseArgument::generateWhileArg("w"), true);
-        testIsSynonym(ClauseArgument::generateIfArg("i"), true);
-        testIsSynonym(ClauseArgument::generateProcedureArg("pr"), true);
-        testIsSynonym(ClauseArgument::generateVariableArg("v"), true);
-        testIsSynonym(ClauseArgument::generateConstantArg("c"), true);
+        testIsSynonym(ClauseArgument::createStmtArg("s"), true);
+        testIsSynonym(ClauseArgument::createReadArg("r"), true);
+        testIsSynonym(ClauseArgument::createPrintArg("p"), true);
+        testIsSynonym(ClauseArgument::createAssignArg("a"), true);
+        testIsSynonym(ClauseArgument::createCallArg("c"), true);
+        testIsSynonym(ClauseArgument::createWhileArg("w"), true);
+        testIsSynonym(ClauseArgument::createIfArg("i"), true);
+        testIsSynonym(ClauseArgument::createProcedureArg("p"), true);
+        testIsSynonym(ClauseArgument::createVariableArg("v"), true);
+        testIsSynonym(ClauseArgument::createConstantArg("c"), true);
     }
 
     SECTION("Is not a synonym") {
-        testIsSynonym(ClauseArgument::generateLineNumberArg("1"), false);
-        testIsSynonym(ClauseArgument::generateStringLiteralArg("x"), false);
-        testIsSynonym(ClauseArgument::generateWildcardArg(), false);
+        testIsSynonym(ClauseArgument::createLineNumberArg("1"), false);
+        testIsSynonym(ClauseArgument::createStringLiteralArg("x"), false);
+        testIsSynonym(ClauseArgument::createWildcardArg(), false);
     }
 }
 
@@ -47,22 +47,22 @@ TEST_CASE("ClauseArgument: test isStmtRefNoWildcard") {
 
     SECTION("Is a stmtRef") {
 
-		testIsStmtRefNoWildcard(ClauseArgument::generateStmtArg("s"), true);
-		testIsStmtRefNoWildcard(ClauseArgument::generateReadArg("r"), true);
-		testIsStmtRefNoWildcard(ClauseArgument::generatePrintArg("p"), true);
-		testIsStmtRefNoWildcard(ClauseArgument::generateAssignArg("a"), true);
-		testIsStmtRefNoWildcard(ClauseArgument::generateCallArg("c"), true);
-		testIsStmtRefNoWildcard(ClauseArgument::generateWhileArg("w"), true);
-		testIsStmtRefNoWildcard(ClauseArgument::generateIfArg("i"), true);
-		testIsStmtRefNoWildcard(ClauseArgument::generateLineNumberArg("2"), true);
+        testIsStmtRefNoWildcard(ClauseArgument::createStmtArg("s1"), true);
+        testIsStmtRefNoWildcard(ClauseArgument::createReadArg("r1"), true);
+        testIsStmtRefNoWildcard(ClauseArgument::createPrintArg("p1"), true);
+        testIsStmtRefNoWildcard(ClauseArgument::createAssignArg("a1"), true);
+        testIsStmtRefNoWildcard(ClauseArgument::createCallArg("c1"), true);
+        testIsStmtRefNoWildcard(ClauseArgument::createWhileArg("w1"), true);
+        testIsStmtRefNoWildcard(ClauseArgument::createIfArg("i1"), true);
+        testIsStmtRefNoWildcard(ClauseArgument::createLineNumberArg("2"), true);
     }
 
     SECTION("Is not a stmtRef") {
-       	testIsStmtRefNoWildcard(ClauseArgument::generateProcedureArg("pr"), false);
-		testIsStmtRefNoWildcard(ClauseArgument::generateVariableArg("v"), false);
-		testIsStmtRefNoWildcard(ClauseArgument::generateConstantArg("c"), false);
-		testIsStmtRefNoWildcard(ClauseArgument::generateStringLiteralArg("x"), false);
-		testIsStmtRefNoWildcard(ClauseArgument::generateWildcardArg(), false);
+        testIsStmtRefNoWildcard(ClauseArgument::createProcedureArg("p1"), false);
+        testIsStmtRefNoWildcard(ClauseArgument::createVariableArg("v1"), false);
+        testIsStmtRefNoWildcard(ClauseArgument::createConstantArg("c1"), false);
+        testIsStmtRefNoWildcard(ClauseArgument::createStringLiteralArg("y"), false);
+        testIsStmtRefNoWildcard(ClauseArgument::createWildcardArg(), false);
     }
 }
 
@@ -76,22 +76,22 @@ TEST_CASE("ClauseArgument: test isEntRefNoWildcard") {
     };
 
     SECTION("Is an entRef") {
-		testIsEntRefNoWildcard(ClauseArgument::generateProcedureArg("pr"), true);
-		testIsEntRefNoWildcard(ClauseArgument::generateVariableArg("v"), true);
-		testIsEntRefNoWildcard(ClauseArgument::generateConstantArg("c"), true);
-		testIsEntRefNoWildcard(ClauseArgument::generateStringLiteralArg("x"), true);
+        testIsEntRefNoWildcard(ClauseArgument::createProcedureArg("p2"), true);
+        testIsEntRefNoWildcard(ClauseArgument::createVariableArg("v2"), true);
+        testIsEntRefNoWildcard(ClauseArgument::createConstantArg("c2"), true);
+        testIsEntRefNoWildcard(ClauseArgument::createStringLiteralArg("z"), true);
     }
 
     SECTION("Is not an entRef") {
-		testIsEntRefNoWildcard(ClauseArgument::generateStmtArg("s"), false);
-		testIsEntRefNoWildcard(ClauseArgument::generateReadArg("r"), false);
-		testIsEntRefNoWildcard(ClauseArgument::generatePrintArg("p"), false);
-		testIsEntRefNoWildcard(ClauseArgument::generateAssignArg("a"), false);
-		testIsEntRefNoWildcard(ClauseArgument::generateCallArg("c"), false);
-		testIsEntRefNoWildcard(ClauseArgument::generateWhileArg("w"), false);
-		testIsEntRefNoWildcard(ClauseArgument::generateIfArg("i"), false);
-		testIsEntRefNoWildcard(ClauseArgument::generateLineNumberArg("2"), false);
-		testIsEntRefNoWildcard(ClauseArgument::generateWildcardArg(), false);
+        testIsEntRefNoWildcard(ClauseArgument::createStmtArg("s2"), false);
+        testIsEntRefNoWildcard(ClauseArgument::createReadArg("r2"), false);
+        testIsEntRefNoWildcard(ClauseArgument::createPrintArg("p2"), false);
+        testIsEntRefNoWildcard(ClauseArgument::createAssignArg("a2"), false);
+        testIsEntRefNoWildcard(ClauseArgument::createCallArg("c2"), false);
+        testIsEntRefNoWildcard(ClauseArgument::createWhileArg("w2"), false);
+        testIsEntRefNoWildcard(ClauseArgument::createIfArg("i2"), false);
+        testIsEntRefNoWildcard(ClauseArgument::createLineNumberArg("3"), false);
+        testIsEntRefNoWildcard(ClauseArgument::createWildcardArg(), false);
     }
 }
 
@@ -106,7 +106,7 @@ TEST_CASE("ClauseArgument: test getLineNumberNoError") {
 
     };
 
-    ClauseArgument arg = ClauseArgument::generateLineNumberArg("4");
+    ClauseArgument arg = ClauseArgument::createLineNumberArg("4");
     testGetLineNumberNoError(arg, 4);
 }
 
@@ -118,18 +118,18 @@ TEST_CASE("ClauseArgument: test getLineNumberWithError") {
 
     };
 
-    ClauseArgument stmtArg = ClauseArgument::generateStmtArg("s");
-	ClauseArgument assignArg = ClauseArgument::generateAssignArg("a");
-	ClauseArgument procArg = ClauseArgument::generateProcedureArg("p");
-	ClauseArgument variableArg = ClauseArgument::generateVariableArg("v");
-	ClauseArgument constArg = ClauseArgument::generateConstantArg("4");
-	ClauseArgument readArg = ClauseArgument::generateReadArg("r");
-	ClauseArgument printArg = ClauseArgument::generatePrintArg("pr");
-	ClauseArgument callArg = ClauseArgument::generateCallArg("c");
-	ClauseArgument whileArg = ClauseArgument::generateWhileArg("w");
-	ClauseArgument ifArg = ClauseArgument::generateIfArg("i");
-	ClauseArgument stringLitArg = ClauseArgument::generateStringLiteralArg("x");
-	ClauseArgument wildcardArg = ClauseArgument::generateWildcardArg();
+    ClauseArgument variableArg = ClauseArgument::createVariableArg("v");
+    ClauseArgument stmtArg = ClauseArgument::createStmtArg("s");
+    ClauseArgument readArg = ClauseArgument::createReadArg("r");
+    ClauseArgument printArg = ClauseArgument::createPrintArg("p");
+    ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
+    ClauseArgument callArg = ClauseArgument::createCallArg("c");
+    ClauseArgument whileArg = ClauseArgument::createWhileArg("w");
+    ClauseArgument ifArg = ClauseArgument::createIfArg("i");
+    ClauseArgument procArg = ClauseArgument::createProcedureArg("p");
+    ClauseArgument constArg = ClauseArgument::createConstantArg("4");
+    ClauseArgument stringLitArg = ClauseArgument::createStringLiteralArg("x");
+    ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
 
     list<ClauseArgument> arguments = list<ClauseArgument>{variableArg, procArg, stmtArg, readArg, printArg, assignArg,
                                                           callArg, whileArg, ifArg, constArg,  stringLitArg, wildcardArg};
@@ -150,40 +150,40 @@ TEST_CASE("ClauseArgument: test getIdentifierNoError") {
 
     };
 
-	ClauseArgument variableArg = ClauseArgument::generateVariableArg("v");
+    ClauseArgument variableArg = ClauseArgument::createVariableArg("v");
     testGetIdentifierNoError(variableArg, "v");
 
-	ClauseArgument stmtArg = ClauseArgument::generateStmtArg("s");
+    ClauseArgument stmtArg = ClauseArgument::createStmtArg("s");
     testGetIdentifierNoError(stmtArg, "s");
 
-	ClauseArgument readArg = ClauseArgument::generateReadArg("r");
+    ClauseArgument readArg = ClauseArgument::createReadArg("r");
     testGetIdentifierNoError(readArg, "r");
 
-	ClauseArgument printArg = ClauseArgument::generatePrintArg("pr");
-    testGetIdentifierNoError(printArg, "pr");
+    ClauseArgument printArg = ClauseArgument::createPrintArg("p");
+    testGetIdentifierNoError(printArg, "p");
 
-	ClauseArgument assignArg = ClauseArgument::generateAssignArg("a");
+    ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
     testGetIdentifierNoError(assignArg, "a");
 
-	ClauseArgument callArg = ClauseArgument::generateCallArg("c");
+    ClauseArgument callArg = ClauseArgument::createCallArg("c");
     testGetIdentifierNoError(callArg, "c");
 
-	ClauseArgument whileArg = ClauseArgument::generateWhileArg("w");
+    ClauseArgument whileArg = ClauseArgument::createWhileArg("w");
     testGetIdentifierNoError(whileArg, "w");
 
-	ClauseArgument ifArg = ClauseArgument::generateIfArg("i");
+    ClauseArgument ifArg = ClauseArgument::createIfArg("i");
     testGetIdentifierNoError(ifArg, "i");
 
-	ClauseArgument procArg = ClauseArgument::generateProcedureArg("p");
+    ClauseArgument procArg = ClauseArgument::createProcedureArg("p");
     testGetIdentifierNoError(procArg, "p");
 
-	ClauseArgument constArg = ClauseArgument::generateConstantArg("4");
+    ClauseArgument constArg = ClauseArgument::createConstantArg("4");
     testGetIdentifierNoError(constArg, "4");
 
-	ClauseArgument stringLitArg = ClauseArgument::generateStringLiteralArg("x");
+    ClauseArgument stringLitArg = ClauseArgument::createStringLiteralArg("x");
     testGetIdentifierNoError(stringLitArg, "x");
 
-	ClauseArgument wildcardArg = ClauseArgument::generateWildcardArg();
+    ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
     testGetIdentifierNoError(wildcardArg, "_");
 
 }
@@ -196,7 +196,7 @@ TEST_CASE("ClauseArgument: test getIdentifierWithError") {
 
     };
 
-	ClauseArgument arg = ClauseArgument::generateLineNumberArg("4");
+    ClauseArgument arg = ClauseArgument::createLineNumberArg("4");
     testGetIdentifierWithError(arg);
 
 }
@@ -210,9 +210,9 @@ TEST_CASE("ClauseArgument: test operator==") {
         REQUIRE(actual == expected);
     };
 
-    ClauseArgument variableArg = ClauseArgument::generateVariableArg("v");
-    ClauseArgument variableArgAgain = ClauseArgument::generateVariableArg("v");
-    ClauseArgument variableArgDiff = ClauseArgument::generateVariableArg("v1");
+    ClauseArgument variableArg = ClauseArgument::createVariableArg("v");
+    ClauseArgument variableArgAgain = ClauseArgument::createVariableArg("v");
+    ClauseArgument variableArgDiff = ClauseArgument::createVariableArg("v1");
 
     SECTION("Same ArgumentType") {
         testOperatorEquals(variableArg, variableArgAgain, true);
@@ -220,18 +220,18 @@ TEST_CASE("ClauseArgument: test operator==") {
         testOperatorEquals(variableArgAgain, variableArgDiff, false);
     }
 
-	ClauseArgument stmtArg = ClauseArgument::generateStmtArg("s");
-	ClauseArgument assignArg = ClauseArgument::generateAssignArg("a");
-	ClauseArgument procArg = ClauseArgument::generateProcedureArg("p");
-	ClauseArgument constArg = ClauseArgument::generateConstantArg("4");
-	ClauseArgument readArg = ClauseArgument::generateReadArg("r");
-	ClauseArgument printArg = ClauseArgument::generatePrintArg("pr");
-	ClauseArgument callArg = ClauseArgument::generateCallArg("c");
-	ClauseArgument whileArg = ClauseArgument::generateWhileArg("w");
-	ClauseArgument ifArg = ClauseArgument::generateIfArg("i");
-	ClauseArgument lineNumArg = ClauseArgument::generateLineNumberArg("5");
-	ClauseArgument stringLitArg = ClauseArgument::generateStringLiteralArg("x");
-	ClauseArgument wildcardArg = ClauseArgument::generateWildcardArg();
+    ClauseArgument stmtArg = ClauseArgument::createStmtArg("v");
+    ClauseArgument readArg = ClauseArgument::createReadArg("v");
+    ClauseArgument printArg = ClauseArgument::createPrintArg("v");
+    ClauseArgument assignArg = ClauseArgument::createAssignArg("v");
+    ClauseArgument callArg = ClauseArgument::createCallArg("v");
+    ClauseArgument whileArg = ClauseArgument::createWhileArg("v");
+    ClauseArgument ifArg = ClauseArgument::createIfArg("v");
+    ClauseArgument procArg = ClauseArgument::createProcedureArg("v");
+    ClauseArgument constArg = ClauseArgument::createConstantArg("v");
+    ClauseArgument lineNumArg = ClauseArgument::createLineNumberArg("v");
+    ClauseArgument stringLitArg = ClauseArgument::createStringLiteralArg("v");
+    ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
 
     list<ClauseArgument> arguments = list<ClauseArgument>{variableArg, procArg, stmtArg, readArg, printArg, assignArg,
                                                           callArg, whileArg, ifArg, constArg, lineNumArg, stringLitArg,

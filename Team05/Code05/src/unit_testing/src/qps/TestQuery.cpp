@@ -18,11 +18,11 @@ TEST_CASE("Query: test operator==") {
         REQUIRE(actual == expected);
     };
 
-    shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(ClauseArgument::generateVariableArg("v")));
-    shared_ptr<RelationshipClause> modifiesSClause = shared_ptr<RelationshipClause>(new ModifiesSClause(ClauseArgument::generateLineNumberArg("1"),
-																										ClauseArgument::generateVariableArg("v")));
-    shared_ptr<RelationshipClause> modifiesPClause = shared_ptr<RelationshipClause>(new ModifiesPClause(ClauseArgument::generateProcedureArg("main"),
-																										ClauseArgument::generateVariableArg("v")));
+    shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(ClauseArgument::createVariableArg("v")));
+    shared_ptr<RelationshipClause> modifiesSClause = shared_ptr<RelationshipClause>(new ModifiesSClause(ClauseArgument::createLineNumberArg("1"),
+																										ClauseArgument::createVariableArg("v")));
+    shared_ptr<RelationshipClause> modifiesPClause = shared_ptr<RelationshipClause>(new ModifiesPClause(ClauseArgument::createProcedureArg("main"),
+																										ClauseArgument::createVariableArg("v")));
 
     Query firstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause});
     Query sameAsFirstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause});

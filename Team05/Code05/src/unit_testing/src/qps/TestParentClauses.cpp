@@ -11,10 +11,10 @@ using namespace std;
 // =============== UNIT TESTS ====================
 
 TEST_CASE("ParentClause: test equals") {
-	auto testEquals = [](const RelationshipClause* other, bool expected) {
+	auto testEquals = [](shared_ptr<RelationshipClause> other, bool expected) {
 		// given
-		ClauseArgument lhs = ClauseArgument::generateStmtArg("s1");
-		ClauseArgument rhs = ClauseArgument::generateStmtArg("s2");
+		ClauseArgument lhs = ClauseArgument::createStmtArg("s1");
+		ClauseArgument rhs = ClauseArgument::createStmtArg("s2");
 		ParentClause parentClause = ParentClause(lhs, rhs);
 
 		// when
@@ -24,37 +24,37 @@ TEST_CASE("ParentClause: test equals") {
 		REQUIRE(actual == expected);
 	};
 
-	ClauseArgument firstStmtArg = ClauseArgument::generateStmtArg("s1");;
-	ClauseArgument secondStmtArg = ClauseArgument::generateStmtArg("s2");;
-	ClauseArgument lineArg = ClauseArgument::generateLineNumberArg("1");
+	ClauseArgument firstStmtArg = ClauseArgument::createStmtArg("s1");
+	ClauseArgument secondStmtArg = ClauseArgument::createStmtArg("s2");
+	ClauseArgument lineArg = ClauseArgument::createLineNumberArg("1");
 
 	SECTION("Equal") {
-		RelationshipClause* parentClauseAgain = new ParentClause(firstStmtArg, secondStmtArg);
+		shared_ptr<RelationshipClause> parentClauseAgain(new ParentClause(firstStmtArg, secondStmtArg));
 		testEquals(parentClauseAgain, true);
 	}
 
 	SECTION("Not equal, same clause type different arguments") {
-		RelationshipClause* parentClauseDiffLhs = new ParentClause(secondStmtArg, secondStmtArg);
+		shared_ptr<RelationshipClause> parentClauseDiffLhs(new ParentClause(secondStmtArg, secondStmtArg));
 		testEquals(parentClauseDiffLhs, false);
 
-		RelationshipClause* parentClauseDiffRhs = new ParentClause(firstStmtArg, firstStmtArg);
+		shared_ptr<RelationshipClause> parentClauseDiffRhs(new ParentClause(firstStmtArg, firstStmtArg));
 		testEquals(parentClauseDiffRhs, false);
 
-		RelationshipClause* parentClauseDiffArgType = new ParentClause(firstStmtArg, lineArg);
+		shared_ptr<RelationshipClause> parentClauseDiffArgType(new ParentClause(firstStmtArg, lineArg));
 		testEquals(parentClauseDiffArgType, false);
 	}
 
 	SECTION("Not equal, ParentClause vs ParentTClause") {
-		RelationshipClause* parentTClause = new ParentTClause(firstStmtArg, secondStmtArg);
+		shared_ptr<RelationshipClause> parentTClause(new ParentTClause(firstStmtArg, secondStmtArg));
 		testEquals(parentTClause, false);
 	}
 }
 
 TEST_CASE("ParentTClause: test equals") {
-	auto testEquals = [](const RelationshipClause* other, bool expected) {
+	auto testEquals = [](const shared_ptr<RelationshipClause> other, bool expected) {
 		// given
-		ClauseArgument lhs = ClauseArgument::generateStmtArg("s1");
-		ClauseArgument rhs = ClauseArgument::generateStmtArg("s2");
+		ClauseArgument lhs = ClauseArgument::createStmtArg("s1");
+		ClauseArgument rhs = ClauseArgument::createStmtArg("s2");
 		ParentTClause parentTClause = ParentTClause(lhs, rhs);
 
 		// when
@@ -64,28 +64,28 @@ TEST_CASE("ParentTClause: test equals") {
 		REQUIRE(actual == expected);
 	};
 
-	ClauseArgument firstStmtArg = ClauseArgument::generateStmtArg("s1");;
-	ClauseArgument secondStmtArg = ClauseArgument::generateStmtArg("s2");;
-	ClauseArgument lineArg = ClauseArgument::generateLineNumberArg("1");
+	ClauseArgument firstStmtArg = ClauseArgument::createStmtArg("s1");
+	ClauseArgument secondStmtArg = ClauseArgument::createStmtArg("s2");
+	ClauseArgument lineArg = ClauseArgument::createLineNumberArg("1");
 
 	SECTION("Equal") {
-		RelationshipClause* parentTClauseAgain = new ParentTClause(firstStmtArg, secondStmtArg);
+		shared_ptr<RelationshipClause> parentTClauseAgain(new ParentTClause(firstStmtArg, secondStmtArg));
 		testEquals(parentTClauseAgain, true);
 	}
 
 	SECTION("Not equal, same clause type different arguments") {
-		RelationshipClause* parentTClauseDiffLhs = new ParentTClause(secondStmtArg, secondStmtArg);
+		shared_ptr<RelationshipClause> parentTClauseDiffLhs(new ParentTClause(secondStmtArg, secondStmtArg));
 		testEquals(parentTClauseDiffLhs, false);
 
-		RelationshipClause* parentTClauseDiffRhs = new ParentTClause(firstStmtArg, firstStmtArg);
+		shared_ptr<RelationshipClause> parentTClauseDiffRhs(new ParentTClause(firstStmtArg, firstStmtArg));
 		testEquals(parentTClauseDiffRhs, false);
 
-		RelationshipClause* parentTClauseDiffArgType = new ParentTClause(firstStmtArg, lineArg);
+		shared_ptr<RelationshipClause> parentTClauseDiffArgType(new ParentTClause(firstStmtArg, lineArg));
 		testEquals(parentTClauseDiffArgType, false);
 	}
 
 	SECTION("Not equal, ParentClause vs ParentTClause") {
-		RelationshipClause* parentClause = new ParentClause(firstStmtArg, secondStmtArg);
+		shared_ptr<RelationshipClause> parentClause(new ParentClause(firstStmtArg, secondStmtArg));
 		testEquals(parentClause, false);
 	}
 }
@@ -158,17 +158,17 @@ namespace {
 	PQLRelationship pqlParentStarW1R2 = PQLRelationship(pqlW1, pqlR2);
 
 	// Clause Arguments
-	ClauseArgument firstStmtArg = ClauseArgument::generateStmtArg("s1");
-	ClauseArgument secondStmtArg = ClauseArgument::generateStmtArg("s2");
-	ClauseArgument ifArg = ClauseArgument::generateIfArg("if");
-	ClauseArgument whileArg = ClauseArgument::generateWhileArg("while");
-	ClauseArgument lineOneArg = ClauseArgument::generateLineNumberArg("1");
-	ClauseArgument lineTwoArg = ClauseArgument::generateLineNumberArg("2");
-	ClauseArgument lineFourArg = ClauseArgument::generateLineNumberArg("4");
-	ClauseArgument lineSixArg = ClauseArgument::generateLineNumberArg("6");
-	ClauseArgument wildcardArg = ClauseArgument::generateWildcardArg();
-	ClauseArgument readArg = ClauseArgument::generateReadArg("rr");
-	ClauseArgument printArg = ClauseArgument::generatePrintArg("pp");
+	ClauseArgument firstStmtArg = ClauseArgument::createStmtArg("s1");
+	ClauseArgument secondStmtArg = ClauseArgument::createStmtArg("s2");
+	ClauseArgument ifArg = ClauseArgument::createIfArg("if");
+	ClauseArgument whileArg = ClauseArgument::createWhileArg("while");
+	ClauseArgument lineOneArg = ClauseArgument::createLineNumberArg("1");
+	ClauseArgument lineTwoArg = ClauseArgument::createLineNumberArg("2");
+	ClauseArgument lineFourArg = ClauseArgument::createLineNumberArg("4");
+	ClauseArgument lineSixArg = ClauseArgument::createLineNumberArg("6");
+	ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
+	ClauseArgument readArg = ClauseArgument::createReadArg("rr");
+	ClauseArgument printArg = ClauseArgument::createPrintArg("pp");
 };
 
 TEST_CASE("ParentClause: test execute") {

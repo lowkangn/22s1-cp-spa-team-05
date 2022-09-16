@@ -6,30 +6,7 @@ ClauseArgument ClauseParser::parseSynonym() {
         throw PQLError("Synonym not declared: " + synonymToken.getTokenString());
     }
     this->tokens.pop_front();
-    switch(declarations.at(synonymToken.getTokenString())) {
-		case ArgumentType::STMT:
-			return ClauseArgument::generateStmtArg(synonymToken.getTokenString());
-		case ArgumentType::READ:
-			return ClauseArgument::generateReadArg(synonymToken.getTokenString());
-		case ArgumentType::PRINT:
-			return ClauseArgument::generatePrintArg(synonymToken.getTokenString());
-		case ArgumentType::ASSIGN:
-			return ClauseArgument::generateAssignArg(synonymToken.getTokenString());
-		case ArgumentType::CALL:
-			return ClauseArgument::generateCallArg(synonymToken.getTokenString());
-		case ArgumentType::WHILE:
-			return ClauseArgument::generateWhileArg(synonymToken.getTokenString());
-		case ArgumentType::IF:
-			return ClauseArgument::generateIfArg(synonymToken.getTokenString());
-		case ArgumentType::PROCEDURE:
-			return ClauseArgument::generateProcedureArg(synonymToken.getTokenString());
-		case ArgumentType::VARIABLE:
-			return ClauseArgument::generateVariableArg(synonymToken.getTokenString());
-		case ArgumentType::CONSTANT:
-			return ClauseArgument::generateConstantArg(synonymToken.getTokenString());
-		default:
-			throw PQLError("parseSynonym: invalid ArgumentType");
-	}
+    return ClauseArgument::createArgument(synonymToken.getTokenString(), declarations.at(synonymToken.getTokenString()));
 }
 
 ClauseArgument ClauseParser::parseOneArgument() {
@@ -64,19 +41,19 @@ ClauseArgument ClauseParser::parseStringLiteral() {
 		throw PQLError("Expected closing quote");
 	}
 	this->tokens.pop_front();
-	return ClauseArgument::generateStringLiteralArg(token.getTokenString());
+	return ClauseArgument::createStringLiteralArg(token.getTokenString());
 }
 
 ClauseArgument ClauseParser::parseStatementNumber() {
 	PQLToken stmtNumToken = this->tokens.front();
 	this->tokens.pop_front();
-	return ClauseArgument::generateLineNumberArg(stmtNumToken.getTokenString());
+	return ClauseArgument::createLineNumberArg(stmtNumToken.getTokenString());
 }
 
 ClauseArgument ClauseParser::parseWildcard() {
 	PQLToken wildCardToken = this->tokens.front();
 	this->tokens.pop_front();
-	return ClauseArgument::generateWildcardArg();
+	return ClauseArgument::createWildcardArg();
 }
 
 void ClauseParser::consumeOpenBracket() {
