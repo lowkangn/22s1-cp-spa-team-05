@@ -10,14 +10,18 @@
 #include <qps/query/clause/ParentTClause.h>
 
 class ParentParser : public SuchThatClauseParser {
-protected:
-	PQLToken extractClauseType() override;
+private:
+	bool isStar;
+public:
+	ParentParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
+		SuchThatClauseParser(tokens, declarations) {
+		this->isStar = false;
+	};
+
+	bool isCorrectClauseType(PQLToken clauseTypeToken) override;
 
 	void checkArguments(list<ClauseArgument>& args) override;
 
 	shared_ptr<RelationshipClause> createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) override;
 
-public:
-	ParentParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
-		SuchThatClauseParser(tokens, declarations) {};
 };

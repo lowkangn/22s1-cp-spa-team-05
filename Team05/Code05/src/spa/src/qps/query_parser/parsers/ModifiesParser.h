@@ -10,14 +10,14 @@
 #include <qps/query/clause/ModifiesPClause.h>
 
 class ModifiesParser : public SuchThatClauseParser {
-protected:
-	PQLToken extractClauseType() override;
+public:
+	ModifiesParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
+		SuchThatClauseParser(tokens, declarations) {};
+
+	bool isCorrectClauseType(PQLToken clauseTypeToken) override;
 
 	void checkArguments(list<ClauseArgument>& args) override;
 
 	shared_ptr<RelationshipClause> createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) override;
 
-public:
-	ModifiesParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
-		SuchThatClauseParser(tokens, declarations) {};
 };

@@ -1,7 +1,9 @@
 #include <qps/query_parser/parsers/SuchThatClauseParser.h>
 
 shared_ptr<RelationshipClause> SuchThatClauseParser::parse() {
-	PQLToken clauseTypeToken = extractClauseType();
+	PQLToken clauseTypeToken = this->tokens.front();
+	assert(isCorrectClauseType(clauseTypeToken));
+	this->tokens.pop_front();
 
 	list<ClauseArgument> args = extractArguments();
 	this->checkArguments(args);
