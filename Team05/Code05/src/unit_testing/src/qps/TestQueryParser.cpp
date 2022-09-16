@@ -177,8 +177,8 @@ TEST_CASE("QueryParser: test parseConstraints Parent") {
     };
 
     shared_ptr<RelationshipClause> parentTClause = shared_ptr<RelationshipClause>(new ParentTClause(
-        ClauseArgument("s1", ArgumentType::STMT),
-        ClauseArgument("5", ArgumentType::LINE_NUMBER)));
+        ClauseArgument::generateStmtArg("s1"),
+        ClauseArgument::generateLineNumberArg("5")));
 
     list<PQLToken> tokens = list<PQLToken>{
         PQLToken("such", PQLTokenType::NAME),

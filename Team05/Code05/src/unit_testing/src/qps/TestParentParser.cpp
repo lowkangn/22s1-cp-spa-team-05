@@ -37,8 +37,8 @@ TEST_CASE("ParentParser: test parseParentNoError") {
     };
 
     ParentClause expected = ParentClause(
-        ClauseArgument("s1", ArgumentType::STMT),
-        ClauseArgument("a1", ArgumentType::ASSIGN));
+        ClauseArgument::generateStmtArg("s1"),
+        ClauseArgument::generateAssignArg("a1"));
 
 
     SECTION("2 synonyms") {
@@ -59,8 +59,8 @@ TEST_CASE("ParentParser: test parseParentNoError") {
         };
 
         expected = ParentClause(
-            ClauseArgument("w1", ArgumentType::WHILE),
-            ClauseArgument("1", ArgumentType::LINE_NUMBER));
+            ClauseArgument::generateWhileArg("w1"),
+            ClauseArgument::generateLineNumberArg("1"));
 
         testParseNoError(tokensList, declarationsMap, expected);
     }
@@ -79,8 +79,8 @@ TEST_CASE("ParentParser: test parseParentNoError") {
         };
 
         expected = ParentClause(
-            ClauseArgument("4", ArgumentType::LINE_NUMBER),
-            ClauseArgument("_", ArgumentType::WILDCARD));
+            ClauseArgument::generateLineNumberArg("4"),
+            ClauseArgument::generateWildcardArg());
 
         testParseNoError(tokensList, declarationsMap, expected);
     }
@@ -99,8 +99,8 @@ TEST_CASE("ParentParser: test parseParentNoError") {
         };
 
         expected = ParentClause(
-            ClauseArgument("_", ArgumentType::WILDCARD),
-            ClauseArgument("r1", ArgumentType::READ));
+            ClauseArgument::generateWildcardArg(),
+            ClauseArgument::generateReadArg("r1"));
 
         testParseNoError(tokensList, declarationsMap, expected);
     }
@@ -135,8 +135,8 @@ TEST_CASE("ParentParser: test parseParentTNoError") {
     };
 
     ParentTClause expected = ParentTClause(
-        ClauseArgument("i1", ArgumentType::IF),
-        ClauseArgument("p1", ArgumentType::PRINT));
+        ClauseArgument::generateIfArg("i1"),
+        ClauseArgument::generatePrintArg("p1"));
 
 
     SECTION("2 synonyms") {
@@ -159,8 +159,8 @@ TEST_CASE("ParentParser: test parseParentTNoError") {
         };
 
         expected = ParentTClause(
-            ClauseArgument("a1", ArgumentType::ASSIGN),
-            ClauseArgument("_", ArgumentType::WILDCARD));
+            ClauseArgument::generateAssignArg("a1"),
+            ClauseArgument::generateWildcardArg());
 
         testParseNoError(tokensList, declarationsMap, expected);
     }
@@ -178,8 +178,8 @@ TEST_CASE("ParentParser: test parseParentTNoError") {
         declarationsMap = unordered_map<string, ArgumentType>{};
 
         expected = ParentTClause(
-            ClauseArgument("_", ArgumentType::WILDCARD),
-            ClauseArgument("_", ArgumentType::WILDCARD));
+				ClauseArgument::generateWildcardArg(),
+				ClauseArgument::generateWildcardArg());
 
         testParseNoError(tokensList, declarationsMap, expected);
     }
