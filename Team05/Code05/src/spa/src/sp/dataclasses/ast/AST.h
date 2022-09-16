@@ -106,11 +106,36 @@ public:
 		return this->type == ASTNodeType::IF;
 	}
 
+	bool isPrintNode() {
+		return this->type == ASTNodeType::PRINT;
+	}
+
+	bool isAssignNode() {
+		return this->type == ASTNodeType::ASSIGN;
+	}
+
+	bool isReadNode() {
+		return this->type == ASTNodeType::READ;
+	}
+
+	bool isCallNode() {
+		return this->type == ASTNodeType::CALL;
+	}
+
 	bool hasContainer() {
 		return this->isProgramNode() ||
 			this->isProcedureNode() ||
 			this->isWhileNode() ||
 			this->isIfNode() ||
 			this->isStmtLstNode();
+	}
+
+	bool isStmt() {
+		return this->isReadNode() ||
+			this->isAssignNode() ||
+			this->isIfNode() ||
+			this->isWhileNode() ||
+			this->isPrintNode() ||
+			this->isCallNode();
 	}
 };

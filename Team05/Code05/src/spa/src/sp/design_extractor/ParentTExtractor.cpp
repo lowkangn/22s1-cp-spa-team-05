@@ -51,24 +51,12 @@ vector<Relationship> ParentTExtractor::recursiveExtractFromContainer(shared_ptr<
 
 	// Find statements and create relationship
 	for (shared_ptr<ASTNode> child : containerASTNode->getChildren()) {
-		ASTNodeType astType = child->getType();
 
-		switch (astType) {
-		case ASTNodeType::READ:
-		case ASTNodeType::ASSIGN:
-		case ASTNodeType::PRINT:
-		case ASTNodeType::CALL:
-		{
-			Relationship parent = Relationship(leftHandSide, child->extractEntity(), RelationshipType::PARENTT);
-			parentRelationships.push_back(parent);
-			break;
-		}
-		case ASTNodeType::IF:
-		{
+		if (child->isIfNode()) {
 			// Extract this node as a Relationship
 			Relationship parent = Relationship(leftHandSide, child->extractEntity(), RelationshipType::PARENTT);
 			parentRelationships.push_back(parent);
-			
+
 			// Extract deeper nested stmtlsts
 			shared_ptr<IfASTNode> ifNode = dynamic_pointer_cast<IfASTNode>(child);
 			Entity ifEntity = ifNode->extractEntity();
@@ -78,14 +66,11 @@ vector<Relationship> ParentTExtractor::recursiveExtractFromContainer(shared_ptr<
 
 			parentRelationships.insert(parentRelationships.begin(), thenRelations.begin(), thenRelations.end());
 			parentRelationships.insert(parentRelationships.begin(), elseRelations.begin(), elseRelations.end());
-			break;
-
 		}
-		case ASTNodeType::WHILE: 
-		{
+		else if (child->isWhileNode()) {
 			shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(child);
 			Relationship parent = Relationship(leftHandSide, child->extractEntity(), RelationshipType::PARENTT);
-			
+
 			// Extract this node as a Relationship
 			parentRelationships.push_back(parent);
 
@@ -93,8 +78,10 @@ vector<Relationship> ParentTExtractor::recursiveExtractFromContainer(shared_ptr<
 			vector<Relationship> whileParentRelations = this->recursiveExtractFromContainer(whileNode->getStmtList(), leftHandSide);
 
 			parentRelationships.insert(parentRelationships.begin(), whileParentRelations.begin(), whileParentRelations.end());
-			break;
 		}
+		else if (child->isStatement()) {
+			Relationship parent = Relationship(leftHandSide, child->extractEntity(), RelationshipType::PARENTT);
+			parentRelationships.push_back(parent);
 		}
 	}
 

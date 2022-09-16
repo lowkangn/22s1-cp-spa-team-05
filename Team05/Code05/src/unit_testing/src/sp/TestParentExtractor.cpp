@@ -37,6 +37,16 @@ TEST_CASE("ParentExtractor: test extractFromContainer") {
 	};
 
 	SECTION("Stmt lst node") {
+		/*
+			{
+				read x;
+				x = 1;
+				call proc;
+				if () then {} else {}
+				while () {}
+			}
+		*/
+
 		Token readToken = Token{ READ_KEYWORD, TokenType::NAME_OR_KEYWORD };
 		Token assignToken = Token{ "=", TokenType::OPERATOR };
 		Token callToken = Token{ CALL_KEYWORD, TokenType::NAME_OR_KEYWORD };
