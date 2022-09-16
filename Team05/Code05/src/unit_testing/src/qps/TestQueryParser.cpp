@@ -29,7 +29,7 @@ TEST_CASE("QueryParser: test parseNoError") {
         };
 
         shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(
-                ClauseArgument("p", ArgumentType::PROCEDURE)));
+                ClauseArgument::createProcedureArg("p")));
         Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{});
 
         testParseNoError(tokens, query);
@@ -55,10 +55,10 @@ TEST_CASE("QueryParser: test parseNoError") {
         };
 
         shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(
-                ClauseArgument("v1", ArgumentType::VARIABLE)));
+                ClauseArgument::createVariableArg("v1")));
         shared_ptr<RelationshipClause> modifiesClause = shared_ptr<RelationshipClause>(new ModifiesSClause(
-                ClauseArgument("1", ArgumentType::LINE_NUMBER),
-                ClauseArgument("v", ArgumentType::VARIABLE)));
+                ClauseArgument::createLineNumberArg("1"),
+                ClauseArgument::createVariableArg("v")));
         Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause});
 
         testParseNoError(tokens, query);
@@ -84,10 +84,10 @@ TEST_CASE("QueryParser: test parseNoError") {
             PQLToken(")", PQLTokenType::DELIMITER)
         };
         selectClause = shared_ptr<SelectClause>(new SelectClause(
-                ClauseArgument("c", ArgumentType::CONSTANT)));
+                ClauseArgument::createConstantArg("c")));
         modifiesClause = shared_ptr<RelationshipClause>(new ModifiesPClause(
-                ClauseArgument("p", ArgumentType::PROCEDURE),
-                ClauseArgument("x", ArgumentType::STRING_LITERAL)));
+                ClauseArgument::createProcedureArg("p"),
+                ClauseArgument::createStringLiteralArg("x")));
         query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause});
 
         testParseNoError(tokens, query);
@@ -122,8 +122,8 @@ TEST_CASE("QueryParser: test parseConstraints") {
     };
 
     shared_ptr<RelationshipClause> modifiesClause = shared_ptr<RelationshipClause>(new ModifiesPClause(
-        ClauseArgument("s1", ArgumentType::STMT),
-        ClauseArgument("v1", ArgumentType::VARIABLE)));
+        ClauseArgument::createStmtArg("s1"),
+        ClauseArgument::createVariableArg("v1")));
 
     list<PQLToken> tokens = list<PQLToken>{
         PQLToken("such", PQLTokenType::NAME),

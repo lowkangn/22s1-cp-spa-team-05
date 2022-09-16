@@ -31,7 +31,7 @@ TEST_CASE("SelectParser: test parseNoError") {
         {"v1", ArgumentType::VARIABLE}
     };
 
-    SelectClause expected = SelectClause(ClauseArgument("v1", ArgumentType::VARIABLE));
+    SelectClause expected = SelectClause(ClauseArgument::createVariableArg("v1"));
 
     testParseNoError(tokens, declarations, expected);
 
@@ -41,7 +41,7 @@ TEST_CASE("SelectParser: test parseNoError") {
     };
 
     declarations = unordered_map<string, ArgumentType>{{"abcdefgLongName", ArgumentType::CONSTANT}};
-    expected = SelectClause(ClauseArgument("abcdefgLongName", ArgumentType::CONSTANT));
+    expected = SelectClause(ClauseArgument::createConstantArg("abcdefgLongName"));
 
     testParseNoError(tokens, declarations, expected);
 }

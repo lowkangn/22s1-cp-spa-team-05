@@ -38,8 +38,8 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
     };
 
     ModifiesSClause expected = ModifiesSClause(
-        ClauseArgument("s1", ArgumentType::STMT),
-        ClauseArgument("v1", ArgumentType::VARIABLE));
+        ClauseArgument::createStmtArg("s1"),
+        ClauseArgument::createVariableArg("v1"));
 
     testParseNoError(tokensList, declarationsMap, expected);
 
@@ -55,8 +55,8 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
     };
 
     expected = ModifiesSClause(
-        ClauseArgument("1", ArgumentType::LINE_NUMBER),
-        ClauseArgument("x", ArgumentType::STRING_LITERAL));
+        ClauseArgument::createLineNumberArg("1"),
+        ClauseArgument::createStringLiteralArg("x"));
 
     testParseNoError(tokensList,unordered_map<string, ArgumentType>{}, expected);
 }
@@ -91,8 +91,8 @@ TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
     };
 
     ModifiesPClause expected = ModifiesPClause(
-        ClauseArgument("x", ArgumentType::STRING_LITERAL),
-        ClauseArgument("v1", ArgumentType::VARIABLE));
+        ClauseArgument::createStringLiteralArg("x"),
+        ClauseArgument::createVariableArg("v1"));
 
     testParseNoError(tokensList, declarationsMap, expected);
 }

@@ -6,15 +6,74 @@
 
 using namespace std;
 
+const string WILDCARD_IDENTIFIER = "_";
+
 class ClauseArgument {
 private:
 	string identifier;
 	ArgumentType type;
-public:
+
 	ClauseArgument(string identifier, ArgumentType type) {
 		this->identifier = identifier;
 		this->type = type;
 	};
+public:
+	// TODO: Remove all uses of this factory method.
+	static ClauseArgument createArgument(string identifier, ArgumentType type) {
+		return ClauseArgument(identifier, type);
+	}
+
+	static ClauseArgument createAssignArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::ASSIGN);
+	}
+
+	static ClauseArgument createCallArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::CALL);
+	}
+
+	static ClauseArgument createConstantArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::CONSTANT);
+	}
+
+	static ClauseArgument createIfArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::IF);
+	}
+
+	static ClauseArgument createLineNumberArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::LINE_NUMBER);
+	}
+
+	static ClauseArgument createPrintArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::PRINT);
+	}
+
+	static ClauseArgument createProcedureArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::PROCEDURE);
+	}
+
+	static ClauseArgument createReadArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::READ);
+	}
+
+	static ClauseArgument createStmtArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::STMT);
+	}
+
+	static ClauseArgument createStringLiteralArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::STRING_LITERAL);
+	}
+
+	static ClauseArgument createVariableArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::VARIABLE);
+	}
+
+	static ClauseArgument createWhileArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::WHILE);
+	}
+
+	static ClauseArgument createWildcardArg() {
+		return ClauseArgument(WILDCARD_IDENTIFIER, ArgumentType::WILDCARD);
+	}
 
 	bool isStmtSynonym() {
 		return this->type == ArgumentType::STMT;

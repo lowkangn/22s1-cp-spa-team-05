@@ -19,8 +19,8 @@ TEST_CASE("QueryEvaluator: test dereferenceRelationshipsResultPointers") {
 		REQUIRE(actual == expected);
 	};
 
-	ClauseArgument stmtArg = ClauseArgument("s", ArgumentType::LINE_NUMBER);
-	ClauseArgument varArg = ClauseArgument("v", ArgumentType::VARIABLE);
+	ClauseArgument stmtArg = ClauseArgument::createLineNumberArg("s");
+	ClauseArgument varArg = ClauseArgument::createVariableArg("v");
 
 	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
 	PQLEntity secondStmtEntity = PQLEntity::generateStatement(2);
@@ -54,9 +54,9 @@ TEST_CASE("QueryEvaluator: test findDesiredArgument") {
 		REQUIRE(actual == expected);
 	};
 
-	ClauseArgument firstVarArg = ClauseArgument("v", ArgumentType::VARIABLE);
-	ClauseArgument secondVarArg = ClauseArgument("v1", ArgumentType::VARIABLE);
-	ClauseArgument assignArg = ClauseArgument("a", ArgumentType::ASSIGN);
+	ClauseArgument firstVarArg = ClauseArgument::createVariableArg("v");
+	ClauseArgument secondVarArg = ClauseArgument::createVariableArg("v1");
+	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
 
 	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
 	PQLEntity secondStmtEntity = PQLEntity::generateStatement(2);
@@ -72,24 +72,24 @@ TEST_CASE("QueryEvaluator: test findDesiredArgument") {
 			assignArg, secondVarArg, {firstRelationship, secondRelationship});
 
 	SECTION("First arg matches") {
-		ClauseArgument desiredArg = ClauseArgument("a", ArgumentType::ASSIGN);
+		ClauseArgument desiredArg = ClauseArgument::createAssignArg("a");
 		testFindDesiredArgument(desiredArg, firstRelationshipClauseResult, RelationshipArgument::ARG1);
 		testFindDesiredArgument(desiredArg, secondRelationshipClauseResult, RelationshipArgument::ARG1);
 	}
 
 	SECTION("Second arg matches") {
-		ClauseArgument desiredArg = ClauseArgument("v", ArgumentType::VARIABLE);
+		ClauseArgument desiredArg = ClauseArgument::createVariableArg("v");
 		testFindDesiredArgument(desiredArg, firstRelationshipClauseResult, RelationshipArgument::ARG2);
 
-		desiredArg = ClauseArgument("v1", ArgumentType::VARIABLE);
+		desiredArg = ClauseArgument::createVariableArg("v1");
 		testFindDesiredArgument(desiredArg, secondRelationshipClauseResult, RelationshipArgument::ARG2);
 	}
 
 	SECTION("Neither arg matches") {
-		ClauseArgument desiredArg = ClauseArgument("v", ArgumentType::VARIABLE);
+		ClauseArgument desiredArg = ClauseArgument::createVariableArg("v");
 		testFindDesiredArgument(desiredArg, secondRelationshipClauseResult, RelationshipArgument::NONE);
 
-		desiredArg = ClauseArgument("p", ArgumentType::PROCEDURE);
+		desiredArg = ClauseArgument::createProcedureArg("p");
 		testFindDesiredArgument(desiredArg, firstRelationshipClauseResult, RelationshipArgument::NONE);
 		testFindDesiredArgument(desiredArg, secondRelationshipClauseResult, RelationshipArgument::NONE);
 	}
@@ -211,7 +211,7 @@ TEST_CASE("QueryEvaluator: test combine") {
 
     SECTION("SelectClause only") {
         // x = x + 1; variable v; Select v
-        ClauseArgument variableArg = ClauseArgument("v", ArgumentType::VARIABLE);
+        ClauseArgument variableArg = ClauseArgument::createVariableArg("v");
         PQLEntity varEntity = PQLEntity::generateVariable("x");
         shared_ptr<EntityClauseResult> entityClauseResultWithVariable =
 				shared_ptr<EntityClauseResult>(new EntityClauseResult(
@@ -224,7 +224,7 @@ TEST_CASE("QueryEvaluator: test combine") {
 					expectedSet);
 
         // x = x + 1; constant c; Select c
-        ClauseArgument constantArg = ClauseArgument("c", ArgumentType::CONSTANT);
+        ClauseArgument constantArg = ClauseArgument::createConstantArg("c");
         PQLEntity constEntity = PQLEntity::generateConstant(1);
         shared_ptr<EntityClauseResult> entityClauseResultWithConstant =
 				shared_ptr<EntityClauseResult>(new EntityClauseResult(
@@ -237,7 +237,7 @@ TEST_CASE("QueryEvaluator: test combine") {
 					expectedSet);
 
         // x = x + 1; procedure p; Select p
-        ClauseArgument procArg = ClauseArgument("p", ArgumentType::PROCEDURE);
+        ClauseArgument procArg = ClauseArgument::createProcedureArg("p");
         shared_ptr<EntityClauseResult> entityClauseResultWithProcedure =
 				shared_ptr<EntityClauseResult>(new EntityClauseResult(
 						procArg,vector<PQLEntity>{}));
@@ -251,8 +251,8 @@ TEST_CASE("QueryEvaluator: test combine") {
 
     SECTION("SelectClause with ModifiesSClause") {
 
-        ClauseArgument assignArg = ClauseArgument("a", ArgumentType::ASSIGN);
-        ClauseArgument varArg = ClauseArgument("v", ArgumentType::VARIABLE);
+        ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
+        ClauseArgument varArg = ClauseArgument::createVariableArg("v");
 
         PQLEntity relationship1Entity1 = PQLEntity::generateStatement(1);
         PQLEntity relationship1Entity2 = PQLEntity::generateVariable("x");
