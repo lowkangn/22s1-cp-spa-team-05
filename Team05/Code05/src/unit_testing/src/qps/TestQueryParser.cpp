@@ -3,6 +3,8 @@
 #include <qps/query/clause/ModifiesPClause.h>
 #include <qps/query/clause/ParentClause.h>
 #include <qps/query/clause/ParentTClause.h>
+#include <qps/query/clause/UsesSClause.h>
+#include <qps/query/clause/UsesPClause.h>
 #include <qps/query_parser/QueryParser.h>
 
 
@@ -139,7 +141,7 @@ TEST_CASE("QueryParser: test parseConstraints Modifies") {
     };
 
     unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
-        {"v1", ArgumentType::VARIABLE},
+        { "v1", ArgumentType::VARIABLE },
         { "s1", ArgumentType::STMT }
     };
 
@@ -193,11 +195,64 @@ TEST_CASE("QueryParser: test parseConstraints Parent") {
     };
 
     unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
-        {"v1", ArgumentType::VARIABLE},
+        { "v1", ArgumentType::VARIABLE },
         { "s1", ArgumentType::STMT }
     };
 
     list<shared_ptr<RelationshipClause>> expected;
     expected.emplace_back(parentTClause);
     testParseNoError(tokens, declarations, expected);
+}
+
+TEST_CASE("QueryParser: test parseConstraints Uses") {
+    auto testParseNoError = [](list<PQLToken> tokens,
+        unordered_map<string, ArgumentType> declarations,
+        list<shared_ptr<RelationshipClause>> expected) {
+            // given
+            QueryParser parser = QueryParser(tokens);
+
+            // when
+            list<shared_ptr<RelationshipClause>> actual = parser.parseConstraints(declarations);
+            bool isEqual = actual.size() == expected.size();
+            if (isEqual) {
+                while (!actual.empty()) {
+                    //temporarily use casting to check equality for now
+                    shared_ptr<RelationshipClause> actualPtr = actual.front();
+                    shared_ptr<RelationshipClause> expectedPtr = expected.front();
+                    shared_ptr<UsesSClause> expectedClause = dynamic_pointer_cast<UsesSClause>(actualPtr);
+
+                    isEqual = isEqual && (*expectedClause.get()).equals(actualPtr);
+                    actual.pop_front();
+                    expected.pop_front();
+                }
+            }
+
+            // then
+            REQUIRE(isEqual);
+    };
+
+    shared_ptr<RelationshipClause> usesSClause = shared_ptr<RelationshipClause>(new UsesSClause(
+        ClauseArgument::createStmtArg("s1"),
+        ClauseArgument::createVariableArg("v1")));
+
+    list<PQLToken> tokens = list<PQLToken>{
+        PQLToken::createNameToken("such"),
+        PQLToken::createNameToken("that"),
+        PQLToken::createNameToken("Uses"),
+        PQLToken::createDelimiterToken("("),
+        PQLToken::createNameToken("s1"),
+        PQLToken::createDelimiterToken(","),
+        PQLToken::createNameToken("v1"),
+        PQLToken::createDelimiterToken(")")
+    };
+
+    unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
+        { "v1", ArgumentType::VARIABLE },
+        { "s1", ArgumentType::STMT }
+    };
+
+    list<shared_ptr<RelationshipClause>> expected;
+    expected.emplace_back(usesSClause);
+    testParseNoError(tokens, declarations, expected);
+
 }
