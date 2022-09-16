@@ -75,7 +75,7 @@ vector<Relationship> UsesExtractor::handleProcedure(shared_ptr<ASTNode> ast) {
 
 	// Iterate through children and extract Procedure Stmt relationships
 	for (shared_ptr<ASTNode> child : childContainer->getChildren()) {
-		vector <Relationship> extractedRelationships = recursiveContainerExtract(leftHandSide, child);
+		vector <Relationship> extractedRelationships = this->recursiveContainerExtract(leftHandSide, child);
 		extractedChildRelationships.insert(extractedChildRelationships.end(), extractedRelationships.begin(), extractedRelationships.end());
 	}
 
@@ -118,7 +118,7 @@ vector<Relationship> UsesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 
 	// Iterate through children and extract While Stmt relationships
 	for (shared_ptr<ASTNode> child : childStmtLst->getChildren()) {
-		vector <Relationship> extractedRelationships = recursiveContainerExtract(leftHandSide, child);
+		vector <Relationship> extractedRelationships = this->recursiveContainerExtract(leftHandSide, child);
 		usesRelationships.insert(usesRelationships.end(), extractedRelationships.begin(), extractedRelationships.end());
 	}
 
@@ -141,13 +141,13 @@ vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 	// Iterate through children and extract If Stmt relationships
 	vector<shared_ptr<ASTNode>> childrenInThen = thenChild->getChildren();
 	for (shared_ptr<ASTNode> child : childrenInThen) {
-		vector <Relationship> extractedThenRelationships = recursiveContainerExtract(leftHandSide, child);
+		vector <Relationship> extractedThenRelationships = this->recursiveContainerExtract(leftHandSide, child);
 		usesRelationships.insert(usesRelationships.end(), extractedThenRelationships.begin(), extractedThenRelationships.end());
 	}
 
 	vector<shared_ptr<ASTNode>> childrenInElse = elseChild->getChildren();
 	for (shared_ptr<ASTNode> child : childrenInElse) {
-		vector <Relationship> extractedElseRelationships = recursiveContainerExtract(leftHandSide, child);
+		vector <Relationship> extractedElseRelationships = this->recursiveContainerExtract(leftHandSide, child);
 		usesRelationships.insert(usesRelationships.end(), extractedElseRelationships.begin(), extractedElseRelationships.end());
 	}
 
@@ -229,7 +229,7 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSi
 
 		// Create relationship for parent of this container and the stmtlst inside this while node
 		for (shared_ptr<ASTNode> child : childrenStmtLst->getChildren()) {
-			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
+			vector<Relationship> toAdd = this->recursiveContainerExtract(leftHandSide, child);
 			usesRelationships.insert(usesRelationships.end(), toAdd.begin(), toAdd.end());
 		}
 		break;
@@ -247,12 +247,12 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSi
 
 		// Create relationship for parent of this container and the then and else stmtlst inside this if node
 		for (shared_ptr<ASTNode> child : thenChildren->getChildren()) {
-			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
+			vector<Relationship> toAdd = this->recursiveContainerExtract(leftHandSide, child);
 			usesRelationships.insert(usesRelationships.end(), toAdd.begin(), toAdd.end());
 		}
 
 		for (shared_ptr<ASTNode> child : elseChildren->getChildren()) {
-			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
+			vector<Relationship> toAdd = this->recursiveContainerExtract(leftHandSide, child);
 			usesRelationships.insert(usesRelationships.end(), toAdd.begin(), toAdd.end());
 		}
 		break;
