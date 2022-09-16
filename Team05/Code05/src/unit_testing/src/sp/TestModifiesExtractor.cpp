@@ -446,7 +446,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		Token constToken = Token::createIntegerToken("1");
 		Token assignToken = Token::createEqualsToken();
 		Token yToken = Token::createNameOrKeywordToken("y");
-		Entity assignEntity = Entity::createAssignEntity(LINENUMBER);;
+	Entity assignEntity = Entity::createAssignEntity(LINENUMBER);;
 
 
 		Entity yEntity = Entity::createVariableEntity(LINENUMBER, yToken);
@@ -481,7 +481,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		addNode2->addChild(y);
 
 
-		Relationship modifiesX = Relationship::createModifiesRelationship(assignEntity, LHS);
+	Relationship modifiesX = Relationship::createModifiesRelationship(assignEntity, LHS);
 
 		vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
 
@@ -504,7 +504,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 			}
 		}
 	*/
-		// Creating tokens
+	// Creating tokens
 		Token mainToken = Token::createNameOrKeywordToken("main");
 		Token xToken = Token::createNameOrKeywordToken("x");
 		Token yToken = Token::createNameOrKeywordToken("y");

@@ -37,7 +37,7 @@ TEST_CASE("ParserManager::parse works correctly") {
 		 *    }
 		 */
 
-		// create token list with variable alias'
+		 // create token list with variable alias'
 		Token procedureKeywordToken = Token::createProcedureToken();
 		Token procedureNameToken = Token::createNameOrKeywordToken("someprocedure");
 		Token openCurlyBracketToken = Token::createOpenCurlyBracketToken();
@@ -48,14 +48,14 @@ TEST_CASE("ParserManager::parse works correctly") {
 		Token closedCurlyBracketToken = Token::createCloseCurlyBracketToken();
 
 		list<Token> tokens = {
-				procedureKeywordToken,
-				procedureNameToken,
-				openCurlyBracketToken,
-				xVariableToken,
-				equalsToken,
-				integerToken,
-				semiColonToken,
-				closedCurlyBracketToken,
+			procedureKeywordToken,
+			procedureNameToken,
+			openCurlyBracketToken,
+			xVariableToken,
+			equalsToken,
+			integerToken,
+			semiColonToken,
+			closedCurlyBracketToken,
 		};
 
 		// create the correct ASTNode

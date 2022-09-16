@@ -111,8 +111,8 @@ TEST_CASE("EntityExtractor: test extract") {
 		testExtract(callNode, expectedEntity);
 	}
 
-		// Not yet implemented
+	// Not yet implemented
 	SECTION("while") {}
-		// Not yet implemented
+	// Not yet implemented
 	SECTION("if") {}
 }
