@@ -10,6 +10,7 @@ const string WILDCARD_IDENTIFIER = "_";
 
 class ClauseArgument {
 private:
+
 	string identifier;
 	ArgumentType type;
 
@@ -173,6 +174,6 @@ public:
 		return this->identifier;
 	}
 
-	
+
 	friend bool operator== (ClauseArgument first, ClauseArgument second);
 };

@@ -8,7 +8,7 @@ public:
 		this->type = ASTNodeType::PROCEDURE;
 	}
 
-	bool isTerminal() {
+	bool isTerminal() override {
 		return false;
 	}
 

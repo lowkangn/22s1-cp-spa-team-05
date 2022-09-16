@@ -562,7 +562,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		};
 		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
-		// test 5: call and variable 
+		// test 5: call and variable
 		lhs = ClauseArgument::createCallArg("c");
 		rhs = ClauseArgument::createVariableArg("v");
 		expectedRelationships = {
@@ -627,6 +627,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(statementResult1, xResult),
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
+
 		// test 2: print and variable
 		lhs = ClauseArgument::createReadArg("r");
 		rhs = ClauseArgument::createVariableArg("v");
@@ -660,7 +661,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 
-		// test 5: call and variable 
+		// test 5: call and variable
 		lhs = ClauseArgument::createCallArg("c");
 		rhs = ClauseArgument::createVariableArg("v");
 		expectedRelationships = {

@@ -19,9 +19,14 @@ public:
     ClauseArgument getArg() {
         return this->arg;
     }
+
     vector<PQLEntity> getEntities() {
         return this->entities;
     }
+
+	bool hasArg(ClauseArgument argToFind) {
+		return this->arg == argToFind;
+	}
 
     bool isEmpty() {
         return this->entities.empty();
