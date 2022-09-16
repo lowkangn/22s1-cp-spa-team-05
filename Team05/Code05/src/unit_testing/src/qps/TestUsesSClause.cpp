@@ -167,39 +167,28 @@ namespace {
 	Relationship usesA8Z8 = Relationship::createUsesRelationship(a8Entity, z8Entity);
 
 	// Initialise corresponding PQLEntities and PQLRelationships
-	PQLEntity pqlR1 = PQLEntity::generateStatement(1);
 	PQLEntity pqlA2 = PQLEntity::generateStatement(2);
 	PQLEntity pqlW3 = PQLEntity::generateStatement(3);
 	PQLEntity pqlP4 = PQLEntity::generateStatement(4);
 	PQLEntity pqlA5 = PQLEntity::generateStatement(5);
 	PQLEntity pqlI6 = PQLEntity::generateStatement(6);
-	PQLEntity pqlA7 = PQLEntity::generateStatement(7);
 	PQLEntity pqlA8 = PQLEntity::generateStatement(8);
-
-	PQLEntity pqlMain = PQLEntity::generateProcedure("main");
+	
 	PQLEntity pqlVarX = PQLEntity::generateVariable("x");
 	PQLEntity pqlVarY = PQLEntity::generateVariable("y");
 	PQLEntity pqlVarZ = PQLEntity::generateVariable("z");
 
-	PQLRelationship pqlUsesMainY2 = PQLRelationship(pqlMain, pqlVarY);
-	PQLRelationship pqlUsesMainXCond = PQLRelationship(pqlMain, pqlVarX);
-	PQLRelationship pqlUsesMainZ4 = PQLRelationship(pqlMain, pqlVarZ);
-	PQLRelationship pqlUsesMainX5 = PQLRelationship(pqlMain, pqlVarX);
-	PQLRelationship pqlUsesMainYCond = PQLRelationship(pqlMain, pqlVarY);
-	PQLRelationship pqlUsesMainZ8 = PQLRelationship(pqlMain, pqlVarZ);
+	PQLRelationship pqlUsesA2Y = PQLRelationship(pqlA2, pqlVarY);
 
-	PQLRelationship pqlUsesA2Y2 = PQLRelationship(pqlA2, pqlVarY);
+	PQLRelationship pqlUsesW3X = PQLRelationship(pqlW3, pqlVarX);
+	PQLRelationship pqlUsesW3Z = PQLRelationship(pqlW3, pqlVarZ);
 
-	PQLRelationship pqlUsesW3XCond = PQLRelationship(pqlW3, pqlVarX);
-	PQLRelationship pqlUsesW3Z4 = PQLRelationship(pqlW3, pqlVarZ);
-	PQLRelationship pqlUsesW3X5 = PQLRelationship(pqlW3, pqlVarX);
+	PQLRelationship pqlUsesIf6Y = PQLRelationship(pqlI6, pqlVarY);
+	PQLRelationship pqlUsesIf6Z = PQLRelationship(pqlI6, pqlVarZ);
 
-	PQLRelationship pqlUsesIf6YCond = PQLRelationship(pqlI6, pqlVarY);
-	PQLRelationship pqlUsesIf6Z8 = PQLRelationship(pqlI6, pqlVarZ);
-
-	PQLRelationship pqlUsesP4Z4 = PQLRelationship(pqlP4, pqlVarZ);
-	PQLRelationship pqlUsesA5X5 = PQLRelationship(pqlA5, pqlVarX);
-	PQLRelationship pqlUsesA8Z8 = PQLRelationship(pqlA8, pqlVarZ);
+	PQLRelationship pqlUsesP4Z = PQLRelationship(pqlP4, pqlVarZ);
+	PQLRelationship pqlUsesA5X = PQLRelationship(pqlA5, pqlVarX);
+	PQLRelationship pqlUsesA8Z = PQLRelationship(pqlA8, pqlVarZ);
 
 	// Clause Arguments
 	ClauseArgument stmtArg = ClauseArgument::createStmtArg("s");
@@ -222,6 +211,8 @@ TEST_CASE("UsesSClause: test execute") {
 			// when
 			shared_ptr<RelationshipClauseResult> resPtr = usesSClause.execute(pkbInterface);
 			RelationshipClauseResult actualClauseResult = *resPtr;
+
+			REQUIRE(actualClauseResult.getRelationships().size() == expectedClauseResult.getRelationships().size());
 
 			// then
 			REQUIRE(actualClauseResult == expectedClauseResult);
@@ -246,8 +237,8 @@ TEST_CASE("UsesSClause: test execute") {
 	// ------ QPS ------ 
 	UsesSClause clause = UsesSClause(stmtArg, variableArg);
 
-	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlUsesA2Y2, pqlUsesW3XCond, pqlUsesW3Z4, pqlUsesW3X5, 
-		pqlUsesIf6YCond, pqlUsesIf6Z8, pqlUsesP4Z4, pqlUsesA5X5,pqlUsesA8Z8 };
+	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlUsesA2Y, pqlUsesW3X, pqlUsesW3Z, pqlUsesIf6Y, 
+		pqlUsesIf6Z, pqlUsesP4Z, pqlUsesA5X, pqlUsesA8Z };
 
 	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(stmtArg, variableArg,
 		expectedRetrievedFromPkb);

@@ -8,11 +8,6 @@ string PkbPatternTable::add(shared_ptr<PkbStatementPattern> pattern) {
 	// get key
 	string key = pattern->getKey();
 
-	// check if item already in table
-	if (this->table.find(key) != this->table.end()) {
-		throw PkbException("Item already in table!");
-	}
-
 	// store
 	this->table.insert({ key, pattern });
 	return key;

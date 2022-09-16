@@ -74,31 +74,5 @@ TEST_CASE("PkbPatternTable::getAll works correctly") {
 		};
 		test(patterns);
 	};
-}
-
-TEST_CASE("PkbPatternTable throws when we try to add duplicate items") {
-	auto test = [](vector<shared_ptr<PkbStatementPattern>> alreadyInTable, shared_ptr<PkbStatementPattern> toAdd) {
-		// given
-		PkbPatternTable table;
-		for (shared_ptr<PkbStatementPattern> e : alreadyInTable) {
-			// add
-			table.add(e);
-		}
-		// when & then
-		REQUIRE_THROWS_AS(table.add(toAdd), PkbException);
-
-	};
-	vector<string> strings = {
-			"x",
-			"x+1"
-	};
-	SECTION("One entry per pattern type") {
-		vector<shared_ptr<PkbStatementPattern>> patterns = {
-			PkbStatementPattern::createAssignPattern(1, strings),
-		};
-		shared_ptr<PkbStatementPattern> toAdd = shared_ptr<PkbStatementPattern>(PkbStatementPattern::createAssignPattern(1, strings));
-		test(patterns, toAdd);
-	};
-
 
 }

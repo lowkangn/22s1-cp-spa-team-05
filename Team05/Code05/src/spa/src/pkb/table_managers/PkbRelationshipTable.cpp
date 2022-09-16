@@ -8,11 +8,6 @@ string PkbRelationshipTable::add(shared_ptr<PkbRelationship> relationship) {
 	// get key
 	string key = relationship->getKey();
 
-	// check if item already in table
-	if (this->table.find(key) != this->table.end()) {
-		throw PkbException("Item already in table!");
-	}
-
 	// store
 	this->table.insert({ key, relationship });
 	return key;

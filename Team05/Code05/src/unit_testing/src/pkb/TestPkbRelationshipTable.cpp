@@ -103,36 +103,3 @@ TEST_CASE("PkbRelationshipTable::getAll works correctly") {
 	};
 
 }
-
-TEST_CASE("PkbRelationshipTable throws when we try to add duplicate items") {
-	auto test = [](vector<shared_ptr<PkbRelationship>> alreadyInTable, shared_ptr<PkbRelationship> toAdd) {
-		// given
-		PkbRelationshipTable table;
-		for (shared_ptr<PkbRelationship> e : alreadyInTable) {
-			// add
-			table.add(e);
-		}
-		// when & then
-		REQUIRE_THROWS_AS(table.add(toAdd), PkbException);
-
-	};
-
-	// create lhs and rhs, to be shared
-	string lhsKey = "procedure";
-	string rhsKey = "variable";
-	shared_ptr<PkbEntity> lhs = shared_ptr<PkbEntity>(new PkbProcedureEntity(lhsKey));
-	shared_ptr<PkbEntity> rhs = shared_ptr<PkbEntity>(new PkbVariableEntity(rhsKey));
-
-	SECTION("One entry per entity type") {
-		vector<shared_ptr<PkbRelationship>> alreadyInTable = {
-			shared_ptr<PkbRelationship>(new PkbFollowsRelationship(lhs, rhs)),
-			shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(lhs, rhs)),
-			shared_ptr<PkbRelationship>(new PkbParentRelationship(lhs, rhs)),
-			shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhs, rhs)),
-			shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhs, rhs)),
-			shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs))
-		};
-		shared_ptr<PkbRelationship> toAdd = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs));
-		test(alreadyInTable, toAdd);
-	};
-}
