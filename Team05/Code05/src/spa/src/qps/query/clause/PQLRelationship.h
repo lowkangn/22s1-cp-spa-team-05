@@ -28,5 +28,6 @@ public:
 
     friend bool operator==(PQLRelationship first, PQLRelationship second);
 
+    friend bool operator<(PQLRelationship first, PQLRelationship second);
 };
 
