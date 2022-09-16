@@ -201,8 +201,6 @@ namespace {
 	ClauseArgument lineTwoArg = ClauseArgument::createLineNumberArg("2");
 	ClauseArgument lineSixArg = ClauseArgument::createLineNumberArg("6");
 	ClauseArgument lineSevenArg = ClauseArgument::createLineNumberArg("7");
-	ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
-	ClauseArgument readArg = ClauseArgument::createReadArg("rr");
 	ClauseArgument printArg = ClauseArgument::createPrintArg("pp");
 	ClauseArgument xLiteralArg = ClauseArgument::createStringLiteralArg("x");
 	ClauseArgument yLiteralArg = ClauseArgument::createStringLiteralArg("y");
