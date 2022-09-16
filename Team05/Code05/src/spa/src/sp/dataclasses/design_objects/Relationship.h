@@ -17,11 +17,35 @@ private:
     Entity entity1;
     Entity entity2;
     RelationshipType type;
-public:
+
     Relationship(Entity entity1, Entity entity2, RelationshipType type) : entity1(entity1), entity2(entity2), type(type) {
         this->entity1 = entity1;
         this->entity2 = entity2;
         this->type = type;
+    }
+public:
+    static Relationship createModifiesRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::MODIFIES);
+    }
+
+    static Relationship createUsesRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::USES);
+    }
+
+    static Relationship createFollowsRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::FOLLOWS);
+    }
+
+    static Relationship createFollowsTRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::FOLLOWST);
+    }
+
+    static Relationship createParentRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::PARENT);
+    }
+
+    static Relationship createParentTRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::PARENTT);
     }
 
     Entity getLhs() {

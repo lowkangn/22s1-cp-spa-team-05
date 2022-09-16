@@ -131,7 +131,7 @@ Token Lexer::createKeywordOrNameTokenFromTraversingStream(istream& stream) {
     while (isalnum(stream.peek())) { // while is alphanumeric
         name += char(stream.get());
     }
-    return Token(name, TokenType::NAME_OR_KEYWORD);
+    return Token::createNameOrKeywordToken(name);
 }
 
 Token Lexer::createIntegerTokenFromTraversingStream(istream& stream) {
@@ -144,7 +144,7 @@ Token Lexer::createIntegerTokenFromTraversingStream(istream& stream) {
     if (isalpha(stream.peek())) {
         throw logic_error(string("Alphabetical character ") + char(stream.peek()) + string(" immediately after number ") + value + string(" - did you forget a space ? "));
     }
-    return Token(value, TokenType::INTEGER);
+    return Token::createIntegerToken(value);
 
 }
 
@@ -152,7 +152,7 @@ Token Lexer::createIntegerTokenFromTraversingStream(istream& stream) {
 Token Lexer::createDelimiterTokenFromTraversingStream(istream& stream) {
     string s;
     s += char(stream.get());
-    return Token(s, TokenType::DELIMITER);
+    return Token::createDelimiterToken(s);
 }
 
 Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
@@ -196,7 +196,7 @@ Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
     default:
         throw logic_error(string("Unknown operator: ") + s);
     }
-    return Token(s, TokenType::OPERATOR);
+    return Token::createOperatorToken(s);
     
 
 }
