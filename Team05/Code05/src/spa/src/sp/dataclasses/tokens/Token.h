@@ -46,10 +46,10 @@ const string DIVIDE_OPERATOR = "/";
 const string MODULUS_OPERATOR = "%";
 
 // relational operators
-const string GREATER_OPERATOR = ">";
+const string GREATER_THAN_OPERATOR = ">";
 const string GREATER_THAN_EQUAL_OPERATOR = ">=";
-const string LESSER_OPERATOR = "<";
-const string LESSER_THAN_EQUAL_OPERATOR = "<=";
+const string LESS_THAN_OPERATOR = "<";
+const string LESS_THAN_EQUAL_OPERATOR = "<=";
 const string EQUALITY_OPERATOR = "==";
 const string NOT_EQUAL_OPERATOR = "!=";
 
@@ -67,11 +67,143 @@ class Token {
 private:
 	string s;
 	TokenType type;
-	
-public: 
+
 	Token(string s, TokenType type) {
 		this->s = s;
 		this->type = type;
+	}
+	
+public: 
+	static Token createNameOrKeywordToken(string s) {
+		return Token(s, TokenType::NAME_OR_KEYWORD);
+	}
+
+	static Token createReadToken() {
+		return Token(READ_KEYWORD, TokenType::NAME_OR_KEYWORD);
+	}
+
+	static Token createPrintToken() {
+		return Token(PRINT_KEYWORD, TokenType::NAME_OR_KEYWORD);
+	}
+
+	static Token createCallToken() {
+		return Token(CALL_KEYWORD, TokenType::NAME_OR_KEYWORD);
+	}
+
+	static Token createWhileToken() {
+		return Token(WHILE_KEYWORD, TokenType::NAME_OR_KEYWORD);
+	}
+
+	static Token createIfToken() {
+		return Token(IF_KEYWORD, TokenType::NAME_OR_KEYWORD);
+	}
+
+	static Token createThenToken() {
+		return Token(THEN_KEYWORD, TokenType::NAME_OR_KEYWORD);
+	}
+
+	static Token createElseToken() {
+		return Token(ELSE_KEYWORD, TokenType::NAME_OR_KEYWORD);
+	}
+
+	static Token createProgramToken() {
+		return Token(PROGRAM_KEYWORD, TokenType::NAME_OR_KEYWORD);
+	}
+
+	static Token createProcedureToken() {
+		return Token(PROCEDURE_KEYWORD, TokenType::NAME_OR_KEYWORD);
+	}
+
+	static Token createDelimiterToken(string s) {
+		return Token(s, TokenType::DELIMITER);
+	}
+
+	static Token createSemicolonToken() {
+		return Token(SEMI_COLON, TokenType::DELIMITER);
+	}
+
+	static Token createOpenBracketToken() {
+		return Token(OPEN_BRACKET, TokenType::DELIMITER);
+	}
+
+	static Token createCloseBracketToken() {
+		return Token(CLOSED_BRACKET, TokenType::DELIMITER);
+	}
+
+	static Token createOpenCurlyBracketToken() {
+		return Token(OPEN_CURLY_BRACKET, TokenType::DELIMITER);
+	}
+
+	static Token createCloseCurlyBracketToken() {
+		return Token(CLOSED_CURLY_BRACKET, TokenType::DELIMITER);
+	}
+
+	static Token createIntegerToken(string s) {
+		return Token(s, TokenType::INTEGER);
+	}
+
+	static Token createPlaceholderToken() {
+		return Token("", TokenType::INVALID);
+	}
+
+	static Token createOperatorToken(string s) {
+		return Token(s, TokenType::OPERATOR);
+	}
+
+	static Token createEqualsToken() {
+		return Token(EQUAL_OPERATOR, TokenType::OPERATOR);
+	}
+
+	static Token createNotEqualsToken() {
+		return Token(NOT_EQUAL_OPERATOR, TokenType::OPERATOR);
+	}
+
+	static Token createPlusToken() {
+		return Token(PLUS_OPERATOR, TokenType::OPERATOR);
+	}
+
+	static Token createMinusToken() {
+		return Token(MINUS_OPERATOR, TokenType::OPERATOR);
+	}
+
+	static Token createMultiplyToken() {
+		return Token(MULTIPLY_OPERATOR, TokenType::OPERATOR);
+	}
+
+	static Token createDivideToken() {
+		return Token(DIVIDE_OPERATOR, TokenType::OPERATOR);
+	}
+
+	static Token createModulusToken() {
+		return Token(MODULUS_OPERATOR, TokenType::OPERATOR);
+	}
+
+	static Token createLessThanToken() {
+		return Token(LESS_THAN_OPERATOR, TokenType::OPERATOR);
+	}
+
+	static Token createGreaterThanToken() {
+		return Token(GREATER_THAN_OPERATOR, TokenType::OPERATOR);
+	}
+
+	static Token createEqualityToken() {
+		return Token(EQUALITY_OPERATOR, TokenType::OPERATOR);
+	}
+
+	static Token createGreaterThanEqualToken() {
+		return Token(GREATER_THAN_EQUAL_OPERATOR, TokenType::OPERATOR);
+	}
+
+	static Token createNotToken() {
+		return Token(NOT, TokenType::OPERATOR);
+	}
+
+	static Token createAndToken() {
+		return Token(AND, TokenType::OPERATOR);
+	}
+
+	static Token createOrToken() {
+		return Token(OR, TokenType::OPERATOR);
 	}
 
 	TokenType getType() {
@@ -210,7 +342,7 @@ public:
 	}
 
 	bool isGreaterToken() {
-		return (this->type == TokenType::OPERATOR) && (this->s == GREATER_OPERATOR);
+		return (this->type == TokenType::OPERATOR) && (this->s == GREATER_THAN_OPERATOR);
 	}
 
 	bool isGreaterThanEqualToken() {
@@ -218,11 +350,11 @@ public:
 	}
 
 	bool isLesserToken() {
-		return (this->type == TokenType::OPERATOR) && (this->s == LESSER_OPERATOR);
+		return (this->type == TokenType::OPERATOR) && (this->s == LESS_THAN_OPERATOR);
 	}
 
 	bool isLesserThanEqualToken() {
-		return (this->type == TokenType::OPERATOR) && (this->s == LESSER_THAN_EQUAL_OPERATOR);
+		return (this->type == TokenType::OPERATOR) && (this->s == LESS_THAN_EQUAL_OPERATOR);
 	}
 
 	bool isEqualityToken() {

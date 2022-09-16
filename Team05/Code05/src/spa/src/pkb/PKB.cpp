@@ -583,7 +583,7 @@ bool PKB::containsEntity(Entity entity) {
 	else if (entitytoPkbEntity->isConstant()) {
 		return this->constantsTable.get(key) != NULL;
 	}
-	else return false;
+	else throw PkbException("Entity of unknown type being checked in PKB");
 }
 
 bool PKB::containsRelationship(Relationship relationship) {
@@ -608,5 +608,5 @@ bool PKB::containsRelationship(Relationship relationship) {
 	else if (relationshiptoPkbRelationship->isModifies()) {
 		return this->getModifiesTable()->get(key) != NULL;
 	}
-	else return false;
+	else throw PkbException("Relationship of unknown type being checked in PKB");
 }
