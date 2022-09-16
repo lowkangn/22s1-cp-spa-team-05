@@ -277,8 +277,8 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
 
 		// test 1: both statement synonyms
-		ClauseArgument lhs = ClauseArgument("s1", ArgumentType::STMT);
-		ClauseArgument rhs = ClauseArgument("s2", ArgumentType::STMT);
+		ClauseArgument lhs = ClauseArgument::generateStmtArg("s1");
+		ClauseArgument rhs = ClauseArgument::generateStmtArg("s2");
 		vector<PQLRelationship> expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 			PQLRelationship(statementResult2, statementResult3),
@@ -289,8 +289,8 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 
 
 		// test 2: one wildcard
-		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
-		rhs = ClauseArgument("s2", ArgumentType::STMT);
+		lhs = ClauseArgument::generateWildcardArg();
+		rhs = ClauseArgument::generateStmtArg("s2");
 		expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 			PQLRelationship(statementResult2, statementResult3),
@@ -300,16 +300,16 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		test(PKBTrackedRelationshipType::FOLLOWS, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3: one a specific line
-		lhs = ClauseArgument("1", ArgumentType::LINE_NUMBER);
-		 rhs = ClauseArgument("s", ArgumentType::STMT);
+		lhs = ClauseArgument::generateLineNumberArg("1");
+		rhs = ClauseArgument::generateStmtArg("s");
 		expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 		};
 		test(PKBTrackedRelationshipType::FOLLOWS, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: both different types
-		lhs = ClauseArgument("a", ArgumentType::ASSIGN);
-		rhs = ClauseArgument("s", ArgumentType::STMT);
+		lhs = ClauseArgument::generateAssignArg("a");
+		rhs = ClauseArgument::generateStmtArg("s");
 		expectedRelationships = {
 			PQLRelationship(statementResult3, statementResult4),
 		};
@@ -338,8 +338,8 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
 
 		// test 1: both statement synonyms
-		ClauseArgument lhs = ClauseArgument("s1", ArgumentType::STMT);
-		ClauseArgument rhs = ClauseArgument("s2", ArgumentType::STMT);
+		ClauseArgument lhs = ClauseArgument::generateStmtArg("s1");
+		ClauseArgument rhs = ClauseArgument::generateStmtArg("s2");
 		vector<PQLRelationship> expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 			PQLRelationship(statementResult1, statementResult3),
@@ -353,8 +353,8 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 
 
 		// test 2: one wildcard
-		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
-		rhs = ClauseArgument("s2", ArgumentType::STMT);
+		lhs = ClauseArgument::generateWildcardArg();
+		rhs = ClauseArgument::generateStmtArg("s2");
 		expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 			PQLRelationship(statementResult1, statementResult3),
@@ -367,8 +367,8 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		test(PKBTrackedRelationshipType::FOLLOWSSTAR, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3: one a specific line
-		lhs = ClauseArgument("1", ArgumentType::LINE_NUMBER);
-		rhs = ClauseArgument("s", ArgumentType::STMT);
+		lhs = ClauseArgument::generateLineNumberArg("1");
+		rhs = ClauseArgument::generateStmtArg("s");
 		expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 			PQLRelationship(statementResult1, statementResult3),
@@ -377,8 +377,8 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		test(PKBTrackedRelationshipType::FOLLOWSSTAR, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: both different types
-		lhs = ClauseArgument("a", ArgumentType::ASSIGN);
-		rhs = ClauseArgument("s", ArgumentType::STMT);
+		lhs = ClauseArgument::generateAssignArg("a");
+		rhs = ClauseArgument::generateStmtArg("s");
 		expectedRelationships = {
 			PQLRelationship(statementResult3, statementResult4),
 		};
@@ -402,8 +402,8 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
 
 		// test 1: both statement synonyms
-		ClauseArgument lhs = ClauseArgument("s1", ArgumentType::STMT);
-		ClauseArgument rhs = ClauseArgument("s2", ArgumentType::STMT);
+		ClauseArgument lhs = ClauseArgument::generateStmtArg("s1");
+		ClauseArgument rhs = ClauseArgument::generateStmtArg("s2");
 		vector<PQLRelationship> expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 			PQLRelationship(statementResult3, statementResult4),
@@ -411,8 +411,8 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		test(PKBTrackedRelationshipType::PARENT, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 2: one wildcard
-		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
-		rhs = ClauseArgument("s2", ArgumentType::STMT);
+		lhs = ClauseArgument::generateWildcardArg();
+		rhs = ClauseArgument::generateStmtArg("s2");
 		expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 			PQLRelationship(statementResult3, statementResult4),
@@ -420,15 +420,15 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		test(PKBTrackedRelationshipType::PARENT, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3: both statement synonyms, but different types
-		lhs = ClauseArgument("a", ArgumentType::ASSIGN);
-		rhs = ClauseArgument("s", ArgumentType::STMT);
+		lhs = ClauseArgument::generateAssignArg("a");
+		rhs = ClauseArgument::generateStmtArg("s");
 		expectedRelationships = {
 		};
 		test(PKBTrackedRelationshipType::PARENT, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: one line number
-		lhs = ClauseArgument("3", ArgumentType::LINE_NUMBER);
-		rhs = ClauseArgument("s", ArgumentType::STMT);
+		lhs = ClauseArgument::generateLineNumberArg("3");
+		rhs = ClauseArgument::generateStmtArg("s");
 		expectedRelationships = {
 			PQLRelationship(statementResult3, statementResult4),
 		};
@@ -453,8 +453,8 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
 
 		// test 1: both statement synonyms
-		ClauseArgument lhs = ClauseArgument("s1", ArgumentType::STMT);
-		ClauseArgument rhs = ClauseArgument("s2", ArgumentType::STMT);
+		ClauseArgument lhs = ClauseArgument::generateStmtArg("s1");
+		ClauseArgument rhs = ClauseArgument::generateStmtArg("s2");
 		vector<PQLRelationship> expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 			PQLRelationship(statementResult3, statementResult4),
@@ -464,8 +464,8 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		test(PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 2: one wildcard
-		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
-		rhs = ClauseArgument("s2", ArgumentType::STMT);
+		lhs = ClauseArgument::generateWildcardArg();
+		rhs = ClauseArgument::generateStmtArg("s2");
 		expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 			PQLRelationship(statementResult3, statementResult4),
@@ -475,14 +475,14 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		test(PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3: both statement synonyms, but different types
-		lhs = ClauseArgument("a", ArgumentType::ASSIGN);
-		rhs = ClauseArgument("s", ArgumentType::STMT);
+		lhs = ClauseArgument::generateAssignArg("a");
+		rhs = ClauseArgument::generateStmtArg("s");
 		expectedRelationships = {};
 		test(PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: one line number
-		lhs = ClauseArgument("3", ArgumentType::LINE_NUMBER);
-		rhs = ClauseArgument("s", ArgumentType::STMT);
+		lhs = ClauseArgument::generateLineNumberArg("3");
+		rhs = ClauseArgument::generateStmtArg("s");
 		expectedRelationships = {
 			PQLRelationship(statementResult3, statementResult4),
 		};
@@ -523,56 +523,56 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
 
 		// test 1: assign and variable
-		ClauseArgument lhs = ClauseArgument("a", ArgumentType::ASSIGN);
-		ClauseArgument rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		ClauseArgument lhs = ClauseArgument::generateAssignArg("a");
+		ClauseArgument rhs = ClauseArgument::generateVariableArg("v");
 		vector<PQLRelationship> expectedRelationships = {
 			PQLRelationship(statementResult1, xResult),
 		};
 		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 2: print and variable
-		lhs = ClauseArgument("pn", ArgumentType::PRINT);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generatePrintArg("pn");
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 			PQLRelationship(statementResult2, xResult),
 		};
 		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3a: if and variable
-		lhs = ClauseArgument("ifs", ArgumentType::IF);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generateIfArg("ifs");
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 			PQLRelationship(statementResult3, xResult),
 		};
 		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3b: while and variable
-		lhs = ClauseArgument("w", ArgumentType::WHILE);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generateWhileArg("w");
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 			
 		};
 		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: procedure and variable
-		lhs = ClauseArgument("p", ArgumentType::PROCEDURE);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generateProcedureArg("p");
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 			PQLRelationship(procedureResult, xResult),
 		};
 		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 5: call and variable 
-		lhs = ClauseArgument("c", ArgumentType::CALL);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generateCallArg("c");
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 			PQLRelationship(statementResult4, xResult),
 		};
 		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 6: rhs wildcard
-		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generateWildcardArg();
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 			PQLRelationship(statementResult1, xResult),
 			PQLRelationship(statementResult2, xResult),
@@ -621,15 +621,15 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		PQLEntity statementResult5 = PQLEntity::generateStatement(5);
 
 		// test 1: assign and variable
-		ClauseArgument lhs = ClauseArgument("a", ArgumentType::ASSIGN);
-		ClauseArgument rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		ClauseArgument lhs = ClauseArgument::generateAssignArg("a");
+		ClauseArgument rhs = ClauseArgument::generateVariableArg("v");
 		vector<PQLRelationship> expectedRelationships = {
 			PQLRelationship(statementResult1, xResult),
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 		// test 2: print and variable
-		lhs = ClauseArgument("r", ArgumentType::READ);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generateReadArg("r");
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 			PQLRelationship(statementResult2, xResult),
 		};
@@ -637,40 +637,40 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 
 
 		// test 3a: if and variable
-		lhs = ClauseArgument("ifs", ArgumentType::IF);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generateIfArg("ifs");
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 			PQLRelationship(statementResult3, xResult),
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 3b: while and variable
-		lhs = ClauseArgument("w", ArgumentType::WHILE);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generateWhileArg("w");
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 4: procedure and variable
-		lhs = ClauseArgument("p", ArgumentType::PROCEDURE);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generateProcedureArg("p");
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 			PQLRelationship(procedureResult, xResult),
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 5: call and variable 
-		lhs = ClauseArgument("c", ArgumentType::CALL);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generateCallArg("c");
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 			PQLRelationship(statementResult5, xResult),
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 6: rhs wildcard
-		lhs = ClauseArgument("_", ArgumentType::WILDCARD);
-		rhs = ClauseArgument("v", ArgumentType::VARIABLE);
+		lhs = ClauseArgument::generateWildcardArg();
+		rhs = ClauseArgument::generateVariableArg("v");
 		expectedRelationships = {
 			PQLRelationship(statementResult1, xResult),
 			PQLRelationship(statementResult2, xResult),
