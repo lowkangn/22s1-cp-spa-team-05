@@ -65,10 +65,5 @@ TEST_CASE("RelationshipClauseResult: test operator==") {
         testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{secondRelationship}),
                            false);
-
-        // Same args, same sets of relationships but in different order
-        testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship, secondRelationship}),
-                           RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{secondRelationship, firstRelationship}),
-                           false);
     }
 }
