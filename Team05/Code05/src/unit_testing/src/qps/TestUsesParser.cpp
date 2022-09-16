@@ -20,7 +20,7 @@ TEST_CASE("UsesParser: test parseUsesSNoError") {
             shared_ptr<RelationshipClause> actualPtr = parser.parse();
 
             // then
-            REQUIRE(expected.equals(actualPtr.get()));
+            REQUIRE(expected.equals(actualPtr));
     };
 
     list<PQLToken> tokensList = list<PQLToken>{
@@ -72,7 +72,7 @@ TEST_CASE("UsesParser: test parseUsesPNoError") {
             shared_ptr<RelationshipClause> actualPtr = parser.parse();
 
             // then
-            REQUIRE(expected.equals(actualPtr.get()));
+            REQUIRE(expected.equals(actualPtr));
     };
 
     list<PQLToken> tokensList = list<PQLToken>{

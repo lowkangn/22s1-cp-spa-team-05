@@ -11,7 +11,7 @@ using namespace std;
 // =============== UNIT TESTS ====================
 
 TEST_CASE("UsesPClause: test equals") {
-	auto testEquals = [](const RelationshipClause* other, bool expected) {
+	auto testEquals = [](shared_ptr<RelationshipClause> other, bool expected) {
 		// given
 		ClauseArgument lhs = ClauseArgument::createProcedureArg("p");
 		ClauseArgument rhs = ClauseArgument::createVariableArg("v");
@@ -30,18 +30,18 @@ TEST_CASE("UsesPClause: test equals") {
 	ClauseArgument secondVarArg = ClauseArgument::createVariableArg("v1");
 
 	SECTION("Equal") {
-		RelationshipClause* usesPClauseAgain = new UsesPClause(firstProcArg, firstVarArg);
+		shared_ptr<RelationshipClause> usesPClauseAgain(new UsesPClause(firstProcArg, firstVarArg));
 		testEquals(usesPClauseAgain, true);
 	}
 
 	SECTION("Not equal, same types different identifiers") {
-		RelationshipClause* usesPClauseDiffLhsString = new UsesPClause(secondProcArg, firstVarArg);
+		shared_ptr<RelationshipClause> usesPClauseDiffLhsString(new UsesPClause(secondProcArg, firstVarArg));
 		testEquals(usesPClauseDiffLhsString, false);
 
-		RelationshipClause* usesPClauseDiffRhsString = new UsesPClause(firstProcArg, secondVarArg);
+		shared_ptr<RelationshipClause> usesPClauseDiffRhsString(new UsesPClause(firstProcArg, secondVarArg));
 		testEquals(usesPClauseDiffRhsString, false);
 
-		RelationshipClause* usesPClauseDiffStrings = new UsesPClause(secondProcArg, secondVarArg);
+		shared_ptr<RelationshipClause> usesPClauseDiffStrings(new UsesPClause(secondProcArg, secondVarArg));
 		testEquals(usesPClauseDiffStrings, false);
 	}
 
@@ -63,23 +63,23 @@ TEST_CASE("UsesPClause: test equals") {
 
 	SECTION("Not equal, different types") {
 		for (ClauseArgument argument : otherArguments) {
-			RelationshipClause* usesPClauseDiffLhsArg = new UsesPClause(firstProcArg, argument);
+			shared_ptr<RelationshipClause> usesPClauseDiffLhsArg(new UsesPClause(firstProcArg, argument));
 			testEquals(usesPClauseDiffLhsArg, false);
 
-			RelationshipClause* usesPClauseDiffRhsArg = new UsesPClause(argument, firstVarArg);
+			shared_ptr<RelationshipClause> usesPClauseDiffRhsArg(new UsesPClause(argument, firstVarArg));
 			testEquals(usesPClauseDiffRhsArg, false);
 		}
 	}
 
 	SECTION("Not even a UsesPClause") {
-		RelationshipClause* usesSClause = new UsesSClause(stmtArg, firstVarArg);
+		shared_ptr<RelationshipClause> usesSClause(new UsesSClause(stmtArg, firstVarArg));
 		testEquals(usesSClause, false);
 
 		// TODO: Add more when other Clause classes are implemented
-		RelationshipClause* modifiesPClause = new ModifiesPClause(firstProcArg, firstVarArg);
+		shared_ptr<RelationshipClause> modifiesPClause(new ModifiesPClause(firstProcArg, firstVarArg));
 		testEquals(modifiesPClause, false);
 
-		RelationshipClause* modifiesSClause = new ModifiesSClause(assignArg, firstVarArg);
+		shared_ptr<RelationshipClause> modifiesSClause(new ModifiesSClause(assignArg, firstVarArg));
 		testEquals(modifiesSClause, false);
 	}
 }

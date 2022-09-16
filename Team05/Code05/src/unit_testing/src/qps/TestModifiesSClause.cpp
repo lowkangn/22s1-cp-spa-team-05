@@ -9,7 +9,7 @@ using namespace std;
 // =============== UNIT TESTS ====================
 
 TEST_CASE("ModifiesSClause: test equals") {
-	auto testEquals = [](const RelationshipClause* other, bool expected) {
+	auto testEquals = [](shared_ptr<RelationshipClause> other, bool expected) {
 		// given
 		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
 		ClauseArgument rhs = ClauseArgument::createVariableArg("v");
@@ -28,18 +28,18 @@ TEST_CASE("ModifiesSClause: test equals") {
 	ClauseArgument secondVarArg = ClauseArgument::createVariableArg("v1");
 
 	SECTION("Equal") {
-		RelationshipClause* modifiesSClauseAgain = new ModifiesSClause(firstStmtArg, firstVarArg);
+		shared_ptr<RelationshipClause> modifiesSClauseAgain(new ModifiesSClause(firstStmtArg, firstVarArg));
 		testEquals(modifiesSClauseAgain, true);
 	}
 
 	SECTION("Not equal, same types different identifiers") {
-		RelationshipClause* modifiesSClauseDiffLhsString = new ModifiesSClause(secondStmtArg, firstVarArg);
+		shared_ptr<RelationshipClause> modifiesSClauseDiffLhsString(new ModifiesSClause(secondStmtArg, firstVarArg));
 		testEquals(modifiesSClauseDiffLhsString, false);
 
-		RelationshipClause* modifiesSClauseDiffRhsString = new ModifiesSClause(firstStmtArg, secondVarArg);
+		shared_ptr<RelationshipClause> modifiesSClauseDiffRhsString(new ModifiesSClause(firstStmtArg, secondVarArg));
 		testEquals(modifiesSClauseDiffRhsString, false);
 
-		RelationshipClause* modifiesSClauseDiffStrings = new ModifiesSClause(secondStmtArg, secondVarArg);
+		shared_ptr<RelationshipClause> modifiesSClauseDiffStrings(new ModifiesSClause(secondStmtArg, secondVarArg));
 		testEquals(modifiesSClauseDiffStrings, false);
 	}
 
@@ -61,16 +61,16 @@ TEST_CASE("ModifiesSClause: test equals") {
 
 	SECTION("Not equal, different types") {
 		for (ClauseArgument argument: otherArguments) {
-			RelationshipClause* modifiesSClauseDiffLhsArg = new ModifiesSClause(firstStmtArg, argument);
+			shared_ptr<RelationshipClause> modifiesSClauseDiffLhsArg(new ModifiesSClause(firstStmtArg, argument));
 			testEquals(modifiesSClauseDiffLhsArg, false);
 
-			RelationshipClause* modifiesSClauseDiffRhsArg = new ModifiesSClause(argument, firstVarArg);
+			shared_ptr<RelationshipClause> modifiesSClauseDiffRhsArg(new ModifiesSClause(argument, firstVarArg));
 			testEquals(modifiesSClauseDiffRhsArg, false);
 		}
 	}
 
 	SECTION("Not even a ModifiesSClause") {
-		RelationshipClause* modifiesPClause = new ModifiesPClause(procArg, firstVarArg);
+		shared_ptr<RelationshipClause> modifiesPClause(new ModifiesPClause(procArg, firstVarArg));
 		testEquals(modifiesPClause, false);
 
 		// TODO: Add more when other Clause classes are implemented

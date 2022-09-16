@@ -20,7 +20,7 @@ TEST_CASE("ModifiesParser: test parseModifiesSNoError") {
             shared_ptr<RelationshipClause> actualPtr = parser.parse();
 
             // then
-            REQUIRE(expected.equals(actualPtr.get()));
+            REQUIRE(expected.equals(actualPtr));
     };
 
     list<PQLToken> tokensList = list<PQLToken>{
@@ -72,7 +72,7 @@ TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
             shared_ptr<RelationshipClause> actualPtr = parser.parse();
 
             // then
-            REQUIRE(expected.equals(actualPtr.get()));
+            REQUIRE(expected.equals(actualPtr));
     };
 
     list<PQLToken> tokensList = list<PQLToken>{

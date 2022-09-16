@@ -111,7 +111,7 @@ TEST_CASE("QueryParser: test parseConstraints") {
                     shared_ptr<RelationshipClause> expectedPtr = expected.front();
                     shared_ptr<ModifiesSClause> expectedClause = dynamic_pointer_cast<ModifiesSClause>(actualPtr);
 
-                    isEqual = isEqual && (*expectedClause.get()).equals(actualPtr.get());
+                    isEqual = isEqual && (*expectedClause.get()).equals(actualPtr);
                     actual.pop_front();
                     expected.pop_front();
                 }

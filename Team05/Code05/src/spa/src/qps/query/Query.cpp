@@ -26,7 +26,7 @@ bool operator==(Query first, Query second) {
 	list<shared_ptr<RelationshipClause>>::iterator firstIter = first.constraintClauses.begin();
 	list<shared_ptr<RelationshipClause>>::iterator secondIter = second.constraintClauses.begin();
 	while (firstIter != first.constraintClauses.end()) {
-		isClauseEqual = (*(*firstIter).get()).equals((*secondIter).get());
+		isClauseEqual = (*firstIter)->equals(*secondIter);
 		if (!isClauseEqual) {
 			return false;
 		}
