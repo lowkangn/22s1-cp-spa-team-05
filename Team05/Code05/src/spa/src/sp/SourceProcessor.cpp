@@ -1,35 +1,13 @@
 #include <sp/SourceProcessor.h>
-#include <sp/lexer/Lexer.h>
-#include <sp/parser/SimpleSyntaxParserManager.h>
-#include <sp/design_extractor/DesignExtractorManager.h>
-#include <sp/design_extractor/EntityExtractor.h>
-#include <sp/design_extractor/PatternExtractor.h>
-#include <sp/design_extractor/ModifiesExtractor.h>
-#include <sp/design_extractor/UsesExtractor.h>
-#include <sp/design_extractor/ParentExtractor.h>
-#include <sp/design_extractor/ParentTExtractor.h>
-
-#include <sp/dataclasses/tokens/Token.h>
-#include <sp/dataclasses/ast/AST.h>
-#include <sp/SPException.h>
-
-#include <string>
-#include <list>
-#include <vector>
-#include <sstream>
-#include <memory>
-
 
 using namespace std;
 
 void SourceProcessor::initialize(string program) {
-	this->program = program;
-
 	// First tokenize using Lexer
 	Lexer lexer = Lexer();
 	
 	// Create stream for lexer
-	stringstream ss(this->program);
+	stringstream ss(program);
 	istream& stream = ss;
 
 	list<Token> tokens = lexer.tokenize(ss);
