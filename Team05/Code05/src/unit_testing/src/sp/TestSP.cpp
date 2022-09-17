@@ -65,10 +65,9 @@ TEST_CASE("Test Source Processor : extractEntity") {
 		REQUIRE(entities.size() == expectedEntites.size());
 
 		for (int i = 0; i < entities.size(); i++) {
-			Entity entityExtracted = entities[i];
-			Entity entityExpected = expectedEntites[i];
-			bool check = entities[i].equals(expectedEntites[i]);
-			REQUIRE(entities[i].equals(expectedEntites[i]));
+			Entity expectedEntity = entities[i];
+			bool check = find(expectedEntites.begin(), expectedEntites.end(), expectedEntity) != expectedEntites.end();
+			REQUIRE(check);
 		}
 	};
 

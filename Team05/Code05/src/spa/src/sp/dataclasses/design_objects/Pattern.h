@@ -35,6 +35,10 @@ public:
 		return this->entity.equals(other.entity) && this->lhs == other.lhs && this->rhs == other.rhs;
 	}
 
+	bool operator==(Pattern other) {
+		return this->entity.equals(other.entity) && this->lhs == other.lhs && this->rhs == other.rhs;
+	}
+
 	bool isAssignPattern() {
 		return this->entity.isAssignEntity();
 	}
