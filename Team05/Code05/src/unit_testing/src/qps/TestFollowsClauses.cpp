@@ -123,6 +123,17 @@ namespace {
 	Relationship followsPrintA5 = Relationship::createFollowsRelationship(printEntity, a5Entity);
 	Relationship followsWhileIf = Relationship::createFollowsRelationship(whileEntity, ifEntity);
 
+	Relationship followsStarReadA2 = Relationship::createFollowsTRelationship(readEntity, a2Entity);
+	Relationship followsStarReadWhile = Relationship::createFollowsTRelationship(readEntity, whileEntity);
+	Relationship followsStarReadIf = Relationship::createFollowsTRelationship(readEntity, ifEntity);
+
+	Relationship followsStarA2While = Relationship::createFollowsTRelationship(a2Entity, whileEntity);
+	Relationship followsStarA2If = Relationship::createFollowsTRelationship(a2Entity, ifEntity);
+
+	Relationship followsStarWhileIf = Relationship::createFollowsTRelationship(whileEntity, ifEntity);
+
+	Relationship followsStarPrintA5 = Relationship::createFollowsTRelationship(printEntity, a5Entity);
+
 	// Initialise corresponding PQLEntities and PQLRelationships
 	PQLEntity pqlR1 = PQLEntity::generateStatement(1);
 	PQLEntity pqlA2 = PQLEntity::generateStatement(2);
@@ -135,6 +146,17 @@ namespace {
 	PQLRelationship pqlFollowsA2W3 = PQLRelationship(pqlA2, pqlW3);
 	PQLRelationship pqlFollowsP4A5 = PQLRelationship(pqlP4, pqlA5);
 	PQLRelationship pqlFollowsW3I6 = PQLRelationship(pqlW3, pqlI6);
+
+	PQLRelationship pqlFollowsStarR1A2 = PQLRelationship(pqlR1, pqlA2);
+	PQLRelationship pqlFollowsStarR1W3 = PQLRelationship(pqlR1, pqlW3);
+	PQLRelationship pqlFollowsStarR1I6 = PQLRelationship(pqlR1, pqlI6);
+
+	PQLRelationship pqlFollowsStarA2W3 = PQLRelationship(pqlA2, pqlW3);
+	PQLRelationship pqlFollowsStarA2I6 = PQLRelationship(pqlA2, pqlI6);
+
+	PQLRelationship pqlFollowsStarW3I6 = PQLRelationship(pqlW3, pqlI6);
+
+	PQLRelationship pqlFollowsStarP4A5 = PQLRelationship(pqlP4, pqlA5);
 
 	// Clause Arguments
 	ClauseArgument firstStmtArg = ClauseArgument::createStmtArg("s1");
@@ -172,7 +194,8 @@ TEST_CASE("FollowsClause: test execute") {
 	// ------ PKB ------ 
 	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
 	vector<Entity> entities{ readEntity, a2Entity, whileEntity, printEntity, a5Entity, ifEntity };
-	vector<Relationship> relationships{ followsReadA2, followsA2While, followsPrintA5, followsWhileIf };
+	vector<Relationship> relationships{ followsReadA2, followsA2While, followsPrintA5, followsWhileIf, followsStarReadA2, 
+		followsStarReadWhile, followsStarReadIf, followsStarA2While, followsStarA2If, followsStarWhileIf, followsStarPrintA5 };
 	pkb->addEntities(entities);
 	pkb->addRelationships(relationships);
 
@@ -182,6 +205,7 @@ TEST_CASE("FollowsClause: test execute") {
 	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlFollowsR1A2, pqlFollowsA2W3, pqlFollowsP4A5, pqlFollowsW3I6 };
 	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(firstStmtArg, secondStmtArg,
 		expectedRetrievedFromPkb);
+
 	SECTION("Two stmt synoynms - all follows results") {
 		testExecute(clause, expectedClauseResult, pkb);
 	}
@@ -215,7 +239,7 @@ TEST_CASE("FollowsClause: test execute") {
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
-	SECTION("Line numbers - non empty results") {
+	SECTION("Two line numbers - non empty results") {
 		clause = FollowsClause(lineOneArg, lineTwoArg);
 		expectedRetrievedFromPkb = { pqlFollowsR1A2 };
 		expectedClauseResult = RelationshipClauseResult(lineOneArg, lineTwoArg, expectedRetrievedFromPkb);
@@ -227,7 +251,7 @@ TEST_CASE("FollowsClause: test execute") {
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
-	SECTION("Line numbers - empty results") {
+	SECTION("Two line numbers - empty results") {
 		expectedRetrievedFromPkb = {};
 
 		clause = FollowsClause(lineOneArg, lineSixArg);
@@ -236,6 +260,101 @@ TEST_CASE("FollowsClause: test execute") {
 
 		clause = FollowsClause(lineFiveArg, lineFourArg);
 		expectedClauseResult = RelationshipClauseResult(lineFiveArg, lineFourArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+}
+
+TEST_CASE("FollowsTClause: test execute") {
+	auto testExecute = [](FollowsTClause followsTClause,
+		RelationshipClauseResult expectedClauseResult,
+		shared_ptr<PKB> pkb) {
+			// given
+			shared_ptr<PKBQueryHandler> pkbInterface = shared_ptr<PKBQueryHandler>(pkb);
+
+			// when
+			shared_ptr<RelationshipClauseResult> resPtr = followsTClause.execute(pkbInterface);
+			RelationshipClauseResult actualClauseResult = *resPtr;
+
+			// then
+			REQUIRE(actualClauseResult == expectedClauseResult);
+
+	};
+
+	// ------ PKB ------ 
+	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
+	vector<Entity> entities{ readEntity, a2Entity, whileEntity, printEntity, a5Entity, ifEntity };
+	vector<Relationship> relationships{ followsReadA2, followsA2While, followsPrintA5, followsWhileIf, followsStarReadA2, 
+		followsStarReadWhile, followsStarReadIf, followsStarA2While, followsStarA2If,followsStarWhileIf, followsStarPrintA5 };
+	pkb->addEntities(entities);
+	pkb->addRelationships(relationships);
+
+
+	// ------ QPS ------ 
+	FollowsTClause clause = FollowsTClause(firstStmtArg, secondStmtArg);
+	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlFollowsStarR1A2, pqlFollowsStarR1W3, pqlFollowsStarR1I6, 
+		pqlFollowsStarA2W3, pqlFollowsStarA2I6, pqlFollowsStarW3I6, pqlFollowsStarP4A5 };
+	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(firstStmtArg, secondStmtArg,
+		expectedRetrievedFromPkb);
+
+	SECTION("Two stmt synoynms - all followsStar results") {
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Other stmtRef synonyms - non empty results") {
+		clause = FollowsTClause(readArg, whileArg);
+		expectedRetrievedFromPkb = { pqlFollowsStarR1W3 };
+		expectedClauseResult = RelationshipClauseResult(readArg, whileArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = FollowsTClause(firstStmtArg, assignArg);
+		expectedRetrievedFromPkb = { pqlFollowsStarR1A2, pqlFollowsStarP4A5 };
+		expectedClauseResult = RelationshipClauseResult(firstStmtArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = FollowsTClause(readArg, firstStmtArg);
+		expectedRetrievedFromPkb = { pqlFollowsStarR1A2, pqlFollowsStarR1W3, pqlFollowsStarR1I6 };
+		expectedClauseResult = RelationshipClauseResult(readArg, firstStmtArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Other stmtRef synonyms - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = FollowsTClause(ifArg, assignArg);
+		expectedClauseResult = RelationshipClauseResult(ifArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = FollowsTClause(firstStmtArg, readArg);
+		expectedClauseResult = RelationshipClauseResult(firstStmtArg, readArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = FollowsTClause(assignArg, printArg);
+		expectedClauseResult = RelationshipClauseResult(assignArg, printArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Two line numbers - non empty results") {
+		clause = FollowsTClause(lineOneArg, lineTwoArg);
+		expectedRetrievedFromPkb = { pqlFollowsStarR1A2 };
+		expectedClauseResult = RelationshipClauseResult(lineOneArg, lineTwoArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = FollowsTClause(lineOneArg, lineSixArg);
+		expectedRetrievedFromPkb = { pqlFollowsStarR1I6 };
+		expectedClauseResult = RelationshipClauseResult(lineOneArg, lineSixArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Two line numbers - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = FollowsTClause(lineFourArg, lineSixArg);
+		expectedClauseResult = RelationshipClauseResult(lineFourArg, lineSixArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = FollowsTClause(lineTwoArg, lineFourArg);
+		expectedClauseResult = RelationshipClauseResult(lineTwoArg, lineFourArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
