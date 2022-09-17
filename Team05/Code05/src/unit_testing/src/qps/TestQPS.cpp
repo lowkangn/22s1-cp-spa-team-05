@@ -109,7 +109,7 @@ namespace {
 
 TEST_CASE("QPS: test working correctly") {
 
-    auto testEvaluate = [](string queryString, 
+    auto testQPS = [](string queryString, 
 		set<string> expectedResult, 
 		shared_ptr<PKB> pkb) {
         // ----- given -----
@@ -152,60 +152,61 @@ TEST_CASE("QPS: test working correctly") {
 	string queryString = "stmt s; Select s";
 	set<string> expectedResult{ "1", "2", "3", "4", "5", "6", "7", "8"};
 	SECTION("Select only") {
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "constant c;\n Select c";
 		expectedResult = set<string>{ "1", "0" };
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "procedure p;\t Select p";
 		expectedResult = set<string>{ "main" };
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable \n syn; Select syn";
 		expectedResult = set<string>{ "v", "y", "x", "b", "z", "stmt"};
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "assign syn; Select \n syn";
 		expectedResult = set<string>{ "2", "7" };
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "read r01; Select r01";
 		expectedResult = set<string>{ "4", "5", "6" };
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 	}
 
 	SECTION("Select and such that") {
 		queryString = "stmt child;\n Select child such that Parent(_, child)";
 		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6" };
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt stmt, child;\n Select child such that Parent(stmt, child)";
 		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6" };
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt s;\n Select s such that Parent(1, s)";
 		expectedResult = set<string>{ "2", "3", "7"};
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt Parent;\n Select Parent such that Parent*(Parent, _)";
 		expectedResult = set<string>{ "1", "3" };
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable Select;\n Select Select such that Modifies(6, Select)";
 		expectedResult = set<string>{ "stmt", };
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable Modifies; stmt s; \n Select Modifies such that Modifies(s, Modifies)";
 		expectedResult = set<string>{ "y", "x", "stmt", "z"};
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt s; \n Select s such that Uses(s, _)";
 		expectedResult = set<string>{ "1", "2", "3", "8" };
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable variable; stmt s; \n Select variable such that Uses(s, variable)";
 		expectedResult = set<string>{ "v", "x", "b" };
-		testEvaluate(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 
 		//TODO: Follows/FollowsT
 	}
@@ -216,5 +217,86 @@ TEST_CASE("QPS: test working correctly") {
 
 	SECTION("Select, such that and Pattern") {
 		//TODO
+	}
+}
+
+TEST_CASE("QPS: test correct errors") {
+
+	auto testQPS = [](string queryString,
+		set<string> expectedResult) {
+			// ----- given -----
+			// no need for a populated PKB since we expect SyntaxError/SemanticError
+			shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
+			QPS qps = QPS();
+			list<string> autoTesterResults;
+
+			// ----- when -----
+			qps.evaluate(queryString, shared_ptr<PKBQueryHandler>(pkb));
+			qps.projectResults(autoTesterResults);
+
+			// ----- then -----
+			REQUIRE(qps.getResults() == expectedResult);
+
+			set<string> autoTesterSet{};
+			for (string s : autoTesterResults) {
+				autoTesterSet.insert(s);
+			}
+			REQUIRE(autoTesterSet == expectedResult);
+	};
+
+	string queryString = "stmt s;\n";
+	set<string> expectedResult{ "SyntaxError" };
+	SECTION("Syntax errors") {
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s\n Select s";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s;\n Select s;";
+		testQPS(queryString, expectedResult);
+
+		queryString = "statement s;\n Select s";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s;\n Select 1";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s;\n Select s such that Nested(1,2)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s; Select s that";
+		testQPS(queryString, expectedResult);
+	}
+
+	SECTION("Semantic errors") {
+		expectedResult = set<string>{ "SemanticError" };
+
+		queryString = "stmt s;\n Select c";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s,s;\n Select s";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s; constant s;\n Select s";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s; constant c;\n Select s such that Parent(s, c)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s;\n Select s such that Parent*(\"main\", s)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s; \n Select s such that Uses(_, \"x\")";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s; \n Select s such that Uses(s, 1)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s, s2; \n Select s such that Modifies(s, s2)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s; \n Select s such that Modifies(_, \"x\")";
+		testQPS(queryString, expectedResult);
+
 	}
 }

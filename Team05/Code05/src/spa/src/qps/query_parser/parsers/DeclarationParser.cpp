@@ -33,7 +33,9 @@ void DeclarationParser::parseOneDeclaration() {
 			continue;
 		} else if (token.isSemicolon()) {
 			break;
-		} 
+		} else if (!isSynonymExpected) {
+			throw PQLSyntaxError("Expected comma or semicolon, got: " + token.getTokenString());
+		}
 		string synonym = token.getTokenString();
 		ensureSynonymNotDeclared(synonym);
 		this->declarations.insert({ synonym,  getDesignEntityArgumentType(designEntityToken.getTokenString())});

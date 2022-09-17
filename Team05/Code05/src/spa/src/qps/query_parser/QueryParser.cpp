@@ -35,6 +35,9 @@ list<shared_ptr<RelationshipClause>> QueryParser::parseConstraints(unordered_map
         else if (token.isPattern()) {
             //not needed for MVP
         }
+        else {
+            throw PQLSyntaxError("Only such that and pattern clause are supported.");
+        }
     }
     return clauses;
 }
@@ -56,9 +59,9 @@ shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, 
         parserPointer = shared_ptr<SuchThatClauseParser>(new ParentParser(this->tokens, declarations));
     } else if (token.isUses()) {
         parserPointer = shared_ptr<SuchThatClauseParser>(new UsesParser(this->tokens, declarations));
-    }
+    } //TODO: add more such that clauses
     else {
-        //TODO: add more such that clauses
+        throw PQLSyntaxError("Only Modifies, Uses, Parent/Parent*, Follows/Follows* are supported as such that clauses.");
     }
     shared_ptr<RelationshipClause> clause = parserPointer->parse();
     this->tokens = parserPointer->getRemainingTokens();
