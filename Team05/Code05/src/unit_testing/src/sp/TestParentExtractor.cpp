@@ -110,7 +110,6 @@ TEST_CASE("ParentExtractor: test extract") {
 		REQUIRE(extractedRelationships.size() == expectedResult.size());
 
 		for (int i = 0; i < extractedRelationships.size(); i++) {
-			bool check = extractedRelationships[i].equals(expectedResult[i]);
 			REQUIRE(extractedRelationships[i].equals(expectedResult[i]));
 		}
 	};

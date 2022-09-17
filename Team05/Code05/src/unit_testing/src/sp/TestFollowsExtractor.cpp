@@ -31,8 +31,8 @@ TEST_CASE("FollowsExtractor: test extract") {
 		// Then
 		REQUIRE(extractedRelationships.size() == expectedResult.size());
 
-		for (int i = 0; i < extractedRelationships.size(); i++) {
-			bool check = extractedRelationships[i].equals(expectedResult[i]);
+		for (int i = 0; i < extractedRelationships.size(); i++) 
+		{
 			REQUIRE(extractedRelationships[i].equals(expectedResult[i]));
 		}
 	};
@@ -109,5 +109,288 @@ TEST_CASE("FollowsExtractor: test extract") {
 		vector<Relationship> expectedFollowsRelationships{};
 
 		test(procedureNode, expectedFollowsRelationships);
+	}
+
+	SECTION("Test nested - non empty results") {
+		/*
+			procedure main {
+			1.	if (x < 0) then {
+			2.		y = y + 1;
+			3.		while (x < 0) {
+			4.			x = x + 2;
+			5.			read y;
+					}
+				} else {
+			6.		y = 5;
+				}
+			7.	x = y;
+			}
+		*/
+
+		// Variables are omitted for brevity. FollowsExtractor does not interact with variables. 
+		Token mainToken = Token::createNameOrKeywordToken("main");
+		Token readToken = Token::createReadToken();
+		Token ifToken = Token::createIfToken();
+		Token whileToken = Token::createWhileToken();
+		Token lessThanToken = Token::createLessThanToken();
+		Token equalsToken = Token::createEqualsToken();
+		Token placeholderToken = Token::createPlaceholderToken();
+
+		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(mainToken));
+		shared_ptr<ASTNode> mainStmtListNode(new StatementListASTNode(placeholderToken));
+		procedureNode->addChild(mainStmtListNode);
+
+		shared_ptr<ASTNode> ifNode(new IfASTNode(ifToken));
+		shared_ptr<ASTNode> ifCond(new ExpressionASTNode(lessThanToken));
+		ifNode->setLineNumber(1);
+
+		mainStmtListNode->addChild(ifNode);
+
+		shared_ptr<ASTNode> thenStmtListNode(new StatementListASTNode(placeholderToken));
+		shared_ptr<ASTNode> elseStmtListNode(new StatementListASTNode(placeholderToken));
+
+		ifNode->addChild(ifCond);
+		ifNode->addChild(thenStmtListNode);
+		ifNode->addChild(elseStmtListNode);
+
+		shared_ptr<ASTNode> assign2Node(new AssignASTNode(equalsToken));
+		assign2Node->setLineNumber(2);
+
+		thenStmtListNode->addChild(assign2Node);
+
+		shared_ptr<ASTNode> whileNode(new WhileASTNode(whileToken));
+		whileNode->setLineNumber(3);
+
+		thenStmtListNode->addChild(whileNode);
+
+		shared_ptr<ASTNode> whileStmtListNode(new StatementListASTNode(placeholderToken));
+		shared_ptr<ASTNode> whileCond(new ExpressionASTNode(lessThanToken));
+
+		whileNode->addChild(whileCond);
+		whileNode->addChild(whileStmtListNode);
+
+		shared_ptr<ASTNode> assign4Node(new AssignASTNode(equalsToken));
+		assign4Node->setLineNumber(4);
+
+		whileStmtListNode->addChild(assign4Node);
+
+		shared_ptr<ASTNode> readYNode(new ReadASTNode(readToken));
+		readYNode->setLineNumber(5);
+
+		whileStmtListNode->addChild(readYNode);
+
+		shared_ptr<ASTNode> assign6Node(new AssignASTNode(equalsToken));
+		assign6Node->setLineNumber(6);
+
+		elseStmtListNode->addChild(assign6Node);
+
+		shared_ptr<ASTNode> assign7Node(new AssignASTNode(equalsToken));
+		assign7Node->setLineNumber(7);
+
+		mainStmtListNode->addChild(assign7Node);
+
+		// Create entities
+		Entity ifEntity = Entity::createIfEntity(1);
+		Entity assign2Entity = Entity::createAssignEntity(2);
+		Entity whileEntity = Entity::createWhileEntity(3);
+		Entity assign4Entity = Entity::createAssignEntity(4);
+		Entity readYEntity = Entity::createReadEntity(5);
+		Entity assign6Entity = Entity::createAssignEntity(6);
+		Entity assign7Entity = Entity::createAssignEntity(7);
+
+		// Create relationships
+		Relationship followsIfA7 = Relationship::createFollowsRelationship(ifEntity, assign7Entity);
+		Relationship followsA2While = Relationship::createFollowsRelationship(assign2Entity, whileEntity);
+		Relationship followsA4ReadY = Relationship::createFollowsRelationship(assign4Entity, readYEntity);
+
+		vector<Relationship> expectedFollowsRelationships{ followsIfA7, followsA2While, followsA4ReadY };
+
+		test(procedureNode, expectedFollowsRelationships);
+	}
+
+	SECTION("Full test") {
+		/*
+		procedure main {
+			1. x = 3;
+			2. read y;
+			3. while ( x != 0 ) {
+			4.     x = x - 1
+			5.     print y;
+			}
+			6. if (y > 5) then {
+			7.     x = y;
+			} else {
+			8.     y = x;
+			}
+		}
+		*/
+
+		// Creating tokens
+		Token mainToken = Token::createNameOrKeywordToken("main");
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token yToken = Token::createNameOrKeywordToken("y");
+		Token assignToken = Token::createEqualsToken();
+		Token notEqualToken = Token::createNotEqualsToken();
+		Token greaterToken = Token::createGreaterThanToken();
+		Token minusToken = Token::createMinusToken();
+		Token constThreeToken = Token::createIntegerToken("3");
+		Token constZeroToken = Token::createIntegerToken("0");
+		Token constOneToken = Token::createIntegerToken("1");
+		Token constFiveToken = Token::createIntegerToken("5");
+		Token readToken = Token::createReadToken();
+		Token whileToken = Token::createWhileToken();
+		Token printToken = Token::createPrintToken();
+		Token ifToken = Token::createIfToken();
+		Token stmtListToken = Token::createPlaceholderToken();
+
+		// Creating AST nodes
+		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(mainToken));
+
+		// Line 1 (x = 3)
+		shared_ptr<ASTNode> mainStmtList(new StatementListASTNode(stmtListToken));
+		shared_ptr<ASTNode> x1Node(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> assign1Node(new AssignASTNode(assignToken));
+		shared_ptr<ASTNode> constThreeNode(new ConstantValueASTNode(constThreeToken));
+
+		x1Node->setLineNumber(1);
+		assign1Node->setLineNumber(1);
+		constThreeNode->setLineNumber(1);
+
+		// Line 2 (read y)
+		shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
+		shared_ptr<ASTNode> y2Node(new VariableASTNode(yToken));
+
+		readNode->setLineNumber(2);
+		y2Node->setLineNumber(2);
+
+		// Line 3 (while ( x != 0 ))
+		shared_ptr<ASTNode> whileNode(new WhileASTNode(whileToken));
+		shared_ptr<ASTNode> x3Node(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> constZeroNode(new ConstantValueASTNode(constZeroToken));
+		shared_ptr<ASTNode> notEqualNode(new ExpressionASTNode(notEqualToken));
+
+		whileNode->setLineNumber(3);
+		x3Node->setLineNumber(3);
+		constZeroNode->setLineNumber(3);
+		notEqualNode->setLineNumber(3);
+
+		// Line 4 (x = x - 1)
+		shared_ptr<ASTNode> whileStmtList(new StatementListASTNode(stmtListToken));
+		shared_ptr<ASTNode> x4LhsNode(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> x4RhsNode(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> assign4Node(new AssignASTNode(assignToken));
+		shared_ptr<ASTNode> minusNode(new ExpressionASTNode(minusToken));
+		shared_ptr<ASTNode> constOneNode(new ConstantValueASTNode(constOneToken));
+
+		x4LhsNode->setLineNumber(4);
+		x4RhsNode->setLineNumber(4);
+		assign4Node->setLineNumber(4);
+		minusNode->setLineNumber(4);
+		constOneNode->setLineNumber(4);
+
+		// Line 5 (print y)
+		shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
+		shared_ptr<ASTNode> y5Node(new VariableASTNode(yToken));
+
+		printNode->setLineNumber(5);
+		y5Node->setLineNumber(5);
+
+		// Line 6 (if (y > 5) then)
+		shared_ptr<ASTNode> ifNode(new IfASTNode(ifToken));
+		shared_ptr<ASTNode> y6Node(new VariableASTNode(yToken));
+		shared_ptr<ASTNode> greaterNode(new ExpressionASTNode(greaterToken));
+		shared_ptr<ASTNode> constFiveNode(new ConstantValueASTNode(constFiveToken));
+
+		ifNode->setLineNumber(6);
+		y6Node->setLineNumber(6);
+		greaterNode->setLineNumber(6);
+		constFiveNode->setLineNumber(6);
+
+		// Line 7 (x = y)
+		shared_ptr<ASTNode> thenStmtList(new StatementListASTNode(stmtListToken));
+		shared_ptr<ASTNode> assign7Node(new AssignASTNode(assignToken));
+		shared_ptr<ASTNode> x7Node(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> y7Node(new VariableASTNode(yToken));
+
+		assign7Node->setLineNumber(7);
+		x7Node->setLineNumber(7);
+		y7Node->setLineNumber(7);
+
+		// Line 8 (y = x)
+		shared_ptr<ASTNode> elseStmtList(new StatementListASTNode(stmtListToken));
+		shared_ptr<ASTNode> assign8Node(new AssignASTNode(assignToken));
+		shared_ptr<ASTNode> y8Node(new VariableASTNode(yToken));
+		shared_ptr<ASTNode> x8Node(new VariableASTNode(xToken));
+
+		assign8Node->setLineNumber(8);
+		y8Node->setLineNumber(8);
+		x8Node->setLineNumber(8);
+
+		procedureNode->addChild(mainStmtList);
+
+		mainStmtList->addChild(assign1Node);
+		mainStmtList->addChild(readNode);
+		mainStmtList->addChild(whileNode);
+		mainStmtList->addChild(ifNode);
+
+		assign1Node->addChild(x1Node);
+		assign1Node->addChild(constThreeNode);
+
+		readNode->addChild(y2Node);
+
+		whileNode->addChild(notEqualNode);
+		whileNode->addChild(whileStmtList);
+
+		notEqualNode->addChild(x3Node);
+		notEqualNode->addChild(constZeroNode);
+
+		whileStmtList->addChild(assign4Node);
+		whileStmtList->addChild(printNode);
+
+		assign4Node->addChild(x4LhsNode);
+		assign4Node->addChild(minusNode);
+
+		minusNode->addChild(x4RhsNode);
+		minusNode->addChild(constOneNode);
+
+		printNode->addChild(y5Node);
+
+		ifNode->addChild(greaterNode);
+		ifNode->addChild(thenStmtList);
+		ifNode->addChild(elseStmtList);
+
+		greaterNode->addChild(y6Node);
+		greaterNode->addChild(constFiveNode);
+
+		thenStmtList->addChild(assign7Node);
+
+		assign7Node->addChild(x7Node);
+		assign7Node->addChild(y7Node);
+
+		elseStmtList->addChild(assign8Node);
+
+		assign8Node->addChild(y8Node);
+		assign8Node->addChild(x8Node);
+
+		// Creating Entities
+		Entity assign1Entity = Entity::createAssignEntity(assign1Node->getLineNumber());
+		Entity readEntity = Entity::createReadEntity(readNode->getLineNumber());
+
+		Entity whileEntity = Entity::createWhileEntity(whileNode->getLineNumber());
+
+		Entity assign4Entity = Entity::createAssignEntity(assign4Node->getLineNumber());
+		Entity printEntity = Entity::createPrintEntity(printNode->getLineNumber());
+
+		Entity ifEntity = Entity::createIfEntity(ifNode->getLineNumber());
+
+		// Creating Relationships
+		Relationship followsAssign1Read = Relationship::createFollowsRelationship(assign1Entity, readEntity);
+		Relationship followsReadWhile = Relationship::createFollowsRelationship(readEntity, whileEntity);
+		Relationship followsAssign4Print = Relationship::createFollowsRelationship(assign4Entity, printEntity);
+		Relationship followsWhileIf = Relationship::createFollowsRelationship(whileEntity, ifEntity);
+
+		vector<Relationship> expectedParentRelationships{ followsAssign1Read, followsReadWhile, followsWhileIf, followsAssign4Print };
+
+		test(procedureNode, expectedParentRelationships);
 	}
 }
