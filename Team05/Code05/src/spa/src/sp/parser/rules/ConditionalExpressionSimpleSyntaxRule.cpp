@@ -111,7 +111,7 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 
 		childTokens.push_back(token);
 
-		// Last token should be a variable
+		// Last token should be a variable or constant
 		token = tokens.front();
 		tokens.pop_front();
 

@@ -64,7 +64,11 @@ class Entity {
 			return stoi(this->getString());
 		}
 
-		bool equals(Entity& other) {
+		bool equals(Entity other) {
+			return this->type == other.getType() && this->line == other.line && (this->token == other.token);
+		}
+
+		bool operator==(Entity other) {
 			return this->type == other.getType() && this->line == other.line && (this->token == other.token);
 		}
 

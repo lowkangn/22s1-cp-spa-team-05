@@ -2003,20 +2003,6 @@ TEST_CASE("ProgramSimpleSyntaxRule test ::setLineNumber") {
 
 }
 
-// TODO
-TEST_CASE("ProgramSimpleSyntaxRule test ::handleStatementList") {
-
-}
-
-// TODO
-TEST_CASE("ProgramSimpleSyntaxRule test ::recursiveSetLineNumber") {
-
-}
-
-// TODO
-TEST_CASE("ProgramSimpleSyntaxRule test ::recursiveSetStatementNumber") {
-
-}
 
 
 // =============== INTEGRATION TEST FOR RULES ====================

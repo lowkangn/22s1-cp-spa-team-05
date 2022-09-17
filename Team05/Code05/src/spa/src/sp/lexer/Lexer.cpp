@@ -8,7 +8,6 @@ using namespace std;
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/lexer/Lexer.h>
 
-const char COMMENT_CHARACTER = '/'; 
 const char NEWLINE_CHARACTER = '\n';
 
 list<Token> Lexer::tokenize(istream &stream) {
@@ -63,6 +62,8 @@ void Lexer::traverseStreamUntilNoWhiteSpace(istream& stream) {
 
 void Lexer::traverseStreamUntilNoComment(istream& stream) {
     char character = char(stream.get()); // get character
+
+    /*
     if (character == COMMENT_CHARACTER) { // if comment
         if (char(stream.peek()) == COMMENT_CHARACTER) { // we expect a second comment character
             // discard all newlines until newline or EOF 
@@ -81,6 +82,8 @@ void Lexer::traverseStreamUntilNoComment(istream& stream) {
     else {
         stream.unget(); // is ok, can start lexing
     }
+    */
+    stream.unget();
 }
 
 bool Lexer::charIsAlphabetical(char c) {
@@ -120,6 +123,7 @@ bool Lexer::charIsOperator(char c) {
     case '!':
     case '&':
     case '|':
+    case '%':
         return true;
     default:
         return false;
@@ -166,6 +170,7 @@ Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
     case '-':
     case '*':
     case '/':
+    case '%':
         break; // is singleton
     case '>':
     case '<':
@@ -178,12 +183,14 @@ Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
         }
         break;
     case '!':
-        if (char(stream.peek()) != '=') { // not operator must be paired with =
+        if (char(stream.peek()) != '=' && char(stream.peek()) != '(') { // not operator must be paired with = or '('
             throw logic_error(string("Invalid comparator operator! ") + s + string(" followed by ") + char(stream.peek()));
         } 
-        s += char(stream.get());
+        // Only join the string if it is paired with '='
+        if (char(stream.peek()) == '=') {
+            s += char(stream.get());
+        }
         break;
-        
     case '&':
     case '|':
         if (char(stream.peek()) == c) { // comparators can only be paired with =

@@ -6,6 +6,7 @@
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/IfASTNode.h>
 #include <sp/dataclasses/ast/WhileASTNode.h>
+
 using namespace std;
 
 class ParentExtractor : public Extractor<Relationship> {
