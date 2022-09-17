@@ -1,3 +1,0 @@
-procedure main {
-  1x = 1x + 1;
-}

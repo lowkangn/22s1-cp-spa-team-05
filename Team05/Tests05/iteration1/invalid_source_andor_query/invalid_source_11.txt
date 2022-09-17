@@ -1,7 +1,0 @@
-procedure main {
-  if (x == 1) then {
-    read x;
-  } {
-    read y;
-  }
-}
