@@ -26,6 +26,11 @@ void QPS::evaluate(string queryString, shared_ptr<PKBQueryHandler> pkb) {
 		evaluatorResults.clear();
 		evaluatorResults.insert("SyntaxError");
 	}
+	catch (PQLLogicError e) {
+		cout << e.what();
+		cout << "\n";
+		evaluatorResults.clear();
+	}
 };
 
 void QPS::projectResults(list<std::string>& results) {
