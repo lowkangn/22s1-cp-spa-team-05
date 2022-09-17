@@ -382,13 +382,13 @@ TEST_CASE("ParentExtractor: test extract") {
 		Entity y8Entity = Entity::createVariableEntity(y8Node->getLineNumber(), yToken);
 
 		// Creating Relationships
-		Relationship whileParentX = Relationship::createParentRelationship(whileEntity, assign4Entity);
-		Relationship whileParentPrint = Relationship::createParentRelationship(whileEntity, printEntity);
+		Relationship whileParentX4 = Relationship::createParentRelationship(whileEntity, assign4Entity);
+		Relationship whileParentPrint5 = Relationship::createParentRelationship(whileEntity, printEntity);
 
-		Relationship ifParentX = Relationship::createParentRelationship(ifEntity, assign7Entity);
-		Relationship ifParentY = Relationship::createParentRelationship(ifEntity, assign8Entity);
+		Relationship ifParentX7 = Relationship::createParentRelationship(ifEntity, assign7Entity);
+		Relationship ifParentY8 = Relationship::createParentRelationship(ifEntity, assign8Entity);
 
-		vector<Relationship> expectedParentRelationships{ ifParentY, ifParentX , whileParentX, whileParentPrint };
+		vector<Relationship> expectedParentRelationships{ ifParentY8, ifParentX7 , whileParentX4, whileParentPrint5 };
 
 		test(procedureNode, expectedParentRelationships);
 	}
