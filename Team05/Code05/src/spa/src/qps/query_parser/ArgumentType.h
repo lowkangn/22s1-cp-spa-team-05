@@ -18,7 +18,8 @@ enum class ArgumentType {
     CONSTANT,
     LINE_NUMBER,
     STRING_LITERAL,
-    WILDCARD
+    WILDCARD,
+	STRING_WITH_WILDCARDS
 };
 
 ArgumentType getDesignEntityArgumentType(string argumentType);

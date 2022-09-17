@@ -77,6 +77,10 @@ public:
 		return ClauseArgument(WILDCARD_IDENTIFIER, ArgumentType::WILDCARD);
 	}
 
+	static ClauseArgument createStringWithWildCardsArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::STRING_WITH_WILDCARDS);
+	}
+
 	bool isStmtSynonym() {
 		return this->type == ArgumentType::STMT;
 	}
@@ -127,6 +131,10 @@ public:
 
 	bool isWildcard() {
 		return this->type == ArgumentType::WILDCARD;
+	}
+
+	bool isStringWithWildcards() {
+		return this->type == ArgumentType::STRING_WITH_WILDCARDS;
 	}
 
 	bool isSynonym() {
