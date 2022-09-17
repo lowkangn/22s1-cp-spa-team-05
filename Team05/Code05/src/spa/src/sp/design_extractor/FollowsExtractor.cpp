@@ -22,7 +22,6 @@ vector<Relationship> FollowsExtractor::extract(shared_ptr<ASTNode> ast) {
 		extractedFollowsRelationships.insert(extractedFollowsRelationships.end(), thenFollowsRelationships.begin(), thenFollowsRelationships.end());
 		extractedFollowsRelationships.insert(extractedFollowsRelationships.end(), elseFollowsRelationships.begin(), elseFollowsRelationships.end());
 	}
-
 	else if (ast->isWhileNode()) {
 		shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
 
@@ -30,7 +29,6 @@ vector<Relationship> FollowsExtractor::extract(shared_ptr<ASTNode> ast) {
 
 		extractedFollowsRelationships.insert(extractedFollowsRelationships.end(), whileFollowsRelationships.begin(), whileFollowsRelationships.end());
 	}
-
 	else if (ast->isProcedureNode() || ast->isProgramNode()) {
 		// For procedure node, recursively extract follows relationships from its statement list.
 		// For program node, recursively extract follows relationships from its procedures.
@@ -39,14 +37,12 @@ vector<Relationship> FollowsExtractor::extract(shared_ptr<ASTNode> ast) {
 			extractedFollowsRelationships.insert(extractedFollowsRelationships.begin(), extractedRelations.begin(), extractedRelations.end());
 		}
 	}
-
 	else if (ast->isStmtLstNode()) {
 
 		vector<Relationship> followsRelationships = this->handleStmtList(ast);
 
 		extractedFollowsRelationships.insert(extractedFollowsRelationships.end(), followsRelationships.begin(), followsRelationships.end());
 	}
-
 	else {
 		throw ASTException("Unknown AST node was passed to FollowsExtractor!");
 	}

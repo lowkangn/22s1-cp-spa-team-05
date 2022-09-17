@@ -47,5 +47,5 @@ public:
 		This method is used to extract relationships from a provided abstract syntax tree. It is meant to be
 		overriden for each specific relationship type.
 	*/
-	virtual vector<Relationship> extract(shared_ptr<ASTNode> ast) = 0;
+	virtual vector<Relationship> extract(shared_ptr<ASTNode> ast) override;
 };
