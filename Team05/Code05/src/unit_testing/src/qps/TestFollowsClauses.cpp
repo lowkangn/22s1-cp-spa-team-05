@@ -239,6 +239,30 @@ TEST_CASE("FollowsClause: test execute") {
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
+	SECTION("One line number and one stmtRef - non empty results") {
+		clause = FollowsClause(lineTwoArg, whileArg);
+		expectedRetrievedFromPkb = { pqlFollowsA2W3 };
+		expectedClauseResult = RelationshipClauseResult(lineTwoArg, whileArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = FollowsClause(printArg, lineFiveArg);
+		expectedRetrievedFromPkb = { pqlFollowsP4A5 };
+		expectedClauseResult = RelationshipClauseResult(printArg, lineFiveArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("One line number and one stmtRef - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = FollowsClause(lineOneArg, readArg);
+		expectedClauseResult = RelationshipClauseResult(lineOneArg, readArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = FollowsClause(whileArg, lineFourArg);
+		expectedClauseResult = RelationshipClauseResult(whileArg, lineFourArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
 	SECTION("Two line numbers - non empty results") {
 		clause = FollowsClause(lineOneArg, lineTwoArg);
 		expectedRetrievedFromPkb = { pqlFollowsR1A2 };
@@ -331,6 +355,30 @@ TEST_CASE("FollowsTClause: test execute") {
 
 		clause = FollowsTClause(assignArg, printArg);
 		expectedClauseResult = RelationshipClauseResult(assignArg, printArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("One line number and one stmtRef - non empty results") {
+		clause = FollowsTClause(lineOneArg, whileArg);
+		expectedRetrievedFromPkb = { pqlFollowsStarR1W3 };
+		expectedClauseResult = RelationshipClauseResult(lineOneArg, whileArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = FollowsTClause(assignArg, lineSixArg);
+		expectedRetrievedFromPkb = { pqlFollowsStarA2I6 };
+		expectedClauseResult = RelationshipClauseResult(assignArg, lineSixArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("One line number and one stmtRef - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = FollowsTClause(lineOneArg, readArg);
+		expectedClauseResult = RelationshipClauseResult(lineOneArg, readArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = FollowsTClause(whileArg, lineFourArg);
+		expectedClauseResult = RelationshipClauseResult(whileArg, lineFourArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
