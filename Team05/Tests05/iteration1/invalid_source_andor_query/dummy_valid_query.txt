@@ -1,0 +1,5 @@
+1 - Dummy query
+stmt s;
+Select s
+1
+5000

@@ -186,14 +186,14 @@ TEST_CASE("ParentParser: test parseParentTNoError") {
 }
 
 
-TEST_CASE("ParentParser: test parseWithError") {
+TEST_CASE("ParentParser: test parseWithSemanticError") {
     auto testParseWithError = [](list<PQLToken> tokens,
         unordered_map<string, ArgumentType> declarations) {
             // given
             ParentParser parser = ParentParser(tokens, declarations);
 
             // then
-            REQUIRE_THROWS_AS(parser.parse(), PQLError);
+            REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
     };
 
     list<PQLToken> tokensList = list<PQLToken>{
@@ -231,7 +231,7 @@ TEST_CASE("ParentParser: test parseWithError") {
         testParseWithError(tokensList, declarationsMap);
     }
 
-    SECTION("Illegal arguments: procedure") {
+    SECTION("Illegal arguments: constant") {
         tokensList = list<PQLToken>{
             PQLToken::createNameToken("Parent"),
             PQLToken::createDelimiterToken("("),
@@ -254,7 +254,7 @@ TEST_CASE("ParentParser: test parseWithError") {
             PQLToken::createNameToken("Parent"),
             PQLToken::createDelimiterToken("*"),
             PQLToken::createDelimiterToken("("),
-            PQLToken::createDelimiterToken("s1"),
+            PQLToken::createNameToken("s1"),
             PQLToken::createDelimiterToken(","),
             PQLToken::createDelimiterToken("\""),
             PQLToken::createNameToken("someString"),
@@ -269,20 +269,68 @@ TEST_CASE("ParentParser: test parseWithError") {
         testParseWithError(tokensList, declarationsMap);
     }
 
-    SECTION("Illegal arguments: number string (constant)") {
+    SECTION("Undeclared synonym") {
         tokensList = list<PQLToken>{
             PQLToken::createNameToken("Parent"),
             PQLToken::createDelimiterToken("*"),
             PQLToken::createDelimiterToken("("),
-            PQLToken::createDelimiterToken("s1"),
+            PQLToken::createNameToken("s1"),
             PQLToken::createDelimiterToken(","),
-            PQLToken::createDelimiterToken("\""),
-            PQLToken::createNameToken("12"),
-            PQLToken::createDelimiterToken("\""),
+            PQLToken::createNameToken("s2"),
             PQLToken::createDelimiterToken(")")
         };
 
         declarationsMap = unordered_map<string, ArgumentType>{
+            {"s1", ArgumentType::STMT}
+        };
+
+        testParseWithError(tokensList, declarationsMap);
+    }
+}
+
+TEST_CASE("ParentParser: test parseWithSyntaxError") {
+    auto testParseWithError = [](list<PQLToken> tokens,
+        unordered_map<string, ArgumentType> declarations) {
+            // given
+            ParentParser parser = ParentParser(tokens, declarations);
+
+            // then
+            REQUIRE_THROWS_AS(parser.parse(), PQLSyntaxError);
+    };
+
+    SECTION("Illegal arguments: number string") {
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("*"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("s1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createDelimiterToken("\""),
+            PQLToken::createIntegerToken("12"),
+            PQLToken::createDelimiterToken("\""),
+            PQLToken::createDelimiterToken(")")
+        };
+
+        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+            {"s1", ArgumentType::STMT}
+        };
+
+        testParseWithError(tokensList, declarationsMap);
+    }
+
+    SECTION("Double star") {
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("*"),
+            PQLToken::createDelimiterToken("*"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("s1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createDelimiterToken("_"),
+            PQLToken::createDelimiterToken(")")
+        };
+
+        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
             {"s1", ArgumentType::STMT}
         };
 

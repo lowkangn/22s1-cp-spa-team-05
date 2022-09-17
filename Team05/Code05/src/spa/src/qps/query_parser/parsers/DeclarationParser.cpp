@@ -1,4 +1,3 @@
-#include <qps/exceptions/PQLError.h>
 #include <qps/query_parser/parsers/DeclarationParser.h>
 
 unordered_map<string, ArgumentType> DeclarationParser::parse() {
@@ -12,7 +11,7 @@ unordered_map<string, ArgumentType> DeclarationParser::parse() {
 	}
 
 	if (this->tokens.empty()) {
-		throw PQLError("Reached end of query without a select clause.");
+		throw PQLSyntaxError("Reached end of query without a select clause.");
 	}
 
 	return this->declarations;
@@ -28,7 +27,7 @@ void DeclarationParser::parseOneDeclaration() {
 		token = this->tokens.front();
 		this->tokens.pop_front();
 		if (isSynonymExpected && !token.isName()) {
-			throw PQLError("Expected synonym name, got: " + token.getTokenString());
+			throw PQLSyntaxError("Expected synonym name, got: " + token.getTokenString());
 		} else if (token.isComma()) {
 			isSynonymExpected = true;
 			continue;
@@ -42,16 +41,16 @@ void DeclarationParser::parseOneDeclaration() {
 	}
 
 	if (isSynonymExpected) {
-		throw PQLError("Reached end of declaration with insufficient synonyms");
+		throw PQLSyntaxError("Reached end of declaration with insufficient synonyms");
 	}
 
 	if (!token.isSemicolon()) {
-		throw PQLError("Declaration must end with semicolon, not " + token.getTokenString());
+		throw PQLSyntaxError("Declaration must end with semicolon, not " + token.getTokenString());
 	}
 };
 
 void DeclarationParser::ensureSynonymNotDeclared(string synonym) {
 	if (this->declarations.count(synonym) > 0) {
-		throw PQLError("Synonym already declared: " + synonym);
+		throw PQLSemanticError("Synonym already declared: " + synonym);
 	}
 };

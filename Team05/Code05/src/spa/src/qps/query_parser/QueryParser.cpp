@@ -41,11 +41,11 @@ list<shared_ptr<RelationshipClause>> QueryParser::parseConstraints(unordered_map
 
 shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, ArgumentType> declarations) {
     if (this->tokens.empty() || !this->tokens.front().isThat()) {
-        throw PQLError("Missing 'that' after 'such'");
+        throw PQLSyntaxError("Missing 'that' after 'such'");
     }
     this->tokens.pop_front();
     if (this->tokens.empty() ) {
-        throw PQLError("Missing relRef after such that");
+        throw PQLSyntaxError("Missing relRef after such that");
     }
     PQLToken token = this->tokens.front();
     shared_ptr<SuchThatClauseParser> parserPointer;

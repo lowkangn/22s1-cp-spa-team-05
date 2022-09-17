@@ -5,9 +5,9 @@
 using namespace std;
 
 /**
- * This class encapsulates error messages for errors during parsing of query strings.
+ * This class encapsulates error messages for logic errors at any point in the QPS
  */
-class PQLError : public exception {
+class PQLLogicError : public exception {
 
 private:
     /**
@@ -18,11 +18,11 @@ private:
 public:
 
     /**
-     * Constructor for a PQLError.
+     * Constructor for a PQLLogicError.
      *
      * @param message
      */
-    explicit PQLError(string message) {
+    explicit PQLLogicError(string message) {
         this->message = message;
     }
 

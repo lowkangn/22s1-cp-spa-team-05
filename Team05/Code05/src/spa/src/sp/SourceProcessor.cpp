@@ -21,11 +21,11 @@ void SourceProcessor::tokenizeParseExtractAndUpdatePkb(istream& filestream, shar
 	// initialize tokenizer and tokenize
 	Lexer lexer = Lexer();
 	list<Token> tokens = lexer.tokenize(filestream);
-
+	
 	// initialize parser and parse
 	ParserManager parser = ParserManager(tokens);
 	shared_ptr<ASTNode> programTree = parser.parse();
-
+	
 	// initialize extractor and extract
 	// extractors
 	shared_ptr<EntityExtractor> entityExtractor(new EntityExtractor());
@@ -34,7 +34,7 @@ void SourceProcessor::tokenizeParseExtractAndUpdatePkb(istream& filestream, shar
 	
 	// put relationship extractors into a vector
 	vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor };
-
+	
 	// create manager
 	DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, relationExtractors);
 

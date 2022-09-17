@@ -110,11 +110,11 @@ namespace {
 
 	// Initialise statement entities
 	Entity w1 = Entity::createWhileEntity(1);
-	Entity a1 = Entity::createAssignEntity(2);
-	Entity i1 = Entity::createIfEntity(3);
-	Entity r1 = Entity::createReadEntity(4);
-	Entity r2 = Entity::createReadEntity(5);
-	Entity p1 = Entity::createPrintEntity(6);
+	Entity a2 = Entity::createAssignEntity(2);
+	Entity i3 = Entity::createIfEntity(3);
+	Entity r4 = Entity::createReadEntity(4);
+	Entity r5 = Entity::createReadEntity(5);
+	Entity p6 = Entity::createPrintEntity(6);
 
 	// Initialise some additional non-statement entities to check they are not returned
 	Entity main = Entity::createProcedureEntity(Token::createNameOrKeywordToken("main"));
@@ -123,39 +123,39 @@ namespace {
 	Entity oneEntity = Entity::createConstantEntity(3, Token::createIntegerToken("1"));
 
 	// Initialise parent relationships
-	Relationship parentW1A1 = Relationship::createParentRelationship(w1, a1);
-	Relationship parentW1I1 = Relationship::createParentRelationship(w1, i1);
-	Relationship parentI1R1 = Relationship::createParentRelationship(i1, r1);
-	Relationship parentI1R2 = Relationship::createParentRelationship(i1, r2);
+	Relationship parentW1A2 = Relationship::createParentRelationship(w1, a2);
+	Relationship parentW1I3 = Relationship::createParentRelationship(w1, i3);
+	Relationship parentI3R4 = Relationship::createParentRelationship(i3, r4);
+	Relationship parentI3R5 = Relationship::createParentRelationship(i3, r5);
 
 	// Initialise parentStar relationships
-	Relationship parentStarW1A1 = Relationship::createParentTRelationship(w1, a1);
-	Relationship parentStarW1I1 = Relationship::createParentTRelationship(w1, i1);
-	Relationship parentStarI1R1 = Relationship::createParentTRelationship(i1, r1);
-	Relationship parentStarI1R2 = Relationship::createParentTRelationship(i1, r2);
-	Relationship parentStarW1R1 = Relationship::createParentTRelationship(w1, r1);
-	Relationship parentStarW1R2 = Relationship::createParentTRelationship(w1, r2);
+	Relationship parentStarW1A2 = Relationship::createParentTRelationship(w1, a2);
+	Relationship parentStarW1I3 = Relationship::createParentTRelationship(w1, i3);
+	Relationship parentStarI3R4 = Relationship::createParentTRelationship(i3, r4);
+	Relationship parentStarI3R5 = Relationship::createParentTRelationship(i3, r5);
+	Relationship parentStarW1R4 = Relationship::createParentTRelationship(w1, r4);
+	Relationship parentStarW1R5 = Relationship::createParentTRelationship(w1, r5);
 
 
 	// Initialise corresponding PQLEntities and PQLRelationships
 	PQLEntity pqlW1 = PQLEntity::generateStatement(1);
-	PQLEntity pqlA1 = PQLEntity::generateStatement(2);
-	PQLEntity pqlI1 = PQLEntity::generateStatement(3);
-	PQLEntity pqlR1 = PQLEntity::generateStatement(4);
-	PQLEntity pqlR2 = PQLEntity::generateStatement(5);
-	PQLEntity pqlP1 = PQLEntity::generateStatement(6);
+	PQLEntity pqlA2 = PQLEntity::generateStatement(2);
+	PQLEntity pqlI3 = PQLEntity::generateStatement(3);
+	PQLEntity pqlR4 = PQLEntity::generateStatement(4);
+	PQLEntity pqlR5 = PQLEntity::generateStatement(5);
+	PQLEntity pqlP6 = PQLEntity::generateStatement(6);
 
-	PQLRelationship pqlParentW1A1 = PQLRelationship(pqlW1, pqlA1);
-	PQLRelationship pqlParentW1I1 = PQLRelationship(pqlW1, pqlI1);
-	PQLRelationship pqlParentI1R1 = PQLRelationship(pqlI1, pqlR1);
-	PQLRelationship pqlParentI1R2 = PQLRelationship(pqlI1, pqlR2);
+	PQLRelationship pqlParentW1A2 = PQLRelationship(pqlW1, pqlA2);
+	PQLRelationship pqlParentW1I3 = PQLRelationship(pqlW1, pqlI3);
+	PQLRelationship pqlParentI3R4 = PQLRelationship(pqlI3, pqlR4);
+	PQLRelationship pqlParentI3R5 = PQLRelationship(pqlI3, pqlR5);
 
-	PQLRelationship pqlParentStarW1A1 = PQLRelationship(pqlW1, pqlA1);
-	PQLRelationship pqlParentStarW1I1 = PQLRelationship(pqlW1, pqlI1);
-	PQLRelationship pqlParentStarI1R1 = PQLRelationship(pqlI1, pqlR1);
-	PQLRelationship pqlParentStarI1R2 = PQLRelationship(pqlI1, pqlR2);
-	PQLRelationship pqlParentStarW1R1 = PQLRelationship(pqlW1, pqlR1);
-	PQLRelationship pqlParentStarW1R2 = PQLRelationship(pqlW1, pqlR2);
+	PQLRelationship pqlParentStarW1A2 = PQLRelationship(pqlW1, pqlA2);
+	PQLRelationship pqlParentStarW1I3 = PQLRelationship(pqlW1, pqlI3);
+	PQLRelationship pqlParentStarI3R4 = PQLRelationship(pqlI3, pqlR4);
+	PQLRelationship pqlParentStarI3R5 = PQLRelationship(pqlI3, pqlR5);
+	PQLRelationship pqlParentStarW1R4 = PQLRelationship(pqlW1, pqlR4);
+	PQLRelationship pqlParentStarW1R5 = PQLRelationship(pqlW1, pqlR5);
 
 	// Clause Arguments
 	ClauseArgument firstStmtArg = ClauseArgument::createStmtArg("s1");
@@ -190,16 +190,16 @@ TEST_CASE("ParentClause: test execute") {
 
 	// ------ PKB ------ 
 	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
-	vector<Entity> entities{ w1, a1, i1, r1, r2, p1, main, x, y, oneEntity };
-	vector<Relationship> relationships{ parentW1A1, parentW1I1, parentI1R1, parentI1R2,
-		parentStarW1A1, parentStarW1I1, parentStarI1R1, parentStarI1R2, parentStarW1R1, parentStarW1R2 };
+	vector<Entity> entities{ w1, a2, i3, r4, r5, p6, main, x, y, oneEntity };
+	vector<Relationship> relationships{ parentW1A2, parentW1I3, parentI3R4, parentI3R5,
+		parentStarW1A2, parentStarW1I3, parentStarI3R4, parentStarI3R5, parentStarW1R4, parentStarW1R5 };
 	pkb -> addEntities(entities);
 	pkb -> addRelationships(relationships);
 
 	
 	// ------ QPS ------ 
 	ParentClause clause = ParentClause(firstStmtArg, secondStmtArg);
-	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlParentW1A1, pqlParentW1I1, pqlParentI1R1, pqlParentI1R2 };
+	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlParentW1A2, pqlParentW1I3, pqlParentI3R4, pqlParentI3R5 };
 	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(firstStmtArg, secondStmtArg,
 		expectedRetrievedFromPkb);
 	SECTION("Two stmt synoynms - all parent results") {
@@ -208,12 +208,12 @@ TEST_CASE("ParentClause: test execute") {
 	
 	SECTION("Other stmtRef synonyms - non empty results") {
 		clause = ParentClause(ifArg, readArg);
-		expectedRetrievedFromPkb = { pqlParentI1R1, pqlParentI1R2 };
+		expectedRetrievedFromPkb = { pqlParentI3R4, pqlParentI3R5 };
 		expectedClauseResult = RelationshipClauseResult(ifArg, readArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		clause = ParentClause(whileArg, ifArg);
-		expectedRetrievedFromPkb = { pqlParentW1I1 };
+		expectedRetrievedFromPkb = { pqlParentW1I3 };
 		expectedClauseResult = RelationshipClauseResult(whileArg, ifArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
@@ -236,7 +236,7 @@ TEST_CASE("ParentClause: test execute") {
 
 	SECTION("Line numbers - non empty results") {
 		clause = ParentClause(lineOneArg, lineTwoArg);
-		expectedRetrievedFromPkb = { pqlParentW1A1 };
+		expectedRetrievedFromPkb = { pqlParentW1A2 };
 		expectedClauseResult = RelationshipClauseResult(lineOneArg, lineTwoArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
@@ -277,18 +277,18 @@ TEST_CASE("ParentTClause: test execute") {
 
 	// ------ PKB ------ 
 	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
-	vector<Entity> entities{ w1, a1, i1, r1, r2, p1, main, x, y, oneEntity };
+	vector<Entity> entities{ w1, a2, i3, r4, r5, p6, main, x, y, oneEntity };
 	vector<Relationship> relationships{
-		parentW1A1,
-		parentW1I1,
-		parentI1R1,
-		parentI1R2,
-		parentStarW1A1,
-		parentStarW1I1,
-		parentStarI1R1,
-		parentStarI1R2,
-		parentStarW1R1,
-		parentStarW1R2
+		parentW1A2,
+		parentW1I3,
+		parentI3R4,
+		parentI3R5,
+		parentStarW1A2,
+		parentStarW1I3,
+		parentStarI3R4,
+		parentStarI3R5,
+		parentStarW1R4,
+		parentStarW1R5
 	};
 	pkb->addEntities(entities);
 	pkb->addRelationships(relationships);
@@ -296,8 +296,8 @@ TEST_CASE("ParentTClause: test execute") {
 
 	// ------ QPS ------ 
 	ParentTClause clause = ParentTClause(firstStmtArg, secondStmtArg);
-	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlParentStarW1A1, pqlParentStarW1I1,
-		pqlParentStarI1R1, pqlParentStarI1R2, pqlParentStarW1R1, pqlParentStarW1R2
+	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlParentStarW1A2, pqlParentStarW1I3,
+		pqlParentStarI3R4, pqlParentStarI3R5, pqlParentStarW1R4, pqlParentStarW1R5
 	};
 	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(firstStmtArg, secondStmtArg,
 		expectedRetrievedFromPkb);
@@ -307,17 +307,17 @@ TEST_CASE("ParentTClause: test execute") {
 
 	SECTION("Other stmtRef synonyms - non empty results") {
 		clause = ParentTClause(ifArg, readArg);
-		expectedRetrievedFromPkb = { pqlParentStarI1R1, pqlParentStarI1R2 };
+		expectedRetrievedFromPkb = { pqlParentStarI3R4, pqlParentStarI3R5 };
 		expectedClauseResult = RelationshipClauseResult(ifArg, readArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		clause = ParentTClause(whileArg, ifArg);
-		expectedRetrievedFromPkb = { pqlParentStarW1I1 };
+		expectedRetrievedFromPkb = { pqlParentStarW1I3 };
 		expectedClauseResult = RelationshipClauseResult(whileArg, ifArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		clause = ParentTClause(whileArg, readArg);
-		expectedRetrievedFromPkb = { pqlParentStarW1R1, pqlParentStarW1R2 };
+		expectedRetrievedFromPkb = { pqlParentStarW1R4, pqlParentStarW1R5 };
 		expectedClauseResult = RelationshipClauseResult(whileArg, readArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
@@ -340,12 +340,12 @@ TEST_CASE("ParentTClause: test execute") {
 
 	SECTION("Line numbers - non empty results") {
 		clause = ParentTClause(lineOneArg, lineTwoArg);
-		expectedRetrievedFromPkb = { pqlParentStarW1A1 };
+		expectedRetrievedFromPkb = { pqlParentStarW1A2 };
 		expectedClauseResult = RelationshipClauseResult(lineOneArg, lineTwoArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		clause = ParentTClause(lineOneArg, lineFourArg);
-		expectedRetrievedFromPkb = { pqlParentStarW1R1 };
+		expectedRetrievedFromPkb = { pqlParentStarW1R4 };
 		expectedClauseResult = RelationshipClauseResult(lineOneArg, lineFourArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}

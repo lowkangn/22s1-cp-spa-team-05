@@ -3,7 +3,7 @@
 set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pkb) {
 	shared_ptr<EntityClauseResult> entitiesResultPointer = query.executeSelect(pkb);
 	list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers = query.executeSuchThat(pkb);
-	return combine(entitiesResultPointer, relationshipsResultPointers);
+    return combine(entitiesResultPointer, relationshipsResultPointers);
 }
 
 set<string> QueryEvaluator::combine(shared_ptr<EntityClauseResult> entitiesResultPointer,
@@ -166,7 +166,7 @@ vector<vector<PQLEntity>> QueryEvaluator::getKeyValueTable(RelationshipClauseRes
 		} else if (keyColumn == KeyColumn::SECOND_COLUMN_KEY) {
 			output.push_back(vector<PQLEntity>{relationship.getSecondEntity(), relationship.getFirstEntity()});
 		} else {
-			throw PQLError("getKeyValueTable: invalid keyColumn");
+			throw PQLLogicError("getKeyValueTable: invalid keyColumn");
 		}
 	}
 
@@ -186,10 +186,10 @@ int QueryEvaluator::findArgumentIndex(vector<ClauseArgument> argumentsInTable, C
 
 vector<pair<PQLEntity, vector<PQLEntity>>> QueryEvaluator::convertToKeyValuePairs(vector<vector<PQLEntity>> table, int key) {
 	if (table.empty()) {
-		throw PQLError("convertToKeyValuePairs: Cannot convert empty table");
+		throw PQLLogicError("convertToKeyValuePairs: Cannot convert empty table");
 	}
 	if (key < 0 || key >= table[0].size()) {
-		throw PQLError("convertToKeyValuePairs: Key provided out of range of table columns");
+		throw PQLLogicError("convertToKeyValuePairs: Key provided out of range of table columns");
 	}
 	vector<pair<PQLEntity, vector<PQLEntity>>> keyValuePairs;
 	for (vector<PQLEntity> row : table) {
@@ -201,16 +201,16 @@ vector<pair<PQLEntity, vector<PQLEntity>>> QueryEvaluator::convertToKeyValuePair
 
 vector<pair<vector<PQLEntity>, vector<PQLEntity>>> QueryEvaluator::convertToKeyValuePairs(vector<vector<PQLEntity>> table, int firstKey, int secondKey) {
 	if (table.empty()) {
-		throw PQLError("convertToKeyValuePairs: Cannot convert empty table");
+		throw PQLLogicError("convertToKeyValuePairs: Cannot convert empty table");
 	}
 	if (firstKey < 0 || firstKey >= table[0].size()) {
-		throw PQLError("convertToKeyValuePairs: First key provided out of range of table columns");
+		throw PQLLogicError("convertToKeyValuePairs: First key provided out of range of table columns");
 	}
 	if (secondKey < 0 || secondKey >= table[0].size()) {
-		throw PQLError("convertToKeyValuePairs: Second key provided out of range of table columns");
+		throw PQLLogicError("convertToKeyValuePairs: Second key provided out of range of table columns");
 	}
 	if (firstKey == secondKey) {
-		throw PQLError("convertToKeyValuePairs: Both keys have the same value");
+		throw PQLLogicError("convertToKeyValuePairs: Both keys have the same value");
 	}
 	vector<pair<vector<PQLEntity>, vector<PQLEntity>>> keyValuePairs;
 	for (vector<PQLEntity> row : table) {
@@ -227,10 +227,10 @@ vector<vector<PQLEntity>> QueryEvaluator::pairKeyTableJoin(
 		vector<vector<PQLEntity>> tableToMergeKeyValuePairs) {
 
 	if (combinedTableKeyValuePairs.empty()) {
-		throw PQLError("pairKeyTableJoin: Cannot convert empty combinedTable");
+		throw PQLLogicError("pairKeyTableJoin: Cannot convert empty combinedTable");
 	}
 	if (tableToMergeKeyValuePairs.empty()) {
-		throw PQLError("pairKeyTableJoin: Cannot convert empty tableToMerge");
+		throw PQLLogicError("pairKeyTableJoin: Cannot convert empty tableToMerge");
 	}
 
 	// Create multimap
@@ -263,10 +263,10 @@ vector<vector<PQLEntity>> QueryEvaluator::singleKeyTableJoin(
 		vector<vector<PQLEntity>> tableToMergeKeyValuePairs) {
 
 	if (combinedTableKeyValuePairs.empty()) {
-		throw PQLError("singleKeyTableJoin: Cannot convert empty combinedTable");
+		throw PQLLogicError("singleKeyTableJoin: Cannot convert empty combinedTable");
 	}
 	if (tableToMergeKeyValuePairs.empty()) {
-		throw PQLError("singleKeyTableJoin: Cannot convert empty tableToMerge");
+		throw PQLLogicError("singleKeyTableJoin: Cannot convert empty tableToMerge");
 	}
 
 	// Create multimap

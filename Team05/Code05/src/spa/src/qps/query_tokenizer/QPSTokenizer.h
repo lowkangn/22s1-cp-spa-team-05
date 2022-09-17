@@ -1,7 +1,7 @@
 #pragma once
 
-#include "PQLToken.h"
-#include <qps/exceptions/PQLError.h>
+#include <qps/query_tokenizer/PQLToken.h>
+#include <qps/exceptions/PQLSyntaxError.h>
 #include <list>
 #include <fstream>
 

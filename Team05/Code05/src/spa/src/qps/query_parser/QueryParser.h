@@ -1,5 +1,7 @@
 #pragma once
 
+#include <qps/exceptions/PQLSyntaxError.h>
+#include <qps/exceptions/PQLSemanticError.h>
 #include <qps/query_tokenizer/PQLToken.h>
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query/Query.h>

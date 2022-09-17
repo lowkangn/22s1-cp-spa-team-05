@@ -201,7 +201,7 @@ TEST_CASE("QueryEvaluator: test convertToKeyValuePairsWithError with single key"
 		QueryEvaluator evaluator = QueryEvaluator();
 
 		// when and then
-		REQUIRE_THROWS_AS(evaluator.convertToKeyValuePairs(table, key), PQLError);
+		REQUIRE_THROWS_AS(evaluator.convertToKeyValuePairs(table, key), PQLLogicError);
 	};
 
 	SECTION("Invalid key") {
@@ -299,7 +299,7 @@ TEST_CASE("QueryEvaluator: test convertToKeyValuePairsWithError with pair key") 
 		QueryEvaluator evaluator = QueryEvaluator();
 
 		// when and then
-		REQUIRE_THROWS_AS(evaluator.convertToKeyValuePairs(table, firstKey, secondKey), PQLError);
+		REQUIRE_THROWS_AS(evaluator.convertToKeyValuePairs(table, firstKey, secondKey), PQLLogicError);
 	};
 
 	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
@@ -434,7 +434,7 @@ TEST_CASE("QueryEvaluator: test singleKeyTableJoinWithError") {
 		QueryEvaluator evaluator = QueryEvaluator();
 
 		// when and then
-		REQUIRE_THROWS_AS(evaluator.singleKeyTableJoin(combinedTableKeyValuePairs, tableToMerge), PQLError);
+		REQUIRE_THROWS_AS(evaluator.singleKeyTableJoin(combinedTableKeyValuePairs, tableToMerge), PQLLogicError);
 
 	};
 
@@ -564,7 +564,7 @@ TEST_CASE("QueryEvaluator: test pairKeyTableJoinWithError") {
 		QueryEvaluator evaluator = QueryEvaluator();
 
 		// when and then
-		REQUIRE_THROWS_AS(evaluator.pairKeyTableJoin(combinedTableKeyValuePairs, tableToMerge), PQLError);
+		REQUIRE_THROWS_AS(evaluator.pairKeyTableJoin(combinedTableKeyValuePairs, tableToMerge), PQLLogicError);
 
 	};
 
