@@ -129,7 +129,7 @@ public:
 			this->isIfNode() ||
 			this->isStmtLstNode();
 	}
-	
+
 	bool isStatement() {
 		return this->isReadNode() ||
 			this->isAssignNode() ||

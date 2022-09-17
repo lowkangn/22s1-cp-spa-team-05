@@ -9,7 +9,7 @@
 #include <sp/dataclasses/ast/WhileASTNode.h>
 using namespace std;
 
-class ParentTExtractor : Extractor<Relationship> {
+class ParentTExtractor : public Extractor<Relationship> {
 
 public:
 	/*
