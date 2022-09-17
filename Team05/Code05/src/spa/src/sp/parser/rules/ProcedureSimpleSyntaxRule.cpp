@@ -67,7 +67,7 @@ list<Token> ProcedureSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 		tokens.pop_front(); // pop
 		consumedTokens.push_back(token); // insert all tokens in order within bracket
 
-		if (token.isOpenBracketToken()) {
+		if (token.isOpenCurlyBracketToken()) {
 			numOpenBracketSeen += 1;
 		} else if (token.isClosedCurlyBracketToken()) {
 			numOpenBracketSeen -= 1;
