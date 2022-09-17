@@ -47,11 +47,13 @@ public:
 		The expected patterns are:
 		_something_, something, _
 	*/
-	string createRegexStringFromString(string s) {
+	static string createRegexStringFromString(string s) {
 		int initialLength = s.size();
 
 		// replace WILDCARD CHAR with .* regex pattern by reference
-		this->replaceAll(s, WILDCARD_CHAR, REGEX_MATCH_ANY);
+		PkbPatternTable::replaceAll(s, WILDCARD_CHAR, REGEX_MATCH_ANY);
+
+		// replace all special characters with escaped characters
 
 
 		// we validate the input by checking the change in length
@@ -68,7 +70,7 @@ public:
 	/*
 		Replaces all instances of a substring to a new string by reference.
 	*/
-	void replaceAll(string& str, const std::string& from, const std::string& to) {
+	static void replaceAll(string& str, const std::string& from, const std::string& to) {
 		if (from.empty())
 			return;
 		size_t start_pos = 0;

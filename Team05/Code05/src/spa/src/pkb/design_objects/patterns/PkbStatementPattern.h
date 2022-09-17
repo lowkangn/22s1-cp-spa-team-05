@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <regex>
+#include <iostream>
 using namespace std;
 /*
 	Parent class for all statement-based patterns.
@@ -51,10 +52,13 @@ public :
 		for (int i = 0; i < n; i++) {
 			string regexString = regexStrings[i];
 			string s = this->strings[i];
+			cout << regexString << " " << s << endl;
 			if (!regex_match(s, regex(regexString))) {
+				cout << "don't match" << endl;
 				return false;
 			}
 		}
+		cout << "match" << endl;
 		return true;
 	}
 
@@ -89,6 +93,10 @@ public :
 
 	string getVariableIdentifier() {
 		return this->strings[0]; // we can confirm is lhs, since this always true for all patterns
+	}
+
+	bool equals(shared_ptr<PkbStatementPattern> other) {
+		return this->statement->equals(other->statement) && this->strings == other->strings;
 	}
 
 };
