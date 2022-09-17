@@ -27,8 +27,8 @@ TEST_CASE("PatternAssignClause: test equals") {
 	ClauseArgument wildCardArg = ClauseArgument::createWildcardArg();
 
 	ClauseArgument stringLiteralArg = ClauseArgument::createStringLiteralArg("x");
-	ClauseArgument patternStringArg = ClauseArgument::createPatternStringArg("x+3");
-	ClauseArgument patternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("x+3");
+	ClauseArgument patternStringArg = ClauseArgument::createPatternStringArg("x3+");
+	ClauseArgument patternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("x3+");
 
 	SECTION("Equal") {
 		shared_ptr<PatternClause> patternAssignClauseAgain(new PatternAssignClause(firstPatternArg, firstVarArg, wildCardArg));
@@ -65,6 +65,173 @@ TEST_CASE("PatternAssignClause: test equals") {
 
 }
 
+// =============== INTEGRATION TESTS ====================
+// this prevents other files from using these variables
+namespace {
+	/* Corresponds to the following SIMPLE source (with line numbers)
+		procedure main {
+	 		while (x > 0) {
+	1:			y = x + 1;
+	2:			z = x * 3 - y / 2;
+	3:			x = x - 1;
+	 		}
+		}
+	*/
+
+	// Initialise Patterns
+	Pattern a1 = Pattern::createAssignPattern(1, "y", "x1+");
+	Pattern a2 = Pattern::createAssignPattern(2, "z", "x3*y2/-");
+	Pattern a3 = Pattern::createAssignPattern(3, "x", "x1-");
+
+	// Initialise PQLEntities and PQLRelationships
+	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
+	PQLEntity secondStmtEntity = PQLEntity::generateStatement(2);
+	PQLEntity thirdStmtEntity = PQLEntity::generateStatement(3);
+	PQLEntity firstVarEntity = PQLEntity::generateVariable("y");
+	PQLEntity secondVarEntity = PQLEntity::generateVariable("z");
+	PQLEntity thirdVarEntity = PQLEntity::generateVariable("x");
+
+	PQLRelationship firstRelationship = PQLRelationship(firstStmtEntity, firstVarEntity);
+	PQLRelationship secondRelationship = PQLRelationship(secondStmtEntity, secondVarEntity);
+	PQLRelationship thirdRelationship = PQLRelationship(thirdStmtEntity, thirdVarEntity);
+
+	// Initialise ClauseArguments
+	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
+	ClauseArgument varArg = ClauseArgument::createVariableArg("v");
+	ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
+	ClauseArgument firstStringLiteralArg = ClauseArgument::createStringLiteralArg("y");
+	ClauseArgument secondStringLiteralArg = ClauseArgument::createStringLiteralArg("z");
+	ClauseArgument thirdStringLiteralArg = ClauseArgument::createStringLiteralArg("x");
+	ClauseArgument nonExistentStringLiteralArg = ClauseArgument::createStringLiteralArg("aAaAaA");
+	ClauseArgument firstPatternStringArg = ClauseArgument::createPatternStringArg("x1+");
+	ClauseArgument secondPatternStringArg = ClauseArgument::createPatternStringArg("x3*y2/-");
+	ClauseArgument thirdPatternStringArg = ClauseArgument::createPatternStringArg("x1-");
+	ClauseArgument firstNonExistentPatternStringArg = ClauseArgument::createPatternStringArg("3y-");
+	ClauseArgument secondNonExistentPatternStringArg = ClauseArgument::createPatternStringArg("x3*");
+	ClauseArgument firstPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("x");
+	ClauseArgument secondPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("y");
+	ClauseArgument thirdPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("x3*");
+	ClauseArgument fourthPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("1");
+	ClauseArgument nonExistentPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("3y-");
+
+};
+
 TEST_CASE("PatternAssignClause: test execute") {
+	auto testExecute = [](PatternAssignClause patternAssignClause,
+						  RelationshipClauseResult expectedClauseResult,
+						  shared_ptr<PKB> pkb) {
+		// given
+		shared_ptr<PKBQueryHandler> pkbInterface = shared_ptr<PKBQueryHandler>(pkb);
+
+		// when
+		shared_ptr<RelationshipClauseResult> resPtr = patternAssignClause.execute(pkbInterface);
+		RelationshipClauseResult actualClauseResult = *resPtr;
+
+		// then
+		REQUIRE(actualClauseResult == expectedClauseResult);
+
+	};
+
+	// ------ PKB ------
+	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
+	vector<Pattern> patterns{ a1, a2, a3 };
+
+	pkb->addPatterns(patterns);
+
+	// ------ QPS ------
+	PatternAssignClause clause = PatternAssignClause(assignArg, varArg, wildcardArg);
+	vector<PQLRelationship> expectedRetrievedFromPkb = { firstRelationship, secondRelationship, thirdRelationship };
+	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(assignArg, varArg, expectedRetrievedFromPkb);
+
+	SECTION("LHS variable, RHS wildcard - return all results") {
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("LHS wildcard, RHS wildcard - return all results") {
+		clause = PatternAssignClause(assignArg, wildcardArg, wildcardArg);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("LHS string literal, RHS wildcard - non empty results") {
+		clause = PatternAssignClause(assignArg, firstStringLiteralArg, wildcardArg);
+		expectedRetrievedFromPkb = { firstRelationship };
+		expectedClauseResult = RelationshipClauseResult(assignArg, firstStringLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = PatternAssignClause(assignArg, secondStringLiteralArg, wildcardArg);
+		expectedRetrievedFromPkb = { secondRelationship };
+		expectedClauseResult = RelationshipClauseResult(assignArg, secondStringLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = PatternAssignClause(assignArg, thirdStringLiteralArg, wildcardArg);
+		expectedRetrievedFromPkb = { thirdRelationship };
+		expectedClauseResult = RelationshipClauseResult(assignArg, thirdStringLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("LHS string literal, RHS wildcard - empty results") {
+		clause = PatternAssignClause(assignArg, nonExistentStringLiteralArg, wildcardArg);
+		expectedRetrievedFromPkb = { };
+		expectedClauseResult = RelationshipClauseResult(assignArg, nonExistentStringLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("LHS variable, RHS exact string - return non-empty results") {
+		clause = PatternAssignClause(assignArg, varArg, firstPatternStringArg);
+		expectedRetrievedFromPkb = { firstRelationship };
+		expectedClauseResult = RelationshipClauseResult(assignArg, varArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = PatternAssignClause(assignArg, varArg, secondPatternStringArg);
+		expectedRetrievedFromPkb = { secondRelationship };
+		expectedClauseResult = RelationshipClauseResult(assignArg, varArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = PatternAssignClause(assignArg, varArg, thirdPatternStringArg);
+		expectedRetrievedFromPkb = { thirdRelationship };
+		expectedClauseResult = RelationshipClauseResult(assignArg, varArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+	}
+
+	SECTION("LHS variable, RHS exact string - return empty results") {
+		clause = PatternAssignClause(assignArg, varArg, firstNonExistentPatternStringArg);
+		expectedRetrievedFromPkb = { };
+		expectedClauseResult = RelationshipClauseResult(assignArg, varArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = PatternAssignClause(assignArg, varArg, secondNonExistentPatternStringArg);
+		expectedClauseResult = RelationshipClauseResult(assignArg, varArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("LHS variable, RHS string with wildcards - return non-empty results") {
+		clause = PatternAssignClause(assignArg, varArg, firstPatternStringWithWildcardsArg);
+		expectedRetrievedFromPkb = { firstRelationship, secondRelationship, thirdRelationship };
+		expectedClauseResult = RelationshipClauseResult(assignArg, varArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = PatternAssignClause(assignArg, varArg, secondPatternStringWithWildcardsArg);
+		expectedRetrievedFromPkb = { secondRelationship };
+		expectedClauseResult = RelationshipClauseResult(assignArg, varArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = PatternAssignClause(assignArg, varArg, thirdPatternStringWithWildcardsArg);
+		expectedRetrievedFromPkb = { secondRelationship };
+		expectedClauseResult = RelationshipClauseResult(assignArg, varArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = PatternAssignClause(assignArg, varArg, fourthPatternStringWithWildcardsArg);
+		expectedRetrievedFromPkb = { firstRelationship, thirdRelationship };
+		expectedClauseResult = RelationshipClauseResult(assignArg, varArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("LHS variable, RHS string with wildcards - return empty results") {
+		clause = PatternAssignClause(assignArg, varArg, nonExistentPatternStringWithWildcardsArg);
+		expectedRetrievedFromPkb = { };
+		expectedClauseResult = RelationshipClauseResult(assignArg, varArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
 
 }
