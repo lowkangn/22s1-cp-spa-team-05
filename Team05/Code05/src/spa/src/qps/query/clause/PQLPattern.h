@@ -27,6 +27,14 @@ public:
 		return PQLPattern(PQLEntity::generateStatement(statementLineNumber), PQLEntity::generateVariable(variableName));
 	}
 	
+	friend bool operator==(PQLPattern first, PQLPattern second) {
+		return first.statementEntity == second.statementEntity && first.variableEntity == second.variableEntity;
+	}
 
+	string toString() {
+		return this->statementEntity.toString() + this->variableEntity.toString();
+	}
+
+	
 	
 };

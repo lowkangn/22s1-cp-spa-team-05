@@ -568,11 +568,11 @@ vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, 
 		if (rhs.isWildcard()) {
 			rhsStringPattern = WILDCARD_CHAR;
 		}
-		else if (rhs.isStringLiteral()) {
+		else if (rhs.isStringLiteral() || rhs.isStringWithWildcards()) {
 			rhsStringPattern = rhs.getIdentifier();
 		}
 		else {
-			throw PkbException("RHS of assign pattern should be wildcard or string, but is neither.");
+			throw PkbException("RHS of assign pattern should be wildcard, sandwiched wildcard or string, but is neither.");
 		}
 		
 		// 4. find all patterns that match in the assign table

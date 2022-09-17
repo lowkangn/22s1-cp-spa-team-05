@@ -52,13 +52,10 @@ public :
 		for (int i = 0; i < n; i++) {
 			string regexString = regexStrings[i];
 			string s = this->strings[i];
-			cout << regexString << " " << s << endl;
 			if (!regex_match(s, regex(regexString))) {
-				cout << "don't match" << endl;
 				return false;
 			}
 		}
-		cout << "match" << endl;
 		return true;
 	}
 
