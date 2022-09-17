@@ -77,6 +77,20 @@ TEST_CASE("PkbPatternTable::getAll works correctly") {
 
 }
 
+TEST_CASE("Test ::replaceAll") {
+
+}
+
+TEST_CASE("Test ::createRegexStringFromString") {
+
+}
+
+TEST_CASE("Test ::getAllThatMatchPostFixStrings") {
+
+}
+
+
+
 //TEST_CASE("PkbPatternTable throws when we try to add duplicate items") {
 //	auto test = [](vector<shared_ptr<PkbStatementPattern>> alreadyInTable, shared_ptr<PkbStatementPattern> toAdd) {
 //		// given

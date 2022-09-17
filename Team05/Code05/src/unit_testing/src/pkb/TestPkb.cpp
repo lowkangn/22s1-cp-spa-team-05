@@ -684,3 +684,17 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 
 
 }
+
+TEST_CASE("Test add and get patterns") {
+	SECTION("Wildcards should get all") {
+
+	}
+
+	SECTION("Synonyms should also get all") {
+
+	}
+
+	SECTION("Specific pattern should get specific patterns") {
+
+	}
+}
