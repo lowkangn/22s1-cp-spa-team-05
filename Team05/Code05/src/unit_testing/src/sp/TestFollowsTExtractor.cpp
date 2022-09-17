@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include <sp/design_extractor/FollowsExtractor.h>
+#include <sp/design_extractor/FollowsTExtractor.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/ast/AST.h>
@@ -20,10 +20,10 @@
 
 using namespace std;
 
-TEST_CASE("FollowsExtractor: test extract") {
+TEST_CASE("FollowsTExtractor: test extract") {
 	auto test = [](shared_ptr<ASTNode> astNode, vector<Relationship> expectedResult) {
 		// Given
-		FollowsExtractor extractor = FollowsExtractor();
+		FollowsTExtractor extractor = FollowsTExtractor();
 
 		// When
 		vector<Relationship> extractedRelationships = extractor.extract(astNode);
@@ -31,7 +31,7 @@ TEST_CASE("FollowsExtractor: test extract") {
 		// Then
 		REQUIRE(extractedRelationships.size() == expectedResult.size());
 
-		for (int i = 0; i < extractedRelationships.size(); i++) 
+		for (int i = 0; i < extractedRelationships.size(); i++)
 		{
 			REQUIRE(extractedRelationships[i].equals(expectedResult[i]));
 		}
@@ -106,9 +106,9 @@ TEST_CASE("FollowsExtractor: test extract") {
 		Entity readXEntity = Entity::createReadEntity(3);
 		Entity readYEntity = Entity::createReadEntity(4);
 
-		vector<Relationship> expectedFollowsRelationships{};
+		vector<Relationship> expectedFollowsTRelationships{};
 
-		test(procedureNode, expectedFollowsRelationships);
+		test(procedureNode, expectedFollowsTRelationships);
 	}
 
 	SECTION("Test nested - non empty results") {
@@ -120,16 +120,16 @@ TEST_CASE("FollowsExtractor: test extract") {
 			4.			x = x + 2;
 			5.			read y;
 					}
-				} else {
-			6.		y = 5;
-				}
-			7.	x = y;
+			6.		if () then {} else {}
+			7.		print y;
+				} else {}
 			}
 		*/
 
-		// Variables are omitted for brevity. FollowsExtractor does not interact with variables. 
+		// Variables are omitted for brevity. FollowsTExtractor does not interact with variables. 
 		Token mainToken = Token::createNameOrKeywordToken("main");
 		Token readToken = Token::createReadToken();
+		Token printToken = Token::createReadToken();
 		Token ifToken = Token::createIfToken();
 		Token whileToken = Token::createWhileToken();
 		Token lessThanToken = Token::createLessThanToken();
@@ -179,15 +179,23 @@ TEST_CASE("FollowsExtractor: test extract") {
 
 		whileStmtListNode->addChild(readYNode);
 
-		shared_ptr<ASTNode> assign6Node(new AssignASTNode(equalsToken));
-		assign6Node->setLineNumber(6);
+		shared_ptr<ASTNode> nestedIfNode(new IfASTNode(ifToken));
+		nestedIfNode->setLineNumber(6);
 
-		elseStmtListNode->addChild(assign6Node);
+		thenStmtListNode->addChild(nestedIfNode);
 
-		shared_ptr<ASTNode> assign7Node(new AssignASTNode(equalsToken));
-		assign7Node->setLineNumber(7);
+		shared_ptr<ASTNode> emptyIfCond(new ExpressionASTNode(lessThanToken));
+		shared_ptr<ASTNode> emptyThenStmtListNode(new StatementListASTNode(placeholderToken));
+		shared_ptr<ASTNode> emptyElseStmtListNode(new StatementListASTNode(placeholderToken));
 
-		mainStmtListNode->addChild(assign7Node);
+		nestedIfNode->addChild(emptyIfCond);
+		nestedIfNode->addChild(emptyThenStmtListNode);
+		nestedIfNode->addChild(emptyElseStmtListNode);
+
+		shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
+		printNode->setLineNumber(7);
+
+		thenStmtListNode->addChild(printNode);
 
 		// Create entities
 		Entity ifEntity = Entity::createIfEntity(1);
@@ -195,17 +203,25 @@ TEST_CASE("FollowsExtractor: test extract") {
 		Entity whileEntity = Entity::createWhileEntity(3);
 		Entity assign4Entity = Entity::createAssignEntity(4);
 		Entity readYEntity = Entity::createReadEntity(5);
-		Entity assign6Entity = Entity::createAssignEntity(6);
-		Entity assign7Entity = Entity::createAssignEntity(7);
+		Entity nestedIfEntity = Entity::createIfEntity(6);
+		Entity printEntity = Entity::createPrintEntity(7);
 
 		// Create relationships
-		Relationship followsIfA7 = Relationship::createFollowsRelationship(ifEntity, assign7Entity);
-		Relationship followsA2While = Relationship::createFollowsRelationship(assign2Entity, whileEntity);
-		Relationship followsA4ReadY = Relationship::createFollowsRelationship(assign4Entity, readYEntity);
+		Relationship followsTA2While = Relationship::createFollowsTRelationship(assign2Entity, whileEntity);
+		Relationship followsTA2NestedIf = Relationship::createFollowsTRelationship(assign2Entity, nestedIfEntity);
+		Relationship followsTA2Print = Relationship::createFollowsTRelationship(assign2Entity, printEntity);
+		
+		Relationship followsTWhileNestedIf = Relationship::createFollowsTRelationship(whileEntity, nestedIfEntity);
+		Relationship followsTWhilePrint = Relationship::createFollowsTRelationship(whileEntity, printEntity);
 
-		vector<Relationship> expectedFollowsRelationships{ followsIfA7, followsA2While, followsA4ReadY };
+		Relationship followsTA4ReadY = Relationship::createFollowsTRelationship(assign4Entity, readYEntity);
 
-		test(procedureNode, expectedFollowsRelationships);
+		Relationship followsTNestedIfPrint = Relationship::createFollowsTRelationship(nestedIfEntity, printEntity);
+
+		vector<Relationship> expectedFollowsTRelationships{ followsTA2While, followsTA2NestedIf, followsTA2Print, followsTWhileNestedIf, 
+			followsTWhilePrint, followsTA4ReadY, followsTNestedIfPrint };
+
+		test(procedureNode, expectedFollowsTRelationships);
 	}
 
 	SECTION("Full test") {
@@ -384,12 +400,19 @@ TEST_CASE("FollowsExtractor: test extract") {
 		Entity ifEntity = Entity::createIfEntity(ifNode->getLineNumber());
 
 		// Creating Relationships
-		Relationship followsAssign1Read = Relationship::createFollowsRelationship(assign1Entity, readEntity);
-		Relationship followsReadWhile = Relationship::createFollowsRelationship(readEntity, whileEntity);
-		Relationship followsAssign4Print = Relationship::createFollowsRelationship(assign4Entity, printEntity);
-		Relationship followsWhileIf = Relationship::createFollowsRelationship(whileEntity, ifEntity);
+		Relationship followsTAssign1Read = Relationship::createFollowsTRelationship(assign1Entity, readEntity);
+		Relationship followsTAssign1While = Relationship::createFollowsTRelationship(assign1Entity, whileEntity);
+		Relationship followsTAssign1If = Relationship::createFollowsTRelationship(assign1Entity, ifEntity);
 
-		vector<Relationship> expectedParentRelationships{ followsAssign1Read, followsReadWhile, followsWhileIf, followsAssign4Print };
+		Relationship followsTReadWhile = Relationship::createFollowsTRelationship(readEntity, whileEntity);
+		Relationship followsTReadIf = Relationship::createFollowsTRelationship(readEntity, ifEntity);
+
+		Relationship followsTWhileIf = Relationship::createFollowsTRelationship(whileEntity, ifEntity);
+
+		Relationship followsTAssign4Print = Relationship::createFollowsTRelationship(assign4Entity, printEntity);
+
+		vector<Relationship> expectedParentRelationships{ followsTAssign1Read, followsTAssign1While, followsTAssign1If, followsTReadWhile,
+			followsTReadIf, followsTWhileIf, followsTAssign4Print};
 
 		test(procedureNode, expectedParentRelationships);
 	}
