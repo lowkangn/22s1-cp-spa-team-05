@@ -186,10 +186,10 @@ TEST_CASE("ParentExtractor: test extract") {
 
 		// Creating Relationships
 		Relationship whileParentIf = Relationship::createParentRelationship(whileEntity, ifEntity);
-		Relationship ifParentX = Relationship::createParentRelationship(ifEntity, readXEntity);
-		Relationship ifParentY = Relationship::createParentRelationship(ifEntity, readYEntity);
+		Relationship ifParentAssignX = Relationship::createParentRelationship(ifEntity, readXEntity);
+		Relationship ifParentAssignY = Relationship::createParentRelationship(ifEntity, readYEntity);
 
-		vector<Relationship> expectedParentRelationships{ ifParentY, ifParentX, whileParentIf };
+		vector<Relationship> expectedParentRelationships{ ifParentAssignY, ifParentAssignX, whileParentIf };
 
 		test(procedureNode, expectedParentRelationships);
 	}
@@ -382,13 +382,13 @@ TEST_CASE("ParentExtractor: test extract") {
 		Entity y8Entity = Entity::createVariableEntity(y8Node->getLineNumber(), yToken);
 
 		// Creating Relationships
-		Relationship whileParentX4 = Relationship::createParentRelationship(whileEntity, assign4Entity);
+		Relationship whileParentAssign4 = Relationship::createParentRelationship(whileEntity, assign4Entity);
 		Relationship whileParentPrint5 = Relationship::createParentRelationship(whileEntity, printEntity);
 
-		Relationship ifParentX7 = Relationship::createParentRelationship(ifEntity, assign7Entity);
-		Relationship ifParentY8 = Relationship::createParentRelationship(ifEntity, assign8Entity);
+		Relationship ifParentAssign7 = Relationship::createParentRelationship(ifEntity, assign7Entity);
+		Relationship ifParentAssign8 = Relationship::createParentRelationship(ifEntity, assign8Entity);
 
-		vector<Relationship> expectedParentRelationships{ ifParentY8, ifParentX7 , whileParentX4, whileParentPrint5 };
+		vector<Relationship> expectedParentRelationships{ ifParentAssign8, ifParentAssign7 , whileParentAssign4, whileParentPrint5 };
 
 		test(procedureNode, expectedParentRelationships);
 	}
