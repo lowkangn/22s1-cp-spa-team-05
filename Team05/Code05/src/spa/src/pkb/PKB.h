@@ -149,7 +149,12 @@ public:
 		Retrieves all relationships of a specified type.
 	*/
 	vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) override;
-	
+
+	/*
+        Retrieves statements by lhs and rhs. If a lhs of type synonym is provided,
+    */
+	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
+
 	/*
 		Casts the PKB to its query handler interface as a shared pointer.
 	*/

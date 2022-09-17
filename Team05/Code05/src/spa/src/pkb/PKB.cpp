@@ -530,6 +530,11 @@ vector<PQLRelationship> PKB::retrieveRelationshipsByType(PKBTrackedRelationshipT
 	return out;
 }
 
+vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) {
+	return vector<PQLPattern>();
+}
+
+
 shared_ptr<PKBQueryHandler> PKB::getQueryHandler() {
 	return shared_ptr<PKBQueryHandler>(this);
 }
