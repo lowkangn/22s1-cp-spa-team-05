@@ -8,8 +8,13 @@ shared_ptr<RelationshipClauseResult> PatternAssignClause::execute(shared_ptr<PKB
 
 	patterns = pkb->retrievePatterns(PKBTrackedStatementType::ASSIGN, lhs, rhs);
 
-	// have some conversion to vector<PQLRelationship>
+	// for now we'll convert to PQLRelationship and return RelationshipClauseResult, may need to reevaluate in the future
 	vector<PQLRelationship> relationships;
+	for (PQLPattern pattern : patterns) {
+		PQLEntity stmtEntity = pattern.getStatementEntity();
+		PQLEntity varEntity = pattern.getVariableEntity();
+		relationships.emplace_back(stmtEntity, varEntity);
+	}
 
 	return shared_ptr<RelationshipClauseResult>(new RelationshipClauseResult(patternArg, lhs, relationships));
 }

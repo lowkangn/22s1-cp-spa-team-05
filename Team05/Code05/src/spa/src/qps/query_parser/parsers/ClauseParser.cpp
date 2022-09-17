@@ -60,7 +60,8 @@ ClauseArgument ClauseParser::parseStringLiteralOrPatternString() {
 	}
 	this->tokens.pop_front();
 
-	return ClauseArgument::createPatternStringArg(s);
+	string postFixString = convertInfixToPostFix(s);
+	return ClauseArgument::createPatternStringArg(postFixString);
 }
 
 ClauseArgument ClauseParser::parseStatementNumber() {

@@ -27,6 +27,13 @@ public:
 		return PQLPattern(PQLEntity::generateStatement(statementLineNumber), PQLEntity::generateVariable(variableName));
 	}
 
+	PQLEntity getStatementEntity() {
+		return this->statementEntity;
+	}
+
+	PQLEntity getVariableEntity() {
+		return this->variableEntity;
+	}
 
 
 };

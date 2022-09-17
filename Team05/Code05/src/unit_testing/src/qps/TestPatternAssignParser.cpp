@@ -72,7 +72,7 @@ TEST_CASE("PatternAssignParser: test parsePatternAssignNoError") {
 		PatternAssignClause expected = PatternAssignClause(
 				ClauseArgument::createAssignArg("a"),
 				ClauseArgument::createVariableArg("v"),
-				ClauseArgument::createPatternStringArg("x*2+y/2-3"));
+				ClauseArgument::createPatternStringArg("x2*y2/+3-"));
 
 		testParseNoError(tokensList, declarationsMap, expected);
 	}
@@ -107,7 +107,7 @@ TEST_CASE("PatternAssignParser: test parsePatternAssignNoError") {
 		PatternAssignClause expected = PatternAssignClause(
 				ClauseArgument::createAssignArg("a"),
 				ClauseArgument::createVariableArg("v"),
-				ClauseArgument::createPatternStringWithWildcardsArg("x*2+y/2-3"));
+				ClauseArgument::createPatternStringWithWildcardsArg("x2*y2/+3-"));
 
 		testParseNoError(tokensList, declarationsMap, expected);
 	}
@@ -165,7 +165,7 @@ TEST_CASE("PatternAssignParser: test parsePatternAssignNoError") {
 		PatternAssignClause expected = PatternAssignClause(
 				ClauseArgument::createAssignArg("a"),
 				ClauseArgument::createStringLiteralArg("x"),
-				ClauseArgument::createPatternStringArg("x*2+y/2-3"));
+				ClauseArgument::createPatternStringArg("x2*y2/+3-"));
 
 		testParseNoError(tokensList, declarationsMap, expected);
 	}
@@ -201,7 +201,7 @@ TEST_CASE("PatternAssignParser: test parsePatternAssignNoError") {
 		PatternAssignClause expected = PatternAssignClause(
 				ClauseArgument::createAssignArg("a"),
 				ClauseArgument::createStringLiteralArg("x"),
-				ClauseArgument::createPatternStringWithWildcardsArg("x*2+y/2-3"));
+				ClauseArgument::createPatternStringWithWildcardsArg("x2*y2/+3-"));
 
 		testParseNoError(tokensList, declarationsMap, expected);
 	}
@@ -255,7 +255,7 @@ TEST_CASE("PatternAssignParser: test parsePatternAssignNoError") {
 		PatternAssignClause expected = PatternAssignClause(
 				ClauseArgument::createAssignArg("a"),
 				ClauseArgument::createWildcardArg(),
-				ClauseArgument::createPatternStringArg("x*2+y/2-3"));
+				ClauseArgument::createPatternStringArg("x2*y2/+3-"));
 
 		testParseNoError(tokensList, declarationsMap, expected);
 	}
@@ -289,7 +289,7 @@ TEST_CASE("PatternAssignParser: test parsePatternAssignNoError") {
 		PatternAssignClause expected = PatternAssignClause(
 				ClauseArgument::createAssignArg("a"),
 				ClauseArgument::createWildcardArg(),
-				ClauseArgument::createPatternStringWithWildcardsArg("x*2+y/2-3"));
+				ClauseArgument::createPatternStringWithWildcardsArg("x2*y2/+3-"));
 
 		testParseNoError(tokensList, declarationsMap, expected);
 	}
