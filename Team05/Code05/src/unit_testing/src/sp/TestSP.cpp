@@ -1,18 +1,41 @@
 #include "catch.hpp"
-#include <sp/SourceProcessor.h>
-#include <sp/SourceProcessor.cpp>
-#include <istream>
 #include <sstream>
-//#include <pkb/pkb_object/PKB.h>
 #include <memory>
 #include <vector>
 
-#include <sp/dataclasses/design_objects/Entity.h>
-#include <sp/dataclasses/design_objects/Pattern.h>
-#include <sp/dataclasses/design_objects/Relationship.h>
+#include<sp/SourceProcessor.h>
+#include <sp/lexer/Lexer.h>
+#include <sp/parser/SimpleSyntaxParserManager.h>
+#include <sp/design_extractor/DesignExtractorManager.h>
+#include <sp/design_extractor/EntityExtractor.h>
+#include <sp/design_extractor/PatternExtractor.h>
+#include <sp/design_extractor/ModifiesExtractor.h>
+#include <sp/design_extractor/UsesExtractor.h>
+#include <sp/design_extractor/ParentExtractor.h>
+#include <sp/design_extractor/ParentTExtractor.h>
 
+#include <sp/dataclasses/tokens/Token.h>
+#include <sp/dataclasses/ast/AST.h>
+#include <sp/SPException.h>
+
+#include <string>
+#include <list>
+#include <vector>
+#include <sstream>
+#include <memory>
 
 using namespace std;
+
+
+// Util
+bool compareEntity(Entity entityOne, Entity entityTwo) {
+	if (entityOne.getLine() == entityTwo.getLine()) {
+		return entityOne.getString() > entityTwo.getString();
+	}
+	else {
+		return entityOne.getLine() > entityTwo.getLine();
+	}
+}
 
 TEST_CASE("Test Source Processor : extractEntity") {
 	auto test = [](string sourceProgram, vector<Entity> expectedEntites) {
@@ -21,9 +44,14 @@ TEST_CASE("Test Source Processor : extractEntity") {
 
 		vector<Entity> entities = sp.extractEntities();
 
+		sort(entities.begin(), entities.end(), compareEntity);
+
 		REQUIRE(entities.size() == expectedEntites.size());
 
 		for (int i = 0; i < entities.size(); i++) {
+			Entity entityExtracted = entities[i];
+			Entity entityExpected = expectedEntites[i];
+			bool check = entities[i].equals(expectedEntites[i]);
 			REQUIRE(entities[i].equals(expectedEntites[i]));
 		}
 	};
@@ -50,6 +78,8 @@ TEST_CASE("Test Source Processor : extractEntity") {
 		string program = "procedure main{\n\tread x; \n\tprint x; \n\ty = 0; \n    if ((!(x == 0)) && (y < 1)) then {\n\t\twhile(y >= 0) { \n\t\t\tx = x + 10; \n\t\t\ty = y - 10; \n\t\t } \n\t} else { \n\t\ty = x % 2 + y; \n\t\tz = 5 * x - y; \n\t\tz = z / 1 * 3; \n\t }\n}";
 
 		vector<Entity> expected{
+			Entity::createProcedureEntity(Token::createNameOrKeywordToken("main")),
+
 			Entity::createReadEntity(1),
 			Entity::createVariableEntity(1, Token::createNameOrKeywordToken("x")),
 
@@ -100,7 +130,7 @@ TEST_CASE("Test Source Processor : extractEntity") {
 			Entity::createVariableEntity(9, Token::createNameOrKeywordToken("z")),
 			Entity::createExpressionEntity(9, Token::createMultiplyToken()),
 			Entity::createConstantEntity(9, Token::createIntegerToken("5")),
-			Entity::createExpressionEntity(9, Token::createDivideToken()),
+			Entity::createExpressionEntity(9, Token::createMinusToken()),
 			Entity::createVariableEntity(9, Token::createNameOrKeywordToken("x")),
 			Entity::createVariableEntity(9, Token::createNameOrKeywordToken("y")),
 
@@ -109,10 +139,12 @@ TEST_CASE("Test Source Processor : extractEntity") {
 			Entity::createVariableEntity(10, Token::createNameOrKeywordToken("z")),
 			Entity::createExpressionEntity(10, Token::createDivideToken()),
 			Entity::createVariableEntity(10, Token::createNameOrKeywordToken("z")),
-			Entity::createExpressionEntity(10, Token::createPlusToken()),
+			Entity::createExpressionEntity(10, Token::createMultiplyToken()),
 			Entity::createConstantEntity(10, Token::createIntegerToken("1")),
 			Entity::createConstantEntity(10, Token::createIntegerToken("3")),
 		};
+
+		sort(expected.begin(), expected.end(), compareEntity);
 
 		test(program, expected);
 	}
