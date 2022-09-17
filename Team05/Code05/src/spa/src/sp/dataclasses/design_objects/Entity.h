@@ -89,7 +89,8 @@ class Entity {
 		}
 
 		static Entity createProgramEntity() {
-			return Entity(EntityType::PROGRAM, DEAFULT_LINE_NUMBER, Token::getPlaceHolderToken());
+			Token token = Token::getPlaceHolderToken();
+			return Entity(EntityType::PROGRAM, DEAFULT_LINE_NUMBER, token);
 		}
 
 		static Entity createProcedureEntity(Token token) {
@@ -97,31 +98,38 @@ class Entity {
 		}
 
 		static Entity createStmtLstEntity() {
-			return Entity(EntityType::STMTLIST, DEAFULT_LINE_NUMBER, Token::getPlaceHolderToken());
+			Token token = Token::getPlaceHolderToken();
+			return Entity(EntityType::STMTLIST, DEAFULT_LINE_NUMBER, token);
 		}
 
 		static Entity createReadEntity(int lineNumber) {
-			return Entity(EntityType::READ, lineNumber, Token::createReadToken());
+			Token token = Token::createReadToken();
+			return Entity(EntityType::READ, lineNumber, token);
 		}
 
 		static Entity createPrintEntity(int lineNumber) {
-			return Entity(EntityType::PRINT, lineNumber, Token::createPrintToken());
+			Token token = Token::createPrintToken();
+			return Entity(EntityType::PRINT, lineNumber, token);
 		}
 
 		static Entity createAssignEntity(int lineNumber) {
-			return Entity(EntityType::ASSIGN, lineNumber, Token::createEqualsToken());
+			Token token = Token::createEqualsToken();
+			return Entity(EntityType::ASSIGN, lineNumber, token);
 		}
 
 		static Entity createCallEntity(int lineNumber) {
-			return Entity(EntityType::CALL, lineNumber, Token::createCallToken());
+			Token token = Token::createCallToken();
+			return Entity(EntityType::CALL, lineNumber, token);
 		}
 
 		static Entity createWhileEntity(int lineNumber) {
-			return Entity(EntityType::WHILE, lineNumber, Token::createWhileToken());
+			Token token = Token::createWhileToken();
+			return Entity(EntityType::WHILE, lineNumber, token);
 		}
 
 		static Entity createIfEntity(int lineNumber) {
-			return Entity(EntityType::IF, lineNumber, Token::createIfToken());
+			Token token = Token::createIfToken();
+			return Entity(EntityType::IF, lineNumber, token);
 		}
 
 		static Entity createVariableEntity(int lineNumber, Token token) {
@@ -137,7 +145,8 @@ class Entity {
 		}
 
 		static Entity createBracketEntity() {
-			return Entity(EntityType::BRACKET, DEAFULT_LINE_NUMBER, Token::getPlaceHolderToken());
+			Token token = Token::getPlaceHolderToken();
+			return Entity(EntityType::BRACKET, DEAFULT_LINE_NUMBER, token);
 		}
 
 		

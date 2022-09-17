@@ -9,7 +9,7 @@ public:
 		this->type = ASTNodeType::ASSIGN;
 	}
 
-	bool isTerminal() {
+	bool isTerminal() override {
 		return false;
 	}
 

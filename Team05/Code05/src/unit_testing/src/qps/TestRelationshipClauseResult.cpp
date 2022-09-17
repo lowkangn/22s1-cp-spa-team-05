@@ -14,10 +14,10 @@ TEST_CASE("RelationshipClauseResult: test operator==") {
         REQUIRE(actual == expected);
     };
 
-    ClauseArgument firstArg = ClauseArgument("v", ArgumentType::VARIABLE);
-    ClauseArgument firstArgAgain = ClauseArgument("v", ArgumentType::VARIABLE);
-    ClauseArgument secondArg = ClauseArgument("a", ArgumentType::ASSIGN);
-    ClauseArgument thirdArg = ClauseArgument("1", ArgumentType::LINE_NUMBER);
+    ClauseArgument firstArg = ClauseArgument::createVariableArg("v");
+    ClauseArgument firstArgAgain = ClauseArgument::createVariableArg("v");
+    ClauseArgument secondArg = ClauseArgument::createAssignArg("a");
+    ClauseArgument thirdArg = ClauseArgument::createLineNumberArg("1");
 
     PQLEntity firstEntity = PQLEntity::generateVariable("x");
     PQLEntity secondEntity = PQLEntity::generateVariable("y");
@@ -64,11 +64,6 @@ TEST_CASE("RelationshipClauseResult: test operator==") {
         // Same args, different relationships
         testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship}),
                            RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{secondRelationship}),
-                           false);
-
-        // Same args, same sets of relationships but in different order
-        testOperatorEquals(RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{firstRelationship, secondRelationship}),
-                           RelationshipClauseResult(firstArg, secondArg, vector<PQLRelationship>{secondRelationship, firstRelationship}),
                            false);
     }
 }

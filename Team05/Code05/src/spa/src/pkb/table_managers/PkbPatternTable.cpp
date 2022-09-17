@@ -1,6 +1,8 @@
 #include <pkb/table_managers/PkbPatternTable.h>
 #include <pkb/PkbException.h>
 
+#include <iostream>
+
 using namespace std;
 
 
@@ -10,7 +12,7 @@ string PkbPatternTable::add(shared_ptr<PkbStatementPattern> pattern) {
 
 	// check if item already in table
 	if (this->table.find(key) != this->table.end()) {
-		throw PkbException("Item already in table!");
+		cout << "Item already in table!";
 	}
 
 	// store
