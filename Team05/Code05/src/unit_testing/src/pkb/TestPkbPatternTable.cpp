@@ -159,11 +159,16 @@ TEST_CASE("Test ::createRegexStringFromString") {
 	};
 
 	SECTION("Normal use cases") {
-		test("_x1*y+_", ".*x1*y+.*", false); // _x_
-		test("_", ".*", false); // _
+		test("_x1*y+_", "..*x1\\*y\\+..*", false); // _x*1+y_
+		test("_", "..*", false); // _
 	}
 
 	SECTION("Invalid pattern string passed in") {
+
+		test("_x1_*y+_", "", true); // too many wildcards
+	}
+
+	SECTION("Successfully escapes special characters") {
 
 		test("_x1_*y+_", "", true); // too many wildcards
 	}
@@ -179,7 +184,7 @@ TEST_CASE("Test ::getAllThatMatchPostFixStrings") {
 
 		// when 
 		vector<shared_ptr<PkbStatementPattern>> matching = table.getAllThatMatchPostFixStrings(postFixStrings);
-		
+
 		// then
 		REQUIRE(matching.size() == expected.size());
 		for (shared_ptr<PkbStatementPattern> e : expected) {
@@ -203,10 +208,10 @@ TEST_CASE("Test ::getAllThatMatchPostFixStrings") {
 		z = x // is x in postfix
 		y = x + y // is xy+ in postfix
 	*/
-	shared_ptr<PkbStatementPattern> line1 = PkbStatementPattern::createAssignPattern(1, vector<string>({"x", "2x*y+"}));
-	shared_ptr<PkbStatementPattern> line2 = PkbStatementPattern::createAssignPattern(2, vector<string>({"y", "3y/2-"}));
-	shared_ptr<PkbStatementPattern> line3 = PkbStatementPattern::createAssignPattern(3, vector<string>({"z", "xy+"}));
-	shared_ptr<PkbStatementPattern> line4 = PkbStatementPattern::createAssignPattern(4, vector<string>({"z", "x"}));
+	shared_ptr<PkbStatementPattern> line1 = PkbStatementPattern::createAssignPattern(1, vector<string>({ "x", "2x*y+" }));
+	shared_ptr<PkbStatementPattern> line2 = PkbStatementPattern::createAssignPattern(2, vector<string>({ "y", "3y/2-" }));
+	shared_ptr<PkbStatementPattern> line3 = PkbStatementPattern::createAssignPattern(3, vector<string>({ "z", "xy+" }));
+	shared_ptr<PkbStatementPattern> line4 = PkbStatementPattern::createAssignPattern(4, vector<string>({ "z", "x" }));
 	shared_ptr<PkbStatementPattern> line5 = PkbStatementPattern::createAssignPattern(3, vector<string>({ "y", "xy+" }));
 	vector<shared_ptr<PkbStatementPattern>> toAdd = {
 		line1, line2, line3, line4, line5
@@ -241,15 +246,6 @@ TEST_CASE("Test ::getAllThatMatchPostFixStrings") {
 		test(postFixStrings, toAdd, expected);
 	}
 
-	SECTION("RHS sandwich wildcard match, operator") {
-		vector<string> postFixStrings = {
-			"z", "_+_",
-		};
-		vector<shared_ptr<PkbStatementPattern>> expected = {
-			line3
-		};
-		test(postFixStrings, toAdd, expected);
-	}
 
 	SECTION("RHS sandwich wildcard match, variable") {
 		vector<string> postFixStrings = {
@@ -260,7 +256,7 @@ TEST_CASE("Test ::getAllThatMatchPostFixStrings") {
 		};
 		test(postFixStrings, toAdd, expected);
 	}
-	
+
 }
 
 

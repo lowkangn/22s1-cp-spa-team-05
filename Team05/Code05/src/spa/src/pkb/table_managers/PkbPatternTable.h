@@ -9,7 +9,12 @@
 using namespace std;
 
 const string WILDCARD_CHAR = "_";
-const string REGEX_MATCH_ANY = ".*";
+const string REGEX_MATCH_ANY = "..*"; // at least one
+const string PLUS_CHAR = "+";
+const string MULT_CHAR = "*";
+const string OR_CHAR = "|";
+const string OPEN_BRACKET_CHAR = "(";
+const string CLOSED_BRACKET_CHAR = ")";
 
 class PkbPatternTable {
 private:
@@ -48,22 +53,28 @@ public:
 		_something_, something, _
 	*/
 	static string createRegexStringFromString(string s) {
-		int initialLength = s.size();
-
-		// replace WILDCARD CHAR with .* regex pattern by reference
-		PkbPatternTable::replaceAll(s, WILDCARD_CHAR, REGEX_MATCH_ANY);
+		
 
 		// replace all special characters with escaped characters
+		PkbPatternTable::replaceAll(s, PLUS_CHAR, string("\\") + PLUS_CHAR);
+		PkbPatternTable::replaceAll(s, MULT_CHAR, string("\\") + MULT_CHAR);
+		PkbPatternTable::replaceAll(s, OR_CHAR, string("\\") + OR_CHAR);
+		PkbPatternTable::replaceAll(s, OPEN_BRACKET_CHAR, string("\\") + OPEN_BRACKET_CHAR);
+		PkbPatternTable::replaceAll(s, CLOSED_BRACKET_CHAR, string("\\") + CLOSED_BRACKET_CHAR);
 
+		// replace WILDCARD CHAR with .* regex pattern by reference
+		int initialLength = s.size();
+		PkbPatternTable::replaceAll(s, WILDCARD_CHAR, REGEX_MATCH_ANY);
 
 		// we validate the input by checking the change in length
 		// we expect exactly 1 (+1 char) or 2 (+2 char) wildcards e.g.:
 		// _x_ -> x, _ -> '', x -> x
 		int afterLength = s.size();
-		if ((afterLength - 2) > initialLength) {
+		if ((afterLength - 4) > initialLength) {
 			// more than two characters added
 			throw PkbException(string("Tried to construct regex string but too many wildards replaced! Got ") + s);
 		}
+
 		return s;
 	}
 
