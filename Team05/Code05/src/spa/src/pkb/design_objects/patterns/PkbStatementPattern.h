@@ -82,4 +82,13 @@ public :
 		}
 		return key + this->statement->getKey();
 	}
+
+	int getStatementLineNumber() {
+		return this->statement->getLineNumber();
+	}
+
+	string getVariableIdentifier() {
+		return this->strings[0]; // we can confirm is lhs, since this always true for all patterns
+	}
+
 };

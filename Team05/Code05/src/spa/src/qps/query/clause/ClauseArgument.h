@@ -176,8 +176,8 @@ public:
 	}
 
 	string getIdentifier() {
-		if (this->isLineNumber()) {
-			throw PQLError("Trying to get identifier, but clause argument is a line number!");
+		if (!this->isEntRefNoWildcard()) {
+			throw PQLError("Trying to get identifier, but clause argument is not a entity ref with no wildcard!");
 		}
 		return this->identifier;
 	}

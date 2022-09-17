@@ -360,7 +360,7 @@ shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelat
 
 
 
-PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
+PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue) {
 
 	// default filter is true
 	PkbEntityFilter filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
@@ -368,7 +368,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 	};
 
 	// depending on clause argument, we return the filter
-	if (arg.isWildcard()) {
+	if (arg.isWildcard() || alwaysTrue) {
 		return filter;
 	}
 	else if (arg.isVariableSynonym()) {
@@ -536,4 +536,73 @@ shared_ptr<PKBQueryHandler> PKB::getQueryHandler() {
 
 shared_ptr<PKBUpdateHandler> PKB::getUpdateHandler() {
 	return shared_ptr<PKBUpdateHandler>(this);
+}
+
+vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) {
+	
+	if (statementType == PKBTrackedStatementType::ASSIGN) {
+		// 1. get the assign table
+		PkbPatternTable table = this->assignPatterns;
+
+		// 2. parse lhs 
+		string lhsStringPattern; 
+		
+		bool lhsIsSynonym = false;
+		if (lhs.isVariableSynonym() || lhs.isWildcard()) {
+			// if lhs is a synonym, we treat as a wildcard, but flag it - we will deal with it later
+			lhsIsSynonym = lhs.isVariableSynonym();
+			// in either case, we match lhs with a wildcard
+			lhsStringPattern = WILDCARD_CHAR;
+		}
+		else if (lhs.isStringLiteral()) {
+			// string literal, we match exactly
+			lhsStringPattern = lhs.getIdentifier();
+		}
+		else {
+			// should never get here
+			throw PkbException("Unknown assign pattern being retrieved!");
+		}
+
+		// 3. parse rhs - it should only be wildcard or string literal
+		string rhsStringPattern;
+		if (rhs.isWildcard()) {
+			rhsStringPattern = WILDCARD_CHAR;
+		}
+		else if (rhs.isStringLiteral()) {
+			rhsStringPattern = rhs.getIdentifier();
+		}
+		else {
+			throw PkbException("RHS of assign pattern should be wildcard or string, but is neither.");
+		}
+		
+		// 4. find all patterns that match in the assign table
+		vector<string> postFixStringsToMatch = {
+			lhsStringPattern, rhsStringPattern
+		};
+		vector<shared_ptr<PkbStatementPattern>> matchingPatterns = this->assignPatterns.getAllThatMatchPostFixStrings(postFixStringsToMatch);
+
+
+		// 5. for each returned statement, we get the corr. entity
+		vector<PQLPattern> out;
+		for (shared_ptr<PkbStatementPattern> p : matchingPatterns) {
+			out.push_back(
+				PQLPattern::generateAssignPattern(p->getStatementLineNumber(), p->getVariableIdentifier())
+			);
+		}
+		
+		return out;
+		
+	}
+	else if (statementType == PKBTrackedStatementType::IF) {
+		// TODO: we should move these out to an overloaded method that only takes in 1 clause argument
+		throw PkbException("IF pattern type not implemented!");
+	}
+	else if (statementType == PKBTrackedStatementType::WHILE) {
+		// TODO: we should move these out to an overloaded method that only takes in 1 clause argument
+		throw PkbException("IF pattern type not implemented!");
+	}
+	else {
+		throw PkbException("Unknown pattern type to be retrieved!");
+	}
+	
 }
