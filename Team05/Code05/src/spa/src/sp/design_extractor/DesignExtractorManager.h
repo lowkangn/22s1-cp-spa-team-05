@@ -27,7 +27,10 @@ private:
 	vector<Entity> entities;
 	vector<Pattern> patterns;
 
+
 public:
+	// Default constructor
+	DesignExtractorManager();
 	/*
 		Constructor which takes in all the extractors
 	*/

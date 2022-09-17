@@ -27,7 +27,7 @@ public:
 		Constructs a parser manager. Expects the tokens to be parsed to be instantiated 
 		with it at run time.
 	*/
-	ParserManager(list<Token> tokens) {
+	ParserManager(list<Token> tokens) : tokens(tokens) {
 		this->tokens = tokens;
 
 		// AST node expects a token
