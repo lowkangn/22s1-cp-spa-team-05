@@ -147,6 +147,8 @@ namespace {
 	ClauseArgument whileArg = ClauseArgument::createWhileArg("while");
 	ClauseArgument lineOneArg = ClauseArgument::createLineNumberArg("1");
 	ClauseArgument lineTwoArg = ClauseArgument::createLineNumberArg("2");
+	ClauseArgument lineFourArg = ClauseArgument::createLineNumberArg("4");
+	ClauseArgument lineFiveArg = ClauseArgument::createLineNumberArg("5");
 	ClauseArgument lineSixArg = ClauseArgument::createLineNumberArg("6");
 };
 
@@ -213,27 +215,28 @@ TEST_CASE("FollowsClause: test execute") {
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
-	/*SECTION("Line numbers - non empty results") {
+	SECTION("Line numbers - non empty results") {
 		clause = FollowsClause(lineOneArg, lineTwoArg);
-		expectedRetrievedFromPkb = { pqlFollowsW1A1 };
+		expectedRetrievedFromPkb = { pqlFollowsR1A2 };
 		expectedClauseResult = RelationshipClauseResult(lineOneArg, lineTwoArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
-	}*/
 
-	/*SECTION("Line numbers - empty results") {
+		clause = FollowsClause(lineFourArg, lineFiveArg);
+		expectedRetrievedFromPkb = { pqlFollowsP4A5 };
+		expectedClauseResult = RelationshipClauseResult(lineFourArg, lineFiveArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Line numbers - empty results") {
 		expectedRetrievedFromPkb = {};
 
 		clause = FollowsClause(lineOneArg, lineSixArg);
 		expectedClauseResult = RelationshipClauseResult(lineOneArg, lineSixArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
-		clause = FollowsClause(lineOneArg, lineFourArg);
-		expectedClauseResult = RelationshipClauseResult(lineOneArg, lineFourArg, expectedRetrievedFromPkb);
+		clause = FollowsClause(lineFiveArg, lineFourArg);
+		expectedClauseResult = RelationshipClauseResult(lineFiveArg, lineFourArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
-
-		clause = FollowsClause(lineTwoArg, lineSixArg);
-		expectedClauseResult = RelationshipClauseResult(lineTwoArg, lineSixArg, expectedRetrievedFromPkb);
-		testExecute(clause, expectedClauseResult, pkb);
-	}*/
+	}
 
 }
