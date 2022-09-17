@@ -39,6 +39,10 @@ public:
 		return this->entity.isAssignEntity();
 	}
 
+	int getLine() {
+		return this->entity.getLine();
+	}
+
 	Entity getEntity() {
 		return this->entity;
 	}
