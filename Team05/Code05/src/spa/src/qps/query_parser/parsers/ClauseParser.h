@@ -32,11 +32,11 @@ protected:
 
 	ClauseArgument parseSynonym();
 
-	ClauseArgument parseStringLiteral();
+	ClauseArgument parseStringLiteralOrPatternString();
 
 	ClauseArgument parseStatementNumber();
 
-	ClauseArgument parseWildcardOrStringWithWildcards();
+	ClauseArgument parseWildcardOrPatternStringWithWildcards();
 
 	/* ==== Methods ensure a delimiter is present and consume it ==== */
 	
