@@ -26,7 +26,7 @@ TEST_CASE("ParentTExtractor: test recursiveExtractFromContainer") {
 		ParentTExtractor extractor = ParentTExtractor();
 
 		// When
-		vector<Relationship> extractedRelationships = extractor.recursiveExtractFromContainer(containerAstNode, leftHandSide);
+		vector<Relationship> extractedRelationships = extractor.recursiveExtractFromContainer(leftHandSide, containerAstNode);
 
 		// Then
 		REQUIRE(extractedRelationships.size() == expectedResult.size());

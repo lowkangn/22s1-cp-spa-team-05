@@ -21,5 +21,5 @@ public:
 	/*
 		Iterates through the children of a container node extracting the Parent relationship
 	*/
-	vector<Relationship> recursiveExtractFromContainer(shared_ptr<ASTNode> containerASTNode, Entity leftHandSide);
+	vector<Relationship> recursiveExtractFromContainer(Entity leftHandSide, shared_ptr<ASTNode> containerASTNode);
 };

@@ -15,8 +15,8 @@ vector<Relationship> ParentExtractor::extract(shared_ptr<ASTNode> ast) {
 
 		Entity ifEntity = ifNode->extractEntity();
 		
-		vector<Relationship> thenRelations = this->extractFromContainer(ifNode->getThenStatements(), ifEntity);
-		vector<Relationship> elseRelations = this->extractFromContainer(ifNode->getElseStatements(), ifEntity);
+		vector<Relationship> thenRelations = this->extractFromContainer(ifEntity, ifNode->getThenStatements());
+		vector<Relationship> elseRelations = this->extractFromContainer(ifEntity, ifNode->getElseStatements());
 
 		extractedParentRelationships.insert(extractedParentRelationships.begin(), thenRelations.begin(), thenRelations.end());
 		extractedParentRelationships.insert(extractedParentRelationships.begin(), elseRelations.begin(), elseRelations.end());
@@ -26,7 +26,7 @@ vector<Relationship> ParentExtractor::extract(shared_ptr<ASTNode> ast) {
 
 		Entity whileEntity = whileNode->extractEntity();
 
-		vector<Relationship> whileParentRelations = this->extractFromContainer(whileNode->getStmtList(), whileEntity);
+		vector<Relationship> whileParentRelations = this->extractFromContainer(whileEntity, whileNode->getStmtList());
 
 		extractedParentRelationships.insert(extractedParentRelationships.begin(), whileParentRelations.begin(), whileParentRelations.end());
 	}
@@ -42,7 +42,7 @@ vector<Relationship> ParentExtractor::extract(shared_ptr<ASTNode> ast) {
 	return extractedParentRelationships;
 }
 
-vector<Relationship> ParentExtractor::extractFromContainer(shared_ptr<ASTNode> containerASTNode, Entity leftHandSide) {
+vector<Relationship> ParentExtractor::extractFromContainer(Entity leftHandSide, shared_ptr<ASTNode> containerASTNode) {
 	// Sanity check
 	assert(containerASTNode->isStmtLstNode());
 

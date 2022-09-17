@@ -26,7 +26,7 @@ TEST_CASE("ParentExtractor: test extractFromContainer") {
 		ParentExtractor extractor = ParentExtractor();
 
 		// When
-		vector<Relationship> extractedRelationships = extractor.extractFromContainer(containerAstNode, leftHandSide);
+		vector<Relationship> extractedRelationships = extractor.extractFromContainer(leftHandSide, containerAstNode);
 
 		// Then
 		REQUIRE(extractedRelationships.size() == expectedResult.size());
