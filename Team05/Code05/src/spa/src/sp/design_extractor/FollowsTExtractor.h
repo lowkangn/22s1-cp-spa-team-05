@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <sp/dataclasses/design_objects/Relationship.h>
-#include <sp/dataclasses/AST.h>
+#include <sp/dataclasses/ast/AST.h>
 #include <sp/design_extractor/Extractor.h>
 
 using namespace std;
