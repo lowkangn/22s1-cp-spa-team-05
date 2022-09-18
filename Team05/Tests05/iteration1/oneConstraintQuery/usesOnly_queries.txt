@@ -1,0 +1,120 @@
+1 - UsesS - select statements that Use wildcard
+stmt s;
+Select s such that Uses(s, _)
+2, 4, 5, 6, 7, 8, 9, 10, 11
+5000
+2 - UsesS - select statements that Use variable (synonym)
+stmt s; variable v;
+Select s such that Uses(s, v)
+2, 4, 5, 6, 7, 8, 9, 10, 11
+5000
+3 - UsesS - select variables that are used by statements
+stmt s; variable v;
+Select v such that Uses(s, v)
+x, d, e, c, a, b, y
+5000
+4 - UsesS - select assigns that Use "x"
+assign a;
+Select a such that Uses(a, "x")
+7
+5000
+5 - UsesS - select assigns that Use "z"
+assign a;
+Select a such that Uses(a, "z")
+2
+5000
+6 - UsesS - select reads that Use variable
+read r; variable v;
+Select r such that Uses(r, v)
+none
+5000
+7 - UsesS - select prints that Use "a"
+print p;
+Select p such that Uses(p, "a")
+9
+5000
+8 - UsesS - select prints that Use "y"
+print p;
+Select p such that Uses(p, "y")
+12
+5000
+9 - UsesS - select whiles that Use "e" (used, in condition)
+while w;
+Select w such that Uses(w, "e")
+5
+5000
+10 - UsesS - select whiles that Use "y" (in both while-stmtLsts)
+while w;
+Select w such that Uses(w, "y")
+10
+5000
+11 - UsesS - select ifs that Use "a" (used in else-stmtLst)
+if i;
+Select i such that Uses(i, "a")
+4
+5000
+12 - UsesS - select ifs that Use "e" (used in then-stmtLst)
+if i;
+Select i such that Uses(i, "e")
+4
+5000
+13 - UsesS - select ifs that Use "d" (used in if condition)
+if i;
+Select i such that Uses(i, "d")
+4
+5000
+14 - UsesS - select ifs that Use "y" (not used in if)
+if i;
+Select i such that Uses(i, "y")
+none
+5000
+15 - UsesS - select variables used by assigns
+variable v; assign a;
+Select v such that Uses(a, v)
+c, x, a
+5000
+16 - UsesS - select variables used by prints
+variable v; print p;
+Select v such that Uses(p, v)
+a, x, y
+5000
+17 - UsesS - select variables used by ifs
+variable v; if i;
+Select v such that Uses(i, v)
+d, e, c, x, a
+5000
+18 - UsesS - select variables used by whiles
+variable v; while w;
+Select v such that Uses(w, v)
+e, c, x, b, y
+5000
+18 - UsesS - select variables used by 5 (while)
+variable v;
+Select v such that Uses(5, v)
+e, c, x
+5000
+19 - UsesS - select variables used by 11 (print)
+variable v;
+Select v such that Uses(11, v)
+y
+5000
+20 - UsesS - select variables used by 8 (assign)
+variable v;
+Select v such that Uses(8, v)
+a
+5000
+21 - UsesS - select variables used by 1 (read)
+variable v;
+Select v such that Uses(1, v)
+none
+5000
+22 - UsesS - as a boolean (true)
+variable v; procedure p; print pr;
+Select p such that Uses(pr, v)
+main
+5000
+23 - UsesS - as a boolean (true)
+variable v; procedure p; read r;
+Select p such that Uses(r, v)
+none
+5000

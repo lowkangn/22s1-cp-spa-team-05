@@ -1,0 +1,45 @@
+1 - Undeclared synonym
+assign a;
+Select a such that Modifies(a, v)
+SemanticError
+5000
+2 - Lowercase modifies
+assign a;
+Select a such that modifies(a, _)
+SyntaxError
+5000
+3 - Uppercase Such
+procedure p;
+Select p Such that Modifies(p, _)
+SyntaxError
+5000
+4 - stmtRef as second arg (synonym)
+assign a; read r;
+Select a such that Modifies(a, r)
+SemanticError
+5000
+5 - stmtRef as second arg (line number)
+assign a;
+Select a such that Modifies(a, 1)
+SemanticError
+5000
+6 - wildcard as first arg
+variable v;
+Select v such that Modifies(_, "x")
+SemanticError
+5000
+7 - constant as first arg
+variable v; constant c;
+Select v such that Modifies(c, "x")
+SemanticError
+5000
+8 - variable as first arg
+variable v;
+Select v such that Modifies(v, "x")
+SemanticError
+5000
+9 - constant as second arg
+variable v; constant c;
+Select v such that Modifies(v, c)
+SemanticError
+5000
