@@ -5,6 +5,7 @@
 #include <vector>
 using namespace std;
 
+#include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/ProgramASTNode.h>
 #include <sp/dataclasses/tokens/Token.h>

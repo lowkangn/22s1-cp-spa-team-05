@@ -175,10 +175,12 @@ vector<vector<PQLEntity>> QueryEvaluator::getKeyValueTable(RelationshipClauseRes
 
 int QueryEvaluator::findArgumentIndex(vector<ClauseArgument> argumentsInTable, ClauseArgument argToFind) {
 	int argIndex = -1;
-	for (int i = 0; i < argumentsInTable.size(); i++) {
-		if (argumentsInTable[i] == argToFind) {
-			argIndex = i;
-			break;
+	if (!argToFind.isWildcard()) {
+		for (int i = 0; i < argumentsInTable.size(); i++) {
+			if (argumentsInTable[i] == argToFind) {
+				argIndex = i;
+				break;
+			}
 		}
 	}
 	return argIndex;

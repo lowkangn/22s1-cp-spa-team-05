@@ -7,6 +7,7 @@ using namespace std;
 // imported local files
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/lexer/Lexer.h>
+#include <sp/SPException.h>
 
 const char NEWLINE_CHARACTER = '\n';
 
@@ -43,7 +44,7 @@ list<Token> Lexer::tokenize(istream &stream) {
             break;
         }
         else {
-            throw logic_error(string("Unknown character ") + peeked + string(" encountered!"));
+            throw SPException(string("Unknown character ") + peeked + string(" encountered!"));
         }
     }
     return linkedListOfTokens;
@@ -110,13 +111,19 @@ Token Lexer::createKeywordOrNameTokenFromTraversingStream(istream& stream) {
 
 Token Lexer::createIntegerTokenFromTraversingStream(istream& stream) {
     string value;
+
     while (isdigit(stream.peek())) { // keep getting digits
         // TODO: we should include a check for how weird numbers like 001
         value += char(stream.get());
     }
+    
+    if (value.size() > 1 && value[0] == char(0)) {
+        throw SPException(value + string(" is an invalid integer"));
+    }
+
     // cannot have letter immediately after 
     if (isalpha(stream.peek())) {
-        throw logic_error(string("Alphabetical character ") + char(stream.peek()) + string(" immediately after number ") + value + string(" - did you forget a space ? "));
+        throw SPException(string("Alphabetical character ") + char(stream.peek()) + string(" immediately after number ") + value + string(" - did you forget a space ? "));
     }
     return Token::createIntegerToken(value);
 
@@ -149,12 +156,12 @@ Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
             s += char(stream.get());
         }
         else if (this->charIsOperator(char(stream.peek()))) {
-            throw logic_error(string("Invalid comparator operator! ") + s + string(" followed by ") + char(stream.peek()));
+            throw SPException(string("Invalid comparator operator! ") + s + string(" followed by ") + char(stream.peek()));
         }
         break;
     case '!':
         if (!(char(stream.peek()) == '=' || char(stream.peek()) == '(')) { // not operator must be paired with = or '('
-            throw logic_error(string("Invalid comparator operator! ") + s + string(" followed by ") + char(stream.peek()));
+            throw SPException(string("Invalid comparator operator! ") + s + string(" followed by ") + char(stream.peek()));
         } 
         // Only join the string if it is paired with '='
         if (char(stream.peek()) == '=') {
@@ -167,11 +174,11 @@ Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
             s += char(stream.get());
         }
         if (this->charIsOperator(char(stream.peek()))) {
-            throw logic_error(string("Invalid logical operator! ") + s + string(" followed by ") + char(stream.peek()));
+            throw SPException(string("Invalid logical operator! ") + s + string(" followed by ") + char(stream.peek()));
         }
         break;
     default:
-        throw logic_error(string("Unknown operator: ") + s);
+        throw SPException(string("Unknown operator: ") + s);
     }
     return Token::createOperatorToken(s);
     

@@ -18,6 +18,11 @@ list<Token> ReadSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// and a semicolon
 	list<Token> childTokens;
 
+	// read is made up of 3 tokens
+	if (tokens.size() < 3) {
+		throw SimpleSyntaxParserException("incomplete read statement");
+	}
+	
 	// read token
 	Token token = tokens.front(); // read
 	tokens.pop_front(); // pop
@@ -39,7 +44,6 @@ list<Token> ReadSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	if (!token.isSemiColonToken()) {
 		throw SimpleSyntaxParserException("third token should be a semicolon token.");
 	}
-
 	// store the state
 	this->tokens = childTokens;
 	this->initialized = true;

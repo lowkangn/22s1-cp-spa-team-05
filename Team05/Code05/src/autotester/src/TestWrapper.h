@@ -15,7 +15,9 @@
 class TestWrapper : public AbstractWrapper {
 private: 
 	FileIOManager io;
-	PKB pkb;
+	shared_ptr<PKB> pkbPointer;
+	QPS qps;
+	bool shouldAnswerQuery;
 public:
   // default constructor
   TestWrapper();
