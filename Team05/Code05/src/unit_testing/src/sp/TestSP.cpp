@@ -56,7 +56,9 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		shared_ptr<Extractor<Relationship>> parentExtractor = shared_ptr<Extractor<Relationship>>(new ParentExtractor());
 		shared_ptr<Extractor<Relationship>> parentTExtractor = shared_ptr<Extractor<Relationship>>(new ParentTExtractor());
 		shared_ptr<Extractor<Relationship>> usesExtractor = shared_ptr<Extractor<Relationship>>(new UsesExtractor());
-		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, parentExtractor, parentTExtractor, usesExtractor };
+		shared_ptr<Extractor<Relationship>> followsExtractor = shared_ptr<Extractor<Relationship>>(new FollowsExtractor());
+		shared_ptr<Extractor<Relationship>> followsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsTExtractor());
+		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, parentExtractor, parentTExtractor, usesExtractor, followsExtractor, followsTExtractor };
 
 
 		// create manager
@@ -205,7 +207,10 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		Relationship assignRelation = Relationship::createModifiesRelationship(assignEntity, xEntity);
 		Relationship readRelation = Relationship::createModifiesRelationship(readEntity, yEntity);
 
-		vector<Relationship> expectedRelationships = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation };
+		Relationship assignFollowsRead = Relationship::createFollowsRelationship(assignEntity, readEntity);
+		Relationship assignFollowsTRead = Relationship::createFollowsTRelationship(assignEntity, readEntity);
+
+		vector<Relationship> expectedRelationships = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation, assignFollowsRead, assignFollowsTRead };
 		
 		vector<Pattern> expectedPatterns{ Pattern::createAssignPattern(1, "x", "1") };
 
@@ -540,6 +545,22 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		Relationship procUsesY7 = Relationship::createUsesRelationship(procedureEntity, y7Entity);
 		Relationship procUsesX8 = Relationship::createUsesRelationship(procedureEntity, x8Entity);
 
+		// create Follows relationship
+		Relationship assign1FollowsRead = Relationship::createFollowsRelationship(assign1Entity, readEntity);
+		Relationship readFollowsWhile = Relationship::createFollowsRelationship(readEntity, whileEntity);
+		Relationship whileFollowsIf = Relationship::createFollowsRelationship(whileEntity, ifEntity);
+		Relationship assign4FollowsPrint = Relationship::createFollowsRelationship(assign4Entity, printEntity);
+
+		// create FollowsT relationship
+		Relationship assign1FollowsTRead = Relationship::createFollowsTRelationship(assign1Entity, readEntity);
+		Relationship readFollowsTWhile = Relationship::createFollowsTRelationship(readEntity, whileEntity);
+		Relationship whileFollowsTIf = Relationship::createFollowsTRelationship(whileEntity, ifEntity);
+		Relationship assign4FollowsTPrint = Relationship::createFollowsTRelationship(assign4Entity, printEntity);
+
+		Relationship assign1FollowsTWhile = Relationship::createFollowsTRelationship(assign1Entity, whileEntity);
+		Relationship assign1FollowsTIf = Relationship::createFollowsTRelationship(assign1Entity, ifEntity);
+
+		Relationship readFollowsTIf = Relationship::createFollowsTRelationship(readEntity, ifEntity);
 
 		vector<Relationship> expectedRelationships = vector<Relationship>{ mainModifiesX1, mainModifiesY2, mainModifiesX4, mainModifiesX7,
 																	mainModifiesY8, assign1ModifiesX1, readModifiesX4, whileModifiesX4, assign4ModifiesX4,
@@ -547,7 +568,10 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 																	whileParentPrint, ifParentAssign7, elseParentAssign8, whileParentTAssign4,
 																	whileParentTPrint, ifParentTAssign7, elseParentTAssign8, whileUsesX3,
 																	whileUsesX4, whileUsesY5, assign4UsesX, printUsesY, ifUsesY6, ifUsesY7, ifUsesX8, assign7UsesY7,
-																	assign8UsesX8, procUsesX3, procUsesX4, procUsesY5, procUsesY6, procUsesY7, procUsesX8 };
+																	assign8UsesX8, procUsesX3, procUsesX4, procUsesY5, procUsesY6, procUsesY7, procUsesX8,
+																	assign1FollowsRead, readFollowsWhile, whileFollowsIf, assign4FollowsPrint, assign1FollowsTRead,
+																	readFollowsTWhile, whileFollowsTIf, assign4FollowsTPrint, assign1FollowsTWhile, assign1FollowsTIf,
+																	readFollowsTIf };
 
 		vector<Pattern> expectedPattern = vector<Pattern>{
 			Pattern::createAssignPattern(1, "x", "3"),
