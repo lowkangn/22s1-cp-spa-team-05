@@ -1,4 +1,5 @@
 #include <qps/query_parser/parsers/ClauseParser.h>
+#include <common/PostFixConverter.h>
 
 ClauseArgument ClauseParser::parseSynonym() {
     PQLToken synonymToken = this->tokens.front();
@@ -60,7 +61,8 @@ ClauseArgument ClauseParser::parseStringLiteralOrPatternString() {
 	}
 	this->tokens.pop_front();
 
-	string postFixString = convertInfixToPostFix(s);
+	PostFixConverter converter = PostFixConverter();
+	string postFixString = converter.convertInfixToPostFix(s);
 	return ClauseArgument::createPatternStringArg(postFixString);
 }
 
