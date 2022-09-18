@@ -769,6 +769,47 @@ TEST_CASE("Test Source Processor : extractPattern") {
 
 		test(program, expected);
 	}
+
+	SECTION("Test milestone 1 program #2") {
+		/*
+			procedure main {
+			  read x;
+			  print x;
+			  y = 0;
+			  if ((!(d == 0)) && (y < 1)) then {
+				 while (e >= 0) {
+					x = x + 10 * 2;
+					y = y - 10;
+					b = a;
+				 } 
+			  } else {
+				 y = x % 2 + y;
+				 z = 5 * x - y;
+				 z = z / 1 * 3;
+				 print c;
+			  }
+			  x = (x + 1) - 1;
+			}
+		*/
+		string program = "procedure main {\n  read x;\n  print x;\n  y = 0;\n  if ((!(d == 0)) && (y < 1)) then {\n     while (e >= 0) {\n        x = x + 10 * 2;\n        y = y - 10;\n        b = a;\n     } \n  } else {\n     y = x % 2 + y;\n     z = 5 * x - y;\n     z = z / 1 * 3;\n     print c;\n  }\n  x = (x + 1) - 1;\n  }";
+
+		vector<Pattern> expected{
+			Pattern::createAssignPattern(3," y ", " 0 "),
+			Pattern::createIfPattern(4,"d y"),
+			Pattern::createWhilePattern(5,"e"),
+			Pattern::createAssignPattern(6," x ", " x 10 2 * + "),
+			Pattern::createAssignPattern(7," y ", " y 10 - "),
+			Pattern::createAssignPattern(8," b ", " a "),
+			Pattern::createAssignPattern(9," y ", " x 2 % y + "),
+			Pattern::createAssignPattern(10," z ", " 5 x * y - "),
+			Pattern::createAssignPattern(11," z ", " z 1 / 3 * "),
+			Pattern::createAssignPattern(13," x ", " x 1 + 1 - "),
+		};
+
+		sort(expected.begin(), expected.end(), comparePattern);
+
+		test(program, expected);
+	}
 }
 
 TEST_CASE("Test Source Processor : extractRelations") {

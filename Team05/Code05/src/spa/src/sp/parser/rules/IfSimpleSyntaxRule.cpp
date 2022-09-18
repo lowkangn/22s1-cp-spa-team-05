@@ -4,6 +4,13 @@ const int IF_CONDITION_RULE = 0;
 const int THEN_RULE = 1;
 const int ELSE_RULE = 2;
 
+bool isSafeToPop(list<Token> tokens) {
+	if (tokens.size() == 0) {
+		return false;
+	}
+	return true;
+}
+
 vector<shared_ptr<SimpleSyntaxRule>> IfSimpleSyntaxRule::generateChildRules()
 {
 	// must be initialized
@@ -47,8 +54,7 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// Get condition tokens
 
 	// First token should be open brackets
-	token = tokens.front();
-	if (!token.isOpenBracketToken()) {
+	if (!isSafeToPop(tokens) || !tokens.front().isOpenBracketToken()) {
 		throw SimpleSyntaxParserException("If condition should start with an open bracket");
 	}
 	tokens.pop_front();
@@ -77,9 +83,8 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// get then token and stmt list
 	
 	// Next token should be then
-	token = tokens.front();
 
-	if (!token.isThenKeywordToken()) {
+	if (!isSafeToPop(tokens) || !tokens.front().isThenKeywordToken()) {
 		throw SimpleSyntaxParserException("No then token found in IfSimpleSyntaxRule");
 	}
 	tokens.pop_front();
@@ -90,9 +95,7 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// get else token and stmt list
 
 	// Next token should be else
-	token = tokens.front();
-
-	if (!token.isElseKeywordToken()) {
+	if (!isSafeToPop(tokens) || !tokens.front().isElseKeywordToken()) {
 		throw SimpleSyntaxParserException("No else token found in IfSimpleSyntaxRule");
 	}
 	tokens.pop_front();
