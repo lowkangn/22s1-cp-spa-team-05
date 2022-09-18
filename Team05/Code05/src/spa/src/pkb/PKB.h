@@ -83,6 +83,12 @@ private:
 	PQLEntity pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity);
 
 
+	/*
+		Converts an internal pkb pattern to a pql pattern used in the qps.
+	*/
+	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> pattern);
+
+
 public: 
 	PKB() {}
 
@@ -152,9 +158,14 @@ public:
 	vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) override;
 
 	/*
-        Retrieves statements by lhs and rhs. If a lhs of type synonym is provided,
+        Retrieves statements by lhs and rhs. 
     */
 	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
+
+	/*
+		Retrieves assign statements by lhs and rhs.
+	*/
+	vector<PQLPattern> retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs);
 
 	/*
 		Casts the PKB to its query handler interface as a shared pointer.
