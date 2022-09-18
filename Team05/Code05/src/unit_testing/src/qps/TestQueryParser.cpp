@@ -280,9 +280,14 @@ TEST_CASE("QueryParser: test parseConstraints Follows") {
         list<shared_ptr<RelationshipClause>> expected) {
             // given
             QueryParser parser = QueryParser(tokens);
+			list<shared_ptr<RelationshipClause>> suchThatClauses;
+			shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClausesPointer = make_shared<list<shared_ptr<RelationshipClause>>>(suchThatClauses);
+			list<shared_ptr<PatternClause>> patternClauses;
+			shared_ptr<list<shared_ptr<PatternClause>>> patternClausesPointer =  make_shared<list<shared_ptr<PatternClause>>>(patternClauses);
 
-            // when
-            list<shared_ptr<RelationshipClause>> actual = parser.parseConstraints(declarations);
+			// when
+			parser.parseConstraints(suchThatClausesPointer, patternClausesPointer, declarations);
+			list<shared_ptr<RelationshipClause>> actual = *suchThatClausesPointer;
             bool isEqual = actual.size() == expected.size();
             if (isEqual) {
                 while (!actual.empty()) {
