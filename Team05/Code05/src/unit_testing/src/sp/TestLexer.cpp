@@ -136,39 +136,6 @@ TEST_CASE("Lexer: test charIsWhiteSpace") {
 
 }
 
-TEST_CASE("Lexer: test traverseStreamUntilNoComment correctly consumes tokens") {
-    auto test = [](string s, char expectedEndChar) {
-        // ----- given -----
-        Lexer lexer = Lexer();
-        stringstream ss(s);
-        istream &stream = ss;
-       
-        // ----- when -----
-        lexer.traverseStreamUntilNoComment(stream);
-
-        // ----- then -----
-        REQUIRE(char(stream.peek()) == expectedEndChar);
-    };
-
-    // May remove in the future
-}
-
-TEST_CASE("Lexer: test traverseStreamUntilNoComment correctly throws error") {
-    auto test = [](string s) {
-        // ----- given -----
-        Lexer lexer = Lexer();
-        stringstream ss(s);
-        istream& stream = ss;
-
-        // ----- when & then -----
-        REQUIRE_THROWS(lexer.traverseStreamUntilNoComment(stream));
-    };
-    
-    // May remove in the future
-    
-}
-
-
 TEST_CASE("Lexer: test traverseStreamUntilNoWhiteSpace correctly consumes tokens") {
     auto test = [](string s, char expectedEndChar) {
         // ----- given -----

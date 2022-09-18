@@ -55,9 +55,10 @@ bool compareRelationship(Relationship relationshipOne, Relationship relationship
 
 TEST_CASE("Test Source Processor : extractEntity") {
 	auto test = [](string sourceProgram, vector<Entity> expectedEntites) {
-		SourceProcessor sp = SourceProcessor();
-		sp.initialize(sourceProgram);
+		stringstream ss(sourceProgram);
 
+		SourceProcessor sp = SourceProcessor(ss);
+		
 		vector<Entity> entities = sp.extractEntities();
 
 		sort(entities.begin(), entities.end(), compareEntity);
@@ -167,8 +168,9 @@ TEST_CASE("Test Source Processor : extractEntity") {
 
 TEST_CASE("Test Source Processor : extractPattern") {
 	auto test = [](string sourceProgram, vector<Pattern> expectedPatterns) {
-		SourceProcessor sp = SourceProcessor();
-		sp.initialize(sourceProgram);
+		stringstream ss(sourceProgram);
+
+		SourceProcessor sp = SourceProcessor(ss);
 
 		vector<Pattern> patterns = sp.extractPatterns();
 
@@ -224,8 +226,9 @@ TEST_CASE("Test Source Processor : extractPattern") {
 
 TEST_CASE("Test Source Processor : extractRelations") {
 	auto test = [](string sourceProgram, vector<Relationship> expectedRelations) {
-		SourceProcessor sp = SourceProcessor();
-		sp.initialize(sourceProgram);
+		stringstream ss(sourceProgram);
+
+		SourceProcessor sp = SourceProcessor(ss);
 
 		vector<Relationship> relations = sp.extractRelations();
 
