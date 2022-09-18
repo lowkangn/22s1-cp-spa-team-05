@@ -762,6 +762,9 @@ TEST_CASE("Test add and get patterns") {
 		ClauseArgument rhs = ClauseArgument::createStringWithWildCardsArg("_x_");
 		vector<PQLPattern> expectedPatterns = {
 			PQLPattern::generateAssignPattern(1, "x"),
+			PQLPattern::generateAssignPattern(3, "z"),
+			PQLPattern::generateAssignPattern(4, "z"),
+			PQLPattern::generateAssignPattern(5, "y"),
 		};
 		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
 	}

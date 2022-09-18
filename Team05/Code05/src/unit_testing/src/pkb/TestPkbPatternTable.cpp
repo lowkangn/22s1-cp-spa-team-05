@@ -159,8 +159,8 @@ TEST_CASE("Test ::createRegexStringFromString") {
 	};
 
 	SECTION("Normal use cases") {
-		test("_x1*y+_", "..*x1\\*y\\+..*", false); // _x*1+y_
-		test("_", "..*", false); // _
+		test("_x1*y+_", ".*x1\\*y\\+.*", false); // _x*1+y_
+		test("_", ".*", false); // _
 	}
 
 	SECTION("Invalid pattern string passed in") {
@@ -168,7 +168,7 @@ TEST_CASE("Test ::createRegexStringFromString") {
 		test("_x1_*y+_", "", true); // too many wildcards
 	}
 
-	SECTION("Successfully escapes special characters") {
+	SECTION("Validates number of wildcard replacements") {
 
 		test("_x1_*y+_", "", true); // too many wildcards
 	}
@@ -252,7 +252,7 @@ TEST_CASE("Test ::getAllThatMatchPostFixStrings") {
 			"_", "_x_",
 		};
 		vector<shared_ptr<PkbStatementPattern>> expected = {
-			line1
+			line1, line3, line4, line5
 		};
 		test(postFixStrings, toAdd, expected);
 	}

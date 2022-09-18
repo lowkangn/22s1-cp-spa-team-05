@@ -9,7 +9,7 @@
 using namespace std;
 
 const string WILDCARD_CHAR = "_";
-const string REGEX_MATCH_ANY = "..*"; // at least one
+const string REGEX_MATCH_ANY = ".*"; // can be 0
 const string PLUS_CHAR = "+";
 const string MULT_CHAR = "*";
 const string OR_CHAR = "|";
@@ -70,7 +70,7 @@ public:
 		// we expect exactly 1 (+1 char) or 2 (+2 char) wildcards e.g.:
 		// _x_ -> x, _ -> '', x -> x
 		int afterLength = s.size();
-		if ((afterLength - 4) > initialLength) {
+		if ((afterLength - 2) > initialLength) {
 			// more than two characters added
 			throw PkbException(string("Tried to construct regex string but too many wildards replaced! Got ") + s);
 		}

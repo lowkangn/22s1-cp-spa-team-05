@@ -34,6 +34,7 @@ TEST_CASE("PatternExtractor: infix to postfix") {
 	test("x*y/(5*z)+2", "xy*5z*/2+");
 	test("x*y/(5*z)+2%3", "xy*5z*/23%+");
 	test("y+5%3", "y53%+");
+	test("v+x*y+z*t", "vxy*+zt*+");
 }
 
 
