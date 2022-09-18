@@ -77,7 +77,7 @@ shared_ptr<ASTNode> ProgramSimpleSyntaxRule::constructNode() {
 int ProgramSimpleSyntaxRule::setASTLineNumbers(shared_ptr<ASTNode> root, int lineNumber) {
 	// If it is a statement list call function to handle statement list
 	if (root->isStmtLstNode()) {
-		lineNumber = this->iterateThroughStatementInStatementList(root, lineNumber);
+		lineNumber = this->setStatementListLineNumber(root, lineNumber);
 	}
 
 	// For program and procedure
@@ -94,9 +94,10 @@ int ProgramSimpleSyntaxRule::setASTLineNumbers(shared_ptr<ASTNode> root, int lin
 int ProgramSimpleSyntaxRule::setWhileStatementLineNumber(shared_ptr<ASTNode> root, int lineNumber) {
 	shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(root);
 	this->recursiveSetStatementNumber(root, lineNumber);
+	this->recursiveSetStatementNumber(whileNode->getCondition(), lineNumber);
 	lineNumber += 1;
 
-	lineNumber  = this->iterateThroughStatementInStatementList(whileNode->getStmtList(), lineNumber);
+	lineNumber  = this->setStatementListLineNumber(whileNode->getStmtList(), lineNumber);
 
 	return lineNumber;
 }
@@ -104,10 +105,11 @@ int ProgramSimpleSyntaxRule::setWhileStatementLineNumber(shared_ptr<ASTNode> roo
 int ProgramSimpleSyntaxRule::setIfStatementLineNumber(shared_ptr<ASTNode> root, int lineNumber) {
 	shared_ptr<IfASTNode> ifNode = dynamic_pointer_cast<IfASTNode>(root);
 	this->recursiveSetStatementNumber(root, lineNumber);
+	this->recursiveSetStatementNumber(ifNode->getCondition(), lineNumber);
 	lineNumber += 1;
 
-	lineNumber = this->iterateThroughStatementInStatementList(ifNode->getThenStatements(), lineNumber);
-	lineNumber = this->iterateThroughStatementInStatementList(ifNode->getElseStatements(), lineNumber);
+	lineNumber = this->setStatementListLineNumber(ifNode->getThenStatements(), lineNumber);
+	lineNumber = this->setStatementListLineNumber(ifNode->getElseStatements(), lineNumber);
 
 	return lineNumber;
 }
@@ -115,16 +117,20 @@ int ProgramSimpleSyntaxRule::setIfStatementLineNumber(shared_ptr<ASTNode> root, 
 void ProgramSimpleSyntaxRule::recursiveSetStatementNumber(shared_ptr<ASTNode> root, int lineNumber) {
 	if (!root->isStmtLstNode()) {
 		root->setLineNumber(lineNumber);
-		if (root->numChildren() > 0) {
+		// We only want children which are not If and While nodes as they contain statementlists
+		if (root->numChildren() > 0 && !root->isIfNode() && !root->isWhileNode()) {
 			// Set children of the tree to the same line number recursively
-			for (auto& child : root->getChildren()) {
+			for (shared_ptr<ASTNode> child : root->getChildren()) {
 				this->recursiveSetStatementNumber(child, lineNumber);
 			}
 		}
 	}
+	else {
+		throw SimpleSyntaxParserException("Statement list encountered in recursiveSetStatementNumber");
+	}
 }
 
-int ProgramSimpleSyntaxRule::iterateThroughStatementInStatementList(shared_ptr<ASTNode> root, int lineNumber) {
+int ProgramSimpleSyntaxRule::setStatementListLineNumber(shared_ptr<ASTNode> root, int lineNumber) {
 
 	// For each statement set the line number then increment
 	for (shared_ptr<ASTNode> child : root->getChildren()) {
