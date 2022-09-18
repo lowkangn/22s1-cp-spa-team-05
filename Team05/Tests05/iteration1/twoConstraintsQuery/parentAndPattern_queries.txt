@@ -70,8 +70,8 @@ none
 5000
 15 - parentPatRhsName - select assignments with k on rhs and whose parent is 4 
 assign a;
-Select a such that Parent(4, a) pattern a(_,_"k"_)
-12
+Select a such that Parent(4, a) pattern a(_,_"z"_)
+11
 5000
 16 - parentPatRhsName - select ifs that are parents of an assignment with z on rhs
 assign a; if i;
@@ -134,17 +134,17 @@ Select a pattern a(_,_"5"_) such that Parent(_, a)
 none
 5000
 28 - parentPatLhsSynRhs - select variables on LHS of assignments that have x on rhs and while parent
-assign a; while w;
+assign a; while w; variable v;
 Select v such that Parent(w, a) pattern a(v,_"x"_)
 x, y, z
 5000
 29 - parentPatLhsSynRhs - select variables on LHS of assignments with x in rhs and if parent
-assign a; if i;
+assign a; if i; variable v;
 Select v such that Parent(i, a) pattern a(v,_"x"_)
 z
 5000
 30 - parentPatLhsSynRhs - select variables on LHS of assignments with 1 in rhs and if parent
-assign a; if i;
+assign a; if i; variable v;
 Select v such that Parent(i, a) pattern a(v,_"1"_)
 z
 5000
@@ -335,7 +335,7 @@ none
 5000
 68 - parent*PatRhsName - select assignments with x on rhs and whose parent* is 6 
 assign a;
-Select a such that Parent*(8, a) pattern a(_,_"x"_)
+Select a such that Parent*(6, a) pattern a(_,_"x"_)
 7,9
 5000
 69 - parent*PatRhsName - select assignments with x on rhs and whose parent* is 4 
@@ -399,17 +399,17 @@ Select w pattern a(_,_"3"_) such that Parent*(w, a)
 8, 4
 5000
 81 - parent*PatLhsSynRhs - select variables on LHS of assignments that have 1 on rhs and while parent*
-assign a; while w;
+assign a; while w; variable v;
 Select v such that Parent*(w, a) pattern a(v,_"1"_)
 x, z
 5000
 82 - parent*PatLhsSynRhs - select variables on LHS of assignments with x in rhs and if parent*
-assign a; if i;
+assign a; if i; variable v;
 Select v such that Parent*(i, a) pattern a(v,_"x"_)
 z, y
 5000
 83 - parent*PatLhsSynRhs - select variables on LHS of assignments with 3 in rhs and if parent*
-assign a; if i;
+assign a; if i; variable v;
 Select v such that Parent*(i, a) pattern a(v,_"3"_)
 k
 5000
@@ -475,12 +475,12 @@ Select s such that Parent*(s2, a) pattern a(_,_"z"_)
 5000
 96 - parent*PatBoolean - select ifs if an if is a parent* of an assignment with lhs y
 assign a; if i, i2;
-Select i such that Parent(i2, a) pattern a("y",_)
+Select i such that Parent*(i2, a) pattern a("y",_)
 6
 5000
 97 - parent*PatBoolean - select whiles if an if is a parent* of an assignment with lhs k
 assign a;while ww; if i;
-Select ww such that Parent(i, a) pattern a("k",_)
+Select ww such that Parent*(i, a) pattern a("k",_)
 4, 8
 5000
 98 - parent*PatBoolean - select whiles if a while is a parent* of an if and an assignment has lhs k, 2 in rhs

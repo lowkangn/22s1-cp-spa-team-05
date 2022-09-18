@@ -4,7 +4,7 @@ procedure main {
   y = 0;
   if ((!(d == 0)) && (y < 1)) then {
      while (e >= 0) {
-        x = x + 10;
+        x = x + 10 * 2;
         y = y - 10;
         b = a;
      } 

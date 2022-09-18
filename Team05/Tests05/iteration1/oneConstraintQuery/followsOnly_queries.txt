@@ -5,7 +5,7 @@ Select s such that Follows(1, s)
 5000
 2 - Follows - select statment that Follows 3 (container line number)
 stmt s;
-Select s such that Follows(4, s)
+Select s such that Follows(3, s)
 13
 5000
 3 - Follows - select statements that Follow any statement (synonym)
@@ -41,7 +41,7 @@ Select s such that Follows(a, s)
 9 - Follows - select assigns that are Followed by any prints
 print printer; assign a;
 Select a such that Follows(a, printer)
-7
+none
 5000
 10 - Follows - select prints that are Followed by any assigns
 print printer; assign a;
@@ -54,7 +54,7 @@ Select a such that Follows(a, r)
 1
 5000
 12 - Follows - select reads that are Followed by any assigns
-read r; assign a
+read r; assign a;
 Select r such that Follows(r, a)
 none
 5000
@@ -76,12 +76,12 @@ Select a such that Follows(a, w)
 16 -  Follows - select whiles that are Followed by any assigns 
 while w; assign a;
 Select w such that Follows(w, a)
-4
+5
 5000
 17 - Follows - select assigns that are Followed by any assigns
 assign a, aAfter;
 Select a such that Follows(a, aAfter)
-6
+6, 7
 5000
 18 - Follows - select whiles that are Followed by any ifs
 while w; if i;
@@ -145,7 +145,7 @@ Select s such that Follows*(2, s)
 5000
 30 - FollowsT - select statments that Follow* 5 (container line number)
 stmt s;
-Select s such that Follows*(4, s)
+Select s such that Follows*(5, s)
 9
 5000
 31 - FollowsT - select statements that Follow* any statement (synonym)
@@ -176,7 +176,7 @@ Select s such that Follows*(a, s)
 36 - FollowsT - select assigns that are Follow*ed by any prints
 print printer; assign a;
 Select a such that Follows*(a, printer)
-7, 6, 1
+1
 5000
 37 - FollowsT - select prints that are Follow*ed by any assigns
 print printer; assign a;
@@ -216,7 +216,7 @@ Select w such that Follows*(w, a)
 44 - FollowsT - select assigns that are Follow*ed by any assigns
 assign a, aAfter;
 Select a such that Follows*(a, aAfter)
-1, 4, 6
+1, 4, 6, 7
 5000
 45 - FollowsT - select whiles that are Follow*ed by any ifs
 while w; if i;
@@ -276,7 +276,7 @@ Select p such that Follows*(p, r)
 56 - FollowsT - select reads that are Follow*ed by any prints
 print p; read r;
 Select r such that Follows*(r, p)
-10
+10, 2
 5000
 57 - FollowsT - select reads that are Follow*ed by any reads
 read r, r1;

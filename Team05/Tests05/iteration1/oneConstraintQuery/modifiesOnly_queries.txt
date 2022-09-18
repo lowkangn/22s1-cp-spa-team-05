@@ -80,12 +80,12 @@ x
 5000
 17 - ModifiesS - select variables that are modified by 7 (assign)
 variable v;
-Select v such that Modifies(6, v)
+Select v such that Modifies(7, v)
 y
 5000
 18 - ModifiesS - select variables that are modified by 4 (if)
 variable v;
-Select v such that Modifies(6, v)
+Select v such that Modifies(4, v)
 x, y, z
 5000
 19 - ModifiesS - select variables that are modified by 5 (while)

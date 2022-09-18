@@ -141,7 +141,7 @@ Select s such that Parent*(s1, s)
 29 - ParentT - select parent* of 7 (line number in nested while-stmtLst)
 stmt s;
 Select s such that Parent*(s, 7)
-6, 2
+6, 2, 1
 5000
 30 - ParentT - select parent* of 4 (line number in nested then-stmtLst)
 stmt s;
