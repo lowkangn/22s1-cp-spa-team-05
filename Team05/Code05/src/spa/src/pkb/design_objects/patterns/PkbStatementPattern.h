@@ -53,7 +53,6 @@ public :
 			string regexString = regexStrings[i];
 			string s = this->strings[i];
 			if (!regex_match(s, regex(regexString))) {
-				cout << s << " " << regexString << endl;
 				return false;
 			}
 		}

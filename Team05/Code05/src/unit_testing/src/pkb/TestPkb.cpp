@@ -768,12 +768,6 @@ TEST_CASE("Test add and get patterns") {
 					break;
 				}
 			}
-			if (!found) {
-				for (PQLPattern p : all) {
-					cout << p.toString() << endl;
-				}
-				cout << e.toString() << endl;
-			}
 			REQUIRE(found);
 		}
 	};

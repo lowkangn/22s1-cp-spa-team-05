@@ -30,10 +30,6 @@ TEST_CASE("PatternExtractor: test handleAssign") {
 		// Then
 		for (Pattern e : extractedPattern) {
 			bool check = find(expectedResult.begin(), expectedResult.end(), e) != expectedResult.end();
-          	if (!check) {
-				cout << e.getLhs() << endl;
-				cout << e.getRhs().size() << endl;
-			}
 			REQUIRE(check);
 		}
 	};

@@ -81,12 +81,10 @@ public:
 			// insert space before the wildcards
 			s.insert(2, SPACE_DELIMITER);
 			s.insert(s.size() - 2, SPACE_DELIMITER);
-			cout << "sandwch" << s << endl;
 
 		} else if (afterLength == initialLength) {
 			// no wildcards, prepend and append space
 			s = SPACE_DELIMITER + s + SPACE_DELIMITER;
-			cout << "added back and forth space" << s << "}" << endl;
 		}
 		else {
 			// more than two characters added

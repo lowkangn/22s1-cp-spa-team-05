@@ -640,7 +640,6 @@ vector<PQLPattern> PKB::retrieveAssignPatterns(ClauseArgument lhs, ClauseArgumen
 
 PQLPattern PKB::pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> p) {
 	string variableIdentifier = p->getVariableIdentifier();
-	cout << "here" << variableIdentifier << endl;
 	// we store as space + variable + space, need to trim
 	// left trim
 	bool leftIsSpace = isspace(variableIdentifier[0]);
@@ -650,7 +649,6 @@ PQLPattern PKB::pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> p) {
 		leftIsSpace = isspace(variableIdentifier[0]);
 		
 	}
-	cout << "here" << variableIdentifier << endl;
 
 	// right trim
 	bool rightIsSpace = isspace(variableIdentifier[variableIdentifier.size()-1]);
@@ -660,7 +658,6 @@ PQLPattern PKB::pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> p) {
 		
 		
 	}
-	cout << "here" << variableIdentifier << endl;
 	return PQLPattern::generateAssignPattern(p->getStatementLineNumber(), variableIdentifier);
 }
 

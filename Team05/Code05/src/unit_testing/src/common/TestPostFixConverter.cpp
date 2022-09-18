@@ -11,10 +11,6 @@ TEST_CASE("PostFixConverter: infix to postfix") {
 		string convertedString = converter.convertInfixToPostFix(infixString);
 
 		// Then
-		if (convertedString != expectedString) {
-			cout << convertedString << endl;
-			cout << expectedString << endl;
-		}
 		REQUIRE(convertedString == expectedString);
 	};
 
