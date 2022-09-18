@@ -49,4 +49,3 @@ vector<Entity> SourceProcessor::extractEntities() {
 	vector<Entity> entities = this->designManager.extractEntities(this->astRoot);
 	return entities;
 }
-

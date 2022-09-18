@@ -70,6 +70,12 @@ vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
 vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifiesRelationships = vector<Relationship>();
 
+	// Sanity check to prevent erroneous calls outside of extract() since handleAssign is public 
+	ASTNodeType currNodeType = ast->getType();
+	if (currNodeType != ASTNodeType::ASSIGN) {
+		throw ASTException("handleAssign can only accept assign AST nodes");
+	}
+
 	// This is the Left hand side of the assign relation
 	shared_ptr<AssignASTNode> assignNode = dynamic_pointer_cast<AssignASTNode>(ast);
 	shared_ptr<ASTNode> leftChild = assignNode->getLeftHandSide();
@@ -86,6 +92,11 @@ vector<Relationship> ModifiesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 vector<Relationship> ModifiesExtractor::handleRead(shared_ptr<ASTNode> ast) {
 	vector<Relationship> modifiesRelationships = vector<Relationship>();
 
+	ASTNodeType currNodeType = ast->getType();
+	if (currNodeType != ASTNodeType::READ) {
+		throw ASTException("handleRead can only accept read AST nodes");
+	}
+
 	// Cast to ReadASTNode
 	shared_ptr<ReadASTNode> readNode = dynamic_pointer_cast<ReadASTNode>(ast);
 	shared_ptr<ASTNode> child = readNode->getVariableToRead();
@@ -99,6 +110,11 @@ vector<Relationship> ModifiesExtractor::handleRead(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast) {
+	ASTNodeType currNodeType = ast->getType();
+	if (currNodeType != ASTNodeType::PROCEDURE) {
+		throw ASTException("handleProcedure can only accept procedure AST nodes");
+	}
+
 	Entity leftHandSide = ast->extractEntity();
 
 	vector<Relationship> extractedChildRelationships;
@@ -115,7 +131,11 @@ vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast)
 }
 
 vector<Relationship> ModifiesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
-	
+	ASTNodeType currNodeType = ast->getType();
+	if (currNodeType != ASTNodeType::WHILE) {
+		throw ASTException("handleWhile can only accept while AST nodes");
+	}
+
 	vector<Relationship> extractedChildRelationships;
 	// Get the name ASTNode
 	shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
@@ -133,6 +153,10 @@ vector<Relationship> ModifiesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> ModifiesExtractor::handleIf(shared_ptr<ASTNode> ast) {
+	ASTNodeType currNodeType = ast->getType();
+	if (currNodeType != ASTNodeType::IF) {
+		throw ASTException("handleIf can only accept if AST nodes");
+	}
 	vector<Relationship> extractedChildRelationships = vector<Relationship>();
 
 	// Get the name ASTNode
@@ -159,6 +183,10 @@ vector<Relationship> ModifiesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 
 // TODO in a future iteration
 vector<Relationship> ModifiesExtractor::handleCall(shared_ptr<ASTNode> ast) {
+	ASTNodeType currNodeType = ast->getType();
+	if (currNodeType != ASTNodeType::CALL) {
+		throw ASTException("handleCall can only accept call AST nodes");
+	}
 	return vector<Relationship>();
 }
 
