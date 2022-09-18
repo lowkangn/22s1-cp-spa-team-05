@@ -721,14 +721,16 @@ TEST_CASE("Test add and get patterns") {
 		z = x + y // is xy+ in postfix
 		z = x // is x in postfix
 		y = x + y // is xy+ in postfix
+		y = x + y // repeated on a different line
 	*/
 	Pattern p1 = Pattern::createAssignPattern(1, "x", "2x*y+");
 	Pattern p2 = Pattern::createAssignPattern(2, "y", "3y/2-");
 	Pattern p3 = Pattern::createAssignPattern(3, "z", "xy+");
 	Pattern p4 = Pattern::createAssignPattern(4, "z", "x");
 	Pattern p5 = Pattern::createAssignPattern(5, "y", "xy+");
+	Pattern p6= Pattern::createAssignPattern(6, "y", "xy+");
 	vector<Pattern> toAdd = {
-		p1, p2, p3, p4, p5
+		p1, p2, p3, p4, p5, p6
 	};
 
 	SECTION("lhs and rhs wildcard should get all") {
@@ -741,6 +743,7 @@ TEST_CASE("Test add and get patterns") {
 			PQLPattern::generateAssignPattern(3, "z"),
 			PQLPattern::generateAssignPattern(4, "z"),
 			PQLPattern::generateAssignPattern(5, "y"),
+			PQLPattern::generateAssignPattern(6, "y"),
 		};
 		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
 	}
@@ -752,6 +755,7 @@ TEST_CASE("Test add and get patterns") {
 		vector<PQLPattern> expectedPatterns = {
 			PQLPattern::generateAssignPattern(3, "z"),
 			PQLPattern::generateAssignPattern(5, "y"),
+			PQLPattern::generateAssignPattern(6, "y"),
 		};
 		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
 	}
@@ -765,6 +769,7 @@ TEST_CASE("Test add and get patterns") {
 			PQLPattern::generateAssignPattern(3, "z"),
 			PQLPattern::generateAssignPattern(4, "z"),
 			PQLPattern::generateAssignPattern(5, "y"),
+			PQLPattern::generateAssignPattern(6, "y"),
 		};
 		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
 	}
@@ -776,6 +781,19 @@ TEST_CASE("Test add and get patterns") {
 		vector<PQLPattern> expectedPatterns = {
 			PQLPattern::generateAssignPattern(3, "z"),
 			PQLPattern::generateAssignPattern(5, "y"),
+			PQLPattern::generateAssignPattern(6, "y"),
+		};
+		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
+	}
+
+	SECTION("Can handle identical patterns on different lines") {
+		// lhs synonym, rhs specific
+		ClauseArgument lhs = ClauseArgument::createPatternStringArg("y");
+		ClauseArgument rhs = ClauseArgument::createPatternStringArg("xy+");
+		vector<PQLPattern> expectedPatterns = {
+			PQLPattern::generateAssignPattern(5, "y"),
+			PQLPattern::generateAssignPattern(6, "y"),
+
 		};
 		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
 	}

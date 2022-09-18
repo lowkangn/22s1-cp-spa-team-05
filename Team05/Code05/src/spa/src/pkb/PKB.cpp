@@ -541,56 +541,7 @@ shared_ptr<PKBUpdateHandler> PKB::getUpdateHandler() {
 vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) {
 	
 	if (statementType == PKBTrackedStatementType::ASSIGN) {
-		// 1. get the assign table
-		PkbPatternTable table = this->assignPatterns;
-
-		// 2. parse lhs 
-		string lhsStringPattern; 
-		
-		bool lhsIsSynonym = false;
-		if (lhs.isVariableSynonym() || lhs.isWildcard()) {
-			// if lhs is a synonym, we treat as a wildcard, but flag it - we will deal with it later
-			lhsIsSynonym = lhs.isVariableSynonym();
-			// in either case, we match lhs with a wildcard
-			lhsStringPattern = WILDCARD_CHAR;
-		}
-		else if (lhs.isStringLiteral() || lhs.isPatternString() || lhs.isPatternStringWithWildcards()) {
-			// string literal, we match exactly
-			lhsStringPattern = lhs.getIdentifier();
-		}
-		else {
-			// should never get here
-			throw PkbException("Unknown assign pattern being retrieved!");
-		}
-
-		// 3. parse rhs - it should only be wildcard or string literal
-		string rhsStringPattern;
-		if (rhs.isWildcard()) {
-			rhsStringPattern = WILDCARD_CHAR;
-		}
-		else if (rhs.isStringLiteral() || rhs.isPatternString() || rhs.isPatternStringWithWildcards()) {
-			rhsStringPattern = rhs.getIdentifier();
-		}
-		else {
-			throw PkbException("RHS of assign pattern should be wildcard, sandwiched wildcard or string, but is neither.");
-		}
-		
-		// 4. find all patterns that match in the assign table
-		vector<string> postFixStringsToMatch = {
-			lhsStringPattern, rhsStringPattern
-		};
-		vector<shared_ptr<PkbStatementPattern>> matchingPatterns = this->assignPatterns.getAllThatMatchPostFixStrings(postFixStringsToMatch);
-
-
-		// 5. for each returned statement, we get the corr. entity
-		vector<PQLPattern> out;
-		for (shared_ptr<PkbStatementPattern> p : matchingPatterns) {
-			out.push_back(
-				PQLPattern::generateAssignPattern(p->getStatementLineNumber(), p->getVariableIdentifier())
-			);
-		}
-		
-		return out;
+		return this->retrieveAssignPatterns(lhs, rhs);
 		
 	}
 	else if (statementType == PKBTrackedStatementType::IF) {
@@ -605,4 +556,59 @@ vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, 
 		throw PkbException("Unknown pattern type to be retrieved!");
 	}
 	
+}
+
+
+vector<PQLPattern> PKB::retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs) {
+	// 1. parse lhs 
+	string lhsStringPattern;
+
+	bool lhsIsSynonym = false;
+	if (lhs.isVariableSynonym() || lhs.isWildcard()) {
+		// if lhs is a synonym, we treat as a wildcard, but flag it - we will deal with it later
+		lhsIsSynonym = lhs.isVariableSynonym();
+		// in either case, we match lhs with a wildcard
+		lhsStringPattern = WILDCARD_CHAR;
+	}
+	else if (lhs.isStringLiteral() || lhs.isPatternString() || lhs.isPatternStringWithWildcards()) {
+		// string literal, we match exactly
+		lhsStringPattern = lhs.getIdentifier();
+	}
+	else {
+		// should never get here
+		throw PkbException("Unknown assign pattern being retrieved!");
+	}
+
+	// 2. parse rhs - it should only be wildcard or string literal
+	string rhsStringPattern;
+	if (rhs.isWildcard()) {
+		rhsStringPattern = WILDCARD_CHAR;
+	}
+	else if (rhs.isPatternString() || rhs.isPatternStringWithWildcards()) {
+		rhsStringPattern = rhs.getIdentifier();
+	}
+	else {
+		throw PkbException("RHS of assign pattern should be wildcard, sandwiched wildcard or string, but is neither.");
+	}
+
+	// 3. find all patterns that match in the assign table
+	vector<string> postFixStringsToMatch = {
+		lhsStringPattern, rhsStringPattern
+	};
+	vector<shared_ptr<PkbStatementPattern>> matchingPatterns = this->assignPatterns.getAllThatMatchPostFixStrings(postFixStringsToMatch);
+
+
+	// 5. for each returned statement, we get the corr. entity
+	vector<PQLPattern> out;
+	for (shared_ptr<PkbStatementPattern> p : matchingPatterns) {
+		out.push_back(
+			this->pkbPatternToPqlPattern(p)
+		);
+	}
+
+	return out;
+}
+
+PQLPattern PKB::pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> p) {
+	return PQLPattern::generateAssignPattern(p->getStatementLineNumber(), p->getVariableIdentifier());
 }
