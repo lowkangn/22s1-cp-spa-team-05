@@ -26,7 +26,7 @@ SemanticError
 6 - variable as second arg (name)
 assign a;
 Select a such that Follows(a, "x")
-SemanticError
+SyntaxError
 5000
 7 - procedure as second arg (synonym)
 assign a; procedure p;
@@ -39,14 +39,14 @@ Select i such that Follows*(c, i)
 SemanticError
 5000
 9 - variable as first arg (synonym)
-variable v; while w
+variable v; while w;
 Select v such that Follows*(v, w)
 SemanticError
 5000
 10 - variable as first arg (name)
 variable v; constant c;
 Select v such that Follows*("x", c)
-SemanticError
+SyntaxError
 5000
 11 - procedure as first arg (synonym)
 assign a; procedure p;
