@@ -239,6 +239,14 @@ TEST_CASE("Parser: test ::consumeTokens") {
 		testThrowsException(StatementListSimpleSyntaxRule(), tokens);
 	}
 
+	SECTION("StatementListSimpleSyntaxRule: Empty Statement list") {
+		list<Token> tokens = {
+		Token::createOpenCurlyBracketToken(),
+		Token::createCloseCurlyBracketToken(),
+		};
+		testThrowsException(StatementListSimpleSyntaxRule(), tokens);
+	}
+
 		// -------------------- ProcedureSimpleSyntaxRule --------------------
 	SECTION("ProcedureSimpleSyntaxRule: Consumes exactly correct tokens, using example with just an assign") {
 		list<Token> tokens = {
@@ -302,6 +310,16 @@ TEST_CASE("Parser: test ::consumeTokens") {
 		testThrowsException(ProcedureSimpleSyntaxRule(), tokens);
 	}
 
+	SECTION("ProcedureSimpleSyntaxRule: empty procedure") {
+		list<Token> tokens = {
+		Token::createProcedureToken(),
+			Token::createNameOrKeywordToken("procedureName"),
+			Token::createOpenCurlyBracketToken(),
+			Token::createCloseCurlyBracketToken(),
+		};
+		testThrowsException(ProcedureSimpleSyntaxRule(), tokens);
+	}
+ 
 		// -------------------- ProgramSimpleSyntaxRule --------------------
 	SECTION("ProgramSimpleSyntaxRule: Consumes exactly correct tokens, using two procedures") {
 		list<Token> tokens = {

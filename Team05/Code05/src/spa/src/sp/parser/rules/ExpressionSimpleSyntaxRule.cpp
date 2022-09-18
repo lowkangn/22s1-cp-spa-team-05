@@ -35,6 +35,7 @@ vector<shared_ptr<SimpleSyntaxRule>> ExpressionSimpleSyntaxRule::generateChildRu
 	// Means lhs is either variable or constant
 	else {
 		shared_ptr<SimpleSyntaxRule> lhsRulePointer = shared_ptr<SimpleSyntaxRule>(new ExpressionSimpleSyntaxRule());
+		lhsTokens = lhsRulePointer->consumeTokens(lhsTokens);
 		childRules.push_back(lhsRulePointer);
 	}
 	

@@ -13,6 +13,7 @@ list<Token> StatementListSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 
 	// then we keep going until we hit }
 	bool seenCloseBracket = false;
+	bool seenOneToken = false;
 	int numOpenBracketSeen = 1;
 	while (!tokens.empty()) {
 		token = tokens.front(); // read
@@ -26,11 +27,19 @@ list<Token> StatementListSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 				break;
 			}
 		}
+		else {
+			seenOneToken = true;
+		}
 		childTokens.push_back(token); // insert all tokens in order within bracket
 	}
 	// if no }, throw exception
 	if (!seenCloseBracket) {
 		throw SimpleSyntaxParserException("Missing closed bracket!");
+	}
+
+	// If not tokens in the statement list return error
+	if (!seenOneToken) {
+		throw SimpleSyntaxParserException("No tokens in statement list");
 	}
 
 	// assign and do state management
