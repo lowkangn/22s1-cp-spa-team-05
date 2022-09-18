@@ -1,4 +1,4 @@
-#include "QPSTokenizer.h"
+#include <qps/query_tokenizer/QPSTokenizer.h>
 
 list<PQLToken> QPSTokenizer::tokenize(istream& stream) {
 
@@ -22,7 +22,7 @@ list<PQLToken> QPSTokenizer::tokenize(istream& stream) {
         } else {
             string s;
             s += currentChar;
-            throw PQLError("Invalid character: " + s);
+            throw PQLSyntaxError("Invalid character: " + s);
         }
     }
 
@@ -85,7 +85,7 @@ PQLToken QPSTokenizer::extractIntegerFromStream(istream& stream) {
     if (isAlphabetical(char(stream.peek()))) {
         string next;
         next += char(stream.peek());
-        throw PQLError("Alphabetical character cannot follow integer: " + integer + " followed by " + next);
+        throw PQLSyntaxError("Alphabetical character cannot follow integer: " + integer + " followed by " + next);
     }
 
     return PQLToken::createIntegerToken(integer);

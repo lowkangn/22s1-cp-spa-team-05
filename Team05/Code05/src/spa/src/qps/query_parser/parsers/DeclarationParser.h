@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include <list>
 
+#include <qps/exceptions/PQLSyntaxError.h>
+#include <qps/exceptions/PQLSemanticError.h>
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query_tokenizer/PQLToken.h>
 

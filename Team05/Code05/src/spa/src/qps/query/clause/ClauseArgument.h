@@ -2,7 +2,7 @@
 
 #include <string>
 #include <qps/query_parser/ArgumentType.h>
-#include <qps/exceptions/PQLError.h>
+#include <qps/exceptions/PQLLogicError.h>
 
 using namespace std;
 
@@ -178,14 +178,14 @@ public:
 
 	int getLineNumber() {
 		if (!this->isLineNumber()) {
-			throw PQLError("Trying to get line number, but clause argument is not!");
+			throw PQLLogicError("Trying to get line number, but clause argument is not!");
 		}
 		return stoi(this->identifier);
 	}
 
 	string getIdentifier() {
 		if (this->isLineNumber()) {
-			throw PQLError("Trying to get identifier, but clause argument is a line number!");
+			throw PQLLogicError("Trying to get identifier, but clause argument is a line number!");
 		}
 		return this->identifier;
 	}

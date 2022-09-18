@@ -186,14 +186,14 @@ TEST_CASE("FollowsParser: test parseFollowsTNoError") {
 }
 
 
-TEST_CASE("FollowsParser: test parseWithError") {
+TEST_CASE("FollowsParser: test parseWithSemanticError") {
     auto testParseWithError = [](list<PQLToken> tokens,
         unordered_map<string, ArgumentType> declarations) {
             // given
             FollowsParser parser = FollowsParser(tokens, declarations);
 
             // then
-            REQUIRE_THROWS_AS(parser.parse(), PQLError);
+            REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
     };
 
     list<PQLToken> tokensList = list<PQLToken>{
@@ -248,44 +248,63 @@ TEST_CASE("FollowsParser: test parseWithError") {
 
         testParseWithError(tokensList, declarationsMap);
     }
+}
 
-    SECTION("Illegal arguments: name string") {
-        tokensList = list<PQLToken>{
+TEST_CASE("FollowsParser: test parseWithSyntaxError") {
+    auto testParseWithError = [](list<PQLToken> tokens,
+        unordered_map<string, ArgumentType> declarations) {
+            // given
+            FollowsParser parser = FollowsParser(tokens, declarations);
+
+            // then
+            REQUIRE_THROWS_AS(parser.parse(), PQLSyntaxError);
+    };
+
+    list<PQLToken> tokensList = list<PQLToken>{
             PQLToken::createNameToken("Follows"),
             PQLToken::createDelimiterToken("*"),
             PQLToken::createDelimiterToken("("),
-            PQLToken::createDelimiterToken("s1"),
+            PQLToken::createNameToken("s1"),
             PQLToken::createDelimiterToken(","),
             PQLToken::createDelimiterToken("\""),
             PQLToken::createNameToken("someString"),
             PQLToken::createDelimiterToken("\""),
             PQLToken::createDelimiterToken(")")
-        };
+    };
 
-        declarationsMap = unordered_map<string, ArgumentType>{
-            {"s1", ArgumentType::STMT}
-        };
+    unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+        {"s1", ArgumentType::STMT}
+    };
 
+    SECTION("Illegal arguments: name string") {
         testParseWithError(tokensList, declarationsMap);
     }
-
-    SECTION("Illegal arguments: number string (constant)") {
+    
+    SECTION("Illegal arguments: number string") {
         tokensList = list<PQLToken>{
             PQLToken::createNameToken("Follows"),
-            PQLToken::createDelimiterToken("*"),
             PQLToken::createDelimiterToken("("),
-            PQLToken::createDelimiterToken("s1"),
+            PQLToken::createNameToken("s1"),
             PQLToken::createDelimiterToken(","),
             PQLToken::createDelimiterToken("\""),
-            PQLToken::createNameToken("12"),
+            PQLToken::createIntegerToken("1"),
             PQLToken::createDelimiterToken("\""),
             PQLToken::createDelimiterToken(")")
         };
+        testParseWithError(tokensList, declarationsMap);
+    }
 
-        declarationsMap = unordered_map<string, ArgumentType>{
-            {"s1", ArgumentType::STMT}
+    SECTION("Double *") {
+        tokensList = list<PQLToken>{
+            PQLToken::createNameToken("Follows"),
+            PQLToken::createDelimiterToken("*"),
+            PQLToken::createDelimiterToken("*"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("s1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createIntegerToken("1"),
+            PQLToken::createDelimiterToken(")")
         };
-
         testParseWithError(tokensList, declarationsMap);
     }
 }

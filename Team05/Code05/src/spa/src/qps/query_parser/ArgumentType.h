@@ -3,6 +3,8 @@
 #include <string>
 #include <stdexcept>
 
+#include <qps/exceptions/PQLSyntaxError.h>
+
 using namespace std;
 
 enum class ArgumentType {

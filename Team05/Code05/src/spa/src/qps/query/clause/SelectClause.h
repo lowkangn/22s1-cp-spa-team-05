@@ -1,9 +1,11 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <qps/query/clause/ClauseArgument.h>
 #include <qps/query/clause/EntityClauseResult.h>
-#include <pkb/PKB.h>
+#include <qps/exceptions/PQLSyntaxError.h>
+#include <pkb/interfaces/PKBQueryHandler.h>
 
 using namespace std;
 
