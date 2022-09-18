@@ -30,8 +30,8 @@
 #include <sp/parser/SimpleSyntaxParserManager.h>
 #include <sp/design_extractor/EntityExtractor.h>
 #include <sp/design_extractor/PatternExtractor.h>
-#include <sp/dataclasses/tokens/Token.h>
-#include <sp/dataclasses/ast/AST.h>
+#include <sp/design_extractor/FollowsExtractor.h>
+#include <sp/design_extractor/FollowsTExtractor.h>
 #include <sp/SPException.h>
 #include <string>
 #include <list>
@@ -590,9 +590,10 @@ bool compareRelationship(Relationship relationshipOne, Relationship relationship
 
 TEST_CASE("Test Source Processor : extractEntity") {
 	auto test = [](string sourceProgram, vector<Entity> expectedEntites) {
-		SourceProcessor sp = SourceProcessor();
-		sp.initialize(sourceProgram);
+		stringstream ss(sourceProgram);
 
+		SourceProcessor sp = SourceProcessor(ss);
+		
 		vector<Entity> entities = sp.extractEntities();
 
 		sort(entities.begin(), entities.end(), compareEntity);
@@ -702,8 +703,9 @@ TEST_CASE("Test Source Processor : extractEntity") {
 
 TEST_CASE("Test Source Processor : extractPattern") {
 	auto test = [](string sourceProgram, vector<Pattern> expectedPatterns) {
-		SourceProcessor sp = SourceProcessor();
-		sp.initialize(sourceProgram);
+		stringstream ss(sourceProgram);
+
+		SourceProcessor sp = SourceProcessor(ss);
 
 		vector<Pattern> patterns = sp.extractPatterns();
 
@@ -759,8 +761,9 @@ TEST_CASE("Test Source Processor : extractPattern") {
 
 TEST_CASE("Test Source Processor : extractRelations") {
 	auto test = [](string sourceProgram, vector<Relationship> expectedRelations) {
-		SourceProcessor sp = SourceProcessor();
-		sp.initialize(sourceProgram);
+		stringstream ss(sourceProgram);
+
+		SourceProcessor sp = SourceProcessor(ss);
 
 		vector<Relationship> relations = sp.extractRelations();
 
@@ -768,10 +771,13 @@ TEST_CASE("Test Source Processor : extractRelations") {
 
 		REQUIRE(relations.size() == expectedRelations.size());
 
-		for (int i = 0; i < relations.size(); i++) {
-			Relationship expectedRelation = relations[i];
-			bool check = find(expectedRelations.begin(), expectedRelations.end(), expectedRelation) != expectedRelations.end();
-			REQUIRE(find(expectedRelations.begin(), expectedRelations.end(), expectedRelation) != expectedRelations.end());
+		for (int i = 0; i < expectedRelations.size(); i++) {
+			Relationship expectedRelation = expectedRelations[i];
+			bool check = find(relations.begin(), relations.end(), expectedRelation) != relations.end();
+			if (!check) {
+				int x = 1;
+			}
+			REQUIRE(find(relations.begin(), relations.end(), expectedRelation) != relations.end());
 		}
 	};
 
@@ -807,11 +813,30 @@ TEST_CASE("Test Source Processor : extractRelations") {
 		Token fiveToken = Token::createIntegerToken("5");
 		Token tenToken = Token::createIntegerToken("10");
 
+		vector<Relationship> expectedFollows {
+			Relationship::createFollowsRelationship(Entity::createReadEntity(1), Entity::createPrintEntity(2)),
+			Relationship::createFollowsRelationship(Entity::createPrintEntity(2), Entity::createAssignEntity(3)),
+			Relationship::createFollowsRelationship(Entity::createAssignEntity(3), Entity::createIfEntity(4)),
 
+			Relationship::createFollowsRelationship(Entity::createAssignEntity(6), Entity::createAssignEntity(7)),
+			Relationship::createFollowsRelationship(Entity::createAssignEntity(8), Entity::createAssignEntity(9)),
+			Relationship::createFollowsRelationship(Entity::createAssignEntity(9), Entity::createAssignEntity(10)),
+		};
+		vector<Relationship> expectedFollowT {
+			Relationship::createFollowsTRelationship(Entity::createReadEntity(1), Entity::createPrintEntity(2)),
+			Relationship::createFollowsTRelationship(Entity::createReadEntity(1), Entity::createAssignEntity(3)),
+			Relationship::createFollowsTRelationship(Entity::createReadEntity(1), Entity::createIfEntity(4)),
 
-		// Need to fill once follows is merged
-		vector<Relationship> expectedFollows {};
-		vector<Relationship> expectedFollowT {};
+			Relationship::createFollowsTRelationship(Entity::createPrintEntity(2), Entity::createAssignEntity(3)),
+			Relationship::createFollowsTRelationship(Entity::createPrintEntity(2), Entity::createIfEntity(4)),
+
+			Relationship::createFollowsTRelationship(Entity::createAssignEntity(3), Entity::createIfEntity(4)),
+
+			Relationship::createFollowsTRelationship(Entity::createAssignEntity(6), Entity::createAssignEntity(7)),
+			Relationship::createFollowsTRelationship(Entity::createAssignEntity(8), Entity::createAssignEntity(9)),
+			Relationship::createFollowsTRelationship(Entity::createAssignEntity(8), Entity::createAssignEntity(10)),
+			Relationship::createFollowsTRelationship(Entity::createAssignEntity(9), Entity::createAssignEntity(10)),
+		};
 
 		vector<Relationship> expectedParent {
 			Relationship::createParentRelationship(Entity::createIfEntity(4), Entity::createWhileEntity(5)),

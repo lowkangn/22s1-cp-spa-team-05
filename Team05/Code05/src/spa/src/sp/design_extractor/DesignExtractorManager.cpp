@@ -8,7 +8,6 @@
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
-#include <pkb/interfaces/PKBUpdateHandler.h>
 #include <memory>
 
 using namespace std;
