@@ -15,7 +15,7 @@ SyntaxError
 5000
 4 - Invalid synonym (has wildcard)
 assign a_b;
-select a_b
+Select a_b
 SyntaxError
 5000
 5 - Invalid synonym (is wildcard)
