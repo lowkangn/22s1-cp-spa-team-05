@@ -79,9 +79,9 @@ namespace {
 	*/
 
 	// Initialise Patterns
-	Pattern a1 = Pattern::createAssignPattern(1, "y", "x1+");
-	Pattern a2 = Pattern::createAssignPattern(2, "z", "x3*y2/-");
-	Pattern a3 = Pattern::createAssignPattern(3, "x", "x1-");
+	Pattern a1 = Pattern::createAssignPattern(1, " y ", " x 1 + ");
+	Pattern a2 = Pattern::createAssignPattern(2, " z ", " x 3 * y 2 / - ");
+	Pattern a3 = Pattern::createAssignPattern(3, " x ", " x 1 - ");
 
 	// Initialise PQLEntities and PQLRelationships
 	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
@@ -104,16 +104,16 @@ namespace {
 	ClauseArgument secondStringLiteralArg = ClauseArgument::createStringLiteralArg("z");
 	ClauseArgument thirdStringLiteralArg = ClauseArgument::createStringLiteralArg("x");
 	ClauseArgument nonExistentStringLiteralArg = ClauseArgument::createStringLiteralArg("aAaAaA");
-	ClauseArgument firstPatternStringArg = ClauseArgument::createPatternStringArg("x1+");
-	ClauseArgument secondPatternStringArg = ClauseArgument::createPatternStringArg("x3*y2/-");
-	ClauseArgument thirdPatternStringArg = ClauseArgument::createPatternStringArg("x1-");
-	ClauseArgument firstNonExistentPatternStringArg = ClauseArgument::createPatternStringArg("3y-");
-	ClauseArgument secondNonExistentPatternStringArg = ClauseArgument::createPatternStringArg("x3*");
+	ClauseArgument firstPatternStringArg = ClauseArgument::createPatternStringArg("x 1 +");
+	ClauseArgument secondPatternStringArg = ClauseArgument::createPatternStringArg("x 3 * y 2 / -");
+	ClauseArgument thirdPatternStringArg = ClauseArgument::createPatternStringArg("x 1 -");
+	ClauseArgument firstNonExistentPatternStringArg = ClauseArgument::createPatternStringArg("3 y -");
+	ClauseArgument secondNonExistentPatternStringArg = ClauseArgument::createPatternStringArg("x 3 *");
 	ClauseArgument firstPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_x_");
 	ClauseArgument secondPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_y_");
-	ClauseArgument thirdPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_x3*_");
+	ClauseArgument thirdPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_x 3 *_");
 	ClauseArgument fourthPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_1_");
-	ClauseArgument nonExistentPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_3y-_");
+	ClauseArgument nonExistentPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_3 y -_");
 
 };
 

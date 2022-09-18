@@ -137,8 +137,8 @@ namespace {
 
 
 	// Initialise PatternAssigns
-	Pattern patternA2Y2 = Pattern::createAssignPattern(a2.getLine(), yToken.getString(), "x10*+"); //is x+1*0
-	Pattern patternA7Z7 = Pattern::createAssignPattern(a7.getLine(), zToken.getString(), "10000-b+"); //is 1000-0+b
+	Pattern patternA2Y2 = Pattern::createAssignPattern(a2.getLine(), " " + yToken.getString() + " ", " x 1 0 * + "); //is x+1*0
+	Pattern patternA7Z7 = Pattern::createAssignPattern(a7.getLine(), " " + zToken.getString() + " ", " 1000 0 - b + "); //is 1000-0+b
 };
 
 TEST_CASE("QPS: test working correctly") {
