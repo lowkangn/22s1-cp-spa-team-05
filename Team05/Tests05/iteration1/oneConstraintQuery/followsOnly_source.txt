@@ -1,0 +1,19 @@
+procedure main {
+  x = 1;
+  read z;
+  if (x == 1) then {
+    z = 2;
+    while (y >= 0) {
+      x = x + 10;
+      y = y + 10;
+      b = 1;
+    } 
+    a = 3;
+  } else {
+    read x;
+    print z;
+    read a;
+  }
+  print x;
+  x = (x + 1) - 1;
+}

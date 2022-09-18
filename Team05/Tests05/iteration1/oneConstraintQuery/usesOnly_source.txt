@@ -1,0 +1,17 @@
+procedure main {
+  read x;
+  print x;
+  y = 0;
+  if (d > 0) then {
+     while (e >= 0) {
+        x = c + 10;
+        y = x + 10;
+     }
+  } else {
+     z = a / 1;
+     print a;
+  }
+  while (b > 0) {
+     print y;
+  }
+}

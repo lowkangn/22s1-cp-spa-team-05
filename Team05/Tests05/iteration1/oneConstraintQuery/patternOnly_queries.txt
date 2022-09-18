@@ -1,0 +1,74 @@
+1 - patternAssign - select assigns with any pattern (wildcard LHS)
+assign a;
+Select a pattern a(_, _)
+3, 6, 7, 8, 9, 10, 11, 13
+5000
+2 - patternAssign - select assigns with any pattern (variable LHS)
+assign a; variable v;
+Select a pattern a(v, _)
+3, 6, 7, 8, 9, 10, 11, 13
+5000
+3 - patternAssign - select assigns with variable name y on rhs
+assign a;
+Select a pattern a(_, _"y"_)
+7, 9, 10
+5000
+4 - patternAssign - select assigns with variable name x on rhs
+assign a;
+Select a pattern a(_, _"x"_)
+6, 9, 10, 13
+5000
+5 - patternAssign - select assigns with same variable name x on both sides
+assign a;
+Select a pattern a("x", _"x"_)
+6, 13
+5000
+6 - patternAssign - select assigns with y on RHS, z on LHS
+assign a;
+Select a pattern a("z", _"y"_)
+10
+5000
+7 - patternAssign - select assigns with constant 10 on RHS
+assign a; variable v;
+Select a pattern a(v, _"10"_)
+6, 7
+5000
+8 - patternAssign - select assigns with constant 0 on RHS (should not match d==0)
+assign a;
+Select a pattern a(_, _"0"_)
+3
+5000
+9 - patternAssign - select assigns with b on LHS, y on RHS (should not match just because of LHS match)
+assign a;
+Select a pattern a("b", _"y"_)
+none
+5000
+10 - patternAssign - select variables on LHS of assign pattern
+assign a; variable v;
+Select v pattern a(v, _)
+y, x, b, z
+5000
+11 - patternAssign - select variables on LHS of assign pattern with 2 on rhs 
+assign a; variable v;
+Select v pattern a(v, _"2"_)
+y, x
+5000
+12 - patternAssign - select variables on LHS of assign pattern with 5 on rhs 
+assign a; variable v;
+Select v pattern a(v, _"5"_)
+z
+5000
+13 - patternAssign - as boolean (true) 
+assign a; variable v, v1;
+Select v pattern a(v1, _"5"_)
+x, y, z, d, e, a, b, c
+5000
+14 - patternAssign - as boolean (false) 
+assign a; variable v, v1;
+Select v pattern a(v1, _"99"_)
+none
+5000
+15 - debug
+stmt s;
+Select s
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
