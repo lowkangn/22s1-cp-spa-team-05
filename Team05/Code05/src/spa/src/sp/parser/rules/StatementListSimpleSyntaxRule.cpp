@@ -13,6 +13,7 @@ list<Token> StatementListSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 
 	// then we keep going until we hit }
 	bool seenCloseBracket = false;
+	bool seenOneToken = false;
 	int numOpenBracketSeen = 1;
 	while (!tokens.empty()) {
 		token = tokens.front(); // read
@@ -26,11 +27,19 @@ list<Token> StatementListSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 				break;
 			}
 		}
+		else {
+			seenOneToken = true;
+		}
 		childTokens.push_back(token); // insert all tokens in order within bracket
 	}
 	// if no }, throw exception
 	if (!seenCloseBracket) {
 		throw SimpleSyntaxParserException("Missing closed bracket!");
+	}
+
+	// If not tokens in the statement list return error
+	if (!seenOneToken) {
+		throw SimpleSyntaxParserException("No tokens in statement list");
 	}
 
 	// assign and do state management
@@ -50,7 +59,11 @@ vector<shared_ptr<SimpleSyntaxRule>> StatementListSimpleSyntaxRule::generateChil
 	vector<shared_ptr<SimpleSyntaxRule>> childRules;
 	list<Token> tokens = this->tokens;
 	while (!tokens.empty()) {
-		if (this->isReadStatement(tokens)) { // is read statement
+		// Sanity check
+		if (!(tokens.size() >= 2)) {
+			throw SimpleSyntaxParserException("Less than one token found while trying to parse for a statement in statement list");
+		}
+		else if (this->isReadStatement(tokens)) { // is read statement
 			shared_ptr<SimpleSyntaxRule> assignRulePointer = shared_ptr<SimpleSyntaxRule>(new ReadSimpleSyntaxRule());
 			tokens = assignRulePointer->consumeTokens(tokens);
 			childRules.push_back(assignRulePointer); // add to children nodes in order
@@ -112,7 +125,7 @@ shared_ptr<ASTNode> StatementListSimpleSyntaxRule::constructNode() {
 }
 
 bool StatementListSimpleSyntaxRule::isAssignStatement(list<Token> tokens) {
-	// Create Iterator
+	// Create Iterators
 	list<Token>::iterator it = tokens.begin();
 
 	Token firstElement = *it;
