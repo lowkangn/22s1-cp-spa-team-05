@@ -103,7 +103,7 @@ vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast)
 
 	vector<Relationship> extractedChildRelationships;
 	shared_ptr<ProcedureASTNode> procedureNode = dynamic_pointer_cast<ProcedureASTNode>(ast);
-	shared_ptr<ASTNode> childContainer = procedureNode->getStmtLst();
+	shared_ptr<ASTNode> childContainer = procedureNode->getStmtList();
 
 	// Iterate through children and extract Procedure Stmt relationships
 	for (shared_ptr<ASTNode> child : childContainer->getChildren()) {

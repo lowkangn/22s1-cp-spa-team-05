@@ -12,7 +12,7 @@ string PkbRelationshipTable::add(shared_ptr<PkbRelationship> relationship) {
 
 	// check if item already in table
 	if (this->table.find(key) != this->table.end()) {
-		cout << "Item already in table!";
+		//cout << "Item already in table!";
 	}
 
 	// store

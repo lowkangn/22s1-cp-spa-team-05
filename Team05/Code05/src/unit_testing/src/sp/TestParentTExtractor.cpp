@@ -26,7 +26,7 @@ TEST_CASE("ParentTExtractor: test recursiveExtractFromContainer") {
 		ParentTExtractor extractor = ParentTExtractor();
 
 		// When
-		vector<Relationship> extractedRelationships = extractor.recursiveExtractFromContainer(containerAstNode, leftHandSide);
+		vector<Relationship> extractedRelationships = extractor.recursiveExtractFromContainer(leftHandSide, containerAstNode);
 
 		// Then
 		REQUIRE(extractedRelationships.size() == expectedResult.size());
@@ -90,10 +90,10 @@ TEST_CASE("ParentTExtractor: test recursiveExtractFromContainer") {
 
 		// Creating Relationships
 		Relationship whileParentIf = Relationship::createParentTRelationship(whileEntity, ifEntity);
-		Relationship whileParentX = Relationship::createParentTRelationship(whileEntity, readXEntity);
-		Relationship whileParentY = Relationship::createParentTRelationship(whileEntity, readYEntity);
+		Relationship whileParentAssignX = Relationship::createParentTRelationship(whileEntity, readXEntity);
+		Relationship whileParentAssignY = Relationship::createParentTRelationship(whileEntity, readYEntity);
 
-		vector<Relationship> expectedParentRelationships{ whileParentY, whileParentX, whileParentIf };
+		vector<Relationship> expectedParentRelationships{ whileParentAssignY, whileParentAssignX, whileParentIf };
 
 		test(whileStmtLstNode, whileEntity, expectedParentRelationships);
 	}
@@ -116,6 +116,87 @@ TEST_CASE("ParentTExtractor: test extract") {
 			REQUIRE(extractedRelationships[i].equals(expectedResult[i]));
 		}
 	};
+
+	SECTION("Test nested") {
+		/*
+				procedure main {
+				1.	while (x > 0) {
+				2.		if (x > 0) then {
+				3.			read x;
+						} else {
+				4.			read y;
+						}
+					}
+				}
+			*/
+
+		Token mainToken = Token::createNameOrKeywordToken("main");
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token yToken = Token::createNameOrKeywordToken("y");
+		Token readToken = Token::createReadToken();
+		Token whileToken = Token::createWhileToken();
+		Token ifToken = Token::createIfToken();
+		Token greaterThan = Token::createGreaterThanToken();
+
+		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(mainToken));
+		shared_ptr<ASTNode> mainStmtList(new StatementListASTNode(Token::getPlaceHolderToken()));
+		procedureNode->addChild(mainStmtList);
+
+		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
+		xNode->setLineNumber(3);
+		shared_ptr<ASTNode> yNode(new VariableASTNode(yToken));
+		yNode->setLineNumber(4);
+
+		shared_ptr<ASTNode> readYNode(new ReadASTNode(readToken));
+		readYNode->setLineNumber(4);
+
+		shared_ptr<ASTNode> readXNode(new ReadASTNode(readToken));
+		readXNode->setLineNumber(3);
+
+		shared_ptr<ASTNode> whileNode(new WhileASTNode(whileToken));
+		whileNode->setLineNumber(1);
+
+		mainStmtList->addChild(whileNode);
+
+		shared_ptr<ASTNode> whileStmtLstNode(new StatementListASTNode(Token::getPlaceHolderToken()));
+		shared_ptr<ASTNode> whileCond(new ExpressionASTNode(greaterThan));
+
+		whileNode->addChild(whileCond);
+		whileNode->addChild(whileStmtLstNode);
+
+		shared_ptr<ASTNode> ifNode(new IfASTNode(ifToken));
+		shared_ptr<ASTNode> ifCond(new ExpressionASTNode(greaterThan));
+		ifNode->setLineNumber(2);
+
+		whileStmtLstNode->addChild(ifNode);
+
+		shared_ptr<ASTNode> thenStmtLstNode(new StatementListASTNode(Token::getPlaceHolderToken()));
+		shared_ptr<ASTNode> elseStmtLstNode(new StatementListASTNode(Token::getPlaceHolderToken()));
+
+		ifNode->addChild(ifCond);
+		ifNode->addChild(thenStmtLstNode);
+		ifNode->addChild(elseStmtLstNode);
+
+		thenStmtLstNode->addChild(readXNode);
+		elseStmtLstNode->addChild(readYNode);
+
+		// Create entities
+		Entity whileEntity = Entity::createWhileEntity(1);
+		Entity ifEntity = Entity::createIfEntity(2);
+		Entity readXEntity = Entity::createReadEntity(3);
+		Entity readYEntity = Entity::createReadEntity(4);
+
+		// Creating Relationships
+		Relationship whileParentTIf2 = Relationship::createParentTRelationship(whileEntity, ifEntity);
+		Relationship whileParentTAssign3 = Relationship::createParentTRelationship(whileEntity, readXEntity);
+		Relationship whileParentTAssign4 = Relationship::createParentTRelationship(whileEntity, readYEntity);
+		Relationship ifParentTAssign3 = Relationship::createParentTRelationship(ifEntity, readXEntity);
+		Relationship ifParentTAssign4 = Relationship::createParentTRelationship(ifEntity, readYEntity);
+
+		vector<Relationship> expectedParentRelationships{ ifParentTAssign4, ifParentTAssign3, whileParentTAssign4, whileParentTAssign3, whileParentTIf2 };
+
+		test(procedureNode, expectedParentRelationships);
+	}
 
 
 	SECTION("Full test") {
@@ -306,16 +387,16 @@ TEST_CASE("ParentTExtractor: test extract") {
 		Entity y8Entity = Entity::createVariableEntity(y8Node->getLineNumber(), yToken);
 
 		// Creating Relationships
-		Relationship whileParentX = Relationship::createParentTRelationship(whileEntity, assign4Entity);
-		Relationship whileParentPrint = Relationship::createParentTRelationship(whileEntity, printEntity);
-		Relationship whileParentAssignX = Relationship::createParentTRelationship(whileEntity, assign7Entity);
-		Relationship whileParentAssignY = Relationship::createParentTRelationship(whileEntity, assign8Entity);
-		Relationship whileParentIf = Relationship::createParentTRelationship(whileEntity, ifEntity);
+		Relationship whileParentTAssign4 = Relationship::createParentTRelationship(whileEntity, assign4Entity);
+		Relationship whileParentTPrint5 = Relationship::createParentTRelationship(whileEntity, printEntity);
+		Relationship whileParentTAssign7 = Relationship::createParentTRelationship(whileEntity, assign7Entity);
+		Relationship whileParentTAssign8 = Relationship::createParentTRelationship(whileEntity, assign8Entity);
+		Relationship whileParentTIf6 = Relationship::createParentTRelationship(whileEntity, ifEntity);
 
-		Relationship ifParentX = Relationship::createParentTRelationship(ifEntity, assign7Entity);
-		Relationship ifParentY = Relationship::createParentTRelationship(ifEntity, assign8Entity);
+		Relationship ifParentTAssign7 = Relationship::createParentTRelationship(ifEntity, assign7Entity);
+		Relationship ifParentTAssign8 = Relationship::createParentTRelationship(ifEntity, assign8Entity);
 
-		vector<Relationship> expectedParentRelationships{ ifParentY, ifParentX , whileParentAssignY, whileParentAssignX, whileParentX, whileParentPrint, whileParentIf };
+		vector<Relationship> expectedParentRelationships{ ifParentTAssign8, ifParentTAssign7 , whileParentTAssign8, whileParentTAssign7, whileParentTAssign4, whileParentTPrint5, whileParentTIf6 };
 
 		test(procedureNode, expectedParentRelationships);
 	}
