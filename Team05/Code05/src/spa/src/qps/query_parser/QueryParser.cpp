@@ -82,17 +82,19 @@ shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, 
 }
 
 shared_ptr<PatternClause> QueryParser::parsePattern(unordered_map<string, ArgumentType> declarations) {
-	if (this->tokens.empty() ) {
-		throw PQLError("Missing synonym after pattern");
+	if (this->tokens.empty() || !this->tokens.front().isName()) {
+		throw PQLSyntaxError("Missing synonym after pattern");
 	}
 
 	PQLToken token = this->tokens.front();
-	shared_ptr<PatternParser> parserPointer;
 
-	if (declarations.at(token.getTokenString()) == ArgumentType::ASSIGN) {
+	shared_ptr<PatternParser> parserPointer;
+    //first check is required to prevent .at from throwing when synonym is not declared
+    bool isSynonymDeclared = declarations.count(token.getTokenString()) > 0;
+	if (isSynonymDeclared && declarations.at(token.getTokenString()) == ArgumentType::ASSIGN) {
 		parserPointer = shared_ptr<PatternParser>(new PatternAssignParser(this->tokens, declarations));
 	} else {
-		throw PQLError("Invalid synonym in pattern");
+		throw PQLSemanticError("Invalid synonym in pattern");
 	}
 
 	shared_ptr<PatternClause> clause = parserPointer->parse();

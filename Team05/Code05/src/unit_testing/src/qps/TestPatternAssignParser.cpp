@@ -296,14 +296,14 @@ TEST_CASE("PatternAssignParser: test parsePatternAssignNoError") {
 
 }
 
-TEST_CASE("PatternAssignParser: test parseWithError") {
+TEST_CASE("PatternAssignParser: test parseWithSemanticError") {
 	auto testParseWithError = [](list<PQLToken> tokens,
-								 unordered_map<string, ArgumentType> declarations) {
-		// given
-		PatternAssignParser parser = PatternAssignParser(tokens, declarations);
+		unordered_map<string, ArgumentType> declarations) {
+			// given
+			PatternAssignParser parser = PatternAssignParser(tokens, declarations);
 
-		// then
-		REQUIRE_THROWS_AS(parser.parse(), PQLError);
+			// then
+			REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
 	};
 
 	SECTION("Invalid second argument") {
@@ -454,6 +454,18 @@ TEST_CASE("PatternAssignParser: test parseWithError") {
 
 		testParseWithError(tokensList, declarationsMap);
 	}
+
+}
+
+TEST_CASE("PatternAssignParser: test parseWithSyntaxError") {
+	auto testParseWithError = [](list<PQLToken> tokens,
+		unordered_map<string, ArgumentType> declarations) {
+			// given
+			PatternAssignParser parser = PatternAssignParser(tokens, declarations);
+
+			// then
+			REQUIRE_THROWS_AS(parser.parse(), PQLSyntaxError);
+	};
 
 	SECTION("Invalid third argument") {
 
