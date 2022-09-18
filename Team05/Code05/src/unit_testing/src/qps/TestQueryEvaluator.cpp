@@ -1835,6 +1835,14 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
 		expectedSet = set<string>{"x"};
 		testEvaluate(query, expectedSet, pkb);
+
+		// Select a such that Follows(_, a) pattern a(_, "y") (Double wildcard, exposed bug in combinedTableJoin, now fixed)
+		selectClause = make_shared<SelectClause>(assignArg);
+		relationshipClause = shared_ptr<RelationshipClause>(new FollowsClause(wildcardArg, assignArg));
+		patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, wildcardArg, a2PatternStringWithWildcardsArg));
+		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
+		expectedSet = set<string>{"2"};
+		testEvaluate(query, expectedSet, pkb);
 	}
 
 
