@@ -18,25 +18,6 @@
 #include <vector>
 #include <memory>
 
-TEST_CASE("PatternExtractor: infix to postfix") {
-	auto test = [](string infixString, string expectedString) {
-		// Given
-		PatternExtractor extractor = PatternExtractor();
-
-		// When
-		string convertedString = extractor.convertInfixToPostFix(infixString);
-
-		// Then
-		REQUIRE(convertedString == expectedString);
-	};
-
-	test("A+B*C+D", "ABC*+D+");
-	test("x*y/(5*z)+2", "xy*5z*/2+");
-	test("x*y/(5*z)+2%3", "xy*5z*/23%+");
-	test("y+5%3", "y53%+");
-	test("v+x*y+z*t", "vxy*+zt*+");
-}
-
 
 TEST_CASE("PatternExtractor: test handleAssign") {
 	auto test = [](shared_ptr<ASTNode> ast, vector<Pattern> expectedResult) {
