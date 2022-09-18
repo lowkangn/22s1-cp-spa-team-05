@@ -12,24 +12,16 @@ void QPS::evaluate(string queryString, shared_ptr<PKBQueryHandler> pkb) {
 		Query query = parser.parse();
 
 		// evaluate
-		evaluatorResults = QueryEvaluator().evaluate(query, pkb);
+		this->evaluatorResults = QueryEvaluator().evaluate(query, pkb);
 	}
-	catch (PQLSemanticError e) {
-		cout << e.what();
-		cout << "\n";
-		evaluatorResults.clear();
-		evaluatorResults.insert("SemanticError");
+	catch (const PQLSemanticError& e) {
+		this->handleSemanticError(e);
 	}
-	catch (PQLSyntaxError e) {
-		cout << e.what();
-		cout << "\n";
-		evaluatorResults.clear();
-		evaluatorResults.insert("SyntaxError");
+	catch (const PQLSyntaxError& e) {
+		this->handleSyntaxError(e);
 	}
-	catch (PQLLogicError e) {
-		cout << e.what();
-		cout << "\n";
-		evaluatorResults.clear();
+	catch (const PQLLogicError& e) {
+		this->handleLogicError(e);
 	}
 };
 

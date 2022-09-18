@@ -20,8 +20,12 @@ void ParentParser::checkArguments(list<ClauseArgument>& args) {
 
 
 	for (ClauseArgument arg : args) {
+		if (arg.isStringLiteral()) {
+			throw PQLSyntaxError("Both args for Parent/Parent* must be stmtRefs, which cannot be a string");
+		}
+
 		if (!arg.isWildcard() && !arg.isStmtRefNoWildcard()) {
-			throw PQLSemanticError("Both args for Parent/Parent^ must be stmtRefs");
+			throw PQLSemanticError("Both args for Parent/Parent* must be stmtRefs");
 		}
 	}
 

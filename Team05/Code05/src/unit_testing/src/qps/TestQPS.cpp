@@ -6,14 +6,14 @@ namespace {
 	/* Corresponds to the following SIMPLE source (with line numbers)
 		procedure main {
 	1:		while (v > 1) {
-	2:			y = x + 1;
+	2:			y = x + 1 * 0;
 	3:			if (b > 0) then {
 	4:				read x;
 				} else {
 	5:				read y;
 	6:				read stmt;
 				}
-	7:			z = 1000 - 0 + 0;
+	7:			z = 1000 - 0 + b;
 			}
 	8:		print x;
 		}
@@ -25,10 +25,10 @@ namespace {
 	Follows*: Follows, (2,7)
 	ModifiesS: (1,y), (1,x), (1,stmt), (1,z), (2,y), (3,x), (3,y), (3, stmt), (4,x), (5,y), (6,stmt), (7,z)
 	ModifiesP: (main, rhsM) where rhsM is an rhs of ModifiesS
-	UsesS: (1,v), (1,x), (1,b), (2,x), (3,b) (8,x)
+	UsesS: (1,v), (1,x), (1,b), (2,x), (3,b), (7,b) (8,x)
 	UsesP: (main, rhsU) where rhsU is an rhs of UsesS
-	PatternAssign: 2(y, _"x"_), 2(y, _"1"_), 2(y, _"x+1"_), 2(y, "x+1"),
-				   7(z, _"0"_), 7(z, _"1000"_), 7(z, _"1000-0"_), 7(z, _"1000-0+0"_), 7(z, "1000-0+0") 
+	PatternAssign: 2(y, _"x"_), 2(y, _"1"_), 2(y, _"0"_), 2(y, _"1*0"_), 2(y, _"x+1*0"_), 2(y, "x+1*0"),
+				   7(z, _"0"_), 7(z, _"1000"_), 7(z, _"1000-0"_), 7(z, _"1000-0+b"_), 7(z, "1000-0+b") 
 	*/
 
 	// Initialise statement entities
@@ -60,15 +60,16 @@ namespace {
 	Entity y2 = Entity::createVariableEntity(2, yToken);
 	Entity x2 = Entity::createVariableEntity(2, xToken);
 	Entity constOne2 = Entity::createConstantEntity(2, constOneToken);
+	Entity constZero2 = Entity::createConstantEntity(2, constZeroToken);
 	Entity b3 = Entity::createVariableEntity(3, bToken);
 	Entity constZero3 = Entity::createConstantEntity(3, constZeroToken);
 	Entity x4 = Entity::createVariableEntity(4, xToken);
 	Entity y5 = Entity::createVariableEntity(5, yToken);
 	Entity stmt6 = Entity::createVariableEntity(6, stmtToken);
 	Entity z7 = Entity::createVariableEntity(7, zToken);
-	Entity constZero7First = Entity::createConstantEntity(7, constZeroToken);
-	Entity constZero7Second = Entity::createConstantEntity(7, constZeroToken);
+	Entity constZero7 = Entity::createConstantEntity(7, constZeroToken);
 	Entity constOneThousand7 = Entity::createConstantEntity(7, constOneThousandToken);
+	Entity b7 = Entity::createVariableEntity(7, bToken);
 	Entity x8 = Entity::createVariableEntity(8, xToken);
 
 	// Initialise parent relationships
@@ -136,8 +137,8 @@ namespace {
 
 
 	// Initialise PatternAssigns
-	Pattern patternA2Y2 = Pattern::createAssignPattern(a2.getLine(), yToken.getString(), "x1+"); //is x+1
-	Pattern patternA7Z7 = Pattern::createAssignPattern(a7.getLine(), zToken.getString(), "10000-0+");
+	Pattern patternA2Y2 = Pattern::createAssignPattern(a2.getLine(), yToken.getString(), "x10*+"); //is x+1*0
+	Pattern patternA7Z7 = Pattern::createAssignPattern(a7.getLine(), zToken.getString(), "10000-b+"); //is 1000-0+b
 };
 
 TEST_CASE("QPS: test working correctly") {
@@ -168,7 +169,7 @@ TEST_CASE("QPS: test working correctly") {
 	
 	vector<Entity> entities{ 
 		w1, a2, i3, r4, r5, r6, a7, p8, main, v1, constOne1, y2, x2, constOne2, b3, constZero3,
-		x4, y5, stmt6, z7, constZero7First, constZero7Second, constOneThousand7, x8 };
+		x4, y5, stmt6, z7, constZero7, constOneThousand7, b7, x8 };
 	
 	vector<Relationship> allParentAndParentStar{ 
 		parentW1A2, parentW1I3, parentW1A7, parentI3R4, parentI3R5, parentI3R6,
@@ -254,7 +255,7 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{ "v", "x", "b" };
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "variable variable; \n Select stmt such that Follows(1, 8)";
+		queryString = "variable variable; \n Select variable such that Follows(1, 8)";
 		expectedResult = set<string>{ "v", "y", "x", "b", "z", "stmt" };
 		testQPS(queryString, expectedResult, pkb);
 
@@ -262,19 +263,17 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{ "2" };
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "assign a; \n Select a such that Follows(3, a)";
+		queryString = "assign a; \n Select a such that Follows(2, a)";
 		expectedResult = set<string>{};
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "assign a; \n Select a such that Follows*(3, a)";
-		expectedResult = set<string>{ "3" };
+		queryString = "assign a; \n Select a such that Follows*(2, a)";
+		expectedResult = set<string>{ "7" };
 		testQPS(queryString, expectedResult, pkb);
 	}
 
 	SECTION("Select and Pattern") {
-		/*
-		*/
-		
+		/*TODO: Uncomment when Pattern is done
 		queryString = "assign a; \n Select a Pattern a(\"y\", _)";
 		expectedResult = set<string>{ "2" };
 		testQPS(queryString, expectedResult, pkb);
@@ -287,10 +286,14 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{ "2"};
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "assign a; variable v; \n Select v Pattern a(v, _\"0\"_ )";
-		expectedResult = set<string>{ "z" };
+		queryString = "assign a; stmt s; \n Select s Pattern a(v, _\"1000\"_ )";
+		expectedResult = set<string>{ "1", "2", "3", "4", "5", "6", "7", "8" };
 		testQPS(queryString, expectedResult, pkb);
 
+		queryString = "assign a; stmt s; \n Select s Pattern a(v, _\"100\"_ )";
+		expectedResult = set<string>{};
+		testQPS(queryString, expectedResult, pkb);
+		*/
 		/* Not needed for iter 1, but I think it already works
 		
 		queryString = "assign a; variable v; \n Select v Pattern a(v,  _\"1000-0\"_ )";
@@ -301,12 +304,44 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{};
 		testQPS(queryString, expectedResult, pkb);
 
+		queryString = "assign a; variable v; \n Select a Pattern a(v,  _\"1*0\"_ )";
+		expectedResult = set<string>{ "2" };
+		testQPS(queryString, expectedResult, pkb);
 
+		queryString = "assign a; variable v; \n Select a Pattern a(v,  _\"x+1\"_ )";
+		expectedResult = set<string>{ };
+		testQPS(queryString, expectedResult, pkb);
 		*/
 	}
 
 	SECTION("Select, such that and Pattern") {
-		//TODO
+		/*TODO: Uncomment when Pattern is done
+		// Select assignments that follow line 2 and has an RHS with 0 in it
+		queryString = "assign a; \n Select a such that Follows(2,a) Pattern a(v, _\"0\"_ )";
+		expectedResult = set<string>{};
+		testQPS(queryString, expectedResult, pkb);
+
+		// Select assignments that follow* line 2 and has an RHS with 0 in it
+		queryString = "assign a; \n Select a such that Follows*(2,a) Pattern a(v, _\"0\"_ )";
+		expectedResult = set<string>{ "7" };
+		testQPS(queryString, expectedResult, pkb);
+
+		// Select variables that are used in an assignment that has an RHS with 1000 in it and has line 1 as its parent 
+		queryString = "assign a; variable v; \n Select v such that Parent(1,a) Pattern a(v, _\"1000\"_ )";
+		expectedResult = set<string>{ "z" };
+		testQPS(queryString, expectedResult, pkb);
+
+		// Select assignments whose LHS has a variable that is used by an if
+		queryString = "assign a; if i \n Select a Pattern a(v, _ ) such that Uses(i, v)" ;
+		expectedResult = set<string>{ "y" };
+		testQPS(queryString, expectedResult, pkb);
+
+		// Select constants iff there is an assignment of the form y = ...0... and a while is a parent of an if
+		queryString = "assign a; constant c; if i; while w; \n Select c Pattern a(\"y\", _\"0\"_ ) such that Parent(w, i) " ;
+		expectedResult = set<string>{ "2" };
+		testQPS(queryString, expectedResult, pkb);
+		*/
+
 	}
 }
 
@@ -356,6 +391,15 @@ TEST_CASE("QPS: test correct errors") {
 
 		queryString = "stmt s; Select s that";
 		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s; select s";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s;\n Select s such that Follows*(\"x\", s)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s;\n Select s such that Parent*(\"main\", s)";
+		testQPS(queryString, expectedResult);
 	}
 
 	SECTION("Semantic errors") {
@@ -373,7 +417,13 @@ TEST_CASE("QPS: test correct errors") {
 		queryString = "stmt s; constant c;\n Select s such that Parent(s, c)";
 		testQPS(queryString, expectedResult);
 
-		queryString = "stmt s;\n Select s such that Parent*(\"main\", s)";
+		queryString = "stmt s; constant c;\n Select s such that Parent*(c, s)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s; procedure p;\n Select s such that Follows(s, p)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s; procedure p;\n Select s such that Follows(p, s)";
 		testQPS(queryString, expectedResult);
 
 		queryString = "stmt s; \n Select s such that Uses(_, \"x\")";

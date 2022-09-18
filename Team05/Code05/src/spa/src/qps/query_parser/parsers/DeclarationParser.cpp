@@ -20,6 +20,8 @@ unordered_map<string, ArgumentType> DeclarationParser::parse() {
 void DeclarationParser::parseOneDeclaration() {
 	PQLToken designEntityToken = this->tokens.front();
 	this->tokens.pop_front();
+	ArgumentType argType = getDesignEntityArgumentType(designEntityToken.getTokenString());
+
 	PQLToken token = this->tokens.front();
 	bool isSynonymExpected = true;
 
@@ -38,7 +40,7 @@ void DeclarationParser::parseOneDeclaration() {
 		}
 		string synonym = token.getTokenString();
 		ensureSynonymNotDeclared(synonym);
-		this->declarations.insert({ synonym,  getDesignEntityArgumentType(designEntityToken.getTokenString())});
+		this->declarations.insert({ synonym, argType});
 		isSynonymExpected = false;
 	}
 

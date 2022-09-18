@@ -13,6 +13,27 @@
 class QPS {
 private:
 	set<string> evaluatorResults;
+
+	void handleSemanticError(const PQLSemanticError& e) {
+		cout << e.what();
+		cout << "\n";
+		evaluatorResults.clear();
+		evaluatorResults.insert("SemanticError");
+	}
+
+	void handleSyntaxError(const PQLSyntaxError& e) {
+		cout << e.what();
+		cout << "\n";
+		evaluatorResults.clear();
+		evaluatorResults.insert("SyntaxError");
+	}
+
+	void handleLogicError(const PQLLogicError& e) {
+		cout << e.what();
+		cout << "\n";
+		evaluatorResults.clear();
+	}
+
 public:
 	void evaluate(string queryStream, shared_ptr<PKBQueryHandler> pkb);
 	

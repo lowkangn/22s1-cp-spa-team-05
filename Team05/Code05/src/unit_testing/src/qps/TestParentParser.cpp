@@ -249,26 +249,6 @@ TEST_CASE("ParentParser: test parseWithSemanticError") {
         testParseWithError(tokensList, declarationsMap);
     }
 
-    SECTION("Illegal arguments: name string") {
-        tokensList = list<PQLToken>{
-            PQLToken::createNameToken("Parent"),
-            PQLToken::createDelimiterToken("*"),
-            PQLToken::createDelimiterToken("("),
-            PQLToken::createNameToken("s1"),
-            PQLToken::createDelimiterToken(","),
-            PQLToken::createDelimiterToken("\""),
-            PQLToken::createNameToken("someString"),
-            PQLToken::createDelimiterToken("\""),
-            PQLToken::createDelimiterToken(")")
-        };
-
-        declarationsMap = unordered_map<string, ArgumentType>{
-            {"s1", ArgumentType::STMT}
-        };
-
-        testParseWithError(tokensList, declarationsMap);
-    }
-
     SECTION("Undeclared synonym") {
         tokensList = list<PQLToken>{
             PQLToken::createNameToken("Parent"),
@@ -307,6 +287,26 @@ TEST_CASE("ParentParser: test parseWithSyntaxError") {
             PQLToken::createDelimiterToken(","),
             PQLToken::createDelimiterToken("\""),
             PQLToken::createIntegerToken("12"),
+            PQLToken::createDelimiterToken("\""),
+            PQLToken::createDelimiterToken(")")
+        };
+
+        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+            {"s1", ArgumentType::STMT}
+        };
+
+        testParseWithError(tokensList, declarationsMap);
+    }
+
+    SECTION("Illegal arguments: name string") {
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken::createNameToken("Parent"),
+            PQLToken::createDelimiterToken("*"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("s1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createDelimiterToken("\""),
+            PQLToken::createNameToken("someString"),
             PQLToken::createDelimiterToken("\""),
             PQLToken::createDelimiterToken(")")
         };
