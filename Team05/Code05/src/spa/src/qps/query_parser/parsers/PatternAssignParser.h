@@ -17,4 +17,6 @@ public:
 
 	shared_ptr<PatternClause> createClause(PQLToken clauseTypeToken, vector<ClauseArgument>& args) override;
 
+	vector<ClauseArgument> extractArguments() override;
+
 };

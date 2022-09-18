@@ -33,3 +33,44 @@ shared_ptr<PatternClause> PatternAssignParser::createClause(PQLToken clauseTypeT
 
 	return shared_ptr<PatternClause>(new PatternAssignClause(args[0], args[1], args[2]));
 }
+
+vector<ClauseArgument> PatternAssignParser::extractArguments() {
+	vector<ClauseArgument> output;
+
+	// get first arg
+	ClauseArgument firstArg = parseOneArgument();
+	output.push_back(firstArg);
+
+	// check '('
+	consumeOpenBracket();
+
+	// get second arg
+	ClauseArgument secondArg = parseOneArgument();
+	output.push_back(secondArg);
+
+	// check ','
+	consumeComma();
+
+	if (this->tokens.front().isUnderscore()) {
+		PQLToken wildcardToken = this->tokens.front();
+		this->tokens.pop_front();
+
+		if (this->tokens.empty() || !this->tokens.front().isQuote()) {
+			ClauseArgument thirdArg = ClauseArgument::createWildcardArg();
+			output.push_back(thirdArg);
+		} else {
+			ClauseArgument thirdArg = parsePatternStringWithWildcards();
+			output.push_back(thirdArg);
+		}
+	} else if (this->tokens.front().isQuote()) {
+		ClauseArgument thirdArg = parsePatternString();
+		output.push_back(thirdArg);
+	} else {
+		throw PQLError("Invalid third argument");
+	}
+
+	// check ')'
+	consumeCloseBracket();
+
+	return output;
+}

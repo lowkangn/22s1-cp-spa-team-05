@@ -1,5 +1,4 @@
 #include <qps/query_parser/parsers/ClauseParser.h>
-#include <common/PostFixConverter.h>
 
 ClauseArgument ClauseParser::parseSynonym() {
     PQLToken synonymToken = this->tokens.front();
@@ -16,20 +15,20 @@ ClauseArgument ClauseParser::parseOneArgument() {
 		return parseSynonym();
 	}
 	else if (token.isQuote()) {
-		return parseStringLiteralOrPatternString();
+		return parseStringLiteral();
 	}
 	else if (token.isInteger()) {
 		return parseStatementNumber();
 	}
 	else if (token.isUnderscore()) {
-		return parseWildcardOrPatternStringWithWildcards();
+		return parseWildcard();
 	}
 	else {
 		throw PQLError("Expected stmtRef or entRef, got: " + token.getTokenString());
 	}
 }
 
-ClauseArgument ClauseParser::parseStringLiteralOrPatternString() {
+ClauseArgument ClauseParser::parseStringLiteral() {
 	// Ignore '"' token
 	this->tokens.pop_front();
 
@@ -39,31 +38,10 @@ ClauseArgument ClauseParser::parseStringLiteralOrPatternString() {
 	}
 	this->tokens.pop_front();
 
-	// If next is quote, is a string literal
-	if (this->tokens.front().isQuote()) {
-		// Ignore '"' token
-		this->tokens.pop_front();
-
-		return ClauseArgument::createStringLiteralArg(token.getTokenString());
-	}
-
-	// Add token strings to pattern string until quote
-	string s = token.getTokenString();
-	while(!this->tokens.front().isQuote()) {
-		PQLToken currentToken = this->tokens.front();
-		s += currentToken.getTokenString();
-		this->tokens.pop_front();
-	}
-
-	// Check quote
-	if(this->tokens.empty() || !this->tokens.front().isQuote()) {
-		throw PQLError("Expected closing quote");
-	}
+	// Ignore '"' token
 	this->tokens.pop_front();
 
-	PostFixConverter converter = PostFixConverter();
-	string postFixString = converter.convertInfixToPostFix(s);
-	return ClauseArgument::createPatternStringArg(postFixString);
+	return ClauseArgument::createStringLiteralArg(token.getTokenString());
 }
 
 ClauseArgument ClauseParser::parseStatementNumber() {
@@ -72,29 +50,10 @@ ClauseArgument ClauseParser::parseStatementNumber() {
 	return ClauseArgument::createLineNumberArg(stmtNumToken.getTokenString());
 }
 
-ClauseArgument ClauseParser::parseWildcardOrPatternStringWithWildcards() {
+ClauseArgument ClauseParser::parseWildcard() {
 	PQLToken wildCardToken = this->tokens.front();
 	this->tokens.pop_front();
-
-	// If next token is quote, is a string with wildcards, else is wildcard
-	if(!this->tokens.front().isQuote()) {
-		return ClauseArgument::createWildcardArg();
-	}
-
-	ClauseArgument patternString = this->parseStringLiteralOrPatternString();
-
-	// Check underscore
-	if(this->tokens.empty() || !this->tokens.front().isUnderscore()) {
-		throw PQLError("Expected closing underscore");
-	}
-	this->tokens.pop_front();
-
-	// Add wildcards
-	string s = "_";
-	s += patternString.getIdentifier();
-	s += "_";
-
-	return ClauseArgument::createPatternStringWithWildcardsArg(s);
+	return ClauseArgument::createWildcardArg();
 }
 
 void ClauseParser::consumeOpenBracket() {
