@@ -98,17 +98,17 @@ TEST_CASE("UsesParser: test parseUsesPNoError") {
 }
 
 
-TEST_CASE("UsesParser: test parseWithError") {
+TEST_CASE("UsesParser: test parseWithSyntaxError") {
     auto testParseWithError = [](list<PQLToken> tokens,
         unordered_map<string, ArgumentType> declarations) {
             // given
             UsesParser parser = UsesParser(tokens, declarations);
 
             // then
-            REQUIRE_THROWS_AS(parser.parse(), PQLError);
+            REQUIRE_THROWS_AS(parser.parse(), PQLSyntaxError);
     };
 
-    SECTION("Undeclared / misspelled synonym") {
+    SECTION("Incomplete clause") {
 
         list<PQLToken> tokensList = list<PQLToken>{
             PQLToken::createNameToken("Uses"),
@@ -120,8 +120,22 @@ TEST_CASE("UsesParser: test parseWithError") {
         };
 
         testParseWithError(tokensList, declarationsMap);
+    }
 
-        tokensList = list<PQLToken>{
+}
+
+TEST_CASE("UsesParser: test parseWithSemanticError") {
+    auto testParseWithError = [](list<PQLToken> tokens,
+        unordered_map<string, ArgumentType> declarations) {
+            // given
+            UsesParser parser = UsesParser(tokens, declarations);
+
+            // then
+            REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
+    };
+
+    SECTION("Undeclared / misspelled synonym") {
+        list<PQLToken> tokensList = list<PQLToken>{
             PQLToken::createNameToken("Uses"),
             PQLToken::createDelimiterToken("("),
             PQLToken::createNameToken("s1"),
@@ -130,14 +144,12 @@ TEST_CASE("UsesParser: test parseWithError") {
             PQLToken::createDelimiterToken(")")
         };
 
-        declarationsMap = unordered_map<string, ArgumentType>{
+        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
             {"v2", ArgumentType::VARIABLE},
             {"s1", ArgumentType::STMT}
         };
-
         testParseWithError(tokensList, declarationsMap);
     }
-
     SECTION("Illegal arguments") {
         list<PQLToken> tokensList = list<PQLToken>{
             PQLToken::createNameToken("Uses"),
@@ -158,7 +170,7 @@ TEST_CASE("UsesParser: test parseWithError") {
         tokensList = list<PQLToken>{
             PQLToken::createNameToken("Uses"),
             PQLToken::createDelimiterToken("("),
-            PQLToken::createDelimiterToken("s1"),
+            PQLToken::createNameToken("s1"),
             PQLToken::createDelimiterToken(","),
             PQLToken::createNameToken("s2"),
             PQLToken::createDelimiterToken(")")
@@ -171,5 +183,4 @@ TEST_CASE("UsesParser: test parseWithError") {
 
         testParseWithError(tokensList, declarationsMap);
     }
-
 }

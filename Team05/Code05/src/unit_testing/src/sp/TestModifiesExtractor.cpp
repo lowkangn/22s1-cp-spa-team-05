@@ -15,6 +15,7 @@
 #include <sp/dataclasses/ast/IfASTNode.h>
 #include <sp/dataclasses/ast/AssignASTNode.h>
 #include <sp/dataclasses/ast/ReadASTNode.h>
+#include <sp/dataclasses/ast/ProgramASTNode.h>
 
 using namespace std;
 
@@ -79,6 +80,47 @@ TEST_CASE("ModifiesExtractor: test handleAssign") {
 
 }
 
+TEST_CASE("ModifiesExtractor: test handleAssign exceptions") {
+
+	auto handleAssignException = [](shared_ptr<ASTNode> ast) {
+		// Given
+		ModifiesExtractor extractor = ModifiesExtractor();
+		
+		REQUIRE_THROWS_AS(extractor.handleAssign(ast), ASTException);
+	};
+
+	// Test exception on valid read node for handleAssign
+	const int LINENUMBER = 1;
+
+	Token leftToken = Token::createNameOrKeywordToken("x");
+	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
+
+	// read x;
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token readToken = Token::createReadToken();
+
+
+	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
+
+	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
+
+	x->setLineNumber(1);
+	readNode->setLineNumber(1);
+
+	readNode->addChild(x);
+
+	Entity lineEntity = Entity::createReadEntity(1);;
+	Entity xEntity = Entity::createVariableEntity(1, xToken);
+
+	Relationship readRelation = Relationship::createModifiesRelationship(lineEntity, xEntity);
+
+
+	vector<Relationship> expectedResult = vector<Relationship>{ readRelation };
+
+
+	handleAssignException(readNode);
+}
+
 TEST_CASE("ModifiesExtractor: test handleRead") {
 
 
@@ -121,11 +163,62 @@ TEST_CASE("ModifiesExtractor: test handleRead") {
 
 	Relationship readRelation = Relationship::createModifiesRelationship(lineEntity, xEntity);
 
-
 	vector<Relationship> expectedResult = vector<Relationship>{ readRelation };
 
 	testHandleRead(readNode, expectedResult);
 
+}
+
+TEST_CASE("ModifiesExtractor: test read exceptions") {
+	auto handleReadException = [](shared_ptr<ASTNode> ast) {
+		// Given
+		ModifiesExtractor extractor = ModifiesExtractor();
+
+		REQUIRE_THROWS_AS(extractor.handleRead(ast), ASTException);
+	};
+
+	const int LINENUMBER = 1;
+
+	Token leftToken = Token::createNameOrKeywordToken("x");
+	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
+
+	// should throw exception on non-read node e.g. assign node
+	// x = x + 1
+
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token addToken = Token::createPlusToken();
+	Token constToken = Token::createIntegerToken("1");
+	Token assignToken = Token::createEqualsToken();
+
+	Entity assignEntity = Entity::createAssignEntity(1);
+
+	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+
+	shared_ptr<ASTNode> addNode(new ExpressionASTNode(addToken));
+
+	shared_ptr<ASTNode> x(new VariableASTNode(xToken));
+
+	shared_ptr<ASTNode> constNode(new ConstantValueASTNode(constToken));
+	Entity constEntity = Entity::createConstantEntity(LINENUMBER, constToken);
+
+
+	addNode->setLineNumber(1);
+	assignNode->setLineNumber(1);
+	x->setLineNumber(1);
+	constNode->setLineNumber(1);
+
+	assignNode->addChild(x);
+	assignNode->addChild(addNode);
+
+	addNode->addChild(x);
+	addNode->addChild(constNode);
+
+
+	Relationship modifiesX = Relationship::createModifiesRelationship(assignEntity, LHS);
+
+	vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
+
+	handleReadException(assignNode);
 }
 
 TEST_CASE("ModifiesExtractor: test handleProcedure") {
@@ -158,6 +251,7 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 		}
 	*/
 	// Creating tokens
+
 	Token mainToken = Token::createNameOrKeywordToken("main");
 	Token xToken = Token::createNameOrKeywordToken("x");
 	Token yToken = Token::createNameOrKeywordToken("y");
@@ -165,7 +259,6 @@ TEST_CASE("ModifiesExtractor: test handleProcedure") {
 	Token readToken = Token::createReadToken();
 	Token assignToken = Token::createEqualsToken();
 	Token stmtLst = Token::createPlaceholderToken();
-
 
 	// Creating nodes
 	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
@@ -427,15 +520,22 @@ TEST_CASE("ModifiesExtractor: test extract") {
 
 		// Then
 		REQUIRE(expectedResult.size() == extractedResult.size());
-
+		
+		/* 
+			Refactored this test case: cannot guarantee that order of traversal in extractedResult same as order in expectedResult. 
+			Generalised this test case to check if extracted relationships are contained in expected result
+		*/
 		for (int i = 0; i < extractedResult.size(); i++) {
-			bool result = extractedResult[i].equals(expectedResult[i]);
-			REQUIRE(extractedResult[i].equals(expectedResult[i]));
+			bool isInExpectedResult = false;
+			for (int j = 0; j < expectedResult.size(); j++) {
+				isInExpectedResult |= extractedResult[i].equals(expectedResult[j]);
+			}
+			REQUIRE(isInExpectedResult);
 		}
+		
 	};
 
-	SECTION("Test 1") {
-		const int LINENUMBER = 1;
+	const int LINENUMBER = 1;
 
 		Token leftToken = Token::createNameOrKeywordToken("x");
 		Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
@@ -481,12 +581,11 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		addNode2->addChild(y);
 
 
-	Relationship modifiesX = Relationship::createModifiesRelationship(assignEntity, LHS);
+		Relationship modifiesX = Relationship::createModifiesRelationship(assignEntity, LHS);
 
 		vector<Relationship> expectedResult = vector<Relationship>{ modifiesX };
 
 		testExtract(assignNode, expectedResult);
-	}
 
 	SECTION("KN Test") {
 		/*

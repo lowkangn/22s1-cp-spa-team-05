@@ -27,7 +27,6 @@ vector<Relationship> SourceProcessor::extractRelations() {
 	if (!this->isInitialized) {
 		throw SPException("SP has not been initialized with the source program");
 	}
-
 	vector<Relationship> relations = this->designManager.extractRelationships(this->astRoot);
 	return relations;
 }
@@ -49,4 +48,3 @@ vector<Entity> SourceProcessor::extractEntities() {
 	vector<Entity> entities = this->designManager.extractEntities(this->astRoot);
 	return entities;
 }
-

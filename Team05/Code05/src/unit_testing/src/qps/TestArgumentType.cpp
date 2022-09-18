@@ -1,6 +1,5 @@
 #include "catch.hpp"
 #include <list>
-#include <qps/exceptions/PQLError.h>
 #include <qps/query_parser/ArgumentType.h>
 using namespace std;
 
@@ -10,7 +9,7 @@ TEST_CASE("ArgumentType: test getDesignEntityArgumentType") {
     auto testGetDesignEntityArgumentType= [](string argumentType, bool shouldThrow) {
         if (shouldThrow) {
             REQUIRE_THROWS_AS(getDesignEntityArgumentType(argumentType),
-                PQLError);
+                PQLSyntaxError);
         } else {
             REQUIRE_NOTHROW(getDesignEntityArgumentType(argumentType));
         }

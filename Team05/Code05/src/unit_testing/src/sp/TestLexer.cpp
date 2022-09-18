@@ -371,7 +371,7 @@ TEST_CASE("Lexer: test tokenize works correctly") {
                 Token::createNameOrKeywordToken("f")
         });
     }
-
+    
 
 
 }

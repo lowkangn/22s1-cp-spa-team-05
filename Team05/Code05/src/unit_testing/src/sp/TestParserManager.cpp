@@ -1,4 +1,5 @@
 #include <catch.hpp>
+#include <sp/lexer/Lexer.h>
 #include <sp/parser/SimpleSyntaxParserManager.h>
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/ProgramASTNode.h>
@@ -14,6 +15,8 @@
 #include <list>
 #include <string>
 #include <memory>
+#include <istream>
+#include <sstream>
 using namespace std;
 
 TEST_CASE("ParserManager::parse works correctly") {
@@ -28,6 +31,15 @@ TEST_CASE("ParserManager::parse works correctly") {
 
 		// ===== then =====
 		REQUIRE(root->equals(expected));
+	};
+
+	auto testThrows = [](list<Token> tokens, shared_ptr<ASTNode> expected) {
+
+		// ===== given =====
+		ParserManager parser = ParserManager(tokens);
+
+		// ===== when && then =====
+		REQUIRE_THROWS(parser.parse());
 	};
 
 	SECTION("Parsing a simple program") {
@@ -83,9 +95,22 @@ TEST_CASE("ParserManager::parse works correctly") {
 		integerNode->setLineNumber(1);
 		assignNode->addChild(integerNode);
 
+
 		// test
 		test(tokens, expectedProgramNode);
+	}
 
+	SECTION("Parsing an invalid program with while containing a semi-colon at the end") {
+		Lexer lexer = Lexer();
+		string program = "procedure main {\n\twhile (x > 1) {\n\t\tx = 1;\t\n\t};\n}";
 
+		stringstream ss(program);
+		istream& stream = ss;
+
+		list<Token> tokens = lexer.tokenize(ss);
+
+		shared_ptr<ASTNode> expectedProgramNode(new ProgramASTNode(Token::createProgramToken()));
+		
+		testThrows(tokens, expectedProgramNode);
 	}
 }

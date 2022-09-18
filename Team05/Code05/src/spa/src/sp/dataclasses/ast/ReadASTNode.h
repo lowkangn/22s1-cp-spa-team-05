@@ -17,6 +17,8 @@ public:
 	shared_ptr<ASTNode> getVariableToRead() {
 		// Ensure Read Node has only 1 children
 		assert(this->getChildren().size() == 1);
+		// Ensure Read Node only has variable node as child
+		assert(this->children[0]->getType() == ASTNodeType::VARIABLE);
 		return this->children[0];
 	}
 

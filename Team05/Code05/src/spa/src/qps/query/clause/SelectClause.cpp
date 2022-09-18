@@ -2,7 +2,7 @@
 
 shared_ptr<EntityClauseResult> SelectClause::execute(shared_ptr<PKBQueryHandler> pkb) {
 	if (!toSelect.isSynonym()) {
-		throw PQLError("SelectClause argument is not a synonym");
+		throw PQLSyntaxError("SelectClause argument is not a synonym");
 	}
 
 	vector<PQLEntity> entities;
@@ -29,7 +29,7 @@ shared_ptr<EntityClauseResult> SelectClause::execute(shared_ptr<PKBQueryHandler>
 		} else if (toSelect.isIfSynonym()) {
 			entities = pkb->retrieveStatementEntitiesByType(PKBTrackedStatementType::IF);
 		} else {
-			throw PQLError("Cannot identify SelectClause argument");
+			throw PQLLogicError("Cannot identify SelectClause argument");
 		}
 	}
 

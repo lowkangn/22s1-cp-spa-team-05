@@ -96,12 +96,54 @@ PQLEntity PKB::pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity) {
 	}
 }
 
+shared_ptr<PkbRelationship> PKB::spRelationshipToPkbRelationship(Relationship relationship) {
+	Entity lhs = relationship.getLhs();
+	Entity rhs = relationship.getRhs();
+
+	shared_ptr<PkbEntity> lhsToPkbEntity = this->spEntityToPkbEntity(lhs);
+	shared_ptr<PkbEntity> rhsToPkbEntity = this->spEntityToPkbEntity(rhs);
+
+	if (relationship.isFollows()) {
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbFollowsRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		return pkbRelationship;
+	}
+	else if (relationship.isFollowsStar()) {
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		return pkbRelationship;
+	}
+	else if (relationship.isModifies()) {
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		return pkbRelationship;
+	}
+	else if (relationship.isParent()) {
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbParentRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		return pkbRelationship;
+	}
+	else if (relationship.isParentStar()) {
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		return pkbRelationship;
+	}
+	else if (relationship.isUses()) {
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		return pkbRelationship;
+	}
+	else {
+		throw PkbException("Unknown relationship being converted!");
+	}
+}
+
 void PKB::addEntities(vector<Entity> entities) {
 	
 	for (Entity entity : entities) {
 		// depending on entity type, we create the appropriate pkb entity
 		// and add to the appropriate table
+
+		//skip opeartor entities
+		if (entity.isOperator()) {
+			continue;
+		}
 		shared_ptr<PkbEntity> object = this->spEntityToPkbEntity(entity);
+
 		if (entity.isStmtEntity()) {
 			this->statementTable.add(object);
 		}
@@ -125,41 +167,34 @@ void PKB::addEntities(vector<Entity> entities) {
 void PKB::addRelationships(vector<Relationship> relationships) {
 	for (Relationship r : relationships) {
 		// convert lhs and rhs to entities
-		shared_ptr<PkbEntity> lhs = this->spEntityToPkbEntity(r.getLhs());
-		shared_ptr<PkbEntity> rhs = this->spEntityToPkbEntity(r.getRhs());
+		shared_ptr<PkbRelationship> pkbRelationship = spRelationshipToPkbRelationship(r);
 
 		// depending on relationship type, we choose the table 
 		// and create the object as a casted shared pointer
 		
 		if (r.isFollows()) {
 			shared_ptr<PkbRelationshipTable> table = this->getFollowsTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbFollowsRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else if (r.isFollowsStar()) {
 			shared_ptr<PkbRelationshipTable> table = this->getFollowsStarTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else if (r.isParent()) {
 			shared_ptr<PkbRelationshipTable> table = this->getParentTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbParentRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else if (r.isParentStar()) {
 			shared_ptr<PkbRelationshipTable> table = this->getParentStarTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else if (r.isUses()) {
 			shared_ptr<PkbRelationshipTable> table = this->getUsesTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else if (r.isModifies()) {
 			shared_ptr<PkbRelationshipTable> table = this->getModifiesTable();
-			shared_ptr<PkbRelationship> relationship = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs));
-			table->add(relationship);
+			table->add(pkbRelationship);
 		}
 		else {
 			throw PkbException("Unknown relationship being added to PKB!");
@@ -173,7 +208,8 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 	for (Pattern p : patterns) {
 		// only assign is supported
 		if (!p.isAssignPattern()) { 
-			throw PkbException("Only assign pattern is supported!");
+			cout << "Only assign pattern is supported! Skipping this\n";
+			continue;
 		}
 		// we get the strings
 		vector<string> strings = {
@@ -360,7 +396,7 @@ shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelat
 
 
 
-PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
+PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue) {
 
 	// default filter is true
 	PkbEntityFilter filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
@@ -368,7 +404,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 	};
 
 	// depending on clause argument, we return the filter
-	if (arg.isWildcard()) {
+	if (arg.isWildcard() || alwaysTrue) {
 		return filter;
 	}
 	else if (arg.isVariableSynonym()) {
@@ -491,6 +527,22 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg) {
 vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
 	// 1. get table based on type
 	shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(relationshipType);
+
+	// 1.1. short circuiting
+	// TODO this can be abstracted out into a vlidation function
+	// 1.1.1 check that synonym does not refer to itself
+	if (relationshipType == PKBTrackedRelationshipType::PARENT 
+		|| relationshipType == PKBTrackedRelationshipType::PARENTSTAR
+		|| relationshipType == PKBTrackedRelationshipType::FOLLOWS
+		|| relationshipType == PKBTrackedRelationshipType::FOLLOWSSTAR) {
+		if (lhs.isStmtSynonym() && rhs.isStmtSynonym() && lhs == rhs) {
+			// is identical. e.g Follows(s,s)
+			// no possible solution, return empty
+			return vector<PQLRelationship>();
+		}
+	}
+
+
 	// 2. if either side is exact, we can search by hash
 	// we create the key we are looking for based on lhs and rhs 
 	// TODO: for now, we do a manual filter
@@ -536,4 +588,142 @@ shared_ptr<PKBQueryHandler> PKB::getQueryHandler() {
 
 shared_ptr<PKBUpdateHandler> PKB::getUpdateHandler() {
 	return shared_ptr<PKBUpdateHandler>(this);
+}
+
+vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) {
+	
+	if (statementType == PKBTrackedStatementType::ASSIGN) {
+		return this->retrieveAssignPatterns(lhs, rhs);
+		
+	}
+	else if (statementType == PKBTrackedStatementType::IF) {
+		// TODO: we should move these out to an overloaded method that only takes in 1 clause argument
+		throw PkbException("IF pattern type not implemented!");
+	}
+	else if (statementType == PKBTrackedStatementType::WHILE) {
+		// TODO: we should move these out to an overloaded method that only takes in 1 clause argument
+		throw PkbException("IF pattern type not implemented!");
+	}
+	else {
+		throw PkbException("Unknown pattern type to be retrieved!");
+	}
+	
+}
+
+
+vector<PQLPattern> PKB::retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs) {
+	// 1. parse lhs 
+	string lhsStringPattern;
+
+	bool lhsIsSynonym = false;
+	if (lhs.isVariableSynonym() || lhs.isWildcard()) {
+		// if lhs is a synonym, we treat as a wildcard, but flag it - we will deal with it later
+		lhsIsSynonym = lhs.isVariableSynonym();
+		// in either case, we match lhs with a wildcard
+		lhsStringPattern = WILDCARD_CHAR;
+	}
+	else if (lhs.isStringLiteral() || lhs.isPatternString() || lhs.isPatternStringWithWildcards()) {
+		// string literal, we match exactly
+		lhsStringPattern = lhs.getIdentifier();
+	}
+	else {
+		// should never get here
+		throw PkbException("Unknown assign pattern being retrieved!");
+	}
+
+	// 2. parse rhs - it should only be wildcard or string literal
+	string rhsStringPattern;
+	if (rhs.isWildcard()) {
+		rhsStringPattern = WILDCARD_CHAR;
+	}
+	else if (rhs.isPatternString() || rhs.isPatternStringWithWildcards()) {
+		rhsStringPattern = rhs.getIdentifier();
+	}
+	else {
+		throw PkbException("RHS of assign pattern should be wildcard, sandwiched wildcard or string, but is neither.");
+	}
+
+	// 3. find all patterns that match in the assign table
+	vector<string> postFixStringsToMatch = {
+		lhsStringPattern, rhsStringPattern
+	};
+	vector<shared_ptr<PkbStatementPattern>> matchingPatterns = this->assignPatterns.getAllThatMatchPostFixStrings(postFixStringsToMatch);
+
+
+	// 5. for each returned statement, we get the corr. entity
+	vector<PQLPattern> out;
+	for (shared_ptr<PkbStatementPattern> p : matchingPatterns) {
+		out.push_back(
+			this->pkbPatternToPqlPattern(p)
+		);
+	}
+
+	return out;
+}
+
+PQLPattern PKB::pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> p) {
+	string variableIdentifier = p->getVariableIdentifier();
+	// we store as space + variable + space, need to trim
+	// left trim
+	bool leftIsSpace = isspace(variableIdentifier[0]);
+	while (leftIsSpace && variableIdentifier.size() > 1) {
+		
+		variableIdentifier.erase(0, 1);
+		leftIsSpace = isspace(variableIdentifier[0]);
+		
+	}
+
+	// right trim
+	bool rightIsSpace = isspace(variableIdentifier[variableIdentifier.size()-1]);
+	while (rightIsSpace && variableIdentifier.size() > 1) {
+		variableIdentifier.erase(variableIdentifier.size() - 1, 1);
+		rightIsSpace = isspace(variableIdentifier[variableIdentifier.size() - 1]);
+		
+		
+	}
+	return PQLPattern::generateAssignPattern(p->getStatementLineNumber(), variableIdentifier);
+}
+
+bool PKB::containsEntity(Entity entity) {
+	shared_ptr<PkbEntity> entitytoPkbEntity = spEntityToPkbEntity(entity);
+	string key = entitytoPkbEntity->getKey();
+
+	if (entitytoPkbEntity->isStatement()) {
+		return this->statementTable.get(key) != NULL;
+	}
+	else if (entitytoPkbEntity->isVariable()) {
+		return this->variableTable.get(key) != NULL;
+	}
+	else if (entitytoPkbEntity->isProcedure()) {
+		return this->proceduresTable.get(key) != NULL;
+	}
+	else if (entitytoPkbEntity->isConstant()) {
+		return this->constantsTable.get(key) != NULL;
+	}
+	else throw PkbException("Entity of unknown type being checked in PKB");
+}
+
+bool PKB::containsRelationship(Relationship relationship) {
+	shared_ptr<PkbRelationship> relationshiptoPkbRelationship = spRelationshipToPkbRelationship(relationship);
+	string key = relationshiptoPkbRelationship->getKey();
+
+	if (relationshiptoPkbRelationship->isFollows()) {
+		return this->getFollowsTable()->get(key) != NULL;
+	}
+	else if (relationshiptoPkbRelationship->isFollowsStar()) {
+		return this->getFollowsStarTable()->get(key) != NULL;
+	}
+	else if (relationshiptoPkbRelationship->isParent()) {
+		return this->getParentTable()->get(key) != NULL;
+	}
+	else if (relationshiptoPkbRelationship->isParentStar()) {
+		return this->getParentStarTable()->get(key) != NULL;
+	}
+	else if (relationshiptoPkbRelationship->isUses()) {
+		return this->getUsesTable()->get(key) != NULL;
+	}
+	else if (relationshiptoPkbRelationship->isModifies()) {
+		return this->getModifiesTable()->get(key) != NULL;
+	}
+	else throw PkbException("Relationship of unknown type being checked in PKB");
 }

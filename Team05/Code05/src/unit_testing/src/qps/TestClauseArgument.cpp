@@ -114,7 +114,7 @@ TEST_CASE("ClauseArgument: test getLineNumberWithError") {
     auto testGetLineNumberWithError = [](ClauseArgument arg) {
 
         // then
-        REQUIRE_THROWS_AS(arg.getLineNumber(), PQLError);
+        REQUIRE_THROWS_AS(arg.getLineNumber(), PQLLogicError);
 
     };
 
@@ -192,7 +192,7 @@ TEST_CASE("ClauseArgument: test getIdentifierWithError") {
     auto testGetIdentifierWithError = [](ClauseArgument arg) {
 
         // then
-        REQUIRE_THROWS_AS(arg.getIdentifier(), PQLError);
+        REQUIRE_THROWS_AS(arg.getIdentifier(), PQLLogicError);
 
     };
 

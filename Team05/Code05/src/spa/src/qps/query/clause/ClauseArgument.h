@@ -2,7 +2,7 @@
 
 #include <string>
 #include <qps/query_parser/ArgumentType.h>
-#include <qps/exceptions/PQLError.h>
+#include <qps/exceptions/PQLLogicError.h>
 
 using namespace std;
 
@@ -73,8 +73,16 @@ public:
 		return ClauseArgument(identifier, ArgumentType::WHILE);
 	}
 
+	static ClauseArgument createPatternStringArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::PATTERN_STRING);
+	}
+
 	static ClauseArgument createWildcardArg() {
 		return ClauseArgument(WILDCARD_IDENTIFIER, ArgumentType::WILDCARD);
+	}
+
+	static ClauseArgument createPatternStringWithWildcardsArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::PATTERN_STRING_WITH_WILDCARDS);
 	}
 
 	bool isStmtSynonym() {
@@ -125,8 +133,16 @@ public:
 		return this->type == ArgumentType::STRING_LITERAL;
 	}
 
+	bool isPatternString() {
+		return this->type == ArgumentType::PATTERN_STRING;
+	}
+
 	bool isWildcard() {
 		return this->type == ArgumentType::WILDCARD;
+	}
+
+	bool isPatternStringWithWildcards() {
+		return this->type == ArgumentType::PATTERN_STRING_WITH_WILDCARDS;
 	}
 
 	bool isSynonym() {
@@ -162,14 +178,14 @@ public:
 
 	int getLineNumber() {
 		if (!this->isLineNumber()) {
-			throw PQLError("Trying to get line number, but clause argument is not!");
+			throw PQLLogicError("Trying to get line number, but clause argument is not!");
 		}
 		return stoi(this->identifier);
 	}
 
 	string getIdentifier() {
 		if (this->isLineNumber()) {
-			throw PQLError("Trying to get identifier, but clause argument is a line number!");
+			throw PQLLogicError("Trying to get identifier, but clause argument is a line number!");
 		}
 		return this->identifier;
 	}
