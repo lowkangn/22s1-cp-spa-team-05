@@ -4,5 +4,5 @@ There are 4 distinct SIMPLE source files in this folder for the following test c
 - Uses & Modifies
 - Pattern
 
-The following is a summary of the relationships present in the first 3:
-![Testcase reference](https://i.imgur.com/61otyFf.png)
+The following is a summary of the relationships present in the first 3 (may not be completely accurate, so do check it for yourself):
+![Testcase reference](https://i.imgur.com/KdKCZTE.png)
