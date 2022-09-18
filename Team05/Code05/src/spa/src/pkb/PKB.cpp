@@ -639,7 +639,29 @@ vector<PQLPattern> PKB::retrieveAssignPatterns(ClauseArgument lhs, ClauseArgumen
 }
 
 PQLPattern PKB::pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> p) {
-	return PQLPattern::generateAssignPattern(p->getStatementLineNumber(), p->getVariableIdentifier());
+	string variableIdentifier = p->getVariableIdentifier();
+	cout << "here" << variableIdentifier << endl;
+	// we store as space + variable + space, need to trim
+	// left trim
+	bool leftIsSpace = isspace(variableIdentifier[0]);
+	while (leftIsSpace && variableIdentifier.size() > 1) {
+		
+		variableIdentifier.erase(0, 1);
+		leftIsSpace = isspace(variableIdentifier[0]);
+		
+	}
+	cout << "here" << variableIdentifier << endl;
+
+	// right trim
+	bool rightIsSpace = isspace(variableIdentifier[variableIdentifier.size()-1]);
+	while (rightIsSpace && variableIdentifier.size() > 1) {
+		variableIdentifier.erase(variableIdentifier.size() - 1, 1);
+		rightIsSpace = isspace(variableIdentifier[variableIdentifier.size() - 1]);
+		
+		
+	}
+	cout << "here" << variableIdentifier << endl;
+	return PQLPattern::generateAssignPattern(p->getStatementLineNumber(), variableIdentifier);
 }
 
 bool PKB::containsEntity(Entity entity) {

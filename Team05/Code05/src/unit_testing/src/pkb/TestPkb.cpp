@@ -787,13 +787,13 @@ TEST_CASE("Test add and get patterns") {
 		y = x + y // is xy+ in postfix
 		y = x + y // repeated on a different line
 	*/
-	Pattern p1 = Pattern::createAssignPattern(1, "x", " 2 x * y + ");
-	Pattern p2 = Pattern::createAssignPattern(2, "y", " 3 y / 2 - ");
-	Pattern p3 = Pattern::createAssignPattern(3, "z", " x y + ");
-	Pattern p4 = Pattern::createAssignPattern(4, "z", " x ");
-	Pattern p5 = Pattern::createAssignPattern(5, "y", " x y + ");
-	Pattern p6= Pattern::createAssignPattern(6, "y", " x y + ");
-	Pattern p7 = Pattern::createAssignPattern(7, "ab", " 1000 ");
+	Pattern p1 = Pattern::createAssignPattern(1, " x ", " 2 x * y + ");
+	Pattern p2 = Pattern::createAssignPattern(2, " y ", " 3 y / 2 - ");
+	Pattern p3 = Pattern::createAssignPattern(3, " z ", " x y + ");
+	Pattern p4 = Pattern::createAssignPattern(4, " z ", " x ");
+	Pattern p5 = Pattern::createAssignPattern(5, " y ", " x y + ");
+	Pattern p6= Pattern::createAssignPattern(6, " y ", " x y + ");
+	Pattern p7 = Pattern::createAssignPattern(7, " ab ", " 1000 ");
 	vector<Pattern> toAdd = {
 		p1, p2, p3, p4, p5, p6, p7
 	};
