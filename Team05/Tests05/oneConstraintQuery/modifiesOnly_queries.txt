@@ -1,0 +1,110 @@
+1 - ModifiesS - select statements that modify wildcard
+stmt s;
+Select s such that Modifies(s, _)
+1, 3, 4, 5, 6, 7, 8
+5000
+2 - ModifiesS - select statements that modify a variable (synonym)
+stmt s; variable v;
+Select s such that Modifies(s, v)
+1, 3, 4, 5, 6, 7, 8
+5000
+3 - ModifiesS - select variables that are modified by statements
+stmt s; variable v;
+Select v such that Modifies(s, v)
+x, y, z
+5000
+4 - ModifiesS - select assigns that modify "x" (appears on 6lhs, 7rhs)
+assign a;
+Select a such that Modifies(a, "x")
+6
+5000
+5 - ModifiesS - select assigns that modify "a" (appears only on rhs)
+assign a;
+Select a such that Modifies(a, "a")
+none
+5000
+6 - ModifiesS - select reads that modify "x"
+read r;
+Select r such that Modifies(r, "x")
+1
+5000
+7 - ModifiesS - select reads that modify "y"
+read r;
+Select r such that Modifies(r, "y")
+none
+5000
+8 - ModifiesS - select prints that modify variable
+print pr; variable v;
+Select pr such that Modifies(pr, v)
+none
+5000
+9 - ModifiesS - select ifs that modify variable
+if i; variable v;
+Select i such that Modifies(i, v)
+4
+5000
+10 - ModifiesS - select variables that are modified by ifs
+if i; variable v;
+Select v such that Modifies(i, v)
+x, y, z
+5000
+11 - ModifiesS - select whiles that modify wildcard
+while w;
+Select w such that Modifies(w, _)
+5
+5000
+12 - ModifiesS - select whiles that modify "x" (modified, in stmtLst)
+while w;
+Select w such that Modifies(w, "x")
+5
+5000
+13 - ModifiesS - select whiles that modify "c" (not modified, in stmtLst)
+while w;
+Select w such that Modifies(w, "c")
+none
+5000
+14 - ModifiesS - select whiles that modify "b" (not modified, in condition)
+while w;
+Select w such that Modifies(w, "b")
+none
+5000
+15 - ModifiesS - select whiles that modify "z" (modified, not in stmtLst)
+while w;
+Select w such that Modifies(w, "z")
+none
+5000
+16 - ModifiesS - select variables that are modified by 1 (read)
+variable v;
+Select v such that Modifies(1, v)
+x
+5000
+17 - ModifiesS - select variables that are modified by 7 (assign)
+variable v;
+Select v such that Modifies(6, v)
+y
+5000
+18 - ModifiesS - select variables that are modified by 4 (if)
+variable v;
+Select v such that Modifies(6, v)
+x, y, z
+5000
+19 - ModifiesS - select variables that are modified by 5 (while)
+variable v;
+Select v such that Modifies(5, v)
+x, y
+5000
+20 - ModifiesS - select variables that are modified by 2 (print)
+variable v;
+Select v such that Modifies(2, v)
+none
+5000
+21 - ModifiesS - as a boolean (true)
+while w; constant c;
+Select c such that Modifies(w, "x")
+0, 10, 1
+5000
+22 - ModifiesS - as a boolean (false)
+print p; constant c;
+Select c such that Modifies(p, _)
+none
+5000

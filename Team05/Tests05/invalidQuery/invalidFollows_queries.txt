@@ -1,0 +1,55 @@
+1 - Undeclared synonym
+assign a;
+Select a such that Follows(a, a1)
+SemanticError
+5000
+2 - Different case Follows
+assign a;
+Select a such that FollowS(a, _)
+SyntaxError
+5000
+3 - Missing such that
+stmt s;
+Select s Follows(s, _)
+SyntaxError
+5000
+4 - constant as second arg
+assign a; constant c;
+Select a such that Follows(a, c)
+SemanticError
+5000
+5 - variable as second arg (synonym)
+assign a; variable v;
+Select a such that Follows(a, v)
+SemanticError
+5000
+6 - variable as second arg (name)
+assign a;
+Select a such that Follows(a, "x")
+SemanticError
+5000
+7 - procedure as second arg (synonym)
+assign a; procedure p;
+Select a such that Follows*(a, p)
+SemanticError
+5000
+8 - constant as first arg
+if i; constant c;
+Select i such that Follows*(c, i)
+SemanticError
+5000
+9 - variable as first arg (synonym)
+variable v; while w
+Select v such that Follows*(v, w)
+SemanticError
+5000
+10 - variable as first arg (name)
+variable v; constant c;
+Select v such that Follows*("x", c)
+SemanticError
+5000
+11 - procedure as first arg (synonym)
+assign a; procedure p;
+Select a such that Follows(p, a)
+SemanticError
+5000

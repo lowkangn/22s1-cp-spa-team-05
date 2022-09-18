@@ -1,0 +1,10 @@
+1 - Dummy query that qps should not answer 1
+stmt s;
+Select s
+none
+5000
+2 - Dummy query that qps should not answer 2
+variable v;
+Select v
+none
+5000

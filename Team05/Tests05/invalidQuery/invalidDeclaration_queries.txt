@@ -1,0 +1,55 @@
+1 - Invalid synonym (starts with digit)
+stmt 1w;
+Select 1w
+SyntaxError
+5000
+2 - Invalid synonym (has special characters not used by PQL)
+stmt i$1;
+Select i$1
+SyntaxError
+5000
+3 - Invalid synonym (has operator)
+assign a*;
+Select a*
+SyntaxError
+5000
+4 - Invalid synonym (has wildcard)
+assign a_b;
+select a_b
+SyntaxError
+5000
+5 - Invalid synonym (is wildcard)
+read _;
+Select _
+SyntaxError
+5000
+6 - Missing semicolon in declaration
+stmt s
+Select s
+SyntaxError
+5000
+7 - Missing comma in multisynonym declaration
+print s1 s2;
+Select s1
+SyntaxError
+5000
+8 - Unkown design entity statement
+statement s1;
+Select s1
+SyntaxError
+5000
+9 - Unkown design entity var
+var s1;
+Select s1
+SyntaxError
+5000
+9 - Repeated declaration (same DE)
+variable v1, v1; stmt s1;
+Select s1
+SemanticError
+5000
+10 - Repeated declaration (different DE)
+variable v1; stmt v1;
+Select s1
+SemanticError
+5000

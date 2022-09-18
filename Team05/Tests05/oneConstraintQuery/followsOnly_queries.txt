@@ -1,0 +1,315 @@
+1 - Follows - select statment that Follows 1 (non-container line number)
+stmt s;
+Select s such that Follows(1, s)
+2
+5000
+2 - Follows - select statment that Follows 3 (container line number)
+stmt s;
+Select s such that Follows(4, s)
+13
+5000
+3 - Follows - select statements that Follow any statement (synonym)
+stmt s, s1;
+Select s such that Follows(s1, s)
+2, 3, 5, 7, 8, 9, 11, 12, 13, 14
+5000
+4 - Follows - select statements that Follow any statement (wildcard)
+stmt s;
+Select s such that Follows(_, s)
+2, 3, 5, 7, 8, 9, 11, 12, 13, 14
+5000
+5 - Follows - select statements that are Followed by any statements (synonym)
+stmt s, s1;
+Select s such that Follows(s, s1)
+1, 2, 3, 4, 5, 6, 7, 10, 11, 13
+5000
+6 - Follows - select statements that are Followed by any statements (wildcard)
+stmt s;
+Select s such that Follows(s, _)
+1, 2, 3, 4, 5, 6, 7, 10, 11, 13
+5000
+7 - Follows - select assigns that are Followed by any statement
+assign a;
+Select a such that Follows(a, _)
+1, 4, 6, 7
+5000
+8 - Follows - select any statement that Follow assigns
+assign a; stmt s;
+Select s such that Follows(a, s)
+2, 5, 7, 8
+5000
+9 - Follows - select assigns that are Followed by any prints
+print printer; assign a;
+Select a such that Follows(a, printer)
+7
+5000
+10 - Follows - select prints that are Followed by any assigns
+print printer; assign a;
+Select printer such that Follows(printer, a)
+13
+5000
+11 - Follows - select assigns that are Followed by any reads
+read r; assign a;
+Select a such that Follows(a, r)
+1
+5000
+12 - Follows - select reads that are Followed by any assigns
+read r; assign a
+Select r such that Follows(r, a)
+none
+5000
+13 - Follows - select assigns that are Followed by any ifs
+if i; assign a;
+Select a such that Follows(a, i)
+none
+5000
+14 - Follows - select ifs that are Followed by any assigns 
+if i; assign a;
+Select i such that Follows(i, a)
+none
+5000
+15 - Follows - select assigns that are Followed by any whiles
+while w; assign a;
+Select a such that Follows(a, w)
+4
+5000
+16 -  Follows - select whiles that are Followed by any assigns 
+while w; assign a;
+Select w such that Follows(w, a)
+4
+5000
+17 - Follows - select assigns that are Followed by any assigns
+assign a, aAfter;
+Select a such that Follows(a, aAfter)
+6
+5000
+18 - Follows - select whiles that are Followed by any ifs
+while w; if i;
+Select w such that Follows(w, i)
+none
+5000
+19 - Follows - select prints that are Followed by any whiles
+while w; print pr;
+Select pr such that Follows(pr, w)
+none
+5000
+20 - Follows - select reads that are Followed by any whiles
+while w; read r;
+Select r such that Follows(r, w)
+none
+5000
+21 - Follows - select whiles that are Followed by any whiles
+while w, w1;
+Select w such that Follows(w, w1)
+none
+5000
+22 - Follows - select ifs that are Followed by any ifs
+if i, i1;
+Select i such that Follows(i, i1)
+none
+5000
+23 - Follows - select ifs that are Followed by any prints
+if i; print p;
+Select i such that Follows(i, p)
+3
+5000
+24 - Follows - select prints that are Followed by any ifs
+if i; print p;
+Select p such that Follows(p, i)
+none
+5000
+25 - Follows - select ifs that are Followed by any reads
+if i; read r;
+Select i such that Follows(i, r)
+none
+5000
+26 - Follows - select reads that are Followed by any ifs
+if i; read r;
+Select r such that Follows(r, i)
+2
+5000
+27 - Follows - select prints that are Followed by any reads
+print p; read r;
+Select p such that Follows(p, r)
+11
+5000
+28 - Follows - select reads that are Followed by any reads
+read r, r1;
+Select r such that Follows(r, r1)
+none
+5000
+29 - FollowsT - select statments that Follow* 2 (non-container line number)
+stmt s;
+Select s such that Follows*(2, s)
+3, 13, 14
+5000
+30 - FollowsT - select statments that Follow* 5 (container line number)
+stmt s;
+Select s such that Follows*(4, s)
+9
+5000
+31 - FollowsT - select statements that Follow* any statement (synonym)
+stmt s, s1;
+Select s such that Follows*(s1, s)
+2, 3, 5, 9, 7, 8, 11, 12, 13, 14
+5000
+32 - FollowsT - select statements that Follow* any statement (wildcard)
+stmt s;
+Select s such that Follows*(_, s)
+2, 3, 5, 9, 7, 8, 11, 12, 13, 14
+5000
+33 - FollowsT - select statements that are Follow*ed by any statements (synonym)
+stmt s, s1;
+Select s such that Follows*(s, s1)
+1, 2, 3, 4, 5, 6, 7, 10, 11, 13
+5000
+34 - FollowsT - select statements that are Follow*ed by any statements (wildcard)
+stmt s;
+Select s such that Follows*(s, _)
+1, 2, 3, 4, 5, 6, 7, 10, 11, 13
+5000
+35 - FollowsT - select any statements that Follow* assigns
+assign a; stmt s;
+Select s such that Follows*(a, s)
+2, 3, 13, 14, 5, 9, 7, 8
+5000
+36 - FollowsT - select assigns that are Follow*ed by any prints
+print printer; assign a;
+Select a such that Follows*(a, printer)
+7, 6, 1
+5000
+37 - FollowsT - select prints that are Follow*ed by any assigns
+print printer; assign a;
+Select printer such that Follows*(printer, a)
+13
+5000
+38 - FollowsT - select assigns that are Follow*ed by any reads
+read r; assign a;
+Select a such that Follows*(a, r)
+1
+5000
+39 - FollowsT - select reads that are Follow*ed by any assigns
+read r; assign a;
+Select r such that Follows*(r, a)
+2
+5000
+40 - FollowsT - select assigns that are Follow*ed by any ifs
+if i; assign a;
+Select a such that Follows*(a, i)
+1
+5000
+41 - FollowsT - select ifs that are Follow*ed by any assigns 
+if i; assign a;
+Select i such that Follows*(i, a)
+3
+5000
+42 - FollowsT - select assigns that are Follow*ed by any whiles
+while w; assign a;
+Select a such that Follows*(a, w)
+4
+5000
+43 - FollowsT - select whiles that are Follow*ed by any assigns 
+while w; assign a;
+Select w such that Follows*(w, a)
+5
+5000
+44 - FollowsT - select assigns that are Follow*ed by any assigns
+assign a, aAfter;
+Select a such that Follows*(a, aAfter)
+1, 4, 6
+5000
+45 - FollowsT - select whiles that are Follow*ed by any ifs
+while w; if i;
+Select w such that Follows*(w, i)
+none
+5000
+46 - FollowsT - select ifs that are Follow*ed by any whiles
+while w; if i;
+Select w such that Follows*(i, w)
+none
+5000
+47 - FollowsT - select whiles that are Follow*ed by any prints
+while w; print pr;
+Select w such that Follows*(w, pr)
+none
+5000
+48 - FollowsT - select prints that are Follow*ed by any whiles
+while w; print pr;
+Select pr such that Follows*(pr, w)
+none
+5000
+49 - FollowsT - select reads that are Follow*ed by any whiles
+while w; read r;
+Select r such that Follows*(r, w)
+none
+5000
+50 - FollowsT - select whiles that are Follow*ed by any whiles
+while w, w1;
+Select w such that Follows*(w, w1)
+none
+5000
+51 - FollowsT - select ifs that are Follow*ed by any prints
+if i; print p;
+Select i such that Follows*(i, p)
+3
+5000
+52 - FollowsT - select prints that are Follow*ed by any ifs
+if i; print p;
+Select p such that Follows*(p, i)
+none
+5000
+53 - FollowsT - select ifs that are Follow*ed by any reads
+if i; read r;
+Select i such that Follows*(i, r)
+none
+5000
+54 - FollowsT - select reads that are Follow*ed by any ifs
+if i; read r;
+Select r such that Follows*(r, i)
+2
+5000
+55 - FollowsT - select prints that are Follow*ed by any reads
+print p; read r;
+Select p such that Follows*(p, r)
+11
+5000
+56 - FollowsT - select reads that are Follow*ed by any prints
+print p; read r;
+Select r such that Follows*(r, p)
+10
+5000
+57 - FollowsT - select reads that are Follow*ed by any reads
+read r, r1;
+Select r such that Follows*(r, r1)
+10
+5000
+58 - Follows - select statements that Follow themselves
+stmt s;
+Select s such that Follows(s, s)
+none
+5000
+59 - FollowsT - select statements that Follow* themselves
+stmt s;
+Select s such that Follows*(s, s)
+none
+5000
+60 - Follows - as a boolean (true)
+variable v;
+Select v such that Follows(3, 13)
+x, z, y, b, a
+5000
+61 - Follows - as a boolean (false)
+variable v;
+Select v such that Follows(9, 10)
+none
+5000
+62 - Follows* - as a boolean (true)
+constant c;
+Select c such that Follows*(1, 14)
+1, 2, 0, 10, 3
+5000
+63 - Follows* - as a boolean (false)
+constant c;
+Select c such that Follows*(5, 6)
+none
+5000
