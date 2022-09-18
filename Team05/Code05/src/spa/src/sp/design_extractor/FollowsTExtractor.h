@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class FollowsTExtractor : Extractor<Relationship> {
+class FollowsTExtractor : public Extractor<Relationship> {
 
 private:
 	/*

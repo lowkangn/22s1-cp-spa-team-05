@@ -84,7 +84,7 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 
 		// Get Second Conditional Expression
 		list<Token> secondCondExpression = parseCondition(tokens);
-		childTokens.insert(childTokens.end(), firstCondExpression.begin(), firstCondExpression.end());
+		childTokens.insert(childTokens.end(), secondCondExpression.begin(), secondCondExpression.end());
 
 		this->twoConditionals = true;
 	}
@@ -111,7 +111,7 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 
 		childTokens.push_back(token);
 
-		// Last token should be a variable
+		// Last token should be a variable or constant
 		token = tokens.front();
 		tokens.pop_front();
 

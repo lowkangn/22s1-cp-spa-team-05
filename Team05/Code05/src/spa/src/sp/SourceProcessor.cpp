@@ -5,37 +5,48 @@
 #include <sp/design_extractor/EntityExtractor.h>
 #include <sp/design_extractor/PatternExtractor.h>
 #include <sp/design_extractor/ModifiesExtractor.h>
-
-#include <sp/design_extractor/DesignExtractorManager.h>
+#include <sp/design_extractor/UsesExtractor.h>
+#include <sp/design_extractor/ParentExtractor.h>
+#include <sp/design_extractor/ParentTExtractor.h>
+#include <sp/design_extractor/FollowsExtractor.h>
+#include <sp/design_extractor/FollowsTExtractor.h>
 
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/ast/AST.h>
+#include <sp/SPException.h>
 
+#include <string>
 #include <list>
+#include <vector>
+#include <sstream>
 #include <memory>
 
 using namespace std;
 
+vector<Relationship> SourceProcessor::extractRelations() {
+	if (!this->isInitialized) {
+		throw SPException("SP has not been initialized with the source program");
+	}
 
-void SourceProcessor::tokenizeParseExtractAndUpdatePkb(istream& filestream, shared_ptr<PKBUpdateHandler> pkb) {
-	// initialize tokenizer and tokenize
-	Lexer lexer = Lexer();
-	list<Token> tokens = lexer.tokenize(filestream);
-
-	// initialize parser and parse
-	ParserManager parser = ParserManager(tokens);
-	shared_ptr<ASTNode> programTree = parser.parse();
-
-	// initialize extractor and extract
-	// extractors
-	shared_ptr<EntityExtractor> entityExtractor(new EntityExtractor());
-	shared_ptr<PatternExtractor> patternExtractor(new PatternExtractor());
-	shared_ptr<Extractor<Relationship>> modifiesExtractor = shared_ptr<Extractor<Relationship>>(new ModifiesExtractor());
-	
-	// put relationship extractors into a vector
-	vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor };
-
-	// create manager
-	DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, relationExtractors);
-
+	vector<Relationship> relations = this->designManager.extractRelationships(this->astRoot);
+	return relations;
 }
+
+vector<Pattern> SourceProcessor::extractPatterns() {
+	if (!this->isInitialized) {
+		throw SPException("SP has not been initialized with the source program");
+	}
+
+	vector<Pattern> patterns = this->designManager.extractPatterns(this->astRoot);
+	return patterns;
+}
+
+vector<Entity> SourceProcessor::extractEntities() {
+	if (!this->isInitialized) {
+		throw SPException("SP has not been initialized with the source program");
+	}
+
+	vector<Entity> entities = this->designManager.extractEntities(this->astRoot);
+	return entities;
+}
+
