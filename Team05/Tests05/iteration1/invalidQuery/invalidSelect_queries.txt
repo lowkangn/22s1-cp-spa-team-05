@@ -1,25 +1,25 @@
 1 - Select undeclared synonym
 while w;
 Select W
-none
+SemanticError
 5000
 2 - Select string
 if ifs;
 Select "string"
-none
+SyntaxError
 5000
 3 - Select number
 assign a;
 Select 1
-none
+SyntaxError
 5000
 4 - Lowercase select
 assign a;
 select a
-none
+SyntaxError
 5000
 5 - Extra semicolon
 stmt s;
 Select s;
-none
+SyntaxError
 5000

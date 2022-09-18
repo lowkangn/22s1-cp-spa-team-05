@@ -32,7 +32,7 @@ done
 
 #TODO: ADD THE REST (follows modifies uses)
 echo "Starting two constraint query test cases"
-for i in parent
+for i in parent uses
 do
 ${path_to_autotester} ${two_constr_path}${i}AndPattern_source.txt ${two_constr_path}${i}AndPattern_queries.txt ${output_folder}${i}AndPatternOut.xml
 done
