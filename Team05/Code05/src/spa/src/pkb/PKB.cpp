@@ -520,6 +520,22 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
 	// 1. get table based on type
 	shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(relationshipType);
+
+	// 1.1. short circuiting
+	// TODO this can be abstracted out into a vlidation function
+	// 1.1.1 check that synonym does not refer to itself
+	if (relationshipType == PKBTrackedRelationshipType::PARENT 
+		|| relationshipType == PKBTrackedRelationshipType::PARENTSTAR
+		|| relationshipType == PKBTrackedRelationshipType::FOLLOWS
+		|| relationshipType == PKBTrackedRelationshipType::FOLLOWSSTAR) {
+		if (lhs.isStmtSynonym() && rhs.isStmtSynonym() && lhs == rhs) {
+			// is identical. e.g Follows(s,s)
+			// no possible solution, return empty
+			return vector<PQLRelationship>();
+		}
+	}
+
+
 	// 2. if either side is exact, we can search by hash
 	// we create the key we are looking for based on lhs and rhs 
 	// TODO: for now, we do a manual filter

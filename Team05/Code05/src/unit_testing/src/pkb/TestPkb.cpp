@@ -682,6 +682,69 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 	};
 }
 
+TEST_CASE("Test retrieve relationship short circuits to empty result") {
+	auto test = [](vector<Relationship> relationshipsToAdd, PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
+		// given
+		PKB pkb;
+
+		// when 
+		pkb.addRelationships(relationshipsToAdd);
+		vector<PQLRelationship> retrieved = pkb.retrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs);
+
+		// then 
+		REQUIRE(retrieved.size() == 0);
+	};
+
+	// shared, as if 4 statements in a block
+	/*
+		if ...
+			assign ...
+			if ...
+				call ...
+				call ...
+	*/
+	Entity statement1 = Entity::createIfEntity(1);
+	Entity statement2 = Entity::createAssignEntity(2);
+	Entity statement3 = Entity::createIfEntity(3);
+	Entity statement4 = Entity::createCallEntity(4);
+	Entity statement5 = Entity::createCallEntity(5);
+
+	vector<Relationship> toAdd = {
+		Relationship::createParentTRelationship(statement1, statement2),
+		Relationship::createParentTRelationship(statement3, statement4),
+		Relationship::createParentTRelationship(statement1, statement4),
+		Relationship::createParentTRelationship(statement1, statement3),
+		Relationship::createParentRelationship(statement1, statement2),
+		Relationship::createParentRelationship(statement3, statement4),
+		Relationship::createFollowsRelationship(statement4, statement5),
+		Relationship::createFollowsTRelationship(statement4, statement5),
+	};
+
+	SECTION("Follows(s,s)") {
+		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
+		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+	SECTION("Follows*(s,s)") {
+		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
+		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWSSTAR, lhs, rhs);
+	}
+
+	SECTION("Parent(s,s)") {
+		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
+		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
+		test(toAdd, PKBTrackedRelationshipType::PARENT, lhs, rhs);
+	}
+
+	SECTION("Parent*(s,s)") {
+		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
+		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
+		test(toAdd, PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs);
+	}
+}
+
 TEST_CASE("Test containsEntity") {
 	auto test = [](vector<Entity> entitiesToAdd, Entity entityToTest, bool expected) {
 		// given
