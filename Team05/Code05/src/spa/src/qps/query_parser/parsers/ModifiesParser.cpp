@@ -8,16 +8,16 @@ void ModifiesParser::checkArguments(list<ClauseArgument>& args) {
 	//Modifies clause should have exactly 2 arguments
 	assert(args.size() == 2);
 
-	// first arg cannot be wildcard or variable
+	// first arg cannot be wildcard, variable or constant
 	ClauseArgument arg = args.front();
-	if (arg.isWildcard() || arg.isVariableSynonym()) {
-		throw PQLError("First arg for Modifies cannot be wildcard or variable");
+	if (arg.isWildcard() || arg.isVariableSynonym() || arg.isConstantSynonym()) {
+		throw PQLSemanticError("First arg for Modifies cannot be wildcard, variable or constant");
 	}
 
-	// second arg must be wildcard or entRef
+	// second arg must be wildcard or a variable
 	arg = args.back();
-	if (!arg.isWildcard() && !arg.isEntRefNoWildcard()) {
-		throw PQLError("Second arg for Modifies must be an entRef");
+	if (!arg.isWildcard() && !arg.isVariableSynonym() && !arg.isStringLiteral()) {
+		throw PQLSemanticError("Second arg for Modifies must be a wildcard or variable");
 	}
 }
 

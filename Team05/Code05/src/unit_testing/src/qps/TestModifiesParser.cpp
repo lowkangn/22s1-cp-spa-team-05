@@ -98,30 +98,19 @@ TEST_CASE("ModifiesParser: test parseModifiesPNoError") {
 }
 
 
-TEST_CASE("ModifiesParser: test parseWithError") {
+TEST_CASE("ModifiesParser: test parseWithSemanticError") {
     auto testParseWithError = [](list<PQLToken> tokens,
         unordered_map<string, ArgumentType> declarations) {
             // given
             ModifiesParser parser = ModifiesParser(tokens, declarations);
 
             // then
-            REQUIRE_THROWS_AS(parser.parse(), PQLError);
+            REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
     };
 
     SECTION("Undeclared / misspelled synonym") {
 
         list<PQLToken> tokensList = list<PQLToken>{
-            PQLToken::createNameToken("Modifies"),
-            PQLToken::createDelimiterToken("(")
-        };
-
-        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
-            {"v2", ArgumentType::VARIABLE}
-        };
-
-        testParseWithError(tokensList, declarationsMap);
-
-        tokensList = list<PQLToken>{
             PQLToken::createNameToken("Modifies"),
             PQLToken::createDelimiterToken("("),
             PQLToken::createNameToken("s1"),
@@ -130,7 +119,7 @@ TEST_CASE("ModifiesParser: test parseWithError") {
             PQLToken::createDelimiterToken(")")
         };
 
-        declarationsMap = unordered_map<string, ArgumentType>{
+        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
             {"v2", ArgumentType::VARIABLE},
             {"s1", ArgumentType::STMT}
         };
@@ -158,7 +147,7 @@ TEST_CASE("ModifiesParser: test parseWithError") {
         tokensList = list<PQLToken>{
             PQLToken::createNameToken("Modifies"),
             PQLToken::createDelimiterToken("("),
-            PQLToken::createDelimiterToken("s1"),
+            PQLToken::createNameToken("s1"),
             PQLToken::createDelimiterToken(","),
             PQLToken::createNameToken("s2"),
             PQLToken::createDelimiterToken(")")
@@ -170,6 +159,51 @@ TEST_CASE("ModifiesParser: test parseWithError") {
         };
 
         testParseWithError(tokensList, declarationsMap);
+
+        tokensList = list<PQLToken>{
+            PQLToken::createNameToken("Modifies"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("s1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createIntegerToken("1"),
+            PQLToken::createDelimiterToken(")")
+        };
+
+        testParseWithError(tokensList, declarationsMap);
     }
 
+}
+
+TEST_CASE("ModifiesParser: test parseWithSyntaxError") {
+    auto testParseWithError = [](list<PQLToken> tokens,
+        unordered_map<string, ArgumentType> declarations) {
+            // given
+            ModifiesParser parser = ModifiesParser(tokens, declarations);
+
+            // then
+            REQUIRE_THROWS_AS(parser.parse(), PQLSyntaxError);
+    };
+    SECTION("Incomplete clause") {
+
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken::createNameToken("Modifies"),
+            PQLToken::createDelimiterToken("(")
+        };
+
+        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+            {"v2", ArgumentType::VARIABLE}
+        };
+
+        testParseWithError(tokensList, declarationsMap);
+
+        tokensList = list<PQLToken>{
+            PQLToken::createNameToken("Modifies"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createIntegerToken("1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createDelimiterToken(")"),
+        };
+
+        testParseWithError(tokensList, declarationsMap);
+    }
 }

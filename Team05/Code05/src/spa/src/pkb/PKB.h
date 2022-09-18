@@ -87,6 +87,13 @@ private:
 	*/
 	PQLEntity pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity);
 
+
+	/*
+		Converts an internal pkb pattern to a pql pattern used in the qps.
+	*/
+	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> pattern);
+
+
 public: 
 	PKB() {}
 
@@ -154,7 +161,17 @@ public:
 		Retrieves all relationships of a specified type.
 	*/
 	vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) override;
-	
+
+	/*
+        Retrieves statements by lhs and rhs. 
+    */
+	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
+
+	/*
+		Retrieves assign statements by lhs and rhs.
+	*/
+	vector<PQLPattern> retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs);
+
 	/*
 		Casts the PKB to its query handler interface as a shared pointer.
 	*/
@@ -191,6 +208,8 @@ typedef bool (*PkbStatementEntityFilter)(PkbStatementEntity* statement);
 typedef bool (*PkbEntityFilter)(shared_ptr<PkbEntity> entity, ClauseArgument arg);
 /*
 	Converts a clause argument to a filter that can be applied to a PkbEntity. This is used
-	in filtering relationships by lhs and rhs.
+	in filtering relationships by lhs and rhs. We provide a flag to return a dummy filter 
+	that always evaluates to true for ease.
 */
-PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg);
+PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue = false);
+

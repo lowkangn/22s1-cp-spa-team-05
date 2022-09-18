@@ -76,7 +76,10 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		for (int i = 0; i < extractedEntities.size(); i++) {
 			bool isInExpectedEntities = false;
 			for (int j = 0; j < expectedEntities.size(); j++) {
-				isInExpectedEntities |= extractedEntities[i].equals(expectedEntities[j]);
+				if (extractedEntities[i].equals(expectedEntities[j])) {
+					isInExpectedEntities = true;
+					break;
+				}
 			}
 			REQUIRE(isInExpectedEntities);
 		}
@@ -86,7 +89,10 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		for (int i = 0; i < extractedRelationships.size(); i++) {
 			bool isInExpectedRelationships = false;
 			for (int j = 0; j < expectedRelationships.size(); j++) {
-				isInExpectedRelationships |= extractedRelationships[i].equals(expectedRelationships[j]);
+				if (extractedRelationships[i].equals(expectedRelationships[j])) {
+					isInExpectedRelationships = true;
+					break;
+				}
 			}
 			REQUIRE(isInExpectedRelationships);
 		}
@@ -95,7 +101,13 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		for (int i = 0; i < extractedPatterns.size(); i++) {
 			bool isInExpectedPatterns = false;
 			for (int j = 0; j < expectedPatterns.size(); j++) {
-				isInExpectedPatterns |= extractedPatterns[i].equals(expectedPatterns[j]);
+				if (extractedPatterns[i].equals(expectedPatterns[j])) {
+					isInExpectedPatterns = true;
+					break;
+				}
+			}
+			if (!isInExpectedPatterns) {
+				Pattern pattern = extractedPatterns[i];
 			}
 			REQUIRE(isInExpectedPatterns);
 		}
@@ -212,7 +224,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 
 		vector<Relationship> expectedRelationships = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation, assignFollowsRead, assignFollowsTRead };
 		
-		vector<Pattern> expectedPatterns{ Pattern::createAssignPattern(1, "x", "1") };
+		vector<Pattern> expectedPatterns{ Pattern::createAssignPattern(1, " x ", " 1 ") };
 
 		testExtract(program, expectedEntities, expectedRelationships, expectedPatterns);
 	}
@@ -269,7 +281,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 
 		vector <Relationship> expectedRelationships = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation };
 
-		vector<Pattern> expectedPatterns{ Pattern::createAssignPattern(1, "x", "1") };
+		vector<Pattern> expectedPatterns{ Pattern::createAssignPattern(1, " x ", " 1 ") };
 
 		testExtract(program, expectedEntities, expectedRelationships, expectedPatterns);
 
@@ -574,12 +586,12 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 																	readFollowsTIf };
 
 		vector<Pattern> expectedPattern = vector<Pattern>{
-			Pattern::createAssignPattern(1, "x", "3"),
-			Pattern::createWhilePattern(3, "x"),
-			Pattern::createAssignPattern(4, "x", "x1-"),
-			Pattern::createIfPattern(6, "y"),
-			Pattern::createAssignPattern(7, "x", "y"),
-			Pattern::createAssignPattern(8, "y", "x")
+			Pattern::createAssignPattern(1, " x ", " 3 "),
+			Pattern::createWhilePattern(3, "x"), // this is broken, TODO
+			Pattern::createAssignPattern(4, " x ", " x 1 - "),
+			Pattern::createIfPattern(6, "y"), // this is broken, TODO
+			Pattern::createAssignPattern(7, " x ", " y "),
+			Pattern::createAssignPattern(8, " y ", " x ")
 		};
 		testExtract(program, expectedEntities, expectedRelationships, expectedPattern);
 	}
@@ -767,14 +779,55 @@ TEST_CASE("Test Source Processor : extractPattern") {
 		string program = "procedure main{\n\tread x; \n\tprint x; \n\ty = 0; \n    if ((!(x == 0)) && (y < 1)) then {\n\t\twhile(y >= 0) { \n\t\t\tx = x + 10; \n\t\t\ty = y - 10; \n\t\t } \n\t} else { \n\t\ty = x % 2 + y; \n\t\tz = 5 * x - y; \n\t\tz = z / 1 * 3; \n\t }\n}";
 
 		vector<Pattern> expected{
-			Pattern::createAssignPattern(3,"y", "0"),
+			Pattern::createAssignPattern(3," y ", " 0 "),
 			Pattern::createIfPattern(4,"x y"),
 			Pattern::createWhilePattern(5,"y"),
-			Pattern::createAssignPattern(6,"x", "x10+"),
-			Pattern::createAssignPattern(7,"y", "y10-"),
-			Pattern::createAssignPattern(8,"y", "x2%y+"),
-			Pattern::createAssignPattern(9,"z", "5x*y-"),
-			Pattern::createAssignPattern(10,"z", "z1/3*"),
+			Pattern::createAssignPattern(6," x ", " x 10 + "),
+			Pattern::createAssignPattern(7," y ", " y 10 - "),
+			Pattern::createAssignPattern(8," y ", " x 2 % y + "),
+			Pattern::createAssignPattern(9," z ", " 5 x * y - "),
+			Pattern::createAssignPattern(10," z ", " z 1 / 3 * "),
+		};
+
+		sort(expected.begin(), expected.end(), comparePattern);
+
+		test(program, expected);
+	}
+
+	SECTION("Test milestone 1 program #2") {
+		/*
+			procedure main {
+			  read x;
+			  print x;
+			  y = 0;
+			  if ((!(d == 0)) && (y < 1)) then {
+				 while (e >= 0) {
+					x = x + 10 * 2;
+					y = y - 10;
+					b = a;
+				 } 
+			  } else {
+				 y = x % 2 + y;
+				 z = 5 * x - y;
+				 z = z / 1 * 3;
+				 print c;
+			  }
+			  x = (x + 1) - 1;
+			}
+		*/
+		string program = "procedure main {\n  read x;\n  print x;\n  y = 0;\n  if ((!(d == 0)) && (y < 1)) then {\n     while (e >= 0) {\n        x = x + 10 * 2;\n        y = y - 10;\n        b = a;\n     } \n  } else {\n     y = x % 2 + y;\n     z = 5 * x - y;\n     z = z / 1 * 3;\n     print c;\n  }\n  x = (x + 1) - 1;\n  }";
+
+		vector<Pattern> expected{
+			Pattern::createAssignPattern(3," y ", " 0 "),
+			Pattern::createIfPattern(4,"d y"),
+			Pattern::createWhilePattern(5,"e"),
+			Pattern::createAssignPattern(6," x ", " x 10 2 * + "),
+			Pattern::createAssignPattern(7," y ", " y 10 - "),
+			Pattern::createAssignPattern(8," b ", " a "),
+			Pattern::createAssignPattern(9," y ", " x 2 % y + "),
+			Pattern::createAssignPattern(10," z ", " 5 x * y - "),
+			Pattern::createAssignPattern(11," z ", " z 1 / 3 * "),
+			Pattern::createAssignPattern(13," x ", " x 1 + 1 - "),
 		};
 
 		sort(expected.begin(), expected.end(), comparePattern);

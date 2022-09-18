@@ -3,8 +3,11 @@
 #include <assert.h>
 #include <list>
 #include <unordered_map>
+#include <stack>
 
-#include <qps/exceptions/PQLError.h>
+#include <qps/exceptions/PQLLogicError.h>
+#include <qps/exceptions/PQLSyntaxError.h>
+#include <qps/exceptions/PQLSemanticError.h>
 #include <qps/query_tokenizer/PQLToken.h>
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query/clause/ClauseArgument.h>

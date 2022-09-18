@@ -1,7 +1,8 @@
 #include "catch.hpp"
 #include <string>
 #include <list>
-#include <qps/exceptions/PQLError.h>
+#include <qps/exceptions/PQLSyntaxError.h>
+#include <qps/exceptions/PQLSemanticError.h>
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query_parser/parsers/DeclarationParser.h>
 #include <unordered_map>
@@ -40,13 +41,13 @@ TEST_CASE("DeclarationParser: test parseOneDeclarationNoError") {
 }
 
 
-TEST_CASE("DeclarationParser: test parseOneDeclarationWithError") {
+TEST_CASE("DeclarationParser: test parseOneDeclarationWithSyntaxError") {
     auto testParseOneDeclarationWithError = [](list<PQLToken> tokens) {
         // given
         DeclarationParser parser = DeclarationParser(tokens);
 
         // then
-        REQUIRE_THROWS_AS(parser.parseOneDeclaration(), PQLError);
+        REQUIRE_THROWS_AS(parser.parseOneDeclaration(), PQLSyntaxError);
     };
 
     SECTION("Missing semicolon") {
@@ -157,13 +158,13 @@ TEST_CASE("DeclarationParser: test parseNoError") {
     }
 }
 
-TEST_CASE("DeclarationParser: test parseWithError") {
+TEST_CASE("DeclarationParser: test parseWithSyntaxError") {
     auto testParseWithError = [](list<PQLToken> tokens) {
         // given
         DeclarationParser parser = DeclarationParser(tokens);
 
         // then
-        REQUIRE_THROWS_AS(parser.parse(), PQLError);
+        REQUIRE_THROWS_AS(parser.parse(), PQLSyntaxError);
     };
 
 
@@ -187,6 +188,16 @@ TEST_CASE("DeclarationParser: test parseWithError") {
 
         testParseWithError(tokensList);
     }
+}
+
+TEST_CASE("DeclarationParser: test parseWithSemanticError") {
+    auto testParseWithError = [](list<PQLToken> tokens) {
+        // given
+        DeclarationParser parser = DeclarationParser(tokens);
+
+        // then
+        REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
+    };
 
     SECTION("Repeated synonym name - same design entity") {
         list<PQLToken> tokensList = list<PQLToken>{

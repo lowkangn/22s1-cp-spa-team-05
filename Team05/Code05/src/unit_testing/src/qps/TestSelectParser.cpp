@@ -46,14 +46,14 @@ TEST_CASE("SelectParser: test parseNoError") {
     testParseNoError(tokens, declarations, expected);
 }
 
-TEST_CASE("SelectParser: test parseWithError") {
+TEST_CASE("SelectParser: test parseWithSemanticError") {
     auto testParseWithError = [](list<PQLToken> tokens,
         unordered_map<string, ArgumentType> declarations) {
             // given
             SelectParser parser = SelectParser(tokens, declarations);
 
             // then
-            REQUIRE_THROWS_AS(parser.parse(), PQLError);
+            REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
     };
 
     SECTION("Undeclared / mispelled synonym") {
@@ -81,6 +81,20 @@ TEST_CASE("SelectParser: test parseWithError") {
         testParseWithError(tokens, declarations);
     }
     
+    
+}
+
+TEST_CASE("SelectParser: test parseWithSyntaxError") {
+    
+    auto testParseWithError = [](list<PQLToken> tokens,
+        unordered_map<string, ArgumentType> declarations) {
+            // given
+            SelectParser parser = SelectParser(tokens, declarations);
+
+            // then
+            REQUIRE_THROWS_AS(parser.parse(), PQLSyntaxError);
+    };
+
     SECTION("Selecting non-synonyms") {
         list<PQLToken> tokens = list<PQLToken>{
             PQLToken::createNameToken("Select"),

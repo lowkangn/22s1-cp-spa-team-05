@@ -17,25 +17,7 @@
 
 #include <vector>
 #include <memory>
-
-TEST_CASE("PatternExtractor: infix to postfix") {
-	auto test = [](string infixString, string expectedString) {
-		// Given
-		PatternExtractor extractor = PatternExtractor();
-
-		// When
-		string convertedString = extractor.convertInfixToPostFix(infixString);
-
-		// Then
-		REQUIRE(convertedString == expectedString);
-	};
-
-	test("A+B*C+D", "ABC*+D+");
-	test("x*y/(5*z)+2", "xy*5z*/2+");
-	test("x*y/(5*z)+2%3", "xy*5z*/23%+");
-	test("y+5%3", "y53%+");
-}
-
+#include <iostream>
 
 TEST_CASE("PatternExtractor: test handleAssign") {
 	auto test = [](shared_ptr<ASTNode> ast, vector<Pattern> expectedResult) {
@@ -46,13 +28,14 @@ TEST_CASE("PatternExtractor: test handleAssign") {
 		vector<Pattern> extractedPattern = extractor.handleAssign(ast);
 
 		// Then
-		for (int i = 0; i < extractedPattern.size(); i++) {
-			REQUIRE(extractedPattern[i].equals(expectedResult[i]));
+		for (Pattern e : extractedPattern) {
+			bool check = find(expectedResult.begin(), expectedResult.end(), e) != expectedResult.end();
+			REQUIRE(check);
 		}
 	};
 
 	SECTION("Test Assign") {
-		vector<Pattern> expectedPattern{ Pattern::createAssignPattern(1, "x", "x1+") };
+		vector<Pattern> expectedPattern{ Pattern::createAssignPattern(1, " x ", " x 1 + ") };
 
 		Token assignToken = Token::createEqualsToken();
 		Token xToken = Token::createNameOrKeywordToken("x");
@@ -76,7 +59,7 @@ TEST_CASE("PatternExtractor: test handleAssign") {
 	}
 
 	SECTION("Test Assign with brackets") {
-		vector<Pattern> expectedPattern{ Pattern::createAssignPattern(1, "x", "x1x++") };
+		vector<Pattern> expectedPattern{ Pattern::createAssignPattern(1, " x ", " x 1 x + + ") };
 
 		Token assignToken = Token::createEqualsToken();
 		Token xToken = Token::createNameOrKeywordToken("x");
@@ -338,7 +321,7 @@ TEST_CASE("PatternExtractor: test extract") {
 		ifASTNode->addChild(elseStmtLstNode);
 
 		vector<Pattern> expectedPattern{ Pattern::createWhilePattern(-1, "y"),
-										 Pattern::createAssignPattern(-1, "x", "x5x++"),
+										 Pattern::createAssignPattern(-1, " x ", " x 5 x + + "),
 										 Pattern::createIfPattern(-1, "x y") };
 
 		test(ifASTNode, expectedPattern);

@@ -2,7 +2,7 @@
 
 bool FollowsParser::isCorrectClauseType(PQLToken clauseTypeToken) {
 	if (tokens.size() == 1) {
-		throw PQLError("Query ended after 'Follows'");
+		throw PQLSyntaxError("Query ended after 'Follows'");
 	}
 
 	PQLToken secondToken = *std::next(this->tokens.begin());
@@ -20,8 +20,12 @@ void FollowsParser::checkArguments(list<ClauseArgument>& args) {
 
 
 	for (ClauseArgument arg : args) {
+		if (arg.isStringLiteral()) {
+			throw PQLSyntaxError("Both args for Follows/Follows* must be stmtRefs, which cannot be a string");
+		}
+
 		if (!arg.isWildcard() && !arg.isStmtRefNoWildcard()) {
-			throw PQLError("Both args for Follows must be stmtRefs");
+			throw PQLSemanticError("Both args for Follows/Follows* must be stmtRefs");
 		}
 	}
 

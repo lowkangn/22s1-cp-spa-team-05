@@ -3,6 +3,8 @@
 #include <string>
 #include <stdexcept>
 
+#include <qps/exceptions/PQLSyntaxError.h>
+
 using namespace std;
 
 enum class ArgumentType {
@@ -18,7 +20,9 @@ enum class ArgumentType {
     CONSTANT,
     LINE_NUMBER,
     STRING_LITERAL,
-    WILDCARD
+	PATTERN_STRING,
+    WILDCARD,
+	PATTERN_STRING_WITH_WILDCARDS
 };
 
 ArgumentType getDesignEntityArgumentType(string argumentType);
