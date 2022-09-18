@@ -754,11 +754,6 @@ TEST_CASE("Test add and get patterns") {
 
 		// then 
 		vector<PQLPattern> all = pkb.retrievePatterns(statementType, lhs, rhs);
-		if (expectedPatterns.size() != all.size()) {
-			for (PQLPattern p : all) {
-				cout << p.toString() << endl;
-			}
-		}
 		REQUIRE(expectedPatterns.size() == all.size());
 		for (PQLPattern e : expectedPatterns) {
 			bool found = false;

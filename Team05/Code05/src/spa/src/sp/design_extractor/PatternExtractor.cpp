@@ -123,8 +123,7 @@ vector<Pattern> PatternExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 		rhsString.pop_back();
 		rightHasSpace = isspace(rhsString[rhsString.size() - 1]);
 	}
-	rhsString += DELIMITER;
-	rhsString = DELIMITER + rhsString;
+	rhsString = DELIMITER + rhsString + DELIMITER;
 
 	Pattern pattern = Pattern::createAssignPattern(ast->getLineNumber(), lhsString, rhsString);
 
@@ -173,7 +172,6 @@ string PatternExtractor::recursiveExtractExpression(shared_ptr<ASTNode> ast) {
 		shared_ptr<ExpressionASTNode> expressionNode = dynamic_pointer_cast<ExpressionASTNode> (ast);
 		string operatorString = expressionNode->getToken().getString();
 		// Returns infix initially, will converted to postfix in the handleAssign
-		string temp = recursiveExtractExpression(expressionNode->getLeftHandSide()) + DELIMITER + operatorString + DELIMITER + recursiveExtractExpression(expressionNode->getRightHandSide());
 		return recursiveExtractExpression(expressionNode->getLeftHandSide()) + DELIMITER + operatorString + DELIMITER + recursiveExtractExpression(expressionNode->getRightHandSide());
 	}
 	else {
