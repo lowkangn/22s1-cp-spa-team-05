@@ -159,7 +159,7 @@ TEST_CASE("Test ::createRegexStringFromString") {
 	};
 
 	SECTION("Normal use cases") {
-		test("_x1*y+_", ".*x1\\*y\\+.*", false); // _x*1+y_
+		test("_x 1 * y +_", ".* x 1 \\* y \\+ .*", false); // _x*1+y_
 		test("_", ".*", false); // _
 	}
 
@@ -208,17 +208,17 @@ TEST_CASE("Test ::getAllThatMatchPostFixStrings") {
 		z = x // is x in postfix
 		y = x + y // is xy+ in postfix
 	*/
-	shared_ptr<PkbStatementPattern> line1 = PkbStatementPattern::createAssignPattern(1, vector<string>({ "x", "2x*y+" }));
-	shared_ptr<PkbStatementPattern> line2 = PkbStatementPattern::createAssignPattern(2, vector<string>({ "y", "3y/2-" }));
-	shared_ptr<PkbStatementPattern> line3 = PkbStatementPattern::createAssignPattern(3, vector<string>({ "z", "xy+" }));
-	shared_ptr<PkbStatementPattern> line4 = PkbStatementPattern::createAssignPattern(4, vector<string>({ "z", "x" }));
-	shared_ptr<PkbStatementPattern> line5 = PkbStatementPattern::createAssignPattern(3, vector<string>({ "y", "xy+" }));
+	shared_ptr<PkbStatementPattern> line1 = PkbStatementPattern::createAssignPattern(1, vector<string>({ " x ", " 2 x * y + " }));
+	shared_ptr<PkbStatementPattern> line2 = PkbStatementPattern::createAssignPattern(2, vector<string>({ " y ", " 3 y / 2 - " }));
+	shared_ptr<PkbStatementPattern> line3 = PkbStatementPattern::createAssignPattern(3, vector<string>({ " z ", " x y + " }));
+	shared_ptr<PkbStatementPattern> line4 = PkbStatementPattern::createAssignPattern(4, vector<string>({ " z ", " x " }));
+	shared_ptr<PkbStatementPattern> line5 = PkbStatementPattern::createAssignPattern(3, vector<string>({ " y ", " x y + " }));
 	vector<shared_ptr<PkbStatementPattern>> toAdd = {
 		line1, line2, line3, line4, line5
 	};
 	SECTION("Exact match") {
 		vector<string> postFixStrings = {
-			"x", "2x*y+",
+			"x", "2 x * y +",
 		};
 		vector<shared_ptr<PkbStatementPattern>> expected = {
 			line1
@@ -228,7 +228,7 @@ TEST_CASE("Test ::getAllThatMatchPostFixStrings") {
 
 	SECTION("LHS Wildcard match") {
 		vector<string> postFixStrings = {
-			"_", "xy+",
+			"_", "x y +",
 		};
 		vector<shared_ptr<PkbStatementPattern>> expected = {
 			line3, line5

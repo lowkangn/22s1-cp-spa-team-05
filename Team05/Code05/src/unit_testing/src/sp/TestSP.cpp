@@ -207,7 +207,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 
 		vector<Relationship> expectedRelationships = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation };
 		
-		vector<Pattern> expectedPatterns{ Pattern::createAssignPattern(1, "x", "1") };
+		vector<Pattern> expectedPatterns{ Pattern::createAssignPattern(1, " x ", " 1 ") };
 
 		testExtract(program, expectedEntities, expectedRelationships, expectedPatterns);
 	}
@@ -264,7 +264,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 
 		vector <Relationship> expectedRelationships = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation };
 
-		vector<Pattern> expectedPatterns{ Pattern::createAssignPattern(1, "x", "1") };
+		vector<Pattern> expectedPatterns{ Pattern::createAssignPattern(1, " x ", " 1 ") };
 
 		testExtract(program, expectedEntities, expectedRelationships, expectedPatterns);
 
@@ -550,12 +550,12 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 																	assign8UsesX8, procUsesX3, procUsesX4, procUsesY5, procUsesY6, procUsesY7, procUsesX8 };
 
 		vector<Pattern> expectedPattern = vector<Pattern>{
-			Pattern::createAssignPattern(1, "x", "3"),
-			Pattern::createWhilePattern(3, "x"),
-			Pattern::createAssignPattern(4, "x", "x1-"),
-			Pattern::createIfPattern(6, "y"),
-			Pattern::createAssignPattern(7, "x", "y"),
-			Pattern::createAssignPattern(8, "y", "x")
+			Pattern::createAssignPattern(1, " x ", " 3 "),
+			Pattern::createWhilePattern(3, " x "),
+			Pattern::createAssignPattern(4, " x ", " x 1 - "),
+			Pattern::createIfPattern(6, " y "),
+			Pattern::createAssignPattern(7, " x ", " y "),
+			Pattern::createAssignPattern(8, " y ", " x ")
 		};
 		testExtract(program, expectedEntities, expectedRelationships, expectedPattern);
 	}
@@ -746,11 +746,11 @@ TEST_CASE("Test Source Processor : extractPattern") {
 			Pattern::createAssignPattern(3,"y", "0"),
 			Pattern::createIfPattern(4,"x y"),
 			Pattern::createWhilePattern(5,"y"),
-			Pattern::createAssignPattern(6,"x", "x10+"),
-			Pattern::createAssignPattern(7,"y", "y10-"),
-			Pattern::createAssignPattern(8,"y", "x2%y+"),
-			Pattern::createAssignPattern(9,"z", "5x*y-"),
-			Pattern::createAssignPattern(10,"z", "z1/3*"),
+			Pattern::createAssignPattern(6,"x", "x 10 +"),
+			Pattern::createAssignPattern(7,"y", "y 10 -"),
+			Pattern::createAssignPattern(8,"y", "x 2 % y +"),
+			Pattern::createAssignPattern(9,"z", "5 x * y -"),
+			Pattern::createAssignPattern(10,"z", "z 1 / 3 *"),
 		};
 
 		sort(expected.begin(), expected.end(), comparePattern);

@@ -61,7 +61,6 @@ protected:
 
 		PostFixConverter converter = PostFixConverter();
 		string postFixString = converter.convertInfixToPostFix(s);
-
 		return ClauseArgument::createPatternStringArg(postFixString);
 	}
 
