@@ -13,7 +13,7 @@ namespace {
 	5:				read y;
 	6:				read stmt;
 				}
-	7:			z = 1;
+	7:			z = 1000 - 0 + 0;
 			}
 	8:		print x;
 		}
@@ -27,6 +27,8 @@ namespace {
 	ModifiesP: (main, rhsM) where rhsM is an rhs of ModifiesS
 	UsesS: (1,v), (1,x), (1,b), (2,x), (3,b) (8,x)
 	UsesP: (main, rhsU) where rhsU is an rhs of UsesS
+	PatternAssign: 2(y, _"x"_), 2(y, _"1"_), 2(y, _"x+1"_), 2(y, "x+1"),
+				   7(z, _"0"_), 7(z, _"1000"_), 7(z, _"1000-0"_), 7(z, _"1000-0+0"_), 7(z, "1000-0+0") 
 	*/
 
 	// Initialise statement entities
@@ -39,21 +41,35 @@ namespace {
 	Entity a7 = Entity::createAssignEntity(7);
 	Entity p8 = Entity::createPrintEntity(8);
 
+	// Initialise tokens for non-statement entities
+	Token mainToken = Token::createNameOrKeywordToken("main");
+	Token vToken = Token::createNameOrKeywordToken("v");
+	Token constOneToken = Token::createIntegerToken("1");
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token bToken = Token::createNameOrKeywordToken("b");
+	Token constZeroToken = Token::createIntegerToken("0");
+	Token stmtToken = Token::createNameOrKeywordToken("stmt");
+	Token zToken = Token::createNameOrKeywordToken("z");
+	Token constOneThousandToken = Token::createIntegerToken("1000");
+
 	// Initialise non-statement entities
-	Entity main = Entity::createProcedureEntity(Token::createNameOrKeywordToken("main"));
-	Entity v1 = Entity::createVariableEntity(1, Token::createNameOrKeywordToken("v"));
-	Entity constOne1 = Entity::createConstantEntity(1, Token::createIntegerToken("1"));
-	Entity y2 = Entity::createVariableEntity(2, Token::createNameOrKeywordToken("y"));
-	Entity x2 = Entity::createVariableEntity(2, Token::createNameOrKeywordToken("x"));
-	Entity constOne2 = Entity::createConstantEntity(2, Token::createIntegerToken("1"));
-	Entity b3 = Entity::createVariableEntity(3, Token::createNameOrKeywordToken("b"));
-	Entity constZero3 = Entity::createConstantEntity(3, Token::createIntegerToken("0"));
-	Entity x4 = Entity::createVariableEntity(4, Token::createNameOrKeywordToken("x"));
-	Entity y5 = Entity::createVariableEntity(5, Token::createNameOrKeywordToken("y"));
-	Entity stmt6 = Entity::createVariableEntity(6, Token::createNameOrKeywordToken("stmt"));
-	Entity z7 = Entity::createVariableEntity(7, Token::createNameOrKeywordToken("z"));
-	Entity constOne7 = Entity::createConstantEntity(7, Token::createIntegerToken("1"));
-	Entity x8 = Entity::createVariableEntity(8, Token::createNameOrKeywordToken("x"));
+	Entity main = Entity::createProcedureEntity(mainToken);
+	Entity v1 = Entity::createVariableEntity(1, vToken);
+	Entity constOne1 = Entity::createConstantEntity(1, constOneToken);
+	Entity y2 = Entity::createVariableEntity(2, yToken);
+	Entity x2 = Entity::createVariableEntity(2, xToken);
+	Entity constOne2 = Entity::createConstantEntity(2, constOneToken);
+	Entity b3 = Entity::createVariableEntity(3, bToken);
+	Entity constZero3 = Entity::createConstantEntity(3, constZeroToken);
+	Entity x4 = Entity::createVariableEntity(4, xToken);
+	Entity y5 = Entity::createVariableEntity(5, yToken);
+	Entity stmt6 = Entity::createVariableEntity(6, stmtToken);
+	Entity z7 = Entity::createVariableEntity(7, zToken);
+	Entity constZero7First = Entity::createConstantEntity(7, constZeroToken);
+	Entity constZero7Second = Entity::createConstantEntity(7, constZeroToken);
+	Entity constOneThousand7 = Entity::createConstantEntity(7, constOneThousandToken);
+	Entity x8 = Entity::createVariableEntity(8, xToken);
 
 	// Initialise parent relationships
 	Relationship parentW1A2 = Relationship::createParentRelationship(w1, a2);
@@ -73,6 +89,7 @@ namespace {
 	Relationship parentStarW1R4 = Relationship::createParentTRelationship(w1, r4);
 	Relationship parentStarW1R5 = Relationship::createParentTRelationship(w1, r5);
 	Relationship parentStarW1R6 = Relationship::createParentTRelationship(w1, r6);
+
 
 	// Initialise Modifies relationships -- only statements required for iter 1
 	Relationship modifiesW1Y2 = Relationship::createModifiesRelationship(w1, y2);
@@ -103,8 +120,24 @@ namespace {
 	Relationship usesI3B3 = Relationship::createUsesRelationship(i3, b3);
 	Relationship usesP8X8 = Relationship::createUsesRelationship(p8, x8);
 
-	//TODO: Add Follows and FollowsStar relationships
 
+	// Initialise Follows relationships
+	Relationship followsW1P8 = Relationship::createFollowsRelationship(w1, p8);
+	Relationship followsA2I3 = Relationship::createFollowsRelationship(a2, i3);
+	Relationship followsI3A7 = Relationship::createFollowsRelationship(i3, a7);
+	Relationship followsR5R6 = Relationship::createFollowsRelationship(r5, r6);
+
+	// Initialise FollowsStar relationships
+	Relationship followsStarW1P8 = Relationship::createFollowsTRelationship(w1, p8);
+	Relationship followsStarA2I3 = Relationship::createFollowsTRelationship(a2, i3);
+	Relationship followsStarI3A7 = Relationship::createFollowsTRelationship(i3, a7);
+	Relationship followsStarR5R6 = Relationship::createFollowsTRelationship(r5, r6);
+	Relationship followsStarA2A7 = Relationship::createFollowsTRelationship(a2, a7);
+
+
+	// Initialise PatternAssigns
+	Pattern patternA2Y2 = Pattern::createAssignPattern(a2.getLine(), yToken.getString(), "x1+"); //is x+1
+	Pattern patternA7Z7 = Pattern::createAssignPattern(a7.getLine(), zToken.getString(), "10000-0+");
 };
 
 TEST_CASE("QPS: test working correctly") {
@@ -132,22 +165,35 @@ TEST_CASE("QPS: test working correctly") {
 
 	// ------ PKB ------ 
 	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
-	vector<Entity> entities{ w1, a2, i3, r4, r5, r6, a7, p8, main, v1, constOne1,
-		y2, x2, constOne2, b3, constZero3, x4, y5, stmt6, z7, constOne7, x8 };
+	
+	vector<Entity> entities{ 
+		w1, a2, i3, r4, r5, r6, a7, p8, main, v1, constOne1, y2, x2, constOne2, b3, constZero3,
+		x4, y5, stmt6, z7, constZero7First, constZero7Second, constOneThousand7, x8 };
+	
 	vector<Relationship> allParentAndParentStar{ 
 		parentW1A2, parentW1I3, parentW1A7, parentI3R4, parentI3R5, parentI3R6,
 		parentStarW1A2, parentStarW1I3, parentStarW1A7, parentStarI3R4, parentStarI3R5, parentStarI3R6,
 		parentStarW1R4, parentStarW1R5, parentStarW1R6 };
+
+	vector<Relationship> allFollowsAndFollowsStar{
+		followsW1P8, followsA2I3, followsI3A7, followsR5R6, followsStarW1P8, followsStarA2I3,
+		followsStarI3A7, followsStarR5R6, followsStarA2A7 };
+	
 	vector<Relationship> allModifies{ 
 		modifiesW1Y2, modifiesW1X4, modifiesW1Y5, modifiesW1Stmt6, modifiesW1Z7, modifiesA2Y2,
 		modifiesI3X4, modifiesI3Y5, modifiesI3Stmt6, modifiesR4X4, modifiesR5Y5, modifiesR6Stmt6,
 		modifiesA7Z7 };
+	
 	vector<Relationship> allUses{ usesW1V1, usesW1X2, usesW1B3, usesA2X2, usesI3B3, usesP8X8};
+
+	vector<Pattern> allPatternAssigns{ patternA2Y2, patternA7Z7 };
+	
 	pkb->addEntities(entities);
 	pkb->addRelationships(allParentAndParentStar);
+	pkb->addRelationships(allFollowsAndFollowsStar);
 	pkb->addRelationships(allModifies);
 	pkb->addRelationships(allUses);
-
+	pkb->addPatterns(allPatternAssigns);
 
 	string queryString = "stmt s; Select s";
 	set<string> expectedResult{ "1", "2", "3", "4", "5", "6", "7", "8"};
@@ -155,7 +201,7 @@ TEST_CASE("QPS: test working correctly") {
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "constant c;\n Select c";
-		expectedResult = set<string>{ "1", "0" };
+		expectedResult = set<string>{ "1", "0", "1000"};
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "procedure p;\t Select p";
@@ -208,11 +254,55 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{ "v", "x", "b" };
 		testQPS(queryString, expectedResult, pkb);
 
-		//TODO: Follows/FollowsT
+		queryString = "variable variable; \n Select stmt such that Follows(1, 8)";
+		expectedResult = set<string>{ "v", "y", "x", "b", "z", "stmt" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "stmt stmt; \n Select stmt such that Follows(stmt, 3)";
+		expectedResult = set<string>{ "2" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "assign a; \n Select a such that Follows(3, a)";
+		expectedResult = set<string>{};
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "assign a; \n Select a such that Follows*(3, a)";
+		expectedResult = set<string>{ "3" };
+		testQPS(queryString, expectedResult, pkb);
 	}
 
 	SECTION("Select and Pattern") {
-		//TODO
+		/*
+		*/
+		
+		queryString = "assign a; \n Select a Pattern a(\"y\", _)";
+		expectedResult = set<string>{ "2" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "assign a; variable v; \n Select v Pattern a(v, _)";
+		expectedResult = set<string>{ "y", "z"};
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "assign a; \n Select a Pattern a(_, _\"x\"_ )";
+		expectedResult = set<string>{ "2"};
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "assign a; variable v; \n Select v Pattern a(v, _\"0\"_ )";
+		expectedResult = set<string>{ "z" };
+		testQPS(queryString, expectedResult, pkb);
+
+		/* Not needed for iter 1, but I think it already works
+		
+		queryString = "assign a; variable v; \n Select v Pattern a(v,  _\"1000-0\"_ )";
+		expectedResult = set<string>{ "z" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "assign a; variable v; \n Select v Pattern a(v,  \"1000-0\" )";
+		expectedResult = set<string>{};
+		testQPS(queryString, expectedResult, pkb);
+
+
+		*/
 	}
 
 	SECTION("Select, such that and Pattern") {
