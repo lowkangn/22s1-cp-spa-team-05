@@ -105,7 +105,7 @@ TEST_CASE("Lexer: test charIsOperator") {
     testCharIsOperator('-', true);
     testCharIsOperator('*', true);
     testCharIsOperator('/', true);
-    testCharIsOperator('%', false);
+    testCharIsOperator('%', true);
     testCharIsOperator('#', false);
     testCharIsOperator('|', true);
     testCharIsOperator('&', true);
@@ -135,53 +135,6 @@ TEST_CASE("Lexer: test charIsWhiteSpace") {
     testCharIsWhiteSpace(' ', true);
 
 }
-
-TEST_CASE("Lexer: test traverseStreamUntilNoComment correctly consumes tokens") {
-    auto test = [](string s, char expectedEndChar) {
-        // ----- given -----
-        Lexer lexer = Lexer();
-        stringstream ss(s);
-        istream &stream = ss;
-       
-        // ----- when -----
-        lexer.traverseStreamUntilNoComment(stream);
-
-        // ----- then -----
-        REQUIRE(char(stream.peek()) == expectedEndChar);
-    };
-
-    SECTION("Trivial examples") {
-        test("//somecommentwithnospace", EOF);
-    }
-
-    SECTION("Comment with space and newline, newline preserved") {
-        test("//some comment with space and newline \n", '\n');
-    }
-    SECTION("Only backslash") {
-        test("//", EOF); // only backslash is ok
-    }
-    SECTION("No backslash, should have no change") {
-        test("no backslash", 'n');
-    }
-
-}
-
-TEST_CASE("Lexer: test traverseStreamUntilNoComment correctly throws error") {
-    auto test = [](string s) {
-        // ----- given -----
-        Lexer lexer = Lexer();
-        stringstream ss(s);
-        istream& stream = ss;
-
-        // ----- when & then -----
-        REQUIRE_THROWS(lexer.traverseStreamUntilNoComment(stream));
-    };
-    SECTION("Only one backslash") {
-        test("/only one backslash");
-    }
-    
-}
-
 
 TEST_CASE("Lexer: test traverseStreamUntilNoWhiteSpace correctly consumes tokens") {
     auto test = [](string s, char expectedEndChar) {

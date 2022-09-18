@@ -19,8 +19,7 @@ public:
 	PatternExtractor() {};
 
 	/*
-		This method is used to extract patterns from a provided abstract syntax tree. It is meant to be
-		overriden for each specific entity type.
+		This method is used to extract patterns from a provided abstract syntax tree.
 	*/
 	virtual vector<Pattern> extract(shared_ptr<ASTNode> ast) override;
 

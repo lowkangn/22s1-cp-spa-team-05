@@ -8,7 +8,6 @@ using namespace std;
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/lexer/Lexer.h>
 
-const char COMMENT_CHARACTER = '/'; 
 const char NEWLINE_CHARACTER = '\n';
 
 list<Token> Lexer::tokenize(istream &stream) {
@@ -17,10 +16,6 @@ list<Token> Lexer::tokenize(istream &stream) {
     list<Token> linkedListOfTokens;
     int trueline = 1;
     while (stream.peek() != EOF) { // see https://cplusplus.com/reference/cstdio/EOF/
-
-        // ===== guard clause =====
-        this->traverseStreamUntilNoComment(stream);
-        
 
         // ===== tokenize =====
         char peeked = char(stream.peek());
@@ -61,28 +56,6 @@ void Lexer::traverseStreamUntilNoWhiteSpace(istream& stream) {
 
 }
 
-void Lexer::traverseStreamUntilNoComment(istream& stream) {
-    char character = char(stream.get()); // get character
-    if (character == COMMENT_CHARACTER) { // if comment
-        if (char(stream.peek()) == COMMENT_CHARACTER) { // we expect a second comment character
-            // discard all newlines until newline or EOF 
-            // see https://stackoverflow.com/questions/25020129/cin-ignorenumeric-limitsstreamsizemax-n
-            stream.ignore(numeric_limits<streamsize>::max(), NEWLINE_CHARACTER);
-            if (!stream.eof()) {
-                // if not eof, go back one character
-                stream.unget();
-            }
-        }
-        else {
-            // some error, since after line continuation (/) we expect another (/)
-            throw logic_error(string("Expected / after / for valid comment, got: ") + char(stream.peek()));
-        }
-    }
-    else {
-        stream.unget(); // is ok, can start lexing
-    }
-}
-
 bool Lexer::charIsAlphabetical(char c) {
     return isalpha(c);
 }
@@ -120,6 +93,7 @@ bool Lexer::charIsOperator(char c) {
     case '!':
     case '&':
     case '|':
+    case '%':
         return true;
     default:
         return false;
@@ -166,6 +140,7 @@ Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
     case '-':
     case '*':
     case '/':
+    case '%':
         break; // is singleton
     case '>':
     case '<':
@@ -178,12 +153,14 @@ Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
         }
         break;
     case '!':
-        if (char(stream.peek()) != '=') { // not operator must be paired with =
+        if (!(char(stream.peek()) == '=' || char(stream.peek()) == '(')) { // not operator must be paired with = or '('
             throw logic_error(string("Invalid comparator operator! ") + s + string(" followed by ") + char(stream.peek()));
         } 
-        s += char(stream.get());
+        // Only join the string if it is paired with '='
+        if (char(stream.peek()) == '=') {
+            s += char(stream.get());
+        }
         break;
-        
     case '&':
     case '|':
         if (char(stream.peek()) == c) { // comparators can only be paired with =

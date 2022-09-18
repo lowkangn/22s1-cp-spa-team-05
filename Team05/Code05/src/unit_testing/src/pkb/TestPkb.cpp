@@ -10,7 +10,6 @@
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
 #include<pkb/table_managers/PkbPatternTable.h>
-#include<pkb/table_managers/PkbPatternTable.cpp>
 #include <pkb/PkbException.h>
 #include <pkb/PKB.h>
 
@@ -681,16 +680,76 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 	};
-
-
 }
 
-TEST_CASE("Test add and get patterns") {
-	auto test = [](PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLPattern> expectedPatterns, vector<Pattern> toAdd) {
+TEST_CASE("Test containsEntity") {
+	auto test = [](vector<Entity> entitiesToAdd, Entity entityToTest, bool expected) {
 		// given
 		PKB pkb;
 
 		// when 
+		pkb.addEntities(entitiesToAdd);
+		bool extractedBool = pkb.containsEntity(entityToTest);
+
+		// then 
+		REQUIRE(extractedBool == expected);
+	};
+	/*
+		procedure main {
+			x = 1
+		}
+	*/
+	const int LINENUMBER = 1;
+
+	Token leftToken = Token::createNameOrKeywordToken("x");
+	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
+
+	// Create tokens
+	Token mainToken = Token::createNameOrKeywordToken("main");
+	Token xToken = Token::createNameOrKeywordToken("x");
+	Token constToken = Token::createIntegerToken("1");
+	Token assignToken = Token::createEqualsToken();
+
+	// Create entities
+	Entity procedureMainEntity = Entity::createProcedureEntity(mainToken);
+	Entity xEntity = Entity::createVariableEntity(1, xToken);
+	Entity assignEntity = Entity::createAssignEntity(1);
+	Entity constEntity = Entity::createConstantEntity(1, constToken);
+
+	vector<Entity> entitiesToAdd = vector<Entity>{ procedureMainEntity, xEntity, assignEntity, constEntity };
+
+	// Test entities not in PKB
+	// create tokens
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token constTokenTest = Token::createIntegerToken("2");
+	Token testToken = Token::createNameOrKeywordToken("testprocedure");
+
+	Entity procedureTestEntity = Entity::createProcedureEntity(testToken);
+	Entity yEntity = Entity::createVariableEntity(1, yToken);
+	Entity constEntityTest = Entity::createConstantEntity(1, constTokenTest);
+
+	SECTION("Test for entities inside PKB") {
+		test(entitiesToAdd, procedureMainEntity, true);
+		test(entitiesToAdd, xEntity, true);
+		test(entitiesToAdd, assignEntity, true);
+		test(entitiesToAdd, constEntity, true);
+	}
+
+	SECTION("Test for entities not in PKB") {
+		test(entitiesToAdd, procedureTestEntity, false);
+		test(entitiesToAdd, yEntity, false);
+		test(entitiesToAdd, constEntityTest, false);
+	}
+}
+
+
+TEST_CASE("Test add and get patterns") {
+	auto test = [](PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLPattern> expectedPatterns, vector<Pattern> toAdd) {
+
+		// given
+		PKB pkb;
+
+		// when
 		pkb.addPatterns(toAdd);
 
 		// then 
@@ -796,6 +855,86 @@ TEST_CASE("Test add and get patterns") {
 
 		};
 		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
+	}
+
+}
+
+TEST_CASE("Test containsRelationship") {
+	auto test = [](vector<Relationship> relationshipsToAdd, Relationship relationshipToTest, bool expected) {
+		// given
+		PKB pkb;
+
+		// when
+		pkb.addRelationships(relationshipsToAdd);
+		bool extractedBool = pkb.containsRelationship(relationshipToTest);
+
+		// then 
+		REQUIRE(extractedBool == expected);
+	};
+
+	/*
+			procedure main {
+				1. x = 1
+			}
+
+			procedure readY {
+				2. read y
+			}
+		*/
+
+	// Create tokens
+	// main
+
+	Token mainToken = Token::createNameOrKeywordToken("main");
+	Token xTokenMain = Token::createNameOrKeywordToken("x");
+	Token assignToken = Token::createEqualsToken();
+	Token constToken = Token::createIntegerToken("1");
+
+	// readY
+	Token readYToken = Token::createNameOrKeywordToken("readY");
+	Token readToken = Token::createReadToken();
+	Token yToken = Token::createNameOrKeywordToken("y");
+
+	// tokens for full program
+	Token stmtLstToken = Token::getPlaceHolderToken();
+	Token rootNodeToken = Token::getPlaceHolderToken();
+
+
+	// Create entities and relationships
+	Entity programEntity = Entity::createProgramEntity();
+	Entity procedureMainEntity = Entity::createProcedureEntity(mainToken);
+	Entity procedureReadYEntity = Entity::createProcedureEntity(readYToken);
+
+	Entity xEntity = Entity::createVariableEntity(1, xTokenMain);
+	Entity assignEntity = Entity::createAssignEntity(1);
+
+	Entity yEntity = Entity::createVariableEntity(2, yToken);
+	Entity readEntity = Entity::createReadEntity(2);
+
+	Relationship procedureXRelationship = Relationship::createModifiesRelationship(procedureMainEntity, xEntity);
+	Relationship procedureYRelationship = Relationship::createModifiesRelationship(procedureReadYEntity, yEntity);
+	Relationship assignRelation = Relationship::createModifiesRelationship(assignEntity, xEntity);
+	Relationship readRelation = Relationship::createModifiesRelationship(readEntity, yEntity);
+
+	vector <Relationship> relationshipsToAdd = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation };
+
+	SECTION("Test for relationships inside PKB") {
+		test(relationshipsToAdd, procedureXRelationship, true);
+		test(relationshipsToAdd, procedureYRelationship, true);
+		test(relationshipsToAdd, assignRelation, true);
+		test(relationshipsToAdd, readRelation, true);
+	}
+
+	SECTION("Test for relationships not in PKB") {
+		// test relationships not in PKB
+		Token zToken = Token::createNameOrKeywordToken("z");
+		Token testToken = Token::createNameOrKeywordToken("testprocedure");
+
+		Entity zEntity = Entity::createVariableEntity(3, zToken);
+		Entity procedureTestEntity = Entity::createProcedureEntity(testToken);
+
+		Relationship procedureZRelationship = Relationship::createModifiesRelationship(procedureTestEntity, zEntity);
+		test(relationshipsToAdd, procedureZRelationship, false);
 	}
 
 }

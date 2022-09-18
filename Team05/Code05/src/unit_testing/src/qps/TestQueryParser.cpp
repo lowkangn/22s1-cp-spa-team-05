@@ -1,4 +1,6 @@
 #include "catch.hpp"
+#include <qps/query/clause/FollowsClause.h>
+#include <qps/query/clause/FollowsTClause.h>
 #include <qps/query/clause/ModifiesSClause.h>
 #include <qps/query/clause/ModifiesPClause.h>
 #include <qps/query/clause/ParentClause.h>
@@ -270,4 +272,57 @@ TEST_CASE("QueryParser: test parseConstraints Uses") {
     expected.emplace_back(usesSClause);
     testParseNoError(tokens, declarations, expected);
 
+}
+
+TEST_CASE("QueryParser: test parseConstraints Follows") {
+    auto testParseNoError = [](list<PQLToken> tokens,
+        unordered_map<string, ArgumentType> declarations,
+        list<shared_ptr<RelationshipClause>> expected) {
+            // given
+            QueryParser parser = QueryParser(tokens);
+
+            // when
+            list<shared_ptr<RelationshipClause>> actual = parser.parseConstraints(declarations);
+            bool isEqual = actual.size() == expected.size();
+            if (isEqual) {
+                while (!actual.empty()) {
+                    //temporarily use casting to check equality for now
+                    shared_ptr<RelationshipClause> actualPtr = actual.front();
+                    shared_ptr<RelationshipClause> expectedPtr = expected.front();
+                    shared_ptr<FollowsTClause> expectedClause = dynamic_pointer_cast<FollowsTClause>(actualPtr);
+
+                    isEqual = isEqual && (*expectedClause.get()).equals(actualPtr);
+                    actual.pop_front();
+                    expected.pop_front();
+                }
+            }
+
+            // then
+            REQUIRE(isEqual);
+    };
+
+    shared_ptr<RelationshipClause> followsTClause = shared_ptr<RelationshipClause>(new FollowsTClause(
+        ClauseArgument::createStmtArg("s1"),
+        ClauseArgument::createLineNumberArg("5")));
+
+    list<PQLToken> tokens = list<PQLToken>{
+        PQLToken::createNameToken("such"),
+        PQLToken::createNameToken("that"),
+        PQLToken::createNameToken("Follows"),
+        PQLToken::createOperatorToken("*"),
+        PQLToken::createDelimiterToken("("),
+        PQLToken::createNameToken("s1"),
+        PQLToken::createDelimiterToken(","),
+        PQLToken::createIntegerToken("5"),
+        PQLToken::createDelimiterToken(")")
+    };
+
+    unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
+        { "v1", ArgumentType::VARIABLE },
+        { "s1", ArgumentType::STMT }
+    };
+
+    list<shared_ptr<RelationshipClause>> expected;
+    expected.emplace_back(followsTClause);
+    testParseNoError(tokens, declarations, expected);
 }

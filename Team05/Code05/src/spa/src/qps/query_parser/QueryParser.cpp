@@ -3,6 +3,7 @@
 #include <qps/query_parser/QueryParser.h>
 #include <qps/query_parser/parsers/SelectParser.h>
 #include <qps/query_parser/parsers/DeclarationParser.h>
+#include <qps/query_parser/parsers/FollowsParser.h>
 #include <qps/query_parser/parsers/ModifiesParser.h>
 #include <qps/query_parser/parsers/ParentParser.h>
 #include <qps/query_parser/parsers/PatternParser.h>
@@ -59,10 +60,15 @@ shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, 
 
     if (token.isModifies()) {
         parserPointer = shared_ptr<SuchThatClauseParser>(new ModifiesParser(this->tokens, declarations));
-    } else if (token.isParent()) {
+    } 
+    else if (token.isParent()) {
         parserPointer = shared_ptr<SuchThatClauseParser>(new ParentParser(this->tokens, declarations));
-    } else if (token.isUses()) {
+    } 
+    else if (token.isUses()) {
         parserPointer = shared_ptr<SuchThatClauseParser>(new UsesParser(this->tokens, declarations));
+    }
+    else if (token.isFollows()) {
+        parserPointer = shared_ptr<SuchThatClauseParser>(new FollowsParser(this->tokens, declarations));
     }
     else {
         //TODO: add more such that clauses

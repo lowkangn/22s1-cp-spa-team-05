@@ -73,10 +73,10 @@ shared_ptr<ASTNode> RelationalExpressionSimpleSyntaxRule::constructNode() {
 
 	shared_ptr<ASTNode> leftHandSideNode;
 
-	if (rhsToken.isIntegerToken()) {
+	if (lhsToken.isIntegerToken()) {
 		leftHandSideNode = shared_ptr<ASTNode>(new ConstantValueASTNode(lhsToken));
 	}
-	else if (rhsToken.isNameToken()) {
+	else if (lhsToken.isNameToken()) {
 		leftHandSideNode = shared_ptr<ASTNode> (new VariableASTNode(lhsToken));
 	}
 	else {
