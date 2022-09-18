@@ -748,7 +748,7 @@ TEST_CASE("Test add and get patterns") {
 	SECTION("lhs wildcard, rhs specific") {
 		// lhs wildcard, // rhs specific
 		ClauseArgument lhs = ClauseArgument::createWildcardArg();
-		ClauseArgument rhs = ClauseArgument::createStringLiteralArg("xy+");
+		ClauseArgument rhs = ClauseArgument::createPatternStringArg("xy+");
 		vector<PQLPattern> expectedPatterns = {
 			PQLPattern::generateAssignPattern(3, "z"),
 			PQLPattern::generateAssignPattern(5, "y"),
@@ -759,7 +759,7 @@ TEST_CASE("Test add and get patterns") {
 	SECTION("lhs specific, rhs sandwich wilcard") {
 		// lhs specific, rhs sandwich wildcard _x_
 		ClauseArgument lhs = ClauseArgument::createWildcardArg();
-		ClauseArgument rhs = ClauseArgument::createStringWithWildCardsArg("_x_");
+		ClauseArgument rhs = ClauseArgument::createPatternStringWithWildcardsArg("_x_");
 		vector<PQLPattern> expectedPatterns = {
 			PQLPattern::generateAssignPattern(1, "x"),
 			PQLPattern::generateAssignPattern(3, "z"),
@@ -772,7 +772,7 @@ TEST_CASE("Test add and get patterns") {
 	SECTION("Synonyms should behave like wildcards") {
 		// lhs synonym, rhs specific
 		ClauseArgument lhs = ClauseArgument::createVariableArg("v");
-		ClauseArgument rhs = ClauseArgument::createStringLiteralArg("xy+");
+		ClauseArgument rhs = ClauseArgument::createPatternStringArg("xy+");
 		vector<PQLPattern> expectedPatterns = {
 			PQLPattern::generateAssignPattern(3, "z"),
 			PQLPattern::generateAssignPattern(5, "y"),

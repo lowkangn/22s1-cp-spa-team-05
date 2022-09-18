@@ -11,18 +11,18 @@ void PatternAssignParser::checkArguments(vector<ClauseArgument>& args) {
 	// first arg must be assignment
 	ClauseArgument arg = args[0];
 	if (!arg.isAssignSynonym()) {
-		throw PQLError("First arg for pattern cannot be wildcard or variable");
+		throw PQLError("First arg for assign pattern must be assign");
 	}
 
-	// second arg must be wildcard or entRef
+	// second arg must be wildcard or string literal or variable
 	arg = args[1];
-	if (!arg.isWildcard() && !arg.isEntRefNoWildcard()) {
+	if (!arg.isWildcard() && !arg.isVariableSynonym() && !arg.isStringLiteral() && !arg.isPatternString()) {
 		throw PQLError("Second arg for pattern must be an entRef or wildcard");
 	}
 
-	// third arg must be wildcard or string literal or string with wildcards
+	// third arg must be wildcard or string literal or pattern string (with wildcards)
 	arg = args[2];
-	if (!arg.isWildcard() && !arg.isStringLiteral() && !arg.isStringWithWildcards()) {
+	if (!arg.isWildcard() && !arg.isStringLiteral() && !arg.isPatternString() && !arg.isPatternStringWithWildcards()) {
 		throw PQLError("Third arg for pattern must be a string literal or wildcard or string with wildcards");
 	}
 }

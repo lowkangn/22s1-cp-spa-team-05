@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "../../qps/query/clause/ClauseArgument.h"
-#include "../../qps/query/clause/PQLEntity.h"
-#include "../../qps/query/clause/PQLRelationship.h"
+#include <qps/query/clause/ClauseArgument.h>
+#include <qps/query/clause/PQLEntity.h>
+#include <qps/query/clause/PQLRelationship.h>
 #include <qps/query/clause/PQLPattern.h>
 
 enum class PKBTrackedStatementType {
@@ -101,7 +101,6 @@ public:
     virtual vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) = 0;
     
     // ===== Pattern =====
-
     /*
         Retrieves statements by lhs and rhs. If a lhs of type synonym is provided,
     */

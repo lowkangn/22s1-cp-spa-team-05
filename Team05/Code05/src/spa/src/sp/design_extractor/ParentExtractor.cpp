@@ -1,4 +1,3 @@
-#pragma once
 #include <vector>
 
 #include <sp/design_extractor/ParentExtractor.h>
@@ -51,7 +50,8 @@ vector<Relationship> ParentExtractor::extractFromContainer(Entity leftHandSide, 
 	// Find statements and create relationship
 	for (shared_ptr<ASTNode> child : containerASTNode->getChildren()) {
 		if (child->isStatement()) {
-			Relationship parent = Relationship::createParentRelationship(leftHandSide, child->extractEntity());
+			Entity childEntity = child->extractEntity();
+			Relationship parent = Relationship::createParentRelationship(leftHandSide, childEntity);
 			parentRelationships.push_back(parent);
 		}
 	}

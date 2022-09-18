@@ -37,4 +37,13 @@ public:
 
 	
 	
+
+	PQLEntity getStatementEntity() {
+		return this->statementEntity;
+	}
+
+	PQLEntity getVariableEntity() {
+		return this->variableEntity;
+	}
+
 };

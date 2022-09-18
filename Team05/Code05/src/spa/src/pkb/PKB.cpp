@@ -554,7 +554,7 @@ vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, 
 			// in either case, we match lhs with a wildcard
 			lhsStringPattern = WILDCARD_CHAR;
 		}
-		else if (lhs.isStringLiteral()) {
+		else if (lhs.isStringLiteral() || lhs.isPatternString() || lhs.isPatternStringWithWildcards()) {
 			// string literal, we match exactly
 			lhsStringPattern = lhs.getIdentifier();
 		}
@@ -568,7 +568,7 @@ vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, 
 		if (rhs.isWildcard()) {
 			rhsStringPattern = WILDCARD_CHAR;
 		}
-		else if (rhs.isStringLiteral() || rhs.isStringWithWildcards()) {
+		else if (rhs.isPatternString() || rhs.isPatternStringWithWildcards()) {
 			rhsStringPattern = rhs.getIdentifier();
 		}
 		else {

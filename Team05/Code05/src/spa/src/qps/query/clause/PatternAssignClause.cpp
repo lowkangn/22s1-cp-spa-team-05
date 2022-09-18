@@ -4,28 +4,16 @@ shared_ptr<RelationshipClauseResult> PatternAssignClause::execute(shared_ptr<PKB
 
 	// With output, we really only care about the assign and the lhs (those are the only ones that vary and rhs is not
 	// used in evaluation), so it can be represented in a PQLRelationship.
+	vector<PQLPattern> patterns;
+
+	patterns = pkb->retrievePatterns(PKBTrackedStatementType::ASSIGN, lhs, rhs);
+
+	// for now we'll convert to PQLRelationship and return RelationshipClauseResult, may need to reevaluate in the future
 	vector<PQLRelationship> relationships;
-
-	// LHS can be variable/wildcard or string literal
-	// RHS can be wildcard, string literal or string with wildcards
-	// Maybe we can have something like
-
-	if (lhs.isStringLiteral()) {
-		if (rhs.isWildcard()) {
-			//pkb->retrieveAssignRelationshipsWithRhsWildcard(lhsString);
-		} else if (rhs.isStringLiteral()) {
-			//pkb->retrieveAssignRelationships(lhsString, rhsString, hasWildcards = false);
-		} else if (rhs.isStringWithWildcards()) {
-			//pkb->retrieveAssignRelationships(lhsString, rhsString, hasWildcards = true);
-		}
-	} else if (lhs.isWildcard() || lhs.isVariableSynonym()) {
-		if (rhs.isWildcard()) {
-			//pkb->retrieveAssignRelationshipsWithLhsRhsWildcard();
-		} else if (rhs.isStringLiteral()) {
-			//pkb->retrieveAssignRelationshipsWithLhsWildcard(rhsString, hasWildcards = false);
-		} else if (rhs.isStringWithWildcards()) {
-			//pkb->retrieveAssignRelationshipsWithLhsWildcard(rhsString, hasWildcards = true);
-		}
+	for (PQLPattern pattern : patterns) {
+		PQLEntity stmtEntity = pattern.getStatementEntity();
+		PQLEntity varEntity = pattern.getVariableEntity();
+		relationships.emplace_back(stmtEntity, varEntity);
 	}
 
 	return shared_ptr<RelationshipClauseResult>(new RelationshipClauseResult(patternArg, lhs, relationships));
