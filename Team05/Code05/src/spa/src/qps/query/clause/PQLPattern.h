@@ -1,6 +1,6 @@
 #pragma once
 #include <qps/query/clause/PQLEntity.h>
-#include <qps/exceptions/PQLError.h>
+#include <qps/exceptions/PQLLogicError.h>
 #include <string>
 using namespace std;
 
@@ -15,7 +15,7 @@ private:
 		this->variableEntity = variableEntity;
 
 		if (!statementEntity.isStatement() || !variableEntity.isVariable()) {
-			throw PQLError("Trying to create PQLPattern, but LHS is not statement, or RHS is not variable!");
+			throw PQLLogicError("Trying to create PQLPattern, but LHS is not statement, or RHS is not variable!");
 		}
 	}
 

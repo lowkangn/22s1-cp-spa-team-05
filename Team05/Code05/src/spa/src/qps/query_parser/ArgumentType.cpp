@@ -1,6 +1,5 @@
 #include <unordered_map>
-#include "ArgumentType.h"
-#include <qps/exceptions/PQLError.h>
+#include <qps/query_parser/ArgumentType.h>
 
 const string STMT_KEYWORD = "stmt";
 const string READ_KEYWORD = "read";
@@ -32,7 +31,7 @@ ArgumentType getDesignEntityArgumentType(string argumentType) {
         return designEntityMap.at(argumentType);
     }
     catch (const out_of_range& oor) {
-        throw PQLError(argumentType + " is not supported as a Design Entity");
+        throw PQLSyntaxError(argumentType + " is not supported as a Design Entity");
     }
 }
 
