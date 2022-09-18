@@ -8,6 +8,10 @@
 #include <qps/query/clause/PatternClause.h>
 #include <common/PostFixConverter.h>
 
+#include <iostream>
+
+const string STRING_DELIMITER = " ";
+
 /* PatternParser is an abstract class for the parsing of pattern
  * clauses. It implements the extraction of their arguments.
  */
@@ -19,6 +23,7 @@ protected:
 
 		// Add token strings to pattern string until quote
 		string s;
+		bool first = true;
 		while(!this->tokens.front().isQuote()) {
 			// Must be name/integer followed by operator, until last name/integer
 
@@ -34,13 +39,17 @@ protected:
 			if (this->tokens.front().isQuote()) {
 				break;
 			}
+			else {
+				// else, pad with delimiter
+				s += STRING_DELIMITER;
+			}
 
 			// Must be operator
 			currentToken = this->tokens.front();
 			if (!this->tokens.front().isOperator()) {
 				throw PQLError("Invalid syntax for pattern string");
 			}
-			s += currentToken.getTokenString();
+			s += currentToken.getTokenString() + STRING_DELIMITER; // pad with delimiter
 			this->tokens.pop_front();
 		}
 
