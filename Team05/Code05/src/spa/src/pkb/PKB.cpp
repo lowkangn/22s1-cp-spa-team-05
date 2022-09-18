@@ -137,7 +137,13 @@ void PKB::addEntities(vector<Entity> entities) {
 	for (Entity entity : entities) {
 		// depending on entity type, we create the appropriate pkb entity
 		// and add to the appropriate table
+
+		//skip opeartor entities
+		if (entity.isOperator()) {
+			continue;
+		}
 		shared_ptr<PkbEntity> object = this->spEntityToPkbEntity(entity);
+
 		if (entity.isStmtEntity()) {
 			this->statementTable.add(object);
 		}
@@ -202,7 +208,8 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 	for (Pattern p : patterns) {
 		// only assign is supported
 		if (!p.isAssignPattern()) { 
-			throw PkbException("Only assign pattern is supported!");
+			cout << "Only assign pattern is supported! Skipping this\n";
+			continue;
 		}
 		// we get the strings
 		vector<string> strings = {

@@ -14,6 +14,9 @@ volatile bool AbstractWrapper::GlobalStop = false;
 
 // a default constructor
 TestWrapper::TestWrapper() {
+	this->shouldAnswerQuery = true;
+	this->pkbPointer = shared_ptr<PKB>(new PKB());
+	this->qps = QPS();
 }
 
 // method for parsing the SIMPLE source
@@ -21,19 +24,44 @@ void TestWrapper::parse(std::string filename) {
 	// get stream 
 	fstream stream;
 	stream.open(filename);
+	
+	try{
+		//parse
+		SourceProcessor sp = SourceProcessor(stream);
+		//extract
+		vector<Entity> entities = sp.extractEntities();
+		vector<Relationship> relationships = sp.extractRelations();
+		vector<Pattern> patterns = sp.extractPatterns();
 
-	// parse
+		//add to pkb
+		pkbPointer->addEntities(entities);
+		pkbPointer->addRelationships(relationships);
+		pkbPointer->addPatterns(patterns);
+	}
+	catch (SPException e) {
+		std::cout << e.what() << "\n";
+		this->shouldAnswerQuery = false;
+	}
+	catch (SimpleSyntaxParserException e) {
+		std::cout << e.what() << "\n";
+		this->shouldAnswerQuery = false;
+	}
 
 	stream.close();
+	
+
 }
 
 // method to evaluating a query
 void TestWrapper::evaluate(std::string query, std::list<std::string>& results){
-
-
+	if (!this->shouldAnswerQuery) {
+		cout << "Parsing has failed; QPS will not answer queries\n";
+		return;
+	}
 	// query
+	this->qps.evaluate(query, shared_ptr<PKBQueryHandler>(pkbPointer));
 
 	// push into results list by reference
-
+	this->qps.projectResults(results);
 
 }

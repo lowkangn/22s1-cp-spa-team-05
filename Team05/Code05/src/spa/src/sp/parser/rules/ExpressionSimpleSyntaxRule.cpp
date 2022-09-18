@@ -35,6 +35,7 @@ vector<shared_ptr<SimpleSyntaxRule>> ExpressionSimpleSyntaxRule::generateChildRu
 	// Means lhs is either variable or constant
 	else {
 		shared_ptr<SimpleSyntaxRule> lhsRulePointer = shared_ptr<SimpleSyntaxRule>(new ExpressionSimpleSyntaxRule());
+		lhsTokens = lhsRulePointer->consumeTokens(lhsTokens); // consume the tokens
 		childRules.push_back(lhsRulePointer);
 	}
 	
@@ -88,7 +89,6 @@ list<Token> ExpressionSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	list<Token> rhsTokens;
 
 	Token token = tokens.front(); // read
-
 
 	// Check for brackets, if they are present means first term itself is an expression (Factor)
 	if (token.isOpenBracketToken()) {

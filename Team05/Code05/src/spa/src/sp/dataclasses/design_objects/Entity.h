@@ -72,6 +72,10 @@ class Entity {
 			return this->type == other.getType() && this->line == other.line && (this->token == other.token);
 		}
 
+		bool isOperator() {
+			return this->token.isRelationalOperator() || this->token.isOperatorToken()  || this->token.isNotOperator() || this->token.isConditionalOperator();
+		}
+
 		bool isProgramEntity() {
 			return this->type == EntityType::PROGRAM;
 		}

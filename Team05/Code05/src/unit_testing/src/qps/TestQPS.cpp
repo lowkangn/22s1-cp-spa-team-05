@@ -282,11 +282,20 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{ "y", "z"};
 		testQPS(queryString, expectedResult, pkb);
 
+		queryString = "assign a; \n Select a pattern a(_, _ )";
+		expectedResult = set<string>{ "2" , "7"};
+		testQPS(queryString, expectedResult, pkb);
+
 		queryString = "assign a; \n Select a pattern a(_, _\"x\"_ )";
 		expectedResult = set<string>{ "2"};
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "assign a; stmt s; variable v; \n Select s pattern a(v, _\"1000\"_ )";
+		expectedResult = set<string>{ "1", "2", "3", "4", "5", "6", "7", "8" };
+		testQPS(queryString, expectedResult, pkb);
+
+
+		queryString = "assign a; stmt s; variable v; \n Select s pattern a(_, _ )";
 		expectedResult = set<string>{ "1", "2", "3", "4", "5", "6", "7", "8" };
 		testQPS(queryString, expectedResult, pkb);
 
@@ -326,6 +335,11 @@ TEST_CASE("QPS: test working correctly") {
 		// Select assignments that follow* line 2 and has an RHS with 0 in it
 		queryString = "assign a; \n Select a such that Follows*(2,a) pattern a(_, _\"0\"_ )";
 		expectedResult = set<string>{ "7" };
+		testQPS(queryString, expectedResult, pkb);
+
+		
+		queryString = "assign a; variable v; Select a pattern a(_, _\"x\"_) such that Parent(_, a)";
+		expectedResult = set<string>{ "2" };
 		testQPS(queryString, expectedResult, pkb);
 
 		// Select variables that are used in an assignment that has an RHS with 1000 in it and has line 1 as its parent 
