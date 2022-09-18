@@ -7,7 +7,7 @@
 
 using namespace std;
 
-class FollowsExtractor : Extractor<Relationship> {
+class FollowsExtractor : public Extractor<Relationship> {
 
 private:
 	/*

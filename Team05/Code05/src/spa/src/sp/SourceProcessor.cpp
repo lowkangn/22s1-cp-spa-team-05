@@ -8,6 +8,8 @@
 #include <sp/design_extractor/UsesExtractor.h>
 #include <sp/design_extractor/ParentExtractor.h>
 #include <sp/design_extractor/ParentTExtractor.h>
+#include <sp/design_extractor/FollowsExtractor.h>
+#include <sp/design_extractor/FollowsTExtractor.h>
 
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/ast/AST.h>
