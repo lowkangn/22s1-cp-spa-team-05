@@ -319,6 +319,23 @@ TEST_CASE("Parser: test ::consumeTokens") {
 		};
 		testThrowsException(ProcedureSimpleSyntaxRule(), tokens);
 	}
+
+	SECTION("IfSimpleSyntaxRule: no else") {
+		list<Token> tokens = {
+			Token::createIfToken(),
+			Token::createOpenBracketToken(),
+			Token::createNameOrKeywordToken("x"),
+			Token::createOperatorToken(">"),
+			Token::createNameOrKeywordToken("y"),
+			Token::createCloseBracketToken(),
+			Token::createThenToken(),
+			Token::createOpenCurlyBracketToken(),
+			Token::createPrintToken(),
+			Token::createNameOrKeywordToken("x"),
+			Token::createCloseCurlyBracketToken(),
+		};
+		testThrowsException(IfSimpleSyntaxRule(), tokens);
+	}
  
 		// -------------------- ProgramSimpleSyntaxRule --------------------
 	SECTION("ProgramSimpleSyntaxRule: Consumes exactly correct tokens, using two procedures") {

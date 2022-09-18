@@ -81,6 +81,7 @@ list<Token> ProcedureSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 			seenOneToken = true;
 		}
 	}
+
 	if (!seenOneToken) {
 		throw SimpleSyntaxParserException("Procedure should have atleast one token inside");
 	}
