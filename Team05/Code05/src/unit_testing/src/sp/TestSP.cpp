@@ -281,10 +281,6 @@ TEST_CASE("Test Source Processor : extractRelations") {
 		Token fiveToken = Token::createIntegerToken("5");
 		Token tenToken = Token::createIntegerToken("10");
 
-<<<<<<< HEAD
-
-=======
->>>>>>> d20d25cffd457aca88ff02076870c216275dd722
 		vector<Relationship> expectedFollows {
 			Relationship::createFollowsRelationship(Entity::createReadEntity(1), Entity::createPrintEntity(2)),
 			Relationship::createFollowsRelationship(Entity::createPrintEntity(2), Entity::createAssignEntity(3)),
