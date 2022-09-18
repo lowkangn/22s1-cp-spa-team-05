@@ -99,6 +99,7 @@ namespace {
 	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
 	ClauseArgument varArg = ClauseArgument::createVariableArg("v");
 	ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
+	ClauseArgument anotherWildcardArg = ClauseArgument::createWildcardArg();
 	ClauseArgument firstStringLiteralArg = ClauseArgument::createStringLiteralArg("y");
 	ClauseArgument secondStringLiteralArg = ClauseArgument::createStringLiteralArg("z");
 	ClauseArgument thirdStringLiteralArg = ClauseArgument::createStringLiteralArg("x");
@@ -108,11 +109,11 @@ namespace {
 	ClauseArgument thirdPatternStringArg = ClauseArgument::createPatternStringArg("x1-");
 	ClauseArgument firstNonExistentPatternStringArg = ClauseArgument::createPatternStringArg("3y-");
 	ClauseArgument secondNonExistentPatternStringArg = ClauseArgument::createPatternStringArg("x3*");
-	ClauseArgument firstPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("x");
-	ClauseArgument secondPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("y");
-	ClauseArgument thirdPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("x3*");
-	ClauseArgument fourthPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("1");
-	ClauseArgument nonExistentPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("3y-");
+	ClauseArgument firstPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_x_");
+	ClauseArgument secondPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_y_");
+	ClauseArgument thirdPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_x3*_");
+	ClauseArgument fourthPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_1_");
+	ClauseArgument nonExistentPatternStringWithWildcardsArg = ClauseArgument::createPatternStringWithWildcardsArg("_3y-_");
 
 };
 
@@ -148,7 +149,8 @@ TEST_CASE("PatternAssignClause: test execute") {
 	}
 
 	SECTION("LHS wildcard, RHS wildcard - return all results") {
-		clause = PatternAssignClause(assignArg, wildcardArg, wildcardArg);
+		clause = PatternAssignClause(assignArg, wildcardArg, anotherWildcardArg);
+		expectedClauseResult = RelationshipClauseResult(assignArg, wildcardArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 

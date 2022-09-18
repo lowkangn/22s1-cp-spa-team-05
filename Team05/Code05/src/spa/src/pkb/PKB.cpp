@@ -568,7 +568,7 @@ vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, 
 		if (rhs.isWildcard()) {
 			rhsStringPattern = WILDCARD_CHAR;
 		}
-		else if (rhs.isPatternString() || rhs.isPatternStringWithWildcards()) {
+		else if (rhs.isStringLiteral() || rhs.isPatternString() || rhs.isPatternStringWithWildcards()) {
 			rhsStringPattern = rhs.getIdentifier();
 		}
 		else {

@@ -87,7 +87,12 @@ ClauseArgument ClauseParser::parseWildcardOrPatternStringWithWildcards() {
 	}
 	this->tokens.pop_front();
 
-	return ClauseArgument::createPatternStringWithWildcardsArg(patternString.getIdentifier());
+	// Add wildcards
+	string s = "_";
+	s += patternString.getIdentifier();
+	s += "_";
+
+	return ClauseArgument::createPatternStringWithWildcardsArg(s);
 }
 
 void ClauseParser::consumeOpenBracket() {

@@ -24,7 +24,9 @@ public:
 		Creates an assign pattern.
 	*/
 	static PQLPattern generateAssignPattern(int statementLineNumber, string variableName) {
-		return PQLPattern(PQLEntity::generateStatement(statementLineNumber), PQLEntity::generateVariable(variableName));
+		PQLEntity stmtEntity = PQLEntity::generateStatement(statementLineNumber);
+		PQLEntity varEntity = PQLEntity::generateVariable(variableName);
+		return PQLPattern(stmtEntity, varEntity);
 	}
 	
 	friend bool operator==(PQLPattern first, PQLPattern second) {
