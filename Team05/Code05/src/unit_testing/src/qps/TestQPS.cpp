@@ -273,74 +273,75 @@ TEST_CASE("QPS: test working correctly") {
 	}
 
 	SECTION("Select and Pattern") {
-		/*TODO: Uncomment when Pattern is done
-		queryString = "assign a; \n Select a Pattern a(\"y\", _)";
+		
+		queryString = "assign a; \n Select a pattern a(\"y\", _)";
 		expectedResult = set<string>{ "2" };
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "assign a; variable v; \n Select v Pattern a(v, _)";
+		queryString = "assign a; variable v; \n Select v pattern a(v, _)";
 		expectedResult = set<string>{ "y", "z"};
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "assign a; \n Select a Pattern a(_, _\"x\"_ )";
+		queryString = "assign a; \n Select a pattern a(_, _\"x\"_ )";
 		expectedResult = set<string>{ "2"};
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "assign a; stmt s; \n Select s Pattern a(v, _\"1000\"_ )";
+		queryString = "assign a; stmt s; variable v; \n Select s pattern a(v, _\"1000\"_ )";
 		expectedResult = set<string>{ "1", "2", "3", "4", "5", "6", "7", "8" };
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "assign a; stmt s; \n Select s Pattern a(v, _\"100\"_ )";
+		/* Bugged: pattern matches z = 1000 - 0 + b, 100 is a substring of 1000 1000 0 - b + 
+		queryString = "assign a; stmt s; variable v;\n Select s pattern a(v, _\"100\"_ )";
 		expectedResult = set<string>{};
 		testQPS(queryString, expectedResult, pkb);
 		*/
-		/* Not needed for iter 1, but I think it already works
+
+		/* Not needed for iter 1
 		
-		queryString = "assign a; variable v; \n Select v Pattern a(v,  _\"1000-0\"_ )";
+		queryString = "assign a; variable v; \n Select v pattern a(v,  _\"1000-0\"_ )";
 		expectedResult = set<string>{ "z" };
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "assign a; variable v; \n Select v Pattern a(v,  \"1000-0\" )";
+		queryString = "assign a; variable v; \n Select v pattern a(v,  \"1000-0\" )";
 		expectedResult = set<string>{};
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "assign a; variable v; \n Select a Pattern a(v,  _\"1*0\"_ )";
+		queryString = "assign a; variable v; \n Select a pattern a(v,  _\"1*0\"_ )";
 		expectedResult = set<string>{ "2" };
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "assign a; variable v; \n Select a Pattern a(v,  _\"x+1\"_ )";
+		queryString = "assign a; variable v; \n Select a pattern a(v,  _\"x+1\"_ )";
 		expectedResult = set<string>{ };
 		testQPS(queryString, expectedResult, pkb);
 		*/
 	}
 
 	SECTION("Select, such that and Pattern") {
-		/*TODO: Uncomment when Pattern is done
+		
 		// Select assignments that follow line 2 and has an RHS with 0 in it
-		queryString = "assign a; \n Select a such that Follows(2,a) Pattern a(v, _\"0\"_ )";
+		queryString = "assign a; variable v; \n Select a such that Follows(2,a) pattern a(v, _\"0\"_ )";
 		expectedResult = set<string>{};
 		testQPS(queryString, expectedResult, pkb);
 
 		// Select assignments that follow* line 2 and has an RHS with 0 in it
-		queryString = "assign a; \n Select a such that Follows*(2,a) Pattern a(v, _\"0\"_ )";
+		queryString = "assign a; \n Select a such that Follows*(2,a) pattern a(_, _\"0\"_ )";
 		expectedResult = set<string>{ "7" };
 		testQPS(queryString, expectedResult, pkb);
 
 		// Select variables that are used in an assignment that has an RHS with 1000 in it and has line 1 as its parent 
-		queryString = "assign a; variable v; \n Select v such that Parent(1,a) Pattern a(v, _\"1000\"_ )";
+		queryString = "assign a; variable v; \n Select v such that Parent(1,a) pattern a(v, _\"1000\"_ )";
 		expectedResult = set<string>{ "z" };
 		testQPS(queryString, expectedResult, pkb);
 
 		// Select assignments whose LHS has a variable that is used by an if
-		queryString = "assign a; if i \n Select a Pattern a(v, _ ) such that Uses(i, v)" ;
-		expectedResult = set<string>{ "y" };
+		queryString = "assign a; if i; variable v; \n Select a pattern a(v, _ ) such that Modifies(i, v)" ;
+		expectedResult = set<string>{ "2" };
 		testQPS(queryString, expectedResult, pkb);
 
 		// Select constants iff there is an assignment of the form y = ...0... and a while is a parent of an if
-		queryString = "assign a; constant c; if i; while w; \n Select c Pattern a(\"y\", _\"0\"_ ) such that Parent(w, i) " ;
-		expectedResult = set<string>{ "2" };
+		queryString = "assign a; constant c; if i; while w; \n Select c pattern a(\"y\", _\"0\"_ ) such that Parent(w, i) " ;
+		expectedResult = set<string>{ "0", "1", "1000"};
 		testQPS(queryString, expectedResult, pkb);
-		*/
 
 	}
 }
@@ -400,6 +401,12 @@ TEST_CASE("QPS: test correct errors") {
 
 		queryString = "stmt s;\n Select s such that Parent*(\"main\", s)";
 		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s;\n Select s such that Follows*(\"x\", s)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s;\n Select s such that Uses(s, \"x)";
+		testQPS(queryString, expectedResult);
 	}
 
 	SECTION("Semantic errors") {
@@ -438,5 +445,10 @@ TEST_CASE("QPS: test correct errors") {
 		queryString = "stmt s; \n Select s such that Modifies(_, \"x\")";
 		testQPS(queryString, expectedResult);
 
+		queryString = "stmt s, s2; \n Select s pattern s2(_, _)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "assign a1, a; \n Select s pattern a1(a, _)";
+		testQPS(queryString, expectedResult);
 	}
 }
