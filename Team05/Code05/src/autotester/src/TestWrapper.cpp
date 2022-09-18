@@ -14,7 +14,6 @@ volatile bool AbstractWrapper::GlobalStop = false;
 
 // a default constructor
 TestWrapper::TestWrapper() {
-	this->sp = SourceProcessor();
 }
 
 // method for parsing the SIMPLE source

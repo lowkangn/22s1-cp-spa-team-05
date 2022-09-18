@@ -3,17 +3,19 @@
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <sp/dataclasses/tokens/Token.h>
 
-enum class RelationshipType {
-    MODIFIES,
-    USES,
-    FOLLOWS,
-    FOLLOWST,
-    PARENT,
-    PARENTT
-};
+
 
 class Relationship {
 private:
+    enum class RelationshipType {
+        MODIFIES = 0,
+        USES = 1,
+        FOLLOWS = 2,
+        FOLLOWST = 3,
+        PARENT = 4,
+        PARENTT = 5
+    };
+
     Entity entity1;
     Entity entity2;
     RelationshipType type;
@@ -60,6 +62,10 @@ public:
     }
 
     bool equals(Relationship other) {
+        return (this->type == other.type) && (this->entity1.equals(other.entity1)) && (this->entity2.equals(other.entity2));
+    }
+
+    bool operator==(Relationship other) {
         return (this->type == other.type) && (this->entity1.equals(other.entity1)) && (this->entity2.equals(other.entity2));
     }
 

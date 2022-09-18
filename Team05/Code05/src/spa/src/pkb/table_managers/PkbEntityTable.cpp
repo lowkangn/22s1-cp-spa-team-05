@@ -8,7 +8,7 @@ string PkbEntityTable::add(shared_ptr<PkbEntity> entity) {
 
 	// check if item already in table
 	if (this->table.find(key) != this->table.end()) {
-		cout << "Item already in table!";
+		//cout << "Item already in table!";
 	}
 
 	// store

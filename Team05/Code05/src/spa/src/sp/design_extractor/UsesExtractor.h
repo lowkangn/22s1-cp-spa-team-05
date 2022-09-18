@@ -12,8 +12,8 @@ class UsesExtractor : public Extractor<Relationship> {
 
 public:
 	/*
-		This method is used to extract entities from a provided abstract syntax tree. It is meant to be
-		overriden for each specific entity type.
+		This method is used to extract relationships from a provided abstract syntax tree. It is meant to be
+		overriden for each specific relationship type.
 	*/
 	vector<Relationship> extract(shared_ptr<ASTNode> ast) override;
 

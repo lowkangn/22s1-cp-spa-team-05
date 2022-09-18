@@ -55,12 +55,6 @@ public:
 	void traverseStreamUntilNoWhiteSpace(istream& stream);
 
 	/*
-		Traverses stream to remove newlines.
-		NOTE: has side effects - modifies the stream by reference.
-	*/
-	void traverseStreamUntilNoComment(istream& stream);
-
-	/*
 		Traverses the stream and creates a token out of it. 
 		NOTE: has side effects - modifies the stream by reference.
 	*/

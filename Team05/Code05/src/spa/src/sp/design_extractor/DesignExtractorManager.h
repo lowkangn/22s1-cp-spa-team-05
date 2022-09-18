@@ -17,7 +17,7 @@ using namespace std;
 class DesignExtractorManager {
 private:
 	shared_ptr<ASTNode> rootNode;
-	
+
 	vector<shared_ptr<Extractor<Relationship>>> relationshipExtractorList;
 	EntityExtractor entityExtractor;
 	PatternExtractor patternExtractor;
@@ -26,6 +26,7 @@ private:
 	vector<Relationship> relationships;
 	vector<Entity> entities;
 	vector<Pattern> patterns;
+
 
 public:
 	/*

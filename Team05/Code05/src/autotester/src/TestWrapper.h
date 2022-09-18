@@ -16,7 +16,7 @@ class TestWrapper : public AbstractWrapper {
 private: 
 	FileIOManager io;
 	SourceProcessor sp;
-	shared_ptr<PKB> pkb;
+	PKB pkb;
 public:
   // default constructor
   TestWrapper();

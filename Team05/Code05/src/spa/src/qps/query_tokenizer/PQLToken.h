@@ -174,6 +174,10 @@ public:
         return isName() && tokenString == PQL_PARENT;
     }
 
+    bool isFollows() {
+        return isName() && tokenString == PQL_FOLLOWS;
+    }
+
     bool isStarModifier() {
         return tokenString == PQL_STAR_MODIFIER;
     }
