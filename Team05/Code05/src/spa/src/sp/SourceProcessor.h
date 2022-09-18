@@ -54,7 +54,6 @@ public:
 		shared_ptr<ASTNode> root = parser.parse();
 
 		this->astRoot = root;
-		this->designManager = designManager;
 		this->isInitialized = true;
 	};
 

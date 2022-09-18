@@ -35,3 +35,26 @@ vector<shared_ptr<PkbStatementPattern>> PkbPatternTable::getAll() {
 	}
 	return output;
 }
+
+vector<shared_ptr<PkbStatementPattern>> PkbPatternTable::getAllThatMatchPostFixStrings(vector<string> postFixStrings) {
+		
+	// get all 
+	vector<shared_ptr<PkbStatementPattern>> patterns = this->getAll();
+
+	// convert string to regex strings
+	vector<string> regexStrings;
+	for (string s : postFixStrings) {
+		regexStrings.push_back(this->createRegexStringFromString(s));
+	}
+
+	// do matching row by row
+	vector<shared_ptr<PkbStatementPattern>> output;
+	for (shared_ptr<PkbStatementPattern> p : patterns) {
+		if (p->isRegexMatch(regexStrings)) {
+			output.push_back(p);
+		}
+	}
+
+	// return all matches
+	return output;
+}

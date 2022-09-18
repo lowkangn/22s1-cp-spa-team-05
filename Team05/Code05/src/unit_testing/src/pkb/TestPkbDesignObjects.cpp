@@ -190,14 +190,14 @@ TEST_CASE("PkbStatementPattern::regexMatch") {
 	};
 
 
-	SECTION("Should match, _; _+_") {
+	SECTION("Should match, _; _x_ with nested") {
 		vector<string> strings = {
 			"x",
-			"x+1"
-		};
+			"yx*1+" // is y * x + 1
+ 		};
 		vector<string> regexStringsToMatch = {
 			".*",
-			".*\\+.*" // escape the + character
+			".*x.*" // escape the + character
 		};
 		bool shouldThrow = false;
 		bool shouldMatch = true;

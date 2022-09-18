@@ -1,4 +1,3 @@
-#pragma once
 #include <vector>
 #include <memory>
 
@@ -54,7 +53,8 @@ vector<Relationship> ParentTExtractor::recursiveExtractFromContainer(Entity left
 
 		if (child->isIfNode()) {
 			// Extract this node as a Relationship
-			Relationship parent = Relationship::createParentTRelationship(leftHandSide, child->extractEntity());
+			Entity childEntity = child->extractEntity();
+			Relationship parent = Relationship::createParentTRelationship(leftHandSide, childEntity);
 			parentRelationships.push_back(parent);
 
 			// Extract deeper nested stmtlsts
@@ -69,7 +69,8 @@ vector<Relationship> ParentTExtractor::recursiveExtractFromContainer(Entity left
 		}
 		else if (child->isWhileNode()) {
 			shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(child);
-			Relationship parent = Relationship::createParentTRelationship(leftHandSide, child->extractEntity());
+			Entity childEntity = child->extractEntity();
+			Relationship parent = Relationship::createParentTRelationship(leftHandSide, childEntity);
 
 			// Extract this node as a Relationship
 			parentRelationships.push_back(parent);
@@ -80,7 +81,8 @@ vector<Relationship> ParentTExtractor::recursiveExtractFromContainer(Entity left
 			parentRelationships.insert(parentRelationships.begin(), whileParentRelations.begin(), whileParentRelations.end());
 		}
 		else if (child->isStatement()) {
-			Relationship parent = Relationship::createParentTRelationship(leftHandSide, child->extractEntity());
+			Entity childEntity = child->extractEntity();
+			Relationship parent = Relationship::createParentTRelationship(leftHandSide, childEntity);
 			parentRelationships.push_back(parent);
 		}
 	}
