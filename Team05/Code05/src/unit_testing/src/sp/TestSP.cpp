@@ -237,7 +237,7 @@ TEST_CASE("Test Source Processor : extractRelations") {
 
 		sort(relations.begin(), relations.end(), compareRelationship);
 
-		//REQUIRE(relations.size() == expectedRelations.size());
+		REQUIRE(relations.size() == expectedRelations.size());
 
 		for (int i = 0; i < expectedRelations.size(); i++) {
 			Relationship expectedRelation = expectedRelations[i];
@@ -282,8 +282,6 @@ TEST_CASE("Test Source Processor : extractRelations") {
 		Token tenToken = Token::createIntegerToken("10");
 
 
-
-		// Need to fill once follows is merged
 		vector<Relationship> expectedFollows {
 			Relationship::createFollowsRelationship(Entity::createReadEntity(1), Entity::createPrintEntity(2)),
 			Relationship::createFollowsRelationship(Entity::createPrintEntity(2), Entity::createAssignEntity(3)),
