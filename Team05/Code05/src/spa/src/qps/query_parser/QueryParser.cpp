@@ -6,6 +6,8 @@
 #include <qps/query_parser/parsers/FollowsParser.h>
 #include <qps/query_parser/parsers/ModifiesParser.h>
 #include <qps/query_parser/parsers/ParentParser.h>
+#include <qps/query_parser/parsers/PatternParser.h>
+#include <qps/query_parser/parsers/PatternAssignParser.h>
 #include <qps/query_parser/parsers/UsesParser.h>
 
 Query QueryParser::parse() {
@@ -17,30 +19,35 @@ Query QueryParser::parse() {
 
     this->tokens = selParser.getRemainingTokens();
     if (this->tokens.empty()) {
-        return Query(selectClause, list<shared_ptr<RelationshipClause>>{});
+        return Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
     }
-    list<shared_ptr<RelationshipClause>> constraintClauses = parseConstraints(declarations);
 
-    return Query(selectClause, constraintClauses);
+	shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClauses = make_shared<list<shared_ptr<RelationshipClause>>>();
+	shared_ptr<list<shared_ptr<PatternClause>>> patternClauses =  make_shared<list<shared_ptr<PatternClause>>>();
+
+	parseConstraints(suchThatClauses, patternClauses, declarations);
+
+    return Query(selectClause, *suchThatClauses, *patternClauses);
 }
 
-list<shared_ptr<RelationshipClause>> QueryParser::parseConstraints(unordered_map<string, ArgumentType> declarations) {
-    list<shared_ptr<RelationshipClause>> clauses;
+void QueryParser::parseConstraints(shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClauses,
+								   shared_ptr<list<shared_ptr<PatternClause>>> patternClauses,
+								   unordered_map<string, ArgumentType> declarations) {
+
     PQLToken token = this->tokens.front();
     while (!this->tokens.empty()) {
         token = this->tokens.front();
         this->tokens.pop_front();
         if (token.isSuch()) {
-            clauses.emplace_back(parseSuchThat(declarations));
+            suchThatClauses->emplace_back(parseSuchThat(declarations));
         }
         else if (token.isPattern()) {
-            //not needed for MVP
+			patternClauses->emplace_back(parsePattern(declarations));
         }
         else {
             throw PQLSyntaxError("Only such that and pattern clause are supported.");
         }
     }
-    return clauses;
 }
 
 shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, ArgumentType> declarations) {
@@ -72,4 +79,23 @@ shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, 
     shared_ptr<RelationshipClause> clause = parserPointer->parse();
     this->tokens = parserPointer->getRemainingTokens();
     return clause;
+}
+
+shared_ptr<PatternClause> QueryParser::parsePattern(unordered_map<string, ArgumentType> declarations) {
+	if (this->tokens.empty() ) {
+		throw PQLError("Missing synonym after pattern");
+	}
+
+	PQLToken token = this->tokens.front();
+	shared_ptr<PatternParser> parserPointer;
+
+	if (declarations.at(token.getTokenString()) == ArgumentType::ASSIGN) {
+		parserPointer = shared_ptr<PatternParser>(new PatternAssignParser(this->tokens, declarations));
+	} else {
+		throw PQLError("Invalid synonym in pattern");
+	}
+
+	shared_ptr<PatternClause> clause = parserPointer->parse();
+	this->tokens = parserPointer->getRemainingTokens();
+	return clause;
 }

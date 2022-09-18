@@ -2,8 +2,8 @@
 
 set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pkb) {
 	shared_ptr<EntityClauseResult> entitiesResultPointer = query.executeSelect(pkb);
-	list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers = query.executeSuchThat(pkb);
-    return combine(entitiesResultPointer, relationshipsResultPointers);
+	list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers = query.executeSuchThatAndPattern(pkb);
+	return combine(entitiesResultPointer, relationshipsResultPointers);
 }
 
 set<string> QueryEvaluator::combine(shared_ptr<EntityClauseResult> entitiesResultPointer,

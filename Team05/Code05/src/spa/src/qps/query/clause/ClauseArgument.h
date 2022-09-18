@@ -73,8 +73,16 @@ public:
 		return ClauseArgument(identifier, ArgumentType::WHILE);
 	}
 
+	static ClauseArgument createPatternStringArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::PATTERN_STRING);
+	}
+
 	static ClauseArgument createWildcardArg() {
 		return ClauseArgument(WILDCARD_IDENTIFIER, ArgumentType::WILDCARD);
+	}
+
+	static ClauseArgument createPatternStringWithWildcardsArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::PATTERN_STRING_WITH_WILDCARDS);
 	}
 
 	bool isStmtSynonym() {
@@ -125,8 +133,16 @@ public:
 		return this->type == ArgumentType::STRING_LITERAL;
 	}
 
+	bool isPatternString() {
+		return this->type == ArgumentType::PATTERN_STRING;
+	}
+
 	bool isWildcard() {
 		return this->type == ArgumentType::WILDCARD;
+	}
+
+	bool isPatternStringWithWildcards() {
+		return this->type == ArgumentType::PATTERN_STRING_WITH_WILDCARDS;
 	}
 
 	bool isSynonym() {

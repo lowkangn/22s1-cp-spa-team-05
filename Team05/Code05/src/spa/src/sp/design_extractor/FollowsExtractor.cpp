@@ -1,5 +1,3 @@
-#pragma once
-
 #include <vector>
 
 #include <sp/dataclasses/ast/IfASTNode.h>

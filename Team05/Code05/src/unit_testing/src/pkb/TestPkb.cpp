@@ -743,12 +743,128 @@ TEST_CASE("Test containsEntity") {
 }
 
 
+TEST_CASE("Test add and get patterns") {
+	auto test = [](PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLPattern> expectedPatterns, vector<Pattern> toAdd) {
+
+		// given
+		PKB pkb;
+
+		// when
+		pkb.addPatterns(toAdd);
+
+		// then 
+		vector<PQLPattern> all = pkb.retrievePatterns(statementType, lhs, rhs);
+		REQUIRE(expectedPatterns.size() == all.size());
+		for (PQLPattern e : expectedPatterns) {
+			bool found = false;
+			for (PQLPattern p : all) {
+				if (p == e) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				for (PQLPattern p : all) {
+					cout << p.toString() << endl;
+				}
+				cout << e.toString() << endl;
+			}
+			REQUIRE(found);
+		}
+	};
+
+	// some patterns to add
+	/*
+		x = 2 * x + y // is x, 2x*y+ in postfix
+		y = 3 / y - 2 // is 3y/2- in postfix
+		z = x + y // is xy+ in postfix
+		z = x // is x in postfix
+		y = x + y // is xy+ in postfix
+		y = x + y // repeated on a different line
+	*/
+	Pattern p1 = Pattern::createAssignPattern(1, "x", "2x*y+");
+	Pattern p2 = Pattern::createAssignPattern(2, "y", "3y/2-");
+	Pattern p3 = Pattern::createAssignPattern(3, "z", "xy+");
+	Pattern p4 = Pattern::createAssignPattern(4, "z", "x");
+	Pattern p5 = Pattern::createAssignPattern(5, "y", "xy+");
+	Pattern p6= Pattern::createAssignPattern(6, "y", "xy+");
+	vector<Pattern> toAdd = {
+		p1, p2, p3, p4, p5, p6
+	};
+
+	SECTION("lhs and rhs wildcard should get all") {
+		// lhs wildcard, // rhs also
+		ClauseArgument lhs = ClauseArgument::createWildcardArg();
+		ClauseArgument rhs = ClauseArgument::createWildcardArg();
+		vector<PQLPattern> expectedPatterns = {
+			PQLPattern::generateAssignPattern(1, "x"),
+			PQLPattern::generateAssignPattern(2, "y"),
+			PQLPattern::generateAssignPattern(3, "z"),
+			PQLPattern::generateAssignPattern(4, "z"),
+			PQLPattern::generateAssignPattern(5, "y"),
+			PQLPattern::generateAssignPattern(6, "y"),
+		};
+		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
+	}
+
+	SECTION("lhs wildcard, rhs specific") {
+		// lhs wildcard, // rhs specific
+		ClauseArgument lhs = ClauseArgument::createWildcardArg();
+		ClauseArgument rhs = ClauseArgument::createPatternStringArg("xy+");
+		vector<PQLPattern> expectedPatterns = {
+			PQLPattern::generateAssignPattern(3, "z"),
+			PQLPattern::generateAssignPattern(5, "y"),
+			PQLPattern::generateAssignPattern(6, "y"),
+		};
+		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
+	}
+
+	SECTION("lhs specific, rhs sandwich wilcard") {
+		// lhs specific, rhs sandwich wildcard _x_
+		ClauseArgument lhs = ClauseArgument::createWildcardArg();
+		ClauseArgument rhs = ClauseArgument::createPatternStringWithWildcardsArg("_x_");
+		vector<PQLPattern> expectedPatterns = {
+			PQLPattern::generateAssignPattern(1, "x"),
+			PQLPattern::generateAssignPattern(3, "z"),
+			PQLPattern::generateAssignPattern(4, "z"),
+			PQLPattern::generateAssignPattern(5, "y"),
+			PQLPattern::generateAssignPattern(6, "y"),
+		};
+		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
+	}
+
+	SECTION("Synonyms should behave like wildcards") {
+		// lhs synonym, rhs specific
+		ClauseArgument lhs = ClauseArgument::createVariableArg("v");
+		ClauseArgument rhs = ClauseArgument::createPatternStringArg("xy+");
+		vector<PQLPattern> expectedPatterns = {
+			PQLPattern::generateAssignPattern(3, "z"),
+			PQLPattern::generateAssignPattern(5, "y"),
+			PQLPattern::generateAssignPattern(6, "y"),
+		};
+		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
+	}
+
+	SECTION("Can handle identical patterns on different lines") {
+		// lhs synonym, rhs specific
+		ClauseArgument lhs = ClauseArgument::createPatternStringArg("y");
+		ClauseArgument rhs = ClauseArgument::createPatternStringArg("xy+");
+		vector<PQLPattern> expectedPatterns = {
+			PQLPattern::generateAssignPattern(5, "y"),
+			PQLPattern::generateAssignPattern(6, "y"),
+
+		};
+		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
+	}
+
+}
+
 TEST_CASE("Test containsRelationship") {
 	auto test = [](vector<Relationship> relationshipsToAdd, Relationship relationshipToTest, bool expected) {
 		// given
 		PKB pkb;
 
-		// when 
+		// when
 		pkb.addRelationships(relationshipsToAdd);
 		bool extractedBool = pkb.containsRelationship(relationshipToTest);
 

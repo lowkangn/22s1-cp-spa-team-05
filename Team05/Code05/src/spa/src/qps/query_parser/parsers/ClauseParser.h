@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <list>
 #include <unordered_map>
+#include <stack>
 
 #include <qps/exceptions/PQLLogicError.h>
 #include <qps/exceptions/PQLSyntaxError.h>

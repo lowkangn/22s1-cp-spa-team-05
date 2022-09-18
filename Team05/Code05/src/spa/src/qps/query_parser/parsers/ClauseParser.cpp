@@ -37,10 +37,14 @@ ClauseArgument ClauseParser::parseStringLiteral() {
 		throw PQLSyntaxError("Expected name in quotes, got: " + token.getTokenString());
 	}
 	this->tokens.pop_front();
+
 	if (this->tokens.empty() || !this->tokens.front().isQuote()) {
 		throw PQLSyntaxError("Expected closing quote");
 	}
+
+	// Ignore '"' token
 	this->tokens.pop_front();
+
 	return ClauseArgument::createStringLiteralArg(token.getTokenString());
 }
 

@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <regex>
+#include <iostream>
 using namespace std;
 /*
 	Parent class for all statement-based patterns.
@@ -82,4 +83,17 @@ public :
 		}
 		return key + this->statement->getKey();
 	}
+
+	int getStatementLineNumber() {
+		return this->statement->getLineNumber();
+	}
+
+	string getVariableIdentifier() {
+		return this->strings[0]; // we can confirm is lhs, since this always true for all patterns
+	}
+
+	bool equals(shared_ptr<PkbStatementPattern> other) {
+		return this->statement->equals(other->statement) && this->strings == other->strings;
+	}
+
 };

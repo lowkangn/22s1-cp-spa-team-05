@@ -7,6 +7,7 @@
 #include <sp/dataclasses/ast/AssignASTNode.h>
 #include <sp/dataclasses/ast/exceptions/ASTException.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
+#include <common/PostFixConverter.h>
 
 using namespace std;
 
@@ -112,7 +113,8 @@ vector<Pattern> PatternExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 	string lhsString = lhsNode->getToken().getString();
 	string rhsString = this->recursiveExtractExpression(rhsNode);
 
-	rhsString = convertInfixToPostFix(rhsString);
+	PostFixConverter converter = PostFixConverter();
+	rhsString = converter.convertInfixToPostFix(rhsString);
 
 	Pattern pattern = Pattern::createAssignPattern(ast->getLineNumber(), lhsString, rhsString);
 
