@@ -1290,10 +1290,10 @@ namespace {
 	PQLRelationship pqlUsesPMainThree = PQLRelationship(pqlMain, pql3);
 
 	// Pattern
-	Pattern a2Pattern = Pattern::createAssignPattern(2, "x", "y");
-	Pattern a6Pattern = Pattern::createAssignPattern(6, "x", "x1-");
-	Pattern a8Pattern = Pattern::createAssignPattern(8, "y", "3");
-	Pattern a9Pattern = Pattern::createAssignPattern(9, "y", "z");
+	Pattern a2Pattern = Pattern::createAssignPattern(2, " x ", " y ");
+	Pattern a6Pattern = Pattern::createAssignPattern(6, " x ", " x 1 - ");
+	Pattern a8Pattern = Pattern::createAssignPattern(8, " y ", " 3 ");
+	Pattern a9Pattern = Pattern::createAssignPattern(9,  " y ", " z ");
 
 	PQLRelationship pqlPatternA2X = PQLRelationship(pqlA2, pqlX);
 	PQLRelationship pqlPatternA6X = PQLRelationship(pqlA6, pqlX);
@@ -1319,13 +1319,13 @@ namespace {
 	ClauseArgument nonExistentStringLiteralArg = ClauseArgument::createStringLiteralArg("z");
 
 	ClauseArgument a2PatternStringArg = ClauseArgument::createPatternStringArg("y");
-	ClauseArgument a6PatternStringArg = ClauseArgument::createPatternStringArg("x1-");
+	ClauseArgument a6PatternStringArg = ClauseArgument::createPatternStringArg("x 1 -");
 	ClauseArgument a8PatternStringArg = ClauseArgument::createPatternStringArg("3");
 	ClauseArgument a9PatternStringArg = ClauseArgument::createPatternStringArg("z");
 	ClauseArgument nonExistentPatternStringArg = ClauseArgument::createPatternStringArg("aAaAaA");
 
 	ClauseArgument a2PatternStringWithWildcardsArg = ClauseArgument::createPatternStringArg("_y_");
-	ClauseArgument a6FirstPatternStringWithWildcardsArg = ClauseArgument::createPatternStringArg("_x1-_");
+	ClauseArgument a6FirstPatternStringWithWildcardsArg = ClauseArgument::createPatternStringArg("_x 1 -_");
 	ClauseArgument a6SecondPatternStringWithWildcardsArg = ClauseArgument::createPatternStringArg("_x_");
 	ClauseArgument a6ThirdPatternStringWithWildcardsArg = ClauseArgument::createPatternStringArg("_1_");
 
