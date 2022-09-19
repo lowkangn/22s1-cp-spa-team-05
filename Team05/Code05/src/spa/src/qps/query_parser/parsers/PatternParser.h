@@ -8,45 +8,54 @@
 #include <qps/query/clause/PatternClause.h>
 #include <common/PostFixConverter.h>
 
+#include <iostream>
+
+const string STRING_DELIMITER = " ";
+
 /* PatternParser is an abstract class for the parsing of pattern
  * clauses. It implements the extraction of their arguments.
  */
 class PatternParser : public ClauseParser {
 protected:
 	ClauseArgument parsePatternString() {
+		assert(this->tokens.front().isQuote());
 		// Ignore '"' token
 		this->tokens.pop_front();
 
 		// Add token strings to pattern string until quote
 		string s;
-		while(!this->tokens.front().isQuote()) {
+		while(!this->tokens.empty() && !this->tokens.front().isQuote()) {
 			// Must be name/integer followed by operator, until last name/integer
 
 			// Must be name/integer
 			PQLToken currentToken = this->tokens.front();
 			if (!currentToken.isName() && !currentToken.isInteger()) {
-				throw PQLError("Invalid syntax for pattern string");
+				throw PQLSyntaxError("Invalid syntax for pattern string");
 			}
 			s += currentToken.getTokenString();
 			this->tokens.pop_front();
 
 			// If end of string, stop
-			if (this->tokens.front().isQuote()) {
+			if (this->tokens.empty() || this->tokens.front().isQuote()) {
 				break;
+			}
+			else {
+				// else, pad with delimiter
+				s += STRING_DELIMITER;
 			}
 
 			// Must be operator
 			currentToken = this->tokens.front();
 			if (!this->tokens.front().isOperator()) {
-				throw PQLError("Invalid syntax for pattern string");
+				throw PQLSyntaxError("Invalid syntax for pattern string");
 			}
-			s += currentToken.getTokenString();
+			s += currentToken.getTokenString() + STRING_DELIMITER; // pad with delimiter
 			this->tokens.pop_front();
 		}
 
 		// Check quote
 		if(this->tokens.empty() || !this->tokens.front().isQuote()) {
-			throw PQLError("Expected closing quote");
+			throw PQLSyntaxError("Expected closing quote");
 		}
 		this->tokens.pop_front();
 
@@ -60,7 +69,7 @@ protected:
 
 		// Check '_'
 		if(this->tokens.empty() || !this->tokens.front().isUnderscore()) {
-			throw PQLError("Expected closing underscore");
+			throw PQLSyntaxError("Expected closing underscore");
 		}
 		this->tokens.pop_front();
 

@@ -682,6 +682,69 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 	};
 }
 
+TEST_CASE("Test retrieve relationship short circuits to empty result") {
+	auto test = [](vector<Relationship> relationshipsToAdd, PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
+		// given
+		PKB pkb;
+
+		// when 
+		pkb.addRelationships(relationshipsToAdd);
+		vector<PQLRelationship> retrieved = pkb.retrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs);
+
+		// then 
+		REQUIRE(retrieved.size() == 0);
+	};
+
+	// shared, as if 4 statements in a block
+	/*
+		if ...
+			assign ...
+			if ...
+				call ...
+				call ...
+	*/
+	Entity statement1 = Entity::createIfEntity(1);
+	Entity statement2 = Entity::createAssignEntity(2);
+	Entity statement3 = Entity::createIfEntity(3);
+	Entity statement4 = Entity::createCallEntity(4);
+	Entity statement5 = Entity::createCallEntity(5);
+
+	vector<Relationship> toAdd = {
+		Relationship::createParentTRelationship(statement1, statement2),
+		Relationship::createParentTRelationship(statement3, statement4),
+		Relationship::createParentTRelationship(statement1, statement4),
+		Relationship::createParentTRelationship(statement1, statement3),
+		Relationship::createParentRelationship(statement1, statement2),
+		Relationship::createParentRelationship(statement3, statement4),
+		Relationship::createFollowsRelationship(statement4, statement5),
+		Relationship::createFollowsTRelationship(statement4, statement5),
+	};
+
+	SECTION("Follows(s,s)") {
+		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
+		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+	SECTION("Follows*(s,s)") {
+		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
+		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWSSTAR, lhs, rhs);
+	}
+
+	SECTION("Parent(s,s)") {
+		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
+		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
+		test(toAdd, PKBTrackedRelationshipType::PARENT, lhs, rhs);
+	}
+
+	SECTION("Parent*(s,s)") {
+		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
+		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
+		test(toAdd, PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs);
+	}
+}
+
 TEST_CASE("Test containsEntity") {
 	auto test = [](vector<Entity> entitiesToAdd, Entity entityToTest, bool expected) {
 		// given
@@ -763,12 +826,6 @@ TEST_CASE("Test add and get patterns") {
 					break;
 				}
 			}
-			if (!found) {
-				for (PQLPattern p : all) {
-					cout << p.toString() << endl;
-				}
-				cout << e.toString() << endl;
-			}
 			REQUIRE(found);
 		}
 	};
@@ -782,14 +839,15 @@ TEST_CASE("Test add and get patterns") {
 		y = x + y // is xy+ in postfix
 		y = x + y // repeated on a different line
 	*/
-	Pattern p1 = Pattern::createAssignPattern(1, "x", "2x*y+");
-	Pattern p2 = Pattern::createAssignPattern(2, "y", "3y/2-");
-	Pattern p3 = Pattern::createAssignPattern(3, "z", "xy+");
-	Pattern p4 = Pattern::createAssignPattern(4, "z", "x");
-	Pattern p5 = Pattern::createAssignPattern(5, "y", "xy+");
-	Pattern p6= Pattern::createAssignPattern(6, "y", "xy+");
+	Pattern p1 = Pattern::createAssignPattern(1, " x ", " 2 x * y + ");
+	Pattern p2 = Pattern::createAssignPattern(2, " y ", " 3 y / 2 - ");
+	Pattern p3 = Pattern::createAssignPattern(3, " z ", " x y + ");
+	Pattern p4 = Pattern::createAssignPattern(4, " z ", " x ");
+	Pattern p5 = Pattern::createAssignPattern(5, " y ", " x y + ");
+	Pattern p6= Pattern::createAssignPattern(6, " y ", " x y + ");
+	Pattern p7 = Pattern::createAssignPattern(7, " ab ", " 1000 ");
 	vector<Pattern> toAdd = {
-		p1, p2, p3, p4, p5, p6
+		p1, p2, p3, p4, p5, p6, p7
 	};
 
 	SECTION("lhs and rhs wildcard should get all") {
@@ -803,6 +861,7 @@ TEST_CASE("Test add and get patterns") {
 			PQLPattern::generateAssignPattern(4, "z"),
 			PQLPattern::generateAssignPattern(5, "y"),
 			PQLPattern::generateAssignPattern(6, "y"),
+			PQLPattern::generateAssignPattern(7, "ab"),
 		};
 		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
 	}
@@ -810,7 +869,7 @@ TEST_CASE("Test add and get patterns") {
 	SECTION("lhs wildcard, rhs specific") {
 		// lhs wildcard, // rhs specific
 		ClauseArgument lhs = ClauseArgument::createWildcardArg();
-		ClauseArgument rhs = ClauseArgument::createPatternStringArg("xy+");
+		ClauseArgument rhs = ClauseArgument::createPatternStringArg("x y +");
 		vector<PQLPattern> expectedPatterns = {
 			PQLPattern::generateAssignPattern(3, "z"),
 			PQLPattern::generateAssignPattern(5, "y"),
@@ -836,7 +895,7 @@ TEST_CASE("Test add and get patterns") {
 	SECTION("Synonyms should behave like wildcards") {
 		// lhs synonym, rhs specific
 		ClauseArgument lhs = ClauseArgument::createVariableArg("v");
-		ClauseArgument rhs = ClauseArgument::createPatternStringArg("xy+");
+		ClauseArgument rhs = ClauseArgument::createPatternStringArg("x y +");
 		vector<PQLPattern> expectedPatterns = {
 			PQLPattern::generateAssignPattern(3, "z"),
 			PQLPattern::generateAssignPattern(5, "y"),
@@ -848,11 +907,20 @@ TEST_CASE("Test add and get patterns") {
 	SECTION("Can handle identical patterns on different lines") {
 		// lhs synonym, rhs specific
 		ClauseArgument lhs = ClauseArgument::createPatternStringArg("y");
-		ClauseArgument rhs = ClauseArgument::createPatternStringArg("xy+");
+		ClauseArgument rhs = ClauseArgument::createPatternStringArg("x y +");
 		vector<PQLPattern> expectedPatterns = {
 			PQLPattern::generateAssignPattern(5, "y"),
 			PQLPattern::generateAssignPattern(6, "y"),
 
+		};
+		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
+	}
+
+	SECTION("Can handle substring matching") {
+		// 100 is a substring of 1000 (pattern7), but should not be matched
+		ClauseArgument lhs = ClauseArgument::createPatternStringArg("ab");
+		ClauseArgument rhs = ClauseArgument::createPatternStringArg("100");
+		vector<PQLPattern> expectedPatterns = {
 		};
 		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
 	}

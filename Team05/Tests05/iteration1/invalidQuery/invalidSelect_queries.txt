@@ -1,0 +1,25 @@
+1 - Select undeclared synonym
+while w;
+Select W
+SemanticError
+5000
+2 - Select string
+if ifs;
+Select "string"
+SyntaxError
+5000
+3 - Select number
+assign a;
+Select 1
+SyntaxError
+5000
+4 - Lowercase select
+assign a;
+select a
+SyntaxError
+5000
+5 - Extra semicolon
+stmt s;
+Select s;
+SyntaxError
+5000

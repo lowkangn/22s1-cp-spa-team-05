@@ -17,12 +17,12 @@ bool SelectParser::isCorrectClauseType(PQLToken clauseTypeToken) {
 
 list<ClauseArgument> SelectParser::extractArguments() {
 	if (this->tokens.empty()) {
-		throw PQLError("Expected synonym after Select, reached end of query instead");
+		throw PQLSyntaxError("Expected synonym after Select, reached end of query instead");
 	}
 	PQLToken token = this->tokens.front();
 
 	if (!token.isName()) {
-		throw PQLError("Expected synonym after select, got: " + token.getTokenString());
+		throw PQLSyntaxError("Expected synonym after select, got: " + token.getTokenString());
 	}
 
 	return list<ClauseArgument>{parseSynonym()};
@@ -33,7 +33,7 @@ void SelectParser::checkArguments(list<ClauseArgument>& args) {
 	assert(args.size() == 1);
 
 	if (!args.front().isSynonym()) {
-		throw PQLError("Argument for Select should be a synonym");
+		throw PQLSyntaxError("Argument for Select should be a synonym");
 	}
 }
 

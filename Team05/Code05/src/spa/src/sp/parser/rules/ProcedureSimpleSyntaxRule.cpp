@@ -61,6 +61,7 @@ list<Token> ProcedureSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 
 	// then we keep going until we hit a } 
 	bool seenCloseBracket = false;
+	bool seenOneToken = false;
 	int numOpenBracketSeen = 1;
 	while (!tokens.empty()) {
 		token = tokens.front(); // read
@@ -76,6 +77,13 @@ list<Token> ProcedureSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 				break;
 			}
 		}
+		else {
+			seenOneToken = true;
+		}
+	}
+
+	if (!seenOneToken) {
+		throw SimpleSyntaxParserException("Procedure should have atleast one token inside");
 	}
 
 	// if no }, throw exception

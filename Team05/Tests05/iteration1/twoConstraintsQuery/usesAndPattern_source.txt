@@ -1,0 +1,13 @@
+procedure usesPat {
+ x = x + 1000 - z + y;
+ read y;
+ while ( i != 0) {
+  x = x + z - 10;
+  print y;
+ }
+ if (j > 5) then {
+  y = x + 20 + z;
+ } else {
+  z = 100 + y - z;
+ }
+}

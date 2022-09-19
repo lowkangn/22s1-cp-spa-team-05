@@ -1,0 +1,260 @@
+1 - Parent - select all parents of other statements (wildcard)
+stmt s;
+Select s such that Parent(s, _)
+1, 2, 3, 6, 9
+5000
+2 - Parent - select all parents of other statements (synonym)
+stmt s, s1;
+Select s such that Parent(s, s1)
+1, 2, 3, 6, 9
+5000
+3 - Parent - select all statements that have parents (wildcard)
+stmt s;
+Select s such that Parent(_, s)
+2, 3, 4, 5, 6, 7, 8, 10
+5000
+4 - Parent - select all statements that have parents (synonym)
+stmt s, s1;
+Select s such that Parent(s1, s)
+2, 3, 4, 5, 6, 7, 8, 10
+5000
+5 - Parent - select parent of 7 (line number in while-stmtLst)
+stmt s;
+Select s such that Parent(s, 7)
+6
+5000
+6 - Parent - select parent of 4 (line number in then-stmtLst)
+stmt s;
+Select s such that Parent(s, 4)
+3
+5000
+7 - Parent - select parent of 5 (line number in else-stmtLst)
+stmt s;
+Select s such that Parent(s, 5)
+3
+5000
+8 - Parent - select parent of 11 (line number not in container)
+stmt s;
+Select s such that Parent(s, 11)
+none
+5000
+9 - Parent - select stmt with parent 2 (container line number)
+stmt s;
+Select s such that Parent(2, s)
+3, 6
+5000
+10 - Parent - select stmt with parent 12 (non-container line number)
+stmt s;
+Select s such that Parent(12, s)
+none
+5000
+11 - Parent - select whiles that are parents of stmts
+while w; stmt s;
+Select w such that Parent(w, s)
+2, 6, 9
+5000
+12 - Parent - select whiles that are parents of assigns
+while w; assign a;
+Select w such that Parent(w, a)
+6
+5000
+13 - Parent - select whiles that are parents of ifs
+while w; if i;
+Select w such that Parent(w, i)
+2
+5000
+14 - Parent - select whiles that are parents of reads
+while w; read r;
+Select w such that Parent(w, r)
+9
+5000
+15 - Parent - select whiles that are parents of prints
+while w; print p;
+Select w such that Parent(w, p)
+none
+5000
+16 - Parent - select whiles that are parents of whiles
+while w, w1;
+Select w such that Parent(w, w1)
+2
+5000
+17 - Parent - select reads that are children of whiles
+while w; read r;
+Select r such that Parent(w, r)
+10
+5000
+18 - Parent - select ifs that are parents of stmts
+if i; stmt s;
+Select i such that Parent(i, s)
+1, 3
+5000
+19 - Parent - select ifs that are parents of assigns
+if i; assign a;
+Select i such that Parent(i, a)
+3
+5000
+20 - Parent - select ifs that are parents of reads
+if i; read r;
+Select i such that Parent(i, r)
+1
+5000
+21 - Parent - select ifs that are parents of prints
+if i; print p;
+Select i such that Parent(i, p)
+3
+5000
+22 - Parent - select ifs that are parents of whiles
+if i; while ww;
+Select i such that Parent(i, ww)
+1
+5000
+23 - Parent - select ifs that are parents of ifs
+if i, i1;
+Select i such that Parent(i, i1)
+none
+5000
+24 - Parent - select assigns that are children of ifs
+if i; assign a;
+Select a such that Parent(i, a)
+5
+5000
+25 - ParentT - select all parent*s of other statements (wildcard)
+stmt s;
+Select s such that Parent*(s, _)
+1, 2, 3, 6, 9
+5000
+26 - ParentT - select all parent*s of other statements (synonym)
+stmt s, s1;
+Select s such that Parent*(s, s1)
+1, 2, 3, 6, 9
+5000
+27 - ParentT - select all statements that have parent*s (wildcard)
+stmt s;
+Select s such that Parent*(_, s)
+2, 3, 4, 5, 6, 7, 8, 10
+5000
+28 - ParentT - select all statements that have parent*s (synonym)
+stmt s, s1;
+Select s such that Parent*(s1, s)
+2, 3, 4, 5, 6, 7, 8, 10
+5000
+29 - ParentT - select parent* of 7 (line number in nested while-stmtLst)
+stmt s;
+Select s such that Parent*(s, 7)
+6, 2, 1
+5000
+30 - ParentT - select parent* of 4 (line number in nested then-stmtLst)
+stmt s;
+Select s such that Parent*(s, 4)
+1, 2, 3
+5000
+31 - ParentT - select parent* of 5 (line number in nested else-stmtLst)
+stmt s;
+Select s such that Parent*(s, 5)
+1, 2, 3
+5000
+32 - ParentT - select parent* of 12 (line number not in container)
+stmt s;
+Select s such that Parent*(s, 12)
+none
+5000
+33 - ParentT - select stmt with parent* 2 (container line number)
+stmt s;
+Select s such that Parent*(2, s)
+3, 4, 5, 6, 7
+5000
+34 - ParentT - select stmt with parent* 13 (non-container line number)
+stmt s;
+Select s such that Parent*(13, s)
+none
+5000
+35 - ParentT - select whiles that are parent*s of stmts
+while w; stmt s;
+Select w such that Parent*(w, s)
+2, 6, 9
+5000
+36 - ParentT - select whiles that are parent*s of assigns
+while w; assign a;
+Select w such that Parent*(w, a)
+2, 6
+5000
+37 - ParentT - select whiles that are parent*s of ifs
+while w; if i;
+Select w such that Parent*(w, i)
+2
+5000
+38 - ParentT - select whiles that are parent*s of reads
+while w; read r;
+Select w such that Parent*(w, r)
+9
+5000
+39 - ParentT - select whiles that are parent*s of prints
+while w; print p;
+Select w such that Parent*(w, p)
+2
+5000
+40 - ParentT - select whiles that are parent*s of whiles
+while w, w1;
+Select w such that Parent*(w, w1)
+2
+5000
+41 - ParentT - select prints that have a while as its parent*
+while w; print p;
+Select p such that Parent*(w, p)
+4
+5000
+42 - ParentT - select ifs that are parent*s of stmts
+if i; stmt s;
+Select i such that Parent*(i, s)
+1, 3
+5000
+43 - ParentT - select ifs that are parent*s of assigns
+if i; assign a;
+Select i such that Parent*(i, a)
+1, 3
+5000
+44 - ParentT - select ifs that are parent*s of reads
+if i; read r;
+Select i such that Parent*(i, r)
+1
+5000
+45 - ParentT - select ifs that are parent*s of prints
+if i; print p;
+Select i such that Parent*(i, p)
+1, 3
+5000
+46 - ParentT - select ifs that are parent*s of whiles
+if i; while ww;
+Select i such that Parent*(i, ww)
+1
+5000
+47 - ParentT - select ifs that are parent*s of ifs
+if i, ii;
+Select i such that Parent*(i, ii)
+1
+5000
+48 - ParentT - select whiles that have an if as its parent*
+if i; while w;
+Select w such that Parent*(i, w)
+2, 6
+5000
+49 - Parent - select stmts that are parents of themselves
+stmt s;
+Select s such that Parent(s, s)
+none
+5000
+50 - Parent - select assigns that are parents
+assign a;
+Select a such that Parent(a, _)
+none
+5000
+51 - Parent - select reads that are parents
+read r;
+Select r such that Parent(r, _)
+none
+5000
+52 - Parent - select prints that are parents
+print p;
+Select p such that Parent(p, _)
+none
+5000

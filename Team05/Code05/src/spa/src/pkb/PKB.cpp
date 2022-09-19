@@ -137,7 +137,13 @@ void PKB::addEntities(vector<Entity> entities) {
 	for (Entity entity : entities) {
 		// depending on entity type, we create the appropriate pkb entity
 		// and add to the appropriate table
+
+		//skip opeartor entities
+		if (entity.isOperator()) {
+			continue;
+		}
 		shared_ptr<PkbEntity> object = this->spEntityToPkbEntity(entity);
+
 		if (entity.isStmtEntity()) {
 			this->statementTable.add(object);
 		}
@@ -202,7 +208,8 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 	for (Pattern p : patterns) {
 		// only assign is supported
 		if (!p.isAssignPattern()) { 
-			throw PkbException("Only assign pattern is supported!");
+			cout << "Only assign pattern is supported! Skipping this\n";
+			continue;
 		}
 		// we get the strings
 		vector<string> strings = {
@@ -520,6 +527,22 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
 	// 1. get table based on type
 	shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(relationshipType);
+
+	// 1.1. short circuiting
+	// TODO this can be abstracted out into a vlidation function
+	// 1.1.1 check that synonym does not refer to itself
+	if (relationshipType == PKBTrackedRelationshipType::PARENT 
+		|| relationshipType == PKBTrackedRelationshipType::PARENTSTAR
+		|| relationshipType == PKBTrackedRelationshipType::FOLLOWS
+		|| relationshipType == PKBTrackedRelationshipType::FOLLOWSSTAR) {
+		if (lhs.isStmtSynonym() && rhs.isStmtSynonym() && lhs == rhs) {
+			// is identical. e.g Follows(s,s)
+			// no possible solution, return empty
+			return vector<PQLRelationship>();
+		}
+	}
+
+
 	// 2. if either side is exact, we can search by hash
 	// we create the key we are looking for based on lhs and rhs 
 	// TODO: for now, we do a manual filter
@@ -639,7 +662,26 @@ vector<PQLPattern> PKB::retrieveAssignPatterns(ClauseArgument lhs, ClauseArgumen
 }
 
 PQLPattern PKB::pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> p) {
-	return PQLPattern::generateAssignPattern(p->getStatementLineNumber(), p->getVariableIdentifier());
+	string variableIdentifier = p->getVariableIdentifier();
+	// we store as space + variable + space, need to trim
+	// left trim
+	bool leftIsSpace = isspace(variableIdentifier[0]);
+	while (leftIsSpace && variableIdentifier.size() > 1) {
+		
+		variableIdentifier.erase(0, 1);
+		leftIsSpace = isspace(variableIdentifier[0]);
+		
+	}
+
+	// right trim
+	bool rightIsSpace = isspace(variableIdentifier[variableIdentifier.size()-1]);
+	while (rightIsSpace && variableIdentifier.size() > 1) {
+		variableIdentifier.erase(variableIdentifier.size() - 1, 1);
+		rightIsSpace = isspace(variableIdentifier[variableIdentifier.size() - 1]);
+		
+		
+	}
+	return PQLPattern::generateAssignPattern(p->getStatementLineNumber(), variableIdentifier);
 }
 
 bool PKB::containsEntity(Entity entity) {

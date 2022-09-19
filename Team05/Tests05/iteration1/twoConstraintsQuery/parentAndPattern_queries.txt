@@ -1,0 +1,500 @@
+1 - parentPatLhs - select parents of assignments with y on lhs
+assign a; stmt s;
+Select s such that Parent(s, a) pattern a("y",_)
+8
+5000
+2 - parentPatLhs - select assignments with x on lhs and have a parent
+assign a; stmt s;
+Select a pattern a("x",_) such that Parent(s, a) 
+5
+5000
+3 - parentPatLhs - select assignments with z on lhs and is a parent
+assign a; stmt s;
+Select a such that Parent(a, s) pattern a("z",_)
+none
+5000
+4 - parentPatLhs - select assignments with k on lhs and whose parent is 8 
+assign a;
+Select a such that Parent(8, a) pattern a("k",_)
+10
+5000
+5 - parentPatLhs - select whiles that are parents of an assignment with z on lhs 
+assign a; while w;
+Select w pattern a("z",_) such that Parent(w, a) 
+4
+5000
+6 - parentPatLhs - select assignments with z on lhs and whose parent is an if 
+assign a; if i;
+Select a such that Parent(i, a) pattern a("z",_)
+7
+5000
+7 - parentPatLhs - select variables on lhs of assignments with a parent
+assign a; variable v;
+Select v such that Parent(_, a) pattern a(v,_)
+x, z, k, y
+5000
+8 - parentPatLhs - select variables on lhs of assignments with an if parent
+assign a; variable v; if i;
+Select v pattern a(v,_) such that Parent(i, a) 
+z
+5000
+9 - parentPatLhs - select variables on lhs of assignments with parent line 8
+assign a; variable v;
+Select v such that Parent(8, a) pattern a(v,_)
+y, k
+5000
+10 - parentPatLhs - select variables on lhs of assignments with parent line 7
+assign a; variable v;
+Select v such that Parent(7, a) pattern a(v,_)
+none
+5000
+11 - parentPatRhsName - select parents of assignments with z on rhs
+assign a; stmt s;
+Select s such that Parent(s, a) pattern a(_,_"z"_)
+4, 8
+5000
+12 - parentPatRhsName - select assignments with x on rhs and have a parent
+assign a; variable v;
+Select a pattern a(_,_"x"_) such that Parent(_, a) 
+5, 11, 7, 9
+5000
+13 - parentPatRhsName - select assignments with z on rhs and is a parent
+assign a; stmt s;
+Select a such that Parent(a, s) pattern a(_,_"z"_)
+none
+5000
+14 - parentPatRhsName - select assignments with k on rhs and whose parent is 8 
+assign a;
+Select a such that Parent(8, a) pattern a(_,_"k"_)
+none
+5000
+15 - parentPatRhsName - select assignments with k on rhs and whose parent is 4 
+assign a;
+Select a such that Parent(4, a) pattern a(_,_"z"_)
+11
+5000
+16 - parentPatRhsName - select ifs that are parents of an assignment with z on rhs
+assign a; if i;
+Select i pattern a(_,_"z"_) such that Parent(i, a) 
+none
+5000
+17 - parentPatRhsName - select ifs that are parents of assignment with x on rhs
+assign a; if i;
+Select i pattern a(_,_"x"_) such that Parent(i, a) 
+6
+5000
+18 - parentPatRhsName - select assignments with z on rhs and whose parent is a while 
+assign a; while w;
+Select a such that Parent(w, a) pattern a(_,_"z"_)
+11, 9
+5000
+19 - parentPatRhsName - select assignments with y on rhs and whose parent is a while 
+assign a; while w;
+Select a such that Parent(w, a) pattern a(_,_"y"_)
+none
+5000
+20 - parentPatRhsConst - select parents of assignments with 1 on rhs
+assign a; stmt s;
+Select s such that Parent(s, a) pattern a(_,_"1"_)
+4, 6
+5000
+21 - parentPatRhsConst - select assignments with 2 on rhs and have a parent
+assign a;
+Select a pattern a(_,_"2"_) such that Parent(_, a) 
+12
+5000
+22 - parentPatRhsConst - select assignments with 0 on rhs and have a parent (there is no rhs 0 assgn)
+assign a; stmt s;
+Select a such that Parent(s, a) pattern a(_,_"0"_)
+none
+5000
+23 - parentPatRhsConst - select assignments with 3 on rhs and whose parent is 6 
+assign a;
+Select a such that Parent(6, a) pattern a(_,_"3"_)
+none
+5000
+24 - parentPatRhsConst - select assignments with 2 on rhs and whose parent is 4 
+assign a;
+Select a such that Parent(4, a) pattern a(_,_"2"_)
+12
+5000
+25 - parentPatRhsConst - select ifs that are parents of an assignment with 2 on rhs
+assign a; if i;
+Select i pattern a(_,_"2"_) such that Parent(i, a) 
+none
+5000
+26 - parentPatRhsConst - select whiles that are parents of assignment with 3 on rhs
+assign a; while w;
+Select w pattern a(_,_"3"_) such that Parent(w, a) 
+8
+5000
+27 - parentPatRhsConst - select assignment with 5 on rhs and who has a parent
+assign a;
+Select a pattern a(_,_"5"_) such that Parent(_, a) 
+none
+5000
+28 - parentPatLhsSynRhs - select variables on LHS of assignments that have x on rhs and while parent
+assign a; while w; variable v;
+Select v such that Parent(w, a) pattern a(v,_"x"_)
+x, y, z
+5000
+29 - parentPatLhsSynRhs - select variables on LHS of assignments with x in rhs and if parent
+assign a; if i; variable v;
+Select v such that Parent(i, a) pattern a(v,_"x"_)
+z
+5000
+30 - parentPatLhsSynRhs - select variables on LHS of assignments with 1 in rhs and if parent
+assign a; if i; variable v;
+Select v such that Parent(i, a) pattern a(v,_"1"_)
+z
+5000
+31 - parentPatLhsSynRhs - select variables on lhs of assignments with z in rhs and with parent line 8
+assign a; variable v;
+Select v such that Parent(8, a) pattern a(v,_"z"_)
+y
+5000
+32 - parentPatLhsSynRhs - select variables on lhs of assignments with z in rhs and with parent line 4
+assign a; variable v;
+Select v such that Parent(4, a) pattern a(v,_"z"_)
+z
+5000
+33 - parentPatLhsSynRhs - select variables on lhs of assignments with 1 in rhs and with parent line 4
+assign a; variable v;
+Select v such that Parent(4, a) pattern a(v,_"1"_)
+x
+5000
+34 - parentPatLhsSynRhs - select variables on lhs of assignments with 1 in rhs and with parent line 6
+assign a; variable v;
+Select v such that Parent(6, a) pattern a(v,_"1"_)
+z
+5000
+35 - parentPatLhsSynRhs - select variables on lhs of assignments with 2 in rhs and has a parent
+assign a; variable v;
+Select v such that Parent(_, a) pattern a(v,_"2"_)
+k
+5000
+36 - parentPatLhsSynRhs - select variables on lhs of assignments with 2 in rhs and are parents
+assign a; variable v;
+Select v such that Parent(a, _) pattern a(v,_"2"_)
+none
+5000
+37 - parentPatLhsNameRhs - select parents of assignments with LHS x, x in RHS 
+assign a; variable v; stmt s;
+Select s such that Parent(s, a) pattern a("x",_"x"_)
+4
+5000
+38 - parentPatLhsNameRhs - select parents of assignments with LHS k, k in RHS
+assign a; variable v; stmt s;
+Select s such that Parent(s, a) pattern a("k",_"k"_)
+4
+5000
+39 - parentPatLhsNameRhs - select assignments with LHS z, x in RHS and who have a parent
+assign a; variable v; stmt s;
+Select a such that Parent(s, a) pattern a("z",_"x"_)
+11, 7
+5000
+40 - parentPatLhsNameRhs - select whiles that are parents of assignments with LHS z, 1 in RHS
+assign a; variable v; while w;
+Select w such that Parent(w, a) pattern a("z",_"1"_)
+none
+5000
+41 - parentPatLhsNameRhs - select ifs that are parents of assignments with LHS z, 1 in RHS
+assign a; variable v; if i;
+Select i such that Parent(i, a) pattern a("z",_"1"_)
+6
+5000
+42 - parentPatLhsNameRhs - select parents of assignments with LHS b, 1 in RHS (should not match b==1)
+assign a; variable v; stmt s;
+Select s such that Parent(s, a) pattern a("b",_"1"_)
+none
+5000
+43 - parentPatLhsNameRhs - select assignments that have a parent and has LHS b, 1 in RHS (should not match a!=0)
+assign a; variable v; stmt s;
+Select a such that Parent(_, a) pattern a("a",_"0"_)
+none
+5000
+44 - parentPatBoolean - select assignments if there are parents
+assign a, a2;
+Select a such that Parent(_, _) pattern a2(_,_)
+1, 2, 3, 5, 11, 12, 7, 9, 10
+5000
+45 - parentPatBoolean - select constants if there are parents
+constant c; stmt s, s1; assign a;
+Select c such that Parent(s, s1) pattern a(_,_)
+0, 1, 2, 3, 5
+5000
+46 - parentPatBoolean - select variables if there are parents of assignment
+variable v; stmt s; assign a, a2;
+Select v such that Parent(s, a) pattern a2(_,_)
+x, z, i, b, a, y, k
+5000
+47 - parentPatBoolean - select procedures if there are parents of assignments with "1" in rhs
+procedure p; stmt s; assign a;
+Select p such that Parent(s, a) pattern a(_,_"1"_)
+parentPat
+5000
+48 - parentPatBoolean - select procedures if there are parents of assignments with "5" in rhs
+procedure p; stmt s; assign a;
+Select p such that Parent(s, a) pattern a(_,_"5"_)
+none
+5000
+49 - parentPatBoolean - select stmts if there are parents of an assignment with "z" in rhs
+stmt s, s2; assign a;
+Select s such that Parent(s2, a) pattern a(_,_"z"_)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+5000
+50 - parentPatBoolean - select ifs if a while is a parent of an assignment with lhs y
+assign a; if i; while w;
+Select i such that Parent(w, a) pattern a("y",_)
+6
+5000
+51 - parentPatBoolean - select whiles if a while is a parent of an assignment with lhs y
+assign a;while w, ww;
+Select ww such that Parent(w, a) pattern a("y",_)
+4, 8
+5000
+52 - parentPatBoolean - select whiles if a while is a parent of an if and an assignment has lhs k, 2 in rhs
+assign a; while w, ww; if i;
+Select ww such that Parent(w, i) pattern a("k",_"2"_)
+4, 8
+5000
+53 - parentPatBoolean - select whiles if a while is a parent of a while and an assignment has lhs k, 3 in rhs
+assign a; while w, ww, w3;
+Select w such that Parent(ww, w3) pattern a("k",_"3"_)
+none
+5000
+54 - parentPatBoolean - select whiles if a while is a parent of a read and an assignment has lhs k, 2 in rhs
+assign a; while w, ww; read r;
+Select ww such that Parent(w, r) pattern a("k",_"2"_)
+none
+5000
+55 - parent*PatLhs - select parent*s of assignments with y on lhs
+assign a; stmt s;
+Select s such that Parent*(s, a) pattern a("y",_)
+8, 6, 4
+5000
+56 - parent*PatLhs - select assignments with x on lhs and have a parent*
+assign a; stmt s;
+Select a pattern a("x",_) such that Parent*(s, a) 
+5
+5000
+57 - parent*PatLhs - select assignments with z on lhs and is a parent*
+assign a; stmt s;
+Select a such that Parent*(a, s) pattern a("z",_)
+none
+5000
+58 - parent*PatLhs - select assignments with k on lhs and whose parent* is 6 
+assign a;
+Select a such that Parent*(6, a) pattern a("k",_)
+10
+5000
+59 - parent*PatLhs - select whiles that are parent*s of an assignment with y on lhs 
+assign a; while w;
+Select w pattern a("y",_) such that Parent*(w, a) 
+4, 8
+5000
+60 - parent*PatLhs - select assignments with k on lhs and whose parent* is an if 
+assign a; if i;
+Select a such that Parent*(i, a) pattern a("k",_)
+10
+5000
+61 - parent*PatLhs - select variables on lhs of assignments with a parent*
+assign a; variable v;
+Select v such that Parent*(_, a) pattern a(v,_)
+x, z, k, y
+5000
+62 - parent*PatLhs - select variables on lhs of assignments with an if parent*
+assign a; variable v; if i;
+Select v pattern a(v,_) such that Parent*(i, a) 
+z, y, k
+5000
+63 - parent*PatLhs - select variables on lhs of assignments with parent* line 6
+assign a; variable v;
+Select v such that Parent*(6, a) pattern a(v,_)
+z, y, k
+5000
+64 - parent*PatLhs - select variables on lhs of assignments with parent* line 5
+assign a; variable v;
+Select v such that Parent*(5, a) pattern a(v,_)
+none
+5000
+65 - parent*PatRhsName - select parent*s of assignments with z on rhs
+assign a; stmt s;
+Select s such that Parent*(s, a) pattern a(_,_"z"_)
+4, 8, 6
+5000
+66 - parent*PatRhsName - select assignments with x on rhs and have a parent*
+assign a; variable v;
+Select a pattern a(_,_"x"_) such that Parent*(_, a) 
+5, 11, 7, 9
+5000
+67 - parent*PatRhsName - select assignments with z on rhs and is a parent*
+assign a; stmt s;
+Select a such that Parent*(a, s) pattern a(_,_"z"_)
+none
+5000
+68 - parent*PatRhsName - select assignments with x on rhs and whose parent* is 6 
+assign a;
+Select a such that Parent*(6, a) pattern a(_,_"x"_)
+7,9
+5000
+69 - parent*PatRhsName - select assignments with x on rhs and whose parent* is 4 
+assign a;
+Select a such that Parent*(4, a) pattern a(_,_"x"_)
+5, 7, 9, 11
+5000
+70 - parent*PatRhsName - select ifs that are parent*s of an assignment with z on rhs
+assign a; if i;
+Select i pattern a(_,_"z"_) such that Parent*(i, a) 
+6
+5000
+71 - parent*PatRhsName - select ifs that are parent*s of assignment with x on rhs
+assign a; if i;
+Select i pattern a(_,_"x"_) such that Parent*(i, a) 
+6
+5000
+72 - parent*PatRhsName - select assignments with z on rhs and whose parent* is a while 
+assign a; while w;
+Select a such that Parent*(w, a) pattern a(_,_"z"_)
+9, 11
+5000
+73 - parent*PatRhsName - select assignments with y on rhs and whose parent* is a while 
+assign a; while w;
+Select a such that Parent*(w, a) pattern a(_,_"x"_)
+9, 7, 5, 11
+5000
+74 - parent*PatRhsConst - select parent*s of assignments with 3 on rhs
+assign a; stmt s;
+Select s such that Parent*(s, a) pattern a(_,_"3"_)
+4, 6, 8
+5000
+75 - parent*PatRhsConst - select assignments with 2 on rhs and have a parent*
+assign a;
+Select a pattern a(_,_"2"_) such that Parent*(_, a) 
+12
+5000
+76 - parent*PatRhsConst - select assignments with 0 on rhs and have a parent* (there is no rhs 0 assgn)
+assign a; stmt s;
+Select a such that Parent*(s, a) pattern a(_,_"0"_)
+none
+5000
+77 - parent*PatRhsConst - select assignments with 3 on rhs and whose parent* is 6 
+assign a;
+Select a such that Parent*(6, a) pattern a(_,_"3"_)
+10
+5000
+78 - parent*PatRhsConst - select assignments with 2 on rhs and whose parent* is 4 
+assign a;
+Select a such that Parent*(4, a) pattern a(_,_"2"_)
+12
+5000
+79 - parent*PatRhsConst - select ifs that are parent*s of an assignment with 2 on rhs
+assign a; if i;
+Select i pattern a(_,_"2"_) such that Parent*(i, a) 
+none
+5000
+80 - parent*PatRhsConst - select whiles that are parent*s of assignment with 3 on rhs
+assign a; while w;
+Select w pattern a(_,_"3"_) such that Parent*(w, a) 
+8, 4
+5000
+81 - parent*PatLhsSynRhs - select variables on LHS of assignments that have 1 on rhs and while parent*
+assign a; while w; variable v;
+Select v such that Parent*(w, a) pattern a(v,_"1"_)
+x, z
+5000
+82 - parent*PatLhsSynRhs - select variables on LHS of assignments with x in rhs and if parent*
+assign a; if i; variable v;
+Select v such that Parent*(i, a) pattern a(v,_"x"_)
+z, y
+5000
+83 - parent*PatLhsSynRhs - select variables on LHS of assignments with 3 in rhs and if parent*
+assign a; if i; variable v;
+Select v such that Parent*(i, a) pattern a(v,_"3"_)
+k
+5000
+84 - parent*PatLhsSynRhs - select variables on lhs of assignments with z in rhs and with parent* line 8
+assign a; variable v;
+Select v such that Parent*(8, a) pattern a(v,_"z"_)
+y
+5000
+85 - parent*PatLhsSynRhs - select variables on lhs of assignments with z in rhs and with parent* line 4
+assign a; variable v;
+Select v such that Parent*(4, a) pattern a(v,_"z"_)
+z, y
+5000
+86 - parent*PatLhsSynRhs - select variables on lhs of assignments with 1 in rhs and with parent* line 4
+assign a; variable v;
+Select v such that Parent*(4, a) pattern a(v,_"1"_)
+x, z
+5000
+87 - parent*PatLhsSynRhs - select variables on lhs of assignments with 2 in rhs and are parents*
+assign a; variable v;
+Select v such that Parent*(a, _) pattern a(v,_"2"_)
+none
+5000
+88 - parent*PatLhsNameRhs - select parent*s of assignments with LHS x, x in RHS 
+assign a; variable v; stmt s;
+Select s such that Parent*(s, a) pattern a("x",_"x"_)
+4
+5000
+89 - parent*PatLhsNameRhs - select ifs that are parent*s of assignments with LHS y, z in RHS
+assign a; variable v; if i;
+Select i such that Parent*(i, a) pattern a("y",_"z"_)
+6
+5000
+90 - parent*PatBoolean - select assignments if there are parent*s
+assign a, a2;
+Select a such that Parent*(_, _) pattern a2(_,_)
+1, 2, 3, 5, 11, 12, 7, 9, 10
+5000
+91 - parent*PatBoolean - select constants if there are parent*s
+constant c; stmt s, s1; assign a;
+Select c such that Parent*(s, s1) pattern a(_,_)
+0, 1, 2, 3, 5
+5000
+92 - parent*PatBoolean - select variables if there are parent*s of assignment
+variable v; stmt s; assign a, a2;
+Select v such that Parent*(s, a) pattern a2(_,_)
+x, z, i, b, a, y, k
+5000
+93 - parent*PatBoolean - select procedures if there are parent*s of assignments with "1" in rhs
+procedure p; stmt s; assign a;
+Select p such that Parent*(s, a) pattern a(_,_"1"_)
+parentPat
+5000
+94 - parent*PatBoolean - select procedures if there are parent*s of assignments with "5" in rhs
+procedure p; stmt s; assign a;
+Select p such that Parent*(s, a) pattern a(_,_"5"_)
+none
+5000
+95 - parent*PatBoolean - select stmts if there are parent*s of an assignment with "z" in rhs
+stmt s, s2; assign a;
+Select s such that Parent*(s2, a) pattern a(_,_"z"_)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+5000
+96 - parent*PatBoolean - select ifs if an if is a parent* of an assignment with lhs y
+assign a; if i, i2;
+Select i such that Parent*(i2, a) pattern a("y",_)
+6
+5000
+97 - parent*PatBoolean - select whiles if an if is a parent* of an assignment with lhs k
+assign a;while ww; if i;
+Select ww such that Parent*(i, a) pattern a("k",_)
+4, 8
+5000
+98 - parent*PatBoolean - select whiles if a while is a parent* of an if and an assignment has lhs k, 2 in rhs
+assign a; while w, ww; if i;
+Select ww such that Parent*(w, i) pattern a("k",_"2"_)
+4, 8
+5000
+99 - parent*PatBoolean - select whiles if a while is a parent* of a while and an assignment has lhs k, 3 in rhs
+assign a; while w, ww, w3;
+Select w such that Parent*(ww, w3) pattern a("k",_"3"_)
+4, 8
+5000
+100 - parent*PatBoolean - select whiles if a while is a parent* of a read and an assignment has lhs k, 2 in rhs
+assign a; while w, ww; read r;
+Select ww such that Parent(w, r) pattern a("k",_"2"_)
+none
+5000

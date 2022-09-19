@@ -2,7 +2,7 @@
 
 bool ParentParser::isCorrectClauseType(PQLToken clauseTypeToken) {
 	if (tokens.size() == 1) {
-		throw PQLError("Query ended after 'Parent'");
+		throw PQLSyntaxError("Query ended after 'Parent'");
 	}
 
 	PQLToken secondToken = *std::next(this->tokens.begin());
@@ -20,8 +20,12 @@ void ParentParser::checkArguments(list<ClauseArgument>& args) {
 
 
 	for (ClauseArgument arg : args) {
+		if (arg.isStringLiteral()) {
+			throw PQLSyntaxError("Both args for Parent/Parent* must be stmtRefs, which cannot be a string");
+		}
+
 		if (!arg.isWildcard() && !arg.isStmtRefNoWildcard()) {
-			throw PQLError("Both args for Parent must be stmtRefs");
+			throw PQLSemanticError("Both args for Parent/Parent* must be stmtRefs");
 		}
 	}
 

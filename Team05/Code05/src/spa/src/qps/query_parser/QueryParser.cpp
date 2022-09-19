@@ -44,16 +44,19 @@ void QueryParser::parseConstraints(shared_ptr<list<shared_ptr<RelationshipClause
         else if (token.isPattern()) {
 			patternClauses->emplace_back(parsePattern(declarations));
         }
+        else {
+            throw PQLSyntaxError("Only such that and pattern clause are supported.");
+        }
     }
 }
 
 shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, ArgumentType> declarations) {
     if (this->tokens.empty() || !this->tokens.front().isThat()) {
-        throw PQLError("Missing 'that' after 'such'");
+        throw PQLSyntaxError("Missing 'that' after 'such'");
     }
     this->tokens.pop_front();
     if (this->tokens.empty() ) {
-        throw PQLError("Missing relRef after such that");
+        throw PQLSyntaxError("Missing relRef after such that");
     }
     PQLToken token = this->tokens.front();
     shared_ptr<SuchThatClauseParser> parserPointer;
@@ -71,7 +74,7 @@ shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, 
         parserPointer = shared_ptr<SuchThatClauseParser>(new FollowsParser(this->tokens, declarations));
     }
     else {
-        //TODO: add more such that clauses
+        throw PQLSyntaxError("Only Modifies, Uses, Parent/Parent*, Follows/Follows* are supported as such that clauses.");
     }
     shared_ptr<RelationshipClause> clause = parserPointer->parse();
     this->tokens = parserPointer->getRemainingTokens();
@@ -79,17 +82,19 @@ shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, 
 }
 
 shared_ptr<PatternClause> QueryParser::parsePattern(unordered_map<string, ArgumentType> declarations) {
-	if (this->tokens.empty() ) {
-		throw PQLError("Missing synonym after pattern");
+	if (this->tokens.empty() || !this->tokens.front().isName()) {
+		throw PQLSyntaxError("Missing synonym after pattern");
 	}
 
 	PQLToken token = this->tokens.front();
-	shared_ptr<PatternParser> parserPointer;
 
-	if (declarations.at(token.getTokenString()) == ArgumentType::ASSIGN) {
+	shared_ptr<PatternParser> parserPointer;
+    //first check is required to prevent .at from throwing when synonym is not declared
+    bool isSynonymDeclared = declarations.count(token.getTokenString()) > 0;
+	if (isSynonymDeclared && declarations.at(token.getTokenString()) == ArgumentType::ASSIGN) {
 		parserPointer = shared_ptr<PatternParser>(new PatternAssignParser(this->tokens, declarations));
 	} else {
-		throw PQLError("Invalid synonym in pattern");
+		throw PQLSemanticError("Invalid synonym in pattern");
 	}
 
 	shared_ptr<PatternClause> clause = parserPointer->parse();

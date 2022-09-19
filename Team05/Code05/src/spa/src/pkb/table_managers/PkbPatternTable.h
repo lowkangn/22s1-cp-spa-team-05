@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <iostream>
 using namespace std;
 
 const string WILDCARD_CHAR = "_";
@@ -15,6 +16,7 @@ const string MULT_CHAR = "*";
 const string OR_CHAR = "|";
 const string OPEN_BRACKET_CHAR = "(";
 const string CLOSED_BRACKET_CHAR = ")";
+const string SPACE_DELIMITER = " ";
 
 class PkbPatternTable {
 private:
@@ -70,7 +72,21 @@ public:
 		// we expect exactly 1 (+1 char) or 2 (+2 char) wildcards e.g.:
 		// _x_ -> x, _ -> '', x -> x
 		int afterLength = s.size();
-		if ((afterLength - 2) > initialLength) {
+		if (afterLength - initialLength == 1) {
+			// one wildcard replaced
+			// do nothing
+		}
+		else if (afterLength - initialLength == 2) {
+			// two wildcards replaced
+			// insert space before the wildcards
+			s.insert(2, SPACE_DELIMITER);
+			s.insert(s.size() - 2, SPACE_DELIMITER);
+
+		} else if (afterLength == initialLength) {
+			// no wildcards, prepend and append space
+			s = SPACE_DELIMITER + s + SPACE_DELIMITER;
+		}
+		else {
 			// more than two characters added
 			throw PkbException(string("Tried to construct regex string but too many wildards replaced! Got ") + s);
 		}
