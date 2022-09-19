@@ -1,0 +1,265 @@
+1 - modifiesPatX - Select assignments with x, using x on RHS
+assign a;
+Select a such that Modifies(a, "x") pattern a("x", _"x"_)
+1, 4
+5000
+2 - modifiesPatY - Select assignments with y, with z on RHS
+assign a;
+Select a such that Modifies(a, "y") pattern a("y", _"z"_)
+7
+5000
+3 - modifiesPatRead - Select read statements that modify a variable with true pattern clause
+read r; variable v; assign a;
+Select r such that Modifies(r, v) pattern a("y", _)
+2
+5000
+4 - modifiesPatRead - Select read statements that modify a variable with false pattern clause
+read r; variable v; assign a;
+Select r such that Modifies(r, v) pattern a("b", _)
+none
+5000
+5 - modifiesStmtPat - Select statements that modify x with true pattern clause
+stmt s; assign a;
+Select s such that Modifies(s, "x") pattern a("x", _"z"_)
+1, 3, 4
+5000
+6 - modifiesStmtPat - Select statements that modify x with false pattern clause
+stmt s; assign a;
+Select s such that Modifies(s, "x") pattern a("b", _)
+none
+5000
+7 - modifiesStmtPat - Select statements that modify a variable with true pattern clause
+stmt s; assign a; variable v;
+Select s such that Modifies(s, v) pattern a("z", _"y-z"_)
+1, 2, 4, 7, 8
+5000
+8 - modifiesStmtPat - Select statements that modify a variable with false pattern clause
+stmt s; assign a; variable v;
+Select s such that Modifies(s, v) pattern a("b", _)
+none
+5000
+9 - modifiesProcPat - select procedure that modify a variable with true pattern clause
+procedure p; assign a; variable v;
+Select p such that Modifies(p, v) pattern a("x", _)
+modifiesPat
+5000
+10 - modifiesProcPat - select procedure that modify a variable with false pattern clause
+procedure p; assign a; variable v;
+Select p such that Modifies(p, v) pattern a("b", _)
+none
+5000
+11 - modifiesPatV - Select all assignments with true pattern clause
+assign a1, a2; variable v;
+Select a1 such that Modifies(a1, v) pattern a2("x", _)
+1, 4, 7, 8
+5000
+12 - modifiesPatV - Select all assignments with false pattern clause
+assign a1, a2; variable v;
+Select a1 such that Modifies(a1, v) pattern a2("b", _)
+none
+5000
+13 - patModifiesV - Select all assignments with x on rhs
+assign a; variable v;
+Select a pattern a(_, _"x"_) such that Modifies(a, v)
+1, 4, 7
+5000
+14 - patModifiesV - Select all assignments with 10 on rhs
+assign a; variable v;
+Select a pattern a(_, _"10"_) such that Modifies(a, v)
+4
+5000
+15 - patModifiesV - Select all assignments with 100 on rhs
+assign a; variable v;
+Select a pattern a(_, _"100"_) such that Modifies(a, v)
+8
+5000
+15 - patModifiesV - Select all assignments with 0 on rhs
+assign a; variable v;
+Select a pattern a(_, _"0"_) such that Modifies(a, v)
+none
+5000
+16 - patModifiesV - Select all assignments with 20 on rhs
+assign a; variable v;
+Select a pattern a(_, _"20"_) such that Modifies(a, v)
+7
+5000
+17 - patModifiesV - Select all assignments with y and z on RHS
+assign a; variable v;
+Select a pattern a(_, _"z+y"_) such that Modifies(a, v)
+none
+5000
+18 - patModifiesV - Select all assignments with y and z on RHS
+assign a; variable v;
+Select a pattern a(_, _"y-z"_) such that Modifies(a, v)
+none
+5000
+19 - patModifiesV - Select all assignments with z on RHS
+assign a; variable v;
+Select a pattern a(_, _"z"_) such that Modifies(a, v)
+1, 4, 7, 8
+5000
+20 - patModifiesV - Select all assignments with y on RHS
+assign a; variable v;
+Select a pattern a(_, _"y"_) such that Modifies(a, v)
+1, 8
+5000
+21 - patModifiesV - Select all assignments with 1 on rhs
+assign a; variable v;
+Select a pattern a(_, _"1"_) such that Modifies(a, v)
+none
+5000
+22 - patModifiesV - Select all assignments with x and z on rhs
+assign a; variable v;
+Select a pattern a(_, _"x + z"_) such that Modifies(a, v)
+4
+5000
+23 - patModifiesV - Select all assignments with x on lhs
+assign a; variable v;
+Select a pattern a("x", _) such that Modifies(a, v)
+1, 4
+5000
+24 - patModifiesV - Select all assignments with y on lhs
+assign a; variable v;
+Select a pattern a("y", _) such that Modifies(a, v)
+7
+5000
+25 - patModifiesV - Select all assignments with z on lhs
+assign a; variable v;
+Select a pattern a("z", _) such that Modifies(a, v)
+8
+5000
+26 - patModifiesV - Select all assignments with i on lhs
+assign a; variable v;
+Select a pattern a("i", _) such that Modifies(a, v)
+none
+5000
+27 - patModifiesV - Select all assignments with j on lhs
+assign a; variable v;
+Select a pattern a("j", _) such that Modifies(a, v)
+none
+5000
+28 - patModifiesV - Select all assignments with x on lhs and ONLY x on rhs
+assign a; variable v;
+Select a pattern a("x", "x") such that Modifies(a, v)
+none
+5000
+29 - patModifiesV - Select all assignments with y on lhs and ONLY y on rhs
+assign a; variable v;
+Select a pattern a("y", "y") such that Modifies(a, v)
+none
+5000
+30 - patModifiesV - Select all assignments with x on lhs and subexpression of x on rhs
+assign a; variable v;
+Select a pattern a("x", _"x"_) such that Modifies(a, v)
+1, 4
+5000
+31 - patModifiesV - Select all assignments with x on lhs and subexpression of x on rhs
+assign a; variable v;
+Select a pattern a("x", _"x + 1000"_) such that Modifies(a, v)
+1
+5000
+32 - patModifiesV - Select all assignments with x on lhs and subexpression of x on rhs
+assign a; variable v;
+Select a pattern a("x", _"x + 1000 - z"_) such that Modifies(a, v)
+1
+5000
+32 - patModifiesV - Select all assignments with y on lhs and subexpression of x on rhs
+assign a; variable v;
+Select a pattern a("y", _"x + 20"_) such that Modifies(a, v)
+7
+5000
+33 - patModifiesV - Select all assignments with y on lhs and subexpression of z on rhs
+assign a; variable v;
+Select a pattern a("y", _"20+z"_) such that Modifies(a, v)
+none
+5000
+34 - patModifiesV - Select all assignments with z on lhs and subexpression of z on rhs
+assign a; variable v;
+Select a pattern a("z", _"z"_) such that Modifies(a, v)
+8
+5000
+35 - patModifiesStmt - Select all modify statements with x on the lhs
+stmt s; assign a;
+Select a pattern a("x", _) such that Modifies(s, "x")
+1, 4
+5000
+36 - patModifiesStmt - Select all modify statements with i on the lhs
+stmt s; assign a;
+Select a pattern a("i", _) such that Modifies(s, "x")
+none
+5000
+37 - patModifiesStmt - Select all modify statements with x on the rhs
+stmt s; assign a;
+Select a pattern a(_, _"x"_) such that Modifies(s, "x")
+1, 4, 7
+5000
+38 - Select modify statement with z + y on rhs
+stmt s; assign a;
+Select a pattern a(_, _"z+y"_) such that Modifies(s, "x")
+none
+5000
+39 - Select modify statement with x on lhs and rhs
+stmt s; assign a;
+Select a pattern a("x", _"x"_) such that Modifies(s, "x")
+1, 4
+5000
+40 - Select modify statement with 10 on rhs
+stmt s; assign a;
+Select a pattern a(_, _"10"_) such that Modifies(s, "x")
+4
+5000
+41 - Select modify statement with 0 on rhs
+stmt s; assign a;
+Select a pattern a(_, _"0"_) such that Modifies(s, "x")
+none
+5000
+42 - Select modify statement with 1000 on rhs
+stmt s; assign a;
+Select a pattern a(_, _"1000"_) such that Modifies(s, "x")
+1
+5000
+43 - Select all modify statements with any pattern
+stmt s; assign a;
+Select a pattern a(_, _) such that Modifies(s, "x")
+1, 4, 7, 8
+5000
+44 - Select modify read statements with any pattern
+read r; assign a;
+Select r pattern a(_, _) such that Modifies(r, "y")
+2
+5000
+45 - Select modify read statements with x on lhs pattern
+read r; assign a;
+Select r pattern a("x", _) such that Modifies(r, "y")
+2
+5000
+46 - Select modify assign statements with x on lhs pattern
+assign a1, a2;
+Select a1 pattern a1("x", _) such that Modifies(a2, "x")
+1, 4
+5000
+47 - Select modify assign statements with x on lhs pattern (but select a2)
+assign a1, a2;
+Select a2 pattern a1("x", _) such that Modifies(a2, "x")
+1, 4
+5000
+48 - Select modify assign statements with x on lhs pattern and x + 1000 on rhs
+assign a1, a2;
+Select a2 pattern a1("x", _"x+1000"_) such that Modifies(a2, "x")
+1, 4
+5000
+49 - Select modify assign statements with x on lhs pattern and x + 1000 on rhs (but select a2)
+assign a1, a2;
+Select a2 pattern a1("x", _"x+1000"_) such that Modifies(a2, "x")
+1, 4
+5000
+50 - Select modify assign statements with z + y on rhs (but select a2)
+assign a1, a2;
+Select a2 pattern a1(_, _"z+y"_) such that Modifies(a2, "x")
+none
+5000
+51 - Select modify assign statements with z + y on rhs (but select a1)
+assign a1, a2;
+Select a1 pattern a1(_, _"z+y"_) such that Modifies(a2, "x")
+none
+5000
