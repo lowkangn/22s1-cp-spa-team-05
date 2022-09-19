@@ -10,7 +10,7 @@ C++ Standard | C++17
 
 ### Additional Build Instructions
 
-No additional instructions required.
+If you get the error "Unable to find autotester library", please rename the `Release` folder in `Code05/lib/autotester/AMD64/Windows/` to `RelWithDebInfo` and reconfigure cache before building.
 
 # Team Members
 
