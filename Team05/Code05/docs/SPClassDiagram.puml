@@ -35,7 +35,7 @@ EntityExtractor ..|> Extractor
 PatternExtractor ..|> Extractor
 "Extractor<Relationship>" ..|> Extractor
 
-Lexer ..> ParserManager: tokens >
+Lexer <.. ParserManager: tokens >
 
 ParserManager ..> AST: creates >
 DesignExtractorManager .up.> HiddenOutside2: relationships
