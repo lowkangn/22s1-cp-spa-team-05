@@ -1,0 +1,25 @@
+@startuml
+!include <office/Concepts/globe_internet>
+!include <office/Users/user>
+!include style.puml
+
+Package " "<<Rectangle>>{
+    Class TestWrapper #green
+    Class PKB PKB_COLOR
+    Class QPS QPS_COLOR
+    Class SP SP_COLOR
+    Class Commons PKB_COLOR_T2
+}
+
+Class "<$user>" as User SP_COLOR_T2
+
+
+TestWrapper -left[SP_COLOR]-> SP
+TestWrapper --down[PKB_COLOR]> PKB
+TestWrapper -right[QPS_COLOR]> QPS
+
+QPS -left[PKB_COLOR]> PKB
+SP .[#grey]> PKB
+
+User ..> TestWrapper
+@enduml
