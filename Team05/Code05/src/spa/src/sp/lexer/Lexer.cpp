@@ -160,14 +160,23 @@ Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
         }
         break;
     case '!':
-        if (!(char(stream.peek()) == '=' || char(stream.peek()) == '(')) { // not operator must be paired with = or '('
-            throw SPException(string("Invalid comparator operator! ") + s + string(" followed by ") + char(stream.peek()));
-        } 
+        
         // Only join the string if it is paired with '='
         if (char(stream.peek()) == '=') {
             s += char(stream.get());
+            break;
         }
-        break;
+        
+        else if (this->charIsWhiteSpace(char(stream.peek())) || char(stream.peek()) == '(') {
+            this->traverseStreamUntilNoWhiteSpace(stream);
+            if (char(stream.peek()) == '(') {
+                // do nothing
+                break;
+            }
+        }
+        else {
+            throw SPException(string("Invalid comparator operator! ") + s + string(" followed by ") + char(stream.peek()));
+        }
     case '&':
     case '|':
         if (char(stream.peek()) == c) { // comparators can only be paired with =
