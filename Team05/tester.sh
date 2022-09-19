@@ -1,4 +1,4 @@
-#!/bin/bash
+cd #!/bin/bash
 
 config=Debug
 while getopts r: flag

@@ -103,10 +103,13 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 			this->isRelationalExpression = true;
 			childTokens = this->parseCondition(tokens);
 		}
-	} else {
+	} else if (token.isNameToken() || token.isIntegerToken()) {
 		this->isRelationalExpression = true;
 		childTokens = tokens;
 		tokens.clear();
+	}
+	else {
+		throw SimpleSyntaxParserException("Found empty condition");
 	}
 
 	this->initialized = true;
