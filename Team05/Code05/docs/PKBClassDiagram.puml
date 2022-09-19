@@ -1,0 +1,35 @@
+@startuml
+!include style.puml
+skinparam arrowThickness 1.1
+skinparam arrowColor PKB_COLOR
+skinparam classBackgroundColor PKB_COLOR
+
+Package "Program Knowledge Base" <<Rectangle>>{
+Interface PKBUpdateHandler <<Interface>>
+Interface PKBQueryHandler <<Interface>>
+Interface PkbTableManager <<Interface>>
+Interface RelationshipPKBTableManager <<Interface>>
+
+Class PKB
+Class EntityPKBTableManager
+Class UsesPKBTableManager
+Class FollowsPKBTableManager
+Class XYZPKBTableManager
+
+}
+
+Class HiddenOutside #FFFFFF
+HiddenOutside ..> PKB
+
+PKB .right.|> PKBQueryHandler
+PKB .left.|> PKBUpdateHandler
+EntityPKBTableManager .left.|> PkbTableManager
+RelationshipPKBTableManager .right.|> PkbTableManager
+PKB "1" o--> "1" EntityPKBTableManager
+PKB "1" o--> "0..*" RelationshipPKBTableManager
+
+UsesPKBTableManager .up.|> RelationshipPKBTableManager
+FollowsPKBTableManager .up.|> RelationshipPKBTableManager
+XYZPKBTableManager .up.|> RelationshipPKBTableManager
+
+@enduml

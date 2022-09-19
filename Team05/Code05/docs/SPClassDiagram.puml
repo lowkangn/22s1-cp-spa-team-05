@@ -1,0 +1,42 @@
+@startuml
+!include style.puml
+skinparam arrowThickness 1.1
+skinparam arrowColor SP_COLOR
+skinparam classBackgroundColor SP_COLOR
+
+Package "Source Processor" <<Rectangle>>{
+Interface Extractor <<Interface>>
+
+Class SourceProcessor
+Class Lexer
+Class ParserManager
+Class EntityExtractor
+Class PatternExtractor
+Class "Extractor<Relationship>"
+Class DesignExtractorManager
+Class AST
+}
+
+Package PKB {
+}
+
+Class HiddenOutside #FFFFFF
+HiddenOutside ..> SourceProcessor
+
+DesignExtractorManager o--> "1" EntityExtractor
+DesignExtractorManager o--> "1" PatternExtractor
+DesignExtractorManager o--> "1..*" "Extractor<Relationship>"
+
+EntityExtractor .up.|> Extractor
+PatternExtractor .up.|> Extractor
+"Extractor<Relationship>" .up.|> Extractor
+
+SourceProcessor .left.> Lexer: creates >
+SourceProcessor ..> ParserManager: creates >
+Lexer ..> ParserManager: tokens >
+SourceProcessor ..> DesignExtractorManager: creates >
+ParserManager ..> AST: creates >
+DesignExtractorManager .up.> AST: extracts >
+
+DesignExtractorManager .right.> PKB: stores >
+@enduml
