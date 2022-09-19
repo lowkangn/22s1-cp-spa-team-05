@@ -11,10 +11,6 @@ participant ":ParserManager" as ParserManager SP_COLOR
 participant ":DesignExtractorManager" as DesignManager SP_COLOR
 end box
 
-box "Problem Knowledge Base" PKB_COLOR_T1
-participant ":PKB" as PKB PKB_COLOR
-end box
-
 create SourceProcessor
 User -> SourceProcessor: stream
 activate SourceProcessor
@@ -57,7 +53,5 @@ deactivate DesignManager
 
 SourceProcessor --> User: relationships
 deactivate SourceProcessor
-
-User -> PKB: addRelationships(relationships)
 
 @enduml

@@ -24,12 +24,12 @@ HiddenOutside ..> SourceProcessor
 
 SourceProcessor .left.> Lexer: creates >
 SourceProcessor ..> ParserManager: creates >
-SourceProcessor *-right-> "1" DesignExtractorManager
-SourceProcessor o-down-> "1" AST
+SourceProcessor -right-> "1" DesignExtractorManager
+SourceProcessor -down-> "1" AST
 
-DesignExtractorManager o--> "1" EntityExtractor
-DesignExtractorManager o--> "1" PatternExtractor
-DesignExtractorManager o--> "1..*" "Extractor<Relationship>"
+DesignExtractorManager --> "1" EntityExtractor
+DesignExtractorManager --> "1" PatternExtractor
+DesignExtractorManager --> "1..*" "Extractor<Relationship>"
 
 EntityExtractor ..|> Extractor
 PatternExtractor ..|> Extractor
