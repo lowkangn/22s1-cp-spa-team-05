@@ -17,15 +17,14 @@ Class DesignExtractorManager
 Class AST
 }
 
-Package PKB {
-}
-
 Class HiddenOutside #FFFFFF
+Class HiddenOutside2 #FFFFFF
+
 HiddenOutside ..> SourceProcessor
 
 SourceProcessor .left.> Lexer: creates >
 SourceProcessor ..> ParserManager: creates >
-SourceProcessor *--> "1" DesignExtractorManager
+SourceProcessor *-right-> "1" DesignExtractorManager
 SourceProcessor o-down-> "1" AST
 
 DesignExtractorManager o--> "1" EntityExtractor
@@ -38,6 +37,6 @@ PatternExtractor ..|> Extractor
 
 Lexer ..> ParserManager: tokens >
 
-ParserManager .right.> AST: creates >
-DesignExtractorManager .right.> PKB: stores >
+ParserManager ..> AST: creates >
+DesignExtractorManager .up.> HiddenOutside2: relationships
 @enduml
