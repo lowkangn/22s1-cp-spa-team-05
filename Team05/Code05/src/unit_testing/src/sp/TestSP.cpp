@@ -1017,11 +1017,4 @@ TEST_CASE("Test Source Processor : extractRelations") {
 
 		test(program, expected);
 	}
-
-	SECTION("Empty while should throw") {
-		string program = "procedure main{\n\tread x; \n\tprint x; \n\ty = 0; \n    if ((!(x == 0)) && (y < 1)) then {\n\t\twhile() { \n\t\t\tx = x + 10; \n\t\t\ty = y - 10; \n\t\t } \n\t} else { \n\t\ty = x % 2 + y; \n\t\tz = 5 * x - y; \n\t\tz = z / 1 * 3; \n\t }\n}";
-		vector<Relationship> expected;
-		test(program, expected);
-
-	}
 }
