@@ -16,27 +16,39 @@ activate QPS
 
 create QueryTokenizer
 QPS -> QueryTokenizer
-
 activate QueryTokenizer
+
+QueryTokenizer --> QPS
+deactivate QueryTokenizer
+
 QPS -> QueryTokenizer: tokenize()
+activate QueryTokenizer
 
 QueryTokenizer --> QPS: tokens
 deactivate QueryTokenizer
 
 create QueryParser
 QPS -> QueryParser
-
 activate QueryParser
+
+QueryParser --> QPS
+deactivate QueryParser
+
 QPS -> QueryParser: parse()
+activate QueryParser
 
 QueryParser --> QPS: query
 deactivate QueryParser
 
 create QueryEvaluator
 QPS -> QueryEvaluator
-
 activate QueryEvaluator
+
+QueryEvaluator --> QPS
+deactivate QueryEvaluator
+
 QPS -> QueryEvaluator: evaluate(query, pkb)
+activate QueryEvaluator
 
 QueryEvaluator --> QPS: set<string>
 deactivate QueryEvaluator
