@@ -1,4 +1,4 @@
-cd #!/bin/bash
+#!/bin/bash
 
 config=Debug
 while getopts r: flag
@@ -44,4 +44,3 @@ for i in parent uses follows modifies
 do
 ${path_to_autotester} ${two_constr_path}${i}AndPattern_source.txt ${two_constr_path}${i}AndPattern_queries.txt ${output_folder}${i}AndPatternOut.xml
 done
-

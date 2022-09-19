@@ -517,6 +517,16 @@ TEST_CASE("Parser: test ::consumeTokens") {
 		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
 	}
 
+	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, just a relational operator test") {
+		list<Token> tokens = {
+				Token::createOpenBracketToken(),
+				Token::createPlaceholderToken(),
+				Token::createCloseBracketToken()
+		};
+		list<Token> expectedTokens = {};
+		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
 		// -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, Not test") {
 		list<Token> tokens = {

@@ -453,6 +453,20 @@ TEST_CASE("Lexer: test tokenize works correctly") {
                 Token::createCloseCurlyBracketToken(),
         });
     }
+
+    SECTION("Empty while condition") {
+        test("\nwhile ( )  {\n    x = 1;\n}\n", list<Token>{
+            Token::createNameOrKeywordToken("while"),
+                Token::createOpenBracketToken(),
+                Token::createCloseBracketToken(),
+                Token::createOpenCurlyBracketToken(),
+                Token::createNameOrKeywordToken("x"),
+                Token::createEqualsToken(),
+                Token::createIntegerToken("1"),
+                Token::createSemicolonToken(),
+                Token::createCloseCurlyBracketToken(),
+        });
+    }
     
 
 

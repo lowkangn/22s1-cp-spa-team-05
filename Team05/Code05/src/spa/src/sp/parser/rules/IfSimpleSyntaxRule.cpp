@@ -61,6 +61,7 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// get rest of the condition
 	int numOpenBracket = 0;
 	bool seenCloseBracket = false;
+	bool seenOneToken = false;
 
 	while (!tokens.empty() && !seenCloseBracket) {
 		token = tokens.front();
@@ -75,7 +76,14 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 				seenCloseBracket = true;
 			}
 		}
+		else {
+			seenOneToken = true;
+		}
 		childTokens.push_back(token);
+	}
+
+	if (!seenOneToken) {
+		throw SimpleSyntaxParserException("Empty if condition is illegal");
 	}
 
 	// get then token and stmt list

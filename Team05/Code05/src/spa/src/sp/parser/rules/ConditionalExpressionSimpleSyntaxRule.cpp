@@ -152,6 +152,7 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::parseCondition(list<Token> &t
 	list<Token> childTokens;
 
 	Token token = tokens.front();
+	
 	int numOpenBracket = 1;
 	tokens.pop_front();
 

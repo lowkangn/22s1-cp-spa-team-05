@@ -49,7 +49,7 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// get rest of the condition
 	int numOpenBracket = 0;
 	bool seenCloseBracket = false;
-
+	bool seenOneToken = false;
 	while (!tokens.empty() && !seenCloseBracket) {
 		token = tokens.front();
 		tokens.pop_front();
@@ -63,7 +63,14 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 				seenCloseBracket = true;
 			}
 		}
+		else {
+			seenOneToken = true;
+		}
 		childTokens.push_back(token);
+	}
+
+	if (!seenOneToken) {
+		throw SimpleSyntaxParserException("Empty while condition");
 	}
 
 	if (!seenCloseBracket) {
