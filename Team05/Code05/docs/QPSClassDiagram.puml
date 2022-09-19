@@ -1,0 +1,44 @@
+@startuml
+!include style.puml
+skinparam arrowThickness 1.1
+skinparam arrowColor QPS_COLOR
+skinparam classBackgroundColor QPS_COLOR
+
+Package "Query Processing System" <<Rectangle>>{
+
+Class QPS
+Class QPSTokenizer
+Class QueryParser
+Class QueryEvaluator
+Class QueryResultsProjector
+Class Query
+Class SelectClause
+Class ModifiesClause
+Class XYZClause
+abstract Class Clause
+}
+
+Package PKB {
+}
+
+Class HiddenOutside #FFFFFF
+HiddenOutside ..> QPS
+QPS --> PKB
+
+SelectClause -up-|> Clause
+ModifiesClause -up-|> Clause
+XYZClause -up-|> Clause
+
+QPS ..> QPSTokenizer : creates >
+QPS ..> QueryParser : creates >
+QPSTokenizer .down.> QueryParser: tokens >
+QueryParser .down.> Query: creates >
+QueryEvaluator ..> Query: executes >
+Query "1" o-down-> "1..*" Clause
+QPS ..> QueryResultsProjector: creates >
+QueryEvaluator ..> QueryResultsProjector: results >
+
+Clause .right.> PKB: calls >
+
+QPS ..> QueryEvaluator: creates >
+@enduml

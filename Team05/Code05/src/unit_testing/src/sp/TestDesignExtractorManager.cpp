@@ -16,6 +16,8 @@
 #include <sp/dataclasses/ast/ReadASTNode.h>
 #include <sp/dataclasses/ast/AssignASTNode.h>
 #include <sp/dataclasses/ast/PrintASTNode.h>
+#include <sp/design_extractor/FollowsExtractor.h>
+#include <sp/design_extractor/FollowsTExtractor.h>
 #include <pkb/interfaces/PKBUpdateHandler.h>
 
 TEST_CASE("DesignExtractor: test : extractEntity()") {
@@ -116,7 +118,9 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 		shared_ptr<Extractor<Relationship>> parentExtractor = shared_ptr<Extractor<Relationship>>(new ParentExtractor());
 		shared_ptr<Extractor<Relationship>> parentTExtractor = shared_ptr<Extractor<Relationship>>(new ParentTExtractor());
 		shared_ptr<Extractor<Relationship>> usesExtractor = shared_ptr<Extractor<Relationship>>(new UsesExtractor());
-		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, parentExtractor, parentTExtractor, usesExtractor };
+		shared_ptr<Extractor<Relationship>> followsExtractor = shared_ptr<Extractor<Relationship>>(new FollowsExtractor());
+		shared_ptr<Extractor<Relationship>> followsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsTExtractor());
+		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, parentExtractor, parentTExtractor, usesExtractor, followsExtractor, followsTExtractor };
 
 		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, relationExtractors);
 		extractor.setRootNode(nodeToExtractFrom);
@@ -204,9 +208,11 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 		Relationship readModifiesY = Relationship::createModifiesRelationship(readEntity, yEntity);
 		Relationship assignModifiesX = Relationship::createModifiesRelationship(assignEntity, xEntity);
 
+		Relationship readFollowsAssign = Relationship::createFollowsRelationship(readEntity, assignEntity);
+		Relationship readFollowsTAssign = Relationship::createFollowsTRelationship(readEntity, assignEntity);
 
 
-		vector<Relationship> expectedRelation = vector<Relationship>{ procedureModifiesy, procedureModifiesx, readModifiesY, assignModifiesX };
+		vector<Relationship> expectedRelation = vector<Relationship>{ procedureModifiesy, procedureModifiesx, readModifiesY, assignModifiesX, readFollowsAssign, readFollowsTAssign };
 
 		test(nodeToExtractFrom, expectedRelation);
 	}
@@ -465,13 +471,34 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 		Relationship procUsesX8 = Relationship::createUsesRelationship(procedureEntity, x8Entity);
 
 
+		// create Follows relationship
+		Relationship assign1FollowsRead = Relationship::createFollowsRelationship(assign1Entity, readEntity);
+		Relationship readFollowsWhile = Relationship::createFollowsRelationship(readEntity, whileEntity);
+		Relationship whileFollowsIf = Relationship::createFollowsRelationship(whileEntity, ifEntity);
+		Relationship assign4FollowsPrint = Relationship::createFollowsRelationship(assign4Entity, printEntity);
+
+		// create FollowsT relationship
+		Relationship assign1FollowsTRead = Relationship::createFollowsTRelationship(assign1Entity, readEntity);
+		Relationship readFollowsTWhile = Relationship::createFollowsTRelationship(readEntity, whileEntity);
+		Relationship whileFollowsTIf = Relationship::createFollowsTRelationship(whileEntity, ifEntity);
+		Relationship assign4FollowsTPrint = Relationship::createFollowsTRelationship(assign4Entity, printEntity);
+
+		Relationship assign1FollowsTWhile = Relationship::createFollowsTRelationship(assign1Entity, whileEntity);
+		Relationship assign1FollowsTIf = Relationship::createFollowsTRelationship(assign1Entity, ifEntity);
+
+		Relationship readFollowsTIf = Relationship::createFollowsTRelationship(readEntity, ifEntity);
+
+
 		vector<Relationship> expectedResult = vector<Relationship>{ mainModifiesX1, mainModifiesY2, mainModifiesX4, mainModifiesX7,
 																	mainModifiesY8, assign1ModifiesX1, readModifiesX4, whileModifiesX4, assign4ModifiesX4,
 																	ifModifiesX7, ifModifiesY8, assign7ModifiesX7, assign8ModifiesY8, whileParentAssign4,
 																	whileParentPrint, ifParentAssign7, elseParentAssign8, whileParentTAssign4,
 																	whileParentTPrint, ifParentTAssign7, elseParentTAssign8, whileUsesX3,
 																	whileUsesX4, whileUsesY5, assign4UsesX, printUsesY, ifUsesY6, ifUsesY7, ifUsesX8, assign7UsesY7, 
-																	assign8UsesX8, procUsesX3, procUsesX4, procUsesY5, procUsesY6, procUsesY7, procUsesX8 };
+																	assign8UsesX8, procUsesX3, procUsesX4, procUsesY5, procUsesY6, procUsesY7, procUsesX8,
+																	assign1FollowsRead, readFollowsWhile, whileFollowsIf, assign4FollowsPrint, assign1FollowsTRead,
+																	readFollowsTWhile, whileFollowsTIf, assign4FollowsTPrint, assign1FollowsTWhile, assign1FollowsTIf,
+																	readFollowsTIf };
 		test(procedureNode, expectedResult); 
 	}
 }
