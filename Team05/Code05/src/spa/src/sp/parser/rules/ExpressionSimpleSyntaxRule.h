@@ -22,7 +22,7 @@ public:
 	bool rhsIsExpression = false;
 	Token operatorToken = Token::getPlaceHolderToken(); // Placeholder has to be replaced during initialization
 	list<Token> rhsTokens;
-	bool isSingleExpression;
+	bool isSingleExpression = false;
 
 	ExpressionSimpleSyntaxRule() {
 		this->generated = false;

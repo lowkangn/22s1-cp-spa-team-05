@@ -47,6 +47,8 @@ list<Token> RelationalExpressionSimpleSyntaxRule::consumeTokens(list<Token> toke
 		this->lhsTokens.push_back(token);
 	}
 
+
+
 	if (tokens.empty()) {
 		throw SimpleSyntaxParserException("Relational Expression must contain opeartor");
 	}
@@ -56,14 +58,28 @@ list<Token> RelationalExpressionSimpleSyntaxRule::consumeTokens(list<Token> toke
 	if (!this->operatorToken.isRelationalOperator()) {
 		throw SimpleSyntaxParserException("Expected relational operator got:" + this->operatorToken.getString());
 	}
-
 	tokens.pop_front();
 
-	// Parse the second relational factor
-	this->rhsTokens = tokens;
-	tokens.clear();
-	this->initialized = true;
 
+	// Parse the second relational factor
+	token = tokens.front();
+	numOpenBracketSeen = 1;
+	while (!tokens.empty()) {
+		token = tokens.front();
+		tokens.pop_front();
+		if (token.isOpenBracketToken()) {
+			numOpenBracketSeen += 1;
+		}
+		else if (token.isClosedBracketToken()) {
+			numOpenBracketSeen -= 1;
+			if (numOpenBracketSeen == 0) {
+				break;
+			}
+		}
+		this->rhsTokens.push_back(token);
+	}
+
+	this->initialized = true;
 	return tokens;
 }
 

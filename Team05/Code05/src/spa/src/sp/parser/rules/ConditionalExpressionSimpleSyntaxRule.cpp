@@ -90,7 +90,7 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 			list<Token> secondCondExpression = parseCondition(tokens);
 			this->rhsCond = secondCondExpression;
 
-			// Pop lost bracket
+			// Pop last bracket
 			if (!tokens.empty() && tokens.front().isClosedBracketToken()) {
 				tokens.pop_front();
 			}
@@ -104,7 +104,9 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 			childTokens = this->parseCondition(tokens);
 		}
 	} else {
-		throw SimpleSyntaxParserException("A condition must start with brackets");
+		this->isRelationalExpression = true;
+		childTokens = tokens;
+		tokens.clear();
 	}
 
 	this->initialized = true;
@@ -145,9 +147,10 @@ shared_ptr<ASTNode> ConditionalExpressionSimpleSyntaxRule::constructNode() {
 list<Token> ConditionalExpressionSimpleSyntaxRule::parseCondition(list<Token> &tokens) {
 
 	list<Token> childTokens;
-	int numOpenBracket = 0;
 
 	Token token = tokens.front();
+	int numOpenBracket = 1;
+	tokens.pop_front();
 
 	bool seenCloseBracket = false;
 	// Get conditional expression inside the brackets
@@ -162,6 +165,7 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::parseCondition(list<Token> &t
 			numOpenBracket -= 1;
 			if (numOpenBracket == 0) {
 				seenCloseBracket = true;
+				break;
 			}
 		}
 		childTokens.push_back(token);

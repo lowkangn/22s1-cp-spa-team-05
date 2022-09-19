@@ -578,6 +578,76 @@ TEST_CASE("Parser: test ::consumeTokens") {
 		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
 	}
 
+	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens (!((1==0) && (1==0))), doesnt consume extra tokens") {
+		list<Token> tokens = {
+				Token::createOpenBracketToken(),
+				Token::createNotToken(),
+				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createEqualityToken(),
+				Token::createIntegerToken("0"),
+				Token::createCloseBracketToken(),
+				Token::createAndToken(),
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createEqualityToken(),
+				Token::createIntegerToken("0"),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+				Token::createCallToken(),
+				Token::createNameOrKeywordToken("some random procedure")
+		};
+		list<Token> expectedTokens = { Token::createCallToken(),
+									   Token::createNameOrKeywordToken("some random procedure") };
+		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
+	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens (1>=1%((0-1))), doesnt consume extra tokens") {
+		list<Token> tokens = {
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createGreaterThanEqualToken(),
+				Token::createIntegerToken("1"),
+				Token::createModulusToken(),
+				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("0"),
+				Token::createMinusToken(),
+				Token::createIntegerToken("1"),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+				Token::createCallToken(),
+				Token::createNameOrKeywordToken("some random procedure")
+		};
+		list<Token> expectedTokens = { Token::createCallToken(),
+									   Token::createNameOrKeywordToken("some random procedure") };
+		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
+	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens (1>=1%((1))), doesnt consume extra tokens") {
+		list<Token> tokens = {
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createGreaterThanEqualToken(),
+				Token::createIntegerToken("1"),
+				Token::createModulusToken(),
+				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+				Token::createCallToken(),
+				Token::createNameOrKeywordToken("some random procedure")
+		};
+		list<Token> expectedTokens = { Token::createCallToken(),
+									   Token::createNameOrKeywordToken("some random procedure") };
+		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
 		// -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, nested conditional expressions") {
 		// ((v >= x) || (q >= x)) && (soomevariable >= x)
@@ -1822,7 +1892,7 @@ TEST_CASE("Parser: test ::constructNode") {
 
 		// -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
 	SECTION("ConditionalExpressionSimpleSyntaxRule : constructNode") {
-		// (x >= y) && (x >= y);
+		// ((x >= y) && (x >= y));
 		Token openBracket = Token::createOpenBracketToken();
 		Token variableX = Token::createNameOrKeywordToken("x");
 		Token greaterThan = Token::createGreaterThanEqualToken();
