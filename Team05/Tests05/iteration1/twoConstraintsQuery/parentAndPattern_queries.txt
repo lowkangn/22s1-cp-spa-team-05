@@ -360,8 +360,8 @@ Select a such that Parent*(w, a) pattern a(_,_"z"_)
 5000
 73 - parent*PatRhsName - select assignments with y on rhs and whose parent* is a while 
 assign a; while w;
-Select a such that Parent*(w, a) pattern a(_,_"y"_)
-9
+Select a such that Parent*(w, a) pattern a(_,_"x"_)
+9, 7, 5, 11
 5000
 74 - parent*PatRhsConst - select parent*s of assignments with 3 on rhs
 assign a; stmt s;

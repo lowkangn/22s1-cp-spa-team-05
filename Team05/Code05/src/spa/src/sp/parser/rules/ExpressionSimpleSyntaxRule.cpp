@@ -90,7 +90,6 @@ list<Token> ExpressionSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 
 	Token token = tokens.front(); // read
 
-
 	// Check for brackets, if they are present means first term itself is an expression (Factor)
 	if (token.isOpenBracketToken()) {
 		lhsTokens = this->extractBracketTokens(tokens);

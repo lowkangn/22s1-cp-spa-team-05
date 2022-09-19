@@ -21,7 +21,7 @@ Select a such that Uses(a, "x")
 5 - UsesS - select assigns that Use "z"
 assign a;
 Select a such that Uses(a, "z")
-2
+none
 5000
 6 - UsesS - select reads that Use variable
 read r; variable v;
@@ -36,7 +36,7 @@ Select p such that Uses(p, "a")
 8 - UsesS - select prints that Use "y"
 print p;
 Select p such that Uses(p, "y")
-12
+11
 5000
 9 - UsesS - select whiles that Use "e" (used, in condition)
 while w;

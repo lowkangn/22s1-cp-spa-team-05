@@ -1,0 +1,100 @@
+1 - usesPatX - Select assignments with x on both sides
+assign a;
+Select a such that Uses(a, "x") pattern a("x", _)
+1, 4
+5000
+2 - usesPatY - Select assignments with z and x on rhs
+assign a;
+Select a such that Uses(a, "z") pattern a(_, _"x"_)
+7, 1, 4
+5000
+3 - usesPatWild - Select read statements that use a variable (wildcard) if there is an assign statement
+read r; assign a;
+Select r such that Uses(r, _) pattern a(_, _)
+none
+5000
+4 - usesPatSyn - Select print statements that use a variable (synonym) that appears on lhs of an assign
+print r; variable v; assign a;
+Select r such that Uses(r, v) pattern a(v, _)
+5
+5000
+5 - usesPatStr - Select print statements that use a variable (synonym) if i appears on lhs of an assign
+print r; variable v; assign a;
+Select r such that Uses(r, v) pattern a("i", _)
+none
+5000
+6 - usesPatStr - Select print statements that use x if j appears on lhs of an assign
+print r; variable v; assign a;
+Select r such that Uses(r, "x") pattern a("j", _)
+none
+5000
+7 - usesPatStr - Select statements that use j if an assign has z on both sides
+stmt s; variable v; assign a;
+Select s such that Uses(s, "j") pattern a("z", _"z"_)
+6
+5000
+8 - usesPatVar - Select variables that are used by an assignment and appear on lhs of an assignment
+variable v; assign a, a1;
+Select v such that Uses(a, v) pattern a1(v, _)
+x, z, y
+5000
+9 - usesPatVar - Select variables that are used by an assignment if another variable appears on lhs of an assignment
+variable v, v1; assign a, a1;
+Select v such that Uses(a, v) pattern a1(v1, _)
+x, z, y
+5000
+10 - usesPatWhile - Select whiles that use a variable that appears on lhs of an assign
+while w; assign a; variable v;
+Select w such that Uses(w, v) pattern a(v, _)
+3
+5000
+11 - usesPatWhile - Select variables used by a while if y appears on lhs of an assign
+while w; assign a; variable v;
+Select v such that Uses(w, v) pattern a("y", _)
+i, x, z, y
+5000
+12 - usesPatIf - Select variables used by an if that also appears on lhs of an assign with x in rhs
+if i; assign a; variable v;
+Select v such that Uses(i, v) pattern a(v, _"x"_)
+y, x
+5000
+13 - usesPatIf - Select variables used by an if if x is the lhs of an assign with y on rhs
+if i; assign a; variable v;
+Select v such that Uses(i, v) pattern a("x", _"y"_)
+j, x, y, z
+5000
+14 - usesPatConst - Select constants if a while uses z and x is the lhs of an assign with y on rhs
+constant c; assign a; variable v; while w;
+Select c such that Uses(w, "z") pattern a("x", _"y"_)
+0, 5, 20, 10, 100, 1000
+5000
+15 - usesPatProc - Select procedures if a while uses z and x is the lhs of an assign with 100 on rhs
+procedure p; assign a; variable v; while w;
+Select p such that Uses(w, "z") pattern a("x", _"100"_)
+none
+5000
+16 - usesPatProc - Select procedures if a while uses z and x is the lhs of an assign with 1000 on rhs
+procedure p; assign a; variable v; while w;
+Select p such that Uses(w, "z") pattern a("x", _"1000"_)
+usesPat
+5000
+17 - usesPatStmt - Select stmts if an if uses z and y is the lhs of an assign with 2 on rhs
+stmt s; assign a; variable v; if i;
+Select s such that Uses(i, "z") pattern a("y", _"2"_)
+none
+5000
+18 - usesPatStmt - Select stmts if an if uses z and y is the lhs of an assign with 2 on rhs
+stmt s; assign a; variable v; if i;
+Select s such that Uses(i, "z") pattern a("y", _"20"_)
+1, 2, 3, 4, 5, 6, 7, 8
+5000
+19 - usesPatConst - Select stmts if an if uses z and y is the lhs of an assign with 2 on rhs
+stmt s; assign a; variable v; if i;
+Select s such that Uses(i, "z") pattern a("y", _"20"_)
+1, 2, 3, 4, 5, 6, 7, 8
+5000
+20 - usesPatConst - Select reads if an if uses a variable that is on hte lhs of an assignment with 20 on rhs
+read reads; assign a; variable v; if i;
+Select reads such that Uses(i, v) pattern a(v, _"20"_)
+2
+5000
