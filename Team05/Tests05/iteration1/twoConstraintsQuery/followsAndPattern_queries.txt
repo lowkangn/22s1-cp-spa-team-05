@@ -1,9 +1,9 @@
-1 - followsPat - select stmts that follow assignments with y on lhs
+1 - followsPat - select stmts that follow assignments with y on rhs
 assign a; stmt s;
 Select s such that Follows(a, s) pattern a(_,_"y"_)
 2
 5000
-2 - followsPat - select assignments with x on lhs and have a stmt that follows
+2 - followsPat - select assignments with z on lhs and have a stmt that follows
 assign a; stmt s;
 Select a pattern a("z",_) such that Follows(a, _) 
 4
@@ -68,12 +68,12 @@ assign a; variable v; if i; read r;
 Select r such that Follows*(a, r) pattern a(_,_"1000"_)
 2, 11
 5000
-15 -  followsPat - select ifs that follow an assignment with 0 on rhs 
+15 -  followsPat - select ifs that are followed by an assignment with 0 on rhs 
 assign a; variable v; if i; read r;
 Select i such that Follows(i, a) pattern a(_,_"0"_)
 none
 5000
-16 - followsTPat - select ifs that followT an assignment with 0 on rhs 
+16 - followsTPat - select ifs that are followTed by an assignment with 0 on rhs 
 assign a; variable v; if i; read r;
 Select i such that Follows*(i, a) pattern a(_,_"0"_)
 none
@@ -103,17 +103,17 @@ constant c; assign a, a1; variable v; if i;
 Select c such that Follows*(a, a1) pattern a("y", _)
 1000, 0, 10, 5, 20, 100
 5000
-22 - followsTPatProc - Select procedures if an assignment with z in rhs follows a read
+22 - followsTPatProc - Select procedures if an assignment with z in rhs followsT a read
 procedure p; assign a, a1; variable v; read r;
 Select p such that Follows*(r, a) pattern a(v, _"z"_)
 none
 5000
-23 - followsPatProc - Select procedures if an assignment with k in rhs followsT a read
+23 - followsPatProc - Select procedures if an assignment with k in rhs follows a read
 procedure p; assign a, a1; variable v; read r;
 Select p such that Follows(r, a) pattern a(v, _"k"_)
 followsPat
 5000
-24 - followsTPat - select stmts that follow* assignments with y on lhs
+24 - followsTPat - select stmts that follow* assignments with y on rhs
 assign a; stmt s;
 Select s such that Follows*(a, s) pattern a(_,_"y"_)
 2, 3, 11
