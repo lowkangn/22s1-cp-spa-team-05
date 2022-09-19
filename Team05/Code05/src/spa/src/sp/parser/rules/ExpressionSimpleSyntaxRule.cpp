@@ -89,11 +89,10 @@ list<Token> ExpressionSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	list<Token> rhsTokens;
 
 	Token token = tokens.front(); // read
-
 	// Check for brackets, if they are present means first term itself is an expression (Factor)
 	if (token.isOpenBracketToken()) {
 		lhsTokens = this->extractBracketTokens(tokens);
-		this->lhsBrackets = true;
+		this->lhsIsExpression = true;
 	}
 	else {
 		// should start with variable or constant
@@ -104,36 +103,42 @@ list<Token> ExpressionSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 		tokens.pop_front(); // pop
 	}
 
-	// Then operator
-	token = tokens.front(); // read
-	if (!token.isOperatorToken()) {
-		throw SimpleSyntaxParserException(string("Expected an operator got: ") + token.getString());
+	if (tokens.empty()) {
+		this->isSingleExpression = true;
 	}
-	tokens.pop_front(); // pop
-	this->operatorToken = token; // we want the operator
-
-	// Check for brackets, if they are present then the second term itself is an expression (factor)
-	token = tokens.front();
-	if (token.isOpenBracketToken()) {
-		rhsTokens = this->extractBracketTokens(tokens);
-		this->rhsBrackets = true;
-	}
-	// It is a term
 	else {
-		// should start with variable or constant
-		token = tokens.front();
-		tokens.pop_front(); // pop
-		if (!token.isNameToken() && !token.isIntegerToken()) {
-			throw SimpleSyntaxParserException(string("Expected a name variable or constant, got: ") + token.getString());
+		// Means there is and second term
+		// Then operator
+		token = tokens.front(); // read
+		if (!token.isOperatorToken()) {
+			throw SimpleSyntaxParserException(string("Expected an operator got: ") + token.getString());
 		}
-		rhsTokens.push_back(token); // we want the lhs variable
+		tokens.pop_front(); // pop
+		this->operatorToken = token; // we want the operator
 
-		// Append the rest of the expression
-		while (!tokens.empty()) {
-			// then operator 
-			token = tokens.front(); // read
+		// Check for brackets, if they are present then the second term itself is an expression (factor)
+		token = tokens.front();
+		if (token.isOpenBracketToken()) {
+			rhsTokens = this->extractBracketTokens(tokens);
+			this->rhsIsExpression = true;
+		}
+		// It is a term
+		else {
+			// should start with variable or constant
+			token = tokens.front();
 			tokens.pop_front(); // pop
-			rhsTokens.push_back(token);
+			if (!token.isNameToken() && !token.isIntegerToken()) {
+				throw SimpleSyntaxParserException(string("Expected a name variable or constant, got: ") + token.getString());
+			}
+			rhsTokens.push_back(token); // we want the lhs variable
+
+			// Append the rest of the expression
+			while (!tokens.empty()) {
+				// then operator 
+				token = tokens.front(); // read
+				tokens.pop_front(); // pop
+				rhsTokens.push_back(token);
+			}
 		}
 	}
 	
@@ -155,32 +160,38 @@ shared_ptr<ASTNode> ExpressionSimpleSyntaxRule::constructNode() {
 		this->childRules = this->generateChildRules();
 	}
 
-	shared_ptr<ASTNode> operatorNode = this->childRules[OPERATOR_RULE]->constructNode();
-	shared_ptr<ASTNode> lhsNode = this->childRules[LHS_RULE]->constructNode(); 
-	shared_ptr<ASTNode> rhsNode = this->childRules[RHS_RULE]->constructNode();
 
-	Token lhsToken = Token::getPlaceHolderToken();
-	Token rhsToken = Token::getPlaceHolderToken();
-	shared_ptr<ASTNode> lhsBrackets(new BracketsASTNode(lhsToken));
-	shared_ptr<ASTNode> rhsBrackets(new BracketsASTNode(rhsToken));
-
-	if (this->lhsBrackets) {
-		lhsBrackets->addChild(lhsNode);
-		operatorNode->addChild(lhsBrackets);
+	if (isSingleExpression) {
+		shared_ptr<ASTNode> expressionNode = this->childRules[LHS_RULE]->constructNode();
+		return expressionNode;
 	}
 	else {
-		operatorNode->addChild(lhsNode); // LHS must be added before RHS
-	}
+		shared_ptr<ASTNode> rootNode = this->childRules[OPERATOR_RULE]->constructNode();
+		shared_ptr<ASTNode> lhsNode = this->childRules[LHS_RULE]->constructNode();
+		shared_ptr<ASTNode> rhsNode = this->childRules[RHS_RULE]->constructNode();
 
-	if (this->rhsBrackets) {
-		rhsBrackets->addChild(rhsNode);
-		operatorNode->addChild(rhsBrackets);
-	}
-	else {
-		operatorNode->addChild(rhsNode);
-	}
+		Token lhsToken = Token::getPlaceHolderToken();
+		Token rhsToken = Token::getPlaceHolderToken();
+		shared_ptr<ASTNode> lhsBrackets(new BracketsASTNode(lhsToken));
+		shared_ptr<ASTNode> rhsBrackets(new BracketsASTNode(rhsToken));
 
-	return operatorNode;
+		if (this->lhsIsExpression) {
+			lhsBrackets->addChild(lhsNode);
+			rootNode->addChild(lhsBrackets);
+		}
+		else {
+			rootNode->addChild(lhsNode); // LHS must be added before RHS
+		}
+
+		if (this->rhsIsExpression) {
+			rhsBrackets->addChild(rhsNode);
+			rootNode->addChild(rhsBrackets);
+		}
+		else {
+			rootNode->addChild(rhsNode);
+		}
+		return rootNode;
+	}
 }
 
 list<Token> ExpressionSimpleSyntaxRule::extractBracketTokens(list<Token> &tokens) {

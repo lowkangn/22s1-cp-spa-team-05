@@ -7,7 +7,7 @@ list<Token> StatementListSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 	// first token should be open bracket
 	Token token = tokens.front();
 	if (!token.isOpenCurlyBracketToken()) {
-		throw SimpleSyntaxParserException(string("Expected first token to be open bracket, but was ") + token.getString());
+		throw SimpleSyntaxParserException(string("StatementList: Expected first token to be open bracket, but was ") + token.getString());
 	}
 	tokens.pop_front();
 

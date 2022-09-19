@@ -734,6 +734,14 @@ TEST_CASE("Test Source Processor : extractEntity") {
 
 		test(program, expected);
 	}
+
+	SECTION("Test buggy program") {
+		string program = "procedure main {\n     while (1>= 1%((0-1))) {\n\t\tread x;\n\t }\n\t x = 4;\n\t }";
+
+		vector<Entity> expected;
+
+		test(program, expected);
+	}
 }
 
 TEST_CASE("Test Source Processor : extractPattern") {

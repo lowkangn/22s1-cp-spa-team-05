@@ -18,16 +18,22 @@ class ConditionalExpressionSimpleSyntaxRule : public SimpleSyntaxRule {
 private:
 	bool notOperatorUsed;
 	bool twoConditionals;
+	bool isRelationalExpression;
+	list<Token> lhsCond;
+	list<Token> rhsCond;
+	Token condToken = Token::createPlaceholderToken();
 public:
 	ConditionalExpressionSimpleSyntaxRule() {
 		this->generated = false;
 		this->initialized = false;
 		this->notOperatorUsed = false;
 		this->twoConditionals = false;
+		this->isRelationalExpression = false;
 	}
 
 	vector<shared_ptr<SimpleSyntaxRule>> generateChildRules() override;
 	list<Token> consumeTokens(list<Token> tokens) override;
 	shared_ptr<ASTNode> constructNode() override;
 	list<Token> parseCondition(list<Token> &tokens);
+	bool isTwoConditional(list<Token> tokens);
 };

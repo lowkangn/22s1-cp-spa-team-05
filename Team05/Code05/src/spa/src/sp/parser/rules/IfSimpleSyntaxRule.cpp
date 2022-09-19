@@ -57,10 +57,9 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	if (!isSafeToPop(tokens) || !tokens.front().isOpenBracketToken()) {
 		throw SimpleSyntaxParserException("If condition should start with an open bracket");
 	}
-	tokens.pop_front();
 
 	// get rest of the condition
-	int numOpenBracket = 1;
+	int numOpenBracket = 0;
 	bool seenCloseBracket = false;
 
 	while (!tokens.empty() && !seenCloseBracket) {
@@ -74,7 +73,6 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 			numOpenBracket -= 1;
 			if (numOpenBracket == 0) {
 				seenCloseBracket = true;
-				break;
 			}
 		}
 		childTokens.push_back(token);
