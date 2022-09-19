@@ -13,32 +13,23 @@ Class QueryEvaluator
 Class QueryResultsProjector
 Class Query
 Class SelectClause
-Class ModifiesClause
-Class XYZClause
-abstract Class Clause
-}
-
-Package PKB {
+Class RelationshipClause
+Class PatternClause 
 }
 
 Class HiddenOutside #FFFFFF
 HiddenOutside ..> QPS
-QPS --> PKB
 
-SelectClause -up-|> Clause
-ModifiesClause -up-|> Clause
-XYZClause -up-|> Clause
-
-QPS ..> QPSTokenizer : creates >
+QPS .left.> QPSTokenizer : creates >
 QPS ..> QueryParser : creates >
 QPSTokenizer .down.> QueryParser: tokens >
-QueryParser .down.> Query: creates >
-QueryEvaluator ..> Query: executes >
-Query "1" o-down-> "1..*" Clause
-QPS ..> QueryResultsProjector: creates >
-QueryEvaluator ..> QueryResultsProjector: results >
+QueryParser ..> Query: creates >
+QueryEvaluator .down.> Query: executes >
+Query -down-> "1" SelectClause
+Query -down-> "0..*" RelationshipClause
+Query -down-> "0..*" PatternClause
+QPS .right.> QueryResultsProjector: creates >
+QueryEvaluator .right.> QueryResultsProjector: results >
+QPS .down.> QueryEvaluator: creates >
 
-Clause .right.> PKB: calls >
-
-QPS ..> QueryEvaluator: creates >
 @enduml

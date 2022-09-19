@@ -1,0 +1,47 @@
+@startuml
+!include style.puml
+
+
+actor User as User
+
+box "Query Processing System" QPS_COLOR_T1
+participant ":QPS" as QPS QPS_COLOR
+participant ":QueryTokenizer" as QueryTokenizer QPS_COLOR
+participant ":QueryParser" as QueryParser QPS_COLOR
+participant ":QueryEvaluator" as QueryEvaluator QPS_COLOR
+end box
+
+User -> QPS
+activate QPS
+
+create QueryTokenizer
+QPS -> QueryTokenizer
+
+activate QueryTokenizer
+QPS -> QueryTokenizer: tokenize()
+
+QueryTokenizer --> QPS: tokens
+deactivate QueryTokenizer
+
+create QueryParser
+QPS -> QueryParser
+
+activate QueryParser
+QPS -> QueryParser: parse()
+
+QueryParser --> QPS: query
+deactivate QueryParser
+
+create QueryEvaluator
+QPS -> QueryEvaluator
+
+activate QueryEvaluator
+QPS -> QueryEvaluator: evaluate(query, pkb)
+
+QueryEvaluator --> QPS: set<string>
+deactivate QueryEvaluator
+
+QPS --> User
+deactivate QPS
+
+@enduml
