@@ -1,0 +1,120 @@
+1 - followsPat - select stmts that follow assignments with y on lhs
+assign a; stmt s;
+Select s such that Follows(a, s) pattern a(_,_"y"_)
+2
+5000
+2 - followsPat - select assignments with x on lhs and have a stmt that follows
+assign a; stmt s;
+Select a pattern a("z",_) such that Follows(a, _) 
+4
+5000
+3 - followsPat - select assignments with z on lhs and follows a stmt
+assign a; stmt s;
+Select a such that Follows(_, a) pattern a("z",_)
+none
+5000
+4 - followsPat - select assignments with k on lhs and follows 7 
+assign a;
+Select a such that Follows(7, a) pattern a("k",_)
+8
+5000
+5 - followsPat - select whiles that follow an assignment with z on lhs 
+assign a; while w;
+Select w pattern a("z",_) such that Follows(a, w) 
+none
+5000
+6 - followsPat - select assignments with z on lhs and follow an if 
+assign a; if i;
+Select a such that Follows(i, a) pattern a("z",_)
+none
+5000
+7 - followsPat - select variables on lhs of assignments that follow a stmt
+assign a; variable v;
+Select v such that Follows(_, a) pattern a(v,_)
+k
+5000
+8 - followsPat - select prints if a print follows an assignment with with z on both sides
+assign a; print p, p1;
+Select p pattern a("z",_"z"_) such that Follows(a, p1) 
+none
+5000
+9 - followsTPat - select prints if a print followsT an assignment with with z on both sides
+assign a; print p, p1;
+Select p pattern a("z",_"z"_) such that Follows*(a, p1) 
+10
+5000
+10 - followsPat - select variables on lhs of assignments that follows line 8
+assign a; variable v;
+Select v such that Follows(8, a) pattern a(v,_)
+none
+5000
+11 - followsPat - select variables on lhs of assignments that are followed by line 8
+assign a; variable v;
+Select v such that Follows(a, 8) pattern a(v,_)
+none
+5000
+12 - followsTPat - select variables on lhs of assignments that are followTed by line 8
+assign a; variable v;
+Select v such that Follows*(a, 8) pattern a(v,_)
+y
+5000
+13 - followsPat - select reads that follow an assignment with 1000 on rhs 
+assign a; variable v; if i; read r;
+Select r such that Follows(a, r) pattern a(_,_"1000"_)
+2
+5000
+14 - followsTPat - select reads that followT an assignment with 1000 on rhs 
+assign a; variable v; if i; read r;
+Select r such that Follows*(a, r) pattern a(_,_"1000"_)
+2, 11
+5000
+15 -  followsPat - select ifs that follow an assignment with 0 on rhs 
+assign a; variable v; if i; read r;
+Select i such that Follows(i, a) pattern a(_,_"0"_)
+none
+5000
+16 - followsTPat - select ifs that followT an assignment with 0 on rhs 
+assign a; variable v; if i; read r;
+Select i such that Follows*(i, a) pattern a(_,_"0"_)
+none
+5000
+17 - followsTPat - select ifs that follow an assignment with 10 on rhs 
+assign a; variable v; if i; read r;
+Select i such that Follows(a, i) pattern a(_,_"10"_)
+5
+5000
+18 - followsPatStmt - Select stmts if a read is followed by an assign that has z on lhs, y on rhs
+stmt s; assign a; variable v; if i; read r;
+Select s such that Follows(r, a) pattern a("z", _"y"_)
+none
+5000
+19 - followsPatStmt - Select stmts if a read is followed by an assign that has k on lhs, y on rhs
+stmt s; assign a; variable v; if i; read r;
+Select s such that Follows(r, a) pattern a("k", _"y"_)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+5000
+20 - followsPatConst - Select constants if an assignment follows an assignment with y on lhs
+constant c; assign a, a1; variable v; if i;
+Select c such that Follows(a, a1) pattern a("y", _)
+none
+5000
+21 - followsTPatConst - Select constants if an assignment followsT an assignment with y on lhs
+constant c; assign a, a1; variable v; if i;
+Select c such that Follows*(a, a1) pattern a("y", _)
+1000, 0, 10, 5, 20, 100
+5000
+22 - followsTPatProc - Select procedures if an assignment with z in rhs follows a read
+procedure p; assign a, a1; variable v; read r;
+Select p such that Follows*(r, a) pattern a(v, _"z"_)
+none
+5000
+23 - followsPatProc - Select procedures if an assignment with k in rhs followsT a read
+procedure p; assign a, a1; variable v; read r;
+Select p such that Follows(r, a) pattern a(v, _"k"_)
+followsPat
+5000
+24 - followsTPat - select stmts that follow* assignments with y on lhs
+assign a; stmt s;
+Select s such that Follows*(a, s) pattern a(_,_"y"_)
+2, 3, 11
+5000

@@ -1,0 +1,55 @@
+1 - Undeclared synonym
+assign a;
+Select a pattern a(v, _)
+SemanticError
+5000
+2 - Uppercase Pattern
+assign a;
+Select a Pattern a(_, _)
+SyntaxError
+5000
+3 - Missing syn-assign
+assign a; variable v;
+Select v pattern (v, _)
+SyntaxError
+5000
+4 - Non-assign synonym as first arg (proc)
+assign a; procedure p; variable v;
+Select a pattern p(v, _)
+SemanticError
+5000
+5 - Non-assign synonym as first arg (stmt subtype)
+assign a; variable v; read r;
+Select a pattern r(v, _)
+SemanticError
+5000
+6 - Non-assign synonym as first arg (stmt)
+assign a; variable v; stmt s;
+Select a pattern s(v, _)
+SemanticError
+5000
+7 - variable synonym as last arg
+assign a; variable v;
+Select a pattern a(_, v)
+SyntaxError
+5000
+8 - constant synonym as last arg
+assign a; constant c;
+Select a pattern a(_, c)
+SyntaxError
+5000
+9 - constant synonym as second arg
+assign a; constant c;
+Select a pattern a(c, _)
+SemanticError
+5000
+10 - number string as first arg
+assign a; constant c;
+Select a pattern a("1", _)
+SyntaxError
+5000
+11 - wildcard-surrounded string as first arg
+assign a; constant c;
+Select a pattern a(_"x"_, _)
+SyntaxError
+5000
