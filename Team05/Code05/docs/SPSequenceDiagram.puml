@@ -26,7 +26,12 @@ create Lexer
 SourceProcessor -> Lexer
 activate Lexer
 
+Lexer --> SourceProcessor
+deactivate Lexer
+
 SourceProcessor -> Lexer: tokenize(stream)
+activate Lexer
+
 Lexer --> SourceProcessor: tokens
 deactivate Lexer
 
@@ -34,7 +39,11 @@ create ParserManager
 SourceProcessor -> ParserManager: tokens
 activate ParserManager
 
+ParserManager --> SourceProcessor
+deactivate ParserManager
+
 SourceProcessor -> ParserManager: parse()
+activate ParserManager
 
 ParserManager --> SourceProcessor: AST
 deactivate ParserManager
