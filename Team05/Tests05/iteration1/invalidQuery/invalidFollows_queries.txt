@@ -53,3 +53,13 @@ assign a; procedure p;
 Select a such that Follows(p, a)
 SemanticError
 5000
+12 - unmatched bracket
+assign a; procedure p;
+Select a such that Follows(p, a
+SyntaxError
+5000
+13 - missing brackets
+assign a; procedure p;
+Select a such that Follows p, a
+SyntaxError
+5000

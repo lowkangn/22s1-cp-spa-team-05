@@ -53,3 +53,13 @@ assign a; constant c;
 Select a pattern a(_"x"_, _)
 SyntaxError
 5000
+12 - unmatched bracket
+assign a; constant c;
+Select a pattern a _"x"_, _)
+SyntaxError
+5000
+13 - missing brackets
+assign a; constant c;
+Select a pattern a _"x"_, _
+SyntaxError
+5000
