@@ -336,6 +336,9 @@ TEST_CASE("Lexer: test tokenize works correctly") {
 
             curr = tokens.front();
             currExpected = expectedTokens.front();
+            if (!(curr == currExpected)) {
+                cout << curr.getString() << " " << currExpected.getString() << endl;
+            }
             REQUIRE(curr == currExpected);
 
             tokens.pop_front();
@@ -369,6 +372,99 @@ TEST_CASE("Lexer: test tokenize works correctly") {
                 Token::createNameOrKeywordToken("e"),
                 Token::createEqualsToken(),
                 Token::createNameOrKeywordToken("f")
+        });
+    }
+
+    SECTION("With nested while") {
+        test("\nwhile (! ((1==0) && (1==0))) {\n    x = 1;\n}\n", list<Token>{
+            Token::createNameOrKeywordToken("while"),
+                Token::createOpenBracketToken(),
+                Token::createNotToken(),
+                Token::createOpenBracketToken(),
+                Token::createOpenBracketToken(),
+                Token::createIntegerToken("1"),
+                Token::createEqualityToken(),
+                Token::createIntegerToken("0"),
+                Token::createCloseBracketToken(),
+
+                Token::createAndToken(),
+                Token::createOpenBracketToken(),
+                Token::createIntegerToken("1"),
+                Token::createEqualityToken(),
+                Token::createIntegerToken("0"),
+                Token::createCloseBracketToken(),
+                Token::createCloseBracketToken(),
+                Token::createCloseBracketToken(),
+                Token::createOpenCurlyBracketToken(),
+                Token::createNameOrKeywordToken("x"),
+                Token::createEqualsToken(),
+                Token::createIntegerToken("1"),
+                Token::createSemicolonToken(),
+                Token::createCloseCurlyBracketToken(),
+        });
+    }
+
+    SECTION("With nested while, but another") {
+        test("\nwhile (1>= 1%((0-1)) ) {\n    x = 1;\n}\n", list<Token>{
+            Token::createNameOrKeywordToken("while"),
+                Token::createOpenBracketToken(),
+                Token::createIntegerToken("1"),
+                Token::createGreaterThanEqualToken(),
+                Token::createIntegerToken("1"),
+                Token::createModulusToken(),
+                Token::createOpenBracketToken(),
+                Token::createOpenBracketToken(),
+                Token::createIntegerToken("0"),
+                Token::createMinusToken(),
+                Token::createIntegerToken("1"),
+                Token::createCloseBracketToken(),
+                Token::createCloseBracketToken(),
+                Token::createCloseBracketToken(),
+                Token::createOpenCurlyBracketToken(),
+                Token::createNameOrKeywordToken("x"),
+                Token::createEqualsToken(),
+                Token::createIntegerToken("1"),
+                Token::createSemicolonToken(),
+                Token::createCloseCurlyBracketToken(),
+        });
+    }
+
+    SECTION("With nested while, but another") {
+        test("\nwhile (1>= 1%((1)) )  {\n    x = 1;\n}\n", list<Token>{
+            Token::createNameOrKeywordToken("while"),
+                Token::createOpenBracketToken(),
+
+                Token::createIntegerToken("1"),
+                Token::createGreaterThanEqualToken(),
+                Token::createIntegerToken("1"),
+                Token::createModulusToken(),
+                Token::createOpenBracketToken(),
+                Token::createOpenBracketToken(),
+                Token::createIntegerToken("1"),
+                Token::createCloseBracketToken(),
+                Token::createCloseBracketToken(),
+
+                Token::createCloseBracketToken(),
+                Token::createOpenCurlyBracketToken(),
+                Token::createNameOrKeywordToken("x"),
+                Token::createEqualsToken(),
+                Token::createIntegerToken("1"),
+                Token::createSemicolonToken(),
+                Token::createCloseCurlyBracketToken(),
+        });
+    }
+
+    SECTION("Empty while condition") {
+        test("\nwhile ( )  {\n    x = 1;\n}\n", list<Token>{
+            Token::createNameOrKeywordToken("while"),
+                Token::createOpenBracketToken(),
+                Token::createCloseBracketToken(),
+                Token::createOpenCurlyBracketToken(),
+                Token::createNameOrKeywordToken("x"),
+                Token::createEqualsToken(),
+                Token::createIntegerToken("1"),
+                Token::createSemicolonToken(),
+                Token::createCloseCurlyBracketToken(),
         });
     }
     

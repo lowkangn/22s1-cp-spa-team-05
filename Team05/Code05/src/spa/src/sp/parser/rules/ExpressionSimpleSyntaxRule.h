@@ -18,11 +18,11 @@ class ExpressionSimpleSyntaxRule : public SimpleSyntaxRule {
 private:
 public:
 	list<Token> lhsTokens;
-	bool lhsBrackets = false;
+	bool lhsIsExpression = false;
+	bool rhsIsExpression = false;
 	Token operatorToken = Token::getPlaceHolderToken(); // Placeholder has to be replaced during initialization
 	list<Token> rhsTokens;
-	bool rhsBrackets = false;
-
+	bool isSingleExpression = false;
 
 	ExpressionSimpleSyntaxRule() {
 		this->generated = false;

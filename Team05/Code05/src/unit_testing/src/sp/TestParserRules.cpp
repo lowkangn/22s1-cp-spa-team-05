@@ -187,6 +187,9 @@ TEST_CASE("Parser: test ::consumeTokens") {
 		};
 		testThrowsException(AssignSimpleSyntaxRule(), tokens);
 	}
+
+
+
 	SECTION("AssignSimpleSyntaxRule: Missing token after equal") {
 		list<Token> tokens = {
 				Token::createNameOrKeywordToken("soomevariable"),
@@ -453,7 +456,7 @@ TEST_CASE("Parser: test ::consumeTokens") {
 
 
 		// -------------------- RelationalExpressionSimpleSyntaxRule --------------------
-	SECTION("ProgramSimpleSyntaxRule: Consumes exactly correct tokens") {
+	SECTION("RelationalExpressionSimpleSyntaxRule: Consumes exactly correct tokens") {
 		list<Token> tokens = {
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createEqualityToken(),
@@ -483,8 +486,7 @@ TEST_CASE("Parser: test ::consumeTokens") {
 				Token::createPlusToken(),
 				Token::createNameOrKeywordToken("y"),
 		};
-		list<Token> expectedTokens = { Token::createPlusToken(),
-									   Token::createNameOrKeywordToken("y") };
+		list<Token> expectedTokens = { };
 		test(RelationalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
 	}
 
@@ -506,9 +508,23 @@ TEST_CASE("Parser: test ::consumeTokens") {
 		// -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, just a relational operator test") {
 		list<Token> tokens = {
+				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken()
+		};
+		list<Token> expectedTokens = {};
+		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
+	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, just a relational operator test") {
+		list<Token> tokens = {
+				Token::createOpenBracketToken(),
+				Token::createPlaceholderToken(),
+				Token::createCloseBracketToken()
 		};
 		list<Token> expectedTokens = {};
 		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
@@ -517,11 +533,13 @@ TEST_CASE("Parser: test ::consumeTokens") {
 		// -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, Not test") {
 		list<Token> tokens = {
+				Token::createOpenBracketToken(),
 				Token::createNotToken(),
 				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
+				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken()
 		};
 		list<Token> expectedTokens = {};
@@ -532,6 +550,7 @@ TEST_CASE("Parser: test ::consumeTokens") {
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, two relational expressions") {
 		list<Token> tokens = {
 				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
@@ -541,6 +560,7 @@ TEST_CASE("Parser: test ::consumeTokens") {
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
+				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken()
 		};
 		list<Token> expectedTokens = {};
@@ -551,6 +571,7 @@ TEST_CASE("Parser: test ::consumeTokens") {
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, doesnt consume extra tokens") {
 		list<Token> tokens = {
 				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
@@ -560,6 +581,77 @@ TEST_CASE("Parser: test ::consumeTokens") {
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+				Token::createCallToken(),
+				Token::createNameOrKeywordToken("some random procedure")
+		};
+		list<Token> expectedTokens = { Token::createCallToken(),
+									   Token::createNameOrKeywordToken("some random procedure") };
+		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
+	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens (!((1==0) && (1==0))), doesnt consume extra tokens") {
+		list<Token> tokens = {
+				Token::createOpenBracketToken(),
+				Token::createNotToken(),
+				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createEqualityToken(),
+				Token::createIntegerToken("0"),
+				Token::createCloseBracketToken(),
+				Token::createAndToken(),
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createEqualityToken(),
+				Token::createIntegerToken("0"),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+				Token::createCallToken(),
+				Token::createNameOrKeywordToken("some random procedure")
+		};
+		list<Token> expectedTokens = { Token::createCallToken(),
+									   Token::createNameOrKeywordToken("some random procedure") };
+		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
+	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens (1>=1%((0-1))), doesnt consume extra tokens") {
+		list<Token> tokens = {
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createGreaterThanEqualToken(),
+				Token::createIntegerToken("1"),
+				Token::createModulusToken(),
+				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("0"),
+				Token::createMinusToken(),
+				Token::createIntegerToken("1"),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+				Token::createCallToken(),
+				Token::createNameOrKeywordToken("some random procedure")
+		};
+		list<Token> expectedTokens = { Token::createCallToken(),
+									   Token::createNameOrKeywordToken("some random procedure") };
+		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
+	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens (1>=1%((1))), doesnt consume extra tokens") {
+		list<Token> tokens = {
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createGreaterThanEqualToken(),
+				Token::createIntegerToken("1"),
+				Token::createModulusToken(),
+				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken(),
 				Token::createCallToken(),
 				Token::createNameOrKeywordToken("some random procedure")
@@ -575,6 +667,7 @@ TEST_CASE("Parser: test ::consumeTokens") {
 		list<Token> tokens = {
 				Token::createOpenBracketToken(),
 				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("v"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
@@ -598,6 +691,7 @@ TEST_CASE("Parser: test ::consumeTokens") {
 				Token::createNameOrKeywordToken("q"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
+				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken(),
 				Token::createCallToken(),
@@ -813,6 +907,8 @@ TEST_CASE("Parser: test ::generateChildRules") {
 		};
 		test(AssignSimpleSyntaxRule(), tokensToConsume, expectedChildren);
 	}
+
+
 
 	SECTION("AssignSimpleSyntaxRule: expression x = x + 1") {
 		list<Token> tokensToConsume = {
@@ -1061,9 +1157,11 @@ TEST_CASE("Parser: test ::generateChildRules") {
 		// -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
 	SECTION("ConditionalExpressionSimpleSyntaxRule: x >= 5") {
 		list<Token> tokensToConsume = {
+				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
+				Token::createCloseBracketToken()
 		};
 
 		// create relational rule
@@ -1086,14 +1184,18 @@ TEST_CASE("Parser: test ::generateChildRules") {
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
-				Token::createCloseBracketToken()
+				Token::createCloseBracketToken(),
 		};
 
 		// create conditional rule
 		shared_ptr<SimpleSyntaxRule> conRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
-		list<Token> tokensInRHSRule = { Token::createNameOrKeywordToken("soomevariable"),
+		list<Token> tokensInRHSRule = { 
+										Token::createOpenBracketToken(),
+										Token::createNameOrKeywordToken("soomevariable"),
 										Token::createGreaterThanEqualToken(),
-										Token::createNameOrKeywordToken("x") };
+										Token::createNameOrKeywordToken("x"),
+										Token::createCloseBracketToken(),
+		};
 		conRule->consumeTokens(tokensInRHSRule);
 
 		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
@@ -1102,8 +1204,9 @@ TEST_CASE("Parser: test ::generateChildRules") {
 		test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
 	}
 
-	SECTION("ConditionalExpressionSimpleSyntaxRule: !(soomevariable >= x) && (soomevariable >= x)") {
+	SECTION("ConditionalExpressionSimpleSyntaxRule: (soomevariable >= x) && (soomevariable >= x)") {
 		list<Token> tokensToConsume = {
+				Token::createOpenBracketToken(),
 				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
@@ -1114,14 +1217,19 @@ TEST_CASE("Parser: test ::generateChildRules") {
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
+				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken()
 		};
 
 		// create lhs rule
 		shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
-		list<Token> tokensInLHSRule = { Token::createNameOrKeywordToken("soomevariable"),
+		list<Token> tokensInLHSRule = { 
+										Token::createOpenBracketToken(),
+										Token::createNameOrKeywordToken("soomevariable"),
 										Token::createGreaterThanEqualToken(),
-										Token::createNameOrKeywordToken("x") };
+										Token::createNameOrKeywordToken("x"),
+										Token::createCloseBracketToken()
+		};
 		lhsRule->consumeTokens(tokensInLHSRule);
 
 		// create operator rule
@@ -1131,9 +1239,12 @@ TEST_CASE("Parser: test ::generateChildRules") {
 
 		// create rhs rule
 		shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
-		list<Token> tokensInRHSRule = { Token::createNameOrKeywordToken("soomevariable"),
+		list<Token> tokensInRHSRule = { 
+										Token::createOpenBracketToken(),
+										Token::createNameOrKeywordToken("soomevariable"),
 										Token::createGreaterThanEqualToken(),
-										Token::createNameOrKeywordToken("x") };
+										Token::createNameOrKeywordToken("x"),
+										Token::createCloseBracketToken() };
 		rhsRule->consumeTokens(tokensInRHSRule);
 
 		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
@@ -1148,6 +1259,7 @@ TEST_CASE("Parser: test ::generateChildRules") {
 		list<Token> tokensToConsume = {
 				Token::createOpenBracketToken(),
 				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("v"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
@@ -1173,11 +1285,13 @@ TEST_CASE("Parser: test ::generateChildRules") {
 				Token::createNameOrKeywordToken("x"),
 				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
 		};
 
 		// create lhs rule
 		shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
 		list<Token> tokensInLHSRule = { Token::createOpenBracketToken(),
+										Token::createOpenBracketToken(),
 										Token::createNameOrKeywordToken("v"),
 										Token::createGreaterThanEqualToken(),
 										Token::createNameOrKeywordToken("x"),
@@ -1187,6 +1301,7 @@ TEST_CASE("Parser: test ::generateChildRules") {
 										Token::createNameOrKeywordToken("q"),
 										Token::createGreaterThanEqualToken(),
 										Token::createNameOrKeywordToken("x"),
+										Token::createCloseBracketToken(),
 										Token::createCloseBracketToken() };
 		lhsRule->consumeTokens(tokensInLHSRule);
 
@@ -1198,6 +1313,7 @@ TEST_CASE("Parser: test ::generateChildRules") {
 		// create rhs rule
 		shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
 		list<Token> tokensInRHSRule = { Token::createOpenBracketToken(),
+										Token::createOpenBracketToken(),
 										Token::createNameOrKeywordToken("v"),
 										Token::createGreaterThanEqualToken(),
 										Token::createNameOrKeywordToken("x"),
@@ -1207,6 +1323,7 @@ TEST_CASE("Parser: test ::generateChildRules") {
 										Token::createNameOrKeywordToken("q"),
 										Token::createGreaterThanEqualToken(),
 										Token::createNameOrKeywordToken("x"),
+										Token::createCloseBracketToken(),
 										Token::createCloseBracketToken() };
 		rhsRule->consumeTokens(tokensInRHSRule);
 
@@ -1234,9 +1351,12 @@ TEST_CASE("Parser: test ::generateChildRules") {
 
 		// create conditional rule
 		shared_ptr<SimpleSyntaxRule> conRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
-		list<Token> tokensInConRule = { Token::createNameOrKeywordToken("soomevariable"),
+		list<Token> tokensInConRule = { 
+										Token::createOpenBracketToken(),
+										Token::createNameOrKeywordToken("soomevariable"),
 										Token::createGreaterThanEqualToken(),
-										Token::createNameOrKeywordToken("x") };
+										Token::createNameOrKeywordToken("x"),
+										Token::createCloseBracketToken()};
 		conRule->consumeTokens(tokensInConRule);
 
 		// Create stmtList rule
@@ -1276,9 +1396,11 @@ TEST_CASE("Parser: test ::generateChildRules") {
 
 		// create conditional rule
 		shared_ptr<SimpleSyntaxRule> conRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
-		list<Token> tokensInConRule = { Token::createNameOrKeywordToken("soomevariable"),
+		list<Token> tokensInConRule = { Token::createOpenBracketToken(),
+										Token::createNameOrKeywordToken("soomevariable"),
 										Token::createGreaterThanEqualToken(),
-										Token::createNameOrKeywordToken("x") };
+										Token::createNameOrKeywordToken("x"),
+										Token::createCloseBracketToken() };
 		conRule->consumeTokens(tokensInConRule);
 
 		// Create stmtList rule
@@ -1758,7 +1880,7 @@ TEST_CASE("Parser: test ::constructNode") {
 
 		test(rule, expectedASTNode);
 	}
-
+	
 		// -------------------- RelationalExpressionSimpleSyntaxRule --------------------
 	SECTION("RelationalExpressionSimpleSyntaxRule : constructNode") {
 		// x >= y;
@@ -1785,7 +1907,7 @@ TEST_CASE("Parser: test ::constructNode") {
 
 		// -------------------- ConditionalExpressionSimpleSyntaxRule --------------------
 	SECTION("ConditionalExpressionSimpleSyntaxRule : constructNode") {
-		// (x > y) && (x > y);
+		// ((x >= y) && (x >= y));
 		Token openBracket = Token::createOpenBracketToken();
 		Token variableX = Token::createNameOrKeywordToken("x");
 		Token greaterThan = Token::createGreaterThanEqualToken();
@@ -1793,9 +1915,9 @@ TEST_CASE("Parser: test ::constructNode") {
 		Token closedBracket = Token::createCloseBracketToken();
 		Token andToken = Token::createAndToken();
 
-		list<Token> tokensToConsume = { openBracket, variableX, greaterThan, variableY, closedBracket,
+		list<Token> tokensToConsume = { openBracket, openBracket, variableX, greaterThan, variableY, closedBracket,
 										andToken,
-										openBracket, variableX, greaterThan, variableY, closedBracket };
+										openBracket, variableX, greaterThan, variableY, closedBracket, closedBracket };
 
 		// Create rule
 		ConditionalExpressionSimpleSyntaxRule rule = ConditionalExpressionSimpleSyntaxRule();

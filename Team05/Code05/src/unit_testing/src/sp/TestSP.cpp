@@ -734,6 +734,75 @@ TEST_CASE("Test Source Processor : extractEntity") {
 
 		test(program, expected);
 	}
+
+
+	SECTION("Milestone 1 Program #2") {
+		string program = "procedure main {\n     while (! ((1==0) && (1==0)))  {\n\t\tread x;\n\t }\n\t x = 4;\n\t }";
+		vector<Entity> expected{
+			Entity::createProcedureEntity(Token::createNameOrKeywordToken("main")),
+			
+			Entity::createWhileEntity(1),
+			Entity::createExpressionEntity(1, Token::createAndToken()),
+			Entity::createExpressionEntity(1, Token::createEqualityToken()),
+			Entity::createExpressionEntity(1, Token::createEqualityToken()),
+			Entity::createConstantEntity(1, Token::createIntegerToken("0")),
+			Entity::createConstantEntity(1, Token::createIntegerToken("1")),
+			Entity::createConstantEntity(1, Token::createIntegerToken("0")),
+			Entity::createConstantEntity(1, Token::createIntegerToken("1")),
+			Entity::createReadEntity(2),
+			Entity::createVariableEntity(2, Token::createNameOrKeywordToken("x")),
+			Entity::createAssignEntity(3),
+			Entity::createVariableEntity(3, Token::createNameOrKeywordToken("x")),
+			Entity::createConstantEntity(3, Token::createIntegerToken("4")),
+		};
+		test(program, expected);
+	}
+
+	SECTION("Milestone 1 Program #3") {
+		string program = "procedure main {\n     while (1>= 1%((0-1)) )  {\n\t\tread x;\n\t }\n\t x = 4;\n\t }";
+		vector<Entity> expected{
+			Entity::createProcedureEntity(Token::createNameOrKeywordToken("main")),
+			
+			Entity::createWhileEntity(1),
+
+			Entity::createExpressionEntity(1, Token::createGreaterThanEqualToken()),
+			Entity::createExpressionEntity(1, Token::createModulusToken()),
+			Entity::createExpressionEntity(1, Token::createMinusToken()),
+			Entity::createConstantEntity(1, Token::createIntegerToken("0")),
+			Entity::createConstantEntity(1, Token::createIntegerToken("1")),
+			Entity::createConstantEntity(1, Token::createIntegerToken("1")),
+			Entity::createConstantEntity(1, Token::createIntegerToken("1")),
+
+			Entity::createReadEntity(2),
+			Entity::createVariableEntity(2, Token::createNameOrKeywordToken("x")),
+			Entity::createAssignEntity(3),
+			Entity::createVariableEntity(3, Token::createNameOrKeywordToken("x")),
+			Entity::createConstantEntity(3, Token::createIntegerToken("4")),
+		};
+		test(program, expected);
+	}
+
+	SECTION("Milestone 1 Program #4") {
+		string program = "procedure main {\n     while (1>= 1%((1)) )  {\n\t\tread x;\n\t }\n\t x = 4;\n\t }";
+		vector<Entity> expected{
+			Entity::createProcedureEntity(Token::createNameOrKeywordToken("main")),
+			
+			Entity::createWhileEntity(1),
+
+			Entity::createExpressionEntity(1, Token::createGreaterThanEqualToken()),
+			Entity::createExpressionEntity(1, Token::createModulusToken()),
+			Entity::createConstantEntity(1, Token::createIntegerToken("1")),
+			Entity::createConstantEntity(1, Token::createIntegerToken("1")),
+			Entity::createConstantEntity(1, Token::createIntegerToken("1")),
+
+			Entity::createReadEntity(2),
+			Entity::createVariableEntity(2, Token::createNameOrKeywordToken("x")),
+			Entity::createAssignEntity(3),
+			Entity::createVariableEntity(3, Token::createNameOrKeywordToken("x")),
+			Entity::createConstantEntity(3, Token::createIntegerToken("4")),
+		};
+		test(program, expected);
+	}
 }
 
 TEST_CASE("Test Source Processor : extractPattern") {
@@ -833,6 +902,7 @@ TEST_CASE("Test Source Processor : extractPattern") {
 
 		test(program, expected);
 	}
+
 }
 
 TEST_CASE("Test Source Processor : extractRelations") {

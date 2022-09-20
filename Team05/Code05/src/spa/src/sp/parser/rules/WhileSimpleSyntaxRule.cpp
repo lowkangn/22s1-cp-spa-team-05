@@ -45,12 +45,11 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	if (!token.isOpenBracketToken()) {
 		throw SimpleSyntaxParserException("While condition should start with an open bracket");
 	}
-	tokens.pop_front();
 
 	// get rest of the condition
-	int numOpenBracket = 1;
+	int numOpenBracket = 0;
 	bool seenCloseBracket = false;
-
+	bool seenOneToken = false;
 	while (!tokens.empty() && !seenCloseBracket) {
 		token = tokens.front();
 		tokens.pop_front();
@@ -62,10 +61,16 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 			numOpenBracket -= 1;
 			if (numOpenBracket == 0) {
 				seenCloseBracket = true;
-				break;
 			}
 		}
+		else {
+			seenOneToken = true;
+		}
 		childTokens.push_back(token);
+	}
+
+	if (!seenOneToken) {
+		throw SimpleSyntaxParserException("Empty while condition");
 	}
 
 	if (!seenCloseBracket) {
@@ -77,7 +82,8 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	// first token should be open bracket
 	token = tokens.front();
 	if (!token.isOpenCurlyBracketToken()) {
-		throw SimpleSyntaxParserException(string("Expected first token to be open bracket, but was ") + token.getString());
+		bool x = true;
+		throw SimpleSyntaxParserException(string("WhileSyntaxRule: Expected first token to be open bracket, but was ") + token.getString());
 	}
 
 	// then we keep going until we hit }
