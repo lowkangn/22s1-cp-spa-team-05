@@ -17,4 +17,5 @@ public:
 	vector<shared_ptr<SimpleSyntaxRule>> generateChildRules() override;
 	list<Token> consumeTokens(list<Token> tokens) override;
 	shared_ptr<ASTNode> constructNode() override;
+	void checkNonZero(Token token);
 };

@@ -19,6 +19,8 @@ list<Token> ConstantValueSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 		throw SimpleSyntaxParserException(string("Token should be an integer, but was: ") + token.getString());
 	}
 
+	this->checkNonZero(token);
+
 	// set state
 	list<Token> childTokens;
 	childTokens.push_back(token);
@@ -39,4 +41,12 @@ shared_ptr<ASTNode> ConstantValueSimpleSyntaxRule::constructNode() {
 	shared_ptr<ASTNode> constantValueNode(new ConstantValueASTNode(constantValueToken));
 
 	return constantValueNode;
+}
+
+void ConstantValueSimpleSyntaxRule::checkNonZero(Token token) {
+	if (token.getString().size() > 1) {
+		if (token.getString()[0] == '0') {
+			throw SimpleSyntaxParserException(string("Token's first digit should not be 0, but was: ") + token.getString());
+		}
+	}
 }
