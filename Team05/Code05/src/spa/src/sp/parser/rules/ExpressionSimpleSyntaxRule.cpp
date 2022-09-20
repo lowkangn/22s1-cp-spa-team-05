@@ -138,9 +138,7 @@ list<Token> ExpressionSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 				token = tokens.front(); // read
 				tokens.pop_front(); // pop
 				// Hacky fix
-				if (!token.isClosedBracketToken()) {
-					rhsTokens.push_back(token);
-				}
+				rhsTokens.push_back(token);
 			}
 		}
 	}

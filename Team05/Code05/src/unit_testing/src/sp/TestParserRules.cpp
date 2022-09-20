@@ -187,6 +187,9 @@ TEST_CASE("Parser: test ::consumeTokens") {
 		};
 		testThrowsException(AssignSimpleSyntaxRule(), tokens);
 	}
+
+
+
 	SECTION("AssignSimpleSyntaxRule: Missing token after equal") {
 		list<Token> tokens = {
 				Token::createNameOrKeywordToken("soomevariable"),
@@ -904,6 +907,8 @@ TEST_CASE("Parser: test ::generateChildRules") {
 		};
 		test(AssignSimpleSyntaxRule(), tokensToConsume, expectedChildren);
 	}
+
+
 
 	SECTION("AssignSimpleSyntaxRule: expression x = x + 1") {
 		list<Token> tokensToConsume = {
@@ -1875,7 +1880,7 @@ TEST_CASE("Parser: test ::constructNode") {
 
 		test(rule, expectedASTNode);
 	}
-
+	
 		// -------------------- RelationalExpressionSimpleSyntaxRule --------------------
 	SECTION("RelationalExpressionSimpleSyntaxRule : constructNode") {
 		// x >= y;
