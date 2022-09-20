@@ -15,6 +15,7 @@ readonly no_constr_path=./Tests05/iteration1/noConstraintsQuery/
 readonly one_constr_path=./Tests05/iteration1/oneConstraintQuery/
 readonly two_constr_path=./Tests05/iteration1/twoConstraintsQuery/
 readonly output_folder=./Code05/testOutputs/
+readonly sample_path=./Tests05/
 
 
 echo "Starting invalid query test cases"
@@ -38,9 +39,12 @@ do
 	${path_to_autotester} ${one_constr_path}${i}Only_source.txt ${one_constr_path}${i}Only_queries.txt ${output_folder}${i}onlyOut.xml
 done
 
-#TODO: Add modifies to the list below when it's ready
 echo "Starting two constraint query test cases"
 for i in parent uses follows modifies
 do
 ${path_to_autotester} ${two_constr_path}${i}AndPattern_source.txt ${two_constr_path}${i}AndPattern_queries.txt ${output_folder}${i}AndPatternOut.xml
 done
+
+# For random testing, modify Sample_queries.txt and Sample_source.txt
+echo "starting local sample test cases"
+${path_to_autotester} ${sample_path}Sample_source.txt ${sample_path}Sample_queries.txt ${output_folder}SampleOut.xml
