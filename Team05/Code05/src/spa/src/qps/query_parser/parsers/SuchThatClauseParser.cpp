@@ -2,7 +2,8 @@
 
 shared_ptr<RelationshipClause> SuchThatClauseParser::parse() {
 	PQLToken clauseTypeToken = this->tokens.front();
-	assert(isCorrectClauseType(clauseTypeToken));
+	bool isCorrectType = isCorrectClauseType(clauseTypeToken);
+	assert(isCorrectType);
 	this->tokens.pop_front();
 
 	list<ClauseArgument> args = extractArguments();
