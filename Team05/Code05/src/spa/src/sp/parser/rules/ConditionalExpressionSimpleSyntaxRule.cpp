@@ -69,6 +69,7 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 		// Get First Conditional Expression
 
 		this->twoConditionals = this->isTwoConditional(tokens);
+		this->notOperatorUsed = this->checkNot(tokens);
 
 		if (this->twoConditionals) {
 			// First token must be a bracket
@@ -214,4 +215,12 @@ bool ConditionalExpressionSimpleSyntaxRule::isTwoConditional(list<Token> tokens)
 	}
 
 	return numOfTimeBracketWasOne == 2;
+}
+
+bool ConditionalExpressionSimpleSyntaxRule::checkNot(list<Token> tokens) {
+	list<Token> checkList{ tokens };
+	Token token = checkList.front();
+	checkList.pop_front();
+
+	return checkList.front().isNotOperator();
 }

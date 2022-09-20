@@ -36,4 +36,5 @@ public:
 	shared_ptr<ASTNode> constructNode() override;
 	list<Token> parseCondition(list<Token> &tokens);
 	bool isTwoConditional(list<Token> tokens);
+	bool checkNot(list<Token> tokens);
 };
