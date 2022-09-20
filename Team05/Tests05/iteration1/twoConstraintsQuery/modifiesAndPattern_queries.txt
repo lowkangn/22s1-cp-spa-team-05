@@ -30,8 +30,8 @@ none
 5000
 7 - modifiesStmtPat - Select statements that modify a variable with true pattern clause
 stmt s; assign a; variable v;
-Select s such that Modifies(s, v) pattern a("z", _"y-z"_)
-1, 2, 4, 7, 8
+Select s such that Modifies(s, v) pattern a("z", _"100 + y"_)
+1, 2, 3, 4, 6, 7, 8
 5000
 8 - modifiesStmtPat - Select statements that modify a variable with false pattern clause
 stmt s; assign a; variable v;
