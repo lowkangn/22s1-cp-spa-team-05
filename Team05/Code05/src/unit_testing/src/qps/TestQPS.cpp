@@ -235,7 +235,7 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{ "2", "3", "7"};
 		testQPS(queryString, expectedResult, pkb);
 
-		queryString = "stmt Parent;\n Select Parent such that Parent*(Parent, _)";
+		queryString = "stmt Parent;\n Select Parent such that Parent* (Parent, _)";
 		expectedResult = set<string>{ "1", "3" };
 		testQPS(queryString, expectedResult, pkb);
 
