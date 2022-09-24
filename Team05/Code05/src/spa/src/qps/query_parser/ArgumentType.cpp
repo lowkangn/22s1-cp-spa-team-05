@@ -1,4 +1,3 @@
-#include <unordered_map>
 #include <qps/query_parser/ArgumentType.h>
 
 const string STMT_KEYWORD = "stmt";

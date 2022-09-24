@@ -2,6 +2,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <unordered_map>
 
 #include <qps/exceptions/PQLSyntaxError.h>
 
@@ -20,9 +21,14 @@ enum class ArgumentType {
     CONSTANT,
     LINE_NUMBER,
     STRING_LITERAL,
+    INTEGER_VALUE,
 	PATTERN_STRING,
     WILDCARD,
-	PATTERN_STRING_WITH_WILDCARDS
+	PATTERN_STRING_WITH_WILDCARDS,
+    PROCNAME,
+    VARNAME,
+    STMTNUM,
+    VALUE,
 };
 
 ArgumentType getDesignEntityArgumentType(string argumentType);

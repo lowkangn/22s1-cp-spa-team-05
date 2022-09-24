@@ -7,6 +7,7 @@
 using namespace std;
 
 const string WILDCARD_IDENTIFIER = "_";
+const string EMPTY_IDENTIFIER = "";
 
 class ClauseArgument {
 private:
@@ -85,6 +86,26 @@ public:
 		return ClauseArgument(identifier, ArgumentType::PATTERN_STRING_WITH_WILDCARDS);
 	}
 
+	static ClauseArgument createValueAttributeArg() {
+		return ClauseArgument(EMPTY_IDENTIFIER, ArgumentType::VALUE);
+	}
+
+	static ClauseArgument createProcNameAttributeArg() {
+		return ClauseArgument(EMPTY_IDENTIFIER, ArgumentType::PROCNAME);
+	}
+
+	static ClauseArgument createStmtNumAttributeArg() {
+		return ClauseArgument(EMPTY_IDENTIFIER, ArgumentType::STMTNUM);
+	}
+
+	static ClauseArgument createVarNameAttributeArg() {
+		return ClauseArgument(EMPTY_IDENTIFIER, ArgumentType::VARNAME);
+	}
+
+	static ClauseArgument createIntegerValueArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::INTEGER_VALUE);
+	}
+
 	bool isStmtSynonym() {
 		return this->type == ArgumentType::STMT;
 	}
@@ -143,6 +164,33 @@ public:
 
 	bool isPatternStringWithWildcards() {
 		return this->type == ArgumentType::PATTERN_STRING_WITH_WILDCARDS;
+	}
+
+	bool isIntegerValue() {
+		return this->type == ArgumentType::INTEGER_VALUE;
+	}
+
+	bool isValueAttribute() {
+		return this->type == ArgumentType::VALUE;
+	}
+
+	bool isProcNameAttribute() {
+		return this->type == ArgumentType::PROCNAME;
+	}
+
+	bool isStmtNumAttribute() {
+		return this->type == ArgumentType::STMTNUM;
+	}
+
+	bool isVarNameAttribute() {
+		return this->type == ArgumentType::VARNAME;
+	}
+
+	bool isAttributeName() {
+		return isValueAttribute() 
+			|| isProcNameAttribute() 
+			|| isStmtNumAttribute() 
+			|| isVarNameAttribute();
 	}
 
 	bool isSynonym() {

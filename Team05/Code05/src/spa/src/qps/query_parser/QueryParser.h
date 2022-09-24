@@ -6,6 +6,7 @@
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query/Query.h>
 #include <qps/query/clause/PatternClause.h>
+#include <qps/query_parser/parsers/WithParser.h>
 #include <list>
 #include <unordered_map>
 
@@ -17,6 +18,10 @@ using namespace std;
 class QueryParser {
 private:
     list<PQLToken> tokens;
+    list<shared_ptr<RelationshipClause>> suchThatClauses;
+    list<shared_ptr<PatternClause>> patternClauses;
+    list<shared_ptr<WithClause>> withClauses;
+
 public:
 
     /**
@@ -35,11 +40,14 @@ public:
      */
     Query parse();
 
-	void parseConstraints(shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClauses,
-						  shared_ptr<list<shared_ptr<PatternClause>>> patternClauses,
-						  unordered_map<string, ArgumentType> declarations);
+    void parseConstraints(unordered_map<string, ArgumentType>& declarations);
 
-    shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType> declarations);
+    shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType>& declarations);
 
-	shared_ptr<PatternClause> parsePattern(unordered_map<string, ArgumentType> declarations);
+	shared_ptr<PatternClause> parsePattern(unordered_map<string, ArgumentType>& declarations);
+
+    shared_ptr<WithClause> parseWith(unordered_map<string, ArgumentType>& declarations);
+
+    /* A friend class to access private fields for testing */
+    friend class QueryParserAccessor;
 };

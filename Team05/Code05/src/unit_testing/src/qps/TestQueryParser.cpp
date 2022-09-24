@@ -14,6 +14,21 @@ using namespace std;
 
 // =============== UNIT TESTS ====================
 
+class QueryParserAccessor {
+public:
+    static list<shared_ptr<RelationshipClause>> getSuchThatClauses(QueryParser& parser) {
+        return parser.suchThatClauses;
+    }
+
+    static list<shared_ptr<PatternClause>> getPatternClauses(QueryParser& parser) {
+        return parser.patternClauses;
+    }
+
+    static list<shared_ptr<WithClause>> getWithClauses(QueryParser& parser) {
+        return parser.withClauses;
+    }
+};
+
 TEST_CASE("QueryParser: test parseNoError") {
     auto testParseNoError = [](list<PQLToken> tokens, Query expected) {
         // given
@@ -106,14 +121,10 @@ TEST_CASE("QueryParser: test parseConstraints Modifies") {
         list<shared_ptr<RelationshipClause>> expected) {
             // given
             QueryParser parser = QueryParser(tokens);
-			list<shared_ptr<RelationshipClause>> suchThatClauses;
-			shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClausesPointer = make_shared<list<shared_ptr<RelationshipClause>>>(suchThatClauses);
-			list<shared_ptr<PatternClause>> patternClauses;
-			shared_ptr<list<shared_ptr<PatternClause>>> patternClausesPointer =  make_shared<list<shared_ptr<PatternClause>>>(patternClauses);
-
+			
             // when
-            parser.parseConstraints(suchThatClausesPointer, patternClausesPointer, declarations);
-			list<shared_ptr<RelationshipClause>> actual = *suchThatClausesPointer;
+            parser.parseConstraints(declarations);
+			list<shared_ptr<RelationshipClause>> actual = QueryParserAccessor::getSuchThatClauses(parser);
             bool isEqual = actual.size() == expected.size();
             if (isEqual) {
                 while (!actual.empty()) {
@@ -164,14 +175,10 @@ TEST_CASE("QueryParser: test parseConstraints Parent") {
         list<shared_ptr<RelationshipClause>> expected) {
             // given
             QueryParser parser = QueryParser(tokens);
-			list<shared_ptr<RelationshipClause>> suchThatClauses;
-			shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClausesPointer = make_shared<list<shared_ptr<RelationshipClause>>>(suchThatClauses);
-			list<shared_ptr<PatternClause>> patternClauses;
-			shared_ptr<list<shared_ptr<PatternClause>>> patternClausesPointer =  make_shared<list<shared_ptr<PatternClause>>>(patternClauses);
 
-			// when
-			parser.parseConstraints(suchThatClausesPointer, patternClausesPointer, declarations);
-			list<shared_ptr<RelationshipClause>> actual = *suchThatClausesPointer;
+            // when
+            parser.parseConstraints(declarations);
+            list<shared_ptr<RelationshipClause>> actual = QueryParserAccessor::getSuchThatClauses(parser);
             bool isEqual = actual.size() == expected.size();
             if (isEqual) {
                 while (!actual.empty()) {
@@ -222,14 +229,10 @@ TEST_CASE("QueryParser: test parseConstraints Uses") {
         list<shared_ptr<RelationshipClause>> expected) {
             // given
             QueryParser parser = QueryParser(tokens);
-			list<shared_ptr<RelationshipClause>> suchThatClauses;
-			shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClausesPointer = make_shared<list<shared_ptr<RelationshipClause>>>(suchThatClauses);
-			list<shared_ptr<PatternClause>> patternClauses;
-			shared_ptr<list<shared_ptr<PatternClause>>> patternClausesPointer =  make_shared<list<shared_ptr<PatternClause>>>(patternClauses);
 
-			// when
-			parser.parseConstraints(suchThatClausesPointer, patternClausesPointer, declarations);
-			list<shared_ptr<RelationshipClause>> actual = *suchThatClausesPointer;
+            // when
+            parser.parseConstraints(declarations);
+            list<shared_ptr<RelationshipClause>> actual = QueryParserAccessor::getSuchThatClauses(parser);
             bool isEqual = actual.size() == expected.size();
             if (isEqual) {
                 while (!actual.empty()) {
@@ -280,14 +283,10 @@ TEST_CASE("QueryParser: test parseConstraints Follows") {
         list<shared_ptr<RelationshipClause>> expected) {
             // given
             QueryParser parser = QueryParser(tokens);
-			list<shared_ptr<RelationshipClause>> suchThatClauses;
-			shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClausesPointer = make_shared<list<shared_ptr<RelationshipClause>>>(suchThatClauses);
-			list<shared_ptr<PatternClause>> patternClauses;
-			shared_ptr<list<shared_ptr<PatternClause>>> patternClausesPointer =  make_shared<list<shared_ptr<PatternClause>>>(patternClauses);
 
-			// when
-			parser.parseConstraints(suchThatClausesPointer, patternClausesPointer, declarations);
-			list<shared_ptr<RelationshipClause>> actual = *suchThatClausesPointer;
+            // when
+            parser.parseConstraints(declarations);
+            list<shared_ptr<RelationshipClause>> actual = QueryParserAccessor::getSuchThatClauses(parser);
             bool isEqual = actual.size() == expected.size();
             if (isEqual) {
                 while (!actual.empty()) {

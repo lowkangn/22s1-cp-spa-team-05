@@ -45,6 +45,8 @@ bool QPSTokenizer::isDelimiter(char c) {
         case ';':
         case '\"':
         case '_':
+        case '#':
+        case '.':
             return true;
         default:
             return false;
@@ -58,6 +60,7 @@ bool QPSTokenizer::isOperator(char c) {
         case '*':
         case '/':
         case '%':
+        case '=':
             return true;
         default:
             return false;

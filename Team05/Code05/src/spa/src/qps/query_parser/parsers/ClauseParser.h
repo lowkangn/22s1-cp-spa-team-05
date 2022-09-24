@@ -42,7 +42,7 @@ protected:
 	ClauseArgument parseWildcard();
 
 	/* ==== Methods ensure a delimiter is present and consume it ==== */
-	
+
 	/* Consumes the open bracket token. */
 	void consumeOpenBracket();
 

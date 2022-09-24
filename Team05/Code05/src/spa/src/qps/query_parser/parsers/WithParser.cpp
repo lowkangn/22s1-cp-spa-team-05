@@ -1,0 +1,127 @@
+#include <qps/query_parser/parsers/WithParser.h>
+
+shared_ptr<WithClause> WithParser::parse() {
+	// Parse 'ref = ref'
+	vector<ClauseArgument> lhsArgs = this->parseRef();
+	this->consumeEquals();
+	vector<ClauseArgument> rhsArgs = this->parseRef();
+
+	// Verify the semantics
+	this->checkAttrCompare(lhsArgs, rhsArgs);
+
+	return make_shared<WithClause>(WithClause());
+}
+
+vector<ClauseArgument> WithParser::parseRef() {
+	vector<ClauseArgument> args;
+	ClauseArgument ref = this->parseOneArgument();
+	args.push_back(ref);
+
+	// a ref can be an '"' IDENT '"', INTEGER or a synonym '.' attrName
+	if (ref.isSynonym()) {
+		this->consumeDot();
+		args.push_back(this->parseAttribute());
+	}
+	else if (!ref.isIntegerValue() && !ref.isStringLiteral()) {
+		throw PQLSyntaxError("ref of a with clause should be a '\"'IDENT'\"', INTEGER or an attrRef");
+	}
+	return args;
+}
+
+ClauseArgument WithParser::parseAttribute() {
+	PQLToken attrNameToken = this->tokens.front();
+	this->tokens.pop_front();
+	if (attrNameToken.isProcName()) {
+		return ClauseArgument::createProcNameAttributeArg();
+	}
+	else if (attrNameToken.isVarName()) {
+		return ClauseArgument::createVarNameAttributeArg();
+	}
+	else if (attrNameToken.isValue()) {
+		return ClauseArgument::createValueAttributeArg();
+	}
+	else if (attrNameToken.isStmtNumStmt()) {
+		if (this->tokens.empty()) {
+			throw PQLSyntaxError("Query ended after 'stmt' in with clause");
+		}
+		attrNameToken = this->tokens.front();
+		this->tokens.pop_front();
+		if (!attrNameToken.isStmtNumHash()) {
+			throw PQLSyntaxError("Expected '#' after 'stmt' in with clause, got: " + attrNameToken.getTokenString());
+		}
+		return ClauseArgument::createStmtNumAttributeArg();
+	}
+	else {
+		throw PQLSyntaxError("Unkown attribute name: " + attrNameToken.getTokenString());
+	}
+}
+
+void WithParser::checkAttrCompare(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs) {
+	this->checkRef(lhsArgs);
+	this->checkRef(rhsArgs);
+
+	/* Since an attribute value can only be an integer type or a name type,
+	   it suffices to check if each ref is an integer type */
+	vector<bool> areRefsIntegers;
+
+	for (vector<ClauseArgument> refArgs : { lhsArgs, rhsArgs }) {
+		if (refArgs.size() == 1) {
+			areRefsIntegers.push_back(lhsArgs.front().isIntegerValue());
+		}
+		else {
+			areRefsIntegers.push_back(lhsArgs.back().isValueAttribute() || lhsArgs.back().isStmtNumAttribute());
+		}
+	}
+	assert(areRefsIntegers.size() == 2);
+
+	if (areRefsIntegers.front() != areRefsIntegers.back()) {
+		throw PQLSemanticError("The two refs in an attrCompare must be of the same type (both NAME, or both INTEGER)");
+	}
+}
+
+
+void WithParser::checkRef(vector<ClauseArgument>& args) {
+	if (args.size() == 1) {
+		// there is no semantics to check 
+		return;
+	}
+	assert(args.size() == 2);
+	assert(args.front().isSynonym());
+	assert(args.back().isAttributeName());
+	
+	ClauseArgument synonym = args.front();
+	ClauseArgument attrName = args.back();
+
+	bool acceptsProcName = synonym.isProcedureSynonym() || synonym.isCallSynonym();
+	bool acceptsVarName = synonym.isVariableSynonym() || synonym.isPrintSynonym() || synonym.isReadSynonym();
+	bool acceptsValue = synonym.isConstantSynonym();
+	bool acceptsStmtNum = synonym.isStmtRefNoWildcard();
+
+	bool isSemanticallyCorrect = (acceptsProcName && attrName.isProcNameAttribute())
+		|| (acceptsVarName && attrName.isVarNameAttribute())
+		|| (acceptsValue && attrName.isValueAttribute())
+		|| (acceptsStmtNum && attrName.isStmtNumAttribute());
+	if (!isSemanticallyCorrect) {
+		throw PQLSemanticError("With clause synonym and attribute name do not match");
+	}
+}
+
+void WithParser::consumeDot() {
+	if (this->tokens.empty() || !this->tokens.front().isDot()) {
+		throw PQLSyntaxError("Expected '.'");
+	}
+	this->tokens.pop_front();
+	if (this->tokens.empty()) {
+		throw PQLSyntaxError("Expected argument after '.'");
+	}
+}
+
+void WithParser::consumeEquals() {
+	if (this->tokens.empty() || !this->tokens.front().isEquals()) {
+		throw PQLSyntaxError("Expected '='");
+	}
+	this->tokens.pop_front();
+	if (this->tokens.empty()) {
+		throw PQLSyntaxError("Expected argument after '='");
+	}
+}
