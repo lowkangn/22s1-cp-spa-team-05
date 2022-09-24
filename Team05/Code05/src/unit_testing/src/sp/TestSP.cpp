@@ -1087,4 +1087,47 @@ TEST_CASE("Test Source Processor : extractRelations") {
 
 		test(program, expected);
 	}
+
+	SECTION("Test milestone bugs") {
+		string program = "procedure main{\n\tread x; \n\tprint x; \n\ty = 0; \n    if ((!(x == 0)) && (y < 1)) then {\n\t\twhile(y >= 0) { \n\t\t\tx = x + 10; \n\t\t\ty = y - 10; \n\t\t } \n\t} else { \n\t\ty = x % 2 + y; \n\t\tz = 5 * x - y; \n\t\tz = z / 1 * 3; \n\t }\n}";
+
+		Token procedureToken = Token::createNameOrKeywordToken("main");
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token yToken = Token::createNameOrKeywordToken("y");
+		Token zToken = Token::createNameOrKeywordToken("z");
+		Token zeroToken = Token::createIntegerToken("0");
+		Token oneToken = Token::createIntegerToken("1");
+		Token twoToken = Token::createIntegerToken("2");
+		Token threeToken = Token::createIntegerToken("3");
+		Token fiveToken = Token::createIntegerToken("5");
+		Token tenToken = Token::createIntegerToken("10");
+
+		vector<Relationship> expectedFollows{
+
+		};
+		vector<Relationship> expectedFollowT{
+
+		};
+
+		vector<Relationship> expectedParent{
+
+		};
+
+		vector<Relationship> expectedParentT{
+
+		};
+
+
+
+		vector<Relationship> expectedModifies{
+			
+		};
+
+		vector<Relationship> expectedUses{
+			
+		};
+
+		vector<Relationship> expected;
+		
+	}
 }

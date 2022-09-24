@@ -1,5 +1,20 @@
 1. Random
 stmt s;
 Select s
-1, 2
+1, 2, 3, 4, 5, 6, 7, 8, 9
+5000
+2 - Random2 - select follows stmts in program
+stmt s; 
+Select s such that Follows* (1, s)
+
+5000
+3 - Random3 - select parent stmts in program
+stmt s; 
+Select s such that Parent (1, s)
+2,3,5,9
+5000
+4 - Random3 - variables
+variable v; 
+Select v;
+x, y, z
 5000
