@@ -15,6 +15,6 @@ Select s such that Parent (1, s)
 5000
 4 - Random3 - variables
 variable v; 
-Select v;
+Select v
 x, y, z
 5000
