@@ -240,6 +240,93 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: generateChildRules") {
 		}
 	};
 
+	SECTION("rel_expr") {
+		list<Token> tokensToConsume = {
+		Token::createNameOrKeywordToken("soomevariable"),
+		Token::createGreaterThanEqualToken(),
+		Token::createNameOrKeywordToken("x"),
+		};
+
+		// create relational rule
+		shared_ptr<SimpleSyntaxRule> relationalRule = shared_ptr<SimpleSyntaxRule>(new RelationalExpressionSimpleSyntaxRule());
+		list<Token> tokensRule = { Token::createNameOrKeywordToken("soomevariable"),Token::createGreaterThanEqualToken(),
+								   Token::createNameOrKeywordToken("x"), };
+		relationalRule->consumeTokens(tokensRule);
+
+		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+				relationalRule,
+		};
+
+		test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+	}
+
+	SECTION("!(cond_expr)") {
+		list<Token> tokensToConsume = {
+				Token::createNotToken(),
+				Token::createOpenBracketToken(),
+				Token::createNameOrKeywordToken("soomevariable"),
+				Token::createGreaterThanEqualToken(),
+				Token::createNameOrKeywordToken("x"),
+				Token::createCloseBracketToken()
+		};
+
+		// create relational rule
+		shared_ptr<SimpleSyntaxRule> conditionalRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
+		list<Token> tokensRule = { Token::createNameOrKeywordToken("soomevariable"),Token::createGreaterThanEqualToken(),
+								   Token::createNameOrKeywordToken("x"), };
+		conditionalRule->consumeTokens(tokensRule);
+
+		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+				conditionalRule,
+		};
+
+		test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+	}
+
+	SECTION("(cond_expr) || (cond_expr)") {
+		list<Token> tokensToConsume = {
+			Token::createOpenBracketToken(),
+			Token::createNameOrKeywordToken("soomevariable"),
+			Token::createGreaterThanEqualToken(),
+			Token::createNameOrKeywordToken("y"),
+			Token::createCloseBracketToken(),
+			Token::createOrToken(),
+			Token::createOpenBracketToken(),
+			Token::createNameOrKeywordToken("soomevariable"),
+			Token::createEqualityToken(),
+			Token::createNameOrKeywordToken("z"),
+			Token::createCloseBracketToken(),
+		};
+
+		// create lhs rule
+		shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
+		list<Token> tokensInLHSRule = {
+										Token::createNameOrKeywordToken("soomevariable"),
+										Token::createGreaterThanEqualToken(),
+										Token::createNameOrKeywordToken("x"),
+		};
+		lhsRule->consumeTokens(tokensInLHSRule);
+
+		// create operator rule
+		shared_ptr<SimpleSyntaxRule> operatorRule = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
+		list<Token> tokensInOperatorRule = { Token::createOrToken() };
+		operatorRule->consumeTokens(tokensInOperatorRule);
+
+		// create rhs rule
+		shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
+		list<Token> tokensInRHSRule = { Token::createNameOrKeywordToken("soomevariable"),
+										Token::createEqualityToken(),
+										Token::createNameOrKeywordToken("z"), };
+		rhsRule->consumeTokens(tokensInRHSRule);
+
+		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+				lhsRule,
+				operatorRule,
+				rhsRule
+		};
+		test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+	}
+
 	SECTION("ConditionalExpressionSimpleSyntaxRule: x >= 5") {
 		list<Token> tokensToConsume = {
 				Token::createOpenBracketToken(),
@@ -406,7 +493,53 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: generateChildRules") {
 		};
 		test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
 	}
-	
+
+	SECTION("ConditionalExpressionSimpleSyntaxRule : constructNode") {
+		// !((1==2) && (3==4));
+		list<Token> tokensToConsume = {
+				Token::createNotToken(),
+				Token::createOpenBracketToken(),
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createEqualityToken(),
+				Token::createIntegerToken("2"),
+				Token::createCloseBracketToken(),
+				Token::createAndToken(),
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("3"),
+				Token::createEqualityToken(),
+				Token::createIntegerToken("4"),
+				Token::createCloseBracketToken(),
+				Token::createCloseBracketToken(),
+		};
+
+		// Create rule
+		ConditionalExpressionSimpleSyntaxRule rule = ConditionalExpressionSimpleSyntaxRule();
+		list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+		// create lhs rule
+		shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new ConditionalExpressionSimpleSyntaxRule());
+		list<Token> tokensInLHSRule = { Token::createOpenBracketToken(),
+										Token::createIntegerToken("1"),
+										Token::createEqualityToken(),
+										Token::createIntegerToken("2"),
+										Token::createCloseBracketToken(),
+										Token::createAndToken(),
+										Token::createOpenBracketToken(),
+										Token::createIntegerToken("3"),
+										Token::createEqualityToken(),
+										Token::createIntegerToken("4"),
+										Token::createCloseBracketToken(), };
+		lhsRule->consumeTokens(tokensInLHSRule);
+
+		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+				lhsRule
+		};
+		test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+	}
+
+
 }
 
 TEST_CASE("ConditionalExpressionSimpleSyntaxRule::constructNode") {

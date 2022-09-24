@@ -90,6 +90,76 @@ TEST_CASE("ExpressionSimpleSyntaxRule::generateChildRules") {
 		}
 	};
 
+	SECTION("(expr)") {
+		list<Token> tokensToConsume = {
+					Token::createOpenBracketToken(),
+					Token::createNameOrKeywordToken("x"),
+					Token::createModulusToken(),
+					Token::createIntegerToken("5"),
+					Token::createCloseBracketToken()
+		};
+
+		// create lhs rule
+		shared_ptr<SimpleSyntaxRule> expressionRule = shared_ptr<SimpleSyntaxRule>(new ExpressionSimpleSyntaxRule());
+		list<Token> tokensInExpressionRule = { Token::createNameOrKeywordToken("x"),
+					Token::createModulusToken(),
+					Token::createIntegerToken("5") };
+		expressionRule->consumeTokens(tokensInExpressionRule);
+
+		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+				expressionRule
+		};
+		test(ExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+	}
+	SECTION("expr + term") {
+		list<Token> tokensToConsume = {
+				Token::createNameOrKeywordToken("x"),
+				Token::createPlusToken(),
+				Token::createNameOrKeywordToken("x"),
+				Token::createModulusToken(),
+				Token::createIntegerToken("5"),
+		};
+
+		// create lhs rule
+		shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+		list<Token> tokensInLHSRule = { Token::createNameOrKeywordToken("x") };
+		lhsRule->consumeTokens(tokensInLHSRule);
+
+		// create operator rule
+		shared_ptr<SimpleSyntaxRule> operatorRule = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
+		list<Token> tokensInOperatorRule = { Token::createPlusToken() };
+		operatorRule->consumeTokens(tokensInOperatorRule);
+
+		// create rhs rule
+		shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ExpressionSimpleSyntaxRule());
+		list<Token> tokensInRHSRule = { Token::createNameOrKeywordToken("x"),
+										Token::createModulusToken(),
+										Token::createIntegerToken("5") };
+		rhsRule->consumeTokens(tokensInRHSRule);
+
+		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+				lhsRule,
+				operatorRule,
+				rhsRule
+		};
+		test(ExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+	}
+	SECTION("var_name") {
+		list<Token> tokensToConsume = {
+					Token::createNameOrKeywordToken("x"),
+		};
+
+		// create rule
+		shared_ptr<SimpleSyntaxRule> variableName = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+		list<Token> tokensInNameRule = { Token::createNameOrKeywordToken("x") };
+		variableName->consumeTokens(tokensInNameRule);
+
+		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+				variableName
+		};
+		test(ExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+	}
+
 	SECTION("ExpressionSimpleSyntaxRule: x % 5") {
 		list<Token> tokensToConsume = {
 				Token::createNameOrKeywordToken("x"),
