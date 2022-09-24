@@ -126,20 +126,12 @@ list<Token> ExpressionSimpleSyntaxRule::consumeTokens(list<Token> tokens) {
 		else {
 			// should start with variable or constant
 			token = tokens.front();
-			tokens.pop_front(); // pop
 			if (!token.isNameToken() && !token.isIntegerToken()) {
 				throw SimpleSyntaxParserException(string("Expected a name variable or constant, got: ") + token.getString());
 			}
-			rhsTokens.push_back(token); // we want the lhs variable
 
-			// Append the rest of the expression
-			while (!tokens.empty()) {
-				// then operator 
-				token = tokens.front(); // read
-				tokens.pop_front(); // pop
-				// Hacky fix
-				rhsTokens.push_back(token);
-			}
+			rhsTokens = tokens;
+			tokens.clear();
 		}
 	}
 	
@@ -171,12 +163,8 @@ shared_ptr<ASTNode> ExpressionSimpleSyntaxRule::constructNode() {
 		shared_ptr<ASTNode> lhsNode = this->childRules[LHS_RULE]->constructNode();
 		shared_ptr<ASTNode> rhsNode = this->childRules[RHS_RULE]->constructNode();
 
-		Token lhsToken = Token::getPlaceHolderToken();
-		Token rhsToken = Token::getPlaceHolderToken();
-		shared_ptr<ASTNode> lhsBrackets(new BracketsASTNode(lhsToken));
-		shared_ptr<ASTNode> rhsBrackets(new BracketsASTNode(rhsToken));
-
 		if (this->lhsIsExpression) {
+			shared_ptr<ASTNode> lhsBrackets(new BracketsASTNode(Token::getPlaceHolderToken()));
 			lhsBrackets->addChild(lhsNode);
 			rootNode->addChild(lhsBrackets);
 		}
@@ -185,6 +173,7 @@ shared_ptr<ASTNode> ExpressionSimpleSyntaxRule::constructNode() {
 		}
 
 		if (this->rhsIsExpression) {
+			shared_ptr<ASTNode> rhsBrackets(new BracketsASTNode(Token::getPlaceHolderToken()));
 			rhsBrackets->addChild(rhsNode);
 			rootNode->addChild(rhsBrackets);
 		}

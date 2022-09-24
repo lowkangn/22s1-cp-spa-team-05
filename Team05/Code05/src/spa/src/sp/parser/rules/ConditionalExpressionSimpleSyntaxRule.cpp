@@ -1,8 +1,6 @@
 #include <sp/parser/rules/ConditionalExpressionSimpleSyntaxRule.h>
 
-const int CONDITIONAL_OPERATOR_RULE = 1;
-const int FIRST_RULE = 0;
-const int SECOND_RULE = 2;
+
 
 vector<shared_ptr<SimpleSyntaxRule>> ConditionalExpressionSimpleSyntaxRule::generateChildRules() {
 	
@@ -62,18 +60,14 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 		tokens.pop_front();
 
 		// Get conditional expr
-		childTokens = tokens;
-		tokens.clear();
+		childTokens = this->parseCondition(tokens);
 	}
 	else if (token.isOpenBracketToken()) {
 		// Get First Conditional Expression
 
 		this->twoConditionals = this->isTwoConditional(tokens);
-		this->notOperatorUsed = this->checkNot(tokens);
 
 		if (this->twoConditionals) {
-			// First token must be a bracket
-			tokens.pop_front();
 
 			list<Token> firstCondExpression = this->parseCondition(tokens);
 			this->lhsCond = firstCondExpression;
@@ -91,13 +85,6 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 			list<Token> secondCondExpression = parseCondition(tokens);
 			this->rhsCond = secondCondExpression;
 
-			// Pop last bracket
-			if (!tokens.empty() && tokens.front().isClosedBracketToken()) {
-				tokens.pop_front();
-			}
-			else {
-				throw SimpleSyntaxParserException("A condition must end with brackets");
-			}
 		}
 		// We know it is an relational expression
 		else {
@@ -115,6 +102,11 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 
 	this->initialized = true;
 	this->tokens = childTokens;
+
+	if (!tokens.empty()) {
+		throw SimpleSyntaxParserException("Additional tokens provided to ConditionalExpressionSyntaxRule");
+	}
+
 	return tokens;
 }
 
@@ -204,23 +196,11 @@ bool ConditionalExpressionSimpleSyntaxRule::isTwoConditional(list<Token> tokens)
 		}
 		else if (token.isClosedBracketToken()) {
 			numOpenBracketSeen -= 1;
-			if (numOpenBracketSeen == 0) {
-				seenCloseBracket = true;
-				break;
-			}
-			else if (numOpenBracketSeen == 1) {
-				numOfTimeBracketWasOne += 1;
-			}
+		}
+		else if (token.isConditionalOperator() && numOpenBracketSeen == 0) {
+			return true;
 		}
 	}
 
-	return numOfTimeBracketWasOne == 2;
-}
-
-bool ConditionalExpressionSimpleSyntaxRule::checkNot(list<Token> tokens) {
-	list<Token> checkList{ tokens };
-	Token token = checkList.front();
-	checkList.pop_front();
-
-	return checkList.front().isNotOperator();
+	return false;
 }

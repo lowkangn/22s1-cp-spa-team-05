@@ -1,8 +1,6 @@
 #include <sp/parser/rules/IfSimpleSyntaxRule.h>
 
-const int IF_CONDITION_RULE = 0;
-const int THEN_RULE = 1;
-const int ELSE_RULE = 2;
+
 
 bool isSafeToPop(list<Token> tokens) {
 	if (tokens.size() == 0) {
@@ -23,17 +21,17 @@ vector<shared_ptr<SimpleSyntaxRule>> IfSimpleSyntaxRule::generateChildRules()
 
 	// Conditional Rule
 	shared_ptr<SimpleSyntaxRule> conditionRule(new ConditionalExpressionSimpleSyntaxRule);
-	tokens = conditionRule->consumeTokens(tokens); // consume the tokens
+	tokens = conditionRule->consumeTokens(this->conditionTokens); // consume the tokens
 	childRules.push_back(conditionRule);
 
 	// Then Statement rule
 	shared_ptr<SimpleSyntaxRule> thenStmtListRule(new StatementListSimpleSyntaxRule);
-	tokens = thenStmtListRule->consumeTokens(tokens); // consume the tokens
+	tokens = thenStmtListRule->consumeTokens(this->thenTokens); // consume the tokens
 	childRules.push_back(thenStmtListRule);
 
 	// Else Statement rule
 	shared_ptr<SimpleSyntaxRule> elseStmtListRule(new StatementListSimpleSyntaxRule);
-	tokens = elseStmtListRule->consumeTokens(tokens); // consume the tokens
+	tokens = elseStmtListRule->consumeTokens(this->elseTokens); // consume the tokens
 	childRules.push_back(elseStmtListRule);
 
 	return childRules;
@@ -41,8 +39,6 @@ vector<shared_ptr<SimpleSyntaxRule>> IfSimpleSyntaxRule::generateChildRules()
 
 list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 {
-	list<Token> childTokens;
-
 	// Sanity check that the first token is a the if token
 	Token token = tokens.front();
 
@@ -57,9 +53,10 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	if (!isSafeToPop(tokens) || !tokens.front().isOpenBracketToken()) {
 		throw SimpleSyntaxParserException("If condition should start with an open bracket");
 	}
+	tokens.pop_front();
 
 	// get rest of the condition
-	int numOpenBracket = 0;
+	int numOpenBracket = 1;
 	bool seenCloseBracket = false;
 	bool seenOneToken = false;
 
@@ -74,12 +71,13 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 			numOpenBracket -= 1;
 			if (numOpenBracket == 0) {
 				seenCloseBracket = true;
+				break;
 			}
 		}
 		else {
 			seenOneToken = true;
 		}
-		childTokens.push_back(token);
+		this->conditionTokens.push_back(token);
 	}
 
 	if (!seenOneToken) {
@@ -96,7 +94,7 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	tokens.pop_front();
 
 	list<Token> thenTokens = getStmtList(tokens);
-	childTokens.insert(childTokens.end(), thenTokens.begin(), thenTokens.end());
+	this->thenTokens = thenTokens;
 
 	// get else token and stmt list
 
@@ -107,11 +105,15 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	tokens.pop_front();
 
 	list<Token> elseTokens = getStmtList(tokens);
-	childTokens.insert(childTokens.end(), elseTokens.begin(), elseTokens.end());
+	this->elseTokens = elseTokens;
 
 	// assign and do state management
-	this->tokens = childTokens;
 	this->initialized = true;
+
+	// For testing purposes
+	this->tokens.insert(this->tokens.end(), this->conditionTokens.begin(), this->conditionTokens.end());
+	this->tokens.insert(this->tokens.end(), this->thenTokens.begin(), this->thenTokens.end());
+	this->tokens.insert(this->tokens.end(), this->elseTokens.begin(), this->elseTokens.end());
 
 	return tokens;
 }

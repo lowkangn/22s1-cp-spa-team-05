@@ -13,7 +13,9 @@
 using namespace std;
 
 class WhileSimpleSyntaxRule : public SimpleSyntaxRule {
-
+private:
+	list<Token> conditionTokens;
+	list<Token> statementListTokens;
 public:
 	WhileSimpleSyntaxRule() {
 		this->generated = false;
