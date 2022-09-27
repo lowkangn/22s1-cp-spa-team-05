@@ -88,62 +88,62 @@ namespace QPSTestUtil {
     PQLToken star = PQLToken::createOperatorToken("*");
 
     // strings for tokens, declarations and ClauseArguments
-    string stmt1String = "s1";
-    string stmt2String = "s2";
-    string assign1String = "a1";
-    string assign2String = "a2";
-    string while1String = "w1";
-    string if1String = "i1";
-    string read1String = "r1";
-    string print1String = "pr1";
-    string procedure1String = "proc1";
-    string constant1String = "c1";
-    string variable1String = "v1";
-    string variable2String = "v2";
+    string s1String = "s1";
+    string s2String = "s2";
+    string a1String = "a1";
+    string a2String = "a2";
+    string w1String = "w1";
+    string i1String = "i1";
+    string r1String = "r1";
+    string pri1String = "pri1";
+    string proc1String = "proc1";
+    string c1String = "c1";
+    string v1String = "v1";
+    string v2String = "v2";
 
     // tokens for synonyms
-    PQLToken stmt1 = PQLToken::createNameToken(stmt1String);
-    PQLToken stmt2 = PQLToken::createNameToken(stmt2String);
-    PQLToken assign1 = PQLToken::createNameToken(assign1String);
-    PQLToken assign2 = PQLToken::createNameToken(assign2String);
-    PQLToken while1 = PQLToken::createNameToken(while1String);
-    PQLToken if1 = PQLToken::createNameToken(if1String);
-    PQLToken read1 = PQLToken::createNameToken(read1String);
-    PQLToken print1 = PQLToken::createNameToken(print1String);
-    PQLToken procedure1 = PQLToken::createNameToken(procedure1String);
-    PQLToken constant1 = PQLToken::createNameToken(constant1String);
-    PQLToken variable1 = PQLToken::createNameToken(variable1String);
-    PQLToken variable2 = PQLToken::createNameToken(variable2String);
+    PQLToken s1 = PQLToken::createNameToken(s1String);
+    PQLToken s2 = PQLToken::createNameToken(s2String);
+    PQLToken a1 = PQLToken::createNameToken(a1String);
+    PQLToken a2 = PQLToken::createNameToken(a2String);
+    PQLToken w1 = PQLToken::createNameToken(w1String);
+    PQLToken i1 = PQLToken::createNameToken(i1String);
+    PQLToken r1 = PQLToken::createNameToken(r1String);
+    PQLToken pri1 = PQLToken::createNameToken(pri1String);
+    PQLToken proc1 = PQLToken::createNameToken(proc1String);
+    PQLToken c1 = PQLToken::createNameToken(c1String);
+    PQLToken v1 = PQLToken::createNameToken(v1String);
+    PQLToken v2 = PQLToken::createNameToken(v2String);
 
     // we use the same set of declarations for all cases
     unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
-        { stmt1String, ArgumentType::STMT },
-        { assign1String, ArgumentType::ASSIGN },
-        { stmt2String, ArgumentType::STMT },
-        { assign2String, ArgumentType::ASSIGN },
-        { while1String, ArgumentType::WHILE},
-        { if1String, ArgumentType::IF },
-        { read1String, ArgumentType::READ },
-        { print1String, ArgumentType::PRINT },
-        { procedure1String, ArgumentType::PROCEDURE },
-        { constant1String, ArgumentType::CONSTANT },
-        { variable1String, ArgumentType::VARIABLE },
-        { variable2String, ArgumentType::VARIABLE },
+        { s1String, ArgumentType::STMT },
+        { a1String, ArgumentType::ASSIGN },
+        { s2String, ArgumentType::STMT },
+        { a2String, ArgumentType::ASSIGN },
+        { w1String, ArgumentType::WHILE},
+        { i1String, ArgumentType::IF },
+        { r1String, ArgumentType::READ },
+        { pri1String, ArgumentType::PRINT },
+        { proc1String, ArgumentType::PROCEDURE },
+        { c1String, ArgumentType::CONSTANT },
+        { v1String, ArgumentType::VARIABLE },
+        { v2String, ArgumentType::VARIABLE },
     };
 
     // synonym ClauseArguments
-    ClauseArgument stmt1Arg = ClauseArgument::createStmtArg(stmt1String);
-    ClauseArgument stmt2Arg = ClauseArgument::createStmtArg(stmt2String);
-    ClauseArgument assign1Arg = ClauseArgument::createAssignArg(assign1String);
-    ClauseArgument assign2Arg = ClauseArgument::createAssignArg(assign2String);
-    ClauseArgument while1Arg = ClauseArgument::createWhileArg(while1String);
-    ClauseArgument if1Arg = ClauseArgument::createIfArg(if1String);
-    ClauseArgument read1Arg = ClauseArgument::createReadArg(read1String);
-    ClauseArgument print1Arg = ClauseArgument::createPrintArg(print1String);
-    ClauseArgument procedure1Arg = ClauseArgument::createProcedureArg(procedure1String);
-    ClauseArgument constant1Arg = ClauseArgument::createConstantArg(constant1String);
-    ClauseArgument variable1Arg = ClauseArgument::createVariableArg(variable1String);
-    ClauseArgument variable2Arg = ClauseArgument::createVariableArg(variable2String);
+    ClauseArgument s1Arg = ClauseArgument::createStmtArg(s1String);
+    ClauseArgument s2Arg = ClauseArgument::createStmtArg(s2String);
+    ClauseArgument a1Arg = ClauseArgument::createAssignArg(a1String);
+    ClauseArgument a2Arg = ClauseArgument::createAssignArg(a2String);
+    ClauseArgument w1Arg = ClauseArgument::createWhileArg(w1String);
+    ClauseArgument i1Arg = ClauseArgument::createIfArg(i1String);
+    ClauseArgument r1Arg = ClauseArgument::createReadArg(r1String);
+    ClauseArgument pri1Arg = ClauseArgument::createPrintArg(pri1String);
+    ClauseArgument proc1Arg = ClauseArgument::createProcedureArg(proc1String);
+    ClauseArgument c1Arg = ClauseArgument::createConstantArg(c1String);
+    ClauseArgument v1Arg = ClauseArgument::createVariableArg(v1String);
+    ClauseArgument v2Arg = ClauseArgument::createVariableArg(v2String);
 
     // tokens and ClauseArguments for non-synonym clause arguments
     PQLToken multiplyToken = PQLToken::createOperatorToken("*");
@@ -178,11 +178,11 @@ TEST_CASE("QueryParser: test parseNoError") {
 
     SECTION("Select clause only") {
         list<PQLToken> tokens = list<PQLToken>{
-            procedure, procedure1, semicolon,
-            select, procedure1,
+            procedure, proc1, semicolon,
+            select, proc1,
         };
 
-        shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(procedure1Arg));
+        shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(proc1Arg));
         Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
 
         testParseNoError(tokens, query);
@@ -190,26 +190,26 @@ TEST_CASE("QueryParser: test parseNoError") {
 
     SECTION("Select and such that clause") {
         list<PQLToken> tokens = list<PQLToken>{
-            variable, variable1, comma, variable2, semicolon,
-            select, variable2,
-            such, that, modifies, openBracket, two, comma, variable1, closeBracket,
+            variable, v1, comma, v2, semicolon,
+            select, v2,
+            such, that, modifies, openBracket, two, comma, v1, closeBracket,
         };
 
-        shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(variable2Arg));
+        shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(v2Arg));
         shared_ptr<RelationshipClause> modifiesClause = shared_ptr<RelationshipClause>(
-            new ModifiesSClause(twoLineNumberArg, variable1Arg));
+            new ModifiesSClause(twoLineNumberArg, v1Arg));
         Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause}, list<shared_ptr<PatternClause>>{});
 
         testParseNoError(tokens, query);
 
         tokens = list<PQLToken>{
-            constant, constant1, semicolon, procedure, procedure1, semicolon,
-            select, constant1,
-            such, that, modifies, openBracket, procedure1, comma, quotationMark, name, quotationMark, closeBracket,
+            constant, c1, semicolon, procedure, proc1, semicolon,
+            select, c1,
+            such, that, modifies, openBracket, proc1, comma, quotationMark, name, quotationMark, closeBracket,
         };
 
-        selectClause = shared_ptr<SelectClause>(new SelectClause(constant1Arg));
-        modifiesClause = shared_ptr<RelationshipClause>(new ModifiesPClause(procedure1Arg, quotedNameArg));
+        selectClause = shared_ptr<SelectClause>(new SelectClause(c1Arg));
+        modifiesClause = shared_ptr<RelationshipClause>(new ModifiesPClause(proc1Arg, quotedNameArg));
         query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause}, list<shared_ptr<PatternClause>>{});
 
         testParseNoError(tokens, query);
@@ -217,40 +217,40 @@ TEST_CASE("QueryParser: test parseNoError") {
 
     SECTION("Select, many such that and pattern clauses") {
         list<PQLToken> tokens = list<PQLToken>{
-            variable, variable1, comma, variable2, semicolon, 
-            assign, assign1, comma, assign2, semicolon,
-            procedure, procedure1, semicolon,
-            if_, if1, semicolon,
-            select, variable2,
-            such, that, modifies, openBracket, two, comma, variable1, closeBracket,
-            pattern, assign1, openBracket, variable1, comma, wildcard, quotationMark, name, quotationMark, wildcard, closeBracket,
-            such, that, follows, star, openBracket, assign1, comma, if1, closeBracket,
-            pattern, assign1, openBracket, wildcard, comma, wildcard, closeBracket,
-            such, that, parent, openBracket, wildcard, comma, if1, closeBracket,
-            such, that, uses, openBracket, procedure1, comma, wildcard, closeBracket,
-            pattern, assign2, openBracket, variable1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
+            variable, v1, comma, v2, semicolon, 
+            assign, a1, comma, a2, semicolon,
+            procedure, proc1, semicolon,
+            if_, i1, semicolon,
+            select, v2,
+            such, that, modifies, openBracket, two, comma, v1, closeBracket,
+            pattern, a1, openBracket, v1, comma, wildcard, quotationMark, name, quotationMark, wildcard, closeBracket,
+            such, that, follows, star, openBracket, a1, comma, i1, closeBracket,
+            pattern, a1, openBracket, wildcard, comma, wildcard, closeBracket,
+            such, that, parent, openBracket, wildcard, comma, i1, closeBracket,
+            such, that, uses, openBracket, proc1, comma, wildcard, closeBracket,
+            pattern, a2, openBracket, v1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
         };
 
-        shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(variable2Arg));
+        shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(v2Arg));
 
         shared_ptr<RelationshipClause> modifiesSClause = 
-            shared_ptr<RelationshipClause>(new ModifiesSClause(twoLineNumberArg, variable1Arg));
+            shared_ptr<RelationshipClause>(new ModifiesSClause(twoLineNumberArg, v1Arg));
         shared_ptr<RelationshipClause> followsTClause =
-            shared_ptr<RelationshipClause>(new FollowsTClause(assign1Arg, if1Arg));
+            shared_ptr<RelationshipClause>(new FollowsTClause(a1Arg, i1Arg));
         shared_ptr<RelationshipClause> parentClause =
-            shared_ptr<RelationshipClause>(new ParentClause(wildcardArg, if1Arg));
+            shared_ptr<RelationshipClause>(new ParentClause(wildcardArg, i1Arg));
         shared_ptr<RelationshipClause> usesPClause =
-            shared_ptr<RelationshipClause>(new UsesPClause(procedure1Arg, wildcardArg));
+            shared_ptr<RelationshipClause>(new UsesPClause(proc1Arg, wildcardArg));
         list<shared_ptr<RelationshipClause>> expectedSuchThat = {
             modifiesSClause, followsTClause, parentClause, usesPClause,
         };
             
         shared_ptr<PatternClause> firstPatternAssign = shared_ptr<PatternClause>(
-            new PatternAssignClause(assign1Arg, variable1Arg, ClauseArgument::createPatternStringWithWildcardsArg("_name_")));
+            new PatternAssignClause(a1Arg, v1Arg, ClauseArgument::createPatternStringWithWildcardsArg("_name_")));
         shared_ptr<PatternClause> secondPatternAssign = shared_ptr<PatternClause>(
-            new PatternAssignClause(assign1Arg, wildcardArg, wildcardArg));
+            new PatternAssignClause(a1Arg, wildcardArg, wildcardArg));
         shared_ptr<PatternClause> thirdPatternAssign = shared_ptr<PatternClause>(
-            new PatternAssignClause(assign2Arg, variable1Arg, ClauseArgument::createPatternStringArg("name name * 5 -")));
+            new PatternAssignClause(a2Arg, v1Arg, ClauseArgument::createPatternStringArg("name name * 5 -")));
         list<shared_ptr<PatternClause>> expectedPattern = list<shared_ptr<PatternClause>>{
             firstPatternAssign, secondPatternAssign, thirdPatternAssign,
         };
@@ -279,10 +279,10 @@ TEST_CASE("QueryParser: test parseConstraints single clause") {
 
     SECTION("Modifies clause") {
         shared_ptr<RelationshipClause> modifiesClause = shared_ptr<RelationshipClause>(
-            new ModifiesSClause(stmt1Arg, variable1Arg));
+            new ModifiesSClause(s1Arg, v1Arg));
 
         list<PQLToken> tokens = list<PQLToken>{
-            such, that, modifies, openBracket, stmt1, comma, variable1, closeBracket,
+            such, that, modifies, openBracket, s1, comma, v1, closeBracket,
         };
 
         list<shared_ptr<RelationshipClause>> expected;
@@ -292,10 +292,10 @@ TEST_CASE("QueryParser: test parseConstraints single clause") {
 
     SECTION("Parent clause") {
         shared_ptr<RelationshipClause> parentTClause = shared_ptr<RelationshipClause>(
-            new ParentTClause(stmt1Arg, fiveLineNumberArg));
+            new ParentTClause(s1Arg, fiveLineNumberArg));
 
         list<PQLToken> tokens = list<PQLToken>{
-            such, that, parent, star, openBracket, stmt1, comma, five, closeBracket,
+            such, that, parent, star, openBracket, s1, comma, five, closeBracket,
         };
 
         list<shared_ptr<RelationshipClause>> expected;
@@ -305,10 +305,10 @@ TEST_CASE("QueryParser: test parseConstraints single clause") {
 
     SECTION("Uses clause") {
         shared_ptr<RelationshipClause> usesSClause = shared_ptr<RelationshipClause>(
-            new UsesSClause(stmt1Arg, variable1Arg));
+            new UsesSClause(s1Arg, v1Arg));
 
         list<PQLToken> tokens = list<PQLToken>{
-            such, that, uses, openBracket, stmt1, comma, variable1, closeBracket,
+            such, that, uses, openBracket, s1, comma, v1, closeBracket,
         };
 
         list<shared_ptr<RelationshipClause>> expected;
@@ -318,10 +318,10 @@ TEST_CASE("QueryParser: test parseConstraints single clause") {
 
     SECTION("Follows clause") {
         shared_ptr<RelationshipClause> followsTClause = shared_ptr<RelationshipClause>(
-            new FollowsTClause(stmt1Arg, fiveLineNumberArg));
+            new FollowsTClause(s1Arg, fiveLineNumberArg));
 
         list<PQLToken> tokens = list<PQLToken>{
-            such, that, follows, star, openBracket, stmt1, comma, five, closeBracket,
+            such, that, follows, star, openBracket, s1, comma, five, closeBracket,
         };
 
         list<shared_ptr<RelationshipClause>> expected;
@@ -354,17 +354,17 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
 
     // Follows clauses
     shared_ptr<RelationshipClause> followsClauseS2andA1 = shared_ptr<RelationshipClause>(
-        new FollowsClause(stmt2Arg, assign1Arg));
+        new FollowsClause(s2Arg, a1Arg));
     shared_ptr<RelationshipClause> followsTClauseA1andW1 = shared_ptr<RelationshipClause>(
-        new FollowsTClause(assign1Arg, while1Arg));
+        new FollowsTClause(a1Arg, w1Arg));
     shared_ptr<RelationshipClause> followsTClauseS1and5 = shared_ptr<RelationshipClause>(
-        new FollowsTClause(stmt1Arg, fiveLineNumberArg));
+        new FollowsTClause(s1Arg, fiveLineNumberArg));
 
     SECTION("Multiple Follows/Follows*") {
         list<PQLToken> tokens = list<PQLToken>{
-            such, that, follows, openBracket, stmt2, comma, assign1, closeBracket,
-            such, that, follows, star, openBracket, assign1, comma, while1, closeBracket,
-            such, that, follows, star, openBracket, stmt1, comma, five, closeBracket,
+            such, that, follows, openBracket, s2, comma, a1, closeBracket,
+            such, that, follows, star, openBracket, a1, comma, w1, closeBracket,
+            such, that, follows, star, openBracket, s1, comma, five, closeBracket,
         };
 
         list<shared_ptr<RelationshipClause>> expectedSuchThat = list<shared_ptr<RelationshipClause>>{
@@ -378,17 +378,17 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
 
     // Parent clauses
     shared_ptr<RelationshipClause> parentTClauseIf1andPrint1 = shared_ptr<RelationshipClause>(
-        new ParentTClause(if1Arg, print1Arg));
+        new ParentTClause(i1Arg, pri1Arg));
     shared_ptr<RelationshipClause> parentClauseWildcardandIf1 = shared_ptr<RelationshipClause>(
-        new ParentClause(wildcardArg, if1Arg));
+        new ParentClause(wildcardArg, i1Arg));
     shared_ptr<RelationshipClause> parentClausePrint1andIf1 = shared_ptr<RelationshipClause>(
-        new ParentClause(print1Arg, if1Arg));
+        new ParentClause(pri1Arg, i1Arg));
 
     SECTION("Multiple Parent/Parent*") {
         list<PQLToken> tokens = list<PQLToken>{
-            such, that, parent, star, openBracket, if1, comma, print1, closeBracket,
-            such, that, parent, openBracket, wildcard, comma, if1, closeBracket,
-            such, that, parent, openBracket, print1, comma, if1, closeBracket,
+            such, that, parent, star, openBracket, i1, comma, pri1, closeBracket,
+            such, that, parent, openBracket, wildcard, comma, i1, closeBracket,
+            such, that, parent, openBracket, pri1, comma, i1, closeBracket,
         };
 
         list<shared_ptr<RelationshipClause>> expectedSuchThat = list<shared_ptr<RelationshipClause>>{
@@ -402,20 +402,20 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
 
     // Modifies clauses
     shared_ptr<RelationshipClause> modifiesSClause5andVariable1 = shared_ptr<RelationshipClause>(
-        new ModifiesSClause(fiveLineNumberArg, variable1Arg));
+        new ModifiesSClause(fiveLineNumberArg, v1Arg));
     shared_ptr<RelationshipClause> modifiesSClauseRead1andQuotedName = shared_ptr<RelationshipClause>(
-        new ModifiesSClause(read1Arg, quotedNameArg));
+        new ModifiesSClause(r1Arg, quotedNameArg));
     shared_ptr<RelationshipClause> modifiesPClauseQuotedNameandWildcard = shared_ptr<RelationshipClause>(
         new ModifiesPClause(quotedNameArg, wildcardArg));
     shared_ptr<RelationshipClause> modifiesPClauseProcedure1andVariable1 = shared_ptr<RelationshipClause>(
-        new ModifiesPClause(procedure1Arg, variable1Arg));
+        new ModifiesPClause(proc1Arg, v1Arg));
 
     SECTION("Multiple ModifiesS/ModifiesP") {
         list<PQLToken> tokens = list<PQLToken>{
-            such, that, modifies, openBracket, five, comma, variable1, closeBracket,
-            such, that, modifies, openBracket, read1, comma, quotationMark, name, quotationMark, closeBracket,
+            such, that, modifies, openBracket, five, comma, v1, closeBracket,
+            such, that, modifies, openBracket, r1, comma, quotationMark, name, quotationMark, closeBracket,
             such, that, modifies, openBracket, quotationMark, name, quotationMark, comma, wildcard, closeBracket,
-            such, that, modifies, openBracket, procedure1, comma, variable1, closeBracket,
+            such, that, modifies, openBracket, proc1, comma, v1, closeBracket,
         };
 
         list<shared_ptr<RelationshipClause>> expectedSuchThat = list<shared_ptr<RelationshipClause>>{
@@ -432,18 +432,18 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
     shared_ptr<RelationshipClause> usesPClauseQuotedNameandQuotedName = shared_ptr<RelationshipClause>(
         new UsesPClause(quotedNameArg, quotedNameArg));
     shared_ptr<RelationshipClause> usesPClauseProcedure1andVariable1 = shared_ptr<RelationshipClause>(
-        new UsesPClause(procedure1Arg, variable1Arg));
+        new UsesPClause(proc1Arg, v1Arg));
     shared_ptr<RelationshipClause> usesSClauseIf1andWildcard = shared_ptr<RelationshipClause>(
-        new UsesSClause(if1Arg, wildcardArg));
+        new UsesSClause(i1Arg, wildcardArg));
     shared_ptr<RelationshipClause> usesSClausePrint1andVariable1 = shared_ptr<RelationshipClause>(
-        new UsesSClause(print1Arg, variable1Arg));
+        new UsesSClause(pri1Arg, v1Arg));
 
     SECTION("Multiple UsesS/UsesP") {
         list<PQLToken> tokens = list<PQLToken>{
             such, that, uses, openBracket, quotationMark, name, quotationMark, comma, quotationMark, name, quotationMark, closeBracket,
-            such, that, uses, openBracket, procedure1, comma, variable1, closeBracket,
-            such, that, uses, openBracket, if1, comma, wildcard, closeBracket,
-            such, that, uses, openBracket, print1, comma, variable1, closeBracket,
+            such, that, uses, openBracket, proc1, comma, v1, closeBracket,
+            such, that, uses, openBracket, i1, comma, wildcard, closeBracket,
+            such, that, uses, openBracket, pri1, comma, v1, closeBracket,
         };
 
         list<shared_ptr<RelationshipClause>> expectedSuchThat = list<shared_ptr<RelationshipClause>>{
@@ -458,20 +458,20 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
 
     SECTION("All of the above such that clauses") {
         list<PQLToken> tokens = list<PQLToken>{
-            such, that, follows, openBracket, stmt2, comma, assign1, closeBracket,
-            such, that, follows, star, openBracket, assign1, comma, while1, closeBracket,
-            such, that, follows, star, openBracket, stmt1, comma, five, closeBracket,
-            such, that, parent, star, openBracket, if1, comma, print1, closeBracket,
-            such, that, parent, openBracket, wildcard, comma, if1, closeBracket,
-            such, that, parent, openBracket, print1, comma, if1, closeBracket,
-            such, that, modifies, openBracket, five, comma, variable1, closeBracket,
-            such, that, modifies, openBracket, read1, comma, quotationMark, name, quotationMark, closeBracket,
+            such, that, follows, openBracket, s2, comma, a1, closeBracket,
+            such, that, follows, star, openBracket, a1, comma, w1, closeBracket,
+            such, that, follows, star, openBracket, s1, comma, five, closeBracket,
+            such, that, parent, star, openBracket, i1, comma, pri1, closeBracket,
+            such, that, parent, openBracket, wildcard, comma, i1, closeBracket,
+            such, that, parent, openBracket, pri1, comma, i1, closeBracket,
+            such, that, modifies, openBracket, five, comma, v1, closeBracket,
+            such, that, modifies, openBracket, r1, comma, quotationMark, name, quotationMark, closeBracket,
             such, that, modifies, openBracket, quotationMark, name, quotationMark, comma, wildcard, closeBracket,
-            such, that, modifies, openBracket, procedure1, comma, variable1, closeBracket,
+            such, that, modifies, openBracket, proc1, comma, v1, closeBracket,
             such, that, uses, openBracket, quotationMark, name, quotationMark, comma, quotationMark, name, quotationMark, closeBracket,
-            such, that, uses, openBracket, procedure1, comma, variable1, closeBracket,
-            such, that, uses, openBracket, if1, comma, wildcard, closeBracket,
-            such, that, uses, openBracket, print1, comma, variable1, closeBracket,
+            such, that, uses, openBracket, proc1, comma, v1, closeBracket,
+            such, that, uses, openBracket, i1, comma, wildcard, closeBracket,
+            such, that, uses, openBracket, pri1, comma, v1, closeBracket,
         };
 
         list<shared_ptr<RelationshipClause>> expectedSuchThat = list<shared_ptr<RelationshipClause>>{
@@ -497,36 +497,36 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
     // Pattern Assign Clauses
 
     shared_ptr<PatternClause> patternAssign1WildcardAndWildcard = shared_ptr<PatternClause>(
-        new PatternAssignClause(assign1Arg, wildcardArg, wildcardArg));
+        new PatternAssignClause(a1Arg, wildcardArg, wildcardArg));
 
     //pattern a1(v1,_"name"_)
     shared_ptr<PatternClause> patternAssign1Variable1AndWildcardSurroundedName = shared_ptr<PatternClause>(
-        new PatternAssignClause(assign1Arg, variable1Arg, ClauseArgument::createPatternStringWithWildcardsArg("_name_")));
+        new PatternAssignClause(a1Arg, v1Arg, ClauseArgument::createPatternStringWithWildcardsArg("_name_")));
 
     //pattern a1(v1,"5")
     shared_ptr<PatternClause> patternAssign1Variable1AndFive = shared_ptr<PatternClause>(
-        new PatternAssignClause(assign1Arg, variable1Arg, ClauseArgument::createPatternStringArg("5")));
+        new PatternAssignClause(a1Arg, v1Arg, ClauseArgument::createPatternStringArg("5")));
 
     //pattern a2(_,_"5 / name"_)
     shared_ptr<PatternClause> patternAssign2WildcardAndWildcardSurroundedDiv = shared_ptr<PatternClause>(
-        new PatternAssignClause(assign2Arg, wildcardArg, ClauseArgument::createPatternStringWithWildcardsArg("_5 name /_")));
+        new PatternAssignClause(a2Arg, wildcardArg, ClauseArgument::createPatternStringWithWildcardsArg("_5 name /_")));
 
     //pattern a2(_,"name * name - 5")
     shared_ptr<PatternClause> patternAssign2Variable1AndMultMinus = shared_ptr<PatternClause>(
-        new PatternAssignClause(assign2Arg, variable1Arg, ClauseArgument::createPatternStringArg("name name * 5 -")));
+        new PatternAssignClause(a2Arg, v1Arg, ClauseArgument::createPatternStringArg("name name * 5 -")));
 
     //pattern a2(_,"name + ((5))")
     shared_ptr<PatternClause> patternAssign2Variable1AndPlusBracket = shared_ptr<PatternClause>(
-        new PatternAssignClause(assign2Arg, variable1Arg, ClauseArgument::createPatternStringArg("name 5 +")));
+        new PatternAssignClause(a2Arg, v1Arg, ClauseArgument::createPatternStringArg("name 5 +")));
 
     SECTION("Many many pattern assigns") {
         list<PQLToken> tokens = list<PQLToken>{
-            pattern, assign1, openBracket, wildcard, comma, wildcard, closeBracket,
-            pattern, assign1, openBracket, variable1, comma, wildcard, quotationMark, name, quotationMark, wildcard, closeBracket,
-            pattern, assign1, openBracket, variable1, comma, quotationMark, five, quotationMark, closeBracket,
-            pattern, assign2, openBracket, wildcard, comma, wildcard, quotationMark, five, divideToken, name, quotationMark, wildcard, closeBracket,
-            pattern, assign2, openBracket, variable1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
-            pattern, assign2, openBracket, variable1, comma, 
+            pattern, a1, openBracket, wildcard, comma, wildcard, closeBracket,
+            pattern, a1, openBracket, v1, comma, wildcard, quotationMark, name, quotationMark, wildcard, closeBracket,
+            pattern, a1, openBracket, v1, comma, quotationMark, five, quotationMark, closeBracket,
+            pattern, a2, openBracket, wildcard, comma, wildcard, quotationMark, five, divideToken, name, quotationMark, wildcard, closeBracket,
+            pattern, a2, openBracket, v1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
+            pattern, a2, openBracket, v1, comma, 
                 quotationMark, name, plusToken, openBracket, openBracket, five, closeBracket, closeBracket, quotationMark, closeBracket,
         };
 
@@ -544,17 +544,17 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
 
     SECTION("Everything everywhere all at once") {
         list<PQLToken> tokens = list<PQLToken>{
-            such, that, uses, openBracket, procedure1, comma, variable1, closeBracket,
-            such, that, parent, star, openBracket, if1, comma, print1, closeBracket,
-            pattern, assign1, openBracket, variable1, comma, wildcard, quotationMark, name, quotationMark, wildcard, closeBracket,
-            such, that, follows, star, openBracket, assign1, comma, while1, closeBracket,
-            pattern, assign1, openBracket, wildcard, comma, wildcard, closeBracket,
-            such, that, parent, openBracket, wildcard, comma, if1, closeBracket,
-            pattern, assign2, openBracket, variable1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
-            pattern, assign2, openBracket, variable1, comma,
+            such, that, uses, openBracket, proc1, comma, v1, closeBracket,
+            such, that, parent, star, openBracket, i1, comma, pri1, closeBracket,
+            pattern, a1, openBracket, v1, comma, wildcard, quotationMark, name, quotationMark, wildcard, closeBracket,
+            such, that, follows, star, openBracket, a1, comma, w1, closeBracket,
+            pattern, a1, openBracket, wildcard, comma, wildcard, closeBracket,
+            such, that, parent, openBracket, wildcard, comma, i1, closeBracket,
+            pattern, a2, openBracket, v1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
+            pattern, a2, openBracket, v1, comma,
                 quotationMark, name, plusToken, openBracket, openBracket, five, closeBracket, closeBracket, quotationMark, closeBracket,
-            such, that, modifies, openBracket, procedure1, comma, variable1, closeBracket,
-            such, that, uses, openBracket, if1, comma, wildcard, closeBracket,
+            such, that, modifies, openBracket, proc1, comma, v1, closeBracket,
+            such, that, uses, openBracket, i1, comma, wildcard, closeBracket,
         };
 
         list<shared_ptr<RelationshipClause>> expectedSuchThat = list<shared_ptr<RelationshipClause>>{
