@@ -10,7 +10,7 @@ TEST_CASE("CFG: Add Child") {
 	auto testAddChild = [](shared_ptr<CFGNode> nodeToAdd, shared_ptr<CFGNode> nodeToAddTo) {
 		nodeToAddTo->addNext(nodeToAdd);
 
-		REQUIRE(nodeToAddTo->getNext() == nodeToAdd);
+		REQUIRE(nodeToAddTo->getNext()->equals(nodeToAdd));
 	};
 
 	shared_ptr<CFGNode> nodeToAdd(new CFGNode(1));
@@ -26,8 +26,8 @@ TEST_CASE("CFG: add child to IfCFGNode") {
 
 		shared_ptr<IfCFGNode> nodeToCheck = dynamic_pointer_cast<IfCFGNode>(nodeToAddTo);
 
-		REQUIRE(nodeToCheck->getThenNode() == thenNodeToAdd);
-		REQUIRE(nodeToCheck->getElseNode() == elseNodeToAdd);
+		REQUIRE(nodeToCheck->getThenNode()->equals(thenNodeToAdd));
+		REQUIRE(nodeToCheck->getElseNode()->equals(elseNodeToAdd));
 	};
 
 	auto testAddChildToIfCFGThrows = [](shared_ptr<CFGNode> thenNodeToAdd, shared_ptr<CFGNode> nodeToAddTo) {
@@ -57,8 +57,8 @@ TEST_CASE("CFG: add child to EndOfWhileCFGNode") {
 
 		shared_ptr<EndOfWhileCFGNode> nodeToCheck = dynamic_pointer_cast<EndOfWhileCFGNode>(nodeToAddTo);
 
-		REQUIRE(nodeToCheck->getNext() == nextNodeToAdd);
-		REQUIRE(nodeToCheck->getLoopNode() == loopNodeToAdd);
+		REQUIRE(nodeToCheck->getNext()->equals(nextNodeToAdd));
+		REQUIRE(nodeToCheck->getLoopNode()->equals(loopNodeToAdd));
 	};
 
 	auto testAddChildToEndOfWhileCFGThrows = [](shared_ptr<CFGNode> nextNodeToAdd, shared_ptr<CFGNode> nodeToAddTo) {
@@ -78,4 +78,24 @@ TEST_CASE("CFG: add child to EndOfWhileCFGNode") {
 
 	testAddChildToEndOfWhileCFG(nextNodeToAdd, loopNodeToAdd, nodeToAddTo);
 	testAddChildToEndOfWhileCFGThrows(nextNodeToAdd2, nodeToAddTo2);
+};
+
+TEST_CASE("CFG: test equals") {
+	auto testEquals = [](shared_ptr<CFGNode> nodeOne, shared_ptr<CFGNode> nodeTwo) {
+		REQUIRE(nodeOne->equals(nodeTwo));
+	};
+
+	shared_ptr<CFGNode> nodeOne(new CFGNode(4));
+	shared_ptr<CFGNode> nodeOneCopy(new CFGNode(4));
+
+	shared_ptr<CFGNode> nodeTwo(new CFGNode(4));
+	shared_ptr<CFGNode> nodeChild(new CFGNode(5));
+	nodeTwo->addNext(nodeChild);
+
+	shared_ptr<CFGNode> nodeTwoCopy(new CFGNode(4));
+	shared_ptr<CFGNode> nodeChildCopy(new CFGNode(5));
+	nodeTwoCopy->addNext(nodeChildCopy);
+
+	testEquals(nodeOne, nodeOneCopy);
+	testEquals(nodeTwo, nodeTwoCopy);
 };

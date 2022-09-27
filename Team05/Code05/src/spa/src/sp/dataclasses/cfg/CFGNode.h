@@ -29,18 +29,18 @@ public:
 		this->nextNodes.push_back(node);
 	}
 
-	bool operator==(const CFGNode other) {
-		if (this->nextNodes.size() != other.nextNodes.size()) {
+	bool equals(shared_ptr<CFGNode> other) {
+		if (this->nextNodes.size() != other->nextNodes.size()) {
 			return false;
 		}
 		else {
 			for (int i = 0; i < this->nextNodes.size(); i++) {
-				if (this->nextNodes[i] != other.nextNodes[i]); {
+				if (!(this->nextNodes[i]->equals(other->nextNodes[i]))) {
 					return false;
 				}
 			}
 		}
-		return this->statementNumber == other.statementNumber;
+		return this->statementNumber == other->statementNumber;
 	}
 
 	int hash() {
