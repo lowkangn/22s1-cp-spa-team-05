@@ -22,27 +22,22 @@ Query QueryParser::parse() {
         return Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
     }
 
-	shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClauses = make_shared<list<shared_ptr<RelationshipClause>>>();
-	shared_ptr<list<shared_ptr<PatternClause>>> patternClauses =  make_shared<list<shared_ptr<PatternClause>>>();
+	parseConstraints(declarations);
 
-	parseConstraints(suchThatClauses, patternClauses, declarations);
-
-    return Query(selectClause, *suchThatClauses, *patternClauses);
+    return Query(selectClause, this->suchThatClauses, this->patternClauses);
 }
 
-void QueryParser::parseConstraints(shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClauses,
-								   shared_ptr<list<shared_ptr<PatternClause>>> patternClauses,
-								   unordered_map<string, ArgumentType> declarations) {
+void QueryParser::parseConstraints(unordered_map<string, ArgumentType> declarations) {
 
     PQLToken token = this->tokens.front();
     while (!this->tokens.empty()) {
         token = this->tokens.front();
         this->tokens.pop_front();
         if (token.isSuch()) {
-            suchThatClauses->emplace_back(parseSuchThat(declarations));
+            this->suchThatClauses.emplace_back(parseSuchThat(declarations));
         }
         else if (token.isPattern()) {
-			patternClauses->emplace_back(parsePattern(declarations));
+			this->patternClauses.emplace_back(parsePattern(declarations));
         }
         else {
             throw PQLSyntaxError("Only such that and pattern clause are supported.");

@@ -24,38 +24,56 @@ protected:
 
 		// Add token strings to pattern string until quote
 		string s;
+
+		int numBrackets = 0;
+		bool isPreviousFactor = false; // factor : NAME | INTEGER | '(' expr ')'
+
 		while(!this->tokens.empty() && !this->tokens.front().isQuote()) {
-			// Must be name/integer followed by operator, until last name/integer
-
-			// Must be name/integer
 			PQLToken currentToken = this->tokens.front();
-			if (!currentToken.isName() && !currentToken.isInteger()) {
-				throw PQLSyntaxError("Invalid syntax for pattern string");
-			}
-			s += currentToken.getTokenString();
-			this->tokens.pop_front();
 
-			// If end of string, stop
-			if (this->tokens.empty() || this->tokens.front().isQuote()) {
-				break;
+			/* Open brackets and factors can appear anywhere except immediately after a factor
+			   Operators and close brackets can only appear after a factor */
+			if (!isPreviousFactor && currentToken.isOpenBracket()) {
+				numBrackets++;
+				s += currentToken.getTokenString();
+				this->consumeOpenBracket();
+				isPreviousFactor = false;
+			} 
+			else if (isPreviousFactor && currentToken.isOperator()) {
+				s += currentToken.getTokenString();
+				this->tokens.pop_front();
+				isPreviousFactor = false;
 			}
+			else if (isPreviousFactor && currentToken.isCloseBracket()) {
+				numBrackets--;
+				s += currentToken.getTokenString();
+				this->consumeCloseBracket();
+				isPreviousFactor = true;
+			}
+			else if (!isPreviousFactor && (currentToken.isName() || currentToken.isInteger())) {
+				s += currentToken.getTokenString();
+				this->tokens.pop_front();
+				isPreviousFactor = true;
+			} 
 			else {
-				// else, pad with delimiter
+				throw PQLSyntaxError("Unexpected token in pattern string: " + currentToken.getTokenString());
+			}
+
+			// Pad if the pattern string has not ended
+			if (!this->tokens.front().isQuote()) {
 				s += STRING_DELIMITER;
 			}
 
-			// Must be operator
-			currentToken = this->tokens.front();
-			if (!this->tokens.front().isOperator()) {
-				throw PQLSyntaxError("Invalid syntax for pattern string");
-			}
-			s += currentToken.getTokenString() + STRING_DELIMITER; // pad with delimiter
-			this->tokens.pop_front();
+		}
+
+		// Check balanced brackets
+		if (numBrackets != 0) {
+			throw PQLSyntaxError("Unmatched bracket in pattern string");
 		}
 
 		// Check quote
 		if(this->tokens.empty() || !this->tokens.front().isQuote()) {
-			throw PQLSyntaxError("Expected closing quote");
+			throw PQLSyntaxError("Expected closing quote for pattern string");
 		}
 		this->tokens.pop_front();
 

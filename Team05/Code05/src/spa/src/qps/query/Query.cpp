@@ -19,11 +19,19 @@ list<shared_ptr<RelationshipClauseResult>> Query::executeSuchThatAndPattern(shar
 
 bool operator==(Query first, Query second) {
 	bool isClauseEqual = (*(first.selectClause.get())).equals(second.selectClause.get());
+
+	//TODO: Refactor similar logic into private generic helper method e.g. checkListsEqual<T>( list<shared_ptr<T>> a, list<shared_ptr<T>> b)
+
 	if (!isClauseEqual) {
 		// different select clauses
 		return false;
 	} else if (first.suchThatClauses.size() != second.suchThatClauses.size()) {
-		// different number of clauses after Select
+		// different number of such that clauses after Select
+		return false;
+	}
+	else if (first.patternClauses.size() != second.patternClauses.size()) {
+		// different number of pattern clauses after Select
+		cout << "herehere\n";
 		return false;
 	}
 
@@ -42,12 +50,12 @@ bool operator==(Query first, Query second) {
 	list<shared_ptr<PatternClause>>::iterator firstPatternIter = first.patternClauses.begin();
 	list<shared_ptr<PatternClause>>::iterator secondPatternIter = second.patternClauses.begin();
 	while (firstPatternIter != first.patternClauses.end()) {
-		isClauseEqual = (*firstIter)->equals(*secondIter);
+		isClauseEqual = (*firstPatternIter)->equals(*secondPatternIter);
 		if (!isClauseEqual) {
 			return false;
 		}
-		firstIter++;
-		secondIter++;
+		firstPatternIter++;
+		secondPatternIter++;
 	}
 
 	return true;

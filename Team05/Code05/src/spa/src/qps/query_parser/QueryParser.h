@@ -17,6 +17,15 @@ using namespace std;
 class QueryParser {
 private:
     list<PQLToken> tokens;
+    list<shared_ptr<RelationshipClause>> suchThatClauses;
+    list<shared_ptr<PatternClause>> patternClauses;
+
+    void parseConstraints(unordered_map<string, ArgumentType> declarations);
+
+    shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType> declarations);
+
+    shared_ptr<PatternClause> parsePattern(unordered_map<string, ArgumentType> declarations);
+
 public:
 
     /**
@@ -26,6 +35,8 @@ public:
      */
     QueryParser(list<PQLToken> tokens) {
         this->tokens = tokens;
+        this->suchThatClauses = list<shared_ptr<RelationshipClause>>{};
+        this->patternClauses = list<shared_ptr<PatternClause>>{};
     };
 
     /**
@@ -35,11 +46,6 @@ public:
      */
     Query parse();
 
-	void parseConstraints(shared_ptr<list<shared_ptr<RelationshipClause>>> suchThatClauses,
-						  shared_ptr<list<shared_ptr<PatternClause>>> patternClauses,
-						  unordered_map<string, ArgumentType> declarations);
-
-    shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType> declarations);
-
-	shared_ptr<PatternClause> parsePattern(unordered_map<string, ArgumentType> declarations);
+    /* A class that can access private fields to help with testing */
+    friend class QueryParserTestHelper;
 };
