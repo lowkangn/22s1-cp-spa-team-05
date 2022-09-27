@@ -1,111 +1,81 @@
 #include "catch.hpp"
-#include <sp/dataclasses/ast/AssignASTNode.h>
-#include <sp/dataclasses/ast/CallASTNode.h>
-#include <sp/dataclasses/ast/ConstantValueASTNode.h>
-#include <sp/dataclasses/ast/VariableASTNode.h>
-#include <sp/dataclasses/ast/IfASTNode.h>
-#include <sp/dataclasses/ast/WhileASTNode.h>
-#include <sp/dataclasses/ast/ReadASTNode.h>
-#include <sp/dataclasses/ast/ProgramASTNode.h>
-#include <sp/dataclasses/ast/ProcedureASTNode.h>
-#include <sp/dataclasses/ast/PrintASTNode.h>
-#include <sp/dataclasses/ast/ExpressionASTNode.h>
-#include <sp/dataclasses/ast/StatementListASTNode.h>
-#include <sp/dataclasses/tokens/Token.h>
+#include <sp/dataclasses/cfg/CFGNode.h>
+#include <sp/dataclasses/cfg/IfCFGNode.h>
+#include <sp/dataclasses/cfg/EndOfWhileCFGNode.h>
 #include <vector>
 
 using namespace std;
 
-TEST_CASE("AST: Add Child") {
-	auto testAddChild = [](shared_ptr<ASTNode> nodeToAdd, shared_ptr<ASTNode> nodeToAddTo) {
-		int prevSize = nodeToAddTo->numChildren();
+TEST_CASE("CFG: Add Child") {
+	auto testAddChild = [](shared_ptr<CFGNode> nodeToAdd, shared_ptr<CFGNode> nodeToAddTo) {
+		nodeToAddTo->addNext(nodeToAdd);
 
-		if (nodeToAddTo->isTerminal()) {
-			REQUIRE_THROWS(nodeToAddTo->addChild(nodeToAdd));
-		}
-		else {
-			nodeToAddTo->addChild(nodeToAdd);
-			REQUIRE(nodeToAddTo->numChildren() == prevSize + 1);
-		}
+		REQUIRE(nodeToAddTo->getNext() == nodeToAdd);
 	};
 
-	SECTION("AssignASTNode") {
-		shared_ptr<ASTNode> toAdd(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> toAddTo(new AssignASTNode(Token::createEqualsToken()));
-		testAddChild(toAdd, toAddTo);
-	}
-	SECTION("CallASTNode") {
-		shared_ptr<ASTNode> toAddTo(new CallASTNode (Token::createCallToken()));
-		shared_ptr<ASTNode> toAdd(new VariableASTNode (Token::createNameOrKeywordToken("x")));
-		testAddChild(toAdd, toAddTo);
-	}
-	SECTION("ConstantValueASTNode") {
-		shared_ptr<ASTNode> toAdd(new ConstantValueASTNode(Token::createIntegerToken("1")));
-		shared_ptr<ASTNode> toAddTo(new ConstantValueASTNode(Token::createIntegerToken("1")));
-		// Should throw an error
-		testAddChild(toAdd, toAddTo);
-	}
-	SECTION("ExpressionASTNode") {
-		shared_ptr<ASTNode> toAdd(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> toAddTo(new ExpressionASTNode(Token::createLessThanToken()));
-		testAddChild(toAdd, toAddTo);
-	}
-	SECTION("IfASTNode") {
-		shared_ptr<ASTNode> toAdd(new ExpressionASTNode(Token::createGreaterThanToken()));
-		shared_ptr<ASTNode> toAddTo(new IfASTNode(Token::createIfToken()));
-		testAddChild(toAdd, toAddTo);
-	}
-	SECTION("PrintASTNode") {
-		shared_ptr<ASTNode> toAdd(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> toAddTo(new PrintASTNode(Token::createPrintToken()));
-		testAddChild(toAdd, toAddTo);
-	}
-	SECTION("ProcedureASTNode") {
-		shared_ptr<ASTNode> toAddTo(new ProcedureASTNode(Token::createNameOrKeywordToken("main")));
-		shared_ptr<ASTNode> toAdd(new StatementListASTNode(Token::createPlaceholderToken()));
-		testAddChild(toAdd, toAddTo);
-	}
-	SECTION("ProgramASTNode") {
-		shared_ptr<ASTNode> toAddTo(new ProgramASTNode(Token::createProgramToken()));
-		shared_ptr<ASTNode> toAdd(new ProcedureASTNode(Token::createNameOrKeywordToken("main")));
-		testAddChild(toAdd, toAddTo);
-	}
-	SECTION("ReadASTNode") {
-		shared_ptr<ASTNode> toAdd(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> toAddTo(new ReadASTNode(Token::createReadToken()));
-		testAddChild(toAdd, toAddTo);
-	}
-	SECTION("StatementListASTNode") {
-		shared_ptr<ASTNode> toAddTo(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> toAdd(new AssignASTNode(Token::createEqualsToken()));
-		testAddChild(toAdd, toAddTo);
-	}
-	SECTION("VariableASTNode") {
-		shared_ptr<ASTNode> toAddTo(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> toAdd(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		// Should throw an error
-		testAddChild(toAdd, toAddTo);
-	}
-	SECTION("WhileASTNode") {
-		shared_ptr<ASTNode> toAddTo(new WhileASTNode(Token::createWhileToken()));
-		shared_ptr<ASTNode> toAdd(new ExpressionASTNode(Token::createGreaterThanToken()));
-		testAddChild(toAdd, toAddTo);
-	}
-}
+	shared_ptr<CFGNode> nodeToAdd(new CFGNode(1));
+	shared_ptr<CFGNode> nodeToAddTo(new CFGNode(2));
 
-TEST_CASE("AST: Change line number") {
-	auto testChangeLineNumber = [](int lineNumber) {
-		shared_ptr<ASTNode> toChangeLineNumber(new AssignASTNode(Token::createNameOrKeywordToken("x")));
+	testAddChild(nodeToAdd, nodeToAddTo);
+};
 
-		// Ensure intial linenumber is -1
-		REQUIRE(toChangeLineNumber->getLineNumber() == -1);
+TEST_CASE("CFG: add child to IfCFGNode") {
+	auto testAddChildToIfCFG = [](shared_ptr<CFGNode> thenNodeToAdd, shared_ptr<CFGNode> elseNodeToAdd, shared_ptr<CFGNode> nodeToAddTo) {
+		nodeToAddTo->addNext(thenNodeToAdd);
+		nodeToAddTo->addNext(elseNodeToAdd);
 
-		toChangeLineNumber->setLineNumber(lineNumber);
+		shared_ptr<IfCFGNode> nodeToCheck = dynamic_pointer_cast<IfCFGNode>(nodeToAddTo);
 
-		REQUIRE(toChangeLineNumber->getLineNumber() == lineNumber);
+		REQUIRE(nodeToCheck->getThenNode() == thenNodeToAdd);
+		REQUIRE(nodeToCheck->getElseNode() == elseNodeToAdd);
 	};
 
-	testChangeLineNumber(5);
-	testChangeLineNumber(2);
-	testChangeLineNumber(0);
-}
+	auto testAddChildToIfCFGThrows = [](shared_ptr<CFGNode> thenNodeToAdd, shared_ptr<CFGNode> nodeToAddTo) {
+		nodeToAddTo->addNext(thenNodeToAdd);
+
+		shared_ptr<IfCFGNode> nodeToCheck = dynamic_pointer_cast<IfCFGNode>(nodeToAddTo);
+
+		REQUIRE_THROWS(nodeToCheck->getThenNode() == thenNodeToAdd);
+	};
+
+	shared_ptr<CFGNode> thenNodeToAdd(new CFGNode(4));
+	shared_ptr<CFGNode> elseNodeToAdd(new CFGNode(3));
+	shared_ptr<CFGNode> nodeToAddTo(new IfCFGNode(2));
+
+	shared_ptr<CFGNode> thenNodeToAdd2(new CFGNode(4));
+	shared_ptr<CFGNode> nodeToAddTo2(new IfCFGNode(2));
+
+	testAddChildToIfCFG(thenNodeToAdd, elseNodeToAdd, nodeToAddTo);
+	testAddChildToIfCFGThrows(thenNodeToAdd2, nodeToAddTo2);
+};
+
+
+TEST_CASE("CFG: add child to EndOfWhileCFGNode") {
+	auto testAddChildToEndOfWhileCFG = [](shared_ptr<CFGNode> nextNodeToAdd, shared_ptr<CFGNode> loopNodeToAdd, shared_ptr<CFGNode> nodeToAddTo) {
+		nodeToAddTo->addNext(nextNodeToAdd);
+		nodeToAddTo->addNext(loopNodeToAdd);
+
+		shared_ptr<EndOfWhileCFGNode> nodeToCheck = dynamic_pointer_cast<EndOfWhileCFGNode>(nodeToAddTo);
+
+		REQUIRE(nodeToCheck->getNext() == nextNodeToAdd);
+		REQUIRE(nodeToCheck->getLoopNode() == loopNodeToAdd);
+	};
+
+	auto testAddChildToEndOfWhileCFGThrows = [](shared_ptr<CFGNode> nextNodeToAdd, shared_ptr<CFGNode> nodeToAddTo) {
+		nodeToAddTo->addNext(nextNodeToAdd);
+
+		shared_ptr<EndOfWhileCFGNode> nodeToCheck = dynamic_pointer_cast<EndOfWhileCFGNode>(nodeToAddTo);
+
+		REQUIRE_THROWS(nodeToCheck->getNext() == nextNodeToAdd);
+	};
+
+	shared_ptr<CFGNode> nextNodeToAdd(new CFGNode(4));
+	shared_ptr<CFGNode> loopNodeToAdd(new CFGNode(3));
+	shared_ptr<CFGNode> nodeToAddTo(new EndOfWhileCFGNode(2));
+
+	shared_ptr<CFGNode> nextNodeToAdd2(new CFGNode(4));
+	shared_ptr<CFGNode> nodeToAddTo2(new EndOfWhileCFGNode(2));
+
+	testAddChildToEndOfWhileCFG(nextNodeToAdd, loopNodeToAdd, nodeToAddTo);
+	testAddChildToEndOfWhileCFGThrows(nextNodeToAdd2, nodeToAddTo2);
+};

@@ -8,31 +8,42 @@ using namespace std;
 
 class CFGNode {
 
-private:
-	int statementNumber;
-	shared_ptr<CFGNode> nextNode;
+protected:
+	vector<shared_ptr<CFGNode>> nextNodes;
 public:
-	CFGNode(int statementNumber) : statementNumber(statementNumber) {
+	// Default value for statementNumber is -1 which is also invalid
+	int statementNumber = -1;
+
+	CFGNode(int statementNumber) {
 		this->statementNumber = statementNumber;
 	}
 
 	virtual shared_ptr<CFGNode> getNext() {
-		if (this->nextNode == nullptr) {
-			throw CFGException("This node does not have a next node");
+		if (this->nextNodes.size() != 1) {
+			throw CFGException("This node has more than one child node");
 		}
-		return this->nextNode;
+		return this->nextNodes[0];
 	}
 
-	virtual void addNext(shared_ptr<CFGNode> node) {
-		// Ensure that before adding the node is empty
-		if (this->nextNode != nullptr) {
-			throw CFGException("This node already has a next node");
+	void addNext(shared_ptr<CFGNode> node) {
+		this->nextNodes.push_back(node);
+	}
+
+	bool operator==(const CFGNode other) {
+		if (this->nextNodes.size() != other.nextNodes.size()) {
+			return false;
 		}
-		this->nextNode = node;
+		else {
+			for (int i = 0; i < this->nextNodes.size(); i++) {
+				if (this->nextNodes[i] != other.nextNodes[i]); {
+					return false;
+				}
+			}
+		}
+		return this->statementNumber == other.statementNumber;
 	}
 
 	int hash() {
 		return this->statementNumber;
 	}
-
 };

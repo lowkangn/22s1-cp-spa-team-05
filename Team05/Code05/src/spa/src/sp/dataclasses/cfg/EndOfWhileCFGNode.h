@@ -7,28 +7,25 @@
 #include <memory>
 using namespace std;
 
-class IfCFGNode : public CFGNode {
-public:
-	IfCFGNode(int statementNumber) : CFGNode(statementNumber) {
+class EndOfWhileCFGNode : public CFGNode {
 
+public:
+	EndOfWhileCFGNode(int statementNumber) : CFGNode(statementNumber) {
+	
 	}
 
 	virtual shared_ptr<CFGNode> getNext() override {
-		throw CFGException("If CFG node has two child nodes");
-	}
-
-	shared_ptr<CFGNode> getThenNode() {
 		if (this->nextNodes.size() != 2) {
-			throw CFGException("If node is supposed to have 2 children");
+			throw CFGException("EndOfWhileNode is supposed to have 2 children");
 		}
 		else {
 			return this->nextNodes[0];
 		}
 	}
 
-	shared_ptr<CFGNode> getElseNode() {
+	shared_ptr<CFGNode> getLoopNode() {
 		if (this->nextNodes.size() != 2) {
-			throw CFGException("If node is supposed to have 2 children");
+			throw CFGException("EndOfWhileNode is supposed to have 2 children");
 		}
 		else {
 			return this->nextNodes[1];
