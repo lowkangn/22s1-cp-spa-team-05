@@ -6,6 +6,15 @@
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query/Query.h>
 #include <qps/query/clause/PatternClause.h>
+#include <qps/query_parser/parsers/SelectParser.h>
+#include <qps/query_parser/parsers/DeclarationParser.h>
+#include <qps/query_parser/parsers/FollowsParser.h>
+#include <qps/query_parser/parsers/ModifiesParser.h>
+#include <qps/query_parser/parsers/ParentParser.h>
+#include <qps/query_parser/parsers/PatternParser.h>
+#include <qps/query_parser/parsers/PatternAssignParser.h>
+#include <qps/query_parser/parsers/UsesParser.h>
+
 #include <list>
 #include <unordered_map>
 
@@ -19,6 +28,10 @@ private:
     list<PQLToken> tokens;
     list<shared_ptr<RelationshipClause>> suchThatClauses;
     list<shared_ptr<PatternClause>> patternClauses;
+    bool isSemanticallyValid;
+    string semanticErrorMessage;
+
+    void setSemanticErrorFromParser(shared_ptr<SemanticChecker> parserPointer);
 
     void parseConstraints(unordered_map<string, ArgumentType> declarations);
 
@@ -37,6 +50,8 @@ public:
         this->tokens = tokens;
         this->suchThatClauses = list<shared_ptr<RelationshipClause>>{};
         this->patternClauses = list<shared_ptr<PatternClause>>{};
+        this->isSemanticallyValid = true;
+        this->semanticErrorMessage = "";
     };
 
     /**

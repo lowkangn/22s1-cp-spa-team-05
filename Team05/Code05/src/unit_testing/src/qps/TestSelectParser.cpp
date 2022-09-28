@@ -52,8 +52,11 @@ TEST_CASE("SelectParser: test parseWithSemanticError") {
             // given
             SelectParser parser = SelectParser(tokens, declarations);
 
+            // when
+            parser.parse();
+
             // then
-            REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
+            REQUIRE(!parser.isSemanticallyValid());
     };
 
     SECTION("Undeclared / mispelled synonym") {

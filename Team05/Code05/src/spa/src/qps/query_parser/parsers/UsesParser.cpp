@@ -11,13 +11,15 @@ void UsesParser::checkArguments(list<ClauseArgument>& args) {
 	// first arg cannot be wildcard, variable or constant
 	ClauseArgument arg = args.front();
 	if (arg.isWildcard() || arg.isVariableSynonym() || arg.isConstantSynonym()) {
-		throw PQLSemanticError("First arg for Uses cannot be wildcard, variable or constant");
+		this->semanticErrorMessage = this-> isSemanticallyValid() 
+			? "First arg for Uses cannot be wildcard, variable or constant" 
+			: this->semanticErrorMessage;
 	}
 
 	// second arg must be wildcard or a variable
 	arg = args.back();
 	if (!arg.isWildcard() && !arg.isVariableSynonym() && !arg.isStringLiteral()) {
-		throw PQLSemanticError("Second arg for Uses must be a wildcard or variable");
+		this->semanticErrorMessage = "Second arg for Uses must be a wildcard or variable";
 	}
 }
 
