@@ -1,4 +1,6 @@
 #pragma once
+
+#include <pkb/design_objects/patterns/PkbPattern.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
 #include <pkb/PkbException.h>
 
@@ -6,13 +8,13 @@
 #include <memory>
 #include <regex>
 #include <iostream>
-using namespace std;
+
 /*
 	Parent class for all statement-based patterns.
 	If the need ever arises for other pattern types, we can refactor 
 	upwards (add a parent class). 
 */
-class PkbStatementPattern {
+class PkbStatementPattern : public PkbPattern {
 protected:
 	/*
 		Entity in question.
@@ -26,14 +28,11 @@ protected:
 	*/
 	vector<string> strings; 
 
-	PkbStatementPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) {
-		this->strings = strings;
-		this->statement = statement;
-	}
+	PkbStatementPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings) { };
 
 public :
 	bool isAssignPattern() {
-		return this->statement->isAssignStatement();
+		return getStatement()->isAssignStatement();
 	}
 
 	/*
@@ -44,14 +43,14 @@ public :
 		e.g. x + z * y -> +x*zy. This allows us to model a tree with strings.
 	*/
 	bool isRegexMatch(vector<string> regexStrings) {
-		if (regexStrings.size() != this->strings.size()) {
+		if (regexStrings.size() != getStringsToMatch().size()) {
 			throw PkbException("Trying to regex match, expecting exactly 2 regex strings, one for lhs and rhs.");
 		}
 		// iterate through and match
 		int n = regexStrings.size();
 		for (int i = 0; i < n; i++) {
 			string regexString = regexStrings[i];
-			string s = this->strings[i];
+			string s = getStringsToMatch()[i];
 			if (!regex_match(s, regex(regexString))) {
 				return false;
 			}
@@ -70,30 +69,15 @@ public :
 		return shared_ptr<PkbStatementPattern>(new PkbStatementPattern(statement, strings));
 	}
 
-	vector<string> getStringsToMatch() {
-		return this->strings;
-	}
 	/*
 		Gets a unique key for each pattern.
 	*/
+	
 	string getKey() {
 		string key;
-		for (string pattern : this->strings) {
+		for (string pattern : getStringsToMatch()) {
 			key += pattern;
 		}
-		return key + this->statement->getKey();
+		return key + getStatement()->getKey();
 	}
-
-	int getStatementLineNumber() {
-		return this->statement->getLineNumber();
-	}
-
-	string getVariableIdentifier() {
-		return this->strings[0]; // we can confirm is lhs, since this always true for all patterns
-	}
-
-	bool equals(shared_ptr<PkbStatementPattern> other) {
-		return this->statement->equals(other->statement) && this->strings == other->strings;
-	}
-
 };

@@ -12,7 +12,7 @@ file(GLOB headers
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/*/*/*.hpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/*/*/*/*.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/*/*/*/*.hpp")
-add_library(spa ${srcs} ${headers})
+add_library(spa ${srcs} ${headers} "src/pkb/design_objects/patterns/PkbPattern.h")
 # this makes the headers accessible for other projects which uses spa lib
 target_include_directories(spa 
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src
