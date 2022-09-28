@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include <sp/dataclasses/cfg/CFGNode.h>
 #include <sp/dataclasses/cfg/IfCFGNode.h>
-#include <sp/dataclasses/cfg/EndOfWhileCFGNode.h>
+#include <sp/dataclasses/cfg/WhileCFGNode.h>
 #include <vector>
 
 using namespace std;
@@ -50,31 +50,31 @@ TEST_CASE("CFG: add child to IfCFGNode") {
 };
 
 
-TEST_CASE("CFG: add child to EndOfWhileCFGNode") {
+TEST_CASE("CFG: add child to WhileCFGNode") {
 	auto testAddChildToEndOfWhileCFG = [](shared_ptr<CFGNode> nextNodeToAdd, shared_ptr<CFGNode> loopNodeToAdd, shared_ptr<CFGNode> nodeToAddTo) {
-		nodeToAddTo->addNext(nextNodeToAdd);
 		nodeToAddTo->addNext(loopNodeToAdd);
+		nodeToAddTo->addNext(nextNodeToAdd);
 
-		shared_ptr<EndOfWhileCFGNode> nodeToCheck = dynamic_pointer_cast<EndOfWhileCFGNode>(nodeToAddTo);
+		shared_ptr<WhileCFGNode> nodeToCheck = dynamic_pointer_cast<WhileCFGNode>(nodeToAddTo);
 
-		REQUIRE(nodeToCheck->getNext()->equals(nextNodeToAdd));
-		REQUIRE(nodeToCheck->getLoopNode()->equals(loopNodeToAdd));
+		REQUIRE(nodeToCheck->getAfterWhile()->equals(nextNodeToAdd));
+		REQUIRE(nodeToCheck->getInLoop()->equals(loopNodeToAdd));
 	};
 
 	auto testAddChildToEndOfWhileCFGThrows = [](shared_ptr<CFGNode> nextNodeToAdd, shared_ptr<CFGNode> nodeToAddTo) {
 		nodeToAddTo->addNext(nextNodeToAdd);
 
-		shared_ptr<EndOfWhileCFGNode> nodeToCheck = dynamic_pointer_cast<EndOfWhileCFGNode>(nodeToAddTo);
+		shared_ptr<WhileCFGNode> nodeToCheck = dynamic_pointer_cast<WhileCFGNode>(nodeToAddTo);
 
 		REQUIRE_THROWS(nodeToCheck->getNext() == nextNodeToAdd);
 	};
 
 	shared_ptr<CFGNode> nextNodeToAdd(new CFGNode(4));
 	shared_ptr<CFGNode> loopNodeToAdd(new CFGNode(3));
-	shared_ptr<CFGNode> nodeToAddTo(new EndOfWhileCFGNode(2));
+	shared_ptr<CFGNode> nodeToAddTo(new WhileCFGNode(2));
 
 	shared_ptr<CFGNode> nextNodeToAdd2(new CFGNode(4));
-	shared_ptr<CFGNode> nodeToAddTo2(new EndOfWhileCFGNode(2));
+	shared_ptr<CFGNode> nodeToAddTo2(new WhileCFGNode(2));
 
 	testAddChildToEndOfWhileCFG(nextNodeToAdd, loopNodeToAdd, nodeToAddTo);
 	testAddChildToEndOfWhileCFGThrows(nextNodeToAdd2, nodeToAddTo2);

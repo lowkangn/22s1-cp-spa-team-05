@@ -34,4 +34,19 @@ public:
 			return this->nextNodes[1];
 		}
 	}
+
+	virtual bool isIfNode() override {
+		return true;
+	}
+
+	virtual bool hasNext() override {
+		shared_ptr<CFGNode> thenCFGNode = this->getThenNode();
+		shared_ptr<CFGNode> elseCFGNode = this->getElseNode();
+
+		if (!thenCFGNode->hasNext() && !elseCFGNode->hasNext()) {
+			return false;
+		}
+
+		return true;
+	}
 };

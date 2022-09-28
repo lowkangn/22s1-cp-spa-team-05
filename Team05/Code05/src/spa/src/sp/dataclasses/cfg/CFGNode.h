@@ -7,12 +7,13 @@
 using namespace std;
 
 class CFGNode {
-
 protected:
 	vector<shared_ptr<CFGNode>> nextNodes;
 public:
 	// Default value for statementNumber is -1 which is also invalid
 	int statementNumber = -1;
+
+	CFGNode() {}
 
 	CFGNode(int statementNumber) {
 		this->statementNumber = statementNumber;
@@ -45,5 +46,17 @@ public:
 
 	int hash() {
 		return this->statementNumber;
+	}
+
+	virtual bool isIfNode() {
+		return false;
+	}
+
+	virtual bool isWhileNode() {
+		return false;
+	}
+
+	virtual bool hasNext() {
+		return this->nextNodes.size() != 0;
 	}
 };
