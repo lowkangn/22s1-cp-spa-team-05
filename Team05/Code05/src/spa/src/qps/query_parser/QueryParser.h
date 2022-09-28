@@ -28,7 +28,7 @@ private:
     list<PQLToken> tokens;
     list<shared_ptr<RelationshipClause>> suchThatClauses;
     list<shared_ptr<PatternClause>> patternClauses;
-    bool isSemanticallyValid;
+    bool isSemanticallyValid = true;
     string semanticErrorMessage;
 
     void setSemanticErrorFromParser(shared_ptr<SemanticChecker> parserPointer);

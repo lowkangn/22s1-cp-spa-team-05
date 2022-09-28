@@ -21,7 +21,7 @@ SemanticError
 5 - stmtRef as second arg (line number)
 assign a;
 Select a such that Modifies(a, 1)
-SemanticError
+SyntaxError
 5000
 6 - wildcard as first arg
 variable v;
@@ -42,4 +42,9 @@ SemanticError
 variable v; constant c;
 Select v such that Modifies(v, c)
 SemanticError
+5000
+10 - constant as second arg and unmatched bracket
+variable v; constant c;
+Select v such that Modifies(v, c
+SyntaxError
 5000

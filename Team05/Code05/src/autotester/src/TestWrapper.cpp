@@ -39,25 +39,17 @@ void TestWrapper::parse(std::string filename) {
 		pkbPointer->addPatterns(patterns);
 	}
 	catch (SPException e) {
-		std::cout << e.what() << "\n";
-		this->shouldAnswerQuery = false;
+		stream.close();
+		exit(1);
 	}
 	catch (SimpleSyntaxParserException e) {
-		std::cout << e.what() << "\n";
-		this->shouldAnswerQuery = false;
+		stream.close();
+		exit(1);
 	}
-
-	stream.close();
-	
-
 }
 
 // method to evaluating a query
 void TestWrapper::evaluate(std::string query, std::list<std::string>& results){
-	if (!this->shouldAnswerQuery) {
-		cout << "Parsing has failed; QPS will not answer queries\n";
-		return;
-	}
 	// query
 	this->qps.evaluate(query, shared_ptr<PKBQueryHandler>(pkbPointer));
 

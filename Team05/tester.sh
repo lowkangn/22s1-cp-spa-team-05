@@ -1,7 +1,7 @@
 #!/bin/bash
 
 config=Debug
-while getopts r: flag
+while getopts 'r' flag
 do
     case "${flag}" in
         r) config=Release
@@ -17,6 +17,7 @@ readonly two_constr_path=./Tests05/iteration1/twoConstraintsQuery/
 readonly output_folder=./Code05/testOutputs/
 readonly sample_path=./Tests05/
 
+echo "Using autotester at: "${path_to_autotester}
 
 echo "Starting invalid query test cases"
 for i in Declaration Follows Modifies Parent Select Uses Pattern

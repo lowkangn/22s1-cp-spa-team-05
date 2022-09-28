@@ -16,8 +16,14 @@ void ModifiesParser::checkArguments(list<ClauseArgument>& args) {
 			: this->semanticErrorMessage;
 	}
 
-	// second arg must be wildcard or a variable
 	arg = args.back();
+
+	// syntactically, second arg must be an entRef which cannot be a number
+	if (arg.isLineNumber()) {
+		throw PQLSyntaxError("Second arg for Modifies cannot be a number");
+	}
+
+	// semantically, second arg must be a wildcard or a variable
 	if (!arg.isWildcard() && !arg.isVariableSynonym() && !arg.isStringLiteral()) {
 		this->semanticErrorMessage = "Second arg for Modifies must be a wildcard or variable";
 	}

@@ -43,13 +43,18 @@ var s1;
 Select s1
 SyntaxError
 5000
-9 - Repeated declaration (same DE)
+10 - Repeated declaration (same DE)
 variable v1, v1; stmt s1;
 Select s1
 SemanticError
 5000
-10 - Repeated declaration (different DE)
+11 - Repeated declaration (different DE)
 variable v1; stmt v1;
 Select s1
 SemanticError
+5000
+12 - Repeated declaration and syntax error
+variable v1, v1; stmt s1
+Select s1
+SyntaxError
 5000
