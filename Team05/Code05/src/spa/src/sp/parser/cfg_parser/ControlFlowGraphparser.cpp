@@ -42,17 +42,17 @@ shared_ptr<CFGNode> ControlFlowParser::handleIf(shared_ptr<ASTNode> ifNode)
 	shared_ptr<ASTNode> thenStmtLst = rootNode->getThenStatements();
 	shared_ptr<ASTNode> elseStmtLst = rootNode->getElseStatements();
 
-	shared_ptr<CFGNode> rootCFGNode(new IfCFGNode(rootNode->getLineNumber()));
+	shared_ptr<CFGNode> ifCFGNode(new IfCFGNode(rootNode->getLineNumber()));
 
 	// Get roots of the then and else statement lists
 	shared_ptr<CFGNode> rootThenNode = this->handleStatementList(thenStmtLst);
 	shared_ptr<CFGNode> rootElseNode = this->handleStatementList(elseStmtLst);
 
 	// Add root of then and else statement to the ifCFGNode
-	rootCFGNode->addNext(rootThenNode);
-	rootCFGNode->addNext(rootElseNode);
+	ifCFGNode->addNext(rootThenNode);
+	ifCFGNode->addNext(rootElseNode);
 
-	return rootCFGNode;
+	return ifCFGNode;
 }
 
 shared_ptr<CFGNode> ControlFlowParser::handleWhile(shared_ptr<ASTNode> whileNode)
@@ -133,25 +133,19 @@ void ControlFlowParser::addChildToTheEndOfRoot(shared_ptr<CFGNode> root, shared_
 		shared_ptr<CFGNode> thenCFGNode = ifCFGNode->getThenNode();
 		shared_ptr<CFGNode> elseCFGNode = ifCFGNode->getElseNode();
 
-		if (!ifCFGNode->hasNext()) {
-			// Add child to both then and else nodes
-			thenCFGNode->addNext(child);
-			elseCFGNode->addNext(child);
-		}
-		else {
-			// Recurse and get node after the then/else statements
-			this->addChildToTheEndOfRoot(thenCFGNode->getNext(), child);
-		}
+		// Recursively add child to the end of the then and else nodes
+		this->addChildToTheEndOfRoot(thenCFGNode, child);
+		this->addChildToTheEndOfRoot(elseCFGNode, child);
 	}
 	else if (root->isWhileNode()) {
 		shared_ptr<WhileCFGNode> whileCFGNode = dynamic_pointer_cast<WhileCFGNode>(root);
 
-		if (whileCFGNode->hasNext()) {
-			// Add child to both then and else nodes
+		if (!whileCFGNode->hasNext()) {
+			// Add child to whileCFGNode
 			whileCFGNode->addNext(child);
 		}
 		else {
-			// Recurse and get node after the then/else statements
+			// Recurse and get node after the while loop
 			this->addChildToTheEndOfRoot(whileCFGNode->getAfterWhile(), child);
 		}
 	}

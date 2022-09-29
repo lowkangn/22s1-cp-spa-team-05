@@ -36,8 +36,16 @@ public:
 		}
 		else {
 			for (int i = 0; i < this->nextNodes.size(); i++) {
-				if (!(this->nextNodes[i]->equals(other->nextNodes[i]))) {
-					return false;
+				// To prevent infinite recursion in the case of while
+				if (this->nextNodes[i]->statementNumber < this->statementNumber) {
+					// Recursively check child node
+					if (!(this->nextNodes[i]->equals(other->nextNodes[i]))) {
+						return false;
+					}
+				}
+				// It is a recursive case where the child node is pointing to a parent while
+				else {
+					return this->nextNodes[i]->statementNumber == other->nextNodes[i]->statementNumber;
 				}
 			}
 		}
