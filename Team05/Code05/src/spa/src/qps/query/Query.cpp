@@ -31,7 +31,6 @@ bool operator==(Query first, Query second) {
 	}
 	else if (first.patternClauses.size() != second.patternClauses.size()) {
 		// different number of pattern clauses after Select
-		cout << "herehere\n";
 		return false;
 	}
 
