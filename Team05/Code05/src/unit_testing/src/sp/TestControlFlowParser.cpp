@@ -16,8 +16,14 @@
 #include <sp/dataclasses/cfg/WhileCFGNode.h>
 #include <sp/parser/cfg_parser/ControlFlowGraphparser.h>
 
+#include <sp/lexer/Lexer.h>
+#include <sp/parser/SimpleSyntaxParserManager.h>
+
+
 #include <vector>
 #include <memory>
+#include <istream>
+#include <sstream>
 
 using namespace std;
 
@@ -702,7 +708,109 @@ TEST_CASE("handleProcedure test") {
 	};
 
 	SECTION("Single procedure") {
+		/*
+			procedure main {
+			1.	while (x >= 5) {
+			2.		read x;
+				}
+			3.	if (y == 2) then {
+			4.		print y;
+				} else {
+			5.		read z;
+				}
+			6.	q = 5;
+			}
+		*/
+		shared_ptr<ASTNode> procNode(new ProcedureASTNode(Token::createNameOrKeywordToken("main")));
 
+
+		shared_ptr<ASTNode> procStatementList(new StatementListASTNode(Token::createPlaceholderToken()));
+
+		shared_ptr<ASTNode> whileNode(new WhileASTNode(Token::createWhileToken()));
+		shared_ptr<ASTNode> conditionOneNode(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
+		shared_ptr<ASTNode> xNode(new VariableASTNode(Token::createNameOrKeywordToken("x")));
+		shared_ptr<ASTNode> fiveNode(new ConstantValueASTNode(Token::createIntegerToken("5")));
+		whileNode->setLineNumber(1);
+		conditionOneNode->setLineNumber(1);
+		xNode->setLineNumber(1);
+		fiveNode->setLineNumber(1);
+
+		conditionOneNode->addChild(xNode);
+		conditionOneNode->addChild(fiveNode);
+
+		shared_ptr<ASTNode> whileStatementList(new StatementListASTNode(Token::createPlaceholderToken()));
+
+		shared_ptr<ASTNode> whileRead(new ReadASTNode(Token::createReadToken()));
+		whileRead->setLineNumber(2);
+		whileStatementList->addChild(whileRead);
+
+		whileNode->addChild(conditionOneNode);
+		whileNode->addChild(whileStatementList);
+
+		shared_ptr<ASTNode> ifNode(new IfASTNode(Token::createWhileToken()));
+		shared_ptr<ASTNode> conditionNodeTwo(new ExpressionASTNode(Token::createEqualityToken()));
+		shared_ptr<ASTNode> yNode(new VariableASTNode(Token::createNameOrKeywordToken("y")));
+		shared_ptr<ASTNode> twoNode(new ConstantValueASTNode(Token::createIntegerToken("2")));
+		ifNode->setLineNumber(3);
+		conditionNodeTwo->setLineNumber(3);
+		yNode->setLineNumber(3);
+		twoNode->setLineNumber(3);
+
+		conditionNodeTwo->addChild(yNode);
+		conditionNodeTwo->addChild(twoNode);
+
+		shared_ptr<ASTNode> thenStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> printY(new PrintASTNode(Token::createPrintToken()));
+		thenStmtListASTNode->addChild(printY);
+		printY->setLineNumber(4);
+
+		shared_ptr<ASTNode> elseStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> readZ(new ReadASTNode(Token::createReadToken()));
+		elseStmtListASTNode->addChild(readZ);
+		readZ->setLineNumber(5);
+
+		ifNode->addChild(conditionNodeTwo);
+		ifNode->addChild(thenStmtListASTNode);
+		ifNode->addChild(elseStmtListASTNode);
+
+		// assign
+		shared_ptr<ASTNode> assignASTNode(new AssignASTNode(Token::createEqualsToken()));
+		shared_ptr<ASTNode> qNodeAssign(new VariableASTNode(Token::createNameOrKeywordToken("q")));
+		shared_ptr<ASTNode> constant(new ConstantValueASTNode(Token::createIntegerToken("5")));
+		assignASTNode->addChild(qNodeAssign);
+		assignASTNode->addChild(constant);
+		assignASTNode->setLineNumber(1);
+
+		procStatementList->addChild(whileNode);
+		procStatementList->addChild(ifNode);
+		procStatementList->addChild(assignASTNode);
+
+		procNode->addChild(procStatementList);
+
+		// CFGs
+		shared_ptr<CFGNode> expected(new WhileCFGNode(1));
+
+		shared_ptr<CFGNode> readX(new CFGNode(2));
+
+		shared_ptr<CFGNode> ifCFG(new IfCFGNode(3));
+
+		shared_ptr<CFGNode> printYCFG(new CFGNode(4));
+
+		shared_ptr<CFGNode> readZCFG(new CFGNode(5));
+
+		shared_ptr<CFGNode> assignCFG(new CFGNode(6));
+
+		expected->addNext(readX);
+		readX->addNext(expected);
+		expected->addNext(ifCFG);
+
+		ifCFG->addNext(printYCFG);
+		ifCFG->addNext(readZCFG);
+
+		printYCFG->addNext(assignCFG);
+		readZCFG->addNext(assignCFG);
+
+		test(procNode, expected);
 	}
 }
 
@@ -723,6 +831,41 @@ TEST_CASE("parse") {
 	};
 	
 	SECTION("Multiple procedures") {
+		string program = "procedure main {\n\twhile (x >= 5) {\n\t\tx = 10;\n\t}\n\tread x;\n}\n\nprocedure pain {\n\tif (x != 10) then {\n\t\tprint y;\n\t} else {\n\t\tx = 10 + y;\n\t}\n\tread x;\n}";
 
+		stringstream ss(program);
+		istream& stream = ss;
+
+		Lexer lexer = Lexer();
+		list<Token> tokens = lexer.tokenize(stream);
+
+		ParserManager parser = ParserManager(tokens);
+		shared_ptr<ASTNode> programTree = parser.parse();
+
+		// First CFG
+		shared_ptr<CFGNode> firstCFG(new WhileCFGNode(1));
+		shared_ptr<CFGNode> firstAssign(new CFGNode(2));
+		shared_ptr<CFGNode> firstRead(new CFGNode(3));
+
+		firstCFG->addNext(firstAssign);
+		firstAssign->addNext(firstCFG);
+		firstCFG->addNext(firstRead);
+
+		// Second CFG
+		shared_ptr<CFGNode> secondCFG(new IfCFGNode(4));
+		shared_ptr<CFGNode> secondPrint(new CFGNode(5));
+		shared_ptr<CFGNode> secondAssign(new CFGNode(6));
+		shared_ptr<CFGNode> secondRead(new CFGNode(7));
+
+		secondCFG->addNext(secondPrint);
+		secondCFG->addNext(secondAssign);
+
+		secondPrint->addNext(secondRead);
+		secondAssign->addNext(secondRead);
+
+		// Expected CFGs
+		vector<shared_ptr<CFGNode>> expected {firstCFG, secondCFG};
+
+		test(programTree, expected);
 	}
 }
