@@ -8,9 +8,13 @@
 using namespace std;
 
 class IfCFGNode : public CFGNode {
-public:
+protected:
 	IfCFGNode(int statementNumber) : CFGNode(statementNumber) {
 
+	}
+public:
+	static shared_ptr<IfCFGNode> createIfCFGNode(int statementNumber) {
+		return shared_ptr<IfCFGNode>(new IfCFGNode(statementNumber));
 	}
 
 	virtual shared_ptr<CFGNode> getNext() override {

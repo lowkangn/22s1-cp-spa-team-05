@@ -42,15 +42,15 @@ shared_ptr<CFGNode> ControlFlowParser::handleIf(shared_ptr<ASTNode> ifNode)
 	shared_ptr<ASTNode> thenStmtLst = rootNode->getThenStatements();
 	shared_ptr<ASTNode> elseStmtLst = rootNode->getElseStatements();
 
-	shared_ptr<CFGNode> ifCFGNode(new IfCFGNode(rootNode->getLineNumber()));
+	shared_ptr<CFGNode> ifCFGNode = IfCFGNode::createIfCFGNode(rootNode->getLineNumber());
 
 	// Get roots of the then and else statement lists
 	shared_ptr<CFGNode> rootThenNode = this->handleStatementList(thenStmtLst);
 	shared_ptr<CFGNode> rootElseNode = this->handleStatementList(elseStmtLst);
 
 	// Add root of then and else statement to the ifCFGNode
-	ifCFGNode->addNext(rootThenNode);
-	ifCFGNode->addNext(rootElseNode);
+	ifCFGNode->addChild(rootThenNode);
+	ifCFGNode->addChild(rootElseNode);
 
 	return ifCFGNode;
 }
@@ -68,10 +68,10 @@ shared_ptr<CFGNode> ControlFlowParser::handleWhile(shared_ptr<ASTNode> whileNode
 	// Get root of statement list within while
 	shared_ptr<CFGNode> stmtListCFG = this->handleStatementList(stmtList);
 
-	shared_ptr<CFGNode> whileCFGNode(new WhileCFGNode(whileNode->getLineNumber()));
+	shared_ptr<WhileCFGNode> whileCFGNode = WhileCFGNode::createWhileCFGNode(whileNode->getLineNumber());
 
 	// Append statement list first
-	whileCFGNode->addNext(stmtListCFG);
+	whileCFGNode->addChild(stmtListCFG);
 
 	// Add whileCFGNode to the end of the statement list
 	this->addChildToTheEndOfRoot(stmtListCFG, whileCFGNode);
@@ -84,7 +84,7 @@ shared_ptr<CFGNode> ControlFlowParser::handleStatementList(shared_ptr<ASTNode> r
 	vector<shared_ptr<ASTNode>> children = rootNode->getChildren();
 
 	// Initialize dummy node so that we can iterate through
-	shared_ptr<CFGNode> dummyCFG(new CFGNode(-1));
+	shared_ptr<CFGNode> dummyCFG = CFGNode::createCFGNode(-1);
 
 	shared_ptr<CFGNode> currentCFG = dummyCFG;
 	int counter = 0;
@@ -104,7 +104,7 @@ shared_ptr<CFGNode> ControlFlowParser::handleStatementList(shared_ptr<ASTNode> r
 			childCFGNode = this->handleWhile(currentAST);
 		}
 		else {
-			childCFGNode = shared_ptr<CFGNode>(new CFGNode(currentAST->getLineNumber()));
+			childCFGNode = CFGNode::createCFGNode(currentAST->getLineNumber());
 		}
 		
 		this->addChildToTheEndOfRoot(currentCFG, childCFGNode);
@@ -134,7 +134,7 @@ void ControlFlowParser::addChildToTheEndOfRoot(shared_ptr<CFGNode> root, shared_
 
 		if (!whileCFGNode->hasNext()) {
 			// Add child to whileCFGNode
-			whileCFGNode->addNext(child);
+			whileCFGNode->addChild(child);
 		}
 		else {
 			// Recurse and get node after the while loop
@@ -147,7 +147,7 @@ void ControlFlowParser::addChildToTheEndOfRoot(shared_ptr<CFGNode> root, shared_
 			this->addChildToTheEndOfRoot(root->getNext(), child);
 		}
 		else {
-			root->addNext(child);
+			root->addChild(child);
 		}
 	}
 }

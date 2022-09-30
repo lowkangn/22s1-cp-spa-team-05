@@ -8,15 +8,19 @@ using namespace std;
 
 class CFGNode {
 protected:
+	CFGNode() {}
+
+	CFGNode(int statementNumber) {
+		this->statementNumber = statementNumber;
+	}
+
 	vector<shared_ptr<CFGNode>> nextNodes;
 public:
 	// Default value for statementNumber is -1 which is also invalid
 	int statementNumber = -1;
 
-	CFGNode() {}
-
-	CFGNode(int statementNumber) {
-		this->statementNumber = statementNumber;
+	static shared_ptr<CFGNode> createCFGNode(int statementNumber) {
+		return shared_ptr<CFGNode>(new CFGNode(statementNumber));
 	}
 
 	virtual shared_ptr<CFGNode> getNext() {
@@ -26,7 +30,7 @@ public:
 		return this->nextNodes[0];
 	}
 
-	void addNext(shared_ptr<CFGNode> node) {
+	virtual void addChild(shared_ptr<CFGNode> node) {
 		this->nextNodes.push_back(node);
 	}
 

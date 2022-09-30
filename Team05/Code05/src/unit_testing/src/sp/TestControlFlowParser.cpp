@@ -40,93 +40,93 @@ TEST_CASE("addChildToTheEndOfRoot test") {
 	};
 
 	SECTION("Simple test") {
-		shared_ptr<CFGNode> root(new CFGNode(1));
-		shared_ptr<CFGNode> child(new CFGNode(2));
+		shared_ptr<CFGNode> root = CFGNode::createCFGNode(1);
+		shared_ptr<CFGNode> child = CFGNode::createCFGNode(2);
 
-		shared_ptr<CFGNode> expected(new CFGNode(1));
-		shared_ptr<CFGNode> expectedChild(new CFGNode(2));
+		shared_ptr<CFGNode> expected = CFGNode::createCFGNode(1);
+		shared_ptr<CFGNode> expectedChild = CFGNode::createCFGNode(2);
 
-		expected->addNext(expectedChild);
+		expected->addChild(expectedChild);
 
 		test(child, root, expected);
 	}
 
 	SECTION("Traverse till end test") {
-		shared_ptr<CFGNode> root(new CFGNode(1));
-		shared_ptr<CFGNode> rootChild(new CFGNode(2));
-		root->addNext(rootChild);
+		shared_ptr<CFGNode> root = CFGNode::createCFGNode(1);
+		shared_ptr<CFGNode> rootChild = CFGNode::createCFGNode(2);
+		root->addChild(rootChild);
 
-		shared_ptr<CFGNode> childToAdd(new CFGNode(3));
+		shared_ptr<CFGNode> childToAdd = CFGNode::createCFGNode(3);
 
-		shared_ptr<CFGNode> expected(new CFGNode(1));
-		shared_ptr<CFGNode> expectedRootChild(new CFGNode(2));
-		shared_ptr<CFGNode> expectedChild(new CFGNode(3));
+		shared_ptr<CFGNode> expected = CFGNode::createCFGNode(1);
+		shared_ptr<CFGNode> expectedRootChild = CFGNode::createCFGNode(2);
+		shared_ptr<CFGNode> expectedChild = CFGNode::createCFGNode(3);
 
-		expected->addNext(expectedRootChild);
-		expectedRootChild->addNext(expectedChild);
+		expected->addChild(expectedRootChild);
+		expectedRootChild->addChild(expectedChild);
 
 		test(childToAdd, root, expected);
 	}
 
 	SECTION("Test if") {
-		shared_ptr<CFGNode> root(new IfCFGNode(1));
+		shared_ptr<CFGNode> root = IfCFGNode::createIfCFGNode(1);
 
-		shared_ptr<CFGNode> thenRoot(new CFGNode(2));
-		shared_ptr<CFGNode> thenStatement(new CFGNode(3));
-		thenRoot->addNext(thenStatement);
+		shared_ptr<CFGNode> thenRoot = CFGNode::createCFGNode(2);
+		shared_ptr<CFGNode> thenStatement = CFGNode::createCFGNode(3);
+		thenRoot->addChild(thenStatement);
 
-		shared_ptr<CFGNode> elseRoot(new CFGNode(4));
-		shared_ptr<CFGNode> elseStatement(new CFGNode(5));
-		elseRoot->addNext(elseStatement);
+		shared_ptr<CFGNode> elseRoot = CFGNode::createCFGNode(4);
+		shared_ptr<CFGNode> elseStatement = CFGNode::createCFGNode(5);
+		elseRoot->addChild(elseStatement);
 
-		shared_ptr<CFGNode> childToAdd(new CFGNode(6));
+		shared_ptr<CFGNode> childToAdd = CFGNode::createCFGNode(6);
 
-		root->addNext(thenRoot);
-		root->addNext(elseRoot);
+		root->addChild(thenRoot);
+		root->addChild(elseRoot);
 
-		shared_ptr<CFGNode> expected(new IfCFGNode(1));
+		shared_ptr<CFGNode> expected = IfCFGNode::createIfCFGNode(1);
 		
-		shared_ptr<CFGNode> expectedThenRoot(new CFGNode(2));
-		shared_ptr<CFGNode> expectedThenStatement(new CFGNode(3));
-		expectedThenRoot->addNext(expectedThenStatement);
+		shared_ptr<CFGNode> expectedThenRoot = CFGNode::createCFGNode(2);
+		shared_ptr<CFGNode> expectedThenStatement = CFGNode::createCFGNode(3);
+		expectedThenRoot->addChild(expectedThenStatement);
 
-		shared_ptr<CFGNode> expectedElseRoot(new CFGNode(4));
-		shared_ptr<CFGNode> expectedElseStatement(new CFGNode(5));
-		expectedElseRoot->addNext(expectedElseStatement);
+		shared_ptr<CFGNode> expectedElseRoot = CFGNode::createCFGNode(4);
+		shared_ptr<CFGNode> expectedElseStatement = CFGNode::createCFGNode(5);
+		expectedElseRoot->addChild(expectedElseStatement);
 
-		shared_ptr<CFGNode> expectedChild(new CFGNode(6));
+		shared_ptr<CFGNode> expectedChild = CFGNode::createCFGNode(6);
 
-		expectedThenStatement->addNext(expectedChild);
-		expectedElseStatement->addNext(expectedChild);
+		expectedThenStatement->addChild(expectedChild);
+		expectedElseStatement->addChild(expectedChild);
 
-		expected->addNext(expectedThenRoot);
-		expected->addNext(expectedElseRoot);
+		expected->addChild(expectedThenRoot);
+		expected->addChild(expectedElseRoot);
 
 		test(childToAdd, root, expected);
 	}
 
 	SECTION("Test while with statements") {
-		shared_ptr<CFGNode> root(new WhileCFGNode(1));
+		shared_ptr<CFGNode> root = WhileCFGNode::createWhileCFGNode(1);
 
-		shared_ptr<CFGNode> whileStmtOne(new CFGNode(2));
-		shared_ptr<CFGNode> whileStmtTwo(new CFGNode(3));
-		root->addNext(whileStmtOne);
-		whileStmtOne->addNext(whileStmtTwo);
-		whileStmtTwo->addNext(root);
+		shared_ptr<CFGNode> whileStmtOne = CFGNode::createCFGNode(2);
+		shared_ptr<CFGNode> whileStmtTwo = CFGNode::createCFGNode(3);
+		root->addChild(whileStmtOne);
+		whileStmtOne->addChild(whileStmtTwo);
+		whileStmtTwo->addChild(root);
 
-		shared_ptr<CFGNode> childToAdd(new CFGNode(4));
+		shared_ptr<CFGNode> childToAdd = CFGNode::createCFGNode(4);
 
-		shared_ptr<CFGNode> expectedRoot(new WhileCFGNode(1));
+		shared_ptr<CFGNode> expectedRoot = WhileCFGNode::createWhileCFGNode(1);
 
-		shared_ptr<CFGNode> expectedWhileStmtOne(new CFGNode(2));
-		shared_ptr<CFGNode> expectedWhileStmtTwo(new CFGNode(3));
-		expectedRoot->addNext(expectedWhileStmtOne);
-		expectedWhileStmtOne->addNext(expectedWhileStmtTwo);
-		expectedWhileStmtTwo->addNext(expectedRoot);
+		shared_ptr<CFGNode> expectedWhileStmtOne = CFGNode::createCFGNode(2);
+		shared_ptr<CFGNode> expectedWhileStmtTwo = CFGNode::createCFGNode(3);
+		expectedRoot->addChild(expectedWhileStmtOne);
+		expectedWhileStmtOne->addChild(expectedWhileStmtTwo);
+		expectedWhileStmtTwo->addChild(expectedRoot);
 
-		shared_ptr<CFGNode> expectedChild(new CFGNode(4));
+		shared_ptr<CFGNode> expectedChild = CFGNode::createCFGNode(4);
 
-		expectedRoot->addNext(expectedChild);
+		expectedRoot->addChild(expectedChild);
 
 		test(childToAdd, root, expectedRoot);
 	}
@@ -180,12 +180,12 @@ TEST_CASE("handleStatementList test") {
 		stmtListASTNode->addChild(readASTNode);
 		stmtListASTNode->addChild(printASTNode);
 
-		shared_ptr<CFGNode> expected(new CFGNode(1));
-		shared_ptr<CFGNode> expectedRead(new CFGNode(2));
-		shared_ptr<CFGNode> expectedPrint(new CFGNode(3));
+		shared_ptr<CFGNode> expected = CFGNode::createCFGNode(1);
+		shared_ptr<CFGNode> expectedRead = CFGNode::createCFGNode(2);
+		shared_ptr<CFGNode> expectedPrint = CFGNode::createCFGNode(3);
 
-		expected->addNext(expectedRead);
-		expectedRead->addNext(expectedPrint);
+		expected->addChild(expectedRead);
+		expectedRead->addChild(expectedPrint);
 
 		test(stmtListASTNode, expected);
 	}
@@ -249,22 +249,22 @@ TEST_CASE("handleStatementList test") {
 		stmtListASTNode->addChild(readX);
 
 		// CFG Node
-		shared_ptr<CFGNode> expected(new CFGNode(1));
+		shared_ptr<CFGNode> expected = CFGNode::createCFGNode(1);
 
-		shared_ptr<CFGNode> ifCFG(new IfCFGNode(2));
+		shared_ptr<CFGNode> ifCFG = IfCFGNode::createIfCFGNode(2);
 
-		shared_ptr<CFGNode> expectedPrintX(new CFGNode(3));
-		shared_ptr<CFGNode> expectedPrintY(new CFGNode(4));
+		shared_ptr<CFGNode> expectedPrintX = CFGNode::createCFGNode(3);
+		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(4);
 
-		shared_ptr<CFGNode> expectedRead(new CFGNode(5));
+		shared_ptr<CFGNode> expectedRead = CFGNode::createCFGNode(5);
 
-		expected->addNext(ifCFG);
+		expected->addChild(ifCFG);
 
-		ifCFG->addNext(expectedPrintX);
-		ifCFG->addNext(expectedPrintY);
+		ifCFG->addChild(expectedPrintX);
+		ifCFG->addChild(expectedPrintY);
 
-		expectedPrintX->addNext(expectedRead);
-		expectedPrintY->addNext(expectedRead);
+		expectedPrintX->addChild(expectedRead);
+		expectedPrintY->addChild(expectedRead);
 
 		test(stmtListASTNode, expected);
 	}
@@ -319,20 +319,20 @@ TEST_CASE("handleStatementList test") {
 		stmtListASTNode->addChild(readX);
 
 		// CFG Node
-		shared_ptr<CFGNode> expected(new CFGNode(1));
+		shared_ptr<CFGNode> expected = CFGNode::createCFGNode(1);
 
-		shared_ptr<CFGNode> whileCFG(new WhileCFGNode(2));
+		shared_ptr<CFGNode> whileCFG = WhileCFGNode::createWhileCFGNode(2);
 
-		shared_ptr<CFGNode> expectedPrintY(new CFGNode(3));
+		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(3);
 
-		shared_ptr<CFGNode> expectedRead(new CFGNode(4));
+		shared_ptr<CFGNode> expectedRead = CFGNode::createCFGNode(4);
 
-		expected->addNext(whileCFG);
+		expected->addChild(whileCFG);
 
-		whileCFG->addNext(expectedPrintY);
-		expectedPrintY->addNext(whileCFG);
+		whileCFG->addChild(expectedPrintY);
+		expectedPrintY->addChild(whileCFG);
 
-		whileCFG->addNext(expectedRead);
+		whileCFG->addChild(expectedRead);
 
 		test(stmtListASTNode, expected);
 	}
@@ -416,23 +416,23 @@ TEST_CASE("handleStatementList test") {
 		stmtListASTNode->addChild(assignASTNode);
 
 		// CFG
-		shared_ptr<CFGNode> expected(new WhileCFGNode(1));
+		shared_ptr<CFGNode> expected = WhileCFGNode::createWhileCFGNode(1);
 
-		shared_ptr<CFGNode> ifCFG(new IfCFGNode(2));
+		shared_ptr<CFGNode> ifCFG = IfCFGNode::createIfCFGNode(2);
 
-		shared_ptr<CFGNode> printCFG(new CFGNode(3));
-		shared_ptr<CFGNode> readCFG(new CFGNode(4));
-		shared_ptr<CFGNode> assignCFG(new CFGNode(5));
+		shared_ptr<CFGNode> printCFG = CFGNode::createCFGNode(3);
+		shared_ptr<CFGNode> readCFG = CFGNode::createCFGNode(4);
+		shared_ptr<CFGNode> assignCFG = CFGNode::createCFGNode(5);
 
-		expected->addNext(ifCFG);
+		expected->addChild(ifCFG);
 
-		ifCFG->addNext(printCFG);
-		ifCFG->addNext(readCFG);
+		ifCFG->addChild(printCFG);
+		ifCFG->addChild(readCFG);
 
-		printCFG->addNext(expected);
-		readCFG->addNext(expected);
+		printCFG->addChild(expected);
+		readCFG->addChild(expected);
 
-		expected->addNext(assignCFG);
+		expected->addChild(assignCFG);
 
 		test(stmtListASTNode, expected);
 	}
@@ -480,13 +480,13 @@ TEST_CASE("handleIf test") {
 		ifNode->addChild(elseStmtListASTNode);
 
 		// CFGNode
-		shared_ptr<CFGNode> ifCFG(new IfCFGNode(1));
+		shared_ptr<CFGNode> ifCFG = IfCFGNode::createIfCFGNode(1);
 
-		shared_ptr<CFGNode> expectedPrintX(new CFGNode(2));
-		shared_ptr<CFGNode> expectedPrintY(new CFGNode(3));
+		shared_ptr<CFGNode> expectedPrintX = CFGNode::createCFGNode(2);
+		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(3);
 
-		ifCFG->addNext(expectedPrintX);
-		ifCFG->addNext(expectedPrintY);
+		ifCFG->addChild(expectedPrintX);
+		ifCFG->addChild(expectedPrintY);
 
 		test(ifNode, ifCFG);
 	}
@@ -559,19 +559,19 @@ TEST_CASE("handleIf test") {
 		ifNode->addChild(elseStmtListASTNode);
 
 		// CFGNode
-		shared_ptr<CFGNode> ifCFG(new IfCFGNode(1));
+		shared_ptr<CFGNode> ifCFG = IfCFGNode::createIfCFGNode(1);
 
-		shared_ptr<CFGNode> ifCFGTwo(new IfCFGNode(2));
+		shared_ptr<CFGNode> ifCFGTwo = IfCFGNode::createIfCFGNode(2);
 
-		shared_ptr<CFGNode> expectedPrintX(new CFGNode(3));
-		shared_ptr<CFGNode> expectedPrintY(new CFGNode(4));
-		shared_ptr<CFGNode> expectedReadX(new CFGNode(5));
+		shared_ptr<CFGNode> expectedPrintX = CFGNode::createCFGNode(3);
+		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(4);
+		shared_ptr<CFGNode> expectedReadX = CFGNode::createCFGNode(5);
 
-		ifCFGTwo->addNext(expectedPrintX);
-		ifCFGTwo->addNext(expectedPrintY);
+		ifCFGTwo->addChild(expectedPrintX);
+		ifCFGTwo->addChild(expectedPrintY);
 
-		ifCFG->addNext(ifCFGTwo);
-		ifCFG->addNext(expectedReadX);
+		ifCFG->addChild(ifCFGTwo);
+		ifCFG->addChild(expectedReadX);
 
 		test(ifNode, ifCFG);
 	} 
@@ -618,11 +618,11 @@ TEST_CASE("handleWhile test") {
 		whileNode->addChild(conditionNode);
 		whileNode->addChild(whileStatementList);
 
-		shared_ptr<CFGNode> whileCFG(new WhileCFGNode(1));
+		shared_ptr<CFGNode> whileCFG = WhileCFGNode::createWhileCFGNode(1);
 
-		shared_ptr<CFGNode> expectedPrintY(new CFGNode(2));
+		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(2);
 
-		whileCFG->addNext(expectedPrintY);
+		whileCFG->addChild(expectedPrintY);
 
 		test(whileNode, whileCFG);
 	}
@@ -680,16 +680,16 @@ TEST_CASE("handleWhile test") {
 		whileNode->addChild(whileStatementList);
 
 		// CFGNode
-		shared_ptr<CFGNode> expected(new WhileCFGNode(1));
+		shared_ptr<CFGNode> expected = WhileCFGNode::createWhileCFGNode(1);
 
-		shared_ptr<CFGNode> whileCFG(new WhileCFGNode(2));
+		shared_ptr<CFGNode> whileCFG = WhileCFGNode::createWhileCFGNode(2);
 
-		shared_ptr<CFGNode> expectedPrintY(new CFGNode(3));
+		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(3);
 
-		expected->addNext(whileCFG);
-		whileCFG->addNext(expectedPrintY);
-		expectedPrintY->addNext(whileCFG);
-		whileCFG->addNext(expected);
+		expected->addChild(whileCFG);
+		whileCFG->addChild(expectedPrintY);
+		expectedPrintY->addChild(whileCFG);
+		whileCFG->addChild(expected);
 
 		test(whileNode, expected);
 	}
@@ -788,27 +788,27 @@ TEST_CASE("handleProcedure test") {
 		procNode->addChild(procStatementList);
 
 		// CFGs
-		shared_ptr<CFGNode> expected(new WhileCFGNode(1));
+		shared_ptr<CFGNode> expected = WhileCFGNode::createWhileCFGNode(1);
 
-		shared_ptr<CFGNode> readX(new CFGNode(2));
+		shared_ptr<CFGNode> readX = CFGNode::createCFGNode(2);
 
-		shared_ptr<CFGNode> ifCFG(new IfCFGNode(3));
+		shared_ptr<CFGNode> ifCFG = IfCFGNode::createIfCFGNode(3);
 
-		shared_ptr<CFGNode> printYCFG(new CFGNode(4));
+		shared_ptr<CFGNode> printYCFG = CFGNode::createCFGNode(4);
 
-		shared_ptr<CFGNode> readZCFG(new CFGNode(5));
+		shared_ptr<CFGNode> readZCFG = CFGNode::createCFGNode(5);
 
-		shared_ptr<CFGNode> assignCFG(new CFGNode(6));
+		shared_ptr<CFGNode> assignCFG = CFGNode::createCFGNode(6);
 
-		expected->addNext(readX);
-		readX->addNext(expected);
-		expected->addNext(ifCFG);
+		expected->addChild(readX);
+		readX->addChild(expected);
+		expected->addChild(ifCFG);
 
-		ifCFG->addNext(printYCFG);
-		ifCFG->addNext(readZCFG);
+		ifCFG->addChild(printYCFG);
+		ifCFG->addChild(readZCFG);
 
-		printYCFG->addNext(assignCFG);
-		readZCFG->addNext(assignCFG);
+		printYCFG->addChild(assignCFG);
+		readZCFG->addChild(assignCFG);
 
 		test(procNode, expected);
 	}
@@ -843,25 +843,25 @@ TEST_CASE("parse") {
 		shared_ptr<ASTNode> programTree = parser.parse();
 
 		// First CFG
-		shared_ptr<CFGNode> firstCFG(new WhileCFGNode(1));
-		shared_ptr<CFGNode> firstAssign(new CFGNode(2));
-		shared_ptr<CFGNode> firstRead(new CFGNode(3));
+		shared_ptr<CFGNode> firstCFG = WhileCFGNode::createWhileCFGNode(1);
+		shared_ptr<CFGNode> firstAssign = CFGNode::createCFGNode(2);
+		shared_ptr<CFGNode> firstRead = CFGNode::createCFGNode(3);
 
-		firstCFG->addNext(firstAssign);
-		firstAssign->addNext(firstCFG);
-		firstCFG->addNext(firstRead);
+		firstCFG->addChild(firstAssign);
+		firstAssign->addChild(firstCFG);
+		firstCFG->addChild(firstRead);
 
 		// Second CFG
-		shared_ptr<CFGNode> secondCFG(new IfCFGNode(4));
-		shared_ptr<CFGNode> secondPrint(new CFGNode(5));
-		shared_ptr<CFGNode> secondAssign(new CFGNode(6));
-		shared_ptr<CFGNode> secondRead(new CFGNode(7));
+		shared_ptr<CFGNode> secondCFG = IfCFGNode::createIfCFGNode(4);
+		shared_ptr<CFGNode> secondPrint = CFGNode::createCFGNode(5);
+		shared_ptr<CFGNode> secondAssign = CFGNode::createCFGNode(6);
+		shared_ptr<CFGNode> secondRead = CFGNode::createCFGNode(7);
 
-		secondCFG->addNext(secondPrint);
-		secondCFG->addNext(secondAssign);
+		secondCFG->addChild(secondPrint);
+		secondCFG->addChild(secondAssign);
 
-		secondPrint->addNext(secondRead);
-		secondAssign->addNext(secondRead);
+		secondPrint->addChild(secondRead);
+		secondAssign->addChild(secondRead);
 
 		// Expected CFGs
 		vector<shared_ptr<CFGNode>> expected {firstCFG, secondCFG};

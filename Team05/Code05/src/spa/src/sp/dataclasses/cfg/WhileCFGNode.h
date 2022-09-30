@@ -8,9 +8,13 @@
 using namespace std;
 
 class WhileCFGNode : public CFGNode {
-public:
+protected:
 	WhileCFGNode(int statementNumber) : CFGNode(statementNumber) {
 
+	}
+public:
+	static shared_ptr<WhileCFGNode> createWhileCFGNode(int statementNumber) {
+		return shared_ptr<WhileCFGNode>(new WhileCFGNode(statementNumber));
 	}
 
 	virtual shared_ptr<CFGNode> getNext() override {
