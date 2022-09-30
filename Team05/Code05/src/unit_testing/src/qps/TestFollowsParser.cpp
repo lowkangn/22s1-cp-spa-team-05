@@ -192,8 +192,11 @@ TEST_CASE("FollowsParser: test parseWithSemanticError") {
             // given
             FollowsParser parser = FollowsParser(tokens, declarations);
 
+            // when
+            parser.parse();
+
             // then
-            REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
+            REQUIRE(!parser.isSemanticallyValid());
     };
 
     list<PQLToken> tokensList = list<PQLToken>{

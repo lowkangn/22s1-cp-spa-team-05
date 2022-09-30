@@ -22,7 +22,8 @@ enum class ArgumentType {
     STRING_LITERAL,
 	PATTERN_STRING,
     WILDCARD,
-	PATTERN_STRING_WITH_WILDCARDS
+	PATTERN_STRING_WITH_WILDCARDS,
+    UNDECLARED_SYNONYM
 };
 
 ArgumentType getDesignEntityArgumentType(string argumentType);

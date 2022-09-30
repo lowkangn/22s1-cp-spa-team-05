@@ -14,6 +14,7 @@ private:
 	string identifier;
 	ArgumentType type;
 
+
 	ClauseArgument(string identifier, ArgumentType type) {
 		this->identifier = identifier;
 		this->type = type;
@@ -85,6 +86,10 @@ public:
 		return ClauseArgument(identifier, ArgumentType::PATTERN_STRING_WITH_WILDCARDS);
 	}
 
+	static ClauseArgument createUndeclaredSynonymArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::UNDECLARED_SYNONYM);
+	}
+
 	bool isStmtSynonym() {
 		return this->type == ArgumentType::STMT;
 	}
@@ -143,6 +148,10 @@ public:
 
 	bool isPatternStringWithWildcards() {
 		return this->type == ArgumentType::PATTERN_STRING_WITH_WILDCARDS;
+	}
+
+	bool isUndeclaredSynonym() {
+		return this->type == ArgumentType::UNDECLARED_SYNONYM;
 	}
 
 	bool isSynonym() {

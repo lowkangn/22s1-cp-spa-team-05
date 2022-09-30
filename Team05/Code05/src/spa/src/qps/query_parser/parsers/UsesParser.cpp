@@ -11,13 +11,19 @@ void UsesParser::checkArguments(list<ClauseArgument>& args) {
 	// first arg cannot be wildcard, variable or constant
 	ClauseArgument arg = args.front();
 	if (arg.isWildcard() || arg.isVariableSynonym() || arg.isConstantSynonym()) {
-		throw PQLSemanticError("First arg for Uses cannot be wildcard, variable or constant");
+		this->semanticErrorMessage = "First arg for Uses cannot be wildcard, variable or constant";
 	}
 
-	// second arg must be wildcard or a variable
 	arg = args.back();
+
+	// syntactically, second arg must be an entRef which cannot be a number
+	if (arg.isLineNumber()) {
+		throw PQLSyntaxError("Second arg for Uses cannot be a number");
+	}
+
+	// semantically, second arg must be a wildcard or a variable
 	if (!arg.isWildcard() && !arg.isVariableSynonym() && !arg.isStringLiteral()) {
-		throw PQLSemanticError("Second arg for Uses must be a wildcard or variable");
+		this->semanticErrorMessage = "Second arg for Uses must be a wildcard, a \"NAME\" or a declared variable synonym";
 	}
 }
 

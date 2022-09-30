@@ -17,26 +17,26 @@ Class DesignExtractorManager
 Class AST
 }
 
-Package PKB {
-}
-
 Class HiddenOutside #FFFFFF
+Class HiddenOutside2 #FFFFFF
+
 HiddenOutside ..> SourceProcessor
-
-DesignExtractorManager o--> "1" EntityExtractor
-DesignExtractorManager o--> "1" PatternExtractor
-DesignExtractorManager o--> "1..*" "Extractor<Relationship>"
-
-EntityExtractor .up.|> Extractor
-PatternExtractor .up.|> Extractor
-"Extractor<Relationship>" .up.|> Extractor
 
 SourceProcessor .left.> Lexer: creates >
 SourceProcessor ..> ParserManager: creates >
-Lexer ..> ParserManager: tokens >
-SourceProcessor ..> DesignExtractorManager: creates >
-ParserManager ..> AST: creates >
-DesignExtractorManager .up.> AST: extracts >
+SourceProcessor -right-> "1" DesignExtractorManager
+SourceProcessor -down-> "1" AST
 
-DesignExtractorManager .right.> PKB: stores >
+DesignExtractorManager --> "1" EntityExtractor
+DesignExtractorManager --> "1" PatternExtractor
+DesignExtractorManager --> "1..*" "Extractor<Relationship>"
+
+EntityExtractor ..|> Extractor
+PatternExtractor ..|> Extractor
+"Extractor<Relationship>" ..|> Extractor
+
+Lexer <.. ParserManager: tokens >
+
+ParserManager ..> AST: creates >
+DesignExtractorManager .up.> HiddenOutside2: relationships
 @enduml

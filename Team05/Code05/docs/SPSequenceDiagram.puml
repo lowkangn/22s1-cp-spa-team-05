@@ -1,0 +1,66 @@
+@startuml
+!include style.puml
+
+
+actor User as User
+
+box "Source Processor" SP_COLOR_T1
+participant ":SourceProcessor" as SourceProcessor SP_COLOR
+participant ":Lexer" as Lexer SP_COLOR
+participant ":ParserManager" as ParserManager SP_COLOR
+participant ":DesignExtractorManager" as DesignManager SP_COLOR
+end box
+
+create SourceProcessor
+User -> SourceProcessor: stream
+activate SourceProcessor
+
+create DesignManager
+SourceProcessor -> DesignManager
+activate DesignManager
+
+DesignManager --> SourceProcessor
+deactivate DesignManager
+
+create Lexer
+SourceProcessor -> Lexer
+activate Lexer
+
+Lexer --> SourceProcessor
+deactivate Lexer
+
+SourceProcessor -> Lexer: tokenize(stream)
+activate Lexer
+
+Lexer --> SourceProcessor: tokens
+deactivate Lexer
+
+create ParserManager
+SourceProcessor -> ParserManager: tokens
+activate ParserManager
+
+ParserManager --> SourceProcessor
+deactivate ParserManager
+
+SourceProcessor -> ParserManager: parse()
+activate ParserManager
+
+ParserManager --> SourceProcessor: AST
+deactivate ParserManager
+
+SourceProcessor --> User
+deactivate SourceProcessor
+
+User -> SourceProcessor: extractRelations()
+activate SourceProcessor
+
+SourceProcessor -> DesignManager: extractRelationships()
+activate DesignManager
+
+DesignManager --> SourceProcessor: relationships
+deactivate DesignManager
+
+SourceProcessor --> User: relationships
+deactivate SourceProcessor
+
+@enduml

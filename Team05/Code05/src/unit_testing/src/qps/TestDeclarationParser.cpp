@@ -195,8 +195,11 @@ TEST_CASE("DeclarationParser: test parseWithSemanticError") {
         // given
         DeclarationParser parser = DeclarationParser(tokens);
 
+        // when
+        parser.parse();
+
         // then
-        REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
+        REQUIRE(!parser.isSemanticallyValid());
     };
 
     SECTION("Repeated synonym name - same design entity") {
@@ -205,7 +208,9 @@ TEST_CASE("DeclarationParser: test parseWithSemanticError") {
             PQLToken::createNameToken("v1"),
             PQLToken::createDelimiterToken(","),
             PQLToken::createNameToken("v1"),
-            PQLToken::createDelimiterToken(";")
+            PQLToken::createDelimiterToken(";"),
+            PQLToken::createNameToken("Select"),
+            PQLToken::createNameToken("v1"),
         };
 
         testParseWithError(tokensList);
@@ -218,7 +223,9 @@ TEST_CASE("DeclarationParser: test parseWithSemanticError") {
             PQLToken::createDelimiterToken(";"),
             PQLToken::createNameToken("stmt"),
             PQLToken::createNameToken("v1"),
-            PQLToken::createDelimiterToken(";")
+            PQLToken::createDelimiterToken(";"),
+            PQLToken::createNameToken("Select"),
+            PQLToken::createNameToken("v1"),
         };
 
         testParseWithError(tokensList);

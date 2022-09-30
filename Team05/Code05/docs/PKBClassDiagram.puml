@@ -7,29 +7,21 @@ skinparam classBackgroundColor PKB_COLOR
 Package "Program Knowledge Base" <<Rectangle>>{
 Interface PKBUpdateHandler <<Interface>>
 Interface PKBQueryHandler <<Interface>>
-Interface PkbTableManager <<Interface>>
-Interface RelationshipPKBTableManager <<Interface>>
 
 Class PKB
-Class EntityPKBTableManager
-Class UsesPKBTableManager
-Class FollowsPKBTableManager
-Class XYZPKBTableManager
+Class PkbEntityTable
+Class PkbPatternTable
+Class PkbRelationshipTable
 
 }
 
 Class HiddenOutside #FFFFFF
 HiddenOutside ..> PKB
 
-PKB .right.|> PKBQueryHandler
-PKB .left.|> PKBUpdateHandler
-EntityPKBTableManager .left.|> PkbTableManager
-RelationshipPKBTableManager .right.|> PkbTableManager
-PKB "1" o--> "1" EntityPKBTableManager
-PKB "1" o--> "0..*" RelationshipPKBTableManager
-
-UsesPKBTableManager .up.|> RelationshipPKBTableManager
-FollowsPKBTableManager .up.|> RelationshipPKBTableManager
-XYZPKBTableManager .up.|> RelationshipPKBTableManager
+PKB .left.|> PKBQueryHandler
+PKB .right.|> PKBUpdateHandler
+PKB -down-> "1..*" PkbEntityTable
+PKB -down-> "1" PkbPatternTable
+PKB -down-> "1..*" PkbRelationshipTable
 
 @enduml

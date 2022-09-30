@@ -23,3 +23,8 @@ stmt s;
 Select s;
 SyntaxError
 5000
+6 - Select undeclared synonym and extra semicolon
+while w;
+Select W;
+SyntaxError
+5000
