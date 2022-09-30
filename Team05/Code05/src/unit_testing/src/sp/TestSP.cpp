@@ -825,6 +825,30 @@ TEST_CASE("Test Source Processor : extractPattern") {
 		}
 	};
 
+	SECTION("Milestone 1 Program #2") {
+		string program = "procedure main {\n     while (! ((1==2) && (3==4)))  {\n\t\tread x;\n\t }\n\t y = y + 5;\n\t }";
+		vector<Pattern> expected{
+			Pattern::createAssignPattern(3," y "," y 5 + "),
+		};
+		test(program, expected);
+	}
+
+	SECTION("Milestone 1 Program #3") {
+		string program = "procedure main {\n     while (1>= 1%((0-1)) )  {\n\t\tread x;\n\t }\n\t x = x + 1;\n\t }";
+		vector<Pattern> expected{
+			Pattern::createAssignPattern(3, " x "," x 1 + "),
+		};
+		test(program, expected);
+	}
+
+	SECTION("Milestone 1 Program #4") {
+		string program = "procedure main {\n     while (1>= 1%((1)) )  {\n\t\tread x;\n\t }\n\t x = x + 1;\n\t }";
+		vector<Pattern> expected{
+			Pattern::createAssignPattern(3, " x "," x 1 + "),
+		};
+		test(program, expected);
+	}
+
 	SECTION("Test Milestone 1 program") {
 		/*
 			procedure main {
