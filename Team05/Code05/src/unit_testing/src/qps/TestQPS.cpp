@@ -474,6 +474,9 @@ TEST_CASE("QPS: test correct errors") {
 
 		queryString = "stmt s;\n Select s such that Uses(s, \"x)";
 		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s; \n Select s such that Uses(s, 1)";
+		testQPS(queryString, expectedResult);
 	}
 
 	SECTION("Semantic errors") {
@@ -501,9 +504,6 @@ TEST_CASE("QPS: test correct errors") {
 		testQPS(queryString, expectedResult);
 
 		queryString = "stmt s; \n Select s such that Uses(_, \"x\")";
-		testQPS(queryString, expectedResult);
-
-		queryString = "stmt s; \n Select s such that Uses(s, 1)";
 		testQPS(queryString, expectedResult);
 
 		queryString = "stmt s, s2; \n Select s such that Modifies(s, s2)";

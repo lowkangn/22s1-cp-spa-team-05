@@ -130,7 +130,7 @@ TEST_CASE("ModifiesParser: test parseWithSemanticError") {
         testParseWithError(tokensList, declarationsMap);
     }
 
-    SECTION("Illegal arguments") {
+    SECTION("Illegal arguments (wildcard in first arg & wrong synonym type)") {
         list<PQLToken> tokensList = list<PQLToken>{
             PQLToken::createNameToken("Modifies"),
             PQLToken::createDelimiterToken("("),
@@ -159,17 +159,6 @@ TEST_CASE("ModifiesParser: test parseWithSemanticError") {
         declarationsMap = unordered_map<string, ArgumentType>{
             {"s2", ArgumentType::STMT},
             {"s1", ArgumentType::STMT}
-        };
-
-        testParseWithError(tokensList, declarationsMap);
-
-        tokensList = list<PQLToken>{
-            PQLToken::createNameToken("Modifies"),
-            PQLToken::createDelimiterToken("("),
-            PQLToken::createNameToken("s1"),
-            PQLToken::createDelimiterToken(","),
-            PQLToken::createIntegerToken("1"),
-            PQLToken::createDelimiterToken(")")
         };
 
         testParseWithError(tokensList, declarationsMap);
@@ -205,6 +194,24 @@ TEST_CASE("ModifiesParser: test parseWithSyntaxError") {
             PQLToken::createIntegerToken("1"),
             PQLToken::createDelimiterToken(","),
             PQLToken::createDelimiterToken(")"),
+        };
+
+        testParseWithError(tokensList, declarationsMap);
+    }
+
+    SECTION("Illegal arguments (integer)") {
+
+        list<PQLToken> tokensList = list<PQLToken>{
+            PQLToken::createNameToken("Modifies"),
+            PQLToken::createDelimiterToken("("),
+            PQLToken::createNameToken("s1"),
+            PQLToken::createDelimiterToken(","),
+            PQLToken::createIntegerToken("1"),
+            PQLToken::createDelimiterToken(")")
+        };
+
+        unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+            {"s1", ArgumentType::STMT}
         };
 
         testParseWithError(tokensList, declarationsMap);

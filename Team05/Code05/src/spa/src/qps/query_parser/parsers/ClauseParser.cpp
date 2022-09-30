@@ -5,8 +5,7 @@ ClauseArgument ClauseParser::parseSynonym() {
 	this->tokens.pop_front();
     if (declarations.count(synonymToken.getTokenString()) == 0) {
 		this->semanticErrorMessage = "Synonym not declared: " + synonymToken.getTokenString();
-		// we return a dummy ClauseArgument since there is a semanticError
-		return ClauseArgument::createWildcardArg();
+		return ClauseArgument::createUndeclaredSynonymArg(synonymToken.getTokenString());
     }
     return ClauseArgument::createArgument(synonymToken.getTokenString(), declarations.at(synonymToken.getTokenString()));
 }

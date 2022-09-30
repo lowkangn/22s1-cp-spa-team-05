@@ -11,9 +11,7 @@ void ModifiesParser::checkArguments(list<ClauseArgument>& args) {
 	// first arg cannot be wildcard, variable or constant
 	ClauseArgument arg = args.front();
 	if (arg.isWildcard() || arg.isVariableSynonym() || arg.isConstantSynonym()) {
-		this->semanticErrorMessage = this->isSemanticallyValid()
-			? "First arg for Uses cannot be wildcard, variable or constant"
-			: this->semanticErrorMessage;
+		this->semanticErrorMessage = "First arg for Uses cannot be wildcard, variable or constant";
 	}
 
 	arg = args.back();
@@ -25,7 +23,7 @@ void ModifiesParser::checkArguments(list<ClauseArgument>& args) {
 
 	// semantically, second arg must be a wildcard or a variable
 	if (!arg.isWildcard() && !arg.isVariableSynonym() && !arg.isStringLiteral()) {
-		this->semanticErrorMessage = "Second arg for Modifies must be a wildcard or variable";
+		this->semanticErrorMessage = "Second arg for Modifies must be a wildcard, a \"NAME\" or a declared variable synonym";
 	}
 }
 
