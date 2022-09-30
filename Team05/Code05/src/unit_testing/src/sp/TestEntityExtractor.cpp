@@ -36,7 +36,7 @@ TEST_CASE("EntityExtractor: test extract") {
 	SECTION("procedure main") {
 		Token procedureNameToken = Token::createNameOrKeywordToken("main");
 
-		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
+		shared_ptr<ASTNode> procedureNode = ProcedureASTNode::createProcedureNode(procedureNameToken);
 		procedureNode->setLineNumber(1);
 
 		vector<Entity> expectedEntity{ Entity::createProcedureEntity(procedureNameToken)};
@@ -48,10 +48,10 @@ TEST_CASE("EntityExtractor: test extract") {
 		Token xToken = Token::createNameOrKeywordToken("x");
 		Token readToken = Token::createReadToken();
 
-		shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
+		shared_ptr<ASTNode> readNode = ReadASTNode::createReadNode();		
 		readNode->setLineNumber(1);
 
-		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(xToken);
 		xNode->setLineNumber(1);
 
 		readNode->addChild(xNode);
@@ -64,10 +64,10 @@ TEST_CASE("EntityExtractor: test extract") {
 		Token yToken = Token::createNameOrKeywordToken("y");
 		Token printToken = Token::createPrintToken();
 
-		shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
+		shared_ptr<ASTNode> printNode = PrintASTNode::createPrintNode();		
 		printNode->setLineNumber(1);
 
-		shared_ptr<ASTNode> yNode(new VariableASTNode(yToken));
+		shared_ptr<ASTNode> yNode = VariableASTNode::createVariableNode(yToken);
 		yNode->setLineNumber(1);
 
 		printNode->addChild(yNode);
@@ -82,13 +82,13 @@ TEST_CASE("EntityExtractor: test extract") {
 		Token constantToken = Token::createIntegerToken("1");
 
 
-		shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+		shared_ptr<ASTNode> assignNode = AssignASTNode::createAssignNode();
 		assignNode->setLineNumber(1);
 
-		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(xToken);
 		xNode->setLineNumber(1);
 
-		shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constantToken));
+		shared_ptr<ASTNode> constantNode = ConstantValueASTNode::createConstantNode(constantToken);
 		constantNode->setLineNumber(1);
 
 		assignNode->addChild(xNode);
@@ -103,7 +103,7 @@ TEST_CASE("EntityExtractor: test extract") {
 	SECTION("call somefunction") {
 		Token callNameToken = Token::createNameOrKeywordToken("somefunction");
 
-		shared_ptr<ASTNode> callNode(new CallASTNode(callNameToken));
+		shared_ptr<ASTNode> callNode = CallASTNode::createCallNode();
 		callNode->setLineNumber(1);
 
 		vector<Entity> expectedEntity{ Entity::createCallEntity(1)};

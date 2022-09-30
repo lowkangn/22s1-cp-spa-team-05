@@ -109,7 +109,7 @@ shared_ptr<ASTNode> AssignSimpleSyntaxRule::constructNode() {
 
 	// create current node
 	Token assignToken = Token::createEqualsToken();
-	shared_ptr<ASTNode> assignNode(new AssignASTNode(assignToken));
+	shared_ptr<ASTNode> assignNode = AssignASTNode::createAssignNode();
 
 
 	shared_ptr<ASTNode> leftHandSide = this->childRules[LHS]->constructNode();

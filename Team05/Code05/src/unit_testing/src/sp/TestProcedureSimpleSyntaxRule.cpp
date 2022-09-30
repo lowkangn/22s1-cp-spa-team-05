@@ -213,19 +213,18 @@ TEST_CASE("ProcedureSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create procedure node
-		shared_ptr<ASTNode> expectedASTNode(new ProcedureASTNode(procedureName));
+		shared_ptr<ASTNode> expectedASTNode = ProcedureASTNode::createProcedureNode(procedureName);
 
 		// Create stmtlst node
-		shared_ptr<ASTNode> stmtLstASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-
+		shared_ptr<ASTNode> stmtLstASTNode = StatementListASTNode::createStatementListNode();
 		// Create assign node
-		shared_ptr<ASTNode> assignASTNode(new AssignASTNode(equalsToken));
+		shared_ptr<ASTNode> assignASTNode = AssignASTNode::createAssignNode();
 
 		// Create variable node
-		shared_ptr<ASTNode> variableNode(new VariableASTNode(variable));
+		shared_ptr<ASTNode> variableNode = VariableASTNode::createVariableNode(variable);
 
 		// Create constant node
-		shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constantToken));
+		shared_ptr<ASTNode> constantNode = ConstantValueASTNode::createConstantNode(constantToken);
 
 		assignASTNode->addChild(variableNode);
 		assignASTNode->addChild(constantNode);

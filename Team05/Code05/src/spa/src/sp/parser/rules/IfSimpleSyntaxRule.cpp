@@ -56,6 +56,8 @@ list<Token> IfSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	tokens.pop_front();
 
 	// get rest of the condition
+
+	// Since we popped an open bracket earlier the numOpenBracket is 1
 	int numOpenBracket = 1;
 	bool seenCloseBracket = false;
 	bool seenOneToken = false;
@@ -132,7 +134,7 @@ shared_ptr<ASTNode> IfSimpleSyntaxRule::constructNode()
 
 	Token ifToken = Token::createIfToken();
 
-	shared_ptr<ASTNode> ifNode(new IfASTNode(ifToken));
+	shared_ptr<ASTNode> ifNode = IfASTNode::createIfNode();
 	shared_ptr<ASTNode> conditionNode = this->childRules[IF_CONDITION_RULE]->constructNode();
 	shared_ptr<ASTNode> thenNode = this->childRules[THEN_RULE]->constructNode();
 	shared_ptr<ASTNode> elseNode = this->childRules[ELSE_RULE]->constructNode();

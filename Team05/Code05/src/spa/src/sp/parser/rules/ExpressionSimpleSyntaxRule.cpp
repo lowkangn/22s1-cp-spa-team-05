@@ -164,7 +164,7 @@ shared_ptr<ASTNode> ExpressionSimpleSyntaxRule::constructNode() {
 		shared_ptr<ASTNode> rhsNode = this->childRules[RHS_RULE]->constructNode();
 
 		if (this->lhsIsExpression) {
-			shared_ptr<ASTNode> lhsBrackets(new BracketsASTNode(Token::getPlaceHolderToken()));
+			shared_ptr<ASTNode> lhsBrackets= BracketsASTNode::createBracketsNode();
 			lhsBrackets->addChild(lhsNode);
 			rootNode->addChild(lhsBrackets);
 		}
@@ -173,7 +173,7 @@ shared_ptr<ASTNode> ExpressionSimpleSyntaxRule::constructNode() {
 		}
 
 		if (this->rhsIsExpression) {
-			shared_ptr<ASTNode> rhsBrackets(new BracketsASTNode(Token::getPlaceHolderToken()));
+			shared_ptr<ASTNode> rhsBrackets= BracketsASTNode::createBracketsNode();
 			rhsBrackets->addChild(rhsNode);
 			rootNode->addChild(rhsBrackets);
 		}

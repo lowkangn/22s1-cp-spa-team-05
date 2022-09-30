@@ -146,7 +146,7 @@ TEST_CASE("OperatorSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create assign node
-		shared_ptr<ASTNode> expectedASTNode(new ExpressionASTNode(addToken));
+		shared_ptr<ASTNode> expectedASTNode = ExpressionASTNode::createExpressionNode(addToken);
 
 		test(rule, expectedASTNode);
 	}

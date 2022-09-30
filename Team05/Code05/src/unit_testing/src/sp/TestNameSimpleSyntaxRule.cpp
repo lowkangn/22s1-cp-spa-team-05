@@ -103,7 +103,7 @@ TEST_CASE("NameSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create variable node
-		shared_ptr<ASTNode> expectedASTNode(new VariableASTNode(variableValueToken));
+		shared_ptr<ASTNode> expectedASTNode = VariableASTNode::createVariableNode(variableValueToken);
 
 		test(rule, expectedASTNode);
 	}

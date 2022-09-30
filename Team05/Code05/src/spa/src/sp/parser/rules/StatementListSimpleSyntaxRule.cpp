@@ -113,8 +113,7 @@ shared_ptr<ASTNode> StatementListSimpleSyntaxRule::constructNode() {
 	// create stmt node
 	// Add stmtLst as a token type
 	Token stmtLstToken = Token::createPlaceholderToken();
-	shared_ptr<ASTNode> stmtLstNode(new StatementListASTNode(stmtLstToken));
-
+	shared_ptr<ASTNode> stmtLstNode = StatementListASTNode::createStatementListNode();
 	// for each rule, recursively create children and assign to stmtLst node
 	for (auto rulePointer = this->childRules.begin(); rulePointer != this->childRules.end(); rulePointer++) {
 		shared_ptr<ASTNode> child = (*rulePointer)->constructNode();

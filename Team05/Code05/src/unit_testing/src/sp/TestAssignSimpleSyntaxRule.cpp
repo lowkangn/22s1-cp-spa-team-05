@@ -212,13 +212,13 @@ TEST_CASE("AssignSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create assign node
-		shared_ptr<ASTNode> expectedASTNode(new AssignASTNode(equalsToken));
+		shared_ptr<ASTNode> expectedASTNode = AssignASTNode::createAssignNode();
 
 		// Create LHS
-		shared_ptr<ASTNode> variableNode(new VariableASTNode(leftHandSideToken));
+		shared_ptr<ASTNode> variableNode = VariableASTNode::createVariableNode(leftHandSideToken);
 
 		// Create RHS
-		shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(rightHandSideToken));
+		shared_ptr<ASTNode> constantNode = ConstantValueASTNode::createConstantNode(rightHandSideToken);
 
 		expectedASTNode->addChild(variableNode);
 		expectedASTNode->addChild(constantNode);
@@ -242,17 +242,17 @@ TEST_CASE("AssignSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create assign node
-		shared_ptr<ASTNode> expectedASTNode(new AssignASTNode(equalsToken));
+		shared_ptr<ASTNode> expectedASTNode = AssignASTNode::createAssignNode();
 
 		// Create LHS
-		shared_ptr<ASTNode> variableNode(new VariableASTNode(leftHandSideToken));
-		shared_ptr<ASTNode> rhsXNode(new VariableASTNode(rightXToken));
+		shared_ptr<ASTNode> variableNode = VariableASTNode::createVariableNode(leftHandSideToken);
+		shared_ptr<ASTNode> rhsXNode = VariableASTNode::createVariableNode(rightXToken);
 
 		// Create expression
-		shared_ptr<ASTNode> expressionNode(new ExpressionASTNode(plusToken));
+		shared_ptr<ASTNode> expressionNode = ExpressionASTNode::createExpressionNode(plusToken);
 
 		// Create RHS
-		shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(rightOneToken));
+		shared_ptr<ASTNode> constantNode = ConstantValueASTNode::createConstantNode(rightOneToken);
 
 		expectedASTNode->addChild(variableNode);
 		expectedASTNode->addChild(expressionNode);
@@ -283,22 +283,22 @@ TEST_CASE("AssignSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create assign node
-		shared_ptr<ASTNode> expectedASTNode(new AssignASTNode(equalsToken));
+		shared_ptr<ASTNode> expectedASTNode = AssignASTNode::createAssignNode();
 
 		// Create LHS
-		shared_ptr<ASTNode> variableNode(new VariableASTNode(leftHandSideToken));
-		shared_ptr<ASTNode> rhsXOutNode(new VariableASTNode(rightXToken));
-		shared_ptr<ASTNode> rhsXInNode(new VariableASTNode(rightXToken));
+		shared_ptr<ASTNode> variableNode = VariableASTNode::createVariableNode(leftHandSideToken);
+		shared_ptr<ASTNode> rhsXOutNode = VariableASTNode::createVariableNode(rightXToken);
+		shared_ptr<ASTNode> rhsXInNode = VariableASTNode::createVariableNode(rightXToken);
 
 		// Create expressions
-		shared_ptr<ASTNode> expressionOneNode(new ExpressionASTNode(plusToken));
-		shared_ptr<ASTNode> expressionTwoNode(new ExpressionASTNode(plusToken));
-		shared_ptr<ASTNode> expressionBracketNode(new ExpressionASTNode(plusToken));
-		shared_ptr<ASTNode> bracketASTNode(new BracketsASTNode(Token::getPlaceHolderToken()));
+		shared_ptr<ASTNode> expressionOneNode = ExpressionASTNode::createExpressionNode(plusToken);
+		shared_ptr<ASTNode> expressionTwoNode = ExpressionASTNode::createExpressionNode(plusToken);
+		shared_ptr<ASTNode> expressionBracketNode = ExpressionASTNode::createExpressionNode(plusToken);
+		shared_ptr<ASTNode> bracketASTNode= BracketsASTNode::createBracketsNode();
 
 		// Create RHS
-		shared_ptr<ASTNode> constantOutNode(new ConstantValueASTNode(rightOneToken));
-		shared_ptr<ASTNode> constantInNode(new ConstantValueASTNode(rightOneToken));
+		shared_ptr<ASTNode> constantOutNode = ConstantValueASTNode::createConstantNode(rightOneToken);
+		shared_ptr<ASTNode> constantInNode = ConstantValueASTNode::createConstantNode(rightOneToken);
 
 		expectedASTNode->addChild(variableNode);
 		expectedASTNode->addChild(expressionOneNode);

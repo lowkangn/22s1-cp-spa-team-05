@@ -64,8 +64,7 @@ shared_ptr<ASTNode> ReadSimpleSyntaxRule::constructNode() {
 
 	// create read node
 	Token readToken = Token::createReadToken();
-	shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
-
+	shared_ptr<ASTNode> readNode = ReadASTNode::createReadNode();
 	// create child variable node
 	shared_ptr<ASTNode> variableNode = this->childRules.front()->constructNode();
 

@@ -569,15 +569,15 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create assign node
-		shared_ptr<ASTNode> expectedASTNode(new ExpressionASTNode(andToken));
+		shared_ptr<ASTNode> expectedASTNode = ExpressionASTNode::createExpressionNode(andToken);
 
-		shared_ptr<ASTNode> xOneNode(new VariableASTNode(variableX));
-		shared_ptr<ASTNode> yOneNode(new VariableASTNode(variableY));
-		shared_ptr<ASTNode> greaterThanOneNode(new ExpressionASTNode(greaterThan));
+		shared_ptr<ASTNode> xOneNode = VariableASTNode::createVariableNode(variableX);
+		shared_ptr<ASTNode> yOneNode = VariableASTNode::createVariableNode(variableY);
+		shared_ptr<ASTNode> greaterThanOneNode = ExpressionASTNode::createExpressionNode(greaterThan);
 
-		shared_ptr<ASTNode> xTwoNode(new VariableASTNode(variableX));
-		shared_ptr<ASTNode> yTwoNode(new VariableASTNode(variableY));
-		shared_ptr<ASTNode> greaterThanTwoNode(new ExpressionASTNode(greaterThan));
+		shared_ptr<ASTNode> xTwoNode = VariableASTNode::createVariableNode(variableX);
+		shared_ptr<ASTNode> yTwoNode = VariableASTNode::createVariableNode(variableY);
+		shared_ptr<ASTNode> greaterThanTwoNode = ExpressionASTNode::createExpressionNode(greaterThan);
 
 
 		expectedASTNode->addChild(greaterThanOneNode);
@@ -614,15 +614,15 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create assign node
-		shared_ptr<ASTNode> expectedASTNode(new ExpressionASTNode(andToken));
+		shared_ptr<ASTNode> expectedASTNode = ExpressionASTNode::createExpressionNode(andToken);
 
-		shared_ptr<ASTNode> OneNode(new ConstantValueASTNode(constOneToken));
-		shared_ptr<ASTNode> TwoNode(new ConstantValueASTNode(constTwoToken));
-		shared_ptr<ASTNode> eqaulityNodeOne(new ExpressionASTNode(equalityToken));
+		shared_ptr<ASTNode> OneNode = ConstantValueASTNode::createConstantNode(constOneToken);
+		shared_ptr<ASTNode> TwoNode = ConstantValueASTNode::createConstantNode(constTwoToken);
+		shared_ptr<ASTNode> eqaulityNodeOne = ExpressionASTNode::createExpressionNode(equalityToken);
 
-		shared_ptr<ASTNode> ThreeNode(new ConstantValueASTNode(constThreeToken));
-		shared_ptr<ASTNode> FourNode(new ConstantValueASTNode(constFourToken));
-		shared_ptr<ASTNode> eqaulityNodeTwo(new ExpressionASTNode(equalityToken));
+		shared_ptr<ASTNode> ThreeNode = ConstantValueASTNode::createConstantNode(constThreeToken);
+		shared_ptr<ASTNode> FourNode = ConstantValueASTNode::createConstantNode(constFourToken);
+		shared_ptr<ASTNode> eqaulityNodeTwo = ExpressionASTNode::createExpressionNode(equalityToken);
 
 
 

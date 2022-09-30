@@ -59,8 +59,7 @@ shared_ptr<ASTNode> PrintSimpleSyntaxRule::constructNode() {
 
 	// create print node
 	Token readToken = Token::createPrintToken();
-	shared_ptr<ASTNode> printNode(new PrintASTNode(readToken));
-
+	shared_ptr<ASTNode> printNode = PrintASTNode::createPrintNode();
 	// create child variable node
 	shared_ptr<ASTNode> variableNode = this->childRules.front()->constructNode();
 

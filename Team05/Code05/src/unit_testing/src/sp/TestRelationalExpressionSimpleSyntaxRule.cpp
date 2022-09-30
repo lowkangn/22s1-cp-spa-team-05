@@ -132,9 +132,9 @@ TEST_CASE("RelationalExpressionSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create assign node
-		shared_ptr<ASTNode> expectedASTNode(new ExpressionASTNode(greaterToken));
-		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
-		shared_ptr<ASTNode> yNode(new VariableASTNode(yToken));
+		shared_ptr<ASTNode> expectedASTNode = ExpressionASTNode::createExpressionNode(greaterToken);
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(xToken);
+		shared_ptr<ASTNode> yNode = VariableASTNode::createVariableNode(yToken);
 
 		expectedASTNode->addChild(xNode);
 		expectedASTNode->addChild(yNode);

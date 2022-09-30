@@ -3,9 +3,13 @@
 #include <sp/dataclasses/ast/AST.h>
 
 class ProcedureASTNode : public ASTNode {
-public:
+private:
 	ProcedureASTNode(Token& token) : ASTNode(token) {
 		this->type = ASTNodeType::PROCEDURE;
+	}
+public:
+	static shared_ptr<ASTNode> createProcedureNode(Token token) {
+		return shared_ptr<ASTNode>(new ProcedureASTNode(token));
 	}
 
 	bool isTerminal() override {

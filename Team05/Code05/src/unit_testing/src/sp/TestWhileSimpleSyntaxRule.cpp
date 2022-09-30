@@ -187,21 +187,19 @@ TEST_CASE("WhileSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create while node
-		shared_ptr<ASTNode> expectedASTNode(new WhileASTNode(whileToken));
-
+		shared_ptr<ASTNode> expectedASTNode = WhileASTNode::createWhileNode();
 		// Create condition node
-		shared_ptr<ASTNode> xOneNode(new VariableASTNode(variableX));
-		shared_ptr<ASTNode> yOneNode(new VariableASTNode(variableY));
-		shared_ptr<ASTNode> condNode(new ExpressionASTNode(greaterThan));
+		shared_ptr<ASTNode> xOneNode = VariableASTNode::createVariableNode(variableX);
+		shared_ptr<ASTNode> yOneNode = VariableASTNode::createVariableNode(variableY);
+		shared_ptr<ASTNode> condNode = ExpressionASTNode::createExpressionNode(greaterThan);
 
 		condNode->addChild(xOneNode);
 		condNode->addChild(yOneNode);
 
 		// Create stmtlst node
-		shared_ptr<ASTNode> stmtLstNode(new StatementListASTNode(Token::createPlaceholderToken()));
-
-		shared_ptr<ASTNode> readNode(new ReadASTNode(Token::createReadToken()));
-		shared_ptr<ASTNode> xTwoNode(new VariableASTNode(variableX));
+		shared_ptr<ASTNode> stmtLstNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> readNode = ReadASTNode::createReadNode();		
+		shared_ptr<ASTNode> xTwoNode = VariableASTNode::createVariableNode(variableX);
 
 		readNode->addChild(xTwoNode);
 		stmtLstNode->addChild(readNode);

@@ -137,10 +137,9 @@ TEST_CASE("ReadSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create Read Node
-		shared_ptr<ASTNode> expectedASTNode(new ReadASTNode(readToken));
-
+		shared_ptr<ASTNode> expectedASTNode = ReadASTNode::createReadNode();
 		// Create variableNode
-		shared_ptr<ASTNode> variableNode(new VariableASTNode(variable));
+		shared_ptr<ASTNode> variableNode = VariableASTNode::createVariableNode(variable);
 
 		expectedASTNode->addChild(variableNode);
 

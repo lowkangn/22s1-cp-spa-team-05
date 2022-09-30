@@ -198,40 +198,37 @@ TEST_CASE("ProgramSimpleSyntaxRule::constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create expected ASTNode
-		shared_ptr<ASTNode> expectedASTNode(new ProgramASTNode({ Token::createProgramToken() }));
-
+		shared_ptr<ASTNode> expectedASTNode = ProgramASTNode::createProgramNode();
 		// Create first procedure node
-		shared_ptr<ASTNode> firstProcedureNode(new ProcedureASTNode(procedureName));
+		shared_ptr<ASTNode> firstProcedureNode = ProcedureASTNode::createProcedureNode(procedureName);
 		// Create second procedure node
-		shared_ptr<ASTNode> secondProcedureNode(new ProcedureASTNode(anotherProcedureName));
+		shared_ptr<ASTNode> secondProcedureNode = ProcedureASTNode::createProcedureNode(anotherProcedureName);
 
 		// Create firstStmtlst node
-		shared_ptr<ASTNode> firstStmtLstASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-
+		shared_ptr<ASTNode> firstStmtLstASTNode = StatementListASTNode::createStatementListNode();
 		// Create secondStmtlst node
-		shared_ptr<ASTNode> secondStmtLstASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> secondStmtLstASTNode = StatementListASTNode::createStatementListNode();
+		// Create first assign node
+		shared_ptr<ASTNode> firstAssignASTNode = AssignASTNode::createAssignNode();
 
 		// Create first assign node
-		shared_ptr<ASTNode> firstAssignASTNode(new AssignASTNode(equalsToken));
-
-		// Create first assign node
-		shared_ptr<ASTNode> secondAssignASTNode(new AssignASTNode(equalsToken));
+		shared_ptr<ASTNode> secondAssignASTNode = AssignASTNode::createAssignNode();
 
 
 		// Create first variable node
-		shared_ptr<ASTNode> variableNode(new VariableASTNode(variable));
+		shared_ptr<ASTNode> variableNode = VariableASTNode::createVariableNode(variable);
 
 
 		// Create second variable node
-		shared_ptr<ASTNode> anotherVariableNode(new VariableASTNode(anotherVariable));
+		shared_ptr<ASTNode> anotherVariableNode = VariableASTNode::createVariableNode(anotherVariable);
 
 
 		// Create constant node
-		shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constantToken));
+		shared_ptr<ASTNode> constantNode = ConstantValueASTNode::createConstantNode(constantToken);
 
 
 		// Create another constant node
-		shared_ptr<ASTNode> anotherConstantNode(new ConstantValueASTNode(constantToken));
+		shared_ptr<ASTNode> anotherConstantNode = ConstantValueASTNode::createConstantNode(constantToken);
 
 
 		// Construct first procedure
@@ -291,43 +288,39 @@ TEST_CASE("ProgramSimpleSyntaxRule test ::setLineNumber") {
 	Token constantToken = Token::createIntegerToken("1");
 
 	// Create expected ASTNode
-	shared_ptr<ASTNode> expectedASTNode(new ProgramASTNode({ Token::createProgramToken() }));
-
+	shared_ptr<ASTNode> expectedASTNode = ProgramASTNode::createProgramNode();
 	// Create ASTNode with no line numbers
-	shared_ptr<ASTNode> toSet(new ProgramASTNode({ Token::createProgramToken() }));
-
+	shared_ptr<ASTNode> toSet = ProgramASTNode::createProgramNode();
 	// Create first procedure node
-	shared_ptr<ASTNode> firstProcedureNode(new ProcedureASTNode(procedureName));
+	shared_ptr<ASTNode> firstProcedureNode = ProcedureASTNode::createProcedureNode(procedureName);
 
 	// Create first procedure node w/o line numbers
-	shared_ptr<ASTNode> toSetProcedureNode(new ProcedureASTNode(procedureName));
+	shared_ptr<ASTNode> toSetProcedureNode = ProcedureASTNode::createProcedureNode(procedureName);
 
 	// Create first variable node
-	shared_ptr<ASTNode> variableNode(new VariableASTNode(variable));
+	shared_ptr<ASTNode> variableNode = VariableASTNode::createVariableNode(variable);
 	variableNode->setLineNumber(1);
 
 	// Create first variable node w/o Line numbers
-	shared_ptr<ASTNode> toSetVariableNode(new VariableASTNode(variable));
+	shared_ptr<ASTNode> toSetVariableNode = VariableASTNode::createVariableNode(variable);
 
 	// Create constant node
-	shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(constantToken));
+	shared_ptr<ASTNode> constantNode = ConstantValueASTNode::createConstantNode(constantToken);
 	constantNode->setLineNumber(1);
 
 	// Create constant node w/o line numbers
-	shared_ptr<ASTNode> toSetConstantNode(new ConstantValueASTNode(constantToken));
+	shared_ptr<ASTNode> toSetConstantNode = ConstantValueASTNode::createConstantNode(constantToken);
 
 	// Create firstStmtlst node
-	shared_ptr<ASTNode> firstStmtLstASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-
+	shared_ptr<ASTNode> firstStmtLstASTNode = StatementListASTNode::createStatementListNode();
 	// Create firstStmtlst node w/o line numbers
-	shared_ptr<ASTNode> toSetStmtLstASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-
+	shared_ptr<ASTNode> toSetStmtLstASTNode = StatementListASTNode::createStatementListNode();
 	// Create first assign node
-	shared_ptr<ASTNode> firstAssignASTNode(new AssignASTNode(equalsToken));
+	shared_ptr<ASTNode> firstAssignASTNode = AssignASTNode::createAssignNode();
 	firstAssignASTNode->setLineNumber(1);
 
 	// Create first assign node w/o line numbers
-	shared_ptr<ASTNode> toSetAssignASTNode(new AssignASTNode(equalsToken));
+	shared_ptr<ASTNode> toSetAssignASTNode = AssignASTNode::createAssignNode();
 
 	// add children to assign node
 	firstAssignASTNode->addChild(variableNode);

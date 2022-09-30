@@ -245,9 +245,9 @@ TEST_CASE("ExpressionSimpleSyntaxRule :: constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create assign node
-		shared_ptr<ASTNode> expectedASTNode(new ExpressionASTNode(modToken));
-		shared_ptr<ASTNode> xNode(new VariableASTNode(xToken));
-		shared_ptr<ASTNode> constantNode(new ConstantValueASTNode(fiveToken));
+		shared_ptr<ASTNode> expectedASTNode = ExpressionASTNode::createExpressionNode(modToken);
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(xToken);
+		shared_ptr<ASTNode> constantNode = ConstantValueASTNode::createConstantNode(fiveToken);
 
 		expectedASTNode->addChild(xNode);
 		expectedASTNode->addChild(constantNode);

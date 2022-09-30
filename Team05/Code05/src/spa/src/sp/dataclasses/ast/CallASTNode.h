@@ -4,9 +4,13 @@
 #include <assert.h>
 
 class CallASTNode : public ASTNode {
-public:
+private:
 	CallASTNode(Token& token) : ASTNode(token) {
 		this->type = ASTNodeType::CALL;
+	}
+public:
+	static shared_ptr<ASTNode> createCallNode() {
+		return shared_ptr<ASTNode>(new CallASTNode(Token::createCallToken()));
 	}
 
 	shared_ptr<ASTNode> getProcedureName() {

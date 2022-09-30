@@ -108,7 +108,7 @@ TEST_CASE("ConstantValueSimpleSyntaxRule :: constructNode") {
 		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
 
 		// Create constant node
-		shared_ptr<ASTNode> expectedASTNode(new ConstantValueASTNode(constantValueToken));
+		shared_ptr<ASTNode> expectedASTNode = ConstantValueASTNode::createConstantNode(constantValueToken);
 
 		test(rule, expectedASTNode);
 	}
