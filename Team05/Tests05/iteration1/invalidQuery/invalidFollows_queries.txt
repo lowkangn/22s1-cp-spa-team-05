@@ -63,3 +63,8 @@ assign a; procedure p;
 Select a such that Follows p, a
 SyntaxError
 5000
+14 - procedure as first arg and extra semicolon
+assign a; procedure p;
+Select a such that Follows(p, a);
+SyntaxError
+5000

@@ -6,7 +6,6 @@ shared_ptr<SelectClause> SelectParser::parse() {
 	this->tokens.pop_front();
 
 	list<ClauseArgument> args = extractArguments();
-	this->checkArguments(args);
 	this->isParseCompleted = true;
 	return createClause(clauseTypeToken, args);
 }
@@ -26,15 +25,6 @@ list<ClauseArgument> SelectParser::extractArguments() {
 	}
 
 	return list<ClauseArgument>{parseSynonym()};
-}
-
-void SelectParser::checkArguments(list<ClauseArgument>& args) {
-	// Select clause has only 1 argument (for BasicSPA)
-	assert(args.size() == 1);
-
-	if (!args.front().isSynonym()) {
-		throw PQLSyntaxError("Argument for Select should be a synonym");
-	}
 }
 
 shared_ptr<SelectClause> SelectParser::createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args) {
