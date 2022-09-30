@@ -7,12 +7,15 @@ bool ASTNode::equals(const shared_ptr<ASTNode> other) const {
 	// Check if line number is the same
 	bool isLineNumberSame = this->lineNumber == other->lineNumber;
 
-
 	// Check if tokens are the same
 	bool isTokenSame = this->token == other->token;
 
 	// Check if children are the same
 	bool isChildrenLengthSame = this->children.size() == other->children.size();
+
+	if (!isChildrenLengthSame) {
+		return false;
+	}
 
 	if (this->children.size() == 0) {
 		return isTokenSame && isLineNumberSame && isTypeSame;
@@ -26,5 +29,5 @@ bool ASTNode::equals(const shared_ptr<ASTNode> other) const {
 		}
 	}
 
-	return isTypeSame && isLineNumberSame && isTokenSame && isChildrenLengthSame;
+	return isTypeSame && isLineNumberSame && isTokenSame;
 }

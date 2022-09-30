@@ -47,6 +47,7 @@ void TestWrapper::parse(std::string filename) {
 		exit(1);
 	}
 	stream.close();
+
 }
 
 // method to evaluating a query
