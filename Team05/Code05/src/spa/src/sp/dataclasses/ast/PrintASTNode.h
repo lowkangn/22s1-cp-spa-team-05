@@ -5,10 +5,14 @@
 
 
 class PrintASTNode : public ASTNode {
-public:
+private:
 	PrintASTNode(Token& token) : ASTNode(token) {
 		this->type = ASTNodeType::PRINT;
 	};
+public:
+	static shared_ptr<ASTNode> createPrintNode() {
+		return shared_ptr<ASTNode>(new PrintASTNode(Token::createPrintToken()));
+	}
 
 	bool isTerminal() override {
 		return false;

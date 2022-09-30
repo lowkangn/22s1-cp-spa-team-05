@@ -3,9 +3,13 @@
 #include <sp/dataclasses/ast/AST.h>
 
 class IfASTNode : public ASTNode {
-public:
+private:
 	IfASTNode(Token& token) : ASTNode(token) {
 		this->type = ASTNodeType::IF;
+	}
+public:
+	static shared_ptr<ASTNode> createIfNode() {
+		return shared_ptr<ASTNode>(new IfASTNode(Token::createIfToken()));
 	}
 
 	bool isTerminal() override {

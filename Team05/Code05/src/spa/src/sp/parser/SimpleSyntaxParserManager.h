@@ -33,7 +33,7 @@ public:
 
 		// AST node expects a token
 		// convert linkedlist to vector
-		this->root = shared_ptr<ASTNode> (new ProgramASTNode(this->tokens.front()));
+		this->root = ProgramASTNode::createProgramNode();	
 	}
 
 	/*

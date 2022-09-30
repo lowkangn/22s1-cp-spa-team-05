@@ -6,10 +6,14 @@
 
 
 class ExpressionASTNode : public ASTNode {
-public:
+private:
 	ExpressionASTNode(Token& token) : ASTNode(token) {
 		this->type = ASTNodeType::EXPRESSION;
 	};
+public:
+	static shared_ptr<ASTNode> createExpressionNode(Token& token) {
+		return shared_ptr<ASTNode> (new ExpressionASTNode(token));
+	}
 
 	bool isTerminal() override {
 		return false;

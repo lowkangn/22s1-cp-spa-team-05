@@ -5,9 +5,13 @@
 
 // This type of ASTNode has no children
 class ConstantValueASTNode : public ASTNode {
-public:
+private:
 	ConstantValueASTNode(Token& token) : ASTNode(token) {
 		this->type = ASTNodeType::CONSTANT;
+	}
+public:
+	static shared_ptr<ASTNode> createConstantNode(Token token) {
+		return shared_ptr<ASTNode> (new ConstantValueASTNode(token));
 	}
 
 	void addChild(shared_ptr<ASTNode> child) override;

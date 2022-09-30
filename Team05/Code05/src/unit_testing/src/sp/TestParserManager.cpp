@@ -72,26 +72,25 @@ TEST_CASE("ParserManager::parse works correctly") {
 
 		// create the correct ASTNode
 		// 1. the root program node
-		shared_ptr<ASTNode> expectedProgramNode(new ProgramASTNode(Token::createProgramToken()));
-
+		shared_ptr<ASTNode> expectedProgramNode = ProgramASTNode::createProgramNode();
 		// 2. program node has a procedure node as sole child 
-		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(procedureNameToken));
+		shared_ptr<ASTNode> procedureNode = ProcedureASTNode::createProcedureNode(procedureNameToken);
 		expectedProgramNode->addChild(procedureNode);
 
-		shared_ptr<ASTNode> stmtLstNode(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> stmtLstNode = StatementListASTNode::createStatementListNode();		
 		procedureNode->addChild(stmtLstNode);
 
 		// 4. statement list node has one child, which is an assign node
-		shared_ptr<ASTNode> assignNode(new AssignASTNode(equalsToken));
+		shared_ptr<ASTNode> assignNode = AssignASTNode::createAssignNode();
 		assignNode->setLineNumber(1);
 		stmtLstNode->addChild(assignNode);
 
 		// 5. assign node has left child as x and right child as 1
-		shared_ptr<ASTNode> xVariableNode(new VariableASTNode(xVariableToken));
+		shared_ptr<ASTNode> xVariableNode = VariableASTNode::createVariableNode(xVariableToken);
 		xVariableNode->setLineNumber(1);
 		assignNode->addChild(xVariableNode);
 
-		shared_ptr<ASTNode> integerNode(new ConstantValueASTNode(integerToken));
+		shared_ptr<ASTNode> integerNode = ConstantValueASTNode::createConstantNode(integerToken);
 		integerNode->setLineNumber(1);
 		assignNode->addChild(integerNode);
 
@@ -109,8 +108,7 @@ TEST_CASE("ParserManager::parse works correctly") {
 
 		list<Token> tokens = lexer.tokenize(ss);
 
-		shared_ptr<ASTNode> expectedProgramNode(new ProgramASTNode(Token::createProgramToken()));
-		
+		shared_ptr<ASTNode> expectedProgramNode = ProgramASTNode::createProgramNode();		
 		testThrows(tokens, expectedProgramNode);
 	}
 }

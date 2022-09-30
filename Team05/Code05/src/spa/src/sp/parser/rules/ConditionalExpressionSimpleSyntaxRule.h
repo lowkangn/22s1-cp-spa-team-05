@@ -22,6 +22,9 @@ private:
 	list<Token> lhsCond;
 	list<Token> rhsCond;
 	Token condToken = Token::createPlaceholderToken();
+	const int CONDITIONAL_OPERATOR_RULE = 1;
+	const int FIRST_RULE = 0;
+	const int SECOND_RULE = 2;
 public:
 	ConditionalExpressionSimpleSyntaxRule() {
 		this->generated = false;

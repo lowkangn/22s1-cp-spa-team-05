@@ -3,9 +3,13 @@
 #include <sp/dataclasses/ast/AST.h>
 
 class WhileASTNode : public ASTNode {
-public:
+private:
 	WhileASTNode(Token& token) : ASTNode(token) {
 		this->type = ASTNodeType::WHILE;
+	}
+public:
+	static shared_ptr<ASTNode> createWhileNode() {
+		return shared_ptr<ASTNode> (new WhileASTNode(Token::createWhileToken()));
 	}
 
 	shared_ptr<ASTNode> getCondition() {

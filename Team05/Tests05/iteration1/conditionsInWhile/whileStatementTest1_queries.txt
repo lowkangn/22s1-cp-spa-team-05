@@ -1,0 +1,15 @@
+1 - while - select stmts in program
+stmt s;
+Select s
+1, 2, 3
+5000
+2 - while - select follows stmts in program
+stmt s; 
+Select s such that Follows* (1, s)
+3
+5000
+3 - while - select parent stmts in program
+stmt s; 
+Select s such that Parent (1, s)
+2
+5000
