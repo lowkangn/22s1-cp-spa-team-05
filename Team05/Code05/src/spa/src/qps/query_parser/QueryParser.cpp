@@ -91,6 +91,9 @@ shared_ptr<PatternClause> QueryParser::parsePattern(unordered_map<string, Argume
 	PQLToken token = this->tokens.front();
 
 	shared_ptr<PatternParser> parserPointer;
+
+    //TODO (Milestone 3): Fix parsing of patterns to rely on syntax before semantics
+
     //first check is required to prevent .at from throwing when synonym is not declared
     bool isSynonymDeclared = declarations.count(token.getTokenString()) > 0;
 	if (!isSynonymDeclared || !(declarations.at(token.getTokenString()) == ArgumentType::ASSIGN)) {
