@@ -45,8 +45,13 @@ TEST_CASE("CFG: add child to IfCFGNode") {
 	shared_ptr<CFGNode> thenNodeToAdd2 = CFGNode::createCFGNode(4);
 	shared_ptr<CFGNode> nodeToAddTo2 = IfCFGNode::createIfCFGNode(2);
 
-	testAddChildToIfCFG(thenNodeToAdd, elseNodeToAdd, nodeToAddTo);
-	testAddChildToIfCFGThrows(thenNodeToAdd2, nodeToAddTo2);
+	SECTION("Test adding child to CFG") {
+		testAddChildToIfCFG(thenNodeToAdd, elseNodeToAdd, nodeToAddTo);
+	}
+
+	SECTION("Test throws adding child to CFG") {
+		testAddChildToIfCFGThrows(thenNodeToAdd2, nodeToAddTo2);
+	}
 };
 
 
