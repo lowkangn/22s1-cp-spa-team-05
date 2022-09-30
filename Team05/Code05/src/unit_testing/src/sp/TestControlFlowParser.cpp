@@ -153,25 +153,25 @@ TEST_CASE("handleStatementList test") {
 			}
 		*/
 
-		shared_ptr<ASTNode> stmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> stmtListASTNode = StatementListASTNode::createStatementListNode();
 
 		// assign
-		shared_ptr<ASTNode> assignASTNode(new AssignASTNode(Token::createEqualsToken()));
-		shared_ptr<ASTNode> xNode(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> constant(new ConstantValueASTNode(Token::createIntegerToken("5")));
+		shared_ptr<ASTNode> assignASTNode = AssignASTNode::createAssignNode();		
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> constant = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("5"));
 		assignASTNode->addChild(xNode);
 		assignASTNode->addChild(constant);
 		assignASTNode->setLineNumber(1);
 
 		// read
-		shared_ptr<ASTNode> readASTNode(new ReadASTNode(Token::createReadToken()));
-		shared_ptr<ASTNode> xNode2(new VariableASTNode(Token::createNameOrKeywordToken("x")));
+		shared_ptr<ASTNode> readASTNode = ReadASTNode::createReadNode();		
+		shared_ptr<ASTNode> xNode2 = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
 		readASTNode->addChild(xNode2);
 		readASTNode->setLineNumber(2);
 
 		// print
-		shared_ptr<ASTNode> printASTNode(new PrintASTNode(Token::createPrintToken()));
-		shared_ptr<ASTNode> yNode(new VariableASTNode(Token::createNameOrKeywordToken("y")));
+		shared_ptr<ASTNode> printASTNode = PrintASTNode::createPrintNode();		
+		shared_ptr<ASTNode> yNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("y"));
 		printASTNode->addChild(yNode);
 		printASTNode->setLineNumber(3);
 
@@ -203,22 +203,22 @@ TEST_CASE("handleStatementList test") {
 			}
 		*/
 
-		shared_ptr<ASTNode> stmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> stmtListASTNode = StatementListASTNode::createStatementListNode();
 
 		// assign
-		shared_ptr<ASTNode> assignASTNode(new AssignASTNode(Token::createEqualsToken()));
-		shared_ptr<ASTNode> xNodeAssign(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> constant(new ConstantValueASTNode(Token::createIntegerToken("5")));
+		shared_ptr<ASTNode> assignASTNode = AssignASTNode::createAssignNode();		
+		shared_ptr<ASTNode> xNodeAssign = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> constant = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("5"));
 		assignASTNode->addChild(xNodeAssign);
 		assignASTNode->addChild(constant);
 		assignASTNode->setLineNumber(1);
 
 		//If
-		shared_ptr<ASTNode> ifNode(new IfASTNode(Token::createIfToken()));
+		shared_ptr<ASTNode> ifNode = IfASTNode::createIfNode();
 
-		shared_ptr<ASTNode> conditionNode(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
-		shared_ptr<ASTNode> xNode(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> yNode(new VariableASTNode(Token::createNameOrKeywordToken("y")));
+		shared_ptr<ASTNode> conditionNode = ExpressionASTNode::createExpressionNode(Token::createGreaterThanEqualToken());
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> yNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("y"));
 		ifNode->setLineNumber(2);
 		conditionNode->setLineNumber(2);
 		xNode->setLineNumber(2);
@@ -227,13 +227,13 @@ TEST_CASE("handleStatementList test") {
 		conditionNode->addChild(xNode);
 		conditionNode->addChild(yNode);
 
-		shared_ptr<ASTNode> thenStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> printX(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> thenStmtListASTNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> printX = PrintASTNode::createPrintNode();		
 		thenStmtListASTNode->addChild(printX);
 		printX->setLineNumber(3);
 
-		shared_ptr<ASTNode> elseStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> printY(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> elseStmtListASTNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> printY = PrintASTNode::createPrintNode();		
 		elseStmtListASTNode->addChild(printY);
 		printY->setLineNumber(4);
 
@@ -241,7 +241,7 @@ TEST_CASE("handleStatementList test") {
 		ifNode->addChild(thenStmtListASTNode);
 		ifNode->addChild(elseStmtListASTNode);
 
-		shared_ptr<ASTNode> readX(new ReadASTNode(Token::createReadToken()));
+		shared_ptr<ASTNode> readX = ReadASTNode::createReadNode();		
 		readX->setLineNumber(5);
 
 		stmtListASTNode->addChild(assignASTNode);
@@ -279,22 +279,21 @@ TEST_CASE("handleStatementList test") {
 				4. read x;
 			}
 		*/
-		shared_ptr<ASTNode> stmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> stmtListASTNode = StatementListASTNode::createStatementListNode();
 
 		// assign
-		shared_ptr<ASTNode> assignASTNode(new AssignASTNode(Token::createEqualsToken()));
-		shared_ptr<ASTNode> xNodeAssign(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> constant(new ConstantValueASTNode(Token::createIntegerToken("5")));
+		shared_ptr<ASTNode> assignASTNode = AssignASTNode::createAssignNode();		shared_ptr<ASTNode> xNodeAssign = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> constant = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("5"));
 		assignASTNode->addChild(xNodeAssign);
 		assignASTNode->addChild(constant);
 		assignASTNode->setLineNumber(1);
 
 		//While
-		shared_ptr<ASTNode> whileNode(new WhileASTNode(Token::createWhileToken()));
+		shared_ptr<ASTNode> whileNode = WhileASTNode::createWhileNode();
 
-		shared_ptr<ASTNode> conditionNode(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
-		shared_ptr<ASTNode> xNode(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> yNode(new VariableASTNode(Token::createNameOrKeywordToken("y")));
+		shared_ptr<ASTNode> conditionNode = ExpressionASTNode::createExpressionNode(Token::createGreaterThanEqualToken());
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> yNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("y"));
 		whileNode->setLineNumber(2);
 		conditionNode->setLineNumber(2);
 		xNode->setLineNumber(2);
@@ -303,15 +302,15 @@ TEST_CASE("handleStatementList test") {
 		conditionNode->addChild(xNode);
 		conditionNode->addChild(yNode);
 
-		shared_ptr<ASTNode> whileStatementList(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> printY(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> whileStatementList = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> printY = PrintASTNode::createPrintNode();		
 		whileStatementList->addChild(printY);
 		printY->setLineNumber(3);
 
 		whileNode->addChild(conditionNode);
 		whileNode->addChild(whileStatementList);
 
-		shared_ptr<ASTNode> readX(new ReadASTNode(Token::createReadToken()));
+		shared_ptr<ASTNode> readX = ReadASTNode::createReadNode();		
 		readX->setLineNumber(4);
 
 		stmtListASTNode->addChild(assignASTNode);
@@ -353,14 +352,14 @@ TEST_CASE("handleStatementList test") {
 			5.	x = 5;
 			}
 		*/
-		shared_ptr<ASTNode> stmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> stmtListASTNode = StatementListASTNode::createStatementListNode();
 
 		// While
-		shared_ptr<ASTNode> whileNode(new WhileASTNode(Token::createWhileToken()));
+		shared_ptr<ASTNode> whileNode = WhileASTNode::createWhileNode();
 
-		shared_ptr<ASTNode> conditionNode(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
-		shared_ptr<ASTNode> xNode(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> yNode(new VariableASTNode(Token::createNameOrKeywordToken("y")));
+		shared_ptr<ASTNode> conditionNode = ExpressionASTNode::createExpressionNode(Token::createGreaterThanEqualToken());
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> yNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("y"));
 		whileNode->setLineNumber(1);
 		conditionNode->setLineNumber(1);
 		xNode->setLineNumber(1);
@@ -369,14 +368,14 @@ TEST_CASE("handleStatementList test") {
 		conditionNode->addChild(xNode);
 		conditionNode->addChild(yNode);
 
-		shared_ptr<ASTNode> whileStatementList(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> whileStatementList = StatementListASTNode::createStatementListNode();
 
 		//If
-		shared_ptr<ASTNode> ifNode(new IfASTNode(Token::createIfToken()));
+		shared_ptr<ASTNode> ifNode = IfASTNode::createIfNode();
 
-		shared_ptr<ASTNode> ifConditionNode(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
-		shared_ptr<ASTNode> zNode(new VariableASTNode(Token::createNameOrKeywordToken("z")));
-		shared_ptr<ASTNode> twoNode(new VariableASTNode(Token::createIntegerToken("2")));
+		shared_ptr<ASTNode> ifConditionNode = ExpressionASTNode::createExpressionNode(Token::createGreaterThanEqualToken());
+		shared_ptr<ASTNode> zNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("z"));
+		shared_ptr<ASTNode> twoNode = VariableASTNode::createVariableNode(Token::createIntegerToken("2"));
 		ifNode->setLineNumber(2);
 		ifConditionNode->setLineNumber(2);
 		zNode->setLineNumber(2);
@@ -385,13 +384,13 @@ TEST_CASE("handleStatementList test") {
 		ifConditionNode->addChild(zNode);
 		ifConditionNode->addChild(twoNode);
 
-		shared_ptr<ASTNode> thenStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> printX(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> thenStmtListASTNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> printX = PrintASTNode::createPrintNode();		
 		thenStmtListASTNode->addChild(printX);
 		printX->setLineNumber(3);
 
-		shared_ptr<ASTNode> elseStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> readX(new ReadASTNode(Token::createReadToken()));
+		shared_ptr<ASTNode> elseStmtListASTNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> readX = ReadASTNode::createReadNode();		
 		elseStmtListASTNode->addChild(readX);
 		readX->setLineNumber(4);
 
@@ -405,9 +404,8 @@ TEST_CASE("handleStatementList test") {
 		whileNode->addChild(whileStatementList);
 
 		// assign
-		shared_ptr<ASTNode> assignASTNode(new AssignASTNode(Token::createEqualsToken()));
-		shared_ptr<ASTNode> xNodeAssign(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> constant(new ConstantValueASTNode(Token::createIntegerToken("5")));
+		shared_ptr<ASTNode> assignASTNode = AssignASTNode::createAssignNode();		shared_ptr<ASTNode> xNodeAssign = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> constant = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("5"));
 		assignASTNode->addChild(xNodeAssign);
 		assignASTNode->addChild(constant);
 		assignASTNode->setLineNumber(5);
@@ -452,11 +450,11 @@ TEST_CASE("handleIf test") {
 
 	SECTION("If with one statement in then and else") {
 		//If
-		shared_ptr<ASTNode> ifNode(new IfASTNode(Token::createIfToken()));
+		shared_ptr<ASTNode> ifNode = IfASTNode::createIfNode();
 
-		shared_ptr<ASTNode> conditionNode(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
-		shared_ptr<ASTNode> xNode(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> yNode(new VariableASTNode(Token::createNameOrKeywordToken("y")));
+		shared_ptr<ASTNode> conditionNode = ExpressionASTNode::createExpressionNode(Token::createGreaterThanEqualToken());
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> yNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("y"));
 		ifNode->setLineNumber(1);
 		conditionNode->setLineNumber(1);
 		xNode->setLineNumber(1);
@@ -465,13 +463,13 @@ TEST_CASE("handleIf test") {
 		conditionNode->addChild(xNode);
 		conditionNode->addChild(yNode);
 
-		shared_ptr<ASTNode> thenStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> printX(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> thenStmtListASTNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> printX = PrintASTNode::createPrintNode();		
 		thenStmtListASTNode->addChild(printX);
 		printX->setLineNumber(2);
 
-		shared_ptr<ASTNode> elseStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> printY(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> elseStmtListASTNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> printY = PrintASTNode::createPrintNode();		
 		elseStmtListASTNode->addChild(printY);
 		printY->setLineNumber(3);
 
@@ -504,11 +502,11 @@ TEST_CASE("handleIf test") {
 			}
 		*/
 		//If
-		shared_ptr<ASTNode> ifNode(new IfASTNode(Token::createIfToken()));
+		shared_ptr<ASTNode> ifNode = IfASTNode::createIfNode();
 
-		shared_ptr<ASTNode> conditionNode(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
-		shared_ptr<ASTNode> xNode(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> yNode(new VariableASTNode(Token::createNameOrKeywordToken("y")));
+		shared_ptr<ASTNode> conditionNode = ExpressionASTNode::createExpressionNode(Token::createGreaterThanEqualToken());
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> yNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("y"));
 		ifNode->setLineNumber(1);
 		conditionNode->setLineNumber(1);
 		xNode->setLineNumber(1);
@@ -517,12 +515,12 @@ TEST_CASE("handleIf test") {
 		conditionNode->addChild(xNode);
 		conditionNode->addChild(yNode);
 
-		shared_ptr<ASTNode> thenStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> thenStmtListASTNode = StatementListASTNode::createStatementListNode();
 
-		shared_ptr<ASTNode> ifTwoNode(new IfASTNode(Token::createIfToken()));
-		shared_ptr<ASTNode> conditionNodeTwo(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
-		shared_ptr<ASTNode> qNode(new VariableASTNode(Token::createNameOrKeywordToken("q")));
-		shared_ptr<ASTNode> zNode(new VariableASTNode(Token::createNameOrKeywordToken("z")));
+		shared_ptr<ASTNode> ifTwoNode = IfASTNode::createIfNode();
+		shared_ptr<ASTNode> conditionNodeTwo = ExpressionASTNode::createExpressionNode(Token::createGreaterThanEqualToken());
+		shared_ptr<ASTNode> qNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("q"));
+		shared_ptr<ASTNode> zNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("z"));
 		ifTwoNode->setLineNumber(2);
 		conditionNodeTwo->setLineNumber(2);
 		qNode->setLineNumber(2);
@@ -531,14 +529,14 @@ TEST_CASE("handleIf test") {
 		conditionNodeTwo->addChild(qNode);
 		conditionNodeTwo->addChild(zNode);
 
-		shared_ptr<ASTNode> thenStmtListASTNodeTwo(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> thenStmtListASTNodeTwo = StatementListASTNode::createStatementListNode();
 		
-		shared_ptr<ASTNode> printX(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> printX = PrintASTNode::createPrintNode();		
 		thenStmtListASTNodeTwo->addChild(printX);
 		printX->setLineNumber(3);
 
-		shared_ptr<ASTNode> elseStmtListASTNodeTwo(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> printY(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> elseStmtListASTNodeTwo = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> printY = PrintASTNode::createPrintNode();		
 		elseStmtListASTNodeTwo->addChild(printY);
 		printY->setLineNumber(4);
 
@@ -548,9 +546,8 @@ TEST_CASE("handleIf test") {
 
 		thenStmtListASTNode->addChild(ifTwoNode);
 
-		shared_ptr<ASTNode> elseStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> readX(new ReadASTNode(Token::createReadToken()));
-		readX->setLineNumber(5);
+		shared_ptr<ASTNode> elseStmtListASTNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> readX = ReadASTNode::createReadNode();		readX->setLineNumber(5);
 
 		elseStmtListASTNode->addChild(readX);
 
@@ -597,11 +594,11 @@ TEST_CASE("handleWhile test") {
 			}
 		*/
 		// While
-		shared_ptr<ASTNode> whileNode(new WhileASTNode(Token::createWhileToken()));
+		shared_ptr<ASTNode> whileNode = WhileASTNode::createWhileNode();
 
-		shared_ptr<ASTNode> conditionNode(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
-		shared_ptr<ASTNode> xNode(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> yNode(new VariableASTNode(Token::createNameOrKeywordToken("y")));
+		shared_ptr<ASTNode> conditionNode = ExpressionASTNode::createExpressionNode(Token::createGreaterThanEqualToken());
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> yNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("y"));
 		whileNode->setLineNumber(1);
 		conditionNode->setLineNumber(1);
 		xNode->setLineNumber(1);
@@ -610,8 +607,8 @@ TEST_CASE("handleWhile test") {
 		conditionNode->addChild(xNode);
 		conditionNode->addChild(yNode);
 
-		shared_ptr<ASTNode> whileStatementList(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> printY(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> whileStatementList = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> printY = PrintASTNode::createPrintNode();		
 		whileStatementList->addChild(printY);
 		printY->setLineNumber(2);
 
@@ -637,11 +634,11 @@ TEST_CASE("handleWhile test") {
 		*/
 
 		// While
-		shared_ptr<ASTNode> whileNode(new WhileASTNode(Token::createWhileToken()));
+		shared_ptr<ASTNode> whileNode = WhileASTNode::createWhileNode();
 
-		shared_ptr<ASTNode> conditionOneNode(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
-		shared_ptr<ASTNode> xNode(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> fiveNode(new ConstantValueASTNode(Token::createIntegerToken("5")));
+		shared_ptr<ASTNode> conditionOneNode = ExpressionASTNode::createExpressionNode(Token::createGreaterThanEqualToken());
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> fiveNode = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("5"));
 		whileNode->setLineNumber(1);
 		conditionOneNode->setLineNumber(1);
 		xNode->setLineNumber(1);
@@ -650,12 +647,12 @@ TEST_CASE("handleWhile test") {
 		conditionOneNode->addChild(xNode);
 		conditionOneNode->addChild(fiveNode);
 
-		shared_ptr<ASTNode> whileStatementList(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> whileStatementList = StatementListASTNode::createStatementListNode();
 
-		shared_ptr<ASTNode> whileTwoNode(new WhileASTNode(Token::createWhileToken()));
-		shared_ptr<ASTNode> conditionTwoNode(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
-		shared_ptr<ASTNode> yNode(new VariableASTNode(Token::createNameOrKeywordToken("y")));
-		shared_ptr<ASTNode> fiveTwoNode(new ConstantValueASTNode(Token::createIntegerToken("5")));
+		shared_ptr<ASTNode> whileTwoNode = WhileASTNode::createWhileNode();
+		shared_ptr<ASTNode> conditionTwoNode = ExpressionASTNode::createExpressionNode(Token::createGreaterThanEqualToken());
+		shared_ptr<ASTNode> yNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("y"));
+		shared_ptr<ASTNode> fiveTwoNode = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("5"));
 		whileTwoNode->setLineNumber(2);
 		conditionTwoNode->setLineNumber(2);
 		yNode->setLineNumber(2);
@@ -666,9 +663,9 @@ TEST_CASE("handleWhile test") {
 
 		whileTwoNode->addChild(conditionTwoNode);
 
-		shared_ptr<ASTNode> whileTwoStatementList(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> whileTwoStatementList = StatementListASTNode::createStatementListNode();
 
-		shared_ptr<ASTNode> printY(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> printY = PrintASTNode::createPrintNode();		
 		whileTwoStatementList->addChild(printY);
 		printY->setLineNumber(3);
 
@@ -721,15 +718,15 @@ TEST_CASE("handleProcedure test") {
 			6.	q = 5;
 			}
 		*/
-		shared_ptr<ASTNode> procNode(new ProcedureASTNode(Token::createNameOrKeywordToken("main")));
+		shared_ptr<ASTNode> procNode = ProcedureASTNode::createProcedureNode(Token::createNameOrKeywordToken("main"));
 
 
-		shared_ptr<ASTNode> procStatementList(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> procStatementList = StatementListASTNode::createStatementListNode();
 
-		shared_ptr<ASTNode> whileNode(new WhileASTNode(Token::createWhileToken()));
-		shared_ptr<ASTNode> conditionOneNode(new ExpressionASTNode(Token::createGreaterThanEqualToken()));
-		shared_ptr<ASTNode> xNode(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> fiveNode(new ConstantValueASTNode(Token::createIntegerToken("5")));
+		shared_ptr<ASTNode> whileNode = WhileASTNode::createWhileNode();
+		shared_ptr<ASTNode> conditionOneNode = ExpressionASTNode::createExpressionNode(Token::createGreaterThanEqualToken());
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> fiveNode = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("5"));
 		whileNode->setLineNumber(1);
 		conditionOneNode->setLineNumber(1);
 		xNode->setLineNumber(1);
@@ -738,19 +735,18 @@ TEST_CASE("handleProcedure test") {
 		conditionOneNode->addChild(xNode);
 		conditionOneNode->addChild(fiveNode);
 
-		shared_ptr<ASTNode> whileStatementList(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> whileStatementList = StatementListASTNode::createStatementListNode();
 
-		shared_ptr<ASTNode> whileRead(new ReadASTNode(Token::createReadToken()));
-		whileRead->setLineNumber(2);
+		shared_ptr<ASTNode> whileRead = ReadASTNode::createReadNode();		whileRead->setLineNumber(2);
 		whileStatementList->addChild(whileRead);
 
 		whileNode->addChild(conditionOneNode);
 		whileNode->addChild(whileStatementList);
 
-		shared_ptr<ASTNode> ifNode(new IfASTNode(Token::createWhileToken()));
-		shared_ptr<ASTNode> conditionNodeTwo(new ExpressionASTNode(Token::createEqualityToken()));
-		shared_ptr<ASTNode> yNode(new VariableASTNode(Token::createNameOrKeywordToken("y")));
-		shared_ptr<ASTNode> twoNode(new ConstantValueASTNode(Token::createIntegerToken("2")));
+		shared_ptr<ASTNode> ifNode = IfASTNode::createIfNode();
+		shared_ptr<ASTNode> conditionNodeTwo = ExpressionASTNode::createExpressionNode(Token::createEqualityToken());
+		shared_ptr<ASTNode> yNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("y"));
+		shared_ptr<ASTNode> twoNode = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("2"));
 		ifNode->setLineNumber(3);
 		conditionNodeTwo->setLineNumber(3);
 		yNode->setLineNumber(3);
@@ -759,13 +755,13 @@ TEST_CASE("handleProcedure test") {
 		conditionNodeTwo->addChild(yNode);
 		conditionNodeTwo->addChild(twoNode);
 
-		shared_ptr<ASTNode> thenStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> printY(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> thenStmtListASTNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> printY = PrintASTNode::createPrintNode();		
 		thenStmtListASTNode->addChild(printY);
 		printY->setLineNumber(4);
 
-		shared_ptr<ASTNode> elseStmtListASTNode(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> readZ(new ReadASTNode(Token::createReadToken()));
+		shared_ptr<ASTNode> elseStmtListASTNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> readZ = ReadASTNode::createReadNode();		
 		elseStmtListASTNode->addChild(readZ);
 		readZ->setLineNumber(5);
 
@@ -774,9 +770,9 @@ TEST_CASE("handleProcedure test") {
 		ifNode->addChild(elseStmtListASTNode);
 
 		// assign
-		shared_ptr<ASTNode> assignASTNode(new AssignASTNode(Token::createEqualsToken()));
-		shared_ptr<ASTNode> qNodeAssign(new VariableASTNode(Token::createNameOrKeywordToken("q")));
-		shared_ptr<ASTNode> constant(new ConstantValueASTNode(Token::createIntegerToken("5")));
+		shared_ptr<ASTNode> assignASTNode = AssignASTNode::createAssignNode();		
+		shared_ptr<ASTNode> qNodeAssign = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("q"));
+		shared_ptr<ASTNode> constant = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("5"));
 		assignASTNode->addChild(qNodeAssign);
 		assignASTNode->addChild(constant);
 		assignASTNode->setLineNumber(1);

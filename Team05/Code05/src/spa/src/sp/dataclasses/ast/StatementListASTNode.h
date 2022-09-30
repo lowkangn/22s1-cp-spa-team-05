@@ -10,7 +10,7 @@ private:
 	}
 public:
 	static shared_ptr<ASTNode> createStatementListNode() {
-		return shared_ptr<ASTNode> (new StatementListASTNode(Token::createPlaceholderToken())); 
+		return shared_ptr<ASTNode>(new StatementListASTNode(Token::createPlaceholderToken())); 
 	}
 
 	bool isTerminal() override {
