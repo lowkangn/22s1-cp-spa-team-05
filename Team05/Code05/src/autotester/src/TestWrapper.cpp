@@ -48,7 +48,7 @@ void TestWrapper::parse(std::string filename) {
 	}
 
 	stream.close();
-	
+
 
 }
 

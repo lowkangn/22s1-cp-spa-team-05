@@ -133,7 +133,8 @@ shared_ptr<ASTNode> WhileSimpleSyntaxRule::constructNode()
 	
 	Token whileToken = Token::createWhileToken();
 
-	shared_ptr<ASTNode> whileNode = WhileASTNode::createWhileNode();	shared_ptr<ASTNode> conditionNode = this->childRules[WHILE_CONDITION_RULE]->constructNode();
+	shared_ptr<ASTNode> whileNode = WhileASTNode::createWhileNode();	
+	shared_ptr<ASTNode> conditionNode = this->childRules[WHILE_CONDITION_RULE]->constructNode();
 	shared_ptr<ASTNode> stmtListNode = this->childRules[STMT_LIST_RULE]->constructNode();
 
 	whileNode->addChild(conditionNode);
