@@ -726,6 +726,45 @@ TEST_CASE("Test retrieve relationship short circuits to empty result") {
 		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
 	}
 
+	SECTION("Follows(a,a)") {
+		ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+		ClauseArgument rhs = ClauseArgument::createAssignArg("a");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+	SECTION("Follows(1,1)") {
+		ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+		ClauseArgument rhs = ClauseArgument::createLineNumberArg("1");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+	SECTION("Follows(if,if)") {
+		ClauseArgument lhs = ClauseArgument::createIfArg("if");
+		ClauseArgument rhs = ClauseArgument::createIfArg("if");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+
+	SECTION("Follows(r,r)") {
+		ClauseArgument lhs = ClauseArgument::createReadArg("r");
+		ClauseArgument rhs = ClauseArgument::createReadArg("r");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+
+	SECTION("Follows(pr,pr)") {
+		ClauseArgument lhs = ClauseArgument::createPrintArg("pr");
+		ClauseArgument rhs = ClauseArgument::createPrintArg("pr");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+	SECTION("Follows(w,w)") {
+		ClauseArgument lhs = ClauseArgument::createWhileArg("w");
+		ClauseArgument rhs = ClauseArgument::createWhileArg("w");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+
 	SECTION("Follows*(s,s)") {
 		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
 		ClauseArgument rhs = ClauseArgument::createStmtArg("s");

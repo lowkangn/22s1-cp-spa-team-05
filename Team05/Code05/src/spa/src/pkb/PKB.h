@@ -69,13 +69,21 @@ private:
 
 	/*
 		Converts an SP entity to a pkb entity with the correct underlying behaviour.
+		TODO: consider refactoring this. For now, we have a dependency on an external type from the SP. this was done
+			for speed of development, and also the two-way coupling breaks abstraction in a minimal and arguably trivial way.
+			Better practice would be to have an external contract dataclass, SP convert to that and pass into the PKB.
+			Because it's currently not necessary, we don't do that.
 	*/
-	shared_ptr<PkbEntity> spEntityToPkbEntity(Entity entity);
+	shared_ptr<PkbEntity> externalEntityToPkbEntity(Entity entity);
 
 	/*
-		Converts SP relationship to a PKB relationship
+		Converts external relationship object to a PKB relationship. 
+		TODO: consider refactoring this. For now, we have a dependency on an external type from the SP. this was done
+			for speed of development, and also the two-way coupling breaks abstraction in a minimal and arguably trivial way. 
+			Better practice would be to have an external contract dataclass, SP convert to that and pass into the PKB. 
+			Because it's currently not necessary, we don't do that.
 	*/
-	shared_ptr<PkbRelationship> spRelationshipToPkbRelationship(Relationship relationship);
+	shared_ptr<PkbRelationship> externalRelationshipToPkbRelationship(Relationship relationship);
 
 	/*
 		Maps the supported relationship types to an internal table.
@@ -92,6 +100,12 @@ private:
 		Converts an internal pkb pattern to a pql pattern used in the qps.
 	*/
 	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> pattern);
+
+	/*
+		Helper function to check if retrieving the relationship, while semantically and syntacticall correct, is even 
+		possible. e.g. Follows(s,s) is not possible
+	*/
+	bool PKB::canShortCircuitRetrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
 
 
 public: 
