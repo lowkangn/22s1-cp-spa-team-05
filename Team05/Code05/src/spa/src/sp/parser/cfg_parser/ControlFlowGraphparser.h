@@ -17,15 +17,33 @@ class ControlFlowParser {
 public:
 	ControlFlowParser() {};
 
+	/*
+		Takes in the root of the AST tree of the program and return a ControlFlowGraph for each method
+	*/
 	vector<shared_ptr<CFGNode>> parse(shared_ptr<ASTNode> rootNode);
 	
+	/*
+		Processes a Procedure node in the AST
+	*/
 	shared_ptr<CFGNode> handleProcedure(shared_ptr<ASTNode> rootNode);
 
+	/*
+		Processes a If node in the AST
+	*/
 	shared_ptr<CFGNode> handleIf(shared_ptr<ASTNode> rootNode);
 
+	/*
+		Processes a While node in the AST
+	*/
 	shared_ptr<CFGNode> handleWhile(shared_ptr<ASTNode> rootNode);
 
+	/*
+		Processes a statement list node in the AST
+	*/
 	shared_ptr<CFGNode> handleStatementList(shared_ptr<ASTNode> rootNode);
 
+	/*
+		Recursively traverses a node and adds a child to the end of the CFGNode
+	*/
 	void addChildToTheEndOfRoot(shared_ptr<CFGNode> root, shared_ptr<CFGNode> child);
 };

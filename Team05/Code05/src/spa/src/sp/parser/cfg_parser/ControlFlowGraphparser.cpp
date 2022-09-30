@@ -4,7 +4,7 @@ vector<shared_ptr<CFGNode>> ControlFlowParser::parse(shared_ptr<ASTNode> rootNod
 {
 	vector<shared_ptr<CFGNode>> procedureCFGNodes;
 
-	if (rootNode->getType() != ASTNodeType::PROGRAM) {
+	if (!rootNode->isProgramNode()) {
 		throw CFGException("ControlFlowPraser should receive a program node");
 	}
 
@@ -17,12 +17,12 @@ vector<shared_ptr<CFGNode>> ControlFlowParser::parse(shared_ptr<ASTNode> rootNod
 }
 
 shared_ptr<CFGNode> ControlFlowParser::handleProcedure(shared_ptr<ASTNode> rootNode)
-{
-	shared_ptr<ProcedureASTNode> procNode = dynamic_pointer_cast<ProcedureASTNode>(rootNode);
-	// Ensure that the node is a procedure node
-	if (procNode == nullptr) {
-		throw CFGException("Error in casting node in handleProcedure to procedure node");
+{	
+	if (!rootNode->isProcedureNode()) {
+		throw CFGException("Error in node in handleProcedure is not a procedure");
 	}
+
+	shared_ptr<ProcedureASTNode> procNode = dynamic_pointer_cast<ProcedureASTNode>(rootNode);
 
 	shared_ptr<ASTNode> childStatements = procNode->getStmtList();
 
@@ -33,11 +33,11 @@ shared_ptr<CFGNode> ControlFlowParser::handleProcedure(shared_ptr<ASTNode> rootN
 
 shared_ptr<CFGNode> ControlFlowParser::handleIf(shared_ptr<ASTNode> ifNode)
 {
-	shared_ptr<IfASTNode> rootNode = dynamic_pointer_cast<IfASTNode>(ifNode);
-	// Ensure that the node is a procedure node
-	if (rootNode == nullptr) {
-		throw CFGException("Error in casting node in handleIf to If node");
+	if (!ifNode->isIfNode()) {
+		throw CFGException("Error node inside handleIf is not an IfASTNode");
 	}
+
+	shared_ptr<IfASTNode> rootNode = dynamic_pointer_cast<IfASTNode>(ifNode);
 
 	shared_ptr<ASTNode> thenStmtLst = rootNode->getThenStatements();
 	shared_ptr<ASTNode> elseStmtLst = rootNode->getElseStatements();
@@ -57,11 +57,11 @@ shared_ptr<CFGNode> ControlFlowParser::handleIf(shared_ptr<ASTNode> ifNode)
 
 shared_ptr<CFGNode> ControlFlowParser::handleWhile(shared_ptr<ASTNode> whileNode)
 {
-	shared_ptr<WhileASTNode> rootNode = dynamic_pointer_cast<WhileASTNode>(whileNode);
-	// Ensure that the node is a procedure node
-	if (rootNode == nullptr) {
-		throw CFGException("Error in casting node in handleWhile to While node");
+	if (!whileNode->isWhileNode()) {
+		throw CFGException("Error node inside handleWhile is not an WhileASTNode");
 	}
+
+	shared_ptr<WhileASTNode> rootNode = dynamic_pointer_cast<WhileASTNode>(whileNode);
 
 	shared_ptr<ASTNode> stmtList = rootNode->getStmtList();
 
@@ -97,22 +97,16 @@ shared_ptr<CFGNode> ControlFlowParser::handleStatementList(shared_ptr<ASTNode> r
 		shared_ptr<CFGNode> childCFGNode;
 
 		// Handle next node for If and while
-		switch (childType) {
-		// We need to have diamond shape
-		case ASTNodeType::IF: {
+		if (currentAST->isIfNode()) {
 			childCFGNode = this->handleIf(currentAST);
-			break;
 		}
-		// Need to add loop to the last statement in while
-		case ASTNodeType::WHILE: {
+		else if (currentAST->isWhileNode()) {
 			childCFGNode = this->handleWhile(currentAST);
-			break;
 		}
-		// Add to last node and update current node
-		default: {
+		else {
 			childCFGNode = shared_ptr<CFGNode>(new CFGNode(currentAST->getLineNumber()));
 		}
-		}
+		
 		this->addChildToTheEndOfRoot(currentCFG, childCFGNode);
 		currentCFG = childCFGNode;
 		counter += 1;
@@ -124,8 +118,6 @@ shared_ptr<CFGNode> ControlFlowParser::handleStatementList(shared_ptr<ASTNode> r
 
 void ControlFlowParser::addChildToTheEndOfRoot(shared_ptr<CFGNode> root, shared_ptr<CFGNode> child)
 {
-	bool isIfNode = root->isIfNode();
-
 	if (root->isIfNode()) {
 		// Check if the then and else have children
 		shared_ptr<IfCFGNode> ifCFGNode = dynamic_pointer_cast<IfCFGNode>(root);
