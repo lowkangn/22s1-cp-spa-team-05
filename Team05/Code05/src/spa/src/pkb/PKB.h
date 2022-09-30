@@ -108,6 +108,12 @@ private:
 	bool PKB::canShortCircuitRetrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
 
 
+	/*
+		Helper function to convert a clause argument into a pkb entity it's trying to specify.
+	*/
+	shared_ptr<PkbEntity> convertClauseArgumentToPkbEntity(ClauseArgument clause);
+
+
 public: 
 	PKB() {}
 

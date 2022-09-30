@@ -190,6 +190,13 @@ public:
 		return this->identifier;
 	}
 
+	/*
+		Indicates if the clause argument is exact (e.g. "x", 1)
+	*/
+	bool isExactReference() {
+		return (this->isLineNumber() || this->isStringLiteral());	
+	}
+
 
 	friend bool operator== (ClauseArgument first, ClauseArgument second);
 };
