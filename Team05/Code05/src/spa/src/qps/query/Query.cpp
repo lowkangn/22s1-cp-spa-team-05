@@ -18,14 +18,23 @@ list<shared_ptr<RelationshipClauseResult>> Query::executeSuchThatAndPattern(shar
 }
 
 bool operator==(Query first, Query second) {
-	bool isClauseEqual = (*(first.selectClause.get())).equals(second.selectClause.get());
+	bool isSelectClauseEqual = (*(first.selectClause.get())).equals(second.selectClause.get());
 
 	//TODO: Refactor similar logic into private generic helper method e.g. checkListsEqual<T>( list<shared_ptr<T>> a, list<shared_ptr<T>> b)
 
-	if (!isClauseEqual) {
+	if (!isSelectClauseEqual) {
 		// different select clauses
 		return false;
-	} else if (first.suchThatClauses.size() != second.suchThatClauses.size()) {
+	} else if (!first.areClausesAllEqual<RelationshipClause>(first.suchThatClauses, second.suchThatClauses)) {
+		// different such that clauses
+		return false;
+	} else if (!first.areClausesAllEqual<PatternClause>(first.patternClauses, second.patternClauses)) {
+		// different pattern clauses
+		return false;
+	}
+	return true;
+	/*
+	else if (first.suchThatClauses.size() != second.suchThatClauses.size()) {
 		// different number of such that clauses after Select
 		return false;
 	}
@@ -33,7 +42,7 @@ bool operator==(Query first, Query second) {
 		// different number of pattern clauses after Select
 		return false;
 	}
-
+	
 	// check remaining clauses sequentially
 	list<shared_ptr<RelationshipClause>>::iterator firstIter = first.suchThatClauses.begin();
 	list<shared_ptr<RelationshipClause>>::iterator secondIter = second.suchThatClauses.begin();
@@ -56,6 +65,7 @@ bool operator==(Query first, Query second) {
 		firstPatternIter++;
 		secondPatternIter++;
 	}
-
-	return true;
+	
+	return true;*/
+	
 }
