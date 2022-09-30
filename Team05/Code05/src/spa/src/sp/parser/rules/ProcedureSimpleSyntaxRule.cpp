@@ -110,7 +110,7 @@ shared_ptr<ASTNode> ProcedureSimpleSyntaxRule::constructNode() {
 	// create current node
 	shared_ptr<ASTNode> procedureNameNode = this->childRules[PROCEDURE]->constructNode();
 	Token token = procedureNameNode->getToken();
-	shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(token));
+	shared_ptr<ASTNode> procedureNode = ProcedureASTNode::createProcedureNode(token);
 
 	// create stmtlst node
 	shared_ptr<ASTNode> stmtLstNode = this->childRules[STMT_LST]->constructNode();

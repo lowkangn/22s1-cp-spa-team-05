@@ -15,12 +15,12 @@ vector<shared_ptr<SimpleSyntaxRule>> WhileSimpleSyntaxRule::generateChildRules()
 
 	// Conditional Rule
 	shared_ptr<SimpleSyntaxRule> conditionRule(new ConditionalExpressionSimpleSyntaxRule);
-	tokens = conditionRule->consumeTokens(tokens); // consume the tokens
+	tokens = conditionRule->consumeTokens(this->conditionTokens); // consume the tokens
 	childRules.push_back(conditionRule);
 
 	// Statement rule
 	shared_ptr<SimpleSyntaxRule> stmtListRule(new StatementListSimpleSyntaxRule);
-	tokens = stmtListRule->consumeTokens(tokens); // consume the tokens
+	tokens = stmtListRule->consumeTokens(this->statementListTokens); // consume the tokens
 	childRules.push_back(stmtListRule);
 
 	return childRules;
@@ -28,8 +28,6 @@ vector<shared_ptr<SimpleSyntaxRule>> WhileSimpleSyntaxRule::generateChildRules()
 
 list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 {
-	list<Token> childTokens;
-
 	// Sanity check that the first token is a the while token
 	Token token = tokens.front();
 
@@ -45,9 +43,10 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	if (!token.isOpenBracketToken()) {
 		throw SimpleSyntaxParserException("While condition should start with an open bracket");
 	}
+	tokens.pop_front();
 
 	// get rest of the condition
-	int numOpenBracket = 0;
+	int numOpenBracket = 1;
 	bool seenCloseBracket = false;
 	bool seenOneToken = false;
 	while (!tokens.empty() && !seenCloseBracket) {
@@ -61,12 +60,13 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 			numOpenBracket -= 1;
 			if (numOpenBracket == 0) {
 				seenCloseBracket = true;
+				break;
 			}
 		}
 		else {
 			seenOneToken = true;
 		}
-		childTokens.push_back(token);
+		this->conditionTokens.push_back(token);
 	}
 
 	if (!seenOneToken) {
@@ -102,7 +102,7 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 				seenCloseBracket = true;
 			}
 		}
-		childTokens.push_back(token); // insert all tokens in order within bracket
+		this->statementListTokens.push_back(token); // insert all tokens in order within bracket
 	}
 	// if no }, throw exception
 	if (!seenCloseBracket) {
@@ -110,8 +110,11 @@ list<Token> WhileSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	}
 
 	// assign and do state management
-	this->tokens = childTokens;
 	this->initialized = true;
+
+	// For testing purposes
+	this->tokens.insert(this->tokens.end(), this->conditionTokens.begin(), this->conditionTokens.end());
+	this->tokens.insert(this->tokens.end(), this->statementListTokens.begin(), this->statementListTokens.end());
 
 	return tokens;
 }
@@ -130,8 +133,7 @@ shared_ptr<ASTNode> WhileSimpleSyntaxRule::constructNode()
 	
 	Token whileToken = Token::createWhileToken();
 
-	shared_ptr<ASTNode> whileNode(new WhileASTNode(whileToken));
-	shared_ptr<ASTNode> conditionNode = this->childRules[WHILE_CONDITION_RULE]->constructNode();
+	shared_ptr<ASTNode> whileNode = WhileASTNode::createWhileNode();	shared_ptr<ASTNode> conditionNode = this->childRules[WHILE_CONDITION_RULE]->constructNode();
 	shared_ptr<ASTNode> stmtListNode = this->childRules[STMT_LIST_RULE]->constructNode();
 
 	whileNode->addChild(conditionNode);

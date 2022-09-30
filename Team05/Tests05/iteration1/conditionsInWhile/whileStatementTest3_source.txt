@@ -1,0 +1,6 @@
+procedure main {
+	while (1>= 1%((1))) {
+		read x;
+	}
+	x = x + 1;
+}

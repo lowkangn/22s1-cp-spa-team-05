@@ -30,72 +30,72 @@ TEST_CASE("AST: Add Child") {
 	};
 
 	SECTION("AssignASTNode") {
-		shared_ptr<ASTNode> toAdd(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> toAddTo(new AssignASTNode(Token::createEqualsToken()));
+		shared_ptr<ASTNode> toAdd = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> toAddTo = AssignASTNode::createAssignNode();
 		testAddChild(toAdd, toAddTo);
 	}
 	SECTION("CallASTNode") {
-		shared_ptr<ASTNode> toAddTo(new CallASTNode (Token::createCallToken()));
-		shared_ptr<ASTNode> toAdd(new VariableASTNode (Token::createNameOrKeywordToken("x")));
+		shared_ptr<ASTNode> toAddTo = CallASTNode::createCallNode();
+		shared_ptr<ASTNode> toAdd = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
 		testAddChild(toAdd, toAddTo);
 	}
 	SECTION("ConstantValueASTNode") {
-		shared_ptr<ASTNode> toAdd(new ConstantValueASTNode(Token::createIntegerToken("1")));
-		shared_ptr<ASTNode> toAddTo(new ConstantValueASTNode(Token::createIntegerToken("1")));
+		shared_ptr<ASTNode> toAdd = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("1"));
+		shared_ptr<ASTNode> toAddTo = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("1"));
 		// Should throw an error
 		testAddChild(toAdd, toAddTo);
 	}
 	SECTION("ExpressionASTNode") {
-		shared_ptr<ASTNode> toAdd(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> toAddTo(new ExpressionASTNode(Token::createLessThanToken()));
+		shared_ptr<ASTNode> toAdd = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> toAddTo = ExpressionASTNode::createExpressionNode(Token::createLessThanToken());
 		testAddChild(toAdd, toAddTo);
 	}
 	SECTION("IfASTNode") {
-		shared_ptr<ASTNode> toAdd(new ExpressionASTNode(Token::createGreaterThanToken()));
-		shared_ptr<ASTNode> toAddTo(new IfASTNode(Token::createIfToken()));
+		shared_ptr<ASTNode> toAdd = ExpressionASTNode::createExpressionNode(Token::createGreaterThanToken());
+		shared_ptr<ASTNode> toAddTo = IfASTNode::createIfNode();
 		testAddChild(toAdd, toAddTo);
 	}
 	SECTION("PrintASTNode") {
-		shared_ptr<ASTNode> toAdd(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> toAddTo(new PrintASTNode(Token::createPrintToken()));
+		shared_ptr<ASTNode> toAdd = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> toAddTo = PrintASTNode::createPrintNode();		
 		testAddChild(toAdd, toAddTo);
 	}
 	SECTION("ProcedureASTNode") {
-		shared_ptr<ASTNode> toAddTo(new ProcedureASTNode(Token::createNameOrKeywordToken("main")));
-		shared_ptr<ASTNode> toAdd(new StatementListASTNode(Token::createPlaceholderToken()));
+		shared_ptr<ASTNode> toAddTo = ProcedureASTNode::createProcedureNode(Token::createNameOrKeywordToken("main"));
+		shared_ptr<ASTNode> toAdd = StatementListASTNode::createStatementListNode();		
 		testAddChild(toAdd, toAddTo);
 	}
 	SECTION("ProgramASTNode") {
-		shared_ptr<ASTNode> toAddTo(new ProgramASTNode(Token::createProgramToken()));
-		shared_ptr<ASTNode> toAdd(new ProcedureASTNode(Token::createNameOrKeywordToken("main")));
+		shared_ptr<ASTNode> toAddTo = ProgramASTNode::createProgramNode();		
+		shared_ptr<ASTNode> toAdd = ProcedureASTNode::createProcedureNode(Token::createNameOrKeywordToken("main"));
 		testAddChild(toAdd, toAddTo);
 	}
 	SECTION("ReadASTNode") {
-		shared_ptr<ASTNode> toAdd(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> toAddTo(new ReadASTNode(Token::createReadToken()));
+		shared_ptr<ASTNode> toAdd = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> toAddTo = ReadASTNode::createReadNode();		
 		testAddChild(toAdd, toAddTo);
 	}
 	SECTION("StatementListASTNode") {
-		shared_ptr<ASTNode> toAddTo(new StatementListASTNode(Token::createPlaceholderToken()));
-		shared_ptr<ASTNode> toAdd(new AssignASTNode(Token::createEqualsToken()));
+		shared_ptr<ASTNode> toAddTo = StatementListASTNode::createStatementListNode();		
+		shared_ptr<ASTNode> toAdd = AssignASTNode::createAssignNode();
 		testAddChild(toAdd, toAddTo);
 	}
 	SECTION("VariableASTNode") {
-		shared_ptr<ASTNode> toAddTo(new VariableASTNode(Token::createNameOrKeywordToken("x")));
-		shared_ptr<ASTNode> toAdd(new VariableASTNode(Token::createNameOrKeywordToken("x")));
+		shared_ptr<ASTNode> toAddTo = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		shared_ptr<ASTNode> toAdd = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
 		// Should throw an error
 		testAddChild(toAdd, toAddTo);
 	}
 	SECTION("WhileASTNode") {
-		shared_ptr<ASTNode> toAddTo(new WhileASTNode(Token::createWhileToken()));
-		shared_ptr<ASTNode> toAdd(new ExpressionASTNode(Token::createGreaterThanToken()));
+		shared_ptr<ASTNode> toAddTo = WhileASTNode::createWhileNode();		
+		shared_ptr<ASTNode> toAdd = ExpressionASTNode::createExpressionNode(Token::createGreaterThanToken());
 		testAddChild(toAdd, toAddTo);
 	}
 }
 
 TEST_CASE("AST: Change line number") {
 	auto testChangeLineNumber = [](int lineNumber) {
-		shared_ptr<ASTNode> toChangeLineNumber(new AssignASTNode(Token::createNameOrKeywordToken("x")));
+		shared_ptr<ASTNode> toChangeLineNumber = AssignASTNode::createAssignNode();
 
 		// Ensure intial linenumber is -1
 		REQUIRE(toChangeLineNumber->getLineNumber() == -1);
