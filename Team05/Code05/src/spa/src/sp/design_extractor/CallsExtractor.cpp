@@ -7,6 +7,7 @@
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/exceptions/ASTException.h>
 #include <sp/dataclasses/ast/CallASTNode.h>
+#include <sp/dataclasses/ast/IfASTNode.h>
 #include <sp/dataclasses/ast/ProcedureASTNode.h>
 #include <sp/dataclasses/ast/ProgramASTNode.h>
 #include <sp/design_extractor/CallsExtractor.h>
@@ -55,8 +56,8 @@ vector<Relationship> CallsExtractor::handleProgram(shared_ptr<ASTNode> ast) {
 	vector<shared_ptr<ASTNode>> children = programNode->getChildren();
 
 	// Check for any repeated declarations of procedure name.
-	for (int i = 0; i < children.size(); i++) {
-		Entity procedure = children[i]->extractEntity();
+	for (shared_ptr<ASTNode> child : children) {
+		Entity procedure = child->extractEntity();
 		string procedureName = procedure.getString();
 
 		// Check if the procedure name was not already defined before.
@@ -69,8 +70,8 @@ vector<Relationship> CallsExtractor::handleProgram(shared_ptr<ASTNode> ast) {
 	}
 
 	// Extract calls relationships from the procedures in the program.
-	for (int i = 0; i < children.size(); i++) {
-		vector<Relationship> extractedCalls = this->extract(children[i]);
+	for (shared_ptr<ASTNode> child : children) {
+		vector<Relationship> extractedCalls = this->extract(child);
 		callsRelationships.insert(callsRelationships.end(), extractedCalls.begin(), extractedCalls.end());
 	}
 	return callsRelationships;
@@ -92,6 +93,24 @@ vector<Relationship> CallsExtractor::recursiveContainerExtract(Entity& leftHandS
 			this->extractedCalls.insert(callerCalleeString);
 			callsRelationships.push_back(Relationship::createCallsRelationship(leftHandSide, procedureCalled));
 		}
+		break;
+	}
+	case ASTNodeType::IF:
+	{
+		shared_ptr<IfASTNode> ifNode = dynamic_pointer_cast<IfASTNode>(ast);
+		shared_ptr<ASTNode> thenChild = ifNode->getThenStatements();
+		shared_ptr<ASTNode> elseChild = ifNode->getElseStatements();
+
+		for (shared_ptr<ASTNode> child : thenChild->getChildren()) {
+			vector <Relationship> extractedThenRelationships = recursiveContainerExtract(leftHandSide, child);
+			callsRelationships.insert(callsRelationships.end(), extractedThenRelationships.begin(), extractedThenRelationships.end());
+		}
+
+		for (shared_ptr<ASTNode> child : elseChild->getChildren()) {
+			vector <Relationship> extractedElseRelationships = recursiveContainerExtract(leftHandSide, child);
+			callsRelationships.insert(callsRelationships.end(), extractedElseRelationships.begin(), extractedElseRelationships.end());
+		}
+		break;
 	}
 	}
 
