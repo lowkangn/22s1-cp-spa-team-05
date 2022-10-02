@@ -5,10 +5,18 @@
 #include <sp/design_extractor/Extractor.h>
 #include <sp/dataclasses/ast/AST.h>
 #include <memory>
+#include <unordered_set>
 
 using namespace std;
 
 class CallsExtractor : public Extractor<Relationship> {
+
+private:
+	// Used to check for repeated procedure names.
+	unordered_set<string> extractedProcedures;
+	
+	// Used to check for cyclic calls and to avoid repeats.
+	unordered_set<string> extractedCalls;
 
 public:
 	/*
@@ -16,4 +24,9 @@ public:
 		overriden for each specific relationship type.
 	*/
 	vector<Relationship> extract(shared_ptr<ASTNode> rootnode) override;
+
+	/*
+		This method extracts calls relationships from an Program node
+	*/
+	vector<Relationship> handleProgram(shared_ptr<ASTNode> ast);
 };
