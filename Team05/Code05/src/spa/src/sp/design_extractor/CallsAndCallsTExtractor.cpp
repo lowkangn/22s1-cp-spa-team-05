@@ -11,11 +11,11 @@
 #include <sp/dataclasses/ast/ProcedureASTNode.h>
 #include <sp/dataclasses/ast/ProgramASTNode.h>
 #include <sp/dataclasses/ast/WhileASTNode.h>
-#include <sp/design_extractor/CallsExtractor.h>
+#include <sp/design_extractor/CallsAndCallsTExtractor.h>
 
 const string DELIMITER = ":";
 
-vector<Relationship> CallsExtractor::extract(shared_ptr<ASTNode> ast) {
+vector<Relationship> CallsAndCallsTExtractor::extract(shared_ptr<ASTNode> ast) {
 	vector<Relationship> calls = vector<Relationship>();
 	ASTNodeType type = ast->getType();
 
@@ -44,7 +44,7 @@ vector<Relationship> CallsExtractor::extract(shared_ptr<ASTNode> ast) {
 	return calls;
 }
 
-vector<Relationship> CallsExtractor::handleProgram(shared_ptr<ASTNode> ast) {
+vector<Relationship> CallsAndCallsTExtractor::handleProgram(shared_ptr<ASTNode> ast) {
 	vector<Relationship> callsRelationships = vector<Relationship>();
 
 	// Sanity check to prevent erroneous calls outside of extract() since handleProgram is public 
@@ -78,7 +78,7 @@ vector<Relationship> CallsExtractor::handleProgram(shared_ptr<ASTNode> ast) {
 	return callsRelationships;
 }
 
-vector<Relationship> CallsExtractor::recursiveContainerExtract(Entity& leftHandSide, shared_ptr<ASTNode> ast) {
+vector<Relationship> CallsAndCallsTExtractor::recursiveContainerExtract(Entity& leftHandSide, shared_ptr<ASTNode> ast) {
 	vector<Relationship> callsRelationships = vector<Relationship>();
 	ASTNodeType type = ast->getType();
 

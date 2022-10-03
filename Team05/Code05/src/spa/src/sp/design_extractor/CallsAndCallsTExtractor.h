@@ -9,7 +9,7 @@
 
 using namespace std;
 
-class CallsExtractor : public Extractor<Relationship> {
+class CallsAndCallsTExtractor : public Extractor<Relationship> {
 
 private:
 	// Used to check for repeated procedure names.
