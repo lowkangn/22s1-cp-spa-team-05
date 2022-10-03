@@ -823,10 +823,16 @@ TEST_CASE("Test add and get patterns") {
 				all.push_back(assignPatterns[i]);
 			}
 		}
-		else {
+		else if (statementType == PKBTrackedStatementType::IF) {
 			vector<PQLPattern> ifPatterns = pkb.retrievePatterns(statementType, lhs);
 			for (int i = 0; i < ifPatterns.size(); i++) {
 				all.push_back(ifPatterns[i]);
+			}
+		}
+		else if (statementType == PKBTrackedStatementType::WHILE) {
+			vector<PQLPattern> whilePatterns = pkb.retrievePatterns(statementType, lhs);
+			for (int i = 0; i < whilePatterns.size(); i++) {
+				all.push_back(whilePatterns[i]);
 			}
 		}
 		REQUIRE(expectedPatterns.size() == all.size());
@@ -858,6 +864,10 @@ TEST_CASE("Test add and get patterns") {
 		if ((x == 0) && (y == 1) || (z == 2))
 		if (a != 3)
 
+		WHILE PATTERNS:
+		while (i > 0)
+		while ((i > 0) || (j == 0))
+		while ((i > 0) || (j == 0) && (k == 1))
 	*/
 	Pattern p1 = Pattern::createAssignPattern(1, " x ", " 2 x * y + ");
 	Pattern p2 = Pattern::createAssignPattern(2, " y ", " 3 y / 2 - ");
@@ -879,8 +889,18 @@ TEST_CASE("Test add and get patterns") {
 	// if (a != 3)
 	Pattern p11 = Pattern::createIfPattern(11, "a");
 
+	// while (i > 0)
+	Pattern p12 = Pattern::createWhilePattern(12, "i");
+
+	// while ((i > 0) || (j == 0))
+	Pattern p13 = Pattern::createWhilePattern(13, "i j");
+
+	// while ((i > 0) || (j == 0) && (k == 1))
+	Pattern p14 = Pattern::createWhilePattern(14, "i j jk");
+
+
 	vector<Pattern> toAdd = {
-		p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11
+		p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14
 	};
 
 	SECTION("lhs and rhs wildcard should get all assign patterns") {
@@ -918,6 +938,23 @@ TEST_CASE("Test add and get patterns") {
 
 	}
 
+	SECTION("lhs wildcard should get all while patterns") {
+		ClauseArgument lhs = ClauseArgument::createWildcardArg();
+
+		// rhs doesn't matter for while patterns
+		ClauseArgument rhs = ClauseArgument::createWildcardArg();
+		vector<PQLPattern> expectedPatterns = {
+			PQLPattern::generateAssignPattern(12, "i"),
+			PQLPattern::generateAssignPattern(13, "i"),
+			PQLPattern::generateAssignPattern(13, "j"),
+			PQLPattern::generateAssignPattern(14, "i"),
+			PQLPattern::generateAssignPattern(14, "j"),
+			PQLPattern::generateAssignPattern(14, "jk"),
+		};
+		test(PKBTrackedStatementType::WHILE, lhs, rhs, expectedPatterns, toAdd);
+
+	}
+
 	SECTION("specific lhs variable for if patterns") {
 		ClauseArgument lhs = ClauseArgument::createPatternStringArg("x");
 
@@ -945,6 +982,21 @@ TEST_CASE("Test add and get patterns") {
 			PQLPattern::generateAssignPattern(10, "y")
 		};
 		test(PKBTrackedStatementType::IF, lhs, rhs, expectedPatterns, toAdd);
+
+	}
+
+	SECTION("specific lhs variable retrieved with proper exact regex match for while patterns") {
+		// i.e. get while (..j..) but not while (..jk..)
+		ClauseArgument lhs = ClauseArgument::createPatternStringArg("j");
+
+		// rhs doesn't matter for if patterns
+		ClauseArgument rhs = ClauseArgument::createWildcardArg();
+
+		vector<PQLPattern> expectedPatterns = {
+			PQLPattern::generateAssignPattern(13, "j"),
+			PQLPattern::generateAssignPattern(14, "j")
+		};
+		test(PKBTrackedStatementType::WHILE, lhs, rhs, expectedPatterns, toAdd);
 
 	}
 

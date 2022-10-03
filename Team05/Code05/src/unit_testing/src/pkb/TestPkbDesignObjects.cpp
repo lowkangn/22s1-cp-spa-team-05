@@ -11,7 +11,7 @@
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
 #include <pkb/design_objects/patterns/PkbStatementPattern.h>
 #include <pkb/design_objects/patterns/PkbIfPattern.h>
-
+#include <pkb/design_objects/patterns/PkbWhilePattern.h>
 
 #include <pkb/PkbException.h>
 
@@ -235,6 +235,41 @@ TEST_CASE("PkbIfPattern throw error on creation with != 1 strings") {
 	}
 }
 
+TEST_CASE("PkbWhilePattern throw error on creation with != 1 strings") {
+	auto test = [](vector<string> strings, bool shouldThrow) {
+		if (shouldThrow) {
+			REQUIRE_THROWS_AS(PkbWhilePattern::createWhilePattern(1, strings), PkbException);
+		}
+		else {
+			REQUIRE_NOTHROW(PkbWhilePattern::createWhilePattern(1, strings));
+		}
+	};
+
+	SECTION("No throw for 1 string") {
+		vector<string> strings = {
+			"x",
+		};
+		bool shouldThrow = false;
+		test(strings, shouldThrow);
+	}
+
+	SECTION("Throw for 2 strings") {
+		vector<string> strings = {
+			"x",
+			"x+1",
+			"y+2"
+		};
+		bool shouldThrow = true;
+		test(strings, shouldThrow);
+	}
+
+	SECTION("Throw for 0 strings") {
+		vector<string> strings = { };
+		bool shouldThrow = true;
+		test(strings, shouldThrow);
+	}
+}
+
 TEST_CASE("PkbPattern::getKey") {
 	auto test = [](shared_ptr<PkbPattern> pattern, string expectedKey) {
 		// given, when, then
@@ -261,7 +296,15 @@ TEST_CASE("PkbPattern::getKey") {
 		string expectedKey = "count" + ifStatement->getKey();
 		test(pattern, expectedKey);
 	};
-
+	SECTION("While pattern") {
+		vector<string> strings = {
+			"count"
+		};
+		shared_ptr<PkbStatementEntity> whileStatement = shared_ptr<PkbStatementEntity>(PkbStatementEntity::createWhileStatementEntity(1));
+		shared_ptr<PkbWhilePattern> pattern = PkbWhilePattern::createWhilePattern(1, strings);
+		string expectedKey = "count" + whileStatement->getKey();
+		test(pattern, expectedKey);
+	};
 }
 
 TEST_CASE("PkbStatementPattern::regexMatch") {
@@ -356,8 +399,11 @@ TEST_CASE("PkbStatementPattern::regexMatch") {
 	};
 }
 
-TEST_CASE("PkbIfPattern::regexMatch") {
-	auto test = [](shared_ptr<PkbIfPattern> pattern, vector<string> regexStringsToMatch, bool shouldThrow, bool shouldMatch) {
+TEST_CASE("PkbIfPattern::regexMatch, PkbWhilePattern::regexMatch") {
+	/*
+		Group if and while pattern together for tests due to similar behaviour
+	*/
+	auto test = [](shared_ptr<PkbPattern> pattern, vector<string> regexStringsToMatch, bool shouldThrow, bool shouldMatch) {
 		// given, when, then
 		if (shouldThrow) {
 			REQUIRE_THROWS_AS(pattern->isRegexMatch(regexStringsToMatch), PkbException);
@@ -376,9 +422,11 @@ TEST_CASE("PkbIfPattern::regexMatch") {
 		};
 		bool shouldThrow = false;
 		bool shouldMatch = true;
-		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbIfPattern> ifPattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbWhilePattern> whilePattern = PkbWhilePattern::createWhilePattern(2, strings);
 
-		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(ifPattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(whilePattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	}
 
 	SECTION("Should match count exactly using regex tokens") {
@@ -390,9 +438,11 @@ TEST_CASE("PkbIfPattern::regexMatch") {
 		};
 		bool shouldThrow = false;
 		bool shouldMatch = true;
-		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbIfPattern> ifPattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbWhilePattern> whilePattern = PkbWhilePattern::createWhilePattern(2, strings);
 
-		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(ifPattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(whilePattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	}
 	
 	SECTION("Should not match x") {
@@ -404,9 +454,11 @@ TEST_CASE("PkbIfPattern::regexMatch") {
 		};
 		bool shouldThrow = false;
 		bool shouldMatch = false;
-		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbIfPattern> ifPattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbWhilePattern> whilePattern = PkbWhilePattern::createWhilePattern(2, strings);
 
-		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(ifPattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(whilePattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	}
 
 	SECTION("Should not match xCount using regex tokens") {
@@ -418,9 +470,11 @@ TEST_CASE("PkbIfPattern::regexMatch") {
 		};
 		bool shouldThrow = false;
 		bool shouldMatch = false;
-		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbIfPattern> ifPattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbWhilePattern> whilePattern = PkbWhilePattern::createWhilePattern(2, strings);
 
-		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(ifPattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(whilePattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	}
 
 	// IF pattern will be pattern(v, _, _), so only one regex string to match
@@ -434,9 +488,11 @@ TEST_CASE("PkbIfPattern::regexMatch") {
 		};
 		bool shouldThrow = true;
 		bool shouldMatch = true;
-		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbIfPattern> ifPattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbWhilePattern> whilePattern = PkbWhilePattern::createWhilePattern(2, strings);
 
-		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(ifPattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(whilePattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	}
 
 	SECTION("Should match single wildcard") {
@@ -448,9 +504,11 @@ TEST_CASE("PkbIfPattern::regexMatch") {
 		};
 		bool shouldThrow = false;
 		bool shouldMatch = true;
-		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbIfPattern> ifPattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbWhilePattern> whilePattern = PkbWhilePattern::createWhilePattern(2, strings);
 
-		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(ifPattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(whilePattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	}
 
 	SECTION("Should throw trying to match multiple wildcards") {
@@ -464,9 +522,11 @@ TEST_CASE("PkbIfPattern::regexMatch") {
 		};
 		bool shouldThrow = true;
 		bool shouldMatch = true;
-		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbIfPattern> ifPattern = PkbIfPattern::createIfPattern(1, strings);
+		shared_ptr<PkbWhilePattern> whilePattern = PkbWhilePattern::createWhilePattern(2, strings);
 
-		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(ifPattern, regexStringsToMatch, shouldThrow, shouldMatch);
+		test(whilePattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	}
 	
 }

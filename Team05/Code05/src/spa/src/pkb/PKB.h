@@ -185,6 +185,11 @@ public:
 	vector<PQLPattern> retrieveIfPatterns(ClauseArgument lhs);
 
 	/*
+		Retrieves while patterns by lhs.
+	*/
+	vector<PQLPattern> retrieveWhilePatterns(ClauseArgument lhs);
+
+	/*
 		Casts the PKB to its query handler interface as a shared pointer.
 	*/
 	shared_ptr<PKBQueryHandler> getQueryHandler();
