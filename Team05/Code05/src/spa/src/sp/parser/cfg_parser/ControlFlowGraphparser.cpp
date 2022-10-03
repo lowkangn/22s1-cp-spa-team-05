@@ -74,7 +74,7 @@ shared_ptr<CFGNode> ControlFlowParser::handleWhile(shared_ptr<ASTNode> whileNode
 	whileCFGNode->addChild(stmtListCFG);
 
 	// Add whileCFGNode to the end of the statement list
-	this->addChildToTheEndOfRoot(stmtListCFG, whileCFGNode);
+	this->addChildToEndOfNode(stmtListCFG, whileCFGNode);
 	
 	return whileCFGNode;
 }
@@ -107,7 +107,7 @@ shared_ptr<CFGNode> ControlFlowParser::handleStatementList(shared_ptr<ASTNode> r
 			childCFGNode = CFGNode::createCFGNode(currentAST->getLineNumber());
 		}
 		
-		this->addChildToTheEndOfRoot(currentCFG, childCFGNode);
+		this->addChildToEndOfNode(currentCFG, childCFGNode);
 		currentCFG = childCFGNode;
 		counter += 1;
 	}
@@ -116,7 +116,7 @@ shared_ptr<CFGNode> ControlFlowParser::handleStatementList(shared_ptr<ASTNode> r
 	return dummyCFG->getNext();
 }
 
-void ControlFlowParser::addChildToTheEndOfRoot(shared_ptr<CFGNode> root, shared_ptr<CFGNode> child)
+void ControlFlowParser::addChildToEndOfNode(shared_ptr<CFGNode> root, shared_ptr<CFGNode> child)
 {
 	if (root->isIfNode()) {
 		// Check if the then and else have children
@@ -126,8 +126,8 @@ void ControlFlowParser::addChildToTheEndOfRoot(shared_ptr<CFGNode> root, shared_
 		shared_ptr<CFGNode> elseCFGNode = ifCFGNode->getElseNode();
 
 		// Recursively add child to the end of the then and else nodes
-		this->addChildToTheEndOfRoot(thenCFGNode, child);
-		this->addChildToTheEndOfRoot(elseCFGNode, child);
+		this->addChildToEndOfNode(thenCFGNode, child);
+		this->addChildToEndOfNode(elseCFGNode, child);
 	}
 	else if (root->isWhileNode()) {
 		shared_ptr<WhileCFGNode> whileCFGNode = dynamic_pointer_cast<WhileCFGNode>(root);
@@ -138,13 +138,13 @@ void ControlFlowParser::addChildToTheEndOfRoot(shared_ptr<CFGNode> root, shared_
 		}
 		else {
 			// Recurse and get node after the while loop
-			this->addChildToTheEndOfRoot(whileCFGNode->getAfterWhile(), child);
+			this->addChildToEndOfNode(whileCFGNode->getAfterWhile(), child);
 		}
 	}
 	else {
 		// Keep recursing untill we find the end
 		if (root->hasNext()) {
-			this->addChildToTheEndOfRoot(root->getNext(), child);
+			this->addChildToEndOfNode(root->getNext(), child);
 		}
 		else {
 			root->addChild(child);

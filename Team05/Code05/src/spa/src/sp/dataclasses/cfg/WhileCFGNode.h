@@ -17,7 +17,7 @@ public:
 		return shared_ptr<WhileCFGNode>(new WhileCFGNode(statementNumber));
 	}
 
-	virtual shared_ptr<CFGNode> getNext() override {
+	shared_ptr<CFGNode> getNext() override {
 		throw CFGException("While CFG node has two child nodes");
 	}
 
@@ -37,11 +37,11 @@ public:
 		return this->nextNodes[0];
 	}
 
-	virtual bool isWhileNode() override {
+	bool isWhileNode() override {
 		return true;
 	}
 
-	virtual bool hasNext() override {
+	bool hasNext() override {
 		return this->nextNodes.size() == 2;
 	}
 };

@@ -17,7 +17,7 @@ public:
 		return shared_ptr<IfCFGNode>(new IfCFGNode(statementNumber));
 	}
 
-	virtual shared_ptr<CFGNode> getNext() override {
+	shared_ptr<CFGNode> getNext() override {
 		throw CFGException("If CFG node has two child nodes");
 	}
 
@@ -39,11 +39,11 @@ public:
 		}
 	}
 
-	virtual bool isIfNode() override {
+	bool isIfNode() override {
 		return true;
 	}
 
-	virtual bool hasNext() override {
+	bool hasNext() override {
 		shared_ptr<CFGNode> thenCFGNode = this->getThenNode();
 		shared_ptr<CFGNode> elseCFGNode = this->getElseNode();
 

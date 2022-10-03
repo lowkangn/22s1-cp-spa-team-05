@@ -49,7 +49,9 @@ public:
 				}
 				// It is a recursive case where the child node is pointing to a parent while
 				else {
-					return this->nextNodes[i]->statementNumber == other->nextNodes[i]->statementNumber;
+					if (!(this->nextNodes[i]->statementNumber == other->nextNodes[i]->statementNumber)) {
+						return false;
+					}
 				}
 			}
 		}

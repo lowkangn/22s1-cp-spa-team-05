@@ -14,7 +14,7 @@
 #include <sp/dataclasses/cfg/CFGNode.h>
 #include <sp/dataclasses/cfg/IfCFGNode.h>
 #include <sp/dataclasses/cfg/WhileCFGNode.h>
-#include <sp/parser/cfg_parser/ControlFlowGraphparser.h>
+#include <sp/parser/cfg_parser/ControlFlowGraphParser.h>
 
 #include <sp/lexer/Lexer.h>
 #include <sp/parser/SimpleSyntaxParserManager.h>
@@ -33,7 +33,7 @@ TEST_CASE("addChildToTheEndOfRoot test") {
 		ControlFlowParser cfgParser = ControlFlowParser();
 
 		// When
-		cfgParser.addChildToTheEndOfRoot(toAddTo, toAdd);
+		cfgParser.addChildToEndOfNode(toAddTo, toAdd);
 
 		// Then
 		REQUIRE(toAddTo->equals(expected));
