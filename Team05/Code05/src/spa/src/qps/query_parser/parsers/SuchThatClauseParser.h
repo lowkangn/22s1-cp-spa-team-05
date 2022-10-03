@@ -5,6 +5,7 @@
 
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query_parser/parsers/ClauseParser.h>
+#include <qps/query_parser/parsers/SemanticChecker.h>
 #include <qps/query/clause/ModifiesSClause.h>
 #include <qps/query/clause/ModifiesPClause.h>
 #include <qps/query/clause/RelationshipClause.h>

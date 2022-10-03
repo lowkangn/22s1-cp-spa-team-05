@@ -1,6 +1,7 @@
 #include <qps/QPS.h>
 
 void QPS::evaluate(string queryString, shared_ptr<PKBQueryHandler> pkb) {
+
 	try {
 		// tokenize
 		stringstream queryStream(queryString);

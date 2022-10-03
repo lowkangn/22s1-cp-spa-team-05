@@ -274,6 +274,7 @@ TEST_CASE("QPS: test working correctly") {
 
 	SECTION("Select and Pattern") {
 		
+		// wildcard and wildcard surrounded integer / name
 		queryString = "assign a; \n Select a pattern a(\"y\", _)";
 		expectedResult = set<string>{ "2" };
 		testQPS(queryString, expectedResult, pkb);
@@ -294,25 +295,17 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{ "1", "2", "3", "4", "5", "6", "7", "8" };
 		testQPS(queryString, expectedResult, pkb);
 
-
 		queryString = "assign a; stmt s; variable v; \n Select s pattern a(_, _ )";
 		expectedResult = set<string>{ "1", "2", "3", "4", "5", "6", "7", "8" };
 		testQPS(queryString, expectedResult, pkb);
 
-		/* Bugged: pattern matches z = 1000 - 0 + b, 100 is a substring of 1000 1000 0 - b + 
 		queryString = "assign a; stmt s; variable v;\n Select s pattern a(v, _\"100\"_ )";
 		expectedResult = set<string>{};
 		testQPS(queryString, expectedResult, pkb);
-		*/
 
-		/* Not needed for iter 1
-		
+		// wildcard surrounded including operator
 		queryString = "assign a; variable v; \n Select v pattern a(v,  _\"1000-0\"_ )";
 		expectedResult = set<string>{ "z" };
-		testQPS(queryString, expectedResult, pkb);
-
-		queryString = "assign a; variable v; \n Select v pattern a(v,  \"1000-0\" )";
-		expectedResult = set<string>{};
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "assign a; variable v; \n Select a pattern a(v,  _\"1*0\"_ )";
@@ -322,7 +315,25 @@ TEST_CASE("QPS: test working correctly") {
 		queryString = "assign a; variable v; \n Select a pattern a(v,  _\"x+1\"_ )";
 		expectedResult = set<string>{ };
 		testQPS(queryString, expectedResult, pkb);
-		*/
+
+		// exact matches
+		queryString = "assign a; variable v; \n Select v pattern a(v,  \"1000-0+b\" )";
+		expectedResult = set<string>{ "z" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "assign a; variable v; \n Select v pattern a(v,  \"1000-0\" )";
+		expectedResult = set<string>{};
+		testQPS(queryString, expectedResult, pkb);
+
+		// brackets
+		queryString = "assign a; variable v; \n Select v pattern a(v,  \"(1000-0)+((((b))))\" )";
+		expectedResult = set<string>{ "z" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "assign a; variable v; \n Select a pattern a(v,  _\"(x+1)*0\"_ )";
+		expectedResult = set<string>{ };
+		testQPS(queryString, expectedResult, pkb);
+
 	}
 
 	SECTION("Select, such that and Pattern") {
@@ -337,7 +348,6 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{ "7" };
 		testQPS(queryString, expectedResult, pkb);
 
-		
 		queryString = "assign a; variable v; Select a pattern a(_, _\"x\"_) such that Parent(_, a)";
 		expectedResult = set<string>{ "2" };
 		testQPS(queryString, expectedResult, pkb);
@@ -357,6 +367,49 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{ "0", "1", "1000"};
 		testQPS(queryString, expectedResult, pkb);
 
+	}
+
+	SECTION("Select, multiple such that and multiple Pattern") {
+
+		// 1 group, non-empty
+		queryString = "stmt s; if i; read r; while w; print p; assign a, a1; variable v, v1; \
+			Select v1 such that Parent(i, r) such that Modifies(r, v) such that Follows(i, a) \
+					 pattern a(v1, _\"1000 -   0\"_ ) such that Uses(p, v)  \
+			";
+		expectedResult = set<string>{ "z"};
+		testQPS(queryString, expectedResult, pkb);
+
+		// 2 groups, both non-empty
+		queryString = "stmt s; if i; read r; while w; print p; assign a, a1; variable v, v1; \
+			Select v1 such that Parent(i, r) such that Modifies(r, v) such that Follows(i, a) \
+					 pattern a1(v1, _\"1 * 0\"_ ) such that Modifies(w, v1)  \
+			";
+		expectedResult = set<string>{ "y" };
+		testQPS(queryString, expectedResult, pkb);
+		
+		// 2 groups, 1 empty
+		queryString = "stmt s; if i; read r; while w; print p; assign a, a1; variable v, v1; \
+			Select v1 such that Parent(i, r) such that Modifies(r, v) such that Follows(i, a) \
+					 pattern a1(v1, \"1000 - 0\" ) such that Uses(w, v1)  \
+			";
+		expectedResult = set<string>{ };
+		testQPS(queryString, expectedResult, pkb);
+		
+		// 6 groups, all non-empty
+		queryString = "stmt s; if i; read r; while w; print p; assign a, a1; variable v, v1; constant c; \
+			Select c such that Parent(i, r) such that Modifies(s, v) such that Follows(w, p) \
+					 pattern a1(v1, \"1000 - 0 + b\" ) such that Uses(a, \"x\")  \
+			";
+		expectedResult = set<string>{ "0", "1", "1000" };
+		testQPS(queryString, expectedResult, pkb);
+		
+		// 6 groups, 1 empty
+		queryString = "stmt s; if i; read r; while w; print p; assign a, a1; variable v, v1; constant c; \
+			Select c such that Parent(i, r) such that Modifies(s, v) such that Follows(w, p) \
+					 pattern a1(v1, \"1000 - 0 + b\" ) such that Uses(a, \"v\")  \
+			";
+		expectedResult = set<string>{ };
+		testQPS(queryString, expectedResult, pkb);
 	}
 }
 
@@ -421,6 +474,9 @@ TEST_CASE("QPS: test correct errors") {
 
 		queryString = "stmt s;\n Select s such that Uses(s, \"x)";
 		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s; \n Select s such that Uses(s, 1)";
+		testQPS(queryString, expectedResult);
 	}
 
 	SECTION("Semantic errors") {
@@ -448,9 +504,6 @@ TEST_CASE("QPS: test correct errors") {
 		testQPS(queryString, expectedResult);
 
 		queryString = "stmt s; \n Select s such that Uses(_, \"x\")";
-		testQPS(queryString, expectedResult);
-
-		queryString = "stmt s; \n Select s such that Uses(s, 1)";
 		testQPS(queryString, expectedResult);
 
 		queryString = "stmt s, s2; \n Select s such that Modifies(s, s2)";

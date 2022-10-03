@@ -1270,24 +1270,16 @@ namespace {
 	PQLRelationship pqlUsesSA2Y = PQLRelationship(pqlA2, pqlY);
 	PQLRelationship pqlUsesSP4Z = PQLRelationship(pqlP4, pqlZ);
 	PQLRelationship pqlUsesSA6X = PQLRelationship(pqlA6, pqlX);
-	PQLRelationship pqlUsesSA6One = PQLRelationship(pqlA6, pql1);
-	PQLRelationship pqlUsesSA8Three = PQLRelationship(pqlA8, pql3);
 	PQLRelationship pqlUsesSA9Z = PQLRelationship(pqlA9, pqlZ);
 
 	PQLRelationship pqlUsesSW3X = PQLRelationship(pqlW3, pqlX);
-	PQLRelationship pqlUsesSW3Zero = PQLRelationship(pqlW3, pql0);
 	PQLRelationship pqlUsesSI5Y = PQLRelationship(pqlI5, pqlY);
 	PQLRelationship pqlUsesSI5X = PQLRelationship(pqlI5, pqlX);
 	PQLRelationship pqlUsesSI7Y = PQLRelationship(pqlI7, pqlY);
-	PQLRelationship pqlUsesSI7Five = PQLRelationship(pqlI7, pql5);
 
 	PQLRelationship pqlUsesPMainY = PQLRelationship(pqlMain, pqlY);
 	PQLRelationship pqlUsesPMainX = PQLRelationship(pqlMain, pqlZ);
-	PQLRelationship pqlUsesPMainZero = PQLRelationship(pqlMain, pql0);
 	PQLRelationship pqlUsesPMainZ = PQLRelationship(pqlMain, pqlZ);
-	PQLRelationship pqlUsesPMainOne = PQLRelationship(pqlMain, pql1);
-	PQLRelationship pqlUsesPMainFive = PQLRelationship(pqlMain, pql5);
-	PQLRelationship pqlUsesPMainThree = PQLRelationship(pqlMain, pql3);
 
 	// Pattern
 	Pattern a2Pattern = Pattern::createAssignPattern(2, " x ", " y ");
@@ -1313,7 +1305,11 @@ namespace {
 	ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
 
 	ClauseArgument secondStmtArg = ClauseArgument::createStmtArg("s1");
+	ClauseArgument secondAssignArg = ClauseArgument::createAssignArg("a2");
+	ClauseArgument secondIfArg = ClauseArgument::createIfArg("i1");
+	ClauseArgument secondVarArg = ClauseArgument::createVariableArg("v2");
 
+	ClauseArgument lineNumber3Arg = ClauseArgument::createLineNumberArg("3");
 	ClauseArgument XStringLiteralArg = ClauseArgument::createStringLiteralArg("x");
 	ClauseArgument YStringLiteralArg = ClauseArgument::createStringLiteralArg("y");
 	ClauseArgument nonExistentStringLiteralArg = ClauseArgument::createStringLiteralArg("z");
@@ -1363,9 +1359,8 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 										modifiesSReadY, modifiesSA2X, modifiesSA6X, modifiesSA8Y, modifiesSA9Y,
 										modifiesSWhileX, modifiesSIf5X, modifiesSIf7Y, modifiesPMainY, modifiesPMainX,
 
-										usesSA2Y, usesSPrintZ, usesSA6X, usesSA6One, usesSA8Three, usesSA9Z, usesSWhileX,
-										usesSWhileZero, usesSIf5Y, usesSIf5X, usesSIf7Y, usesSIf7Five, usesPMainY,
-										usesPMainX, usesPMainZero, usesPMainZ, usesPMainOne, usesPMainFive, usesPMainThree};
+										usesSA2Y, usesSPrintZ, usesSA6X, usesSA9Z, usesSWhileX, usesSIf5Y, usesSIf5X,
+										usesSIf7Y, usesPMainY, usesPMainX, usesPMainZ};
 
 	vector<Pattern> patterns{ a2Pattern , a6Pattern , a8Pattern , a9Pattern };
 
@@ -1955,6 +1950,63 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new FollowsTClause(ifArg, assignArg));
 		shared_ptr<PatternClause> patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, nonExistentStringLiteralArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
+		expectedSet = set<string>{};
+		testEvaluate(query, expectedSet, pkb);
+	}
+
+	SECTION("Multi-clause: 3 non-empty groups") {
+		/* Group 1: Select v such that Follows(s, a) such that Modifies(a, v) pattern a(_, "y")
+		*  Group 2: such that Parent*(w, a2) pattern a2("x", _"x"_)
+		*  Group 3: such that Uses(s2, _) such that Follows (3, s2)
+		*/
+		selectClause = make_shared<SelectClause>(varArg);
+		
+		shared_ptr<RelationshipClause> group1Follows = shared_ptr<RelationshipClause>(new FollowsClause(stmtArg, assignArg));
+		shared_ptr<RelationshipClause> group1ModifiesS = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, varArg));
+		shared_ptr<PatternClause> group1PatternAssign = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, wildcardArg, a2PatternStringArg));
+		
+		shared_ptr<RelationshipClause> group2ParentT = shared_ptr<RelationshipClause>(new ParentTClause(whileArg, secondAssignArg));
+		shared_ptr<PatternClause> group2PatternAssign = shared_ptr<PatternClause>(new PatternAssignClause(secondAssignArg, XStringLiteralArg, a6SecondPatternStringWithWildcardsArg));
+
+		shared_ptr<RelationshipClause> group3UsesS = shared_ptr<RelationshipClause>(new UsesSClause(secondStmtArg, wildcardArg));
+		shared_ptr<RelationshipClause> group3Follows = shared_ptr<RelationshipClause>(new FollowsClause(lineNumber3Arg, secondStmtArg));
+
+		list<shared_ptr<RelationshipClause>> suchThatClauses = list<shared_ptr<RelationshipClause>>{
+			group1Follows, group1ModifiesS, group2ParentT, group3UsesS, group3Follows,
+		};
+		list<shared_ptr<PatternClause>> patternClauses = list<shared_ptr<PatternClause>>{ group1PatternAssign, group2PatternAssign };
+
+		query = Query(selectClause, suchThatClauses, patternClauses);
+		expectedSet = set<string>{ "x" };
+		testEvaluate(query, expectedSet, pkb);
+	}
+
+	SECTION("Multi-clause: 3 non-empty groups, 1 empty group") {
+		/* Group 1: Select v such that Follows(s, a) such that Modifies(a, v) pattern a(_, "y")
+		*  Group 2: such that Parent*(w, a2) pattern a2("x", _"x"_)
+		*  Group 3: such that Uses(s2, _) such that Follows (3, s2)
+		*  Group 4: such that Parent(i, i)
+		*/
+		selectClause = make_shared<SelectClause>(varArg);
+
+		shared_ptr<RelationshipClause> group1Follows = shared_ptr<RelationshipClause>(new FollowsClause(stmtArg, assignArg));
+		shared_ptr<RelationshipClause> group1ModifiesS = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, varArg));
+		shared_ptr<PatternClause> group1PatternAssign = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, wildcardArg, a2PatternStringArg));
+
+		shared_ptr<RelationshipClause> group2ParentT = shared_ptr<RelationshipClause>(new ParentTClause(whileArg, secondAssignArg));
+		shared_ptr<PatternClause> group2PatternAssign = shared_ptr<PatternClause>(new PatternAssignClause(secondAssignArg, XStringLiteralArg, a6SecondPatternStringWithWildcardsArg));
+
+		shared_ptr<RelationshipClause> group3UsesS = shared_ptr<RelationshipClause>(new UsesSClause(secondStmtArg, wildcardArg));
+		shared_ptr<RelationshipClause> group3Follows = shared_ptr<RelationshipClause>(new FollowsClause(lineNumber3Arg, secondStmtArg));
+
+		shared_ptr<RelationshipClause> group4Parent = shared_ptr<RelationshipClause>(new ParentClause(ifArg, ifArg));
+
+		list<shared_ptr<RelationshipClause>> suchThatClauses = list<shared_ptr<RelationshipClause>>{
+			group1Follows, group1ModifiesS, group2ParentT, group3UsesS, group3Follows, group4Parent,
+		};
+		list<shared_ptr<PatternClause>> patternClauses = list<shared_ptr<PatternClause>>{ group1PatternAssign, group2PatternAssign };
+
+		query = Query(selectClause, suchThatClauses, patternClauses);
 		expectedSet = set<string>{};
 		testEvaluate(query, expectedSet, pkb);
 	}
