@@ -136,11 +136,11 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 
 TEST_CASE("CallsAndCallsTExtractor: test extractWithSemanticError") {
 	auto testExtractWithError = [](shared_ptr<ASTNode> astNode, string expectedErrorMessage) {
-			// given
-			CallsAndCallsTExtractor extractor = CallsAndCallsTExtractor();
+		// given
+		CallsAndCallsTExtractor extractor = CallsAndCallsTExtractor();
 
-			// then
-			REQUIRE_THROWS_MATCHES(extractor.extract(astNode), ASTException, Catch::Message(expectedErrorMessage));
+		// then
+		REQUIRE_THROWS_MATCHES(extractor.extract(astNode), ASTException, Catch::Message(expectedErrorMessage));
 	};
 
 	// Variables are omitted for brevity. CallsAndCallsTExtractor does not interact with variables.
@@ -188,4 +188,38 @@ TEST_CASE("CallsAndCallsTExtractor: test extractWithSemanticError") {
 		testExtractWithError(mainProcedureNode, "Trying to call a non-existent procedure alpha");
 	}
 
+	SECTION("Procedures with same name") {
+		/*
+			procedure main {
+				call alpha;
+			}
+
+			procedure alpha {}
+
+			procedure alpha {}
+		*/
+
+		shared_ptr<ASTNode> mainProcedureNode = ProcedureASTNode::createProcedureNode(mainToken);
+		shared_ptr<ASTNode> mainStmtListNode = StatementListASTNode::createStatementListNode();
+		mainProcedureNode->addChild(mainStmtListNode);
+
+		shared_ptr<ASTNode> alphaProcedureNode1 = ProcedureASTNode::createProcedureNode(alphaToken);
+		shared_ptr<ASTNode> alphaStmtListNode1 = StatementListASTNode::createStatementListNode();
+		alphaProcedureNode1->addChild(alphaStmtListNode1);
+
+		shared_ptr<ASTNode> alphaProcedureNode2 = ProcedureASTNode::createProcedureNode(alphaToken);
+		shared_ptr<ASTNode> alphaStmtListNode2 = StatementListASTNode::createStatementListNode();
+		alphaProcedureNode2->addChild(alphaStmtListNode2);
+
+		shared_ptr<ASTNode> callMainNode = CallASTNode::createCallNode();
+		callMainNode->addChild(alphaProcedureNode1);
+		mainStmtListNode->addChild(callMainNode);
+
+		shared_ptr<ASTNode> programNode = ProgramASTNode::createProgramNode();
+		programNode->addChild(mainProcedureNode);
+		programNode->addChild(alphaProcedureNode1);
+		programNode->addChild(alphaProcedureNode2);
+
+		testExtractWithError(programNode, "Procedure alpha was declared twice in the program");
+	}
 }
