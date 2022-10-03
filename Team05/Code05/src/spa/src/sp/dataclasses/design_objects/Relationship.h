@@ -14,7 +14,8 @@ private:
         FOLLOWST = 3,
         PARENT = 4,
         PARENTT = 5,
-        CALLS = 6
+        CALLS = 6,
+        CALLST = 7
     };
 
     Entity entity1;
@@ -53,6 +54,10 @@ public:
 
     static Relationship createCallsRelationship(Entity& lhs, Entity& rhs) {
         return Relationship(lhs, rhs, RelationshipType::CALLS);
+    }
+
+    static Relationship createCallsTRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::CALLST);
     }
 
     Entity getLhs() {

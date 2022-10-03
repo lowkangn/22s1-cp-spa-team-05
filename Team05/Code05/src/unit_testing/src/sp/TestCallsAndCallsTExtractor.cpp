@@ -127,10 +127,14 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		Relationship callsMainAlpha = Relationship::createCallsRelationship(mainEntity, alphaEntity);
 		Relationship callsMainBeta = Relationship::createCallsRelationship(mainEntity, betaEntity);
 		Relationship callsAlphaBeta = Relationship::createCallsRelationship(alphaEntity, betaEntity);
+		Relationship callsTMainAlpha = Relationship::createCallsTRelationship(mainEntity, alphaEntity);
+		Relationship callsTMainBeta = Relationship::createCallsTRelationship(mainEntity, betaEntity);
+		Relationship callsTAlphaBeta = Relationship::createCallsTRelationship(alphaEntity, betaEntity);
 
-		vector<Relationship> expectedCallsRelationships{ callsMainAlpha, callsMainBeta, callsAlphaBeta };
+		vector<Relationship> expectedCallsAndCallsTRelationships{ callsMainAlpha, callsTMainAlpha, callsMainBeta,
+				callsTMainBeta, callsAlphaBeta, callsTAlphaBeta };
 
-		test(programNode, expectedCallsRelationships);
+		test(programNode, expectedCallsAndCallsTRelationships);
 	}	
 }
 

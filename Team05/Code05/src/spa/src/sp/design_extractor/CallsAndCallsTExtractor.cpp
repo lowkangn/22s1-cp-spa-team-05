@@ -19,7 +19,6 @@ vector<Relationship> CallsAndCallsTExtractor::extract(shared_ptr<ASTNode> ast) {
 	vector<Relationship> calls = vector<Relationship>();
 	ASTNodeType type = ast->getType();
 
-
 	switch (type) {
 	case ASTNodeType::PROGRAM:
 	{
@@ -63,7 +62,7 @@ vector<Relationship> CallsAndCallsTExtractor::handleProgram(shared_ptr<ASTNode> 
 
 		// Check if the procedure name was not already defined before.
 		if (this->extractedProcedures.find(procedureName) == this->extractedProcedures.end()) {
-			this->extractedProcedures.insert(procedureName);
+			this->extractedProcedures.insert({ procedureName, procedure });
 		}
 		else {
 			throw ASTException("Procedure " + procedureName + " was declared twice in the program");
@@ -103,6 +102,16 @@ vector<Relationship> CallsAndCallsTExtractor::recursiveContainerExtract(Entity& 
 			if (this->extractedCalls.find(callerCalleeString) == this->extractedCalls.end()) {
 				this->extractedCalls.insert(callerCalleeString);
 				callsRelationships.push_back(Relationship::createCallsRelationship(leftHandSide, procedureCalled));
+				callsRelationships.push_back(Relationship::createCallsTRelationship(leftHandSide, procedureCalled));
+
+				// If this procedure was not added to the graph before, create a new entry.
+				if (this->callsGraph.find(caller) == this->callsGraph.end()) {
+					vector<Entity> children = { procedureCalled };
+					this->callsGraph.insert({ caller, children });
+				}
+				else {
+					this->callsGraph.at(caller).push_back(procedureCalled);
+				}
 			}
 		}
 		break;
