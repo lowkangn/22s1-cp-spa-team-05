@@ -10,6 +10,7 @@
 #include <sp/dataclasses/ast/IfASTNode.h>
 #include <sp/dataclasses/ast/ProcedureASTNode.h>
 #include <sp/dataclasses/ast/ProgramASTNode.h>
+#include <sp/dataclasses/ast/WhileASTNode.h>
 #include <sp/design_extractor/CallsExtractor.h>
 
 const string DELIMITER = ":";
@@ -109,6 +110,17 @@ vector<Relationship> CallsExtractor::recursiveContainerExtract(Entity& leftHandS
 		for (shared_ptr<ASTNode> child : elseChild->getChildren()) {
 			vector <Relationship> extractedElseRelationships = recursiveContainerExtract(leftHandSide, child);
 			callsRelationships.insert(callsRelationships.end(), extractedElseRelationships.begin(), extractedElseRelationships.end());
+		}
+		break;
+	}
+	case ASTNodeType::WHILE:
+	{
+		shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
+		shared_ptr<ASTNode> childrenStmtLst = whileNode->getStmtList();
+
+		for (shared_ptr<ASTNode> child : childrenStmtLst->getChildren()) {
+			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
+			callsRelationships.insert(callsRelationships.end(), toAdd.begin(), toAdd.end());
 		}
 		break;
 	}
