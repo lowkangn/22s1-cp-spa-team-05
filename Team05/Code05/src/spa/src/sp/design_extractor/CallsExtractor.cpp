@@ -93,13 +93,17 @@ vector<Relationship> CallsExtractor::recursiveContainerExtract(Entity& leftHandS
 		if (caller == callee) {
 			throw ASTException("A procedure is calling itself!");
 		}
+		else if (this->extractedProcedures.find(callee) == this->extractedProcedures.end()) {
+			throw ASTException("Trying to call a non-existent procedure " + callee);
+		}
+		else {
+			string callerCalleeString = caller + DELIMITER + callee;
 
-		string callerCalleeString = caller + DELIMITER + callee;
-
-		// If this calls relationship was not extracted previously, extract and add it to the extracted relationships.
-		if (this->extractedCalls.find(callerCalleeString) == this->extractedCalls.end()) {
-			this->extractedCalls.insert(callerCalleeString);
-			callsRelationships.push_back(Relationship::createCallsRelationship(leftHandSide, procedureCalled));
+			// If this calls relationship was not extracted previously, extract and add it to the extracted relationships.
+			if (this->extractedCalls.find(callerCalleeString) == this->extractedCalls.end()) {
+				this->extractedCalls.insert(callerCalleeString);
+				callsRelationships.push_back(Relationship::createCallsRelationship(leftHandSide, procedureCalled));
+			}
 		}
 		break;
 	}
