@@ -41,7 +41,7 @@ shared_ptr<SelectClause> QueryParser::parseSelect(unordered_map<string, Argument
 	PQLToken token = this->tokens.front();
 	shared_ptr<SelectParser> parserPointer;
 
-	if (token.isBooleanKeyword()) {
+	if (token.isBooleanKeyword() && declarations.count(token.getTokenString()) == 0) {
 		parserPointer = shared_ptr<SelectParser>(new SelectBooleanParser(this->tokens, declarations));
 	}
 	else if (token.isName()) {

@@ -27,6 +27,10 @@ public:
 		return SelectClause(list<ClauseArgument>(), true);
 	}
 
+	bool checkIfBooleanReturnType() {
+		return this->isBooleanReturnType;
+	}
+
 	list<shared_ptr<EntityClauseResult>> execute(shared_ptr<PKBQueryHandler> pkb);
 	shared_ptr<EntityClauseResult> getSingleEntityResult(shared_ptr<PKBQueryHandler> pkb, ClauseArgument toSelect);
 	bool equals(const SelectClause* other);

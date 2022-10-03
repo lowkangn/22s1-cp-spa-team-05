@@ -3,10 +3,11 @@
 set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pkb) {
 	list<shared_ptr<EntityClauseResult>> entitiesResultPointers = query.executeSelect(pkb);
 	list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers = query.executeSuchThatAndPattern(pkb);
-	return combine(entitiesResultPointers, relationshipsResultPointers);
+	vector<vector<PQLEntity>> results = combine(entitiesResultPointers, relationshipsResultPointers);
+	return convertResultsToString(results, query.checkIfBooleanReturnType());
 }
 
-set<string> QueryEvaluator::combine(list<shared_ptr<EntityClauseResult>> entitiesResultPointers,
+vector<vector<PQLEntity>> QueryEvaluator::combine(list<shared_ptr<EntityClauseResult>> entitiesResultPointers,
 									list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers) {
 
 	list<EntityClauseResult> entitiesResults;
@@ -22,34 +23,42 @@ set<string> QueryEvaluator::combine(list<shared_ptr<EntityClauseResult>> entitie
     // If result from SelectClause returns no entries, return empty set
 	for (EntityClauseResult entitiesResult : entitiesResults) {
 		if (entitiesResult.isEmpty()) {
-			return set<string>();
+			return vector<vector<PQLEntity>>();
 		}
 	}
 
     // If result from any other Clause returns no entries, return empty set
     for (RelationshipClauseResult relationshipsResult : relationshipsResults) {
         if (relationshipsResult.isEmpty()) {
-            return set<string>();
+            return vector<vector<PQLEntity>>();
         }
     }
 
 	// Filter results to get set of entities that meet all constraints
-    vector<vector<PQLEntity>> entitiesToReturn = filterEntities(entitiesResults, relationshipsResults);
+    return filterEntities(entitiesResults, relationshipsResults);
+}
 
-	// Convert set of entities into set of entity strings
+set<string> QueryEvaluator::convertResultsToString(vector<vector<PQLEntity>> entitiesToReturn, bool isBooleanReturnType) {
 	set<string> entityStringsToReturn;
 
-	if (entitiesToReturn.size() > 0) {
-		for (int columnIndex = 0; columnIndex < entitiesToReturn[0].size(); columnIndex++) {
-			string row;
-			for (int rowIndex = 0; rowIndex < entitiesToReturn.size(); rowIndex++) {
-				PQLEntity entity = entitiesToReturn[rowIndex][columnIndex];
-				if (rowIndex != 0) {
-					row += " ";
+	if (isBooleanReturnType) {
+		if (entitiesToReturn.empty()) {
+			entityStringsToReturn.insert("FALSE");
+		} else {
+			entityStringsToReturn.insert("TRUE");
+		}
+	}
+	else {
+		for (vector<PQLEntity> row: entitiesToReturn) {
+			string out;
+			vector<PQLEntity>::iterator entityIter = row.begin();
+			for (; entityIter != row.end(); entityIter++) {
+				if (entityIter != row.begin()) {
+					out += " ";
 				}
-				row += entity.toString();
+				out += entityIter->toString();
 			}
-			entityStringsToReturn.insert(row);
+			entityStringsToReturn.insert(out);
 		}
 	}
 
@@ -95,6 +104,9 @@ vector<vector<PQLEntity>> QueryEvaluator::filterEntities(list<EntityClauseResult
 		}
 	}
 
+	// TODO: Currently, clauses that cannot be grouped with arguments desired by select clause (i.e. the vacuously true kind)
+	//  are just treated as boolean: I wanted to avoid doing whole table cross products, but this seems necessary unfortunately.
+	//  This method needs to be updated to support that.
 	// Join tables
 	bool hasEntries = combinedTableJoin(combinedTable, argumentsInCombinedTable, relationshipsResults);
 
@@ -103,28 +115,43 @@ vector<vector<PQLEntity>> QueryEvaluator::filterEntities(list<EntityClauseResult
 		return vector<vector<PQLEntity>>{};
 	}
 
-	// TODO: Implement getting cross product of all entity lists for returning multiple return values
+	// From combined table, get only column of entities that match select clause argument
+	vector<vector<PQLEntity>> entitiesToReturn;
+
+	// TODO: Only works for single return type. Implement getting cross product of all entity lists for returning multiple return values.
 	// If combinedTable is still empty, means no clause has matching arguments but joining all clauses evaluates to true: return select entity list
 	if (!matchingClauseFound) {
-		return vector<vector<PQLEntity>>{entitiesResults.front().getEntities()};
+		for (PQLEntity entity : entitiesResults.front().getEntities()) {
+			entitiesToReturn.push_back(vector<PQLEntity>{entity});
+		}
+		return entitiesToReturn;
 	}
+	// Find indexes of columns matching select clause arguments
+	list<int> matchingColumnIndexes;
 
-	// From combined table, pull out column of entities that match select clause argument
-	vector<PQLEntity> entitiesToReturn;
-
-	// TODO: Implement cross product of intermediate table so final combined table has all arguments
-	// In the combined table, find the column with clause argument matching the select clause argument
-	for (int i = 0; i < argumentsInCombinedTable->size(); i++) {
-		if (entitiesResults.front().hasArg(argumentsInCombinedTable->at(i))) {
-			// For each row, get the PQLEntity in that column and add to entitiesToReturn
-			for (vector<PQLEntity> row : *combinedTable) {
-				entitiesToReturn.push_back(row[i]);
+	for (EntityClauseResult entitiesResult : entitiesResults) {
+		for (int i = 0; i < argumentsInCombinedTable->size(); i++) {
+			if (entitiesResult.hasArg(argumentsInCombinedTable->at(i))) {
+				matchingColumnIndexes.push_back(i);
+				break;
 			}
-			break;
 		}
 	}
 
-	return vector<vector<PQLEntity>>{entitiesToReturn};
+	// If combined table is missing columns that match a select clause argument, there are no matching entries
+	if (matchingColumnIndexes.size() != entitiesResults.size()) {
+		return vector<vector<PQLEntity>>{};
+	}
+
+	for (vector<PQLEntity> row : *combinedTable) {
+		vector<PQLEntity> newRow;
+		for (int index : matchingColumnIndexes) {
+			newRow.push_back(row[index]);
+		}
+		entitiesToReturn.push_back(newRow);
+	}
+
+	return entitiesToReturn;
 }
 
 bool QueryEvaluator::combinedTableJoin(shared_ptr<vector<vector<PQLEntity>>> combinedTable,

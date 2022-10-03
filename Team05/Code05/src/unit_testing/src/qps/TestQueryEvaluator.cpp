@@ -928,12 +928,15 @@ TEST_CASE("QueryEvaluator: test filterEntities") {
 	vector<PQLEntity> stmtEntities = {firstStmtEntity, secondStmtEntity, thirdStmtEntity};
 	vector<PQLEntity> varEntities = {firstVarEntity, secondVarEntity, thirdVarEntity};
 
+	vector<vector<PQLEntity>> stmtEntityTable = {{firstStmtEntity}, {secondStmtEntity}, {thirdStmtEntity}};
+	vector<vector<PQLEntity>> varEntityTable = {{firstVarEntity}, {secondVarEntity}, {thirdVarEntity}};
+
 	EntityClauseResult stmtEntityClauseResult = EntityClauseResult(stmtArg, stmtEntities);
 	EntityClauseResult varEntityClauseResult = EntityClauseResult(varArg, varEntities);
 
 	SECTION("Empty list") {
-		testFilterEntities({stmtEntityClauseResult}, {}, {stmtEntities});
-		testFilterEntities({varEntityClauseResult}, {}, {varEntities});
+		testFilterEntities({stmtEntityClauseResult}, {}, stmtEntityTable);
+		testFilterEntities({varEntityClauseResult}, {}, varEntityTable);
 	}
 
 	SECTION("One RelationshipClauseResult with match") {
@@ -953,8 +956,7 @@ TEST_CASE("QueryEvaluator: test filterEntities") {
 		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
 				procArg, constArg, {firstRelationship});
 
-		vector<PQLEntity> expectedEntities = stmtEntities;
-		testFilterEntities({stmtEntityClauseResult}, {firstRelationshipsResult}, {expectedEntities});
+		testFilterEntities({stmtEntityClauseResult}, {firstRelationshipsResult}, stmtEntityTable);
 	}
 
 	SECTION("Multiple RelationshipClauseResults with match") {
@@ -987,21 +989,20 @@ TEST_CASE("QueryEvaluator: test filterEntities") {
 		RelationshipClauseResult secondRelationshipsResult = RelationshipClauseResult(
 				readArg, procArg, {secondRelationship, thirdRelationship});
 
-		vector<PQLEntity> expectedEntities = stmtEntities;
 		testFilterEntities({stmtEntityClauseResult},
 						   {firstRelationshipsResult, secondRelationshipsResult},
-						   {expectedEntities});
+						   stmtEntityTable);
 	}
 }
 
 TEST_CASE("QueryEvaluator: test combine") {
 	auto testCombine = [](list<shared_ptr<EntityClauseResult>> entitiesResultPointers,
-		list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers, set<string> expected) {
+		list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers, vector<vector<PQLEntity>> expected) {
 		// given
 		QueryEvaluator evaluator = QueryEvaluator();
 
 		// when
-		set<string> actual = evaluator.combine(entitiesResultPointers, relationshipsResultPointers);
+		vector<vector<PQLEntity>> actual = evaluator.combine(entitiesResultPointers, relationshipsResultPointers);
 
 		// then
 		REQUIRE(actual == expected);
@@ -1016,11 +1017,11 @@ TEST_CASE("QueryEvaluator: test combine") {
 				shared_ptr<EntityClauseResult>(new EntityClauseResult(
 						variableArg,vector<PQLEntity>{varEntity}));
 
-        set<string> expectedSet = set<string>{"x"};
+		vector<vector<PQLEntity>> expectedTable = vector<vector<PQLEntity>>{{PQLEntity::generateVariable("x")}};
 
         testCombine({entityClauseResultWithVariable},
 					list<shared_ptr<RelationshipClauseResult>>{},
-					expectedSet);
+					expectedTable);
 
         // x = x + 1; constant c; Select c
         ClauseArgument constantArg = ClauseArgument::createConstantArg("c");
@@ -1029,11 +1030,11 @@ TEST_CASE("QueryEvaluator: test combine") {
 				shared_ptr<EntityClauseResult>(new EntityClauseResult(
 						constantArg,vector<PQLEntity>{constEntity}));
 
-        expectedSet = set<string>{"1"};
+		expectedTable = vector<vector<PQLEntity>>{{PQLEntity::generateConstant(1)}};
 
         testCombine({entityClauseResultWithConstant},
 					list<shared_ptr<RelationshipClauseResult>>{},
-					expectedSet);
+					expectedTable);
 
         // x = x + 1; procedure p; Select p
         ClauseArgument procArg = ClauseArgument::createProcedureArg("p");
@@ -1041,11 +1042,11 @@ TEST_CASE("QueryEvaluator: test combine") {
 				shared_ptr<EntityClauseResult>(new EntityClauseResult(
 						procArg,vector<PQLEntity>{}));
 
-        expectedSet = set<string>{};
+		expectedTable = vector<vector<PQLEntity>>{};
 
         testCombine({entityClauseResultWithProcedure},
 					list<shared_ptr<RelationshipClauseResult>>{},
-					expectedSet);
+					expectedTable);
     }
 
     SECTION("SelectClause with ModifiesSClause") {
@@ -1072,25 +1073,31 @@ TEST_CASE("QueryEvaluator: test combine") {
                 varArg,
                 vector<PQLRelationship>{relationship1, relationship2}));
 
-        set<string> expectedSet = set<string>{"1", "2"};
+		vector<vector<PQLEntity>> expectedTable = vector<vector<PQLEntity>>{
+			{PQLEntity::generateStatement(1)}, {PQLEntity::generateStatement(2)}};
+
 
         // x = x + 1; y = y + 1; assign a; variable v; Select a such that Modifies(a,v)
         testCombine({assignEntityClauseResult},
 					list<shared_ptr<RelationshipClauseResult>>{assignAndVarRelationshipClauseResult},
-					expectedSet);
+					expectedTable);
 
         // x = x + 1; y = y + 1; assign a; variable v; Select v such that Modifies(a,v)
         shared_ptr<EntityClauseResult> varEntityClauseResult = shared_ptr<EntityClauseResult>(
 				new EntityClauseResult(varArg, varEntities));
 
-        expectedSet = set<string>{"x", "y"};
+        expectedTable = vector<vector<PQLEntity>>{
+				{PQLEntity::generateVariable("x")}, {PQLEntity::generateVariable("y")}};;
 
         testCombine({varEntityClauseResult},
 					list<shared_ptr<RelationshipClauseResult>>{assignAndVarRelationshipClauseResult},
-					expectedSet);
+					expectedTable);
     }
 
+	// TODO: Add tests for boolean/multiple return types
 }
+
+// TODO: Add test for convertResultsToString
 
 // ==================== INTEGRATION TESTS ====================
 namespace {

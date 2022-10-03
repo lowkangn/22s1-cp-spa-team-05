@@ -53,5 +53,10 @@ public:
 	/* Returns the results obtained from the query's SuchThat and Pattern clauses. */
 	list<shared_ptr<RelationshipClauseResult>> executeSuchThatAndPattern(shared_ptr<PKBQueryHandler> pkb);
 
+	/* Checks if the requested return type is BOOLEAN */
+	bool checkIfBooleanReturnType() {
+		return selectClause->checkIfBooleanReturnType();
+	}
+
 	friend bool operator==(Query first, Query second);
 };
