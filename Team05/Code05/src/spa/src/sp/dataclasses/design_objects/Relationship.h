@@ -97,4 +97,12 @@ public:
     bool isUses() {
         return this->type == RelationshipType::USES;
     }
+
+    bool isCalls() {
+        return this->type == RelationshipType::CALLS;
+    }
+
+    bool isCallsT() {
+        return this->type == RelationshipType::CALLST;
+    }
 };

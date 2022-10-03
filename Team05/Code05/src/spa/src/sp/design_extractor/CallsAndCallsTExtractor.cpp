@@ -22,6 +22,9 @@ vector<Relationship> CallsAndCallsTExtractor::extract(shared_ptr<ASTNode> ast) {
 	{
 		vector<Relationship> extractedCalls = this->handleProgram(ast);
 		calls.insert(calls.end(), extractedCalls.begin(), extractedCalls.end());
+
+		vector<Relationship> recursiveCallsT = this->extractCallsT();
+		calls.insert(calls.end(), recursiveCallsT.begin(), recursiveCallsT.end());
 		break;
 	}
 	case ASTNodeType::PROCEDURE:
@@ -38,9 +41,6 @@ vector<Relationship> CallsAndCallsTExtractor::extract(shared_ptr<ASTNode> ast) {
 		break;
 	}
 	}
-	vector<Relationship> recursiveCallsT = this->extractCallsT();
-	calls.insert(calls.end(),recursiveCallsT.begin(),recursiveCallsT.end());
-
 	return calls;
 }
 
