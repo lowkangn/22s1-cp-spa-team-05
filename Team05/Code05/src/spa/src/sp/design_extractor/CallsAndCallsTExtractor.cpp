@@ -13,8 +13,6 @@
 #include <sp/dataclasses/ast/WhileASTNode.h>
 #include <sp/design_extractor/CallsAndCallsTExtractor.h>
 
-const string DELIMITER = ":";
-
 vector<Relationship> CallsAndCallsTExtractor::extract(shared_ptr<ASTNode> ast) {
 	vector<Relationship> calls = vector<Relationship>();
 	ASTNodeType type = ast->getType();
@@ -40,6 +38,9 @@ vector<Relationship> CallsAndCallsTExtractor::extract(shared_ptr<ASTNode> ast) {
 		break;
 	}
 	}
+	vector<Relationship> recursiveCallsT = this->extractCallsT();
+	calls.insert(calls.end(),recursiveCallsT.begin(),recursiveCallsT.end());
+
 	return calls;
 }
 
@@ -96,7 +97,7 @@ vector<Relationship> CallsAndCallsTExtractor::recursiveContainerExtract(Entity& 
 			throw ASTException("Trying to call a non-existent procedure " + callee);
 		}
 		else {
-			string callerCalleeString = caller + DELIMITER + callee;
+			string callerCalleeString = caller + callee;
 
 			// If this calls relationship was not extracted previously, extract and add it to the extracted relationships.
 			if (this->extractedCalls.find(callerCalleeString) == this->extractedCalls.end()) {
@@ -110,6 +111,7 @@ vector<Relationship> CallsAndCallsTExtractor::recursiveContainerExtract(Entity& 
 					this->callsGraph.insert({ caller, children });
 				}
 				else {
+					// Add on to the existing children.
 					this->callsGraph.at(caller).push_back(procedureCalled);
 				}
 			}

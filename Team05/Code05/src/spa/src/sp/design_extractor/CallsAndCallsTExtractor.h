@@ -55,13 +55,18 @@ private:
 			if (child == leftHandSide) {
 				throw ASTException("The program contains cyclic procedure calls! This is not allowed");
 			}
-			else {
-				Relationship toAdd = Relationship::createCallsTRelationship(leftHandSide, child);
-				recursiveCallsT.push_back(toAdd);
 
-				vector<Relationship> recursivelyExtracted = this->extractCallsTHelper(leftHandSide, child);
-				recursiveCallsT.insert(recursiveCallsT.end(), recursivelyExtracted.begin(), recursivelyExtracted.end());
+			// If relationship was extracted previously, ignore it and return. This path was alraedy traversed before.
+			string callerCalleeString = leftHandSide.getString() + child.getString();
+			if (this->extractedCalls.find(callerCalleeString) != this->extractedCalls.end()) {
+				return recursiveCallsT;
 			}
+
+			Relationship toAdd = Relationship::createCallsTRelationship(leftHandSide, child);
+			recursiveCallsT.push_back(toAdd);
+
+			vector<Relationship> recursivelyExtracted = this->extractCallsTHelper(leftHandSide, child);
+			recursiveCallsT.insert(recursiveCallsT.end(), recursivelyExtracted.begin(), recursivelyExtracted.end());
 		}
 		return recursiveCallsT;
 	}
