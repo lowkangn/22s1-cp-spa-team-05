@@ -91,8 +91,6 @@ shared_ptr<CFGNode> ControlFlowParser::handleStatementList(shared_ptr<ASTNode> r
 
 	while (counter < children.size()) {
 		shared_ptr<ASTNode> currentAST = children[counter];
-		ASTNodeType childType = currentAST->getType();
-
 		// Initialize empty node
 		shared_ptr<CFGNode> childCFGNode;
 

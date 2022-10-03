@@ -41,7 +41,7 @@ public:
 		else {
 			for (int i = 0; i < this->nextNodes.size(); i++) {
 				// To prevent infinite recursion in the case of while
-				if (this->nextNodes[i]->statementNumber < this->statementNumber) {
+				if (this->statementNumber < this->nextNodes[i]->statementNumber) {
 					// Recursively check child node
 					if (!(this->nextNodes[i]->equals(other->nextNodes[i]))) {
 						return false;

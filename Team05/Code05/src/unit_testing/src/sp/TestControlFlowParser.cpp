@@ -27,7 +27,7 @@
 
 using namespace std;
 
-TEST_CASE("addChildToTheEndOfRoot test") {
+TEST_CASE("addChildToEndOfNode test") {
 	auto test = [](shared_ptr<CFGNode> toAdd, shared_ptr<CFGNode> toAddTo, shared_ptr<CFGNode> expected) {
 		// Given
 		ControlFlowParser cfgParser = ControlFlowParser();
@@ -620,6 +620,7 @@ TEST_CASE("handleWhile test") {
 		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(2);
 
 		whileCFG->addChild(expectedPrintY);
+		expectedPrintY->addChild(whileCFG);
 
 		test(whileNode, whileCFG);
 	}
@@ -737,7 +738,8 @@ TEST_CASE("handleProcedure test") {
 
 		shared_ptr<ASTNode> whileStatementList = StatementListASTNode::createStatementListNode();
 
-		shared_ptr<ASTNode> whileRead = ReadASTNode::createReadNode();		whileRead->setLineNumber(2);
+		shared_ptr<ASTNode> whileRead = ReadASTNode::createReadNode();		
+		whileRead->setLineNumber(2);
 		whileStatementList->addChild(whileRead);
 
 		whileNode->addChild(conditionOneNode);
@@ -775,7 +777,7 @@ TEST_CASE("handleProcedure test") {
 		shared_ptr<ASTNode> constant = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("5"));
 		assignASTNode->addChild(qNodeAssign);
 		assignASTNode->addChild(constant);
-		assignASTNode->setLineNumber(1);
+		assignASTNode->setLineNumber(6);
 
 		procStatementList->addChild(whileNode);
 		procStatementList->addChild(ifNode);
