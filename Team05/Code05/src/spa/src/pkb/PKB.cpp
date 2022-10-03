@@ -13,6 +13,8 @@
 #include <qps/query/clause/PQLEntity.h>
 
 #include <iostream>
+#include <sstream>
+
 using namespace std;
 
 shared_ptr<PkbEntity> PKB::spEntityToPkbEntity(Entity entity) {
@@ -206,20 +208,37 @@ void PKB::addRelationships(vector<Relationship> relationships) {
 void PKB::addPatterns(vector<Pattern> patterns) {
 	// for every pattern
 	for (Pattern p : patterns) {
-		// only assign is supported
-		if (!p.isAssignPattern()) { 
-			cout << "Only assign pattern is supported! Skipping this\n";
+		int currLineNum = p.getEntity().getLine();
+		if (p.isIfPattern()) {
+			
+			//In SP implementation, LHS is IF_KEYWORD. Pattern match is extracted from RHS instead
+
+			// Split "x y z" coming from SP to one pattern for x, one pattern for y and one for z
+			string strings = p.getRhs();
+			const char delimiter = ' ';
+			stringstream ss(strings);
+			string varIdentifiers;
+			while (getline(ss, varIdentifiers, delimiter)) {
+				vector<string> varIdentifiersVect{ varIdentifiers };
+				shared_ptr<PkbPattern> pattern = PkbIfPattern::createIfPattern(currLineNum, varIdentifiersVect);
+				this->ifPatterns.add(pattern);
+			}
+		}
+		else if (p.isAssignPattern()) {
+			vector<string> strings = {
+				p.getLhs(),
+				p.getRhs()
+			};
+			
+			// create required assign pattern
+			shared_ptr<PkbPattern> pattern = PkbStatementPattern::createAssignPattern(currLineNum, strings);
+			this->assignPatterns.add(pattern);
+
+		}
+		else {
+			cout << "Skipping this\n";
 			continue;
 		}
-		// we get the strings
-		vector<string> strings = {
-			p.getLhs(),
-			p.getRhs()
-		};
-
-		// we create the required pattern
-		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(p.getEntity().getLine(), strings);
-		this->assignPatterns.add(pattern);
 	}
 }
 
@@ -596,18 +615,21 @@ vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, 
 		return this->retrieveAssignPatterns(lhs, rhs);
 		
 	}
-	else if (statementType == PKBTrackedStatementType::IF) {
-		// TODO: we should move these out to an overloaded method that only takes in 1 clause argument
-		throw PkbException("IF pattern type not implemented!");
+	else {
+		throw PkbException("Unknown pattern type to be retrieved!");
+	}
+}
+
+vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs) {
+	if (statementType == PKBTrackedStatementType::IF) {
+		return this->retrieveIfPatterns(lhs);
 	}
 	else if (statementType == PKBTrackedStatementType::WHILE) {
-		// TODO: we should move these out to an overloaded method that only takes in 1 clause argument
-		throw PkbException("IF pattern type not implemented!");
+		throw PkbException("WHILE pattern type not implemented!");
 	}
 	else {
 		throw PkbException("Unknown pattern type to be retrieved!");
 	}
-	
 }
 
 
@@ -647,12 +669,12 @@ vector<PQLPattern> PKB::retrieveAssignPatterns(ClauseArgument lhs, ClauseArgumen
 	vector<string> postFixStringsToMatch = {
 		lhsStringPattern, rhsStringPattern
 	};
-	vector<shared_ptr<PkbStatementPattern>> matchingPatterns = this->assignPatterns.getAllThatMatchPostFixStrings(postFixStringsToMatch);
+	vector<shared_ptr<PkbPattern>> matchingPatterns = this->assignPatterns.getAllThatMatchPostFixStrings(postFixStringsToMatch);
 
 
 	// 5. for each returned statement, we get the corr. entity
 	vector<PQLPattern> out;
-	for (shared_ptr<PkbStatementPattern> p : matchingPatterns) {
+	for (shared_ptr<PkbPattern> p : matchingPatterns) {
 		out.push_back(
 			this->pkbPatternToPqlPattern(p)
 		);
@@ -661,7 +683,42 @@ vector<PQLPattern> PKB::retrieveAssignPatterns(ClauseArgument lhs, ClauseArgumen
 	return out;
 }
 
-PQLPattern PKB::pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> p) {
+vector<PQLPattern> PKB::retrieveIfPatterns(ClauseArgument lhs) {
+	// parse lhs 
+	string lhsStringPattern;
+
+	bool lhsIsSynonym = false;
+	if (lhs.isVariableSynonym() || lhs.isWildcard()) {
+		// if lhs is synonym, flag as wildcard
+		lhsIsSynonym = lhs.isVariableSynonym();
+		lhsStringPattern = WILDCARD_CHAR;
+	}
+	else if (lhs.isStringLiteral() || lhs.isPatternString()) {
+		// string literal, we match exactly
+		lhsStringPattern = lhs.getIdentifier();
+	}
+	else {
+		throw PkbException("Unknown if pattern being retrieved!");
+	}
+
+	vector<string> conditions = {
+		lhsStringPattern
+	};
+
+	vector<shared_ptr<PkbPattern>> matchingPatterns = this->ifPatterns.getVariableMatch(conditions);
+
+	vector<PQLPattern> out;
+	for (shared_ptr<PkbPattern> p : matchingPatterns) {
+		out.push_back(
+			this->pkbPatternToPqlPattern(p)
+		);
+	}
+
+	return out;
+}
+
+
+PQLPattern PKB::pkbPatternToPqlPattern(shared_ptr<PkbPattern> p) {
 	string variableIdentifier = p->getVariableIdentifier();
 	// we store as space + variable + space, need to trim
 	// left trim

@@ -1,6 +1,8 @@
 #pragma once
 
+#include <pkb/design_objects/patterns/PkbPattern.h>
 #include <pkb/design_objects/patterns/PkbStatementPattern.h>
+#include <pkb/design_objects/patterns/PkbIfPattern.h>
 
 #include <unordered_map>
 #include <vector>
@@ -20,7 +22,7 @@ const string SPACE_DELIMITER = " ";
 
 class PkbPatternTable {
 private:
-	unordered_map<string, shared_ptr<PkbStatementPattern>> table;
+	unordered_map<string, shared_ptr<PkbPattern>> table;
 
 public:
 
@@ -30,23 +32,28 @@ public:
 		Adds the pattern and returns the key used to store it.
 		Throws an error if a duplicate object is attempted to be stored.
 	*/
-	string add(shared_ptr<PkbStatementPattern> pattern);
+	string add(shared_ptr<PkbPattern> pattern);
 
 	/*
 		Gets an item by a specific key. If the item is not present,
 		we return NULL.
 	*/
-	shared_ptr<PkbStatementPattern> get(string& key);
+	shared_ptr<PkbPattern> get(string& key);
 
 	/*
 		Returns all items.
 	*/
-	vector<shared_ptr<PkbStatementPattern>> getAll();
+	vector<shared_ptr<PkbPattern>> getAll();
 
 	/*
-		Given all a vector of strings to match, returns the results.
+		Given all a vector of strings to match for assignments, returns the results.
 	*/
-	vector<shared_ptr<PkbStatementPattern>> getAllThatMatchPostFixStrings(vector<string> postFixStrings);
+	vector<shared_ptr<PkbPattern>> getAllThatMatchPostFixStrings(vector<string> postFixStrings);
+
+	/*
+		Given all a vector of strings to match for assignments, returns the results.
+	*/
+	vector<shared_ptr<PkbPattern>> getVariableMatch(vector<string> postFixStrings);
 
 	/*
 		Creates a regex string from a string.

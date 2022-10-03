@@ -6,7 +6,7 @@
 using namespace std;
 
 
-string PkbPatternTable::add(shared_ptr<PkbStatementPattern> pattern) {
+string PkbPatternTable::add(shared_ptr<PkbPattern> pattern) {
 	// get key
 	string key = pattern->getKey();
 
@@ -21,25 +21,25 @@ string PkbPatternTable::add(shared_ptr<PkbStatementPattern> pattern) {
 }
 
 
-shared_ptr<PkbStatementPattern> PkbPatternTable::get(string& key) {
+shared_ptr<PkbPattern> PkbPatternTable::get(string& key) {
 	if (this->table.find(key) == this->table.end()) {
 		return NULL;
 	}
 	return this->table.at(key);
 }
 
-vector<shared_ptr<PkbStatementPattern>> PkbPatternTable::getAll() {
-	vector<shared_ptr<PkbStatementPattern>> output;
-	for (pair<string, shared_ptr<PkbStatementPattern>> const& keyValuePair : this->table) {
+vector<shared_ptr<PkbPattern>> PkbPatternTable::getAll() {
+	vector<shared_ptr<PkbPattern>> output;
+	for (pair<string, shared_ptr<PkbPattern>> const& keyValuePair : this->table) {
 		output.push_back(keyValuePair.second);
 	}
 	return output;
 }
 
-vector<shared_ptr<PkbStatementPattern>> PkbPatternTable::getAllThatMatchPostFixStrings(vector<string> postFixStrings) {
+vector<shared_ptr<PkbPattern>> PkbPatternTable::getAllThatMatchPostFixStrings(vector<string> postFixStrings) {
 		
 	// get all 
-	vector<shared_ptr<PkbStatementPattern>> patterns = this->getAll();
+	vector<shared_ptr<PkbPattern>> patterns = this->getAll();
 
 	// convert string to regex strings
 	vector<string> regexStrings;
@@ -48,13 +48,36 @@ vector<shared_ptr<PkbStatementPattern>> PkbPatternTable::getAllThatMatchPostFixS
 	}
 
 	// do matching row by row
-	vector<shared_ptr<PkbStatementPattern>> output;
-	for (shared_ptr<PkbStatementPattern> p : patterns) {
+	vector<shared_ptr<PkbPattern>> output;
+	for (shared_ptr<PkbPattern> p : patterns) {
 		if (p->isRegexMatch(regexStrings)) {
 			output.push_back(p);
 		}
 	}
 
+	// return all matches
+	return output;
+}
+
+vector<shared_ptr<PkbPattern>> PkbPatternTable::getVariableMatch(vector<string> conditions) {
+	// get all 
+	vector<shared_ptr<PkbPattern>> patterns = this->getAll();
+	
+	vector<string> regexControlVar{ };
+	// If pattern to match is wildcard, set regex to .* to match all
+	if (conditions[0] == WILDCARD_CHAR) {
+		regexControlVar.push_back(".*");
+	}
+	else { // otherwise, just match the given variable
+		regexControlVar.push_back("^" + conditions[0] + "$");
+	}
+	vector<shared_ptr<PkbPattern>> output;
+	for (shared_ptr<PkbPattern> p : patterns) {
+		string stringToMatch = p->getStringsToMatch()[0];
+		if (p->isRegexMatch(regexControlVar)) {
+			output.push_back(p);
+		}
+	}
 	// return all matches
 	return output;
 }

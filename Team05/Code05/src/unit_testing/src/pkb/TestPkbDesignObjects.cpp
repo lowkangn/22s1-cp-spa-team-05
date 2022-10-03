@@ -10,6 +10,8 @@
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
 #include <pkb/design_objects/patterns/PkbStatementPattern.h>
+#include <pkb/design_objects/patterns/PkbIfPattern.h>
+
 
 #include <pkb/PkbException.h>
 
@@ -158,8 +160,83 @@ TEST_CASE("PkbRelationship: test ::getKey") {
 
 }
 
-TEST_CASE("PkbStatementPattern::getKey") {
-	auto test = [](shared_ptr<PkbStatementPattern> pattern, string expectedKey) {
+TEST_CASE("PkbStatementPattern throw error on creation with != 2 strings") {
+	auto test = [](vector<string> strings, bool shouldThrow) {
+		if (shouldThrow) {
+			REQUIRE_THROWS_AS(PkbStatementPattern::createAssignPattern(1, strings), PkbException);
+		}
+		else {
+			REQUIRE_NOTHROW(PkbStatementPattern::createAssignPattern(1, strings));
+		}
+	};
+
+	SECTION("No throw for 2 strings") {
+		vector<string> strings = {
+			"x",
+			"x+1"
+		};
+		bool shouldThrow = false;
+		test(strings, shouldThrow);
+	}
+
+	SECTION("Throw for 3 strings") {
+		vector<string> strings = {
+			"x",
+			"x+1",
+			"y+2"
+		};
+		bool shouldThrow = true;
+		test(strings, shouldThrow);
+	}
+
+	SECTION("Throw for 1 strings") {
+		vector<string> strings = {
+			"x",
+			"x+1",
+			"y+2"
+		};
+		bool shouldThrow = true;
+		test(strings, shouldThrow);
+	}
+}
+
+TEST_CASE("PkbIfPattern throw error on creation with != 1 strings") {
+	auto test = [](vector<string> strings, bool shouldThrow) {
+		if (shouldThrow) {
+			REQUIRE_THROWS_AS(PkbIfPattern::createIfPattern(1, strings), PkbException);
+		}
+		else {
+			REQUIRE_NOTHROW(PkbIfPattern::createIfPattern(1, strings));
+		}
+	};
+
+	SECTION("No throw for 1 string") {
+		vector<string> strings = {
+			"x",
+		};
+		bool shouldThrow = false;
+		test(strings, shouldThrow);
+	}
+
+	SECTION("Throw for 2 strings") {
+		vector<string> strings = {
+			"x",
+			"x+1",
+			"y+2"
+		};
+		bool shouldThrow = true;
+		test(strings, shouldThrow);
+	}
+
+	SECTION("Throw for 0 strings") {
+		vector<string> strings = { };
+		bool shouldThrow = true;
+		test(strings, shouldThrow);
+	}
+}
+
+TEST_CASE("PkbPattern::getKey") {
+	auto test = [](shared_ptr<PkbPattern> pattern, string expectedKey) {
 		// given, when, then
 		REQUIRE(pattern->getKey() == expectedKey);
 	};
@@ -172,6 +249,16 @@ TEST_CASE("PkbStatementPattern::getKey") {
 		shared_ptr<PkbStatementEntity> assignStatement = shared_ptr<PkbStatementEntity>(PkbStatementEntity::createAssignStatementEntity(1));
 		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
 		string expectedKey = "xx+1" + assignStatement->getKey();
+		test(pattern, expectedKey);
+	};
+
+	SECTION("If pattern") {
+		vector<string> strings = {
+			"count"
+		};
+		shared_ptr<PkbStatementEntity> ifStatement = shared_ptr<PkbStatementEntity>(PkbStatementEntity::createIfStatementEntity(1));
+		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+		string expectedKey = "count" + ifStatement->getKey();
 		test(pattern, expectedKey);
 	};
 
@@ -267,4 +354,119 @@ TEST_CASE("PkbStatementPattern::regexMatch") {
 
 		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	};
+}
+
+TEST_CASE("PkbIfPattern::regexMatch") {
+	auto test = [](shared_ptr<PkbIfPattern> pattern, vector<string> regexStringsToMatch, bool shouldThrow, bool shouldMatch) {
+		// given, when, then
+		if (shouldThrow) {
+			REQUIRE_THROWS_AS(pattern->isRegexMatch(regexStringsToMatch), PkbException);
+		}
+		else {
+			REQUIRE(pattern->isRegexMatch(regexStringsToMatch) == shouldMatch);
+		}
+	};
+
+	SECTION("Should match count exactly") {
+		vector<string> strings = {
+			"count",
+		};
+		vector<string> regexStringsToMatch = {
+			"count",
+		};
+		bool shouldThrow = false;
+		bool shouldMatch = true;
+		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	}
+
+	SECTION("Should match count exactly using regex tokens") {
+		vector<string> strings = {
+			"count",
+		};
+		vector<string> regexStringsToMatch = {
+			"^count$"
+		};
+		bool shouldThrow = false;
+		bool shouldMatch = true;
+		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	}
+	
+	SECTION("Should not match x") {
+		vector<string> strings = {
+			"xCount",
+		};
+		vector<string> regexStringsToMatch = {
+			"x"
+		};
+		bool shouldThrow = false;
+		bool shouldMatch = false;
+		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	}
+
+	SECTION("Should not match xCount using regex tokens") {
+		vector<string> strings = {
+			"xCount",
+		};
+		vector<string> regexStringsToMatch = {
+			"^count$"
+		};
+		bool shouldThrow = false;
+		bool shouldMatch = false;
+		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	}
+
+	// IF pattern will be pattern(v, _, _), so only one regex string to match
+	SECTION("Should throw due to too many regex/pattern args") {
+		vector<string> strings = {
+			"count",
+		};
+		vector<string> regexStringsToMatch = {
+			"count",
+			"x"
+		};
+		bool shouldThrow = true;
+		bool shouldMatch = true;
+		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	}
+
+	SECTION("Should match single wildcard") {
+		vector<string> strings = {
+			"count",
+		};
+		vector<string> regexStringsToMatch = {
+			".*",
+		};
+		bool shouldThrow = false;
+		bool shouldMatch = true;
+		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	}
+
+	SECTION("Should throw trying to match multiple wildcards") {
+		vector<string> strings = {
+			"count",
+		};
+		vector<string> regexStringsToMatch = {
+			".*",
+			".*",
+			".*"
+		};
+		bool shouldThrow = true;
+		bool shouldMatch = true;
+		shared_ptr<PkbIfPattern> pattern = PkbIfPattern::createIfPattern(1, strings);
+
+		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
+	}
+	
 }

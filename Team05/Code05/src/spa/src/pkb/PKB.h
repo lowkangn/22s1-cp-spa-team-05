@@ -46,6 +46,8 @@ private:
 
 	// patterns
 	PkbPatternTable assignPatterns;
+	PkbPatternTable ifPatterns;
+	PkbPatternTable whilePatterns;
 
 	// getters
 	shared_ptr<PkbRelationshipTable> getFollowsTable() {
@@ -91,7 +93,7 @@ private:
 	/*
 		Converts an internal pkb pattern to a pql pattern used in the qps.
 	*/
-	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> pattern);
+	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbPattern> pattern);
 
 
 public: 
@@ -163,14 +165,24 @@ public:
 	vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) override;
 
 	/*
-        Retrieves statements by lhs and rhs. 
+        Retrieves statements by lhs and rhs for Assign Patterns
     */
 	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
+
+	/*
+		Overloaded method that retrieves statements ONLY by lhs for If and While Patterns
+	*/
+	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs);
 
 	/*
 		Retrieves assign statements by lhs and rhs.
 	*/
 	vector<PQLPattern> retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs);
+
+	/*
+		Retrieves if patterns by lhs.
+	*/
+	vector<PQLPattern> retrieveIfPatterns(ClauseArgument lhs);
 
 	/*
 		Casts the PKB to its query handler interface as a shared pointer.
