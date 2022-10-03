@@ -12,6 +12,14 @@
 using namespace std;
 
 class IfSimpleSyntaxRule : public SimpleSyntaxRule {
+private:
+	const int IF_CONDITION_RULE = 0;
+	const int THEN_RULE = 1;
+	const int ELSE_RULE = 2;
+
+	list<Token> conditionTokens;
+	list<Token> thenTokens;
+	list<Token> elseTokens;
 public:
 	IfSimpleSyntaxRule() {
 		this->generated = false;

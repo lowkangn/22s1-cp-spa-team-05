@@ -130,8 +130,11 @@ TEST_CASE("UsesParser: test parseWithSemanticError") {
             // given
             UsesParser parser = UsesParser(tokens, declarations);
 
+            // when
+            parser.parse();
+
             // then
-            REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
+            REQUIRE(!parser.isSemanticallyValid());
     };
 
     SECTION("Undeclared / misspelled synonym") {

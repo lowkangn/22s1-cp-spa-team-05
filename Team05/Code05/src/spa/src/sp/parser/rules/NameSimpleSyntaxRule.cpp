@@ -36,7 +36,7 @@ shared_ptr<ASTNode> NameSimpleSyntaxRule::constructNode() {
 	}
 
 	Token nameToken = this->tokens.front();
-	shared_ptr<ASTNode> nameNode(new VariableASTNode(nameToken));
+	shared_ptr<ASTNode> nameNode = VariableASTNode::createVariableNode(nameToken);
 
 	return nameNode;
 }

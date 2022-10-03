@@ -7,14 +7,16 @@
 #include <qps/exceptions/PQLSemanticError.h>
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query_tokenizer/PQLToken.h>
+#include <qps/query_parser/parsers/SemanticChecker.h>
 
-class DeclarationParser {
+class DeclarationParser : public SemanticChecker {
 private:
 	list<PQLToken> tokens;
 	unordered_map<string, ArgumentType> declarations;
 public:
 	DeclarationParser(list<PQLToken> tokens) {
 		this->tokens = tokens;
+		this->semanticErrorMessage = NO_SEMANTIC_ERROR_MESSAGE;
 	};
 
 	unordered_map<string, ArgumentType> getDeclarations() {
@@ -36,5 +38,5 @@ public:
 	 */
 	void parseOneDeclaration();
 
-	void ensureSynonymNotDeclared(string synonym);
+	bool isSynonymAlreadyDeclared(string synonym);
 };

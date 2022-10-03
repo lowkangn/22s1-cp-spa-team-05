@@ -1,0 +1,33 @@
+@startuml
+!include style.puml
+
+actor User as User
+
+box "Problem Knowledge Base" PKB_COLOR_T1
+participant ":PKB" as PKB PKB_COLOR
+participant ":PkbRelationshipTable" as Table PKB_COLOR
+end box
+
+User-> PKB: addRelationships(relationships)
+activate PKB
+
+loop "relationship.size()"
+    PKB -> Table: add(relationship)
+end
+
+PKB --> User
+deactivate PKB
+
+User -> PKB: retrieveRelationshipsByType(type)
+activate PKB
+
+PKB -> Table: get(string)
+activate Table
+
+Table --> PKB: relationships
+deactivate Table
+
+PKB --> User: relationships
+deactivate PKB
+
+@enduml

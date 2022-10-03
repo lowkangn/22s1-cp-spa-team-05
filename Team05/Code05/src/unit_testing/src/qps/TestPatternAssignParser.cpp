@@ -302,8 +302,11 @@ TEST_CASE("PatternAssignParser: test parseWithSemanticError") {
 			// given
 			PatternAssignParser parser = PatternAssignParser(tokens, declarations);
 
+			// when
+			parser.parse();
+
 			// then
-			REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
+			REQUIRE(!parser.isSemanticallyValid());
 	};
 
 	SECTION("Invalid second argument") {

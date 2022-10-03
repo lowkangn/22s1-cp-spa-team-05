@@ -39,9 +39,11 @@ void DeclarationParser::parseOneDeclaration() {
 			throw PQLSyntaxError("Expected comma or semicolon, got: " + token.getTokenString());
 		}
 		string synonym = token.getTokenString();
-		ensureSynonymNotDeclared(synonym);
-		this->declarations.insert({ synonym, argType});
 		isSynonymExpected = false;
+		if (isSynonymAlreadyDeclared(synonym)) {
+			continue;
+		}
+		this->declarations.insert({ synonym, argType});
 	}
 
 	if (isSynonymExpected) {
@@ -53,8 +55,10 @@ void DeclarationParser::parseOneDeclaration() {
 	}
 };
 
-void DeclarationParser::ensureSynonymNotDeclared(string synonym) {
+bool DeclarationParser::isSynonymAlreadyDeclared(string synonym) {
 	if (this->declarations.count(synonym) > 0) {
-		throw PQLSemanticError("Synonym already declared: " + synonym);
+		this->semanticErrorMessage = "Synonym already declared: " + synonym;
+		return true;
 	}
+	return false;
 };

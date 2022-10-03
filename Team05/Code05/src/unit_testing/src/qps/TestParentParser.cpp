@@ -192,8 +192,11 @@ TEST_CASE("ParentParser: test parseWithSemanticError") {
             // given
             ParentParser parser = ParentParser(tokens, declarations);
 
+            // when
+            parser.parse();
+
             // then
-            REQUIRE_THROWS_AS(parser.parse(), PQLSemanticError);
+            REQUIRE(!parser.isSemanticallyValid());
     };
 
     list<PQLToken> tokensList = list<PQLToken>{

@@ -5,10 +5,14 @@
 
 
 class BracketsASTNode : public ASTNode {
-public:
+private:
 	BracketsASTNode(Token& token) : ASTNode(token) {
 		this->type = ASTNodeType::BRACKETS;
 	};
+public:
+	static shared_ptr<ASTNode> createBracketsNode() {
+		return shared_ptr<ASTNode>(new BracketsASTNode(Token::createPlaceholderToken()));
+	}
 
 	bool isTerminal() override {
 		return false;

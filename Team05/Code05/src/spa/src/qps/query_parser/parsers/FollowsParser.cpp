@@ -25,7 +25,7 @@ void FollowsParser::checkArguments(list<ClauseArgument>& args) {
 		}
 
 		if (!arg.isWildcard() && !arg.isStmtRefNoWildcard()) {
-			throw PQLSemanticError("Both args for Follows/Follows* must be stmtRefs");
+			this->semanticErrorMessage = "Both args for Follows/Follows* must be stmtRefs";
 		}
 	}
 

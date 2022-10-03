@@ -2,7 +2,6 @@
 
 shared_ptr<PatternClause> PatternParser::parse() {
 	PQLToken clauseTypeToken = this->tokens.front();
-	assert(isCorrectClauseType(clauseTypeToken));
 
 	vector<ClauseArgument> args = extractArguments();
 	this->checkArguments(args);

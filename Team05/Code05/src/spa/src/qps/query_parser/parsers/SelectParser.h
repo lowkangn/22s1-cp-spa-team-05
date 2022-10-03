@@ -5,6 +5,7 @@
 
 #include <qps/query_tokenizer/PQLToken.h>
 #include <qps/query_parser/ArgumentType.h>
+#include <qps/query_parser/parsers/SemanticChecker.h>
 #include <qps/query_parser/parsers/ClauseParser.h>
 #include <qps/query/clause/SelectClause.h>
 
@@ -23,9 +24,6 @@ public:
 	/* Extracts the arguments of the clause. Consumes all tokens in the clause after
 	   'Select', relRef or 'Pattern' */
 	list<ClauseArgument> extractArguments();
-
-	/* Checks that the arguments fulfill the constraints of the clause; throws a PQL error otherwise */
-	void checkArguments(list<ClauseArgument>& args);
 
 	/* Creates the clause given the clause type and arguments */
 	shared_ptr<SelectClause> createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args);

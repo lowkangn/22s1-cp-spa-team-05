@@ -5,10 +5,14 @@
 
 
 class ReadASTNode : public ASTNode {
-public:
-	ReadASTNode (Token& token) : ASTNode(token) {
+private:
+	ReadASTNode(Token& token) : ASTNode(token) {
 		this->type = ASTNodeType::READ;
 	};
+public:
+	static shared_ptr<ASTNode> createReadNode() {
+		return shared_ptr<ASTNode>(new ReadASTNode(Token::createReadToken()));
+	}
 
 	bool isTerminal() override {
 		return false;
