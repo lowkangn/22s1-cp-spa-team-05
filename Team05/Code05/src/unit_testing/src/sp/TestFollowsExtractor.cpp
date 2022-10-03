@@ -133,7 +133,6 @@ TEST_CASE("FollowsExtractor: test extract") {
 		Token whileToken = Token::createWhileToken();
 		Token lessThanToken = Token::createLessThanToken();
 		Token equalsToken = Token::createEqualsToken();
-		Token placeholderToken = Token::createPlaceholderToken();
 
 		shared_ptr<ASTNode> procedureNode = ProcedureASTNode::createProcedureNode(mainToken);
 		shared_ptr<ASTNode> mainStmtListNode = StatementListASTNode::createStatementListNode();		
