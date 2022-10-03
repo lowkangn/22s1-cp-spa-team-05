@@ -608,16 +608,16 @@ vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelat
 
 
 		// 2.3 if null, return empty 
-		vector<PQLRelationship> out;
+		vector<PQLRelationship> retrievedRelationships;
 		if (found == NULL) {
-			return out;
+			return retrievedRelationships;
 		}
 
 		// 2.4 if not null, convert and return in single item vector
 		PQLEntity outLhs = this->pkbEntityToQpsPqlEntity(found->getLhs());
 		PQLEntity outRhs = this->pkbEntityToQpsPqlEntity(found->getRhs());
-		out.push_back(PQLRelationship(outLhs, outRhs));
-		return out;
+		retrievedRelationships.push_back(PQLRelationship(outLhs, outRhs));
+		return retrievedRelationships;
 	}
 	
 

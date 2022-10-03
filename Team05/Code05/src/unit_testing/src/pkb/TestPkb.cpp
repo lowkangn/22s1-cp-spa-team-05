@@ -730,6 +730,7 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		expectedRelationships = {
 			
 		};
+		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 	};
 }
 
