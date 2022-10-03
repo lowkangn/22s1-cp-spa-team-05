@@ -33,7 +33,9 @@ private:
 
     void setSemanticErrorFromParser(shared_ptr<SemanticChecker> parserPointer);
 
-    void parseConstraints(unordered_map<string, ArgumentType> declarations);
+	shared_ptr<SelectClause> parseSelect(unordered_map<string, ArgumentType> declarations);
+
+	void parseConstraints(unordered_map<string, ArgumentType> declarations);
 
     shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType> declarations);
 

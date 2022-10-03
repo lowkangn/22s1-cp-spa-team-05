@@ -16,13 +16,13 @@ private:
 	list<shared_ptr<PatternClause>> patternClauses;
     
     template <class T>
-    bool areClausesAllEqual(list<shared_ptr<T>> firstClauseList, list<shared_ptr<T>> secondClauseList) {
+	bool areClausesAllEqual(list<shared_ptr<T>> firstClauseList, list<shared_ptr<T>> secondClauseList) {
 		if (firstClauseList.size() != secondClauseList.size()) {
 			return false;
 		}
 
-		list<shared_ptr<T>>::iterator firstIter = firstClauseList.begin();
-		list<shared_ptr<T>>::iterator secondIter = secondClauseList.begin();
+		typename list<shared_ptr<T>>::iterator firstIter = firstClauseList.begin();
+		typename list<shared_ptr<T>>::iterator secondIter = secondClauseList.begin();
 
 		bool isClauseEqual;
 		while (firstIter != firstClauseList.end()) {
@@ -34,7 +34,8 @@ private:
 			secondIter++;
 		}
 		return true;
-    }
+	}
+
 
 public:
 
@@ -47,7 +48,7 @@ public:
     }
 
     /* Returns the results obtained from the query's SelectClause. */
-    shared_ptr<EntityClauseResult> executeSelect(shared_ptr<PKBQueryHandler> pkb);
+    list<shared_ptr<EntityClauseResult>> executeSelect(shared_ptr<PKBQueryHandler> pkb);
 
 	/* Returns the results obtained from the query's SuchThat and Pattern clauses. */
 	list<shared_ptr<RelationshipClauseResult>> executeSuchThatAndPattern(shared_ptr<PKBQueryHandler> pkb);

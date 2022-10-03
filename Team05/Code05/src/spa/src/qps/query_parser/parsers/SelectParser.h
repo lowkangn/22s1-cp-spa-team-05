@@ -19,13 +19,12 @@ public:
 	shared_ptr<SelectClause> parse();
 
 	/* Returns true if the clauseTypeToken matches the clause that the Parser parses */
-	bool isCorrectClauseType(PQLToken clauseTypeToken);
+	virtual bool isCorrectClauseType(PQLToken clauseTypeToken) = 0;
 
-	/* Extracts the arguments of the clause. Consumes all tokens in the clause after
-	   'Select', relRef or 'Pattern' */
-	list<ClauseArgument> extractArguments();
+	/* Extracts the arguments of the clause. Consumes all tokens in the clause after 'Select' */
+	virtual list<ClauseArgument> extractArguments() = 0;
 
 	/* Creates the clause given the clause type and arguments */
-	shared_ptr<SelectClause> createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args);
+	virtual shared_ptr<SelectClause> createClause(list<ClauseArgument>& args) = 0;
 
 };

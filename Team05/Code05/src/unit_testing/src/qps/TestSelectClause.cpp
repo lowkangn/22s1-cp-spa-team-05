@@ -8,7 +8,8 @@ using namespace std;
 TEST_CASE("SelectClause: test equals") {
 	auto testEquals = [](const SelectClause* other, bool expected) {
 		// given
-		SelectClause selectClause = SelectClause(ClauseArgument::createVariableArg("v"));
+		ClauseArgument varArg = ClauseArgument::createVariableArg("v");
+		SelectClause selectClause = SelectClause::createSynonymSelectClause({varArg});
 
 		// when
 		bool actual = selectClause.equals(other);
@@ -22,19 +23,23 @@ TEST_CASE("SelectClause: test equals") {
 	ClauseArgument varArgDifferentIdentifier = ClauseArgument::createVariableArg("a");
 	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
 
-	SelectClause* firstSelectClause = new SelectClause(varArg);
-	SelectClause* secondSelectClause = new SelectClause(assignArgSameIdentifier);
-	SelectClause* thirdSelectClause = new SelectClause(varArgDifferentIdentifier);
-	SelectClause* fourthSelectClause = new SelectClause(assignArg);
+	SelectClause firstSelectClause = SelectClause::createSynonymSelectClause({varArg});
+	SelectClause* firstSelectClausePointer = &firstSelectClause;
+	SelectClause secondSelectClause = SelectClause::createSynonymSelectClause({assignArgSameIdentifier});
+	SelectClause* secondSelectClausePointer = &secondSelectClause;
+	SelectClause thirdSelectClause = SelectClause::createSynonymSelectClause({varArgDifferentIdentifier});
+	SelectClause* thirdSelectClausePointer = &thirdSelectClause;
+	SelectClause fourthSelectClause = SelectClause::createSynonymSelectClause({assignArg});
+	SelectClause* fourthSelectClausePointer = &fourthSelectClause;
 
 	SECTION("Equal") {
-		testEquals(firstSelectClause, true);
+		testEquals(firstSelectClausePointer, true);
 	}
 
 	SECTION("Not equal") {
-		testEquals(secondSelectClause, false);
-		testEquals(thirdSelectClause, false);
-		testEquals(fourthSelectClause, false);
+		testEquals(secondSelectClausePointer, false);
+		testEquals(thirdSelectClausePointer, false);
+		testEquals(fourthSelectClausePointer, false);
 	}
 }
 

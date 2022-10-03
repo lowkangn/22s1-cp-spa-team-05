@@ -53,6 +53,12 @@ protected:
 	/* Consumes the close bracket token. */
 	void consumeCloseBracket();
 
+	/* Consumes the angled open bracket token. */
+	void consumeAngledOpenBracket();
+
+	/* Consumes the angled close bracket token. */
+	void consumeAngledCloseBracket();
+
 public:
 
 	ClauseParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) {
