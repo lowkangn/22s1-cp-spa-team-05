@@ -66,7 +66,7 @@ vector<Relationship> CallsExtractor::handleProgram(shared_ptr<ASTNode> ast) {
 			this->extractedProcedures.insert(procedureName);
 		}
 		else {
-			throw ASTException("Procedure " + procedureName + " was declared twice in the program.");
+			throw ASTException("Procedure " + procedureName + " was declared twice in the program");
 		}
 	}
 
@@ -87,7 +87,14 @@ vector<Relationship> CallsExtractor::recursiveContainerExtract(Entity& leftHandS
 	{
 		shared_ptr<CallASTNode> callNode = dynamic_pointer_cast<CallASTNode>(ast);
 		Entity procedureCalled = callNode->getProcedureName()->extractEntity();
-		string callerCalleeString = leftHandSide.getString() + DELIMITER + procedureCalled.getString();
+		string caller = leftHandSide.getString();
+		string callee = procedureCalled.getString();
+
+		if (caller == callee) {
+			throw ASTException("A procedure is calling itself!");
+		}
+
+		string callerCalleeString = caller + DELIMITER + callee;
 
 		// If this calls relationship was not extracted previously, extract and add it to the extracted relationships.
 		if (this->extractedCalls.find(callerCalleeString) == this->extractedCalls.end()) {
