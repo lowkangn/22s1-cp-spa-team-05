@@ -97,6 +97,21 @@ private:
 	*/
 	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbPattern> pattern);
 
+	/*
+		Retrieves assign statements by lhs and rhs.
+	*/
+	vector<PQLPattern> retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs);
+
+	/*
+		Retrieves if patterns by lhs.
+	*/
+	vector<PQLPattern> retrieveIfPatterns(ClauseArgument lhs);
+
+	/*
+		Retrieves while patterns by lhs.
+	*/
+	vector<PQLPattern> retrieveWhilePatterns(ClauseArgument lhs);
+
 
 public: 
 	PKB() {}
@@ -170,21 +185,6 @@ public:
         Retrieves statements by lhs and rhs for Assign Patterns
     */
 	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
-
-	/*
-		Retrieves assign statements by lhs and rhs.
-	*/
-	vector<PQLPattern> retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs);
-
-	/*
-		Retrieves if patterns by lhs.
-	*/
-	vector<PQLPattern> retrieveIfPatterns(ClauseArgument lhs);
-
-	/*
-		Retrieves while patterns by lhs.
-	*/
-	vector<PQLPattern> retrieveWhilePatterns(ClauseArgument lhs);
 
 	/*
 		Casts the PKB to its query handler interface as a shared pointer.
