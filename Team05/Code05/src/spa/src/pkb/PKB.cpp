@@ -15,7 +15,7 @@
 #include <iostream>
 using namespace std;
 
-shared_ptr<PkbEntity> PKB::spEntityToPkbEntity(Entity entity) {
+shared_ptr<PkbEntity> PKB::externalEntityToPkbEntity(Entity entity) {
 	if (entity.isVariableEntity()) {
 
 		// create pkb entity object
@@ -96,12 +96,12 @@ PQLEntity PKB::pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity) {
 	}
 }
 
-shared_ptr<PkbRelationship> PKB::spRelationshipToPkbRelationship(Relationship relationship) {
+shared_ptr<PkbRelationship> PKB::externalRelationshipToPkbRelationship(Relationship relationship) {
 	Entity lhs = relationship.getLhs();
 	Entity rhs = relationship.getRhs();
 
-	shared_ptr<PkbEntity> lhsToPkbEntity = this->spEntityToPkbEntity(lhs);
-	shared_ptr<PkbEntity> rhsToPkbEntity = this->spEntityToPkbEntity(rhs);
+	shared_ptr<PkbEntity> lhsToPkbEntity = this->externalEntityToPkbEntity(lhs);
+	shared_ptr<PkbEntity> rhsToPkbEntity = this->externalEntityToPkbEntity(rhs);
 
 	if (relationship.isFollows()) {
 		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbFollowsRelationship(lhsToPkbEntity, rhsToPkbEntity));
@@ -142,7 +142,7 @@ void PKB::addEntities(vector<Entity> entities) {
 		if (entity.isOperator()) {
 			continue;
 		}
-		shared_ptr<PkbEntity> object = this->spEntityToPkbEntity(entity);
+		shared_ptr<PkbEntity> object = this->externalEntityToPkbEntity(entity);
 
 		if (entity.isStmtEntity()) {
 			this->statementTable.add(object);
@@ -167,7 +167,7 @@ void PKB::addEntities(vector<Entity> entities) {
 void PKB::addRelationships(vector<Relationship> relationships) {
 	for (Relationship r : relationships) {
 		// convert lhs and rhs to entities
-		shared_ptr<PkbRelationship> pkbRelationship = spRelationshipToPkbRelationship(r);
+		shared_ptr<PkbRelationship> pkbRelationship = externalRelationshipToPkbRelationship(r);
 
 		// depending on relationship type, we choose the table 
 		// and create the object as a casted shared pointer
@@ -208,7 +208,7 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 	for (Pattern p : patterns) {
 		// only assign is supported
 		if (!p.isAssignPattern()) { 
-			cout << "Only assign pattern is supported! Skipping this\n";
+			// cout << "Only assign pattern is supported! Skipping this\n"; // comment for logging
 			continue;
 		}
 		// we get the strings
@@ -524,28 +524,102 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 	return filter;
 }
 
-vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
-	// 1. get table based on type
-	shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(relationshipType);
 
-	// 1.1. short circuiting
-	// TODO this can be abstracted out into a vlidation function
-	// 1.1.1 check that synonym does not refer to itself
-	if (relationshipType == PKBTrackedRelationshipType::PARENT 
+bool PKB::canShortCircuitRetrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
+
+	// 1. for parent and follows, cannot reference itself
+	if (relationshipType == PKBTrackedRelationshipType::PARENT
 		|| relationshipType == PKBTrackedRelationshipType::PARENTSTAR
 		|| relationshipType == PKBTrackedRelationshipType::FOLLOWS
 		|| relationshipType == PKBTrackedRelationshipType::FOLLOWSSTAR) {
-		if (lhs.isStmtSynonym() && rhs.isStmtSynonym() && lhs == rhs) {
+		if (lhs.isStmtRefNoWildcard() && rhs.isStmtRefNoWildcard() && lhs == rhs) {
 			// is identical. e.g Follows(s,s)
 			// no possible solution, return empty
-			return vector<PQLRelationship>();
+			return true;
 		}
 	}
 
+	return false;
+}
 
-	// 2. if either side is exact, we can search by hash
+shared_ptr<PkbEntity> PKB::convertClauseArgumentToPkbEntity(ClauseArgument clause) {
+	// for now, we only support conversion of exact types
+	if (!clause.isExactReference()) {
+		throw PkbException("conversion only supports exact types (e.g. 1)!");
+	}
+
+	// we convert 
+	if (clause.isLineNumber()) {
+		shared_ptr<PkbEntity> entity = PkbStatementEntity::createPrintStatementEntity(clause.getLineNumber());
+		return entity;
+	}
+	else if (clause.isStringLiteral()) {
+		shared_ptr<PkbEntity> entity = shared_ptr<PkbEntity>(new PkbVariableEntity(clause.getIdentifier()));
+		return entity;
+	}
+
+}
+
+
+
+vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
+	// 0. get table based on type
+	shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(relationshipType);
+
+	// 1. short circuiting
+	if (canShortCircuitRetrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs)) {
+		return vector<PQLRelationship>();
+	}
+
+	// 2. if both side are exact, we can search by hash
 	// we create the key we are looking for based on lhs and rhs 
-	// TODO: for now, we do a manual filter
+	if (lhs.isExactReference() && rhs.isExactReference()) {
+		
+		// 2.1 create relationship
+		shared_ptr<PkbEntity> left = this->convertClauseArgumentToPkbEntity(lhs);
+		shared_ptr<PkbEntity> right = this->convertClauseArgumentToPkbEntity(rhs);
+		shared_ptr<PkbRelationship> toFind; // TODO: refactor to use factory methods
+		switch (relationshipType) {
+		case PKBTrackedRelationshipType::FOLLOWS:
+			toFind = shared_ptr<PkbRelationship>(new PkbFollowsRelationship(left, right));
+			break;
+		case PKBTrackedRelationshipType::FOLLOWSSTAR:
+			toFind = shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(left, right));
+			break;
+		case PKBTrackedRelationshipType::PARENT:
+			toFind = shared_ptr<PkbRelationship>(new PkbParentRelationship(left, right));
+			break;
+		case PKBTrackedRelationshipType::PARENTSTAR:
+			toFind = shared_ptr<PkbRelationship>(new PkbParentStarRelationship(left, right));
+			break;
+		case PKBTrackedRelationshipType::USES:
+			toFind = shared_ptr<PkbRelationship>(new PkbUsesRelationship(left, right));
+			break;
+		case PKBTrackedRelationshipType::MODIFIES:
+			toFind = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(left, right));
+			break;
+		default:
+			throw PkbException("Unknown relationship type to be retrieved!");
+		}
+
+		// 2.2 get by key
+		string key = toFind->getKey();
+		shared_ptr<PkbRelationship> found = table->get(key);
+
+
+		// 2.3 if null, return empty 
+		vector<PQLRelationship> retrievedRelationships;
+		if (found == NULL) {
+			return retrievedRelationships;
+		}
+
+		// 2.4 if not null, convert and return in single item vector
+		PQLEntity outLhs = this->pkbEntityToQpsPqlEntity(found->getLhs());
+		PQLEntity outRhs = this->pkbEntityToQpsPqlEntity(found->getRhs());
+		retrievedRelationships.push_back(PQLRelationship(outLhs, outRhs));
+		return retrievedRelationships;
+	}
+	
 
 	// 3. if not, we have to manually filter
 	PkbEntityFilter lhsFilter = getFilterFromClauseArgument(lhs);
@@ -685,7 +759,7 @@ PQLPattern PKB::pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> p) {
 }
 
 bool PKB::containsEntity(Entity entity) {
-	shared_ptr<PkbEntity> entitytoPkbEntity = spEntityToPkbEntity(entity);
+	shared_ptr<PkbEntity> entitytoPkbEntity = externalEntityToPkbEntity(entity);
 	string key = entitytoPkbEntity->getKey();
 
 	if (entitytoPkbEntity->isStatement()) {
@@ -704,7 +778,7 @@ bool PKB::containsEntity(Entity entity) {
 }
 
 bool PKB::containsRelationship(Relationship relationship) {
-	shared_ptr<PkbRelationship> relationshiptoPkbRelationship = spRelationshipToPkbRelationship(relationship);
+	shared_ptr<PkbRelationship> relationshiptoPkbRelationship = externalRelationshipToPkbRelationship(relationship);
 	string key = relationshiptoPkbRelationship->getKey();
 
 	if (relationshiptoPkbRelationship->isFollows()) {
