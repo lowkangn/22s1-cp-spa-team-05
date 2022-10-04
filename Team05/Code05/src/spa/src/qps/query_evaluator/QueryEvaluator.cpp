@@ -3,6 +3,12 @@
 set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pkb) {
 	list<shared_ptr<EntityClauseResult>> entitiesResultPointers = query.executeSelect(pkb);
 	list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers = query.executeSuchThatAndPattern(pkb);
+
+	// Empty lists indicate `Select BOOLEAN`, in which case just circumvent and return TRUE
+	if (entitiesResultPointers.empty() && relationshipsResultPointers.empty()) {
+		return set<string>{"TRUE"};
+	}
+
 	vector<vector<PQLEntity>> results = combine(entitiesResultPointers, relationshipsResultPointers);
 	return convertResultsToString(results, query.checkIfBooleanReturnType());
 }
@@ -113,6 +119,11 @@ vector<vector<PQLEntity>> QueryEvaluator::filterEntities(list<EntityClauseResult
 	// If at any point a table join returns no entries, return no entries
 	if (!hasEntries) {
 		return vector<vector<PQLEntity>>{};
+	}
+
+	// No EntityClauseResults indicates Select BOOLEAN, so just return the combined table: not empty will result in TRUE, empty will result in FALSE
+	if (entitiesResults.empty()) {
+		return *combinedTable;
 	}
 
 	// From combined table, get only column of entities that match select clause argument
