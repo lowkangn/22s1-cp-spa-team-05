@@ -105,7 +105,7 @@ private:
 		Helper function to check if retrieving the relationship, while semantically and syntacticall correct, is even 
 		possible. e.g. Follows(s,s) is not possible
 	*/
-	bool PKB::canShortCircuitRetrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
+	bool canShortCircuitRetrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
 
 
 	/*

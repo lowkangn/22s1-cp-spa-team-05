@@ -33,4 +33,6 @@ public:
     }
 
     friend bool operator==(EntityClauseResult first, EntityClauseResult second);
+
+	friend bool operator<(EntityClauseResult first, EntityClauseResult second);
 };

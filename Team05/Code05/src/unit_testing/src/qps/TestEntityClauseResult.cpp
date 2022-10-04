@@ -48,6 +48,11 @@ TEST_CASE("EntityClauseResult: test operator==") {
         testOperatorEquals(EntityClauseResult(firstArg, vector<PQLEntity>{firstEntity, secondEntity}),
                            EntityClauseResult(firstArg, vector<PQLEntity>{firstEntity, secondEntity}),
                            true);
+
+		// Same args, same sets of entities but in different order
+		testOperatorEquals(EntityClauseResult(firstArg, vector<PQLEntity>{firstEntity, secondEntity}),
+						   EntityClauseResult(firstArg, vector<PQLEntity>{secondEntity, firstEntity}),
+						   true);
     }
 
     SECTION("Not equal") {
@@ -65,11 +70,6 @@ TEST_CASE("EntityClauseResult: test operator==") {
         // Same args, different sets of entities
         testOperatorEquals(EntityClauseResult(firstArg, vector<PQLEntity>{firstEntity, secondEntity}),
                            EntityClauseResult(firstArg, vector<PQLEntity>{firstEntity, thirdEntity}),
-                           false);
-
-        // Same args, same sets of entities but in different order
-        testOperatorEquals(EntityClauseResult(firstArg, vector<PQLEntity>{firstEntity, secondEntity}),
-                           EntityClauseResult(firstArg, vector<PQLEntity>{secondEntity, firstEntity}),
                            false);
     }
 }

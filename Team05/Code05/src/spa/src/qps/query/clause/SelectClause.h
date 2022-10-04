@@ -3,10 +3,12 @@
 #include <memory>
 #include <string>
 #include <list>
+#include <set>
 #include <qps/query/clause/ClauseArgument.h>
 #include <qps/query/clause/EntityClauseResult.h>
 #include <qps/exceptions/PQLSyntaxError.h>
 #include <pkb/interfaces/PKBQueryHandler.h>
+#include <pkb/PKB.h>
 
 using namespace std;
 
