@@ -69,7 +69,9 @@ vector<shared_ptr<SimpleSyntaxRule>> StatementListSimpleSyntaxRule::generateChil
 			childRules.push_back(assignRulePointer); // add to children nodes in order
 		}
 		else if (this->isCallStatement(tokens)) { // call statement
-			// TODO - not needed for Milestone 1
+			shared_ptr<SimpleSyntaxRule> callRulePointer = shared_ptr<SimpleSyntaxRule>(new CallSimpleSyntaxRule());
+			tokens = callRulePointer->consumeTokens(tokens);
+			childRules.push_back(callRulePointer);
 		}
 		else if (this->isWhileStatement(tokens)) { // while block
 			shared_ptr<SimpleSyntaxRule> whileRulePointer = shared_ptr<SimpleSyntaxRule>(new WhileSimpleSyntaxRule());
