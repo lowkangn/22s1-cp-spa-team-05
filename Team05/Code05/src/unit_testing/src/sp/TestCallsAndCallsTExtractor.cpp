@@ -6,11 +6,15 @@
 #include <sp/dataclasses/ast/AST.h>
 #include <vector>	
 #include <memory>
+#include <sp/dataclasses/ast/AssignASTNode.h>
 #include <sp/dataclasses/ast/CallASTNode.h>
+#include <sp/dataclasses/ast/ExpressionASTNode.h>
+#include <sp/dataclasses/ast/IfASTNode.h>
 #include <sp/dataclasses/ast/ProcedureASTNode.h>
 #include <sp/dataclasses/ast/ProgramASTNode.h>
 #include <sp/dataclasses/ast/ReadASTNode.h>
 #include <sp/dataclasses/ast/StatementListASTNode.h>
+#include <sp/dataclasses/ast/WhileASTNode.h>
 
 using namespace std;
 
@@ -189,6 +193,115 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		Relationship callsTMainAlpha = Relationship::createCallsTRelationship(mainEntity, alphaEntity);
 
 		vector<Relationship> expectedCallsAndCallsTRelationships{ callsMainAlpha, callsTMainAlpha };
+
+		test(programNode, expectedCallsAndCallsTRelationships);
+	}
+
+	SECTION("Nested calls") {
+		/*
+			procedure main {
+				read y;
+				if (y > 0) then {
+					call alpha;
+				} else {
+					call beta;
+				}
+			}
+
+			procedure alpha {
+				read x;
+				if (x > 0) then {
+					while (x > 0) {
+						call beta;
+						x = x - 1;
+					}
+				} else {}
+			}
+
+			procedure beta {}
+		*/
+
+		// procedure main
+		shared_ptr<ASTNode> mainProcedureNode = ProcedureASTNode::createProcedureNode(mainToken);
+		shared_ptr<ASTNode> mainStmtListNode = StatementListASTNode::createStatementListNode();
+		mainProcedureNode->addChild(mainStmtListNode);
+
+		// procedure alpha
+		shared_ptr<ASTNode> alphaProcedureNode = ProcedureASTNode::createProcedureNode(alphaToken);
+		shared_ptr<ASTNode> alphaStmtListNode = StatementListASTNode::createStatementListNode();
+		alphaProcedureNode->addChild(alphaStmtListNode);
+
+		// procedure beta
+		shared_ptr<ASTNode> betaProcedureNode = ProcedureASTNode::createProcedureNode(betaToken);
+		shared_ptr<ASTNode> betaStmtListNode = StatementListASTNode::createStatementListNode();
+		betaProcedureNode->addChild(betaStmtListNode);
+
+		shared_ptr<ASTNode> readYNode = ReadASTNode::createReadNode();
+		mainStmtListNode->addChild(readYNode);
+
+		shared_ptr<ASTNode> mainIfNode = IfASTNode::createIfNode();
+		shared_ptr<ASTNode> mainIfCond = ExpressionASTNode::createExpressionNode(Token::createGreaterThanToken());
+		shared_ptr<ASTNode> thenStmtListNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> elseStmtListNode = StatementListASTNode::createStatementListNode();
+		mainIfNode->addChild(mainIfCond);
+		mainIfNode->addChild(thenStmtListNode);
+		mainIfNode->addChild(elseStmtListNode);
+		mainStmtListNode->addChild(mainIfNode);
+
+		shared_ptr<ASTNode> callMainAlphaNode = CallASTNode::createCallNode();
+		callMainAlphaNode->addChild(alphaProcedureNode);
+		thenStmtListNode->addChild(callMainAlphaNode);
+
+		shared_ptr<ASTNode> callMainBetaNode = CallASTNode::createCallNode();
+		callMainBetaNode->addChild(betaProcedureNode);
+		elseStmtListNode->addChild(callMainBetaNode);
+
+		shared_ptr<ASTNode> readXNode = ReadASTNode::createReadNode();
+		alphaStmtListNode->addChild(readXNode);
+
+		shared_ptr<ASTNode> alphaIfNode = IfASTNode::createIfNode();
+		shared_ptr<ASTNode> alphaIfCond = ExpressionASTNode::createExpressionNode(Token::createGreaterThanToken());
+		shared_ptr<ASTNode> thenStmtListNode2 = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> elseStmtListNode2 = StatementListASTNode::createStatementListNode();
+		alphaIfNode->addChild(alphaIfCond);
+		alphaIfNode->addChild(thenStmtListNode2);
+		alphaIfNode->addChild(elseStmtListNode2);
+		alphaStmtListNode->addChild(alphaIfNode);
+
+		shared_ptr<ASTNode> whileNode = WhileASTNode::createWhileNode();
+		shared_ptr<ASTNode> whileCond = ExpressionASTNode::createExpressionNode(Token::createGreaterThanToken());
+		shared_ptr<ASTNode> whileStmtListNode = StatementListASTNode::createStatementListNode();
+		whileNode->addChild(whileCond);
+		whileNode->addChild(whileStmtListNode);
+		thenStmtListNode2->addChild(whileNode);
+
+		shared_ptr<ASTNode> callAlphaBetaNode = CallASTNode::createCallNode();
+		callAlphaBetaNode->addChild(betaProcedureNode);
+		whileStmtListNode->addChild(callAlphaBetaNode);
+
+		shared_ptr<ASTNode> assignNode = AssignASTNode::createAssignNode();
+		whileStmtListNode->addChild(assignNode);
+
+		shared_ptr<ASTNode> programNode = ProgramASTNode::createProgramNode();
+		programNode->addChild(mainProcedureNode);
+		programNode->addChild(alphaProcedureNode);
+		programNode->addChild(betaProcedureNode);
+
+		// Create entities
+		Entity mainEntity = Entity::createProcedureEntity(mainToken);
+		Entity alphaEntity = Entity::createProcedureEntity(alphaToken);
+		Entity betaEntity = Entity::createProcedureEntity(betaToken);
+
+		// Create relationships
+		Relationship callsMainAlpha = Relationship::createCallsRelationship(mainEntity, alphaEntity);
+		Relationship callsTMainAlpha = Relationship::createCallsTRelationship(mainEntity, alphaEntity);
+		Relationship callsMainBeta = Relationship::createCallsRelationship(mainEntity, betaEntity);
+		Relationship callsTMainBeta = Relationship::createCallsTRelationship(mainEntity, betaEntity);
+		Relationship callsAlphaBeta = Relationship::createCallsRelationship(alphaEntity, betaEntity);
+		Relationship callsTAlphaBeta = Relationship::createCallsTRelationship(alphaEntity, betaEntity);
+
+		vector<Relationship> expectedCallsAndCallsTRelationships{ callsMainAlpha, callsTMainAlpha, callsMainBeta, callsTMainBeta,
+				callsAlphaBeta, callsTAlphaBeta };
 
 		test(programNode, expectedCallsAndCallsTRelationships);
 	}
