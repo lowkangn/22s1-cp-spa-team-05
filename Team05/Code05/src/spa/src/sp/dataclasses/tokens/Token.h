@@ -239,7 +239,7 @@ public:
 
 	/* Checks if the token is the call keyword.*/
 	bool isCallKeywordToken() {
-		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == CLOSED_CURLY_BRACKET);
+		return (this->type == TokenType::NAME_OR_KEYWORD) && (this->s == CALL_KEYWORD);
 	}
 
 	/* Checks if the token is the while keyword */
