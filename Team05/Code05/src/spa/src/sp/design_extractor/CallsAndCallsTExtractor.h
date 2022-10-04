@@ -15,13 +15,15 @@ using namespace std;
 class CallsAndCallsTExtractor : public Extractor<Relationship> {
 
 private:
-	// Used to check for repeated procedure names.
+	const string DELIMITER = ":";
+
+	// Used to check for repeated procedure names. The procedure name is used as the key.
 	unordered_map<string, Entity> extractedProcedures;
 	
 	// Used to avoid repeats.
 	unordered_set<string> extractedCalls;
 
-	// Used to check for cyclic calls and to extract callsT relationships.
+	// Used to check for cyclic calls and to extract callsT relationships. The procedure name is used as the key.
 	unordered_map<string, vector<Entity>> callsGraph;
 
 	/*
@@ -32,10 +34,13 @@ private:
 		vector<Relationship> recursiveCallsT = vector<Relationship>{};
 
 		for (pair<string, vector<Entity>> const& keyValuePair : this->callsGraph) {
-			Entity procedure = this->extractedProcedures.at(keyValuePair.first);
+			string procedureName = keyValuePair.first;
+			vector<Entity> children = keyValuePair.second;
+
+			Entity procedure = this->extractedProcedures.at(procedureName);
 
 			// Traverse the procedures that the selected procedure calls.
-			for (Entity child : keyValuePair.second) {
+			for (Entity child : children) {
 				vector<Relationship> recursivelyExtracted = this->extractCallsTHelper(procedure, child);
 				recursiveCallsT.insert(recursiveCallsT.end(), recursivelyExtracted.begin(), recursivelyExtracted.end());
 			}
@@ -43,29 +48,31 @@ private:
 		return recursiveCallsT;
 	}
 
-	vector<Relationship> extractCallsTHelper(Entity& leftHandSide, Entity& calledProcedure) {
+	vector<Relationship> extractCallsTHelper(Entity& leftHandSide, Entity& procedureCalledByLhs) {
 		vector<Relationship> recursiveCallsT = vector<Relationship>{};
+		string procedureName = procedureCalledByLhs.getString();
 
 		// If the called procedure also calls any other procedure, form and extract the CallsT relationships.
-		for (Entity& child : this->callsGraph[calledProcedure.getString()]) {
+		for (Entity& child : this->callsGraph[procedureName]) {
 			/*
-			If the same procedure is visited again, that means a cyclic call exists in the program.
+			If the LHS is visited again, that means a cyclic call exists in the program.
 			Throw a semantic error.
 			*/
 			if (child == leftHandSide) {
 				throw ASTException("The program contains cyclic procedure calls! This is not allowed");
 			}
 
+			string callerCalleeString = leftHandSide.getString() + DELIMITER + child.getString();
+
 			// If relationship was extracted previously, ignore it and return. This path was already traversed before.
-			string callerCalleeString = leftHandSide.getString() + child.getString();
 			if (this->extractedCalls.find(callerCalleeString) != this->extractedCalls.end()) {
 				return recursiveCallsT;
 			}
 			else {
-				this->extractedCalls.insert(callerCalleeString);
-
 				Relationship toAdd = Relationship::createCallsTRelationship(leftHandSide, child);
 				recursiveCallsT.push_back(toAdd);
+
+				this->extractedCalls.insert(callerCalleeString);
 
 				vector<Relationship> recursivelyExtracted = this->extractCallsTHelper(leftHandSide, child);
 				recursiveCallsT.insert(recursiveCallsT.end(), recursivelyExtracted.begin(), recursivelyExtracted.end());

@@ -15,20 +15,15 @@
 
 vector<Relationship> CallsAndCallsTExtractor::extract(shared_ptr<ASTNode> ast) {
 	vector<Relationship> calls = vector<Relationship>();
-	ASTNodeType type = ast->getType();
 
-	switch (type) {
-	case ASTNodeType::PROGRAM:
-	{
+	if (ast->isProgramNode()) {
 		vector<Relationship> extractedCalls = this->handleProgram(ast);
 		calls.insert(calls.end(), extractedCalls.begin(), extractedCalls.end());
 
 		vector<Relationship> recursiveCallsT = this->extractCallsT();
 		calls.insert(calls.end(), recursiveCallsT.begin(), recursiveCallsT.end());
-		break;
 	}
-	case ASTNodeType::PROCEDURE:
-	{
+	else if (ast->isProcedureNode()) {
 		shared_ptr<ProcedureASTNode> procedureNode = dynamic_pointer_cast<ProcedureASTNode>(ast);
 
 		Entity leftHandSide = procedureNode->extractEntity();
@@ -38,8 +33,6 @@ vector<Relationship> CallsAndCallsTExtractor::extract(shared_ptr<ASTNode> ast) {
 			vector <Relationship> extractedCalls = recursiveContainerExtract(leftHandSide, child);
 			calls.insert(calls.end(), extractedCalls.begin(), extractedCalls.end());
 		}
-		break;
-	}
 	}
 	return calls;
 }
@@ -80,24 +73,22 @@ vector<Relationship> CallsAndCallsTExtractor::handleProgram(shared_ptr<ASTNode> 
 
 vector<Relationship> CallsAndCallsTExtractor::recursiveContainerExtract(Entity& leftHandSide, shared_ptr<ASTNode> ast) {
 	vector<Relationship> callsRelationships = vector<Relationship>();
-	ASTNodeType type = ast->getType();
 
-	switch (type) {
-	case ASTNodeType::CALL:
-	{
+	if (ast->isCallNode()) {
 		shared_ptr<CallASTNode> callNode = dynamic_pointer_cast<CallASTNode>(ast);
 		Entity procedureCalled = callNode->getProcedureName()->extractEntity();
-		string caller = leftHandSide.getString();
 		string callee = procedureCalled.getString();
 
-		if (caller == callee) {
+		if (leftHandSide == procedureCalled) {
 			throw ASTException("A procedure is calling itself!");
 		}
 		else if (this->extractedProcedures.find(callee) == this->extractedProcedures.end()) {
 			throw ASTException("Trying to call a non-existent procedure " + callee);
 		}
 		else {
-			string callerCalleeString = caller + callee;
+			string caller = leftHandSide.getString();
+			// This is to check the extractedCalls set to avoid extracting the same relationship again.
+			string callerCalleeString = caller + DELIMITER + callee;
 
 			// If this calls relationship was not extracted previously, extract and add it to the extracted relationships.
 			if (this->extractedCalls.find(callerCalleeString) == this->extractedCalls.end()) {
@@ -116,10 +107,8 @@ vector<Relationship> CallsAndCallsTExtractor::recursiveContainerExtract(Entity& 
 				}
 			}
 		}
-		break;
 	}
-	case ASTNodeType::IF:
-	{
+	else if (ast->isIfNode()) {
 		shared_ptr<IfASTNode> ifNode = dynamic_pointer_cast<IfASTNode>(ast);
 		shared_ptr<ASTNode> thenChild = ifNode->getThenStatements();
 		shared_ptr<ASTNode> elseChild = ifNode->getElseStatements();
@@ -133,10 +122,8 @@ vector<Relationship> CallsAndCallsTExtractor::recursiveContainerExtract(Entity& 
 			vector <Relationship> extractedElseRelationships = recursiveContainerExtract(leftHandSide, child);
 			callsRelationships.insert(callsRelationships.end(), extractedElseRelationships.begin(), extractedElseRelationships.end());
 		}
-		break;
 	}
-	case ASTNodeType::WHILE:
-	{
+	else if (ast->isWhileNode()) {
 		shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
 		shared_ptr<ASTNode> childrenStmtLst = whileNode->getStmtList();
 
@@ -144,8 +131,6 @@ vector<Relationship> CallsAndCallsTExtractor::recursiveContainerExtract(Entity& 
 			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
 			callsRelationships.insert(callsRelationships.end(), toAdd.begin(), toAdd.end());
 		}
-		break;
-	}
 	}
 
 	return callsRelationships;
