@@ -4,9 +4,14 @@
 #include <assert.h>
 
 class AssignASTNode : public ASTNode {
-public:
+private:
 	AssignASTNode(Token& token) : ASTNode(token) {
 		this->type = ASTNodeType::ASSIGN;
+	}
+
+public:
+	static shared_ptr<ASTNode> createAssignNode() {
+		return shared_ptr<ASTNode>(new AssignASTNode(Token::createEqualsToken()));
 	}
 
 	bool isTerminal() override {

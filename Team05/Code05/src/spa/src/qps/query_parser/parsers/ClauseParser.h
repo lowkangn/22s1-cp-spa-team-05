@@ -11,6 +11,7 @@
 #include <qps/query_tokenizer/PQLToken.h>
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query/clause/ClauseArgument.h>
+#include <qps/query_parser/parsers/SemanticChecker.h>
 
 using namespace std;
 
@@ -19,7 +20,7 @@ using namespace std;
    in the parsing process across clauses and provides a template 
    method for parsing.
 */
-class ClauseParser {
+class ClauseParser : public SemanticChecker {
 protected:
 	list<PQLToken> tokens;
 
@@ -55,9 +56,10 @@ protected:
 public:
 
 	ClauseParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) {
-		this->tokens = tokens;
+		this->tokens = tokens; 
 		this->declarations = declarations;
-	}
+		this->semanticErrorMessage = NO_SEMANTIC_ERROR_MESSAGE;
+	};
 
 	/* Returns the tokens stored in this ClauseParser */
 	list<PQLToken> getRemainingTokens();

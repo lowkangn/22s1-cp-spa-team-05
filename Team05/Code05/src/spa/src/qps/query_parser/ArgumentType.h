@@ -29,6 +29,7 @@ enum class ArgumentType {
     VARNAME,
     STMTNUM,
     VALUE,
+    UNDECLARED_SYNONYM
 };
 
 ArgumentType getDesignEntityArgumentType(string argumentType);

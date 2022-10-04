@@ -326,30 +326,30 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		Token stmtListToken = Token::createPlaceholderToken();
 
 		// Creating AST nodes
-		shared_ptr<ASTNode> procedureNode(new ProcedureASTNode(mainToken));
+		shared_ptr<ASTNode> procedureNode = ProcedureASTNode::createProcedureNode(mainToken);
 
 		// Line 1 (x = 3)
-		shared_ptr<ASTNode> mainStmtList(new StatementListASTNode(stmtListToken));
-		shared_ptr<ASTNode> x1Node(new VariableASTNode(xToken));
-		shared_ptr<ASTNode> assign1Node(new AssignASTNode(assignToken));
-		shared_ptr<ASTNode> constThreeNode(new ConstantValueASTNode(constThreeToken));
+		shared_ptr<ASTNode> mainStmtList = StatementListASTNode::createStatementListNode();		
+		shared_ptr<ASTNode> x1Node = VariableASTNode::createVariableNode(xToken);
+		shared_ptr<ASTNode> assign1Node = AssignASTNode::createAssignNode();
+		shared_ptr<ASTNode> constThreeNode = ConstantValueASTNode::createConstantNode(constThreeToken);
 
 		x1Node->setLineNumber(1);
 		assign1Node->setLineNumber(1);
 		constThreeNode->setLineNumber(1);
 
 		// Line 2 (read y)
-		shared_ptr<ASTNode> readNode(new ReadASTNode(readToken));
-		shared_ptr<ASTNode> y2Node(new VariableASTNode(yToken));
+		shared_ptr<ASTNode> readNode = ReadASTNode::createReadNode();		
+		shared_ptr<ASTNode> y2Node = VariableASTNode::createVariableNode(yToken);
 
 		readNode->setLineNumber(2);
 		y2Node->setLineNumber(2);
 
 		// Line 3 (while ( x != 0 ))
-		shared_ptr<ASTNode> whileNode(new WhileASTNode(whileToken));
-		shared_ptr<ASTNode> x3Node(new VariableASTNode(xToken));
-		shared_ptr<ASTNode> constZeroNode(new ConstantValueASTNode(constZeroToken));
-		shared_ptr<ASTNode> notEqualNode(new ExpressionASTNode(notEqualToken));
+		shared_ptr<ASTNode> whileNode = WhileASTNode::createWhileNode();		
+		shared_ptr<ASTNode> x3Node = VariableASTNode::createVariableNode(xToken);
+		shared_ptr<ASTNode> constZeroNode = ConstantValueASTNode::createConstantNode(constZeroToken);
+		shared_ptr<ASTNode> notEqualNode = ExpressionASTNode::createExpressionNode(notEqualToken);
 
 		whileNode->setLineNumber(3);
 		x3Node->setLineNumber(3);
@@ -357,12 +357,12 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		notEqualNode->setLineNumber(3);
 
 		// Line 4 (x = x - 1)
-		shared_ptr<ASTNode> whileStmtList(new StatementListASTNode(stmtListToken));
-		shared_ptr<ASTNode> x4LhsNode(new VariableASTNode(xToken));
-		shared_ptr<ASTNode> x4RhsNode(new VariableASTNode(xToken));
-		shared_ptr<ASTNode> assign4Node(new AssignASTNode(assignToken));
-		shared_ptr<ASTNode> minusNode(new ExpressionASTNode(minusToken));
-		shared_ptr<ASTNode> constOneNode(new ConstantValueASTNode(constOneToken));
+		shared_ptr<ASTNode> whileStmtList = StatementListASTNode::createStatementListNode();		
+		shared_ptr<ASTNode> x4LhsNode = VariableASTNode::createVariableNode(xToken);
+		shared_ptr<ASTNode> x4RhsNode = VariableASTNode::createVariableNode(xToken);
+		shared_ptr<ASTNode> assign4Node = AssignASTNode::createAssignNode();
+		shared_ptr<ASTNode> minusNode = ExpressionASTNode::createExpressionNode(minusToken);
+		shared_ptr<ASTNode> constOneNode = ConstantValueASTNode::createConstantNode(constOneToken);
 
 		x4LhsNode->setLineNumber(4);
 		x4RhsNode->setLineNumber(4);
@@ -371,17 +371,17 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		constOneNode->setLineNumber(4);
 
 		// Line 5 (print y)
-		shared_ptr<ASTNode> printNode(new PrintASTNode(printToken));
-		shared_ptr<ASTNode> y5Node(new VariableASTNode(yToken));
+		shared_ptr<ASTNode> printNode = PrintASTNode::createPrintNode();		
+		shared_ptr<ASTNode> y5Node = VariableASTNode::createVariableNode(yToken);
 
 		printNode->setLineNumber(5);
 		y5Node->setLineNumber(5);
 
 		// Line 6 (if (y > 5) then)
-		shared_ptr<ASTNode> ifNode(new IfASTNode(ifToken));
-		shared_ptr<ASTNode> y6Node(new VariableASTNode(yToken));
-		shared_ptr<ASTNode> greaterNode(new ExpressionASTNode(greaterToken));
-		shared_ptr<ASTNode> constFiveNode(new ConstantValueASTNode(constFiveToken));
+		shared_ptr<ASTNode> ifNode = IfASTNode::createIfNode();
+		shared_ptr<ASTNode> y6Node = VariableASTNode::createVariableNode(yToken);
+		shared_ptr<ASTNode> greaterNode = ExpressionASTNode::createExpressionNode(greaterToken);
+		shared_ptr<ASTNode> constFiveNode = ConstantValueASTNode::createConstantNode(constFiveToken);
 
 		ifNode->setLineNumber(6);
 		y6Node->setLineNumber(6);
@@ -389,20 +389,20 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		constFiveNode->setLineNumber(6);
 
 		// Line 7 (x = y)
-		shared_ptr<ASTNode> thenStmtList(new StatementListASTNode(stmtListToken));
-		shared_ptr<ASTNode> assign7Node(new AssignASTNode(assignToken));
-		shared_ptr<ASTNode> x7Node(new VariableASTNode(xToken));
-		shared_ptr<ASTNode> y7Node(new VariableASTNode(yToken));
+		shared_ptr<ASTNode> thenStmtList = StatementListASTNode::createStatementListNode();		
+		shared_ptr<ASTNode> assign7Node = AssignASTNode::createAssignNode();
+		shared_ptr<ASTNode> x7Node = VariableASTNode::createVariableNode(xToken);
+		shared_ptr<ASTNode> y7Node = VariableASTNode::createVariableNode(yToken);
 
 		assign7Node->setLineNumber(7);
 		x7Node->setLineNumber(7);
 		y7Node->setLineNumber(7);
 
 		// Line 8 (y = x)
-		shared_ptr<ASTNode> elseStmtList(new StatementListASTNode(stmtListToken));
-		shared_ptr<ASTNode> assign8Node(new AssignASTNode(assignToken));
-		shared_ptr<ASTNode> y8Node(new VariableASTNode(yToken));
-		shared_ptr<ASTNode> x8Node(new VariableASTNode(xToken));
+		shared_ptr<ASTNode> elseStmtList = StatementListASTNode::createStatementListNode();		
+		shared_ptr<ASTNode> assign8Node = AssignASTNode::createAssignNode();
+		shared_ptr<ASTNode> y8Node = VariableASTNode::createVariableNode(yToken);
+		shared_ptr<ASTNode> x8Node = VariableASTNode::createVariableNode(xToken);
 
 		assign8Node->setLineNumber(8);
 		y8Node->setLineNumber(8);
@@ -737,7 +737,7 @@ TEST_CASE("Test Source Processor : extractEntity") {
 
 
 	SECTION("Milestone 1 Program #2") {
-		string program = "procedure main {\n     while (! ((1==0) && (1==0)))  {\n\t\tread x;\n\t }\n\t x = 4;\n\t }";
+		string program = "procedure main {\n     while (! ((1==2) && (3==4)))  {\n\t\tread x;\n\t }\n\t y = 5;\n\t }";
 		vector<Entity> expected{
 			Entity::createProcedureEntity(Token::createNameOrKeywordToken("main")),
 			
@@ -745,15 +745,15 @@ TEST_CASE("Test Source Processor : extractEntity") {
 			Entity::createExpressionEntity(1, Token::createAndToken()),
 			Entity::createExpressionEntity(1, Token::createEqualityToken()),
 			Entity::createExpressionEntity(1, Token::createEqualityToken()),
-			Entity::createConstantEntity(1, Token::createIntegerToken("0")),
 			Entity::createConstantEntity(1, Token::createIntegerToken("1")),
-			Entity::createConstantEntity(1, Token::createIntegerToken("0")),
-			Entity::createConstantEntity(1, Token::createIntegerToken("1")),
+			Entity::createConstantEntity(1, Token::createIntegerToken("2")),
+			Entity::createConstantEntity(1, Token::createIntegerToken("3")),
+			Entity::createConstantEntity(1, Token::createIntegerToken("4")),
 			Entity::createReadEntity(2),
 			Entity::createVariableEntity(2, Token::createNameOrKeywordToken("x")),
 			Entity::createAssignEntity(3),
-			Entity::createVariableEntity(3, Token::createNameOrKeywordToken("x")),
-			Entity::createConstantEntity(3, Token::createIntegerToken("4")),
+			Entity::createVariableEntity(3, Token::createNameOrKeywordToken("y")),
+			Entity::createConstantEntity(3, Token::createIntegerToken("5")),
 		};
 		test(program, expected);
 	}
@@ -824,6 +824,30 @@ TEST_CASE("Test Source Processor : extractPattern") {
 			REQUIRE(patterns[i].equals(expectedPatterns[i]));
 		}
 	};
+
+	SECTION("Milestone 1 Program #2") {
+		string program = "procedure main {\n     while (! ((1==2) && (3==4)))  {\n\t\tread x;\n\t }\n\t y = y + 5;\n\t }";
+		vector<Pattern> expected{
+			Pattern::createAssignPattern(3," y "," y 5 + "),
+		};
+		test(program, expected);
+	}
+
+	SECTION("Milestone 1 Program #3") {
+		string program = "procedure main {\n     while (1>= 1%((0-1)) )  {\n\t\tread x;\n\t }\n\t x = x + 1;\n\t }";
+		vector<Pattern> expected{
+			Pattern::createAssignPattern(3, " x "," x 1 + "),
+		};
+		test(program, expected);
+	}
+
+	SECTION("Milestone 1 Program #4") {
+		string program = "procedure main {\n     while (1>= 1%((1)) )  {\n\t\tread x;\n\t }\n\t x = x + 1;\n\t }";
+		vector<Pattern> expected{
+			Pattern::createAssignPattern(3, " x "," x 1 + "),
+		};
+		test(program, expected);
+	}
 
 	SECTION("Test Milestone 1 program") {
 		/*

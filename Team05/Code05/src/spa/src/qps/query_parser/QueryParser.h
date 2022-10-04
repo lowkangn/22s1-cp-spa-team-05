@@ -7,6 +7,15 @@
 #include <qps/query/Query.h>
 #include <qps/query/clause/PatternClause.h>
 #include <qps/query_parser/parsers/WithParser.h>
+#include <qps/query_parser/parsers/SelectParser.h>
+#include <qps/query_parser/parsers/DeclarationParser.h>
+#include <qps/query_parser/parsers/FollowsParser.h>
+#include <qps/query_parser/parsers/ModifiesParser.h>
+#include <qps/query_parser/parsers/ParentParser.h>
+#include <qps/query_parser/parsers/PatternParser.h>
+#include <qps/query_parser/parsers/PatternAssignParser.h>
+#include <qps/query_parser/parsers/UsesParser.h>
+
 #include <list>
 #include <unordered_map>
 
@@ -22,6 +31,19 @@ private:
     list<shared_ptr<PatternClause>> patternClauses;
     list<shared_ptr<WithClause>> withClauses;
 
+    bool isSemanticallyValid = true;
+    string semanticErrorMessage;
+
+    void setSemanticErrorFromParser(shared_ptr<SemanticChecker> parserPointer);
+
+    void parseConstraints(unordered_map<string, ArgumentType> declarations);
+
+    shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType> declarations);
+
+    shared_ptr<PatternClause> parsePattern(unordered_map<string, ArgumentType> declarations);
+
+    shared_ptr<WithClause> parseWith(unordered_map<string, ArgumentType>& declarations);
+
 public:
 
     /**
@@ -31,6 +53,10 @@ public:
      */
     QueryParser(list<PQLToken> tokens) {
         this->tokens = tokens;
+        this->suchThatClauses = list<shared_ptr<RelationshipClause>>{};
+        this->patternClauses = list<shared_ptr<PatternClause>>{};
+        this->isSemanticallyValid = true;
+        this->semanticErrorMessage = "";
     };
 
     /**
@@ -40,14 +66,6 @@ public:
      */
     Query parse();
 
-    void parseConstraints(unordered_map<string, ArgumentType>& declarations);
-
-    shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType>& declarations);
-
-	shared_ptr<PatternClause> parsePattern(unordered_map<string, ArgumentType>& declarations);
-
-    shared_ptr<WithClause> parseWith(unordered_map<string, ArgumentType>& declarations);
-
-    /* A friend class to access private fields for testing */
-    friend class QueryParserAccessor;
+    /* A class that can access private fields to help with testing */
+    friend class QueryParserTestHelper;
 };

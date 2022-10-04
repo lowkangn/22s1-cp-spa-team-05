@@ -63,3 +63,8 @@ assign a; constant c;
 Select a pattern a "x", _
 SyntaxError
 5000
+14 - constant synonym as second arg and number as last arg
+assign a; constant c;
+Select a pattern a(c, 1)
+SyntaxError
+5000

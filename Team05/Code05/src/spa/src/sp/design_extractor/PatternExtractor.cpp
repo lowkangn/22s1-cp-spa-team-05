@@ -63,9 +63,12 @@ vector<Pattern> PatternExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 	// extract from condition
 	shared_ptr<ASTNode> condNode = whileNode->getCondition();
 	string condString = this->handleCondition(condNode);
-	Pattern pattern = Pattern::createWhilePattern(whileNode->getLineNumber(), condString);
 
-	extractedPatterns.push_back(pattern);
+	if (condString != "") {
+		Pattern pattern = Pattern::createWhilePattern(whileNode->getLineNumber(), condString);
+
+		extractedPatterns.push_back(pattern);
+	}
 
 	return extractedPatterns;
 }
@@ -86,10 +89,11 @@ vector<Pattern> PatternExtractor::handleIf(shared_ptr<ASTNode> ast) {
 	// extract from condition
 	shared_ptr<ASTNode> condNode = ifNode->getCondition();
 	string condString = this->handleCondition(condNode);
-	Pattern pattern = Pattern::createIfPattern(ifNode->getLineNumber(), condString);
-
-	extractedPatterns.insert(extractedPatterns.end(), elseExtractedPatterns.begin(), elseExtractedPatterns.end());
-	extractedPatterns.push_back(pattern);
+	if (condString != "") {
+		Pattern pattern = Pattern::createIfPattern(ifNode->getLineNumber(), condString);
+		extractedPatterns.insert(extractedPatterns.end(), elseExtractedPatterns.begin(), elseExtractedPatterns.end());
+		extractedPatterns.push_back(pattern);
+	}
 
 	return extractedPatterns;
 }

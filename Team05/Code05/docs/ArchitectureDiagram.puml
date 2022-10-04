@@ -1,0 +1,29 @@
+@startuml
+!include <office/Concepts/globe_internet>
+!include <office/Concepts/documents>
+!include <office/Users/user>
+!include style.puml
+
+Package " "<<Rectangle>>{
+    Class Commons PKB_COLOR_T2
+    Class PKB PKB_COLOR
+    Class QPS QPS_COLOR
+    Class SP SP_COLOR
+    Class UI #green
+
+}
+
+Class "<$user>" as User SP_COLOR_T1
+Class "<$documents>" as File #grey
+
+File .left[#grey].> UI
+
+UI -down[SP_COLOR]->SP: read program >
+UI --left[PKB_COLOR]-> PKB: design abstractions >
+UI -[QPS_COLOR]-> QPS: PQL query >
+SP .up[#grey].> PKB
+
+QPS -up[PKB_COLOR]> PKB: evaluate query >
+
+User .down.> UI
+@enduml

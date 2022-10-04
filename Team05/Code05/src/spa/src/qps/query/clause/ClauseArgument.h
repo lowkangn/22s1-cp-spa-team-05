@@ -15,6 +15,7 @@ private:
 	string identifier;
 	ArgumentType type;
 
+
 	ClauseArgument(string identifier, ArgumentType type) {
 		this->identifier = identifier;
 		this->type = type;
@@ -106,6 +107,10 @@ public:
 		return ClauseArgument(identifier, ArgumentType::INTEGER_VALUE);
 	}
 
+	static ClauseArgument createUndeclaredSynonymArg(string identifier) {
+		return ClauseArgument(identifier, ArgumentType::UNDECLARED_SYNONYM);
+	}
+
 	bool isStmtSynonym() {
 		return this->type == ArgumentType::STMT;
 	}
@@ -187,10 +192,14 @@ public:
 	}
 
 	bool isAttributeName() {
-		return isValueAttribute() 
-			|| isProcNameAttribute() 
-			|| isStmtNumAttribute() 
+		return isValueAttribute()
+			|| isProcNameAttribute()
+			|| isStmtNumAttribute()
 			|| isVarNameAttribute();
+	}
+
+	bool isUndeclaredSynonym() {
+		return this->type == ArgumentType::UNDECLARED_SYNONYM;
 	}
 
 	bool isSynonym() {
@@ -236,6 +245,13 @@ public:
 			throw PQLLogicError("Trying to get identifier, but clause argument is a line number!");
 		}
 		return this->identifier;
+	}
+
+	/*
+		Indicates if the clause argument is exact (e.g. "x", 1)
+	*/
+	bool isExactReference() {
+		return (this->isLineNumber() || this->isStringLiteral());	
 	}
 
 

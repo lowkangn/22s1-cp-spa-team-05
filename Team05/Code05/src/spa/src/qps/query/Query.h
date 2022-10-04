@@ -15,6 +15,28 @@ private:
     shared_ptr<SelectClause> selectClause;
     list<shared_ptr<RelationshipClause>> suchThatClauses;
 	list<shared_ptr<PatternClause>> patternClauses;
+    
+    template <class T>
+    bool areClausesAllEqual(list<shared_ptr<T>> firstClauseList, list<shared_ptr<T>> secondClauseList) {
+		if (firstClauseList.size() != secondClauseList.size()) {
+			return false;
+		}
+
+		list<shared_ptr<T>>::iterator firstIter = firstClauseList.begin();
+		list<shared_ptr<T>>::iterator secondIter = secondClauseList.begin();
+
+		bool isClauseEqual;
+		while (firstIter != firstClauseList.end()) {
+			isClauseEqual = (*firstIter)->equals(*secondIter);
+			if (!isClauseEqual) {
+				return false;
+			}
+			firstIter++;
+			secondIter++;
+		}
+		return true;
+    }
+
 public:
 
     /* Instantiates a Query object containing the clauses. */

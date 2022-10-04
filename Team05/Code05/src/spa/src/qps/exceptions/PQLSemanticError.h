@@ -4,6 +4,8 @@
 
 using namespace std;
 
+const string NO_SEMANTIC_ERROR_MESSAGE = "";
+
 /**
  * This class encapsulates error messages for semantic errors during parsing of query strings.
  * Refer to https://github.com/nus-cs3203/project-wiki/wiki/Basic-SPA-Program-Query-Language#other-rules

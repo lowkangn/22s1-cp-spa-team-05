@@ -25,7 +25,7 @@ void ParentParser::checkArguments(list<ClauseArgument>& args) {
 		}
 
 		if (!arg.isWildcard() && !arg.isStmtRefNoWildcard()) {
-			throw PQLSemanticError("Both args for Parent/Parent* must be stmtRefs");
+			this->semanticErrorMessage = "Both args for Parent/Parent* must be stmtRefs";
 		}
 	}
 

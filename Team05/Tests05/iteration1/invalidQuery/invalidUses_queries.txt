@@ -21,7 +21,7 @@ SemanticError
 5 - stmtRef as second arg (line number)
 assign a;
 Select a such that Uses(a, 1)
-SemanticError
+SyntaxError
 5000
 6 - wildcard as first arg
 variable v;
@@ -42,4 +42,9 @@ SemanticError
 variable v; constant c;
 Select v such that Uses(v, c)
 SemanticError
+5000
+10 - constant as first arg and line number as second arg
+variable v; constant c;
+Select v such that Uses(c, 1)
+SyntaxError
 5000

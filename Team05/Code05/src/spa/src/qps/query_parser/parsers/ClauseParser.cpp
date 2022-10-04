@@ -2,10 +2,11 @@
 
 ClauseArgument ClauseParser::parseSynonym() {
     PQLToken synonymToken = this->tokens.front();
+	this->tokens.pop_front();
     if (declarations.count(synonymToken.getTokenString()) == 0) {
-        throw PQLSemanticError("Synonym not declared: " + synonymToken.getTokenString());
+		this->semanticErrorMessage = "Synonym not declared: " + synonymToken.getTokenString();
+		return ClauseArgument::createUndeclaredSynonymArg(synonymToken.getTokenString());
     }
-    this->tokens.pop_front();
     return ClauseArgument::createArgument(synonymToken.getTokenString(), declarations.at(synonymToken.getTokenString()));
 }
 
@@ -88,8 +89,6 @@ void ClauseParser::consumeCloseBracket() {
 }
 
 list<PQLToken> ClauseParser::getRemainingTokens() {
-	if (!this->isParseCompleted) {
-		throw PQLLogicError("getRemainingTokens() called before parse()");
-	}
+	assert(this->isParseCompleted);
 	return this->tokens;
 }

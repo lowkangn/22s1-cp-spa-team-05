@@ -40,7 +40,7 @@ shared_ptr<ASTNode> OperatorSimpleSyntaxRule::constructNode() {
 
 	// create current node
 	Token operatorToken = this->tokens.front();
-	shared_ptr<ASTNode> ExpressionNode(new ExpressionASTNode(operatorToken));
+	shared_ptr<ASTNode> ExpressionNode = ExpressionASTNode::createExpressionNode(operatorToken);
 
 	return ExpressionNode;
 }

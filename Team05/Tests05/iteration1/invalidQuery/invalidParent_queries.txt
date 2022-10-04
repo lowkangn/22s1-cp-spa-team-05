@@ -53,3 +53,8 @@ assign a; procedure p;
 Select a such that Parent*(p, a)
 SemanticError
 5000
+12 - procedure as first arg and double comma
+assign a; procedure p;
+Select a such that Parent*(p,, a)
+SyntaxError
+5000
