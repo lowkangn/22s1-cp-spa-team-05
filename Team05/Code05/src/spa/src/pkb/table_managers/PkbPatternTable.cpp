@@ -64,9 +64,10 @@ vector<shared_ptr<PkbPattern>> PkbPatternTable::getVariableMatch(vector<string> 
 	vector<shared_ptr<PkbPattern>> patterns = this->getAll();
 	
 	vector<string> regexControlVar{ };
-	// If pattern to match is wildcard, set regex to .* to match all
+	// If pattern to match is wildcard, set regex to to match all
 	if (conditions[0] == WILDCARD_CHAR) {
-		regexControlVar.push_back(".*");
+		string matchAll = this->createRegexStringFromString(conditions[0]);
+		regexControlVar.push_back(matchAll);
 	}
 	else { // otherwise, just match the given variable
 		regexControlVar.push_back("^" + conditions[0] + "$");
