@@ -1,4 +1,4 @@
-#include "EntityClauseResult.h"
+#include <qps/query/clause/EntityClauseResult.h>
 
 bool operator==(EntityClauseResult first, EntityClauseResult second) {
 	vector<PQLEntity> firstEntities = first.entities;

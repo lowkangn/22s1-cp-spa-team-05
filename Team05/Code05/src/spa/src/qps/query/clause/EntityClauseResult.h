@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/ClauseArgument.h>
 
