@@ -28,6 +28,8 @@ const string PARENTSTAR_TABLE = "parentStar";
 const string USES_TABLE = "uses";
 const string MODIFIES_TABLE = "modifies";
 
+const string SPACE_DELIM = " ";
+
 class PKB : public PKBQueryHandler, public PKBUpdateHandler {
 private: 
 	// variables, statement and procedures
@@ -73,13 +75,21 @@ private:
 
 	/*
 		Converts an SP entity to a pkb entity with the correct underlying behaviour.
+		TODO: consider refactoring this. For now, we have a dependency on an external type from the SP. this was done
+			for speed of development, and also the two-way coupling breaks abstraction in a minimal and arguably trivial way.
+			Better practice would be to have an external contract dataclass, SP convert to that and pass into the PKB.
+			Because it's currently not necessary, we don't do that.
 	*/
-	shared_ptr<PkbEntity> spEntityToPkbEntity(Entity entity);
+	shared_ptr<PkbEntity> externalEntityToPkbEntity(Entity entity);
 
 	/*
-		Converts SP relationship to a PKB relationship
+		Converts external relationship object to a PKB relationship. 
+		TODO: consider refactoring this. For now, we have a dependency on an external type from the SP. this was done
+			for speed of development, and also the two-way coupling breaks abstraction in a minimal and arguably trivial way. 
+			Better practice would be to have an external contract dataclass, SP convert to that and pass into the PKB. 
+			Because it's currently not necessary, we don't do that.
 	*/
-	shared_ptr<PkbRelationship> spRelationshipToPkbRelationship(Relationship relationship);
+	shared_ptr<PkbRelationship> externalRelationshipToPkbRelationship(Relationship relationship);
 
 	/*
 		Maps the supported relationship types to an internal table.
@@ -111,6 +121,18 @@ private:
 		Retrieves while patterns by lhs.
 	*/
 	vector<PQLPattern> retrieveWhilePatterns(ClauseArgument lhs);
+
+	/*
+		Helper function to check if retrieving the relationship, while semantically and syntacticall correct, is even 
+		possible. e.g. Follows(s,s) is not possible
+	*/
+	bool PKB::canShortCircuitRetrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
+
+
+	/*
+		Helper function to convert a clause argument into a pkb entity it's trying to specify.
+	*/
+	shared_ptr<PkbEntity> convertClauseArgumentToPkbEntity(ClauseArgument clause);
 
 
 public: 
@@ -232,15 +254,18 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue 
 	and outputs them into an array of strings representing variables
 	e.g. if (x == 1 and y == 2 and z == 3) -> "x y z" in SP -> Array [x, y, z]
 */
-static vector<string> splitStringByDelimiter(string s, char delimiter) {
-	stringstream ss(s);
-	vector<string> out;
+static vector<string> splitStringByDelimiter(string s, string delimiter) {
+	size_t pos_start = 0, pos_end, delim_len = delimiter.length();
 	string token;
+	vector<string> res;
 
-	while (getline(ss, token, delimiter)) {
-		out.push_back(token);
+	while ((pos_end = s.find(delimiter, pos_start)) != string::npos) {
+		token = s.substr(pos_start, pos_end - pos_start);
+		pos_start = pos_end + delim_len;
+		res.push_back(token);
 	}
 
-	return out;
+	res.push_back(s.substr(pos_start));
+	return res;
 }
 

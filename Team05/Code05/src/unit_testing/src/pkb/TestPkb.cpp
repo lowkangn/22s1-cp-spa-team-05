@@ -680,6 +680,58 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 	};
+
+	SECTION("Exact queries (by statement no., by variable name)") {
+		/*
+			procedure p {
+			1.	x = 1;
+			2.	read x;
+			3.	if (x == 1) then {
+			4.		x = 2;
+			5.		call p; // recursive call
+				}
+
+			}
+		*/
+		Entity procedure = Entity::createProcedureEntity(Token::createNameOrKeywordToken("p"));
+		Entity x = Entity::createVariableEntity(INVALID_LINE_NUMBER, Token::createNameOrKeywordToken("x"));
+		Entity statement1 = Entity::createAssignEntity(1);
+		Entity statement2 = Entity::createReadEntity(2);
+		Entity statement3 = Entity::createIfEntity(3);
+		Entity statement4 = Entity::createAssignEntity(4);
+		Entity statement5 = Entity::createCallEntity(5);
+		// vector of relationships to add
+		vector<Relationship> toAdd = {
+			Relationship::createModifiesRelationship(statement1, x),
+			Relationship::createModifiesRelationship(statement2, x),
+			Relationship::createModifiesRelationship(statement3, x),
+			Relationship::createModifiesRelationship(procedure, x),
+			Relationship::createModifiesRelationship(statement5, x),
+		};
+		// shared, as PQLEntities
+		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
+		PQLEntity xResult = PQLEntity::generateVariable("x");
+		PQLEntity statementResult1 = PQLEntity::generateStatement(1);
+		PQLEntity statementResult2 = PQLEntity::generateStatement(2);
+		PQLEntity statementResult3 = PQLEntity::generateStatement(3);
+		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
+		PQLEntity statementResult5 = PQLEntity::generateStatement(5);
+
+		// test 1: assign and variable
+		ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+		ClauseArgument rhs = ClauseArgument::createStringLiteralArg("x");
+		vector<PQLRelationship> expectedRelationships = {
+			PQLRelationship(statementResult1, xResult),
+		};
+		
+		// test 2: none, but returns empty
+		lhs = ClauseArgument::createLineNumberArg("4");
+		rhs = ClauseArgument::createStringLiteralArg("x");
+		expectedRelationships = {
+			
+		};
+		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
+	};
 }
 
 TEST_CASE("Test retrieve relationship short circuits to empty result") {
@@ -725,6 +777,45 @@ TEST_CASE("Test retrieve relationship short circuits to empty result") {
 		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
 		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
 	}
+
+	SECTION("Follows(a,a)") {
+		ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+		ClauseArgument rhs = ClauseArgument::createAssignArg("a");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+	SECTION("Follows(1,1)") {
+		ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+		ClauseArgument rhs = ClauseArgument::createLineNumberArg("1");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+	SECTION("Follows(if,if)") {
+		ClauseArgument lhs = ClauseArgument::createIfArg("if");
+		ClauseArgument rhs = ClauseArgument::createIfArg("if");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+
+	SECTION("Follows(r,r)") {
+		ClauseArgument lhs = ClauseArgument::createReadArg("r");
+		ClauseArgument rhs = ClauseArgument::createReadArg("r");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+
+	SECTION("Follows(pr,pr)") {
+		ClauseArgument lhs = ClauseArgument::createPrintArg("pr");
+		ClauseArgument rhs = ClauseArgument::createPrintArg("pr");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
+	SECTION("Follows(w,w)") {
+		ClauseArgument lhs = ClauseArgument::createWhileArg("w");
+		ClauseArgument rhs = ClauseArgument::createWhileArg("w");
+		test(toAdd, PKBTrackedRelationshipType::FOLLOWS, lhs, rhs);
+	}
+
 
 	SECTION("Follows*(s,s)") {
 		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
