@@ -6,6 +6,8 @@
 #include <memory>
 #include <regex>
 #include <iostream>
+#include <assert.h>
+
 using namespace std;
 
 /*
@@ -31,26 +33,16 @@ public:
 
 	virtual string getKey() = 0;
 
-	/*
-		Ifs, whiles and assign statement entities have line numbers
-	*/
-	int getStatementLineNumber() {
-		return this->statement->getLineNumber();
-	}
-
-	shared_ptr<PkbStatementEntity> getStatement() {
-		return this->statement;
-	}
-
-	vector<string> getStringsToMatch() {
-		return this->strings;
+	bool equals(shared_ptr<PkbPattern> other) {
+		return this->statement->equals(other->statement) && this->strings == other->strings;
 	}
 
 	string getVariableIdentifier() {
+		assert(this->strings.size() > 0);
 		return this->strings[0];
 	}
 
-	bool equals(shared_ptr<PkbPattern> other) {
-		return this->statement->equals(other->statement) && this->strings == other->strings;
+	int getStatementLineNumber() {
+		return this->statement->getLineNumber();
 	}
 };

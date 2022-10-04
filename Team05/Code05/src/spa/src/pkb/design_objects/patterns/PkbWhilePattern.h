@@ -11,26 +11,31 @@
 
 class PkbWhilePattern : public PkbPattern {
 protected:
-	shared_ptr<PkbStatementEntity> statement;
-
-	vector<string> strings;
 
 	PkbWhilePattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings) { };
 
 public:
 	bool isWhilePattern() {
-		return getStatement()->isWhileStatement();
+		return this->statement->isWhileStatement();
 	}
 
 	/*
 		Unlike for PKB statement pattern, we only consider LHS
 	*/
 	bool isRegexMatch(vector<string> regexStrings) {
-		if (regexStrings.size() != getStringsToMatch().size()) {
+		// Each pattern query for "while" can only be a single literal, a single synonym or a single wildcard
+		if (regexStrings.size() != this->strings.size() || regexStrings.size() != 1) {
 			throw PkbException("Trying to regex match, expecting exactly 1 regex string, just for lhs");
 		}
+
+		// Retrieves the string literal to match with the variable identifier 
 		string regexString = regexStrings[0];
-		string stringToMatch = getStringsToMatch()[0];
+
+		// In while pattern, assert that there's only one var to match and retrieve that identifier
+		assert(this->strings.size() == 1);
+		string stringToMatch = this->strings[0];
+
+		// Match the incoming string literal with the pattern's variable identifier
 		if (!regex_match(stringToMatch, regex(regexString))) {
 			return false;
 		}
@@ -49,7 +54,9 @@ public:
 	}
 
 	string getKey() {
-		string key = getStringsToMatch()[0]; // we only expect one pattern to map to one while statement
-		return key + getStatement()->getKey();
+		// we only expect one string for one while pattern entry
+		assert(this->strings.size() == 1);
+		string key = this->strings[0];
+		return key + this->statement->getKey();
 	}
 };

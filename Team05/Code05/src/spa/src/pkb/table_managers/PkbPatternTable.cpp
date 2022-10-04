@@ -59,26 +59,25 @@ vector<shared_ptr<PkbPattern>> PkbPatternTable::getAllThatMatchPostFixStrings(ve
 	return output;
 }
 
-vector<shared_ptr<PkbPattern>> PkbPatternTable::getVariableMatch(vector<string> conditions) {
+vector<shared_ptr<PkbPattern>> PkbPatternTable::getVariableMatch(string conditions) {
 	// get all 
 	vector<shared_ptr<PkbPattern>> patterns = this->getAll();
 	
-	vector<string> regexControlVar{ };
 	// If pattern to match is wildcard, set regex to to match all
-	if (conditions[0] == WILDCARD_CHAR) {
-		string matchAll = this->createRegexStringFromString(conditions[0]);
-		regexControlVar.push_back(matchAll);
+	if (conditions == WILDCARD_CHAR) {
+		return patterns;
 	}
-	else { // otherwise, just match the given variable
-		regexControlVar.push_back("^" + conditions[0] + "$");
-	}
-	vector<shared_ptr<PkbPattern>> output;
-	for (shared_ptr<PkbPattern> p : patterns) {
-		string stringToMatch = p->getStringsToMatch()[0];
-		if (p->isRegexMatch(regexControlVar)) {
-			output.push_back(p);
+	else {
+		vector<shared_ptr<PkbPattern>> output;
+		// do matching row by row on the given condition
+		for (shared_ptr<PkbPattern> p : patterns) {
+			string varIdentifier = p->getVariableIdentifier();
+
+			// if variable matches given condition, append to resulting vector
+			if (varIdentifier == conditions) {
+				output.push_back(p);
+			}
 		}
+		return output;
 	}
-	// return all matches
-	return output;
 }

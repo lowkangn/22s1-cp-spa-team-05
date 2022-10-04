@@ -14,7 +14,6 @@
 #include <qps/query/clause/PQLEntity.h>
 
 #include <iostream>
-#include <sstream>
 
 using namespace std;
 
@@ -210,26 +209,32 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 	// for every pattern
 	for (Pattern p : patterns) {
 		int currLineNum = p.getEntity().getLine();
-		if (p.isIfPattern() || p.isWhilePattern()) {
-			
-			//In SP implementation, LHS is IF_KEYWORD. Pattern match is extracted from RHS instead
-			
-			// Split "x y z" coming from SP to one pattern for x, one pattern for y and one for z
-			string strings = p.getRhs();
-			const char delimiter = ' ';
-			stringstream ss(strings);
-			string varIdentifiers;
-			while (getline(ss, varIdentifiers, delimiter)) {
-				vector<string> varIdentifiersVect{ varIdentifiers };
-				// if p is if pattern, add to if table
-				if (p.isIfPattern()) {
-					shared_ptr<PkbPattern> pattern = PkbIfPattern::createIfPattern(currLineNum, varIdentifiersVect);
-					this->ifPatterns.add(pattern);
-				}
-				else {
-					shared_ptr<PkbPattern> pattern = PkbWhilePattern::createWhilePattern(currLineNum, varIdentifiersVect);
-					this->whilePatterns.add(pattern);
-				}
+		if (p.isIfPattern()) {
+			// get the pattern string from if pattern
+			string conditions = p.getRhs();
+
+			// split the pattern string and create a table (e.g. "x y z" -> [x, y, z])
+			vector<string> variables = splitStringByDelimiter(conditions, ' ');
+
+			// create if pattern for each variable and add it to table
+			for (string v : variables) {
+				vector<string> varToAdd = { v };
+				shared_ptr<PkbPattern> pattern = PkbIfPattern::createIfPattern(currLineNum, varToAdd);
+				this->ifPatterns.add(pattern);
+			}
+		}
+		else if (p.isWhilePattern()) {
+			// get the pattern string from while pattern
+			string conditions = p.getRhs();
+
+			// split the pattern string and create a table (e.g. "x y z" -> [x, y, z])
+			vector<string> variables = splitStringByDelimiter(conditions, ' ');
+
+			// create while pattern for each variable and add it to table
+			for (string v : variables) {
+				vector<string> varToAdd = { v };
+				shared_ptr<PkbPattern> pattern = PkbWhilePattern::createWhilePattern(currLineNum, varToAdd);
+				this->whilePatterns.add(pattern);
 			}
 		}
 		else if (p.isAssignPattern()) {
@@ -244,8 +249,7 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 
 		}
 		else {
-			cout << "Skipping this\n";
-			continue;
+			throw PkbException("Unknown pattern type being added!");
 		}
 	}
 }
@@ -623,16 +627,12 @@ vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, 
 		return this->retrieveAssignPatterns(lhs, rhs);
 		
 	}
-	else {
-		throw PkbException("Unknown pattern type to be retrieved!");
-	}
-}
-
-vector<PQLPattern> PKB::retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs) {
-	if (statementType == PKBTrackedStatementType::IF) {
+	else if (statementType == PKBTrackedStatementType::IF) {
+		assert(rhs.isWildcard());
 		return this->retrieveIfPatterns(lhs);
 	}
 	else if (statementType == PKBTrackedStatementType::WHILE) {
+		assert(rhs.isWildcard());
 		return this->retrieveWhilePatterns(lhs);
 	}
 	else {
@@ -701,7 +701,7 @@ vector<PQLPattern> PKB::retrieveIfPatterns(ClauseArgument lhs) {
 		lhsIsSynonym = lhs.isVariableSynonym();
 		lhsStringPattern = WILDCARD_CHAR;
 	}
-	else if (lhs.isStringLiteral() || lhs.isPatternString()) {
+	else if (lhs.isStringLiteral()) {
 		// string literal, we match exactly
 		lhsStringPattern = lhs.getIdentifier();
 	}
@@ -709,11 +709,8 @@ vector<PQLPattern> PKB::retrieveIfPatterns(ClauseArgument lhs) {
 		throw PkbException("Unknown if pattern being retrieved!");
 	}
 
-	vector<string> conditions = {
-		lhsStringPattern
-	};
 
-	vector<shared_ptr<PkbPattern>> matchingPatterns = this->ifPatterns.getVariableMatch(conditions);
+	vector<shared_ptr<PkbPattern>> matchingPatterns = this->ifPatterns.getVariableMatch(lhsStringPattern);
 
 	vector<PQLPattern> out;
 	for (shared_ptr<PkbPattern> p : matchingPatterns) {
@@ -735,7 +732,7 @@ vector<PQLPattern> PKB::retrieveWhilePatterns(ClauseArgument lhs) {
 		lhsIsSynonym = lhs.isVariableSynonym();
 		lhsStringPattern = WILDCARD_CHAR;
 	}
-	else if (lhs.isStringLiteral() || lhs.isPatternString()) {
+	else if (lhs.isStringLiteral()) {
 		// string literal, we match exactly
 		lhsStringPattern = lhs.getIdentifier();
 	}
@@ -743,11 +740,7 @@ vector<PQLPattern> PKB::retrieveWhilePatterns(ClauseArgument lhs) {
 		throw PkbException("Unknown if pattern being retrieved!");
 	}
 
-	vector<string> conditions = {
-		lhsStringPattern
-	};
-
-	vector<shared_ptr<PkbPattern>> matchingPatterns = this->whilePatterns.getVariableMatch(conditions);
+	vector<shared_ptr<PkbPattern>> matchingPatterns = this->whilePatterns.getVariableMatch(lhsStringPattern);
 
 	vector<PQLPattern> out;
 	for (shared_ptr<PkbPattern> p : matchingPatterns) {

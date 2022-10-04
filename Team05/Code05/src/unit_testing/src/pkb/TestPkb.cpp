@@ -816,25 +816,13 @@ TEST_CASE("Test add and get patterns") {
 		pkb.addPatterns(toAdd);
 
 		vector<PQLPattern> all;
+
+		vector<PQLPattern> patterns = pkb.retrievePatterns(statementType, lhs, rhs);
+		for (int i = 0; i < patterns.size(); i++) {
+			all.push_back(patterns[i]);
+		}
+
 		// then 
-		if (statementType == PKBTrackedStatementType::ASSIGN) {
-			vector<PQLPattern> assignPatterns = pkb.retrievePatterns(statementType, lhs, rhs);
-			for (int i = 0; i < assignPatterns.size(); i++) {
-				all.push_back(assignPatterns[i]);
-			}
-		}
-		else if (statementType == PKBTrackedStatementType::IF) {
-			vector<PQLPattern> ifPatterns = pkb.retrievePatterns(statementType, lhs);
-			for (int i = 0; i < ifPatterns.size(); i++) {
-				all.push_back(ifPatterns[i]);
-			}
-		}
-		else if (statementType == PKBTrackedStatementType::WHILE) {
-			vector<PQLPattern> whilePatterns = pkb.retrievePatterns(statementType, lhs);
-			for (int i = 0; i < whilePatterns.size(); i++) {
-				all.push_back(whilePatterns[i]);
-			}
-		}
 		REQUIRE(expectedPatterns.size() == all.size());
 		for (PQLPattern e : expectedPatterns) {
 			bool found = false;
@@ -956,7 +944,7 @@ TEST_CASE("Test add and get patterns") {
 	}
 
 	SECTION("specific lhs variable for if patterns") {
-		ClauseArgument lhs = ClauseArgument::createPatternStringArg("x");
+		ClauseArgument lhs = ClauseArgument::createStringLiteralArg("x");
 
 		// rhs doesn't matter for if patterns
 		ClauseArgument rhs = ClauseArgument::createWildcardArg();
@@ -972,7 +960,7 @@ TEST_CASE("Test add and get patterns") {
 
 	SECTION("specific lhs variable retrieved with proper exact regex match for if patterns") {
 		// i.e. get if (..y..) but not if (..yz..)
-		ClauseArgument lhs = ClauseArgument::createPatternStringArg("y");
+		ClauseArgument lhs = ClauseArgument::createStringLiteralArg("y");
 
 		// rhs doesn't matter for if patterns
 		ClauseArgument rhs = ClauseArgument::createWildcardArg();
@@ -987,7 +975,7 @@ TEST_CASE("Test add and get patterns") {
 
 	SECTION("specific lhs variable retrieved with proper exact regex match for while patterns") {
 		// i.e. get while (..j..) but not while (..jk..)
-		ClauseArgument lhs = ClauseArgument::createPatternStringArg("j");
+		ClauseArgument lhs = ClauseArgument::createStringLiteralArg("j");
 
 		// rhs doesn't matter for if patterns
 		ClauseArgument rhs = ClauseArgument::createWildcardArg();

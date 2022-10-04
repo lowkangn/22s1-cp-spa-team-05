@@ -53,7 +53,7 @@ public:
 	/*
 		Given all a vector of strings to match for assignments, returns the results.
 	*/
-	vector<shared_ptr<PkbPattern>> getVariableMatch(vector<string> postFixStrings);
+	vector<shared_ptr<PkbPattern>> getVariableMatch(string postFixStrings);
 
 	/*
 		Creates a regex string from a string.

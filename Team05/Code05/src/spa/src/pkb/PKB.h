@@ -17,6 +17,8 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <sstream>
+
 using namespace std;
 
 const string FOLLOWS_TABLE = "follows";
@@ -170,11 +172,6 @@ public:
 	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
 
 	/*
-		Overloaded method that retrieves statements ONLY by lhs for If and While Patterns
-	*/
-	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs);
-
-	/*
 		Retrieves assign statements by lhs and rhs.
 	*/
 	vector<PQLPattern> retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs);
@@ -229,4 +226,21 @@ typedef bool (*PkbEntityFilter)(shared_ptr<PkbEntity> entity, ClauseArgument arg
 	that always evaluates to true for ease.
 */
 PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue = false);
+
+/*
+	Converts a multi-variable condition string for if/while pattern into separate variables
+	and outputs them into an array of strings representing variables
+	e.g. if (x == 1 and y == 2 and z == 3) -> "x y z" in SP -> Array [x, y, z]
+*/
+static vector<string> splitStringByDelimiter(string s, char delimiter) {
+	stringstream ss(s);
+	vector<string> out;
+	string token;
+
+	while (getline(ss, token, delimiter)) {
+		out.push_back(token);
+	}
+
+	return out;
+}
 

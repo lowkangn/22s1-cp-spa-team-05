@@ -310,7 +310,7 @@ TEST_CASE("Test ::getAllThatMatchPostFixStrings for PKB Statement Pattern") {
 }
 
 TEST_CASE("Test ::getVariableMatch for PKB If Pattern") {
-	auto test = [](vector<string> conditions, vector<shared_ptr<PkbPattern>> toAdd, vector<shared_ptr<PkbPattern>> expected) {
+	auto test = [](string conditions, vector<shared_ptr<PkbPattern>> toAdd, vector<shared_ptr<PkbPattern>> expected) {
 		// given
 		PkbPatternTable table;
 		for (shared_ptr<PkbPattern> p : toAdd) {
@@ -361,9 +361,7 @@ TEST_CASE("Test ::getVariableMatch for PKB If Pattern") {
 	};
 
 	SECTION("Exact match for one if pattern only") {
-		vector<string> conditions = {
-			"a"
-		};
+		string conditions = "a";
 		vector<shared_ptr<PkbPattern>> expected = {
 			if7
 		};
@@ -371,9 +369,7 @@ TEST_CASE("Test ::getVariableMatch for PKB If Pattern") {
 	}
 
 	SECTION("Multiple match") {
-		vector<string> conditions = {
-			"x"
-		};
+		string conditions = "x";
 		vector<shared_ptr<PkbPattern>> expected = {
 			if1,
 			if2,
@@ -383,25 +379,19 @@ TEST_CASE("Test ::getVariableMatch for PKB If Pattern") {
 	}
 
 	SECTION("No match") {
-		vector<string> conditions = {
-			"z"
-		};
+		string conditions = "z";
 		vector<shared_ptr<PkbPattern>> expected = { };
 		test(conditions, ifPatternToAdd, expected);
 	}
 
 	SECTION("Match y exactly but not yz") {
-		vector<string> conditions = {
-			"y"
-		};
+		string conditions = "y";
 		vector<shared_ptr<PkbPattern>> expected = { if3, if5 };
 		test(conditions, ifPatternToAdd, expected);
 	}
 
 	SECTION("Match wildcard") {
-		vector<string> conditions = {
-			"_"
-		};
+		string conditions = "_";
 		vector<shared_ptr<PkbPattern>> expected = {
 			if1,
 			if2,

@@ -16,23 +16,12 @@
 */
 class PkbStatementPattern : public PkbPattern {
 protected:
-	/*
-		Entity in question.
-	*/
-	shared_ptr<PkbStatementEntity> statement;
-	/*
-		Vector of strings that can be matched.
-
-		NOTE: we expect the internal strings to be postfix
-		e.g. x + z * y -> +x*zy. This allows us to model a tree with strings.
-	*/
-	vector<string> strings; 
 
 	PkbStatementPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings) { };
 
 public :
 	bool isAssignPattern() {
-		return getStatement()->isAssignStatement();
+		return this->statement->isAssignStatement();
 	}
 
 	/*
@@ -43,14 +32,14 @@ public :
 		e.g. x + z * y -> +x*zy. This allows us to model a tree with strings.
 	*/
 	bool isRegexMatch(vector<string> regexStrings) {
-		if (regexStrings.size() != getStringsToMatch().size()) {
+		if (regexStrings.size() != this->strings.size()) {
 			throw PkbException("Trying to regex match, expecting exactly 2 regex strings, one for lhs and rhs.");
 		}
 		// iterate through and match
 		int n = regexStrings.size();
 		for (int i = 0; i < n; i++) {
 			string regexString = regexStrings[i];
-			string s = getStringsToMatch()[i];
+			string s = this->strings[i];
 			if (!regex_match(s, regex(regexString))) {
 				return false;
 			}
@@ -73,11 +62,11 @@ public :
 		Gets a unique key for each pattern.
 	*/
 	
-	string getKey() {
+	string getKey() override {
 		string key;
-		for (string pattern : getStringsToMatch()) {
+		for (string pattern : this->strings) {
 			key += pattern;
 		}
-		return key + getStatement()->getKey();
+		return key + this->statement->getKey();
 	}
 };
