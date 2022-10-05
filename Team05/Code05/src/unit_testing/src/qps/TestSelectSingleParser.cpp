@@ -16,7 +16,7 @@ TEST_CASE("SelectSingleParser: test parseNoError") {
             shared_ptr<SelectClause> actualPtr = parser.parse();
 
             // then
-            REQUIRE(expected.equals(actualPtr.get()));
+            REQUIRE(expected.equals(actualPtr));
     };
 
     list<PQLToken> tokens = list<PQLToken>{

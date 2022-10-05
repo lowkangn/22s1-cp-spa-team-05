@@ -164,7 +164,8 @@ public:
 			|| isIfSynonym()
 			|| isProcedureSynonym()
 			|| isVariableSynonym()
-			|| isConstantSynonym();
+			|| isConstantSynonym()
+			|| isUndeclaredSynonym();
 	}
 
 	bool isStmtRefNoWildcard() {

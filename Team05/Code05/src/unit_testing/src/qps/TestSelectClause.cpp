@@ -6,9 +6,9 @@ using namespace std;
 // =============== UNIT TESTS ====================
 
 TEST_CASE("SelectClause: test equals") {
-	auto testEquals = [](SelectClause first, const SelectClause* second, bool expected) {
+	auto testEquals = [](shared_ptr<SelectClause> first, shared_ptr<SelectClause> second, bool expected) {
 		// when
-		bool actual = first.equals(second);
+		bool actual = first->equals(second);
 
 		// then
 		REQUIRE(actual == expected);
@@ -19,45 +19,45 @@ TEST_CASE("SelectClause: test equals") {
 	ClauseArgument varArgDifferentIdentifier = ClauseArgument::createVariableArg("a");
 	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
 
-	SelectClause varArgSelectClause = SelectClause::createSynonymSelectClause({varArg});
-	SelectClause anotherVarArgSelectClause = SelectClause::createSynonymSelectClause({varArg});
-	SelectClause assignArgSelectClause = SelectClause::createSynonymSelectClause({assignArgSameIdentifier});
-	SelectClause differentVarArgSelectClause = SelectClause::createSynonymSelectClause({varArgDifferentIdentifier});
+	shared_ptr<SelectClause> varArgSelectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
+	shared_ptr<SelectClause> anotherVarArgSelectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
+	shared_ptr<SelectClause> assignArgSelectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArgSameIdentifier}));
+	shared_ptr<SelectClause> differentVarArgSelectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArgDifferentIdentifier}));
 
 	SECTION("Single return value equal") {
-		testEquals(varArgSelectClause, &varArgSelectClause, true);
-		testEquals(varArgSelectClause, &anotherVarArgSelectClause, true);
+		testEquals(varArgSelectClause, varArgSelectClause, true);
+		testEquals(varArgSelectClause, anotherVarArgSelectClause, true);
 	}
 
 	SECTION("Single return value not equal") {
-		testEquals(varArgSelectClause, &assignArgSelectClause, false);
-		testEquals(varArgSelectClause, &differentVarArgSelectClause, false);
+		testEquals(varArgSelectClause, assignArgSelectClause, false);
+		testEquals(varArgSelectClause, differentVarArgSelectClause, false);
 	}
 
-	SelectClause booleanSelectClause = SelectClause::createBooleanSelectClause();
-	SelectClause anotherBooleanSelectClause = SelectClause::createBooleanSelectClause();
+	shared_ptr<SelectClause> booleanSelectClause = make_shared<SelectClause>(SelectClause::createBooleanSelectClause());
+	shared_ptr<SelectClause> anotherBooleanSelectClause = make_shared<SelectClause>(SelectClause::createBooleanSelectClause());
 
 	SECTION("Boolean return value equal") {
-		testEquals(booleanSelectClause, &booleanSelectClause, true);
-		testEquals(booleanSelectClause, &anotherBooleanSelectClause, true);
+		testEquals(booleanSelectClause, booleanSelectClause, true);
+		testEquals(booleanSelectClause, anotherBooleanSelectClause, true);
 	}
 
 	ClauseArgument callArg = ClauseArgument::createCallArg("c");
 
-	SelectClause varAndAssignArgsSelectClause = SelectClause::createSynonymSelectClause({varArg, assignArg});
-	SelectClause anotherVarAndAssignArgsSelectClause = SelectClause::createSynonymSelectClause({varArg, assignArg});
+	shared_ptr<SelectClause> varAndAssignArgsSelectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg, assignArg}));
+	shared_ptr<SelectClause> anotherVarAndAssignArgsSelectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg, assignArg}));
 
-	SelectClause varAndCallArgsSelectClause = SelectClause::createSynonymSelectClause({varArg, callArg});
-	SelectClause assignAndCallArgsSelectClause = SelectClause::createSynonymSelectClause({assignArg, callArg});
+	shared_ptr<SelectClause> varAndCallArgsSelectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg, callArg}));
+	shared_ptr<SelectClause> assignAndCallArgsSelectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg, callArg}));
 
 	SECTION("Multiple return values equal") {
-		testEquals(varAndAssignArgsSelectClause, &varAndAssignArgsSelectClause, true);
-		testEquals(varAndAssignArgsSelectClause, &anotherVarAndAssignArgsSelectClause, true);
+		testEquals(varAndAssignArgsSelectClause, varAndAssignArgsSelectClause, true);
+		testEquals(varAndAssignArgsSelectClause, anotherVarAndAssignArgsSelectClause, true);
 	}
 
 	SECTION("Multiple return values not equal") {
-		testEquals(varAndAssignArgsSelectClause, &varAndCallArgsSelectClause, false);
-		testEquals(varAndAssignArgsSelectClause, &assignAndCallArgsSelectClause, false);
+		testEquals(varAndAssignArgsSelectClause, varAndCallArgsSelectClause, false);
+		testEquals(varAndAssignArgsSelectClause, assignAndCallArgsSelectClause, false);
 	}
 }
 

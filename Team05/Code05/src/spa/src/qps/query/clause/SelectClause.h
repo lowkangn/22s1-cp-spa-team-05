@@ -35,5 +35,5 @@ public:
 
 	list<shared_ptr<EntityClauseResult>> execute(shared_ptr<PKBQueryHandler> pkb);
 	shared_ptr<EntityClauseResult> getSingleEntityResult(shared_ptr<PKBQueryHandler> pkb, ClauseArgument toSelect);
-	bool equals(const SelectClause* other);
+	bool equals(shared_ptr<SelectClause> other);
 };

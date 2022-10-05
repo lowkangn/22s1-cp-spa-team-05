@@ -88,23 +88,6 @@ void ClauseParser::consumeCloseBracket() {
 	this->tokens.pop_front();
 }
 
-void ClauseParser::consumeAngledOpenBracket() {
-	if (this->tokens.empty() || !this->tokens.front().isAngledOpenBracket()) {
-		throw PQLSyntaxError("Expected angled open bracket");
-	}
-	this->tokens.pop_front();
-	if (this->tokens.empty()) {
-		throw PQLSyntaxError("Expected argument after angled open bracket");
-	}
-}
-
-void ClauseParser::consumeAngledCloseBracket() {
-	if (this->tokens.empty() || !this->tokens.front().isAngledCloseBracket()) {
-		throw PQLSyntaxError("Expected angled close bracket");
-	}
-	this->tokens.pop_front();
-}
-
 list<PQLToken> ClauseParser::getRemainingTokens() {
 	assert(this->isParseCompleted);
 	return this->tokens;

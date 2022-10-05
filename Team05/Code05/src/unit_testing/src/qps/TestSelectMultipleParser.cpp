@@ -16,7 +16,7 @@ TEST_CASE("SelectMultipleParser: test parseNoError") {
 		shared_ptr<SelectClause> actualPtr = parser.parse();
 
 		// then
-		REQUIRE(expected.equals(actualPtr.get()));
+		REQUIRE(expected.equals(actualPtr));
 	};
 
 	list<PQLToken> tokens = list<PQLToken>{
@@ -37,6 +37,37 @@ TEST_CASE("SelectMultipleParser: test parseNoError") {
 	SelectClause expected = SelectClause::createSynonymSelectClause({firstVarArg, secondVarArg});
 
 	testParseNoError(tokens, declarations, expected);
+
+	SECTION("Duplicate synonyms") {
+		list<PQLToken> tokens = list<PQLToken>{
+				PQLToken::createDelimiterToken("<"),
+				PQLToken::createNameToken("v1"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createNameToken("v1"),
+				PQLToken::createDelimiterToken(">")
+		};
+
+		unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
+				{"v1", ArgumentType::VARIABLE},
+				{"v2", ArgumentType::VARIABLE}
+		};
+
+		expected = SelectClause::createSynonymSelectClause({firstVarArg, firstVarArg});
+		testParseNoError(tokens, declarations, expected);
+
+		tokens = list<PQLToken>{
+				PQLToken::createDelimiterToken("<"),
+				PQLToken::createNameToken("v1"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createNameToken("v2"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createNameToken("v1"),
+				PQLToken::createDelimiterToken(">")
+		};
+
+		expected = SelectClause::createSynonymSelectClause({firstVarArg, secondVarArg, firstVarArg});
+		testParseNoError(tokens, declarations, expected);
+	}
 }
 
 TEST_CASE("SelectMultipleParser: test parseWithSyntaxError") {
@@ -97,35 +128,6 @@ TEST_CASE("SelectMultipleParser: test parseWithSyntaxError") {
 		unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
 				{"v1", ArgumentType::VARIABLE},
 				{"v2", ArgumentType::VARIABLE}
-		};
-
-		testParseWithSyntaxError(tokens, declarations);
-	}
-
-	SECTION("Duplicate synonyms") {
-		list<PQLToken> tokens = list<PQLToken>{
-				PQLToken::createDelimiterToken("<"),
-				PQLToken::createNameToken("v1"),
-				PQLToken::createDelimiterToken(","),
-				PQLToken::createNameToken("v1"),
-				PQLToken::createDelimiterToken(">")
-		};
-
-		unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{
-				{"v1", ArgumentType::VARIABLE},
-				{"v2", ArgumentType::VARIABLE}
-		};
-
-		testParseWithSyntaxError(tokens, declarations);
-
-		tokens = list<PQLToken>{
-				PQLToken::createDelimiterToken("<"),
-				PQLToken::createNameToken("v1"),
-				PQLToken::createDelimiterToken(","),
-				PQLToken::createNameToken("v2"),
-				PQLToken::createDelimiterToken(","),
-				PQLToken::createNameToken("v1"),
-				PQLToken::createDelimiterToken(">")
 		};
 
 		testParseWithSyntaxError(tokens, declarations);

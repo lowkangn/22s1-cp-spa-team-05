@@ -4,7 +4,7 @@ set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pk
 	list<shared_ptr<EntityClauseResult>> entitiesResultPointers = query.executeSelect(pkb);
 	list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers = query.executeSuchThatAndPattern(pkb);
 
-	// Empty lists indicate `Select BOOLEAN`, in which case just circumvent and return TRUE
+	// Empty lists indicate `Select BOOLEAN` with no constraint clauses, in which case just circumvent and return TRUE
 	if (entitiesResultPointers.empty() && relationshipsResultPointers.empty()) {
 		return set<string>{"TRUE"};
 	}

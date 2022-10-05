@@ -3,35 +3,32 @@
 
 list<ClauseArgument> SelectMultipleParser::extractArguments() {
 
-	set<ClauseArgument> argumentSet;
+	list<ClauseArgument> argumentList;
 
 	// check '<'
 	consumeAngledOpenBracket();
 
 	// get first synonym
-	ClauseArgument firstArg = parseSynonym();
-	argumentSet.insert(firstArg);
+	ClauseArgument firstArg = parseOneArgument();
+	if (!firstArg.isSynonym()) {
+		throw PQLSyntaxError("Select tuple should only have synonyms");
+	}
+	argumentList.push_back(firstArg);
 
-	while (!this->tokens.front().isAngledCloseBracket()) {
+	while (!this->tokens.empty() && !this->tokens.front().isAngledCloseBracket()) {
 		// check ','
 		consumeComma();
 
 		// get next synonym
-		ClauseArgument nextArg = parseSynonym();
-		if (argumentSet.find(nextArg) != argumentSet.end()) {
-			throw PQLSyntaxError("Cannot have duplicate synonyms in Select tuple");
+		ClauseArgument nextArg = parseOneArgument();
+		if (!nextArg.isSynonym()) {
+			throw PQLSyntaxError("Select tuple should only have synonyms");
 		}
-		argumentSet.insert(nextArg);
+		argumentList.push_back(nextArg);
 	}
 
 	// check '>'
 	consumeAngledCloseBracket();
-
-	// convert to list
-	list<ClauseArgument> argumentList;
-	for (ClauseArgument argument : argumentSet) {
-		argumentList.push_back(argument);
-	}
 
 	return argumentList;
 }
