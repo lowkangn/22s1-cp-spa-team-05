@@ -38,7 +38,11 @@ shared_ptr<SelectClause> QueryParser::parseSelect(unordered_map<string, Argument
 	}
 	this->tokens.pop_front();
 
+	if (this->tokens.empty()) {
+		throw PQLSyntaxError("Missing argument after 'Select'");
+	}
 	PQLToken token = this->tokens.front();
+
 	shared_ptr<SelectParser> parserPointer;
 
 	if (token.isBooleanKeyword() && declarations.count(token.getTokenString()) == 0) {

@@ -3,10 +3,7 @@
 #include <qps/query_parser/parsers/SelectParser.h>
 
 class SelectSingleParser : public SelectParser {
-public:
-	SelectSingleParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
-			SelectParser(tokens, declarations) {};
-
+private:
 	/* Extracts the arguments of the clause. Consumes all tokens in the clause after 'Select' */
 	list<ClauseArgument> extractArguments() override;
 
@@ -16,4 +13,7 @@ public:
 	/* Returns true if the clauseTypeToken matches the clause that the Parser parses */
 	bool isCorrectClauseType(PQLToken clauseTypeToken) override;
 
+public:
+	SelectSingleParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
+			SelectParser(tokens, declarations) {};
 };
