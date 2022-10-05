@@ -164,7 +164,8 @@ public:
 			|| isIfSynonym()
 			|| isProcedureSynonym()
 			|| isVariableSynonym()
-			|| isConstantSynonym();
+			|| isConstantSynonym()
+			|| isUndeclaredSynonym();
 	}
 
 	bool isStmtRefNoWildcard() {
@@ -206,6 +207,7 @@ public:
 		return (this->isLineNumber() || this->isStringLiteral());	
 	}
 
-
 	friend bool operator== (ClauseArgument first, ClauseArgument second);
+
+	friend bool operator< (ClauseArgument first, ClauseArgument second);
 };

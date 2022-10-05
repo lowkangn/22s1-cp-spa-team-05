@@ -18,7 +18,8 @@ TEST_CASE("Query: test operator==") {
         REQUIRE(actual == expected);
     };
 
-    shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(ClauseArgument::createVariableArg("v")));
+	ClauseArgument varArg = ClauseArgument::createVariableArg("v");
+    shared_ptr<SelectClause> selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
     shared_ptr<RelationshipClause> modifiesSClause = shared_ptr<RelationshipClause>(new ModifiesSClause(ClauseArgument::createLineNumberArg("1"),
 																										ClauseArgument::createVariableArg("v")));
     shared_ptr<RelationshipClause> modifiesPClause = shared_ptr<RelationshipClause>(new ModifiesPClause(ClauseArgument::createProcedureArg("main"),

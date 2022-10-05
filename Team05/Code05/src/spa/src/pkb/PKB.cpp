@@ -556,6 +556,8 @@ shared_ptr<PkbEntity> PKB::convertClauseArgumentToPkbEntity(ClauseArgument claus
 	else if (clause.isStringLiteral()) {
 		shared_ptr<PkbEntity> entity = shared_ptr<PkbEntity>(new PkbVariableEntity(clause.getIdentifier()));
 		return entity;
+	} else {
+		throw PkbException("clause argument is of unknown type!");
 	}
 
 }
