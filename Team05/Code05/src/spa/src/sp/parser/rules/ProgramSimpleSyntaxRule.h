@@ -32,12 +32,12 @@ public:
 	int setStatementListLineNumber(shared_ptr<ASTNode> root, int lineNumber);
 
 	/*
-		This function sets the line numbers of statement lists
+		This function sets the line numbers of while statements
 	*/
 	int setWhileStatementLineNumber(shared_ptr<ASTNode> root, int lineNumber);
 
 	/*
-		This function sets the line numbers of statement lists
+		This function sets the line numbers of if statements
 	*/
 	int setIfStatementLineNumber(shared_ptr<ASTNode> root, int lineNumber);
 
