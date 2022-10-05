@@ -88,6 +88,11 @@ public:
     */
     virtual vector<PQLEntity> retrieveAllConstants() = 0;
 
+    /*
+        Retrieves constant by value.
+    */
+    virtual PQLEntity retrieveConstantByValue(int constantValue) = 0;
+
 
     // ===== Relationships =====
     /*

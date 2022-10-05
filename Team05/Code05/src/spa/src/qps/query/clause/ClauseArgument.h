@@ -103,10 +103,6 @@ public:
 		return ClauseArgument(EMPTY_IDENTIFIER, ArgumentType::VARNAME);
 	}
 
-	static ClauseArgument createIntegerValueArg(string identifier) {
-		return ClauseArgument(identifier, ArgumentType::INTEGER_VALUE);
-	}
-
 	static ClauseArgument createUndeclaredSynonymArg(string identifier) {
 		return ClauseArgument(identifier, ArgumentType::UNDECLARED_SYNONYM);
 	}
@@ -171,10 +167,6 @@ public:
 		return this->type == ArgumentType::PATTERN_STRING_WITH_WILDCARDS;
 	}
 
-	bool isIntegerValue() {
-		return this->type == ArgumentType::INTEGER_VALUE;
-	}
-
 	bool isValueAttribute() {
 		return this->type == ArgumentType::VALUE;
 	}
@@ -212,7 +204,8 @@ public:
 			|| isIfSynonym()
 			|| isProcedureSynonym()
 			|| isVariableSynonym()
-			|| isConstantSynonym();
+			|| isConstantSynonym()
+			|| isUndeclaredSynonym();
 	}
 
 	bool isStmtRefNoWildcard() {
@@ -254,6 +247,7 @@ public:
 		return (this->isLineNumber() || this->isStringLiteral());	
 	}
 
-
 	friend bool operator== (ClauseArgument first, ClauseArgument second);
+
+	friend bool operator!= (ClauseArgument first, ClauseArgument second);
 };

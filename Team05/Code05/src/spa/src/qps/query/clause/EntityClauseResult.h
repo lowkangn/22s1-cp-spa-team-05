@@ -24,9 +24,9 @@ public:
         return this->entities;
     }
 
-	bool hasArg(ClauseArgument argToFind) {
-		return this->arg == argToFind;
-	}
+    bool hasArg(ClauseArgument argToFind) {
+        return this->arg == argToFind;
+    }
 
     bool isEmpty() {
         return this->entities.empty();

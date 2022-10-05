@@ -20,18 +20,6 @@ Query QueryParser::parse() {
     this->setSemanticErrorFromParser(make_shared<SemanticChecker>(selParser));
 
     this->tokens = selParser.getRemainingTokens();
-<<<<<<< HEAD
-    if (this->tokens.empty()) {
-        return Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
-    }
-
-    this->parseConstraints(declarations);
-
-    return Query(selectClause, this->suchThatClauses, this->patternClauses);
-}
-
-void QueryParser::parseConstraints(unordered_map<string, ArgumentType>& declarations) {
-=======
 
     if (!this->tokens.empty()) {
         parseConstraints(declarations);
@@ -46,15 +34,12 @@ void QueryParser::parseConstraints(unordered_map<string, ArgumentType>& declarat
 
 void QueryParser::parseConstraints(unordered_map<string, ArgumentType> declarations) {
     
-
->>>>>>> master
     PQLToken token = this->tokens.front();
     while (!this->tokens.empty()) {
         token = this->tokens.front();
         this->tokens.pop_front();
 
         if (token.isSuch()) {
-<<<<<<< HEAD
             this->suchThatClauses.push_back(parseSuchThat(declarations));
         }
         else if (token.isPattern()) {
@@ -62,12 +47,6 @@ void QueryParser::parseConstraints(unordered_map<string, ArgumentType> declarati
         }
         else if (token.isWith()) {
             this->withClauses.push_back(parseWith(declarations));
-=======
-            this->suchThatClauses.emplace_back(parseSuchThat(declarations));
-        }
-        else if (token.isPattern()) {
-			this->patternClauses.emplace_back(parsePattern(declarations));
->>>>>>> master
         }
         else {
             throw PQLSyntaxError("Only such that, pattern and with clause are supported.");

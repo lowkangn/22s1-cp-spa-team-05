@@ -35,6 +35,10 @@ const string ATTRIBUTE_VALUE = "value";
 const string ATTRIBUTE_STMT_NUM_STMT = "stmt";
 const string ATTRIBUTE_STMT_NUM_HASH = "#";
 
+// operators
+const string EQUALS = "=";
+const string DOT = ".";
+
 // delimiters
 const string SEMICOLON = ";";
 const string COMMA = ",";
@@ -43,8 +47,6 @@ const string PQL_CLOSED_BRACKET = ")";
 const string QUOTE = "\"";
 const string UNDERSCORE = "_";
 const string HASH = "#";
-const string DOT = ".";
-const string EQUALS = "=";
 
 /**
  * This class represents tokens obtained from tokenizing of the query string.
@@ -157,13 +159,13 @@ public:
         return isDelimiter() && tokenString == UNDERSCORE;
     }
 
-    bool isDot() {
-        return isDelimiter() && tokenString == DOT;
-    }
-
     // Operator indicators
     bool isEquals() {
         return isOperator() && tokenString == EQUALS;
+    }
+
+    bool isDot() {
+        return isOperator() && tokenString == DOT;
     }
 
     // Query section indicators

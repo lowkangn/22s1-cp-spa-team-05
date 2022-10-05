@@ -26,10 +26,10 @@ protected:
 	/* Checks for an equals and consumes it */
 	void consumeEquals();
 
-	/* Checks the semantics of one ref; throws a PQLSemanticError if semantically invalid */
+	/* Checks the semantics of one ref. */
 	void checkRef(vector<ClauseArgument>& args);
 
-	/* Checks the semantics of the attrCompare; throws a PQLSemanticError if semantically invalid */
+	/* Checks the semantics of the attrCompare. */
 	void checkAttrCompare(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs);
 
 public:

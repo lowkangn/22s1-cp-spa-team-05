@@ -1,7 +1,7 @@
 #include <qps/query_parser/parsers/WithParser.h>
 
 shared_ptr<WithClause> WithParser::parse() {
-	// Parse 'ref = ref'
+	// Check syntax and parse 'ref = ref' into ClauseArgs
 	vector<ClauseArgument> lhsArgs = this->parseRef();
 	this->consumeEquals();
 	vector<ClauseArgument> rhsArgs = this->parseRef();
@@ -9,7 +9,7 @@ shared_ptr<WithClause> WithParser::parse() {
 	// Verify the semantics
 	this->checkAttrCompare(lhsArgs, rhsArgs);
 
-	return make_shared<WithClause>(WithClause());
+	return make_shared<WithClause>(WithClause(lhsArgs, rhsArgs));
 }
 
 vector<ClauseArgument> WithParser::parseRef() {
@@ -18,13 +18,19 @@ vector<ClauseArgument> WithParser::parseRef() {
 	args.push_back(ref);
 
 	// a ref can be an '"' IDENT '"', INTEGER or a synonym '.' attrName
+	if (!ref.isSynonym() && !ref.isLineNumber() && !ref.isStringLiteral()) {
+		throw PQLSyntaxError("ref of a with clause should be a '\"'IDENT'\"', INTEGER or an attrRef");
+	}
+
 	if (ref.isSynonym()) {
 		this->consumeDot();
 		args.push_back(this->parseAttribute());
 	}
-	else if (!ref.isIntegerValue() && !ref.isStringLiteral()) {
-		throw PQLSyntaxError("ref of a with clause should be a '\"'IDENT'\"', INTEGER or an attrRef");
+
+	if (!this->tokens.empty() && this->tokens.front().isDot()) {
+		throw PQLSyntaxError("Unexpected '.' after ref in with clause");
 	}
+
 	return args;
 }
 
@@ -57,6 +63,7 @@ ClauseArgument WithParser::parseAttribute() {
 }
 
 void WithParser::checkAttrCompare(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs) {
+	// Check each ref is semantically correct
 	this->checkRef(lhsArgs);
 	this->checkRef(rhsArgs);
 
@@ -66,19 +73,18 @@ void WithParser::checkAttrCompare(vector<ClauseArgument>& lhsArgs, vector<Clause
 
 	for (vector<ClauseArgument> refArgs : { lhsArgs, rhsArgs }) {
 		if (refArgs.size() == 1) {
-			areRefsIntegers.push_back(lhsArgs.front().isIntegerValue());
+			areRefsIntegers.push_back(refArgs.front().isLineNumber());
 		}
 		else {
-			areRefsIntegers.push_back(lhsArgs.back().isValueAttribute() || lhsArgs.back().isStmtNumAttribute());
+			areRefsIntegers.push_back(refArgs.back().isValueAttribute() || refArgs.back().isStmtNumAttribute());
 		}
 	}
 	assert(areRefsIntegers.size() == 2);
 
 	if (areRefsIntegers.front() != areRefsIntegers.back()) {
-		throw PQLSemanticError("The two refs in an attrCompare must be of the same type (both NAME, or both INTEGER)");
+		this->semanticErrorMessage = "The two refs in an attrCompare must be of the same type (both NAME, or both INTEGER)";
 	}
 }
-
 
 void WithParser::checkRef(vector<ClauseArgument>& args) {
 	if (args.size() == 1) {
@@ -102,7 +108,7 @@ void WithParser::checkRef(vector<ClauseArgument>& args) {
 		|| (acceptsValue && attrName.isValueAttribute())
 		|| (acceptsStmtNum && attrName.isStmtNumAttribute());
 	if (!isSemanticallyCorrect) {
-		throw PQLSemanticError("With clause synonym and attribute name do not match");
+		this->semanticErrorMessage = "With clause synonym and attribute name do not match";
 	}
 }
 

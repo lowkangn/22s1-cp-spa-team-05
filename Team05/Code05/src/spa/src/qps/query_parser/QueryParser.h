@@ -38,9 +38,9 @@ private:
 
     void parseConstraints(unordered_map<string, ArgumentType> declarations);
 
-    shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType> declarations);
+    shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType>& declarations);
 
-    shared_ptr<PatternClause> parsePattern(unordered_map<string, ArgumentType> declarations);
+    shared_ptr<PatternClause> parsePattern(unordered_map<string, ArgumentType>& declarations);
 
     shared_ptr<WithClause> parseWith(unordered_map<string, ArgumentType>& declarations);
 
@@ -55,6 +55,7 @@ public:
         this->tokens = tokens;
         this->suchThatClauses = list<shared_ptr<RelationshipClause>>{};
         this->patternClauses = list<shared_ptr<PatternClause>>{};
+        this->withClauses = list<shared_ptr<WithClause>>{};
         this->isSemanticallyValid = true;
         this->semanticErrorMessage = "";
     };

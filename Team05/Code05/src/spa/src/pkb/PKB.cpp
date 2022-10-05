@@ -363,6 +363,20 @@ vector<PQLEntity> PKB::retrieveAllVariables() {
 	return out;
 }
 
+PQLEntity PKB::retrieveConstantByValue(int value) {
+	// create a procedure object out of it and use it to get a key
+	string key = PkbConstantEntity(value).getKey();
+
+	// get
+	shared_ptr<PkbEntity> result = this->constantsTable.get(key);
+	// if null, we return null
+	if (result == NULL) {
+		throw PkbNotFoundException("Constant not found!");
+	}
+	// else, we cast to PQLEntity
+	return PQLEntity::generateConstant(value);
+}
+
 vector<PQLEntity> PKB::retrieveAllConstants() {
 	vector<PQLEntity> out;
 	vector<shared_ptr<PkbEntity>> all = this->constantsTable.getAll();

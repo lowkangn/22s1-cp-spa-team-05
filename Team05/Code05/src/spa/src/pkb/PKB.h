@@ -173,6 +173,11 @@ public:
 	PQLEntity retrieveVariableByName(string name) override;
 
 	/*
+		Retrieves all constants by a value.
+	*/
+	PQLEntity retrieveConstantByValue(int value) override;
+
+	/*
 		Retrieves all relationships by a lhs, rhs for relationships of a specified type.
 	*/
 	vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) override;
