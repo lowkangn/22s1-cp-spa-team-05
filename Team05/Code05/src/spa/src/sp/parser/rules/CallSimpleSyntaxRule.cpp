@@ -57,7 +57,6 @@ shared_ptr<ASTNode> CallSimpleSyntaxRule::constructNode() {
 	}
 	
 	// create call node
-	Token callToken = Token::createCallToken();
 	shared_ptr<ASTNode> callNode = CallASTNode::createCallNode();
 
 	// create child procedure node

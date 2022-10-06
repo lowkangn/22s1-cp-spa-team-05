@@ -89,8 +89,8 @@ TEST_CASE("CallSimpleSyntaxRule::generateChildRules") {
 		// ----- then -----
 		REQUIRE(childRules.size() == expectedChildren.size()); // same size
 		for (int i = 0; i < childRules.size(); i++) {
-			auto rule = childRules.at(i);
-			auto otherRule = expectedChildren.at(i);
+			shared_ptr<SimpleSyntaxRule> rule = childRules.at(i);
+			shared_ptr<SimpleSyntaxRule> otherRule = expectedChildren.at(i);
 			REQUIRE((*rule).equals(*otherRule));
 		}
 	};
