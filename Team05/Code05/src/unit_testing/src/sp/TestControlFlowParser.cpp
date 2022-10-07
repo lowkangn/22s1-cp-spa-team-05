@@ -21,6 +21,7 @@
 
 
 #include <vector>
+#include <unordered_map>
 #include <memory>
 #include <istream>
 #include <sstream>
@@ -180,12 +181,20 @@ TEST_CASE("handleStatementList test") {
 		stmtListASTNode->addChild(readASTNode);
 		stmtListASTNode->addChild(printASTNode);
 
-		shared_ptr<CFGNode> expected = CFGNode::createCFGNode(1);
-		shared_ptr<CFGNode> expectedRead = CFGNode::createCFGNode(2);
-		shared_ptr<CFGNode> expectedPrint = CFGNode::createCFGNode(3);
 
-		expected->addChild(expectedRead);
-		expectedRead->addChild(expectedPrint);
+
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodes = {
+			{1 ,CFGNode::createCFGNode(1)},
+			{2, CFGNode::createCFGNode(2)},
+			{3, CFGNode::createCFGNode(3)},
+		};
+
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2}},
+			{2, {3}}
+		};
+
+		shared_ptr<CFGNode> expected = CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1);
 
 		test(stmtListASTNode, expected);
 	}
@@ -249,22 +258,25 @@ TEST_CASE("handleStatementList test") {
 		stmtListASTNode->addChild(readX);
 
 		// CFG Node
-		shared_ptr<CFGNode> expected = CFGNode::createCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodes = {
+			{1, CFGNode::createCFGNode(1)},
+			{2, IfCFGNode::createIfCFGNode(2)},
+			// Print x
+			{3, CFGNode::createCFGNode(3)},
+			// Print y
+			{4, CFGNode::createCFGNode(4)},
+			// read
+			{5, CFGNode::createCFGNode(5)},
+		};
 
-		shared_ptr<CFGNode> ifCFG = IfCFGNode::createIfCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2}},
+			{2, {3, 4}},
+			{3, {5}},
+			{4, {5}},
+		};
 
-		shared_ptr<CFGNode> expectedPrintX = CFGNode::createCFGNode(3);
-		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(4);
-
-		shared_ptr<CFGNode> expectedRead = CFGNode::createCFGNode(5);
-
-		expected->addChild(ifCFG);
-
-		ifCFG->addChild(expectedPrintX);
-		ifCFG->addChild(expectedPrintY);
-
-		expectedPrintX->addChild(expectedRead);
-		expectedPrintY->addChild(expectedRead);
+		shared_ptr<CFGNode> expected = CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1);
 
 		test(stmtListASTNode, expected);
 	}
@@ -275,7 +287,7 @@ TEST_CASE("handleStatementList test") {
 				1. x = 5;
 				2. while (x >= y) {
 				3.	print x;
-				} 
+				}
 				4. read x;
 			}
 		*/
@@ -303,14 +315,14 @@ TEST_CASE("handleStatementList test") {
 		conditionNode->addChild(yNode);
 
 		shared_ptr<ASTNode> whileStatementList = StatementListASTNode::createStatementListNode();
-		shared_ptr<ASTNode> printY = PrintASTNode::createPrintNode();		
+		shared_ptr<ASTNode> printY = PrintASTNode::createPrintNode();
 		whileStatementList->addChild(printY);
 		printY->setLineNumber(3);
 
 		whileNode->addChild(conditionNode);
 		whileNode->addChild(whileStatementList);
 
-		shared_ptr<ASTNode> readX = ReadASTNode::createReadNode();		
+		shared_ptr<ASTNode> readX = ReadASTNode::createReadNode();
 		readX->setLineNumber(4);
 
 		stmtListASTNode->addChild(assignASTNode);
@@ -318,20 +330,22 @@ TEST_CASE("handleStatementList test") {
 		stmtListASTNode->addChild(readX);
 
 		// CFG Node
-		shared_ptr<CFGNode> expected = CFGNode::createCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodes = {
+			{1, CFGNode::createCFGNode(1)},
+			{2, WhileCFGNode::createWhileCFGNode(2)},
+			// Print y
+			{3, CFGNode::createCFGNode(3)},
+			// Read
+			{4, CFGNode::createCFGNode(4)},
+		};
 
-		shared_ptr<CFGNode> whileCFG = WhileCFGNode::createWhileCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2}},
+			{2, {3,4}},
+			{3, {2}}
+		};
 
-		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(3);
-
-		shared_ptr<CFGNode> expectedRead = CFGNode::createCFGNode(4);
-
-		expected->addChild(whileCFG);
-
-		whileCFG->addChild(expectedPrintY);
-		expectedPrintY->addChild(whileCFG);
-
-		whileCFG->addChild(expectedRead);
+		shared_ptr<CFGNode> expected = CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1);
 
 		test(stmtListASTNode, expected);
 	}
@@ -414,23 +428,25 @@ TEST_CASE("handleStatementList test") {
 		stmtListASTNode->addChild(assignASTNode);
 
 		// CFG
-		shared_ptr<CFGNode> expected = WhileCFGNode::createWhileCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodes = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			{2, IfCFGNode::createIfCFGNode(2)},
+			// Print 
+			{3, CFGNode::createCFGNode(3)},
+			// Read
+			{4, CFGNode::createCFGNode(4)},
+			// Assign
+			{5, CFGNode::createCFGNode(5)},
+		};
 
-		shared_ptr<CFGNode> ifCFG = IfCFGNode::createIfCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2,5}},
+			{2, {3,4}},
+			{3, {1}},
+			{4, {1}},
+		};
 
-		shared_ptr<CFGNode> printCFG = CFGNode::createCFGNode(3);
-		shared_ptr<CFGNode> readCFG = CFGNode::createCFGNode(4);
-		shared_ptr<CFGNode> assignCFG = CFGNode::createCFGNode(5);
-
-		expected->addChild(ifCFG);
-
-		ifCFG->addChild(printCFG);
-		ifCFG->addChild(readCFG);
-
-		printCFG->addChild(expected);
-		readCFG->addChild(expected);
-
-		expected->addChild(assignCFG);
+		shared_ptr<CFGNode> expected = CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1);
 
 		test(stmtListASTNode, expected);
 	}
@@ -478,13 +494,19 @@ TEST_CASE("handleIf test") {
 		ifNode->addChild(elseStmtListASTNode);
 
 		// CFGNode
-		shared_ptr<CFGNode> ifCFG = IfCFGNode::createIfCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodes = {
+			{1, IfCFGNode::createIfCFGNode(1)},
+			// Print x
+			{2, CFGNode::createCFGNode(2)},
+			// Print y
+			{3, CFGNode::createCFGNode(3)},
+		};
 
-		shared_ptr<CFGNode> expectedPrintX = CFGNode::createCFGNode(2);
-		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(3);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2,3}},
+		};
 
-		ifCFG->addChild(expectedPrintX);
-		ifCFG->addChild(expectedPrintY);
+		shared_ptr<CFGNode> ifCFG = CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1);
 
 		test(ifNode, ifCFG);
 	}
@@ -556,19 +578,23 @@ TEST_CASE("handleIf test") {
 		ifNode->addChild(elseStmtListASTNode);
 
 		// CFGNode
-		shared_ptr<CFGNode> ifCFG = IfCFGNode::createIfCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodes = {
+			{1, IfCFGNode::createIfCFGNode(1)},
+			{2, IfCFGNode::createIfCFGNode(2)},
+			// Print x
+			{3, CFGNode::createCFGNode(3)},
+			// Print y
+			{4, CFGNode::createCFGNode(4)},
+			// Read x
+			{5, CFGNode::createCFGNode(5)},
+		};
 
-		shared_ptr<CFGNode> ifCFGTwo = IfCFGNode::createIfCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2,5}},
+			{2, {3,4}},
+		};
 
-		shared_ptr<CFGNode> expectedPrintX = CFGNode::createCFGNode(3);
-		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(4);
-		shared_ptr<CFGNode> expectedReadX = CFGNode::createCFGNode(5);
-
-		ifCFGTwo->addChild(expectedPrintX);
-		ifCFGTwo->addChild(expectedPrintY);
-
-		ifCFG->addChild(ifCFGTwo);
-		ifCFG->addChild(expectedReadX);
+		shared_ptr<CFGNode> ifCFG = CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1);
 
 		test(ifNode, ifCFG);
 	} 
@@ -615,12 +641,18 @@ TEST_CASE("handleWhile test") {
 		whileNode->addChild(conditionNode);
 		whileNode->addChild(whileStatementList);
 
-		shared_ptr<CFGNode> whileCFG = WhileCFGNode::createWhileCFGNode(1);
+		// CFG
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodes = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			{2, CFGNode::createCFGNode(2)},
+		};
 
-		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2}},
+			{2, {1}},
+		};
 
-		whileCFG->addChild(expectedPrintY);
-		expectedPrintY->addChild(whileCFG);
+		shared_ptr<CFGNode> whileCFG = CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1);
 
 		test(whileNode, whileCFG);
 	}
@@ -678,16 +710,20 @@ TEST_CASE("handleWhile test") {
 		whileNode->addChild(whileStatementList);
 
 		// CFGNode
-		shared_ptr<CFGNode> expected = WhileCFGNode::createWhileCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodes = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			{2, WhileCFGNode::createWhileCFGNode(2)},
+			// PrintY
+			{3, WhileCFGNode::createWhileCFGNode(3)},
+		};
 
-		shared_ptr<CFGNode> whileCFG = WhileCFGNode::createWhileCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2}},
+			{2, {3, 1}},
+			{3, {2}},
+		};
 
-		shared_ptr<CFGNode> expectedPrintY = CFGNode::createCFGNode(3);
-
-		expected->addChild(whileCFG);
-		whileCFG->addChild(expectedPrintY);
-		expectedPrintY->addChild(whileCFG);
-		whileCFG->addChild(expected);
+		shared_ptr<CFGNode> expected = CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1);
 
 		test(whileNode, expected);
 	}
@@ -786,27 +822,29 @@ TEST_CASE("handleProcedure test") {
 		procNode->addChild(procStatementList);
 
 		// CFGs
-		shared_ptr<CFGNode> expected = WhileCFGNode::createWhileCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodes = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// Read X
+			{2, CFGNode::createCFGNode(2)},
+			// If
+			{3, IfCFGNode::createIfCFGNode(3)},
+			// Print y
+			{4, CFGNode::createCFGNode(4)},
+			// read z
+			{5, CFGNode::createCFGNode(5)},
+			// assign
+			{6, CFGNode::createCFGNode(6)},
+		};
 
-		shared_ptr<CFGNode> readX = CFGNode::createCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2, 3}},
+			{2, {1}},
+			{3, {4, 5}},
+			{4, {6}},
+			{5, {6}},
+		};
 
-		shared_ptr<CFGNode> ifCFG = IfCFGNode::createIfCFGNode(3);
-
-		shared_ptr<CFGNode> printYCFG = CFGNode::createCFGNode(4);
-
-		shared_ptr<CFGNode> readZCFG = CFGNode::createCFGNode(5);
-
-		shared_ptr<CFGNode> assignCFG = CFGNode::createCFGNode(6);
-
-		expected->addChild(readX);
-		readX->addChild(expected);
-		expected->addChild(ifCFG);
-
-		ifCFG->addChild(printYCFG);
-		ifCFG->addChild(readZCFG);
-
-		printYCFG->addChild(assignCFG);
-		readZCFG->addChild(assignCFG);
+		shared_ptr<CFGNode> expected = CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1);
 
 		test(procNode, expected);
 	}
@@ -841,25 +879,39 @@ TEST_CASE("parse") {
 		shared_ptr<ASTNode> programTree = parser.parse();
 
 		// First CFG
-		shared_ptr<CFGNode> firstCFG = WhileCFGNode::createWhileCFGNode(1);
-		shared_ptr<CFGNode> firstAssign = CFGNode::createCFGNode(2);
-		shared_ptr<CFGNode> firstRead = CFGNode::createCFGNode(3);
+		unordered_map<int, shared_ptr<CFGNode>> firstCFGNodes = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// assign
+			{2, CFGNode::createCFGNode(2)},
+			// read
+			{3, CFGNode::createCFGNode(3)},
+		};
 
-		firstCFG->addChild(firstAssign);
-		firstAssign->addChild(firstCFG);
-		firstCFG->addChild(firstRead);
+		unordered_map<int, vector<int>> firstAdjList = {
+			{1, {2, 3}},
+			{2, {1}},
+		};
+
+		shared_ptr<CFGNode> firstCFG = CFGNode::createCFGFromAdjacencyList(firstCFGNodes, firstAdjList, 1);
 
 		// Second CFG
-		shared_ptr<CFGNode> secondCFG = IfCFGNode::createIfCFGNode(4);
-		shared_ptr<CFGNode> secondPrint = CFGNode::createCFGNode(5);
-		shared_ptr<CFGNode> secondAssign = CFGNode::createCFGNode(6);
-		shared_ptr<CFGNode> secondRead = CFGNode::createCFGNode(7);
+		unordered_map<int, shared_ptr<CFGNode>> secondCFGNodes = {
+			{4, IfCFGNode::createIfCFGNode(4)},
+			// print
+			{5, CFGNode::createCFGNode(5)},
+			// assign
+			{6, CFGNode::createCFGNode(6)},
+			// Read
+			{7, CFGNode::createCFGNode(7)},
+		};
 
-		secondCFG->addChild(secondPrint);
-		secondCFG->addChild(secondAssign);
+		unordered_map<int, vector<int>> secondAdjList = {
+			{4, {5, 6}},
+			{5, {7}},
+			{6, {7}},
+		};
 
-		secondPrint->addChild(secondRead);
-		secondAssign->addChild(secondRead);
+		shared_ptr<CFGNode> secondCFG = CFGNode::createCFGFromAdjacencyList(secondCFGNodes, secondAdjList, 4);
 
 		// Expected CFGs
 		vector<shared_ptr<CFGNode>> expected {firstCFG, secondCFG};

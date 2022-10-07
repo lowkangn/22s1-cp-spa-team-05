@@ -4,7 +4,6 @@
 #include <sp/dataclasses/cfg/WhileCFGNode.h>
 #include <vector>
 #include <unordered_map>
-#include <sp/dataclasses/cfg/CFGTestUtil.h>
 
 using namespace std;
 
@@ -115,7 +114,7 @@ TEST_CASE("CFG: test equals") {
 			{4, {5}}
 		};
 
-		shared_ptr<CFGNode> nodeTwo = createCFG(CFGNodesMap, adjList, 4);
+		shared_ptr<CFGNode> nodeTwo = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 4);
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{4, CFGNode::createCFGNode(4)},
@@ -126,7 +125,7 @@ TEST_CASE("CFG: test equals") {
 			{4, {5}}
 		};
 
-		shared_ptr<CFGNode> nodeTwoCopy = createCFG(CFGNodesMapCopy, adjListCopy, 4);
+		shared_ptr<CFGNode> nodeTwoCopy = CFGNode::createCFGFromAdjacencyList(CFGNodesMapCopy, adjListCopy, 4);
 
 		testEquals(nodeTwo, nodeTwoCopy);
 	}
@@ -147,7 +146,7 @@ TEST_CASE("CFG: test equals") {
 			{3, {5}},
 		};
 
-		shared_ptr<CFGNode> ifNode = createCFG(CFGNodesMap, adjList, 1);
+		shared_ptr<CFGNode> ifNode = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 1);
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, IfCFGNode::createIfCFGNode(1)},
@@ -164,7 +163,7 @@ TEST_CASE("CFG: test equals") {
 			{3, {5}},
 		};
 
-		shared_ptr<CFGNode> ifNodeCopy = createCFG(CFGNodesMap, adjList, 1);
+		shared_ptr<CFGNode> ifNodeCopy = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 1);
 
 		testEquals(ifNode, ifNodeCopy);
 	}
@@ -192,7 +191,7 @@ TEST_CASE("CFG: test equals") {
 			{6, {7}},
 		};
 
-		shared_ptr<CFGNode> ifNode = createCFG(CFGNodesMap, adjList, 1);
+		shared_ptr<CFGNode> ifNode = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 1);
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, IfCFGNode::createIfCFGNode(1)},
@@ -209,7 +208,7 @@ TEST_CASE("CFG: test equals") {
 			{3, {5}},
 		};
 
-		shared_ptr<CFGNode> ifNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
+		shared_ptr<CFGNode> ifNodeCopy = CFGNode::createCFGFromAdjacencyList(CFGNodesMapCopy, adjListCopy, 1);
 
 		testNotEquals(ifNode, ifNodeCopy);
 	}
@@ -228,7 +227,7 @@ TEST_CASE("CFG: test equals") {
 			{2, {1}},
 		};
 
-		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
+		shared_ptr<CFGNode> whileNode = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 1);
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
@@ -243,7 +242,7 @@ TEST_CASE("CFG: test equals") {
 			{2, {1}},
 		};
 
-		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
+		shared_ptr<CFGNode> whileNodeCopy = CFGNode::createCFGFromAdjacencyList(CFGNodesMapCopy, adjListCopy, 1);
 
 		testEquals(whileNode, whileNodeCopy);
 	}
@@ -262,7 +261,7 @@ TEST_CASE("CFG: test equals") {
 			{2, {1}},
 		};
 
-		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
+		shared_ptr<CFGNode> whileNode = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 1);
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
@@ -279,7 +278,7 @@ TEST_CASE("CFG: test equals") {
 			{3, {1}},
 		};
 
-		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
+		shared_ptr<CFGNode> whileNodeCopy = CFGNode::createCFGFromAdjacencyList(CFGNodesMapCopy, adjListCopy, 1);
 
 		testNotEquals(whileNode, whileNodeCopy);
 	}
@@ -298,7 +297,7 @@ TEST_CASE("CFG: test equals") {
 			{2, {1}},
 		};
 
-		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
+		shared_ptr<CFGNode> whileNode = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 1);
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
@@ -315,7 +314,7 @@ TEST_CASE("CFG: test equals") {
 			{3, {4}},
 		};
 
-		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
+		shared_ptr<CFGNode> whileNodeCopy = CFGNode::createCFGFromAdjacencyList(CFGNodesMapCopy, adjListCopy, 1);
 
 		testNotEquals(whileNode, whileNodeCopy);
 	}
@@ -342,7 +341,7 @@ TEST_CASE("CFG: test equals") {
 			{5, {6}},
 		};
 
-		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
+		shared_ptr<CFGNode> whileNode = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 1);
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
@@ -365,7 +364,7 @@ TEST_CASE("CFG: test equals") {
 			{5, {6}},
 		};
 
-		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
+		shared_ptr<CFGNode> whileNodeCopy = CFGNode::createCFGFromAdjacencyList(CFGNodesMapCopy, adjListCopy, 1);
 
 		testEquals(whileNode, whileNodeCopy);
 	}
@@ -394,7 +393,7 @@ TEST_CASE("CFG: test equals") {
 			{5, {6, 7}},
 		};
 
-		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
+		shared_ptr<CFGNode> whileNode = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 1);
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
@@ -417,7 +416,7 @@ TEST_CASE("CFG: test equals") {
 			{5, {6}},
 		};
 
-		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
+		shared_ptr<CFGNode> whileNodeCopy = CFGNode::createCFGFromAdjacencyList(CFGNodesMapCopy, adjListCopy, 1);
 
 		testNotEquals(whileNode, whileNodeCopy);
 	}
@@ -438,7 +437,7 @@ TEST_CASE("CFG: test equals") {
 			{2, {3, 1}},
 		};
 
-		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
+		shared_ptr<CFGNode> whileNode = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 1);
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
@@ -455,7 +454,7 @@ TEST_CASE("CFG: test equals") {
 			{2, {3, 1}},
 		};
 
-		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMap, adjList, 1);
+		shared_ptr<CFGNode> whileNodeCopy = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 1);
 
 		testEquals(whileNode, whileNodeCopy);
 	}

@@ -4,6 +4,8 @@
 #include <vector>
 #include <assert.h>
 #include <memory>
+#include<unordered_map>
+
 using namespace std;
 
 class CFGNode {
@@ -72,5 +74,19 @@ public:
 
 	virtual bool hasNext() {
 		return this->nextNodes.size() != 0;
+	}
+
+	static shared_ptr<CFGNode> createCFGFromAdjacencyList(unordered_map<int, shared_ptr<CFGNode>>& cfgNodes, unordered_map<int, vector<int>> adjList, int rootIndex) {
+		// Add all the nodes
+		for (pair<int, vector<int>> i : adjList) {
+			int nodeToAddTo = i.first;
+			vector<int> childrenIndexes = i.second;
+			for (int nodeToAdd : childrenIndexes) {
+				cfgNodes[nodeToAddTo]->addChild(cfgNodes[nodeToAdd]);
+			}
+		}
+
+		// Return root
+		return cfgNodes[rootIndex];
 	}
 };
