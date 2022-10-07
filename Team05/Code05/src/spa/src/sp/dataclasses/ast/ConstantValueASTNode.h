@@ -11,7 +11,7 @@ private:
 	}
 public:
 	static shared_ptr<ASTNode> createConstantNode(Token token) {
-		return shared_ptr<ASTNode> (new ConstantValueASTNode(token));
+		return shared_ptr<ASTNode>(new ConstantValueASTNode(token));
 	}
 
 	void addChild(shared_ptr<ASTNode> child) override;
