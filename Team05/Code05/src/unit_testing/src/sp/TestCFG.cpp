@@ -3,6 +3,8 @@
 #include <sp/dataclasses/cfg/IfCFGNode.h>
 #include <sp/dataclasses/cfg/WhileCFGNode.h>
 #include <vector>
+#include <unordered_map>
+#include <sp/dataclasses/cfg/CFGTestUtil.h>
 
 using namespace std;
 
@@ -95,6 +97,8 @@ TEST_CASE("CFG: test equals") {
 	};
 
 	SECTION("Basic test") {
+
+
 		shared_ptr<CFGNode> nodeOne = CFGNode::createCFGNode(4);
 		shared_ptr<CFGNode> nodeOneCopy = CFGNode::createCFGNode(4);
 
@@ -102,309 +106,356 @@ TEST_CASE("CFG: test equals") {
 	}
 
 	SECTION("Test with no cycle and one child") {
-		shared_ptr<CFGNode> nodeTwo = CFGNode::createCFGNode(4);
-		shared_ptr<CFGNode> nodeChild = CFGNode::createCFGNode(5);
-		nodeTwo->addChild(nodeChild);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
+			{4, CFGNode::createCFGNode(4)},
+			{5, CFGNode::createCFGNode(5)}
+		};
 
-		shared_ptr<CFGNode> nodeTwoCopy = CFGNode::createCFGNode(4);
-		shared_ptr<CFGNode> nodeChildCopy = CFGNode::createCFGNode(5);
-		nodeTwoCopy->addChild(nodeChildCopy);
+		unordered_map<int, vector<int>> adjList = {
+			{4, {5}}
+		};
+
+		shared_ptr<CFGNode> nodeTwo = createCFG(CFGNodesMap, adjList, 4);
+
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
+			{4, CFGNode::createCFGNode(4)},
+			{5, CFGNode::createCFGNode(5)}
+		};
+
+		unordered_map<int, vector<int>> adjListCopy = {
+			{4, {5}}
+		};
+
+		shared_ptr<CFGNode> nodeTwoCopy = createCFG(CFGNodesMapCopy, adjListCopy, 4);
 
 		testEquals(nodeTwo, nodeTwoCopy);
 	}
 
 	SECTION("Equals: Test with if") {
-		shared_ptr<IfCFGNode> ifNode = IfCFGNode::createIfCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
+			{1, IfCFGNode::createIfCFGNode(1)},
+			{2, CFGNode::createCFGNode(2)},
+			{3, CFGNode::createCFGNode(3)},
+			{4, CFGNode::createCFGNode(4)},
+			{5, CFGNode::createCFGNode(5)},
+			{6, CFGNode::createCFGNode(6)},
+		};
 
-		shared_ptr<CFGNode> thenStatementOne = CFGNode::createCFGNode(2);
-		shared_ptr<CFGNode> thenStatementTwo = CFGNode::createCFGNode(3);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2, 3, 5}},
+			{2, {4}},
+			{3, {5}},
+		};
 
-		shared_ptr<CFGNode> elseStatementOne = CFGNode::createCFGNode(4);
-		shared_ptr<CFGNode> elseStatementTwo = CFGNode::createCFGNode(5);
+		shared_ptr<CFGNode> ifNode = createCFG(CFGNodesMap, adjList, 1);
 
-		shared_ptr<CFGNode> outsideIf = CFGNode::createCFGNode(6);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
+			{1, IfCFGNode::createIfCFGNode(1)},
+			{2, CFGNode::createCFGNode(2)},
+			{3, CFGNode::createCFGNode(3)},
+			{4, CFGNode::createCFGNode(4)},
+			{5, CFGNode::createCFGNode(5)},
+			{6, CFGNode::createCFGNode(6)},
+		};
 
-		shared_ptr<CFGNode> ifNodeCopy = IfCFGNode::createIfCFGNode(1);
+		unordered_map<int, vector<int>> adjListCopy = {
+			{1, {2, 3, 5}},
+			{2, {4}},
+			{3, {5}},
+		};
 
-		shared_ptr<CFGNode> thenStatementOneCopy = CFGNode::createCFGNode(2);
-		shared_ptr<CFGNode> thenStatementTwoCopy = CFGNode::createCFGNode(3);
-
-		shared_ptr<CFGNode> elseStatementOneCopy = CFGNode::createCFGNode(4);
-		shared_ptr<CFGNode> elseStatementTwoCopy = CFGNode::createCFGNode(5);
-
-		shared_ptr<CFGNode> outsideIfCopy = CFGNode::createCFGNode(6);
-
-		ifNode->addChild(thenStatementOne);
-		ifNode->addChild(elseStatementOne);
-
-		thenStatementOne->addChild(thenStatementTwo);
-		elseStatementOne->addChild(elseStatementTwo);
-
-		thenStatementTwo->addChild(outsideIf);
-		elseStatementTwo->addChild(outsideIf);
-
-		ifNodeCopy->addChild(thenStatementOneCopy);
-		ifNodeCopy->addChild(elseStatementOneCopy);
-
-		thenStatementOneCopy->addChild(thenStatementTwoCopy);
-		elseStatementOneCopy->addChild(elseStatementTwoCopy);
-
-		thenStatementTwoCopy->addChild(outsideIfCopy);
-		elseStatementTwoCopy->addChild(outsideIfCopy);
+		shared_ptr<CFGNode> ifNodeCopy = createCFG(CFGNodesMap, adjList, 1);
 
 		testEquals(ifNode, ifNodeCopy);
 	}
 
 	SECTION("Not Equals: Test with if") {
-		shared_ptr<IfCFGNode> ifNode = IfCFGNode::createIfCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
+			{1, IfCFGNode::createIfCFGNode(1)},
+			// Then
+			{2, CFGNode::createCFGNode(2)},
+			// Else
+			{3, CFGNode::createCFGNode(3)},
+			// Then statement
+			{4, CFGNode::createCFGNode(4)},
+			// Else statement
+			{5, CFGNode::createCFGNode(5)},
+			// Outside if
+			{6, CFGNode::createCFGNode(6)},
+			{7, CFGNode::createCFGNode(7)},
+		};
 
-		shared_ptr<CFGNode> thenStatementOne = CFGNode::createCFGNode(2);
-		shared_ptr<CFGNode> thenStatementTwo = CFGNode::createCFGNode(3);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2, 3, 6}},
+			{2, {4}},
+			{3, {5}},
+			{6, {7}},
+		};
 
-		shared_ptr<CFGNode> elseStatementOne = CFGNode::createCFGNode(4);
-		shared_ptr<CFGNode> elseStatementTwo = CFGNode::createCFGNode(5);
+		shared_ptr<CFGNode> ifNode = createCFG(CFGNodesMap, adjList, 1);
 
-		shared_ptr<CFGNode> outsideIf = CFGNode::createCFGNode(6);
-		shared_ptr<CFGNode> outsideIfDiff = CFGNode::createCFGNode(7);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
+			{1, IfCFGNode::createIfCFGNode(1)},
+			{2, CFGNode::createCFGNode(2)},
+			{3, CFGNode::createCFGNode(3)},
+			{4, CFGNode::createCFGNode(4)},
+			{5, CFGNode::createCFGNode(5)},
+			{6, CFGNode::createCFGNode(6)},
+		};
 
-		shared_ptr<CFGNode> ifNodeCopy = IfCFGNode::createIfCFGNode(1);
+		unordered_map<int, vector<int>> adjListCopy = {
+			{1, {2, 3, 5}},
+			{2, {4}},
+			{3, {5}},
+		};
 
-		shared_ptr<CFGNode> thenStatementOneCopy = CFGNode::createCFGNode(2);
-		shared_ptr<CFGNode> thenStatementTwoCopy = CFGNode::createCFGNode(3);
-
-		shared_ptr<CFGNode> elseStatementOneCopy = CFGNode::createCFGNode(4);
-		shared_ptr<CFGNode> elseStatementTwoCopy = CFGNode::createCFGNode(5);
-
-		shared_ptr<CFGNode> outsideIfCopy = CFGNode::createCFGNode(6);
-
-		// test if then and else point to diff statements after
-		ifNode->addChild(thenStatementOne);
-		ifNode->addChild(elseStatementOne);
-
-		thenStatementOne->addChild(thenStatementTwo);
-		elseStatementOne->addChild(elseStatementTwo);
-
-		thenStatementTwo->addChild(outsideIf);
-		elseStatementTwo->addChild(outsideIfDiff);
-
-		ifNodeCopy->addChild(thenStatementOneCopy);
-		ifNodeCopy->addChild(elseStatementOneCopy);
-
-		thenStatementOneCopy->addChild(thenStatementTwoCopy);
-		elseStatementOneCopy->addChild(elseStatementTwoCopy);
-
-		thenStatementTwoCopy->addChild(outsideIfCopy);
-		elseStatementTwoCopy->addChild(outsideIfCopy);
+		shared_ptr<CFGNode> ifNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
 
 		testNotEquals(ifNode, ifNodeCopy);
 	}
 
 	SECTION("Equals: Test with while") {
-		shared_ptr<WhileCFGNode> whileNode = WhileCFGNode::createWhileCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// In while
+			{2, CFGNode::createCFGNode(2)},
+			// Outside while
+			{3, CFGNode::createCFGNode(3)},
+		};
 
-		shared_ptr<CFGNode> inWhile = CFGNode::createCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2, 3}},
+			{2, {1}},
+		};
 
-		shared_ptr<CFGNode> afterWhile = CFGNode::createCFGNode(3);
+		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
 
-		shared_ptr<WhileCFGNode> whileNodeCopy = WhileCFGNode::createWhileCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// In while
+			{2, CFGNode::createCFGNode(2)},
+			// Outside while
+			{3, CFGNode::createCFGNode(3)},
+		};
 
-		shared_ptr<CFGNode> inWhileCopy = CFGNode::createCFGNode(2);
+		unordered_map<int, vector<int>> adjListCopy = {
+			{1, {2, 3}},
+			{2, {1}},
+		};
 
-		shared_ptr<CFGNode> afterWhileCopy = CFGNode::createCFGNode(3);
-
-		whileNode->addChild(inWhile);
-		inWhile->addChild(whileNode);
-		whileNode->addChild(afterWhile);
-
-		whileNodeCopy->addChild(inWhileCopy);
-		inWhileCopy->addChild(whileNodeCopy);
-		whileNodeCopy->addChild(afterWhileCopy);
+		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
 
 		testEquals(whileNode, whileNodeCopy);
 	}
 
 	SECTION("Not Equals: Test with while, different whiles") {
-		shared_ptr<WhileCFGNode> whileNode = WhileCFGNode::createWhileCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// In while
+			{2, CFGNode::createCFGNode(2)},
+			// Outside while
+			{3, CFGNode::createCFGNode(3)},
+		};
 
-		shared_ptr<CFGNode> inWhile = CFGNode::createCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2, 3}},
+			{2, {1}},
+		};
 
-		shared_ptr<CFGNode> afterWhile = CFGNode::createCFGNode(3);
+		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
 
-		shared_ptr<WhileCFGNode> whileNodeCopy = WhileCFGNode::createWhileCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// In while
+			{2, CFGNode::createCFGNode(2)},
+			{3, CFGNode::createCFGNode(3)},
+			// Outside while
+			{4, CFGNode::createCFGNode(4)},
+		};
 
-		shared_ptr<CFGNode> inWhileCopyOne = CFGNode::createCFGNode(2);
-		shared_ptr<CFGNode> inWhileCopyTwo = CFGNode::createCFGNode(3);
+		unordered_map<int, vector<int>> adjListCopy = {
+			{1, {2, 4}},
+			{2, {3}},
+			{3, {1}},
+		};
 
-		shared_ptr<CFGNode> afterWhileCopy = CFGNode::createCFGNode(4);
-
-		whileNode->addChild(inWhile);
-		inWhile->addChild(whileNode);
-		whileNode->addChild(afterWhile);
-
-		whileNodeCopy->addChild(inWhileCopyOne);
-		inWhileCopyOne->addChild(inWhileCopyTwo);
-		inWhileCopyTwo->addChild(whileNodeCopy);
-		whileNodeCopy->addChild(afterWhileCopy);
+		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
 
 		testNotEquals(whileNode, whileNodeCopy);
 	}
 
 	SECTION("Not Equals: Test with while, different nextNode") {
-		shared_ptr<WhileCFGNode> whileNode = WhileCFGNode::createWhileCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// In while
+			{2, CFGNode::createCFGNode(2)},
+			// Outside while
+			{3, CFGNode::createCFGNode(3)},
+		};
 
-		shared_ptr<CFGNode> inWhile = CFGNode::createCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2, 3}},
+			{2, {1}},
+		};
 
-		shared_ptr<CFGNode> afterWhile = CFGNode::createCFGNode(3);
+		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
 
-		shared_ptr<WhileCFGNode> whileNodeCopy = WhileCFGNode::createWhileCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// In while
+			{2, CFGNode::createCFGNode(2)},
+			// Outside while
+			{3, CFGNode::createCFGNode(3)},
+			{4, CFGNode::createCFGNode(4)},
+		};
 
-		shared_ptr<CFGNode> inWhileCopy = CFGNode::createCFGNode(2);
+		unordered_map<int, vector<int>> adjListCopy = {
+			{1, {2, 3}},
+			{2, {1}},
+			{3, {4}},
+		};
 
-		shared_ptr<CFGNode> afterWhileCopyOne = CFGNode::createCFGNode(3);
-		shared_ptr<CFGNode> afterWhileCopyTwo = CFGNode::createCFGNode(3);
-
-		whileNode->addChild(inWhile);
-		inWhile->addChild(whileNode);
-		whileNode->addChild(afterWhile);
-
-		whileNodeCopy->addChild(inWhileCopy);
-		inWhileCopy->addChild(whileNodeCopy);
-		whileNodeCopy->addChild(afterWhileCopyOne);
-		afterWhileCopyOne->addChild(afterWhileCopyTwo);
+		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
 
 		testNotEquals(whileNode, whileNodeCopy);
 	}
 
 	SECTION("Equals: Test with if inside while") {
-		shared_ptr<WhileCFGNode> whileNode = WhileCFGNode::createWhileCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// If In while
+			{2, IfCFGNode::createCFGNode(2)},
+			// Then
+			{3, CFGNode::createCFGNode(3)},
+			{4, CFGNode::createCFGNode(4)},
+			// Else
+			{5, CFGNode::createCFGNode(5)},
+			{6, CFGNode::createCFGNode(6)},
+			// Outside while
+			{7, CFGNode::createCFGNode(7)},
+		};
 
-		shared_ptr<CFGNode> ifInWhile = IfCFGNode::createCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2, 7}},
+			{2, {3,5}},
+			{3, {4}},
+			{5, {6}},
+		};
 
-		shared_ptr<CFGNode> thenCFG = CFGNode::createCFGNode(3);
-		shared_ptr<CFGNode> inThenCFG = CFGNode::createCFGNode(4);
+		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
 
-		shared_ptr<CFGNode> elseCFG = CFGNode::createCFGNode(5);
-		shared_ptr<CFGNode> inElseCFG = CFGNode::createCFGNode(6);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// If In while
+			{2, IfCFGNode::createCFGNode(2)},
+			// Then
+			{3, CFGNode::createCFGNode(3)},
+			{4, CFGNode::createCFGNode(4)},
+			// Else
+			{5, CFGNode::createCFGNode(5)},
+			{6, CFGNode::createCFGNode(6)},
+			// Outside while
+			{7, CFGNode::createCFGNode(7)},
+		};
 
-		shared_ptr<CFGNode> outWhile = CFGNode::createCFGNode(7);
+		unordered_map<int, vector<int>> adjListCopy = {
+			{1, {2, 7}},
+			{2, {3,5}},
+			{3, {4}},
+			{5, {6}},
+		};
 
-		shared_ptr<WhileCFGNode> whileNodeCopy = WhileCFGNode::createWhileCFGNode(1);
-
-		shared_ptr<CFGNode> ifInWhileCopy = IfCFGNode::createCFGNode(2);
-
-		shared_ptr<CFGNode> thenCFGCopy = CFGNode::createCFGNode(3);
-		shared_ptr<CFGNode> inThenCFGCopy = CFGNode::createCFGNode(4);
-
-		shared_ptr<CFGNode> elseCFGCopy = CFGNode::createCFGNode(5);
-		shared_ptr<CFGNode> inElseCFGCopy = CFGNode::createCFGNode(6);
-
-		shared_ptr<CFGNode> outWhileCopy = CFGNode::createCFGNode(7);
-
-
-		whileNode->addChild(ifInWhile);
-		ifInWhile->addChild(thenCFG);
-		ifInWhile->addChild(elseCFG);
-
-		thenCFG->addChild(inThenCFG);
-		elseCFG->addChild(inElseCFG);
-
-		inThenCFG->addChild(whileNode);
-		inElseCFG->addChild(whileNode);
-
-		whileNode->addChild(outWhile);
-
-		whileNodeCopy->addChild(ifInWhileCopy);
-		ifInWhileCopy->addChild(thenCFGCopy);
-		ifInWhileCopy->addChild(elseCFGCopy);
-
-		thenCFGCopy->addChild(inThenCFGCopy);
-		elseCFGCopy->addChild(inElseCFGCopy);
-
-		inThenCFGCopy->addChild(whileNodeCopy);
-		inElseCFGCopy->addChild(whileNodeCopy);
-
-		whileNodeCopy->addChild(outWhileCopy);
+		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
 
 		testEquals(whileNode, whileNodeCopy);
 	}
 
 	SECTION("Not Equals: Test with if inside while") {
-		shared_ptr<WhileCFGNode> whileNode = WhileCFGNode::createWhileCFGNode(1);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// If In while
+			{2, IfCFGNode::createCFGNode(2)},
+			// Then
+			{3, CFGNode::createCFGNode(3)},
+			{4, CFGNode::createCFGNode(4)},
+			// Else
+			{5, CFGNode::createCFGNode(5)},
+			{6, CFGNode::createCFGNode(6)},
+			// Else has extra statement
+			{6, CFGNode::createCFGNode(7)},
+			// Outside while
+			{7, CFGNode::createCFGNode(8)},
+		};
 
-		shared_ptr<CFGNode> ifInWhile = IfCFGNode::createCFGNode(2);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2, 8}},
+			{2, {3,5}},
+			{3, {4}},
+			{5, {6, 7}},
+		};
 
-		shared_ptr<CFGNode> thenCFG = CFGNode::createCFGNode(3);
-		shared_ptr<CFGNode> inThenCFG = CFGNode::createCFGNode(4);
+		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
 
-		shared_ptr<CFGNode> elseCFG = CFGNode::createCFGNode(5);
-		// Else has an extra statement
-		shared_ptr<CFGNode> inElseCFGOne = CFGNode::createCFGNode(6);
-		shared_ptr<CFGNode> inElseCFGTwo = CFGNode::createCFGNode(7);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// If In while
+			{2, IfCFGNode::createCFGNode(2)},
+			// Then
+			{3, CFGNode::createCFGNode(3)},
+			{4, CFGNode::createCFGNode(4)},
+			// Else
+			{5, CFGNode::createCFGNode(5)},
+			{6, CFGNode::createCFGNode(6)},
+			// Outside while
+			{7, CFGNode::createCFGNode(7)},
+		};
 
-		shared_ptr<CFGNode> outWhile = CFGNode::createCFGNode(8);
+		unordered_map<int, vector<int>> adjListCopy = {
+			{1, {2, 7}},
+			{2, {3,5}},
+			{3, {4}},
+			{5, {6}},
+		};
 
-		shared_ptr<WhileCFGNode> whileNodeCopy = WhileCFGNode::createWhileCFGNode(1);
-
-		shared_ptr<CFGNode> ifInWhileCopy = IfCFGNode::createCFGNode(2);
-
-		shared_ptr<CFGNode> thenCFGCopy = CFGNode::createCFGNode(3);
-		shared_ptr<CFGNode> inThenCFGCopy = CFGNode::createCFGNode(4);
-
-		shared_ptr<CFGNode> elseCFGCopy = CFGNode::createCFGNode(5);
-		shared_ptr<CFGNode> inElseCFGCopy = CFGNode::createCFGNode(6);
-
-		shared_ptr<CFGNode> outWhileCopy = CFGNode::createCFGNode(7);
-
-
-		whileNode->addChild(ifInWhile);
-		ifInWhile->addChild(thenCFG);
-		ifInWhile->addChild(elseCFG);
-
-		thenCFG->addChild(inThenCFG);
-		elseCFG->addChild(inElseCFGOne);
-		inElseCFGOne->addChild(inElseCFGTwo);
-
-		inThenCFG->addChild(whileNode);
-		inElseCFGTwo->addChild(whileNode);
-
-		whileNode->addChild(outWhile);
-
-		whileNodeCopy->addChild(ifInWhileCopy);
-		ifInWhileCopy->addChild(thenCFGCopy);
-		ifInWhileCopy->addChild(elseCFGCopy);
-
-		thenCFGCopy->addChild(inThenCFGCopy);
-		elseCFGCopy->addChild(inElseCFGCopy);
-
-		inThenCFGCopy->addChild(whileNodeCopy);
-		inElseCFGCopy->addChild(whileNodeCopy);
-
-		whileNodeCopy->addChild(outWhileCopy);
+		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMapCopy, adjListCopy, 1);
 
 		testNotEquals(whileNode, whileNodeCopy);
 	}
 
-	SECTION("Not Equals: Test with nested while") {
-		shared_ptr<WhileCFGNode> whileNode = WhileCFGNode::createWhileCFGNode(1);
-		shared_ptr<WhileCFGNode> inWhile = WhileCFGNode::createWhileCFGNode(2);
-		shared_ptr<CFGNode> inNestedWhile = CFGNode::createCFGNode(3);
-		shared_ptr<CFGNode> outWhile = CFGNode::createCFGNode(4);
+	SECTION("Equals: Test with nested while") {
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// While In while
+			{2, WhileCFGNode::createWhileCFGNode(2)},
+			// inNestedWhile
+			{3, CFGNode::createCFGNode(3)},
+			// outWhile
+			{4, CFGNode::createCFGNode(4)},
+		};
 
-		shared_ptr<WhileCFGNode> whileNodeCopy = WhileCFGNode::createWhileCFGNode(1);
-		shared_ptr<WhileCFGNode> inWhileCopy = WhileCFGNode::createWhileCFGNode(2);
-		shared_ptr<CFGNode> inNestedWhileCopy = CFGNode::createCFGNode(3);
-		shared_ptr<CFGNode> outWhileCopy = CFGNode::createCFGNode(4);
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2, 4}},
+			{2, {3, 1}},
+		};
 
+		shared_ptr<CFGNode> whileNode = createCFG(CFGNodesMap, adjList, 1);
 
-		whileNode->addChild(inWhile);
-		inWhile->addChild(inNestedWhile);
-		inWhile->addChild(whileNode);
-		whileNode->addChild(outWhile);
+		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			// While In while
+			{2, WhileCFGNode::createWhileCFGNode(2)},
+			// inNestedWhile
+			{3, CFGNode::createCFGNode(3)},
+			// outWhile
+			{4, CFGNode::createCFGNode(4)},
+		};
 
-		whileNodeCopy->addChild(inWhileCopy);
-		inWhileCopy->addChild(inNestedWhileCopy);
-		inWhileCopy->addChild(whileNodeCopy);
-		whileNodeCopy->addChild(outWhileCopy);
+		unordered_map<int, vector<int>> adjListCopy = {
+			{1, {2, 4}},
+			{2, {3, 1}},
+		};
+
+		shared_ptr<CFGNode> whileNodeCopy = createCFG(CFGNodesMap, adjList, 1);
 
 		testEquals(whileNode, whileNodeCopy);
 	}
