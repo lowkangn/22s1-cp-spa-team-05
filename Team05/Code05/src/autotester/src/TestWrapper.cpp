@@ -46,6 +46,10 @@ void TestWrapper::parse(std::string filename) {
 		stream.close();
 		exit(1);
 	}
+	catch (ASTException e) {
+		stream.close();
+		exit(1);
+	}
 	stream.close();
 
 }

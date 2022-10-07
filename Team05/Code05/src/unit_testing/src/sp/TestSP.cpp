@@ -32,10 +32,10 @@
 #include <sp/design_extractor/PatternExtractor.h>
 #include <sp/design_extractor/FollowsExtractor.h>
 #include <sp/design_extractor/FollowsTExtractor.h>
+#include <sp/design_extractor/CallsAndCallsTExtractor.h>
 #include <sp/SPException.h>
 #include <string>
 #include <list>
-
 
 using namespace std;
 
@@ -58,7 +58,9 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		shared_ptr<Extractor<Relationship>> usesExtractor = shared_ptr<Extractor<Relationship>>(new UsesExtractor());
 		shared_ptr<Extractor<Relationship>> followsExtractor = shared_ptr<Extractor<Relationship>>(new FollowsExtractor());
 		shared_ptr<Extractor<Relationship>> followsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsTExtractor());
-		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, parentExtractor, parentTExtractor, usesExtractor, followsExtractor, followsTExtractor };
+		shared_ptr<Extractor<Relationship>> callsAndCallsTExtractor = shared_ptr<Extractor<Relationship>>(new CallsAndCallsTExtractor());
+		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, 
+				parentExtractor, parentTExtractor, usesExtractor, followsExtractor, followsTExtractor, callsAndCallsTExtractor };
 		
 		// create manager
 		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, relationExtractors);
@@ -104,9 +106,6 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 					isInExpectedPatterns = true;
 					break;
 				}
-			}
-			if (!isInExpectedPatterns) {
-				Pattern pattern = extractedPatterns[i];
 			}
 			REQUIRE(isInExpectedPatterns);
 		}
@@ -524,7 +523,6 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		Relationship elseParentAssign8 = Relationship::createParentRelationship(ifEntity, assign8Entity);
 
 		// Create parentT relationships
-
 		Relationship whileParentTAssign4 = Relationship::createParentTRelationship(whileEntity, assign4Entity);
 		Relationship whileParentTPrint = Relationship::createParentTRelationship(whileEntity, printEntity);
 
@@ -532,9 +530,6 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		Relationship elseParentTAssign8 = Relationship::createParentTRelationship(ifEntity, assign8Entity);
 
 		// Create uses relationships
-
-		// Relationship assign1UsesX = Relationship::createUsesRelationship(assign1Entity, x1Entity);
-
 		Relationship whileUsesX3 = Relationship::createUsesRelationship(whileEntity, x3Entity);
 		Relationship whileUsesX4 = Relationship::createUsesRelationship(whileEntity, x4Entity);
 		Relationship whileUsesY5 = Relationship::createUsesRelationship(whileEntity, y5Entity);
@@ -594,7 +589,123 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		};
 		testExtract(program, expectedEntities, expectedRelationships, expectedPattern);
 	}
-	
+
+	SECTION("Program with call statements") {
+		/*
+		procedure main {
+			1. call alpha;
+		}
+
+		procedure alpha {
+			2. read y;
+			3. if (y > 5) then {
+			4.     call beta;
+			} else {
+			5.     print y;
+			} 
+		}
+
+		procedure beta {
+			6. y = y + 3;
+		}
+		*/
+	}
+
+	string program = "procedure main {\ncall alpha;\n}\n procedure alpha {\nread y;\nif ( y > 5) then {\ncall beta;\n} else {\nprint y;\n}\n}\n procedure beta {\n y = y + 3;\n}";
+
+	// Creating tokens
+	Token mainToken = Token::createNameOrKeywordToken("main");
+	Token alphaToken = Token::createNameOrKeywordToken("alpha");
+	Token betaToken = Token::createNameOrKeywordToken("beta");
+
+	Token callToken = Token::createCallToken();
+	Token readToken = Token::createReadToken();
+	Token ifToken = Token::createIfToken();
+	Token printToken = Token::createPrintToken();
+	Token assignToken = Token::createEqualsToken();
+
+	Token greaterToken = Token::createGreaterThanToken();
+	Token plusToken = Token::createPlusToken();
+	Token yToken = Token::createNameOrKeywordToken("y");
+	Token constThreeToken = Token::createIntegerToken("3");
+	Token constFiveToken = Token::createIntegerToken("5");
+	Token stmtListToken = Token::createPlaceholderToken();
+
+	// Create entities
+	Entity procedureMainEntity = Entity::createProcedureEntity(mainToken);
+	Entity procedureAlphaEntity = Entity::createProcedureEntity(alphaToken);
+	Entity procedureBetaEntity = Entity::createProcedureEntity(betaToken);
+
+	Entity callAlphaEntity = Entity::createCallEntity(1);
+	Entity readYEntity = Entity::createReadEntity(2);
+	Entity ifEntity = Entity::createIfEntity(3);
+	Entity ifCondEntity = Entity::createExpressionEntity(3, greaterToken);
+	Entity callBetaEntity = Entity::createCallEntity(4);
+	Entity printYEntity = Entity::createPrintEntity(5);
+	Entity assignEntity = Entity::createAssignEntity(6);
+	Entity plusEntity = Entity::createExpressionEntity(6, plusToken);
+
+	Entity y2Entity = Entity::createVariableEntity(2, yToken);
+	Entity y3Entity = Entity::createVariableEntity(3, yToken);
+	Entity fiveConstEntity = Entity::createConstantEntity(3, constFiveToken);
+	Entity threeConstEntity = Entity::createConstantEntity(6, constThreeToken);
+	Entity y5Entity = Entity::createVariableEntity(5, yToken);
+	Entity y6LhsEntity = Entity::createVariableEntity(6, yToken);
+	Entity y6RhsEntity = Entity::createVariableEntity(6, yToken);
+
+	vector<Entity> expectedEntities = vector<Entity>{ procedureMainEntity, callAlphaEntity, procedureAlphaEntity, procedureAlphaEntity,
+			readYEntity, y2Entity, ifEntity, ifCondEntity, y3Entity, fiveConstEntity, callBetaEntity, procedureBetaEntity, printYEntity, 
+			y5Entity, procedureBetaEntity, assignEntity, y6LhsEntity, y6RhsEntity, plusEntity, threeConstEntity };
+
+	// Create modifies relationships
+	Relationship readModifiesY = Relationship::createModifiesRelationship(readYEntity, y2Entity);
+	Relationship alphaModifiesY = Relationship::createModifiesRelationship(procedureAlphaEntity, y2Entity);
+	Relationship assignModifiesY = Relationship::createModifiesRelationship(assignEntity, y6LhsEntity);
+	Relationship betaModifiesY = Relationship::createModifiesRelationship(procedureBetaEntity, y6LhsEntity);
+
+	// Create parent relationships
+	Relationship ifParentCall = Relationship::createParentRelationship(ifEntity, callBetaEntity);
+	Relationship ifParentPrint = Relationship::createParentRelationship(ifEntity, printYEntity);
+
+	// Create parentT relationships
+	Relationship ifParentTCall = Relationship::createParentTRelationship(ifEntity, callBetaEntity);
+	Relationship ifParentTPrint = Relationship::createParentTRelationship(ifEntity, printYEntity);
+
+	// Create uses relationships
+	Relationship ifUsesY3 = Relationship::createUsesRelationship(ifEntity, y3Entity);
+	Relationship ifUsesY5 = Relationship::createUsesRelationship(ifEntity, y5Entity);
+	Relationship printYUsesY5 = Relationship::createUsesRelationship(printYEntity, y5Entity);
+	Relationship alphaUsesY3 = Relationship::createUsesRelationship(procedureAlphaEntity, y3Entity);
+	Relationship alphaUsesY5 = Relationship::createUsesRelationship(procedureAlphaEntity, y5Entity);
+	Relationship assignUsesY6 = Relationship::createUsesRelationship(assignEntity, y6RhsEntity);
+	Relationship betaUsesY6 = Relationship::createUsesRelationship(procedureBetaEntity, y6RhsEntity);
+
+	// create Follows relationship
+	Relationship ifFollowsReadY = Relationship::createFollowsRelationship(readYEntity, ifEntity);
+
+	// create FollowsT relationship
+	Relationship ifFollowsTReadY = Relationship::createFollowsTRelationship(readYEntity, ifEntity);
+
+	// create Calls relationship
+	Relationship mainCallsAlpha = Relationship::createCallsRelationship(procedureMainEntity, procedureAlphaEntity);
+	Relationship alphaCallsBeta = Relationship::createCallsRelationship(procedureAlphaEntity, procedureBetaEntity);
+
+	// create CallsT relationship
+	Relationship mainCallsTAlpha = Relationship::createCallsTRelationship(procedureMainEntity, procedureAlphaEntity);
+	Relationship alphaCallsTBeta = Relationship::createCallsTRelationship(procedureAlphaEntity, procedureBetaEntity);
+	Relationship mainCallsTBeta = Relationship::createCallsTRelationship(procedureMainEntity, procedureBetaEntity);
+
+	vector<Relationship> expectedRelationships = vector<Relationship>{ readModifiesY, alphaModifiesY, assignModifiesY, betaModifiesY, 
+																	ifParentCall, ifParentPrint, ifParentTCall, ifParentTPrint, ifUsesY3, 
+																	ifUsesY5, printYUsesY5, alphaUsesY3, alphaUsesY5, assignUsesY6, 
+																	betaUsesY6, ifFollowsReadY, ifFollowsTReadY, mainCallsAlpha, 
+																	alphaCallsBeta, mainCallsTAlpha, alphaCallsTBeta, mainCallsTBeta };
+
+	vector<Pattern> expectedPatterns = vector<Pattern>{
+			Pattern::createIfPattern(3, "y"),
+			Pattern::createAssignPattern(6, " y ", " y 3 + ")};
+
+	testExtract(program, expectedEntities, expectedRelationships, expectedPatterns);
 }
 
 // Util

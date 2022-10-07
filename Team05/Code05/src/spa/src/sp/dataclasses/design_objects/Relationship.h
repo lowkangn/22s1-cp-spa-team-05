@@ -13,7 +13,9 @@ private:
         FOLLOWS = 2,
         FOLLOWST = 3,
         PARENT = 4,
-        PARENTT = 5
+        PARENTT = 5,
+        CALLS = 6,
+        CALLST = 7
     };
 
     Entity entity1;
@@ -48,6 +50,14 @@ public:
 
     static Relationship createParentTRelationship(Entity& lhs, Entity& rhs) {
         return Relationship(lhs, rhs, RelationshipType::PARENTT);
+    }
+
+    static Relationship createCallsRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::CALLS);
+    }
+
+    static Relationship createCallsTRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::CALLST);
     }
 
     Entity getLhs() {
@@ -86,5 +96,13 @@ public:
     }
     bool isUses() {
         return this->type == RelationshipType::USES;
+    }
+
+    bool isCalls() {
+        return this->type == RelationshipType::CALLS;
+    }
+
+    bool isCallsT() {
+        return this->type == RelationshipType::CALLST;
     }
 };

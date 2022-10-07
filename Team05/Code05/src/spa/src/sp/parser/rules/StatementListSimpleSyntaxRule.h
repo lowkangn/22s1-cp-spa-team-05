@@ -12,6 +12,7 @@
 #include <sp/parser/rules/WhileSimpleSyntaxRule.h>
 #include <sp/parser/rules/IfSimpleSyntaxRule.h>
 #include <sp/parser/rules/PrintSimpleSyntaxRule.h>
+#include <sp/parser/rules/CallSimpleSyntaxRule.h>
 #include <sp/parser/exceptions/SimpleSyntaxParserException.h>
 
 using namespace std;
