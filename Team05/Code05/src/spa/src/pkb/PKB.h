@@ -248,24 +248,3 @@ typedef bool (*PkbEntityFilter)(shared_ptr<PkbEntity> entity, ClauseArgument arg
 	that always evaluates to true for ease.
 */
 PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue = false);
-
-/*
-	Converts a multi-variable condition string for if/while pattern into separate variables
-	and outputs them into an array of strings representing variables
-	e.g. if (x == 1 and y == 2 and z == 3) -> "x y z" in SP -> Array [x, y, z]
-*/
-static vector<string> splitStringByDelimiter(string s, string delimiter) {
-	size_t pos_start = 0, pos_end, delim_len = delimiter.length();
-	string token;
-	vector<string> res;
-
-	while ((pos_end = s.find(delimiter, pos_start)) != string::npos) {
-		token = s.substr(pos_start, pos_end - pos_start);
-		pos_start = pos_end + delim_len;
-		res.push_back(token);
-	}
-
-	res.push_back(s.substr(pos_start));
-	return res;
-}
-

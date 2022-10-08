@@ -53,6 +53,14 @@ public:
 		return shared_ptr<PkbWhilePattern>(new PkbWhilePattern(statement, strings));
 	}
 
+	/*
+		Returns the identifying condition for the while statement
+	*/
+	string getVariableIdentifier() {
+		assert(this->strings.size() == 1);
+		return this->strings[0];
+	}
+
 	string getKey() {
 		// we only expect one string for one while pattern entry
 		assert(this->strings.size() == 1);

@@ -58,6 +58,14 @@ public :
 		return shared_ptr<PkbStatementPattern>(new PkbStatementPattern(statement, strings));
 	}
 
+	/* 
+		Returns the LHS variable in assign statement
+	*/
+	string getVariableIdentifier() {
+		assert(this->strings.size() > 0);
+		return this->strings[0];
+	}
+
 	/*
 		Gets a unique key for each pattern.
 	*/

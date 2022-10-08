@@ -12,6 +12,7 @@
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
 #include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
 #include <qps/query/clause/PQLEntity.h>
+#include <StringSplitter.h>
 
 #include <iostream>
 
@@ -214,7 +215,7 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 			string conditions = p.getRhs();
 
 			// split the pattern string and create a table (e.g. "x y z" -> [x, y, z])
-			vector<string> variables = splitStringByDelimiter(conditions, SPACE_DELIM);
+			vector<string> variables = StringSplitter::splitStringByDelimiter(conditions, SPACE_DELIM);
 
 			// create if pattern for each variable and add it to table
 			for (string v : variables) {
@@ -228,7 +229,7 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 			string conditions = p.getRhs();
 
 			// split the pattern string and create a table (e.g. "x y z" -> [x, y, z])
-			vector<string> variables = splitStringByDelimiter(conditions, SPACE_DELIM);
+			vector<string> variables = StringSplitter::splitStringByDelimiter(conditions, SPACE_DELIM);
 
 			// create while pattern for each variable and add it to table
 			for (string v : variables) {

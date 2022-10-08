@@ -33,14 +33,12 @@ public:
 
 	virtual string getKey() = 0;
 
+	virtual string getVariableIdentifier() = 0;
+
 	bool equals(shared_ptr<PkbPattern> other) {
 		return this->statement->equals(other->statement) && this->strings == other->strings;
 	}
 
-	string getVariableIdentifier() {
-		assert(this->strings.size() > 0);
-		return this->strings[0];
-	}
 
 	int getStatementLineNumber() {
 		return this->statement->getLineNumber();
