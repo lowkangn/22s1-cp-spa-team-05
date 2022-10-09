@@ -35,6 +35,12 @@ public:
 
 	virtual string getVariableIdentifier() = 0;
 
+	virtual bool isWhilePattern() = 0;
+
+	virtual bool isIfPattern() = 0;
+
+	virtual bool isAssignPattern() = 0;
+
 	bool equals(shared_ptr<PkbPattern> other) {
 		return this->statement->equals(other->statement) && this->strings == other->strings;
 	}

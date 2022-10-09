@@ -17,8 +17,16 @@ protected:
 	PkbIfPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings) { };
 
 public:
+	bool isWhilePattern() {
+		return this->statement->isWhileStatement();
+	}
+
 	bool isIfPattern() {
 		return this->statement->isIfStatement();
+	}
+
+	bool isAssignPattern() {
+		return this->statement->isAssignStatement();
 	}
 
 	/*
@@ -56,10 +64,10 @@ public:
 
 
 	/*
-		Returns the identifying condition for the while statement
+		Returns the identifying condition for the if statement
 	*/
 	string getVariableIdentifier() {
-		assert(this->strings.size() == 1);
+		assert(this->strings.size() == 1 && this->statement->isIfStatement());
 		return this->strings[0];
 	}
 

@@ -19,6 +19,14 @@ public:
 		return this->statement->isWhileStatement();
 	}
 
+	bool isIfPattern() {
+		return this->statement->isIfStatement();
+	}
+
+	bool isAssignPattern() {
+		return this->statement->isAssignStatement();
+	}
+
 	/*
 		Unlike for PKB statement pattern, we only consider LHS
 	*/
@@ -57,7 +65,7 @@ public:
 		Returns the identifying condition for the while statement
 	*/
 	string getVariableIdentifier() {
-		assert(this->strings.size() == 1);
+		assert(this->strings.size() == 1 && this->statement->isWhileStatement());
 		return this->strings[0];
 	}
 
