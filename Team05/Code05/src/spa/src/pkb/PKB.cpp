@@ -4,6 +4,8 @@
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
 #include <pkb/design_objects/entities/PkbVariableEntity.h>
 #include <pkb/design_objects/entities/PkbConstantEntity.h>
+#include <pkb/design_objects/relationships/PkbCallsRelationship.h>
+#include <pkb/design_objects/relationships/PkbCallsStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbParentRelationship.h>
@@ -127,7 +129,14 @@ shared_ptr<PkbRelationship> PKB::externalRelationshipToPkbRelationship(Relations
 		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhsToPkbEntity, rhsToPkbEntity));
 		return pkbRelationship;
 	}
-	else {
+	else if (relationship.isCalls()) {
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbCallsRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		return pkbRelationship;
+	}
+	else if (relationship.isCallsStar()) {
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		return pkbRelationship;
+	} else {
 		throw PkbException("Unknown relationship being converted!");
 	}
 }
@@ -194,6 +203,14 @@ void PKB::addRelationships(vector<Relationship> relationships) {
 		}
 		else if (r.isModifies()) {
 			shared_ptr<PkbRelationshipTable> table = this->getModifiesTable();
+			table->add(pkbRelationship);
+		}
+		else if (r.isCalls()) {
+			shared_ptr<PkbRelationshipTable> table = this->getCallsTable();
+			table->add(pkbRelationship);
+		}
+		else if (r.isCallsStar()) {
+			shared_ptr<PkbRelationshipTable> table = this->getCallsStarTable();
 			table->add(pkbRelationship);
 		}
 		else {
@@ -389,11 +406,14 @@ shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelat
 		return this->getUsesTable();
 	case PKBTrackedRelationshipType::MODIFIES:
 		return this->getModifiesTable();
+	case PKBTrackedRelationshipType::CALLS:
+		return this->getCallsTable();
+	case PKBTrackedRelationshipType::CALLSSTAR:
+		return this->getCallsStarTable();
 	default:
 		throw PkbException("Unknown relationship type to be retrieved!");
 	}
 }
-
 
 
 PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue) {
@@ -600,6 +620,12 @@ vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelat
 		case PKBTrackedRelationshipType::MODIFIES:
 			toFind = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(left, right));
 			break;
+		case PKBTrackedRelationshipType::CALLS:
+			toFind = shared_ptr<PkbRelationship>(new PkbCallsRelationship(left, right));
+			break;
+		case PKBTrackedRelationshipType::CALLSSTAR:
+			toFind = shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(left, right));
+			break;
 		default:
 			throw PkbException("Unknown relationship type to be retrieved!");
 		}
@@ -800,6 +826,12 @@ bool PKB::containsRelationship(Relationship relationship) {
 	}
 	else if (relationshiptoPkbRelationship->isModifies()) {
 		return this->getModifiesTable()->get(key) != NULL;
+	}
+	else if (relationshiptoPkbRelationship->isCalls()) {
+		return this->getCallsTable()->get(key) != NULL;
+	}
+	else if (relationshiptoPkbRelationship->isCallsStar()) {
+		return this->getCallsStarTable()->get(key) != NULL;
 	}
 	else throw PkbException("Relationship of unknown type being checked in PKB");
 }

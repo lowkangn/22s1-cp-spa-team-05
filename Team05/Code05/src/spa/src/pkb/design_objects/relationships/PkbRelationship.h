@@ -55,6 +55,12 @@ public:
 	bool isModifies() {
 		return this->relationshipType == PkbRelationshipType::MODIFIES;
 	}
+	bool isCalls() {
+		return this->relationshipType == PkbRelationshipType::CALLS;
+	}
+	bool isCallsStar() {
+		return this->relationshipType == PkbRelationshipType::CALLSSTAR;
+	}
 
 	string getKey() {
 		// get string of relationship type

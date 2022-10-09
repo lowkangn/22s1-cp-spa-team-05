@@ -102,7 +102,7 @@ public:
         return this->type == RelationshipType::CALLS;
     }
 
-    bool isCallsT() {
+    bool isCallsStar() {
         return this->type == RelationshipType::CALLST;
     }
 };
