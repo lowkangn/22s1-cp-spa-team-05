@@ -18,15 +18,6 @@ void CallsParser::checkArguments(list<ClauseArgument>& args) {
 	// Calls clause should have exactly 2 arguments
 	assert(args.size() == 2);
 
-
-	// first arg cannot be statement, variable or constant
-	ClauseArgument arg = args.front();
-	if (arg.isStmtSynonym(), arg.isVariableSynonym() || arg.isConstantSynonym()) {
-		this->semanticErrorMessage = "First arg for Uses cannot be statement, variable or constant";
-	}
-
-	arg = args.back();
-
 	// semantically, both args must be either wildcards or procedures
 	for (ClauseArgument arg : args) {
 		if (arg.isLineNumber()) {
