@@ -12,7 +12,9 @@ enum PkbRelationshipType {
 	PARENT,
 	PARENTSTAR,
 	USES,
-	MODIFIES
+	MODIFIES,
+	CALLS,
+	CALLSSTAR,
 };
 
 class PkbRelationship {
