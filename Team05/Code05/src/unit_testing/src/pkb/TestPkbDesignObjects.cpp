@@ -3,6 +3,8 @@
 #include <pkb/design_objects/entities/PkbProcedureEntity.h>
 #include <pkb/design_objects/entities/PkbVariableEntity.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/design_objects/relationships/PkbCallsRelationship.h>
+#include <pkb/design_objects/relationships/PkbCallsStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
@@ -154,8 +156,16 @@ TEST_CASE("PkbRelationship: test ::getKey") {
 		string expectedKey = lhsKey + rhsKey + string("5");
 		test(r, expectedKey);
 	};
-
-
+	SECTION("Calls") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbCallsRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("6");
+		test(r, expectedKey);
+	};
+	SECTION("CallsStar") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("7");
+		test(r, expectedKey);
+	};
 }
 
 TEST_CASE("PkbStatementPattern::getKey") {
