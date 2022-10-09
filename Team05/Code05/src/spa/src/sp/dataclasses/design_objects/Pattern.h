@@ -43,6 +43,14 @@ public:
 		return this->entity.isAssignEntity();
 	}
 
+	bool isIfPattern() {
+		return this->entity.isIf();
+	}
+
+	bool isWhilePattern() {
+		return this->entity.isWhile();
+	}
+
 	int getLine() {
 		return this->entity.getLine();
 	}
