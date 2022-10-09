@@ -15,7 +15,8 @@ private:
         PARENT = 4,
         PARENTT = 5,
         CALLS = 6,
-        CALLST = 7
+        CALLST = 7,
+        NEXT = 8
     };
 
     Entity entity1;
@@ -58,6 +59,10 @@ public:
 
     static Relationship createCallsTRelationship(Entity& lhs, Entity& rhs) {
         return Relationship(lhs, rhs, RelationshipType::CALLST);
+    }
+
+    static Relationship createNextRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::NEXT);
     }
 
     Entity getLhs() {
@@ -105,4 +110,10 @@ public:
     bool isCallsT() {
         return this->type == RelationshipType::CALLST;
     }
+
+    bool isNext() {
+        return this->type == RelationshipType::NEXT;
+    }
+
+
 };

@@ -25,6 +25,10 @@ public:
 		return shared_ptr<CFGNode>(new CFGNode(statementNumber));
 	}
 
+	vector<shared_ptr<CFGNode>> getChildren() {
+		return this->nextNodes;
+	}
+
 	virtual shared_ptr<CFGNode> getNext() {
 		if (this->nextNodes.size() != 1) {
 			throw CFGException("This node has more than one child node");

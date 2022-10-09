@@ -17,7 +17,7 @@ const string INVALID_IDENTIFIER = "";
 /*
 	Enumeration of possible entity types.
 */
-enum class EntityType { PROGRAM, PROCEDURE, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT, EXPRESSION, BRACKET };
+enum class EntityType { PROGRAM, PROCEDURE, STMTLIST, READ, PRINT, ASSIGN, CALL, WHILE, IF, VARIABLE, CONSTANT, EXPRESSION, BRACKET, STATEMENT };
 
 class Entity {
 	private:
@@ -157,6 +157,10 @@ class Entity {
 			return Entity(EntityType::BRACKET, DEAFULT_LINE_NUMBER, token);
 		}
 
+		static Entity createStatementEntity(int lineNumber) {
+			Token token = Token::createIntegerToken(to_string(lineNumber));
+			return Entity(EntityType::STATEMENT, lineNumber, token);
+		}
 		
 		bool isReadEntity() {
 			return this->type == EntityType::READ;
@@ -165,20 +169,29 @@ class Entity {
 		bool isPrintEntity() {
 			return this->type == EntityType::PRINT;
 		}
+
 		bool isAssignEntity() {
 			return this->type == EntityType::ASSIGN;
 		}
+
 		bool isCallEntity() {
 			return this->type == EntityType::CALL;
 		}
+
 		bool isIf() {
 			return this->type == EntityType::IF;
 		}
+
 		bool isVariableEntity() {
 			return this->type == EntityType::VARIABLE;
 		}
+
 		bool isWhile() {
 			return this->type == EntityType::WHILE;
+		}
+		
+		bool isStatement() {
+			return this->type == EntityType::STATEMENT;
 		}
 
 		bool isStmtEntity() {
