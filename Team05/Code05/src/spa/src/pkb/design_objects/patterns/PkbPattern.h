@@ -35,16 +35,21 @@ public:
 
 	virtual string getVariableIdentifier() = 0;
 
-	virtual bool isWhilePattern() = 0;
+	bool isWhilePattern() {
+		return this->statement->isWhileStatement();
+	}
 
-	virtual bool isIfPattern() = 0;
+	bool isIfPattern() {
+		return this->statement->isIfStatement();
+	}
 
-	virtual bool isAssignPattern() = 0;
+	bool isAssignPattern() {
+		return this->statement->isAssignStatement();
+	}
 
 	bool equals(shared_ptr<PkbPattern> other) {
 		return this->statement->equals(other->statement) && this->strings == other->strings;
 	}
-
 
 	int getStatementLineNumber() {
 		return this->statement->getLineNumber();

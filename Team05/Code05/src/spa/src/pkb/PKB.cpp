@@ -245,7 +245,7 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 			};
 			
 			// create required assign pattern
-			shared_ptr<PkbPattern> pattern = PkbStatementPattern::createAssignPattern(currLineNum, strings);
+			shared_ptr<PkbPattern> pattern = PkbAssignPattern::createAssignPattern(currLineNum, strings);
 			this->assignPatterns.add(pattern);
 
 		}

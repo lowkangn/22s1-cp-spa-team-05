@@ -2,7 +2,7 @@
 
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
 #include <pkb/table_managers/PkbPatternTable.h>
-#include <pkb/design_objects/patterns/PkbStatementPattern.h>
+#include <pkb/design_objects/patterns/PkbAssignPattern.h>
 
 #include <vector>
 #include <string>
@@ -34,7 +34,7 @@ TEST_CASE("PkbPatternTable::add and ::get works correctly") {
 			"x+1"
 		};
 		vector<shared_ptr<PkbPattern>> patterns = {
-			PkbStatementPattern::createAssignPattern(1, assignStrings),
+			PkbAssignPattern::createAssignPattern(1, assignStrings),
 		};
 		vector<string> keys = {
 			string("xx+1") + string("1"),
@@ -87,8 +87,8 @@ TEST_CASE("PkbPatternTable::getAll works correctly") {
 			"z+20"
 		};
 		vector<shared_ptr<PkbPattern>> patterns = {
-			PkbStatementPattern::createAssignPattern(1, assignStringsFirst),
-			PkbStatementPattern::createAssignPattern(2, assignStringsSecond),
+			PkbAssignPattern::createAssignPattern(1, assignStringsFirst),
+			PkbAssignPattern::createAssignPattern(2, assignStringsSecond),
 		};
 		test(patterns);
 	};
@@ -104,8 +104,8 @@ TEST_CASE("PkbPatternTable::getAll works correctly") {
 			"z+20"
 		};
 		vector<shared_ptr<PkbPattern>> patterns = {
-			PkbStatementPattern::createAssignPattern(1, assignStringsFirst),
-			PkbStatementPattern::createAssignPattern(2, assignStringsSecond),
+			PkbAssignPattern::createAssignPattern(1, assignStringsFirst),
+			PkbAssignPattern::createAssignPattern(2, assignStringsSecond),
 		};
 		test(patterns);
 	};
@@ -258,11 +258,11 @@ TEST_CASE("Test ::getAllThatMatchPostFixStrings for PKB Statement Pattern") {
 		z = x // is x in postfix
 		y = x + y // is xy+ in postfix
 	*/
-	shared_ptr<PkbPattern> line1 = PkbStatementPattern::createAssignPattern(1, vector<string>({ " x ", " 2 x * y + " }));
-	shared_ptr<PkbPattern> line2 = PkbStatementPattern::createAssignPattern(2, vector<string>({ " y ", " 3 y / 2 - " }));
-	shared_ptr<PkbPattern> line3 = PkbStatementPattern::createAssignPattern(3, vector<string>({ " z ", " x y + " }));
-	shared_ptr<PkbPattern> line4 = PkbStatementPattern::createAssignPattern(4, vector<string>({ " z ", " x " }));
-	shared_ptr<PkbPattern> line5 = PkbStatementPattern::createAssignPattern(3, vector<string>({ " y ", " x y + " }));
+	shared_ptr<PkbPattern> line1 = PkbAssignPattern::createAssignPattern(1, vector<string>({ " x ", " 2 x * y + " }));
+	shared_ptr<PkbPattern> line2 = PkbAssignPattern::createAssignPattern(2, vector<string>({ " y ", " 3 y / 2 - " }));
+	shared_ptr<PkbPattern> line3 = PkbAssignPattern::createAssignPattern(3, vector<string>({ " z ", " x y + " }));
+	shared_ptr<PkbPattern> line4 = PkbAssignPattern::createAssignPattern(4, vector<string>({ " z ", " x " }));
+	shared_ptr<PkbPattern> line5 = PkbAssignPattern::createAssignPattern(3, vector<string>({ " y ", " x y + " }));
 	vector<shared_ptr<PkbPattern>> assignPatternToAdd = {
 		line1, line2, line3, line4, line5
 	};
@@ -406,10 +406,10 @@ TEST_CASE("Test ::getVariableMatch for PKB If Pattern") {
 }
 
 //TEST_CASE("PkbPatternTable throws when we try to add duplicate items") {
-//	auto test = [](vector<shared_ptr<PkbStatementPattern>> alreadyInTable, shared_ptr<PkbStatementPattern> toAdd) {
+//	auto test = [](vector<shared_ptr<PkbAssignPattern>> alreadyInTable, shared_ptr<PkbAssignPattern> toAdd) {
 //		// given
 //		PkbPatternTable table;
-//		for (shared_ptr<PkbStatementPattern> e : alreadyInTable) {
+//		for (shared_ptr<PkbAssignPattern> e : alreadyInTable) {
 //			// add
 //			table.add(e);
 //		}
@@ -422,10 +422,10 @@ TEST_CASE("Test ::getVariableMatch for PKB If Pattern") {
 //			"x+1"
 //	};
 //	SECTION("One entry per pattern type") {
-//		vector<shared_ptr<PkbStatementPattern>> patterns = {
-//			PkbStatementPattern::createAssignPattern(1, strings),
+//		vector<shared_ptr<PkbAssignPattern>> patterns = {
+//			PkbAssignPattern::createAssignPattern(1, strings),
 //		};
-//		shared_ptr<PkbStatementPattern> toAdd = shared_ptr<PkbStatementPattern>(PkbStatementPattern::createAssignPattern(1, strings));
+//		shared_ptr<PkbAssignPattern> toAdd = shared_ptr<PkbAssignPattern>(PkbAssignPattern::createAssignPattern(1, strings));
 //		test(patterns, toAdd);
 //	};
 //

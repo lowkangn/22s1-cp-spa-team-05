@@ -10,27 +10,14 @@
 #include <iostream>
 
 /*
-	Parent class for all statement-based patterns.
-	If the need ever arises for other pattern types, we can refactor 
-	upwards (add a parent class). 
+	Class to represent assign patterns
 */
-class PkbStatementPattern : public PkbPattern {
+class PkbAssignPattern : public PkbPattern {
 protected:
 
-	PkbStatementPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings) { };
+	PkbAssignPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings) { };
 
 public :
-	bool isWhilePattern() {
-		return this->statement->isWhileStatement();
-	}
-
-	bool isIfPattern() {
-		return this->statement->isIfStatement();
-	}
-
-	bool isAssignPattern() {
-		return this->statement->isAssignStatement();
-	}
 
 	/*
 		Takes in a vector of regex strings and returns true if all strings 
@@ -58,12 +45,12 @@ public :
 	/*
 		Factory method that creates an assign pattern.
 	*/
-	static shared_ptr<PkbStatementPattern> createAssignPattern(int lineNumber, vector<string> strings) {
+	static shared_ptr<PkbAssignPattern> createAssignPattern(int lineNumber, vector<string> strings) {
 		if (strings.size() != 2) {
 			throw PkbException("Trying to create assign pattern, expecting only 2 strings, lhs, and rhs.");
 		}
 		shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createAssignStatementEntity(lineNumber);
-		return shared_ptr<PkbStatementPattern>(new PkbStatementPattern(statement, strings));
+		return shared_ptr<PkbAssignPattern>(new PkbAssignPattern(statement, strings));
 	}
 
 	/* 

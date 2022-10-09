@@ -9,7 +9,7 @@
 #include <pkb/design_objects/relationships/PkbParentRelationship.h>
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
-#include <pkb/design_objects/patterns/PkbStatementPattern.h>
+#include <pkb/design_objects/patterns/PkbAssignPattern.h>
 #include <pkb/design_objects/patterns/PkbIfPattern.h>
 #include <pkb/design_objects/patterns/PkbWhilePattern.h>
 
@@ -160,13 +160,13 @@ TEST_CASE("PkbRelationship: test ::getKey") {
 
 }
 
-TEST_CASE("PkbStatementPattern throw error on creation with != 2 strings") {
+TEST_CASE("PkbAssignPattern throw error on creation with != 2 strings") {
 	auto test = [](vector<string> strings, bool shouldThrow) {
 		if (shouldThrow) {
-			REQUIRE_THROWS_AS(PkbStatementPattern::createAssignPattern(1, strings), PkbException);
+			REQUIRE_THROWS_AS(PkbAssignPattern::createAssignPattern(1, strings), PkbException);
 		}
 		else {
-			REQUIRE_NOTHROW(PkbStatementPattern::createAssignPattern(1, strings));
+			REQUIRE_NOTHROW(PkbAssignPattern::createAssignPattern(1, strings));
 		}
 	};
 
@@ -282,7 +282,7 @@ TEST_CASE("PkbPattern::getKey") {
 			"x+1"
 		};
 		shared_ptr<PkbStatementEntity> assignStatement = shared_ptr<PkbStatementEntity>(PkbStatementEntity::createAssignStatementEntity(1));
-		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+		shared_ptr<PkbAssignPattern> pattern = PkbAssignPattern::createAssignPattern(1, strings);
 		string expectedKey = "xx+1" + assignStatement->getKey();
 		test(pattern, expectedKey);
 	};
@@ -307,9 +307,9 @@ TEST_CASE("PkbPattern::getKey") {
 	};
 }
 
-TEST_CASE("PkbStatementPattern::regexMatch") {
+TEST_CASE("PkbAssignPattern::regexMatch") {
 	// test on https://regex101.com/
-	auto test = [](shared_ptr<PkbStatementPattern> pattern, vector<string> regexStringsToMatch, bool shouldThrow, bool shouldMatch) {
+	auto test = [](shared_ptr<PkbAssignPattern> pattern, vector<string> regexStringsToMatch, bool shouldThrow, bool shouldMatch) {
 		// given, when, then
 		if (shouldThrow) {
 			REQUIRE_THROWS_AS(pattern->isRegexMatch(regexStringsToMatch), PkbException);
@@ -331,7 +331,7 @@ TEST_CASE("PkbStatementPattern::regexMatch") {
 		};
 		bool shouldThrow = false;
 		bool shouldMatch = true;
-		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+		shared_ptr<PkbAssignPattern> pattern = PkbAssignPattern::createAssignPattern(1, strings);
 
 		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	};
@@ -347,7 +347,7 @@ TEST_CASE("PkbStatementPattern::regexMatch") {
 		};
 		bool shouldThrow = false;
 		bool shouldMatch = true;
-		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+		shared_ptr<PkbAssignPattern> pattern = PkbAssignPattern::createAssignPattern(1, strings);
 
 		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	};
@@ -363,7 +363,7 @@ TEST_CASE("PkbStatementPattern::regexMatch") {
 		};
 		bool shouldThrow = false;
 		bool shouldMatch = true;
-		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+		shared_ptr<PkbAssignPattern> pattern = PkbAssignPattern::createAssignPattern(1, strings);
 
 		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	};
@@ -377,7 +377,7 @@ TEST_CASE("PkbStatementPattern::regexMatch") {
 		};
 		bool shouldThrow = true;
 		bool shouldMatch = true;
-		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+		shared_ptr<PkbAssignPattern> pattern = PkbAssignPattern::createAssignPattern(1, strings);
 
 		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	};
@@ -393,7 +393,7 @@ TEST_CASE("PkbStatementPattern::regexMatch") {
 		};
 		bool shouldThrow = false;
 		bool shouldMatch = false;
-		shared_ptr<PkbStatementPattern> pattern = PkbStatementPattern::createAssignPattern(1, strings);
+		shared_ptr<PkbAssignPattern> pattern = PkbAssignPattern::createAssignPattern(1, strings);
 
 		test(pattern, regexStringsToMatch, shouldThrow, shouldMatch);
 	};

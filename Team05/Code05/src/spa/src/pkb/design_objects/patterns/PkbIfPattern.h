@@ -17,17 +17,6 @@ protected:
 	PkbIfPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings) { };
 
 public:
-	bool isWhilePattern() {
-		return this->statement->isWhileStatement();
-	}
-
-	bool isIfPattern() {
-		return this->statement->isIfStatement();
-	}
-
-	bool isAssignPattern() {
-		return this->statement->isAssignStatement();
-	}
 
 	/*
 		Unlike for PKB statement pattern, we only consider LHS
