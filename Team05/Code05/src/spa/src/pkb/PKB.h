@@ -13,6 +13,7 @@
 #include <pkb/table_managers/PkbRelationshipTable.h>
 #include <pkb/table_managers/PkbPatternTable.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/graph_managers/PkbGraphManager.h>
 
 #include <map>
 #include <string>
@@ -52,6 +53,10 @@ private:
 	PkbPatternTable assignPatterns;
 	PkbPatternTable ifPatterns;
 	PkbPatternTable whilePatterns;
+
+	// graphs
+	PkbGraphManager cfgManager;
+	
 
 	// getters
 	shared_ptr<PkbRelationshipTable> getFollowsTable() {
@@ -152,6 +157,11 @@ public:
 		Add extracted entities from the SP.
 	*/
 	void addEntities(vector<Entity> entities) override;
+
+	/*
+		Add the control flow graph from the SP.
+	*/
+	void addCfg(CFGNode rootNode) override;
 
 	/*
 		Retrieves all procedure entities by name.

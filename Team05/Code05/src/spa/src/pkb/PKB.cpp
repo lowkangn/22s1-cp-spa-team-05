@@ -255,6 +255,14 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 	}
 }
 
+void PKB::addCfg(CFGNode rootNode) {
+	// 1. traverse the graph and construct a PKB graph
+
+	// 2. pass the pkb graph into the graph manager 
+
+
+}
+
 PQLEntity PKB::retrieveProcedureEntityByName(string procedureName) {
 	// create a procedure object out of it and use it to get a key
 	string key = PkbProcedureEntity(procedureName).getKey();
@@ -426,8 +434,6 @@ shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelat
 	}
 }
 
-
-
 PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue) {
 
 	// default filter is true
@@ -597,6 +603,64 @@ shared_ptr<PkbEntity> PKB::convertClauseArgumentToPkbEntity(ClauseArgument claus
 
 
 vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
+	// depending on type, we pass to the correct handler
+	switch (relationshipType) {
+
+	// graph types
+	case PKBTrackedRelationshipType::NEXT:
+	case PKBTrackedRelationshipType::NEXTSTAR:
+	case PKBTrackedRelationshipType::AFFECTS:
+	case PKBTrackedRelationshipType::AFFECTSSTAR:
+		return retrieveRelationshipsFromGraphsByTypeAndLhsRhs(relationshipType, lhs, rhs);
+		break;
+
+	// table types
+	case PKBTrackedRelationshipType::FOLLOWS:
+	case PKBTrackedRelationshipType::FOLLOWSSTAR:
+	case PKBTrackedRelationshipType::MODIFIES:
+	case PKBTrackedRelationshipType::PARENT:
+	case PKBTrackedRelationshipType::PARENTSTAR:
+	case PKBTrackedRelationshipType::USES:
+	default:
+		return retrieveRelationshipsFromTablesByTypeAndLhsRhs(relationshipType, lhs, rhs);
+
+	}
+}
+
+vector<PQLRelationship> PKB::retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
+	// 1. validation of inputs
+	// 2. if both are exact, we can evaluate directly
+	// 3. if not, we need to get the graph and traverse to check 
+	if (relationshipType == PKBTrackedRelationshipType::NEXT) {
+		// 1. validation - must be a statement
+
+		// 2. if both exact, evaulate directly 
+
+		// 3. else, we return all neighbours of the specified node
+	}
+	else if (relationshipType == PKBTrackedRelationshipType::NEXTSTAR) {
+
+		// 1. validation - must be a statement
+
+		// 2. if both exact, we can evaluate directly
+
+		// 3. else, we get the graph, traverse the graph and convert to a vector of entities
+
+
+	}
+	else if (relationshipType == PKBTrackedRelationshipType::AFFECTS) {
+		throw PkbException("Not implemented yet!");
+	}
+	else if (relationshipType == PKBTrackedRelationshipType::AFFECTSSTAR) {
+		throw PkbException("Not implemented yet!");
+	}
+	else {
+		throw PkbException("Unknown graph type relationship trying to be retrieved.");
+	}
+}
+
+
+vector<PQLRelationship> PKB::retrieveRelationshipsFromTablesByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
 	// 0. get table based on type
 	shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(relationshipType);
 
