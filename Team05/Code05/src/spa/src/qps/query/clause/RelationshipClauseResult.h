@@ -4,36 +4,19 @@
 #include <algorithm>
 #include <qps/query/clause/PQLRelationship.h>
 #include <qps/query/clause/ClauseArgument.h>
+#include <qps/query/clause/ClauseResult.h>
 
-class RelationshipClauseResult {
-
-private:
-    ClauseArgument firstArg;
-    ClauseArgument secondArg;
-    vector<PQLRelationship> relationships;
-
+class RelationshipClauseResult : public ClauseResult {
 public:
     RelationshipClauseResult(ClauseArgument firstArg, ClauseArgument secondArg, vector<PQLRelationship> relationships)
-                                : firstArg(firstArg), secondArg(secondArg), relationships(relationships) {
-        this->firstArg = firstArg;
-        this->secondArg = secondArg;
-        this->relationships = relationships;
-    }
+                                : ClauseResult({firstArg, secondArg}, relationships) {};
 
     ClauseArgument getFirstArg() {
-        return this->firstArg;
+        return this->args[0];
     }
 
     ClauseArgument getSecondArg() {
-        return this->secondArg;
-    }
-
-    vector<PQLRelationship> getRelationships() {
-        return this->relationships;
-    }
-
-    bool isEmpty() {
-        return this->relationships.empty();
+        return this->args[1];
     }
 
     friend bool operator==(RelationshipClauseResult first, RelationshipClauseResult second);

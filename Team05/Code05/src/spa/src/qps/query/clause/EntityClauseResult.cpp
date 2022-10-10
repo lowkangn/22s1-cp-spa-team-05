@@ -1,16 +1,16 @@
 #include <qps/query/clause/EntityClauseResult.h>
 
 bool operator==(EntityClauseResult first, EntityClauseResult second) {
-	vector<PQLEntity> firstEntities = first.entities;
-	vector<PQLEntity> secondEntities = second.entities;
+	vector<vector<PQLEntity>> firstTable = first.table;
+	vector<vector<PQLEntity>> secondTable = second.table;
 
 	// sort the vectors so they can be element-wise compared
-	sort(firstEntities.begin(), firstEntities.end());
-	sort(secondEntities.begin(), secondEntities.end());
+	sort(firstTable.begin(), firstTable.end());
+	sort(secondTable.begin(), secondTable.end());
 
-    return first.arg == second.arg && firstEntities == secondEntities;
+    return first.args[0] == second.args[0] && firstTable == secondTable;
 }
 
 bool operator<(EntityClauseResult first, EntityClauseResult second) {
-	return first.arg < second.arg || (first.arg == second.arg && first.entities < second.entities);
+	return first.args[0] < second.args[0] || (first.args[0] == second.args[0] && first.table < second.table);
 }
