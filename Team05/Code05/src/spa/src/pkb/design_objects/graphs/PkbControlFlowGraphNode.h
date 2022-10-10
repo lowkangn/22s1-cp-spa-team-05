@@ -15,11 +15,17 @@ private:
 	shared_ptr<PkbStatementEntity> statementEntity; // explicit statement entity being wrapped
 
 protected:
-	PkbControlFlowGraphNode(shared_ptr<PkbStatementEntity> statementEntity) : PkbGraphNode(new shared_ptr<PkbEntity>(statementEntity)) {
+	PkbControlFlowGraphNode(shared_ptr<PkbStatementEntity> statementEntity) : PkbGraphNode(shared_ptr<PkbEntity>(statementEntity)) {
 		this->statementEntity = statementEntity;
 	}
 
 public:
+
+    // =========== Factories ====================
+
+    static shared_ptr<PkbGraphNode> createPkbControlFlowGraphNode(shared_ptr<PkbStatementEntity> statementEntity) {
+        return shared_ptr<PkbGraphNode>(new PkbControlFlowGraphNode(statementEntity));
+    }
 
 	// ========== identifier methods ============
 

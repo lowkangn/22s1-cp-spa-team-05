@@ -17,12 +17,14 @@ protected:
 	}	
 
 public:
+
+
 	/*
 		Adds a child to the node. Note that there is no notion of order in 
 		the children.
 	*/
 	void addNeighbour(shared_ptr<PkbGraphNode> node) {
-		this->children.push_back(entity);
+		this->children.push_back(node);
 	}
 
 	vector<shared_ptr<PkbGraphNode>> getNeighbours() {

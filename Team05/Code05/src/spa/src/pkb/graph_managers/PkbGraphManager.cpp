@@ -1,3 +1,4 @@
+
 #include <pkb/graph_managers/PkbGraphManager.h>
 #include <pkb/PkbException.h>
 
@@ -43,12 +44,14 @@ bool PkbGraphManager::canReachNodeBFromNodeA(string nodeAKey, string nodeBKey) {
 	// is ok, do bfs to check
 	// initialize for bfs
 	unordered_set<string> visited;
-	queue<shared_ptr<PkbGraphNode>> q = { nodeA };
+	queue<shared_ptr<PkbGraphNode>> q;
+	q.push(nodeA);
 
 	// do bfs
 	while (!q.empty()) {
 		// 1. pop 
-		shared_ptr<PkbGraphNode> node = q.pop();
+		shared_ptr<PkbGraphNode> node = q.front();
+		q.pop();
 
 		// 2. mark as visited and check if target
 		string key = node->getKey();
