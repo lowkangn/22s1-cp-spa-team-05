@@ -51,7 +51,7 @@ public:
 			visited.insert(key);
 
 			// 2b. if already inside, error!
-			if (this->getNode(key) != NULL && (this->getNode(key)->equals(node))) {
+			if (this->getNode(key) != NULL && (!this->getNode(key)->equals(node))) {
 				throw PkbException("Key collision. Trying to add node, but different node with same key already inside.");
 			}
 			this->keyToNodeMap[key] = node;
