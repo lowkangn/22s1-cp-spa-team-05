@@ -223,18 +223,18 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 	}
 }
 
-PQLEntity PKB::retrieveProcedureEntityByName(string procedureName) {
+vector<PQLEntity> PKB::retrieveProcedureEntityByName(string procedureName) {
 	// create a procedure object out of it and use it to get a key
 	string key = PkbProcedureEntity(procedureName).getKey();
 
 	// get
 	shared_ptr<PkbEntity> result = this->proceduresTable.get(key);
-	// if null, we return null
+	// if null, we return empty vector
 	if (result == NULL) {
-		throw PkbNotFoundException("Procedure not found!");
+		return vector<PQLEntity>{};
 	}
 	// else, we cast to PQLEntity
-	return PQLEntity::generateProcedure(procedureName);
+	return vector<PQLEntity>{ PQLEntity::generateProcedure(procedureName) };
 
 }
 
@@ -249,36 +249,105 @@ vector<PQLEntity> PKB::retrieveAllProcedureEntities() {
 	return out;
 }
 
-PQLEntity PKB::retrieveStatementEntityByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) {
-	// create key
-	switch (pkbTrackedStatementType) {
-	case PKBTrackedStatementType::ALL:
-	case PKBTrackedStatementType::READ:
-	case PKBTrackedStatementType::PRINT:
-	case PKBTrackedStatementType::WHILE:
-	case PKBTrackedStatementType::IF:
-	case PKBTrackedStatementType::ASSIGN:
-	case PKBTrackedStatementType::CALL:
-		// NOTE: currently, we keep all statements in a single table, as no two statements can have 
-		// the same line number, and that serves as a good primary key.
-		// by default, we just use a read statement as the entity to key on
-		string key = PkbStatementEntity::createReadStatementEntity(lineNumber)->getKey();
-		shared_ptr<PkbEntity> result = this->statementTable.get(key);
-		// if null, we return null
-		if (result == NULL) {
-			throw PkbNotFoundException("Statement not found!");
-		}
-		// else, we cast to PQLEntity
-		return PQLEntity::generateStatement(lineNumber);
+vector<PQLEntity> PKB::retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) {
+	// NOTE: currently, we keep all statements in a single table, as no two statements can have 
+	// the same line number, and that serves as a good primary key.
+	// by default, we just use a read statement as the entity to key on
+	string key = PkbStatementEntity::createReadStatementEntity(lineNumber)->getKey();
+	shared_ptr<PkbEntity> result = this->statementTable.get(key);
+	
+	// if null, we return empty vector
+	if (result == NULL) {
+		return vector<PQLEntity>{};
 	}
-	throw PkbException("Unknown statement type to be retrieved!");
+
+	// else, we filter and cast to PQLEntity
+	return filterAndConvertStatementEntities({ result }, pkbTrackedStatementType);
 }
 
 vector<PQLEntity> PKB::retrieveStatementEntitiesByType(PKBTrackedStatementType pkbTrackedStatementType) {
 	vector<shared_ptr<PkbEntity>> result = this->statementTable.getAll();
+	return filterAndConvertStatementEntities(result, pkbTrackedStatementType);
+}
+
+vector<PQLEntity> PKB::retrieveAllStatementEntities() {
+	return this->retrieveStatementEntitiesByType(PKBTrackedStatementType::ALL);
+}
+
+vector<PQLEntity> PKB::retrieveVariableByName(string name) {
+	// create a procedure object out of it and use it to get a key
+	string key = PkbVariableEntity(name).getKey();
+
+	// get
+	shared_ptr<PkbEntity> result = this->variableTable.get(key);
+	// if null, we return empty vector
+	if (result == NULL) {
+		return vector<PQLEntity>{};
+	}
+	// else, we cast to PQLEntity
+	return vector<PQLEntity>{ PQLEntity::generateVariable(name) };
+}
+
+vector<PQLEntity> PKB::retrieveAllVariables() {
+	vector<PQLEntity> out;
+	vector<shared_ptr<PkbEntity>> all = this->variableTable.getAll();
+	for (shared_ptr<PkbEntity> variable : all) {		
+		// append to list
+		out.push_back(PQLEntity::generateVariable(variable->getIdentifier()));
+	}
+	return out;
+}
+
+vector<PQLEntity> PKB::retrieveConstantByValue(int value) {
+	// create a procedure object out of it and use it to get a key
+	string key = PkbConstantEntity(value).getKey();
+
+	// get
+	shared_ptr<PkbEntity> result = this->constantsTable.get(key);
+	// if null, we return empty vector
+	if (result == NULL) {
+		return vector<PQLEntity>{};
+	}
+	// else, we cast to PQLEntity
+	return vector<PQLEntity>{ PQLEntity::generateConstant(value) };
+}
+
+vector<PQLEntity> PKB::retrieveAllConstants() {
+	vector<PQLEntity> out;
+	vector<shared_ptr<PkbEntity>> all = this->constantsTable.getAll();
+	for (shared_ptr<PkbEntity> variable : all) {
+		// append to list
+		out.push_back(PQLEntity::generateConstant(variable->getValue()));
+	}
+	return out;
+}
+
+
+shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelationshipType relationshipType) {
+	// based on relationship type, we get the specific table 
+	switch (relationshipType) {
+	case PKBTrackedRelationshipType::FOLLOWS:
+		return this->getFollowsTable();
+	case PKBTrackedRelationshipType::FOLLOWSSTAR:
+		return this->getFollowsStarTable();
+	case PKBTrackedRelationshipType::PARENT:
+		return  this->getParentTable();
+	case PKBTrackedRelationshipType::PARENTSTAR:
+		return this->getParentStarTable();
+	case PKBTrackedRelationshipType::USES:
+		return this->getUsesTable();
+	case PKBTrackedRelationshipType::MODIFIES:
+		return this->getModifiesTable();
+	default:
+		throw PkbException("Unknown relationship type to be retrieved!");
+	}
+}
+
+vector<PQLEntity> PKB::filterAndConvertStatementEntities(vector<shared_ptr<PkbEntity>> statements, 
+	PKBTrackedStatementType pkbTrackedStatementType) {
 
 	// initialize a default filter by type
-	PkbStatementEntityFilter filter = [](PkbStatementEntity *statement) {
+	PkbStatementEntityFilter filter = [](PkbStatementEntity* statement) {
 		return true;
 	};
 
@@ -317,11 +386,11 @@ vector<PQLEntity> PKB::retrieveStatementEntitiesByType(PKBTrackedStatementType p
 			return statement->isCallStatement();
 		};
 	}
-	
+
 
 	// go through statements in table and filter by type
 	vector<PQLEntity> output;
-	for (shared_ptr<PkbEntity> statement : this->statementTable.getAll()) {
+	for (shared_ptr<PkbEntity> statement : statements) {
 		// cast to statement entity
 		PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*statement));
 
@@ -332,83 +401,7 @@ vector<PQLEntity> PKB::retrieveStatementEntitiesByType(PKBTrackedStatementType p
 		}
 	}
 	return output;
-
 }
-
-vector<PQLEntity> PKB::retrieveAllStatementEntities() {
-	return this->retrieveStatementEntitiesByType(PKBTrackedStatementType::ALL);
-}
-
-PQLEntity PKB::retrieveVariableByName(string name) {
-	// create a procedure object out of it and use it to get a key
-	string key = PkbVariableEntity(name).getKey();
-
-	// get
-	shared_ptr<PkbEntity> result = this->variableTable.get(key);
-	// if null, we return null
-	if (result == NULL) {
-		throw PkbNotFoundException("Variable not found!");
-	}
-	// else, we cast to PQLEntity
-	return PQLEntity::generateVariable(name);
-}
-
-vector<PQLEntity> PKB::retrieveAllVariables() {
-	vector<PQLEntity> out;
-	vector<shared_ptr<PkbEntity>> all = this->variableTable.getAll();
-	for (shared_ptr<PkbEntity> variable : all) {		
-		// append to list
-		out.push_back(PQLEntity::generateVariable(variable->getIdentifier()));
-	}
-	return out;
-}
-
-PQLEntity PKB::retrieveConstantByValue(int value) {
-	// create a procedure object out of it and use it to get a key
-	string key = PkbConstantEntity(value).getKey();
-
-	// get
-	shared_ptr<PkbEntity> result = this->constantsTable.get(key);
-	// if null, we return null
-	if (result == NULL) {
-		throw PkbNotFoundException("Constant not found!");
-	}
-	// else, we cast to PQLEntity
-	return PQLEntity::generateConstant(value);
-}
-
-vector<PQLEntity> PKB::retrieveAllConstants() {
-	vector<PQLEntity> out;
-	vector<shared_ptr<PkbEntity>> all = this->constantsTable.getAll();
-	for (shared_ptr<PkbEntity> variable : all) {
-		// append to list
-		out.push_back(PQLEntity::generateConstant(variable->getValue()));
-	}
-	return out;
-}
-
-
-shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelationshipType relationshipType) {
-	// based on relationship type, we get the specific table 
-	switch (relationshipType) {
-	case PKBTrackedRelationshipType::FOLLOWS:
-		return this->getFollowsTable();
-	case PKBTrackedRelationshipType::FOLLOWSSTAR:
-		return this->getFollowsStarTable();
-	case PKBTrackedRelationshipType::PARENT:
-		return  this->getParentTable();
-	case PKBTrackedRelationshipType::PARENTSTAR:
-		return this->getParentStarTable();
-	case PKBTrackedRelationshipType::USES:
-		return this->getUsesTable();
-	case PKBTrackedRelationshipType::MODIFIES:
-		return this->getModifiesTable();
-	default:
-		throw PkbException("Unknown relationship type to be retrieved!");
-	}
-}
-
-
 
 PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue) {
 

@@ -40,7 +40,7 @@ public:
         NOTE: we should refactor such that it does not return a PQLEntity, but instead a ProcedurePQLEntity for safety.
         We can always up cast as needed, but down casting is bad practice.
     */
-    virtual PQLEntity retrieveProcedureEntityByName(string procedureName) = 0;
+    virtual vector<PQLEntity> retrieveProcedureEntityByName(string procedureName) = 0;
 
     /*
         Retrieves all procedure entities. 
@@ -61,7 +61,7 @@ public:
         a specific type constrained to line number, it's much easier, than making a query by 
         type and then filtering on your own.
     */
-    virtual PQLEntity retrieveStatementEntityByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) = 0;
+    virtual vector<PQLEntity> retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) = 0;
 
     /*
         Retrieves statement entities of a specific type.
@@ -81,7 +81,7 @@ public:
     /*
         Retrieves variables by name.
     */
-    virtual PQLEntity retrieveVariableByName(string name) = 0;
+    virtual vector<PQLEntity> retrieveVariableByName(string name) = 0;
 
     /*
         Retrieves all constants.
@@ -91,7 +91,7 @@ public:
     /*
         Retrieves constant by value.
     */
-    virtual PQLEntity retrieveConstantByValue(int constantValue) = 0;
+    virtual vector<PQLEntity> retrieveConstantByValue(int constantValue) = 0;
 
 
     // ===== Relationships =====

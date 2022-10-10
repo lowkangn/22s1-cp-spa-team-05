@@ -113,7 +113,10 @@ private:
 	*/
 	shared_ptr<PkbEntity> convertClauseArgumentToPkbEntity(ClauseArgument clause);
 
-
+	/* 
+		Helper function to filter pkb statement entities by their type and convert them to PQLEntities.
+	*/
+	vector<PQLEntity> filterAndConvertStatementEntities(vector<shared_ptr<PkbEntity>> statements, PKBTrackedStatementType pkbTrackedStatementType);
 public: 
 	PKB() {}
 
@@ -135,7 +138,7 @@ public:
 	/*
 		Retrieves all procedure entities by name.
 	*/
-	PQLEntity retrieveProcedureEntityByName(string procedureName) override;
+	vector<PQLEntity> retrieveProcedureEntityByName(string procedureName) override;
 
 	/*
 		Retrieves all procedure entities.
@@ -145,7 +148,7 @@ public:
 	/*
 		Retrieves all statement entities by line number of a specified type.
 	*/
-	PQLEntity retrieveStatementEntityByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
+	vector<PQLEntity> retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
 	
 	/*
 		Retrieves all statement entities of a specified type.
@@ -170,12 +173,12 @@ public:
 	/*
 		Retrieves all variables by a name.
 	*/
-	PQLEntity retrieveVariableByName(string name) override;
+	vector<PQLEntity> retrieveVariableByName(string name) override;
 
 	/*
 		Retrieves all constants by a value.
 	*/
-	PQLEntity retrieveConstantByValue(int value) override;
+	vector<PQLEntity> retrieveConstantByValue(int value) override;
 
 	/*
 		Retrieves all relationships by a lhs, rhs for relationships of a specified type.
