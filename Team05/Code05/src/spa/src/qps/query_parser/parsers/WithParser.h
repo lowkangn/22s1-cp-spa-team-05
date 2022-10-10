@@ -5,7 +5,9 @@
 
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query_parser/parsers/ClauseParser.h>
-#include <qps/query/clause/WithClause.h>
+#include <qps/query/clause/WithBothExactClause.h>
+#include <qps/query/clause/WithEntityClause.h>
+#include <qps/query/clause/WithRelationshipClause.h>
 
 #include <iostream>
 
@@ -20,6 +22,9 @@ protected:
 	/* Parses the attrName portion of an attrRef */
 	ClauseArgument parseAttribute();
 
+	/* Creates the WithClause from the extracted ClauseArguments */
+	shared_ptr<WithClause> createWithClause(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs);
+
 	/* Checks for a dot and consumes it */
 	void consumeDot();
 
@@ -31,6 +36,9 @@ protected:
 
 	/* Checks the semantics of the attrCompare. */
 	void checkAttrCompare(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs);
+
+	/* Returns true if the combination of synonym and attribute is a relationship */
+	bool canBeModelledAsRelationship(vector<ClauseArgument>& args);
 
 public:
 	WithParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :

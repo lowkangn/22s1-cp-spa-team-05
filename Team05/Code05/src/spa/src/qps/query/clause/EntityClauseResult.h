@@ -3,8 +3,9 @@
 #include <vector>
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/ClauseArgument.h>
+#include <qps/query/clause/ClauseResult.h>
 
-class EntityClauseResult {
+class EntityClauseResult : public ClauseResult {
 
 private:
     ClauseArgument arg;

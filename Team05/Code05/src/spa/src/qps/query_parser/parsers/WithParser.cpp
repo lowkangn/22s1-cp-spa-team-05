@@ -9,7 +9,7 @@ shared_ptr<WithClause> WithParser::parse() {
 	// Verify the semantics
 	this->checkAttrCompare(lhsArgs, rhsArgs);
 
-	return make_shared<WithClause>(WithClause(lhsArgs, rhsArgs));
+	return this->createWithClause(lhsArgs, rhsArgs);
 }
 
 vector<ClauseArgument> WithParser::parseRef() {
@@ -110,6 +110,46 @@ void WithParser::checkRef(vector<ClauseArgument>& args) {
 	if (!isSemanticallyCorrect) {
 		this->semanticErrorMessage = "With clause synonym and attribute name do not match";
 	}
+}
+
+shared_ptr<WithClause> WithParser::createWithClause(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs) {
+
+	if (lhsArgs.size() == 2 && rhsArgs.size() == 2) {
+		assert(lhsArgs.front().isSynonym() && lhsArgs.back().isAttributeName()
+			&& rhsArgs.front().isSynonym() && rhsArgs.back().isAttributeName());
+		return make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+	}
+	else if (lhsArgs.size() == 1 && rhsArgs.size() == 1) {
+		assert(lhsArgs.front().isExactReference() && rhsArgs.front().isExactReference());
+		return make_shared<WithBothExactClause>(lhsArgs.front(), rhsArgs.front());
+	}
+	
+	ClauseArgument exactArg = lhsArgs.size() == 1 ? lhsArgs.front() : rhsArgs.front();
+	vector<ClauseArgument> nonExactArgs = lhsArgs.size() == 2 ? lhsArgs : rhsArgs;
+	assert(exactArg.isExactReference() && nonExactArgs.front().isSynonym() && nonExactArgs.back().isAttributeName());
+
+	if (this->canBeModelledAsRelationship(nonExactArgs)) {
+		return make_shared<WithRelationshipClause>(exactArg, nonExactArgs);
+	}
+	return make_shared<WithEntityClause>(exactArg, nonExactArgs);
+
+}
+
+bool WithParser::canBeModelledAsRelationship(vector<ClauseArgument>& args) {
+	ClauseArgument syn = args.front();
+	ClauseArgument attribute = args.back();
+	if (syn.isCallSynonym() && attribute.isProcNameAttribute()) {
+		return true;
+	}
+	else if (syn.isReadSynonym() && attribute.isVarNameAttribute()) {
+		//equivalent to ModifiesS with syn as lhs
+		return true;
+	}
+	else if (syn.isPrintSynonym() && attribute.isVarNameAttribute()) {
+		//equivalent to UsesS with syn as lhs
+		return true;
+	}
+	return false;
 }
 
 void WithParser::consumeDot() {
