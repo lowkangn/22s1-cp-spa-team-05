@@ -2,12 +2,12 @@
 
 #include <qps/query/clause/WithClause.h>
 #include <qps/query/clause/EntityClauseResult.h>
+#include <qps/query/clause/RelationshipClauseResult.h>
 
-/* WithEntityClause encapsulates a with clause
-	that returns at most 1 entity with exactly 1
-	exact argument.
+/* WithOneExactClause encapsulates a with clause that
+	has exactly 1 arg that is an exact reference.
 */
-class WithEntityClause : public WithClause {
+class WithOneExactClause : public WithClause {
 private:
 	ClauseArgument exactArg;
 	vector<ClauseArgument> nonExactArgs;
@@ -15,8 +15,12 @@ private:
 	/* Gets the PKBTrackedStatementType corresponding to the synonym */
 	PKBTrackedStatementType getPKBStmtType(ClauseArgument& stmtSynonymArg);
 
+	/* Executes the clause when nonExactArgs is a statement with a name attribute (e.g. print.varName)*/
+	shared_ptr<ClauseResult> executeForStmtWithNameAttribute(shared_ptr<PKBQueryHandler> pkb);
+
+
 public:
-	WithEntityClause(ClauseArgument exactArg, vector<ClauseArgument> nonExactArgs)
+	WithOneExactClause(ClauseArgument exactArg, vector<ClauseArgument> nonExactArgs)
 		: exactArg(exactArg), nonExactArgs(nonExactArgs) {}
 	
 	shared_ptr<ClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) override;

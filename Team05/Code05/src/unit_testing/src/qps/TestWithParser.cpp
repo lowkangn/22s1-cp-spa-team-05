@@ -127,46 +127,43 @@ TEST_CASE("WithParser: test parseNoError") {
     }
     
     vector<ClauseArgument> nonExactArgs;
-    SECTION("One exact arg (integers - constants)") {
+    SECTION("One exact arg (default attribute)") {
+        //constants
         tokens = list<PQLToken>{
             one, equals, const1, dot, value,
         };
         nonExactArgs = { const1Arg, valueArg };
-        expected = make_shared<WithEntityClause>(oneArg, nonExactArgs);
+        expected = make_shared<WithOneExactClause>(oneArg, nonExactArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
            const1, dot, value, equals, two,
         };
         nonExactArgs = { const1Arg, valueArg };
-        expected = make_shared<WithEntityClause>(twoArg, nonExactArgs);
+        expected = make_shared<WithOneExactClause>(twoArg, nonExactArgs);
         testParseNoError(tokens, declarations, expected);
-    }
 
-    SECTION("One exact arg (integers - statements)") {
-
+        //statements
         tokens = list<PQLToken>{
             one, equals, s1, dot, stmtNumStmt, stmtNumHash
         };
         nonExactArgs = { s1Arg, stmtNumArg };
-        expected = make_shared<WithEntityClause>(oneArg, nonExactArgs);
+        expected = make_shared<WithOneExactClause>(oneArg, nonExactArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
            a1, dot, stmtNumStmt, stmtNumHash, equals, two,
         };
         nonExactArgs = { a1Arg, stmtNumArg };
-        expected = make_shared<WithEntityClause>(twoArg, nonExactArgs);
+        expected = make_shared<WithOneExactClause>(twoArg, nonExactArgs);
         testParseNoError(tokens, declarations, expected);
 
-    }
-
-    SECTION("One exact arg (names - procedures and variables)") {
+        //variables and procedures
         tokens = list<PQLToken>{
             quotationMark, someName, quotationMark, equals, v1, dot, varName,
         };
         nonExactArgs = { v1Arg, varNameArg };
-        expected = make_shared<WithEntityClause>(someNameArg, nonExactArgs);
+        expected = make_shared<WithOneExactClause>(someNameArg, nonExactArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
@@ -174,42 +171,140 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         testParseNoError(tokens, declarations, expected);
 
-
         tokens = list<PQLToken>{
             quotationMark, otherName, quotationMark, equals, proc1, dot, procName,
         };
         nonExactArgs = { proc1Arg, procNameArg };
-        expected = make_shared<WithEntityClause>(otherNameArg, nonExactArgs);
+        expected = make_shared<WithOneExactClause>(otherNameArg, nonExactArgs);
         testParseNoError(tokens, declarations, expected);
     }
 
-    SECTION("One exact arg (names - statements)") {
-
+    SECTION("One exact arg (non default attributes)") {
         tokens = list<PQLToken>{
             quotationMark, someName, quotationMark, equals, call1, dot, procName,
         };
         nonExactArgs = { call1Arg, procNameArg };
-        expected = make_shared<WithRelationshipClause>(someNameArg, nonExactArgs);
+        expected = make_shared<WithOneExactClause>(someNameArg, nonExactArgs);
         testParseNoError(tokens, declarations, expected);
     
         tokens = list<PQLToken>{
            r1, dot, varName, equals, quotationMark, someName, quotationMark,
         };
         nonExactArgs = { r1Arg, varNameArg };
-        expected = make_shared<WithRelationshipClause>(someNameArg, nonExactArgs);
+        expected = make_shared<WithOneExactClause>(someNameArg, nonExactArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
            print1, dot, varName, equals, quotationMark, someName, quotationMark,
         };
         nonExactArgs = { print1Arg, varNameArg };
-        expected = make_shared<WithRelationshipClause>(someNameArg, nonExactArgs);
+        expected = make_shared<WithOneExactClause>(someNameArg, nonExactArgs);
         testParseNoError(tokens, declarations, expected);
 
     }
 
-    SECTION("Two exact args") {
-        //TODO
+    vector<ClauseArgument> lhsArgs;
+    vector<ClauseArgument> rhsArgs;
+    SECTION("Both non-exact args - (same lhs and rhs, default attributes)") {
+        tokens = list<PQLToken>{
+             v1, dot, varName, equals, v1, dot, varName,
+        };
+        lhsArgs = { v1Arg, varNameArg };
+        rhsArgs = { v1Arg, varNameArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
+
+        tokens = list<PQLToken>{
+            proc1, dot, procName, equals, proc1, dot, procName,
+        };
+        lhsArgs = { proc1Arg, procNameArg };
+        rhsArgs = { proc1Arg, procNameArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
+
+        tokens = list<PQLToken>{
+            const1, dot, value, equals, const1, dot, value,
+        };
+        lhsArgs = { const1Arg, valueArg };
+        rhsArgs = { const1Arg, valueArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
+
+        tokens = list<PQLToken>{
+            call1, dot, stmtNumStmt, stmtNumHash, equals, call1, dot, stmtNumStmt, stmtNumHash,
+        };
+        lhsArgs = { call1Arg, stmtNumArg };
+        rhsArgs = { call1Arg, stmtNumArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
+
+        tokens = list<PQLToken>{
+           r1, dot, stmtNumStmt, stmtNumHash, equals, r1, dot, stmtNumStmt, stmtNumHash,
+        };
+        lhsArgs = { r1Arg, stmtNumArg };
+        rhsArgs = { r1Arg, stmtNumArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
+
+        tokens = list<PQLToken>{
+           print1, dot, stmtNumStmt, stmtNumHash, equals, print1, dot, stmtNumStmt, stmtNumHash,
+        };
+        lhsArgs = { print1Arg, stmtNumArg };
+        rhsArgs = { print1Arg, stmtNumArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
+    }
+
+    SECTION("Both non-exact args - (same lhs and rhs, non-default attributes)") {
+        tokens = list<PQLToken>{
+            call1, dot, procName, equals, call1, dot, procName,
+        };
+        lhsArgs = { call1Arg, procNameArg };
+        rhsArgs = { call1Arg, procNameArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
+
+        tokens = list<PQLToken>{
+           r1, dot, varName, equals, r1, dot, varName,
+        };
+        lhsArgs = { r1Arg, varNameArg };
+        rhsArgs = { r1Arg, varNameArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
+
+        tokens = list<PQLToken>{
+           print1, dot, varName, equals, print1, dot, varName,
+        };
+        lhsArgs = { print1Arg, varNameArg };
+        rhsArgs = { print1Arg, varNameArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
+    }
+
+    SECTION("Both non-exact args - (different lhs and rhs)") {
+        tokens = list<PQLToken>{
+            proc1, dot, procName, equals, call1, dot, procName,
+        };
+        lhsArgs = { proc1Arg, procNameArg };
+        rhsArgs = { call1Arg, procNameArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
+
+        tokens = list<PQLToken>{
+           v1, dot, varName, equals, proc1, dot, procName,
+        };
+        lhsArgs = { v1Arg, varNameArg };
+        rhsArgs = { proc1Arg, procNameArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
+
+        tokens = list<PQLToken>{
+           s1, dot, stmtNumStmt, stmtNumHash, equals, const1, dot, value,
+        };
+        lhsArgs = { s1Arg, stmtNumArg };
+        rhsArgs = { const1Arg, valueArg };
+        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        testParseNoError(tokens, declarations, expected);
     }
 }
 

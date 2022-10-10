@@ -6,7 +6,7 @@
 #include <qps/query_parser/ArgumentType.h>
 #include <qps/query_parser/parsers/ClauseParser.h>
 #include <qps/query/clause/WithBothExactClause.h>
-#include <qps/query/clause/WithEntityClause.h>
+#include <qps/query/clause/WithOneExactClause.h>
 #include <qps/query/clause/WithRelationshipClause.h>
 
 #include <iostream>
@@ -37,8 +37,8 @@ protected:
 	/* Checks the semantics of the attrCompare. */
 	void checkAttrCompare(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs);
 
-	/* Returns true if the combination of synonym and attribute is a relationship */
-	bool canBeModelledAsRelationship(vector<ClauseArgument>& args);
+	/* Returns true if the synonym-attribute pair is not the default attirbute of the synonym */
+	bool isNonDefaultAttribute(vector<ClauseArgument>& args);
 
 public:
 	WithParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :

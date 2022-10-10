@@ -114,28 +114,23 @@ void WithParser::checkRef(vector<ClauseArgument>& args) {
 
 shared_ptr<WithClause> WithParser::createWithClause(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs) {
 
-	if (lhsArgs.size() == 2 && rhsArgs.size() == 2) {
-		assert(lhsArgs.front().isSynonym() && lhsArgs.back().isAttributeName()
-			&& rhsArgs.front().isSynonym() && rhsArgs.back().isAttributeName());
-		return make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
-	}
-	else if (lhsArgs.size() == 1 && rhsArgs.size() == 1) {
-		assert(lhsArgs.front().isExactReference() && rhsArgs.front().isExactReference());
+	if (lhsArgs.size() == 1 && rhsArgs.size() == 1) {
 		return make_shared<WithBothExactClause>(lhsArgs.front(), rhsArgs.front());
+	}
+
+	if (lhsArgs.size() == 2 && rhsArgs.size() == 2) {
+		return make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
 	}
 	
 	ClauseArgument exactArg = lhsArgs.size() == 1 ? lhsArgs.front() : rhsArgs.front();
 	vector<ClauseArgument> nonExactArgs = lhsArgs.size() == 2 ? lhsArgs : rhsArgs;
 	assert(exactArg.isExactReference() && nonExactArgs.front().isSynonym() && nonExactArgs.back().isAttributeName());
 
-	if (this->canBeModelledAsRelationship(nonExactArgs)) {
-		return make_shared<WithRelationshipClause>(exactArg, nonExactArgs);
-	}
-	return make_shared<WithEntityClause>(exactArg, nonExactArgs);
+	return make_shared<WithOneExactClause>(exactArg, nonExactArgs);
 
 }
 
-bool WithParser::canBeModelledAsRelationship(vector<ClauseArgument>& args) {
+bool WithParser::isNonDefaultAttribute(vector<ClauseArgument>& args) {
 	ClauseArgument syn = args.front();
 	ClauseArgument attribute = args.back();
 	if (syn.isCallSynonym() && attribute.isProcNameAttribute()) {

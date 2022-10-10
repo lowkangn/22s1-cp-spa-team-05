@@ -1,6 +1,6 @@
 #include "catch.hpp"
 #include <qps/query/clause/WithBothExactClause.h>
-#include <qps/query/clause/WithEntityClause.h>
+#include <qps/query/clause/WithOneExactClause.h>
 #include <qps/query/clause/WithRelationshipClause.h>
 #include <pkb/PKB.h>
 
@@ -43,7 +43,7 @@ TEST_CASE("WithBothExactClause: test equals") {
 	SECTION("Not equal - different type of with clause") {
 		first = make_shared<WithBothExactClause>(firstStringArg, secondStringArg);
 		vector<ClauseArgument> rhsArgs = { procedureArg, procNameArg };
-		second = make_shared<WithEntityClause>(firstStringArg, rhsArgs);
+		second = make_shared<WithOneExactClause>(firstStringArg, rhsArgs);
 		testEquals(first, second, false);
 
 		vector<ClauseArgument> lhsArgs = { callsArg, procNameArg };
