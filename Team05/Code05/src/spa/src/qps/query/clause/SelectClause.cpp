@@ -1,6 +1,19 @@
 #include <qps/query/clause/SelectClause.h>
 
-shared_ptr<EntityClauseResult> SelectClause::execute(shared_ptr<PKBQueryHandler> pkb) {
+#include <memory>
+
+list<shared_ptr<EntityClauseResult>> SelectClause::execute(shared_ptr<PKBQueryHandler> pkb) {
+	list<shared_ptr<EntityClauseResult>> resultList;
+	if (!isBooleanReturnType) {
+		for (ClauseArgument argument : selectArgs) {
+			shared_ptr<EntityClauseResult> result = this->getSingleEntityResult(pkb, argument);
+			resultList.push_back(result);
+		}
+	}
+	return resultList;
+}
+
+shared_ptr<EntityClauseResult> SelectClause::getSingleEntityResult(shared_ptr<PKBQueryHandler> pkb, ClauseArgument toSelect) {
 	if (!toSelect.isSynonym()) {
 		throw PQLSyntaxError("SelectClause argument is not a synonym");
 	}
@@ -33,13 +46,30 @@ shared_ptr<EntityClauseResult> SelectClause::execute(shared_ptr<PKBQueryHandler>
 		}
 	}
 
-    return shared_ptr<EntityClauseResult>(new EntityClauseResult(toSelect, entities));
+    return make_shared<EntityClauseResult>(toSelect, entities);
 }
 
-bool SelectClause::equals(const SelectClause* other) {
-	if (dynamic_cast<const SelectClause*>(other) == nullptr) {
+bool SelectClause::equals(shared_ptr<SelectClause> other) {
+	if (dynamic_pointer_cast<SelectClause>(other) == nullptr) {
 		return false;
 	}
-	SelectClause otherSelect = *dynamic_cast<const SelectClause*>(other);
-	return this->toSelect == otherSelect.toSelect;
+	shared_ptr<SelectClause> otherSelect = dynamic_pointer_cast<SelectClause>(other);
+
+	if (this->isBooleanReturnType != otherSelect->isBooleanReturnType) {
+		return false;
+	}
+
+	list<ClauseArgument>::iterator thisIter = this->selectArgs.begin();
+	list<ClauseArgument>::iterator otherIter = otherSelect->selectArgs.begin();
+
+	bool isArgEqual;
+	while (thisIter != this->selectArgs.end()) {
+		isArgEqual = (*thisIter == *otherIter);
+		if (!isArgEqual) {
+			return false;
+		}
+		thisIter++;
+		otherIter++;
+	}
+	return true;
 }

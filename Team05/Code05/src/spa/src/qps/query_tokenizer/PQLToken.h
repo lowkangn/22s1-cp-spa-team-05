@@ -44,9 +44,14 @@ const string SEMICOLON = ";";
 const string COMMA = ",";
 const string PQL_OPEN_BRACKET = "(";
 const string PQL_CLOSED_BRACKET = ")";
+const string ANGLED_OPEN_BRACKET = "<";
+const string ANGLED_CLOSED_BRACKET = ">";
 const string QUOTE = "\"";
 const string UNDERSCORE = "_";
 const string HASH = "#";
+
+// keyword for Select boolean return type
+const string BOOLEAN_KEYWORD = "BOOLEAN";
 
 /**
  * This class represents tokens obtained from tokenizing of the query string.
@@ -151,6 +156,14 @@ public:
         return isDelimiter() && tokenString == PQL_CLOSED_BRACKET;
     }
 
+	bool isAngledOpenBracket() {
+		return isDelimiter() && tokenString == ANGLED_OPEN_BRACKET;
+	}
+
+	bool isAngledCloseBracket() {
+		return isDelimiter() && tokenString == ANGLED_CLOSED_BRACKET;
+	}
+
     bool isQuote() {
         return isDelimiter() && tokenString == QUOTE;
     }
@@ -226,5 +239,10 @@ public:
     bool isStmtNumHash() {
         return isDelimiter() && tokenString == ATTRIBUTE_STMT_NUM_HASH;
     }
+
+	// Boolean keyword indicator
+	bool isBooleanKeyword() {
+		return isName() && tokenString == BOOLEAN_KEYWORD;
+	}
 };
 

@@ -187,7 +187,7 @@ public:
 	 * @param relationshipsResultPointers pointing to RelationshipClauseResults encapsulating RelationshipClause execution results.
 	 * @return a set of strings matching the Query.
 	 */
-    set<string> combine(shared_ptr<EntityClauseResult> entitiesResultPointer,
+	vector<vector<PQLEntity>> combine(list<shared_ptr<EntityClauseResult>> entitiesResultPointer,
 						list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers);
 
 	/**
@@ -196,7 +196,7 @@ public:
 	 * @param relationshipsResults encapsulating RelationshipClause execution results.
 	 * @return vector of PQLEntity objects that match the Query.
 	 */
-	vector<PQLEntity> filterEntities(EntityClauseResult entitiesResult,
+	vector<vector<PQLEntity>> filterEntities(list<EntityClauseResult> entitiesResults,
 									 list<RelationshipClauseResult> relationshipsResults);
 
 
@@ -284,5 +284,7 @@ public:
 	vector<vector<PQLEntity>> singleKeyTableJoin(
 			vector<pair<PQLEntity, vector<PQLEntity>>> combinedTableKeyValuePairs,
 			vector<vector<PQLEntity>> tableToMergeKeyValuePairs);
+
+	set<string> convertResultsToString(vector<vector<PQLEntity>> entitiesToReturn, bool isBooleanReturnType);
 
 };

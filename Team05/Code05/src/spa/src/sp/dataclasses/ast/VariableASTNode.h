@@ -12,7 +12,7 @@ private:
 	}
 public:
 	static shared_ptr<ASTNode> createVariableNode(Token token) {
-		return shared_ptr<ASTNode> (new VariableASTNode(token));
+		return shared_ptr<ASTNode>(new VariableASTNode(token));
 	}
 
 	void addChild(shared_ptr<ASTNode> child) {

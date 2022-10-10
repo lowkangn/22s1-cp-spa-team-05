@@ -41,6 +41,8 @@ bool QPSTokenizer::isDelimiter(char c) {
     switch (c) {
         case '(':
         case ')':
+		case '<':
+		case '>':
         case ',':
         case ';':
         case '\"':

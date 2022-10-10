@@ -178,7 +178,7 @@ TEST_CASE("QueryParser: test parseNoError") {
             select, proc1,
         };
 
-        shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(proc1Arg));
+        shared_ptr<SelectClause> selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({proc1Arg}));
         Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
 
         testParseNoError(tokens, query);
@@ -191,7 +191,7 @@ TEST_CASE("QueryParser: test parseNoError") {
             such, that, modifies, openBracket, two, comma, v1, closeBracket,
         };
 
-        shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(v2Arg));
+        shared_ptr<SelectClause> selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({v2Arg}));
         shared_ptr<RelationshipClause> modifiesClause = shared_ptr<RelationshipClause>(
             new ModifiesSClause(twoLineNumberArg, v1Arg));
         Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause}, list<shared_ptr<PatternClause>>{});
@@ -204,7 +204,7 @@ TEST_CASE("QueryParser: test parseNoError") {
             such, that, modifies, openBracket, proc1, comma, quotationMark, name, quotationMark, closeBracket,
         };
 
-        selectClause = shared_ptr<SelectClause>(new SelectClause(c1Arg));
+        selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({c1Arg}));
         modifiesClause = shared_ptr<RelationshipClause>(new ModifiesPClause(proc1Arg, quotedNameArg));
         query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause}, list<shared_ptr<PatternClause>>{});
 
@@ -227,7 +227,7 @@ TEST_CASE("QueryParser: test parseNoError") {
             pattern, a2, openBracket, v1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
         };
 
-        shared_ptr<SelectClause> selectClause = shared_ptr<SelectClause>(new SelectClause(v2Arg));
+        shared_ptr<SelectClause> selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({v2Arg}));
 
         shared_ptr<RelationshipClause> modifiesSClause = 
             shared_ptr<RelationshipClause>(new ModifiesSClause(twoLineNumberArg, v1Arg));

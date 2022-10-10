@@ -10,6 +10,16 @@
 #include <qps/query/clause/SelectClause.h>
 
 class SelectParser : public ClauseParser {
+protected:
+	/* Returns true if the clauseTypeToken matches the clause that the Parser parses */
+	virtual bool isCorrectClauseType(PQLToken clauseTypeToken) = 0;
+
+	/* Extracts the arguments of the clause. Consumes all tokens in the clause after 'Select' */
+	virtual list<ClauseArgument> extractArguments() = 0;
+
+	/* Creates the clause given the clause type and arguments */
+	virtual shared_ptr<SelectClause> createClause(list<ClauseArgument>& args) = 0;
+
 public:
 	SelectParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
 		ClauseParser(tokens, declarations) {};
@@ -17,15 +27,4 @@ public:
 	/* Parses this parser's tokens into a Clause. (Template method:
 	   behaviour depends on implementation of virtual functions) */
 	shared_ptr<SelectClause> parse();
-
-	/* Returns true if the clauseTypeToken matches the clause that the Parser parses */
-	bool isCorrectClauseType(PQLToken clauseTypeToken);
-
-	/* Extracts the arguments of the clause. Consumes all tokens in the clause after
-	   'Select', relRef or 'Pattern' */
-	list<ClauseArgument> extractArguments();
-
-	/* Creates the clause given the clause type and arguments */
-	shared_ptr<SelectClause> createClause(PQLToken clauseTypeToken, list<ClauseArgument>& args);
-
 };

@@ -1,6 +1,6 @@
 #include <qps/query/Query.h>
 
-shared_ptr<EntityClauseResult> Query::executeSelect(shared_ptr<PKBQueryHandler> pkb) {
+list<shared_ptr<EntityClauseResult>> Query::executeSelect(shared_ptr<PKBQueryHandler> pkb) {
     return selectClause->execute(pkb);
 }
 
@@ -18,7 +18,9 @@ list<shared_ptr<RelationshipClauseResult>> Query::executeSuchThatAndPattern(shar
 }
 
 bool operator==(Query first, Query second) {
-	bool isSelectClauseEqual = (*(first.selectClause.get())).equals(second.selectClause.get());
+	shared_ptr<SelectClause> firstClause = first.selectClause;
+	shared_ptr<SelectClause> secondClause = second.selectClause;
+	bool isSelectClauseEqual = firstClause->equals(secondClause);
 
 	if (!isSelectClauseEqual) {
 		// different select clauses

@@ -12,7 +12,7 @@ private:
 	};
 public:
 	static shared_ptr<ASTNode> createExpressionNode(Token& token) {
-		return shared_ptr<ASTNode> (new ExpressionASTNode(token));
+		return shared_ptr<ASTNode>(new ExpressionASTNode(token));
 	}
 
 	bool isTerminal() override {

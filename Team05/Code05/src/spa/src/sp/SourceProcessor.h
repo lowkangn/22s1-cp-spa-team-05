@@ -9,6 +9,7 @@
 #include <sp/design_extractor/ParentTExtractor.h>
 #include <sp/design_extractor/FollowsExtractor.h>
 #include <sp/design_extractor/FollowsTExtractor.h>
+#include <sp/design_extractor/CallsAndCallsTExtractor.h>
 
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/ast/AST.h>
@@ -27,17 +28,18 @@ class SourceProcessor {
 private:
 	bool isInitialized = false;
 	shared_ptr<ASTNode> astRoot;
-	DesignExtractorManager designManager {
+	DesignExtractorManager designManager{
 		EntityExtractor(),
 		PatternExtractor(),
 		{
 			// Un comment once Follows is done
-			shared_ptr<Extractor<Relationship>> (new FollowsExtractor()),
-			shared_ptr<Extractor<Relationship>> (new FollowsTExtractor()),
-			shared_ptr<Extractor<Relationship>> (new ParentExtractor()),
-			shared_ptr<Extractor<Relationship>> (new ParentTExtractor()),
-			shared_ptr<Extractor<Relationship>> (new ModifiesExtractor()),
-			shared_ptr<Extractor<Relationship>> (new UsesExtractor()),
+			shared_ptr<Extractor<Relationship>>(new FollowsExtractor()),
+			shared_ptr<Extractor<Relationship>>(new FollowsTExtractor()),
+			shared_ptr<Extractor<Relationship>>(new ParentExtractor()),
+			shared_ptr<Extractor<Relationship>>(new ParentTExtractor()),
+			shared_ptr<Extractor<Relationship>>(new ModifiesExtractor()),
+			shared_ptr<Extractor<Relationship>>(new UsesExtractor()),
+			shared_ptr<Extractor<Relationship>>(new CallsAndCallsTExtractor())
 		}
 	};
 

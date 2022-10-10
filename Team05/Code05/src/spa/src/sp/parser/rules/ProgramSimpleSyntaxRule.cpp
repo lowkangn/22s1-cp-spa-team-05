@@ -139,6 +139,10 @@ int ProgramSimpleSyntaxRule::setStatementListLineNumber(shared_ptr<ASTNode> root
 		else if (child->isWhileNode()) {
 			lineNumber = this->setWhileStatementLineNumber(child, lineNumber);
 		}
+		else if (child->isCallNode()) {
+			child->setLineNumber(lineNumber);
+			lineNumber += 1;
+		}
 		// All other statements
 		else {
 			this->recursiveSetStatementNumber(child, lineNumber);

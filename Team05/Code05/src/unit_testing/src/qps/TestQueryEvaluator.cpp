@@ -886,13 +886,13 @@ TEST_CASE("QueryEvaluator: test combinedTableJoin") {
 }
 
 TEST_CASE("QueryEvaluator: test filterEntities") {
-	auto testFilterEntities = [](EntityClauseResult entitiesResult,
-			list<RelationshipClauseResult> relationshipsResults, vector<PQLEntity> expected) {
+	auto testFilterEntities = [](list<EntityClauseResult> entitiesResults,
+			list<RelationshipClauseResult> relationshipsResults, vector<vector<PQLEntity>> expected) {
 		// given
 		QueryEvaluator evaluator = QueryEvaluator();
 
 		// when
-		vector<PQLEntity> actual = evaluator.filterEntities(entitiesResult, relationshipsResults);
+		vector<vector<PQLEntity>> actual = evaluator.filterEntities(entitiesResults, relationshipsResults);
 
 		// then
 		REQUIRE(actual == expected);
@@ -928,12 +928,15 @@ TEST_CASE("QueryEvaluator: test filterEntities") {
 	vector<PQLEntity> stmtEntities = {firstStmtEntity, secondStmtEntity, thirdStmtEntity};
 	vector<PQLEntity> varEntities = {firstVarEntity, secondVarEntity, thirdVarEntity};
 
+	vector<vector<PQLEntity>> stmtEntityTable = {{firstStmtEntity}, {secondStmtEntity}, {thirdStmtEntity}};
+	vector<vector<PQLEntity>> varEntityTable = {{firstVarEntity}, {secondVarEntity}, {thirdVarEntity}};
+
 	EntityClauseResult stmtEntityClauseResult = EntityClauseResult(stmtArg, stmtEntities);
 	EntityClauseResult varEntityClauseResult = EntityClauseResult(varArg, varEntities);
 
 	SECTION("Empty list") {
-		testFilterEntities(stmtEntityClauseResult, {}, stmtEntities);
-		testFilterEntities(varEntityClauseResult, {}, varEntities);
+		testFilterEntities({stmtEntityClauseResult}, {}, stmtEntityTable);
+		testFilterEntities({varEntityClauseResult}, {}, varEntityTable);
 	}
 
 	SECTION("One RelationshipClauseResult with match") {
@@ -942,10 +945,10 @@ TEST_CASE("QueryEvaluator: test filterEntities") {
 				stmtArg, varArg, {firstRelationship});
 
 		vector<PQLEntity> expectedEntities = {firstStmtEntity};
-		testFilterEntities(stmtEntityClauseResult, {firstRelationshipsResult}, expectedEntities);
+		testFilterEntities({stmtEntityClauseResult}, {firstRelationshipsResult}, {expectedEntities});
 
 		expectedEntities = {firstVarEntity};
-		testFilterEntities(varEntityClauseResult, {firstRelationshipsResult}, expectedEntities);
+		testFilterEntities({varEntityClauseResult}, {firstRelationshipsResult}, {expectedEntities});
 	}
 
 	SECTION("One RelationshipClauseResult with no match") {
@@ -953,8 +956,7 @@ TEST_CASE("QueryEvaluator: test filterEntities") {
 		RelationshipClauseResult firstRelationshipsResult = RelationshipClauseResult(
 				procArg, constArg, {firstRelationship});
 
-		vector<PQLEntity> expectedEntities = stmtEntities;
-		testFilterEntities(stmtEntityClauseResult, {firstRelationshipsResult}, expectedEntities);
+		testFilterEntities({stmtEntityClauseResult}, {firstRelationshipsResult}, stmtEntityTable);
 	}
 
 	SECTION("Multiple RelationshipClauseResults with match") {
@@ -972,9 +974,9 @@ TEST_CASE("QueryEvaluator: test filterEntities") {
 				stmtArg, procArg, {fourthRelationship});
 
 		vector<PQLEntity> expectedEntities = {firstStmtEntity};
-		testFilterEntities(stmtEntityClauseResult,
+		testFilterEntities({stmtEntityClauseResult},
 						   {firstRelationshipsResult, secondRelationshipsResult, thirdRelationshipsResult},
-						   expectedEntities);
+						   {expectedEntities});
 	}
 
 	SECTION("Multiple RelationshipClauseResults with no match") {
@@ -987,21 +989,20 @@ TEST_CASE("QueryEvaluator: test filterEntities") {
 		RelationshipClauseResult secondRelationshipsResult = RelationshipClauseResult(
 				readArg, procArg, {secondRelationship, thirdRelationship});
 
-		vector<PQLEntity> expectedEntities = stmtEntities;
-		testFilterEntities(stmtEntityClauseResult,
+		testFilterEntities({stmtEntityClauseResult},
 						   {firstRelationshipsResult, secondRelationshipsResult},
-						   expectedEntities);
+						   stmtEntityTable);
 	}
 }
 
 TEST_CASE("QueryEvaluator: test combine") {
-	auto testCombine = [](shared_ptr<EntityClauseResult> entitiesResultPointer,
-		list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers, set<string> expected) {
+	auto testCombine = [](list<shared_ptr<EntityClauseResult>> entitiesResultPointers,
+		list<shared_ptr<RelationshipClauseResult>> relationshipsResultPointers, vector<vector<PQLEntity>> expected) {
 		// given
 		QueryEvaluator evaluator = QueryEvaluator();
 
 		// when
-		set<string> actual = evaluator.combine(entitiesResultPointer, relationshipsResultPointers);
+		vector<vector<PQLEntity>> actual = evaluator.combine(entitiesResultPointers, relationshipsResultPointers);
 
 		// then
 		REQUIRE(actual == expected);
@@ -1016,11 +1017,11 @@ TEST_CASE("QueryEvaluator: test combine") {
 				shared_ptr<EntityClauseResult>(new EntityClauseResult(
 						variableArg,vector<PQLEntity>{varEntity}));
 
-        set<string> expectedSet = set<string>{"x"};
+		vector<vector<PQLEntity>> expectedTable = vector<vector<PQLEntity>>{{PQLEntity::generateVariable("x")}};
 
-        testCombine(entityClauseResultWithVariable,
+        testCombine({entityClauseResultWithVariable},
 					list<shared_ptr<RelationshipClauseResult>>{},
-					expectedSet);
+					expectedTable);
 
         // x = x + 1; constant c; Select c
         ClauseArgument constantArg = ClauseArgument::createConstantArg("c");
@@ -1029,11 +1030,11 @@ TEST_CASE("QueryEvaluator: test combine") {
 				shared_ptr<EntityClauseResult>(new EntityClauseResult(
 						constantArg,vector<PQLEntity>{constEntity}));
 
-        expectedSet = set<string>{"1"};
+		expectedTable = vector<vector<PQLEntity>>{{PQLEntity::generateConstant(1)}};
 
-        testCombine(entityClauseResultWithConstant,
+        testCombine({entityClauseResultWithConstant},
 					list<shared_ptr<RelationshipClauseResult>>{},
-					expectedSet);
+					expectedTable);
 
         // x = x + 1; procedure p; Select p
         ClauseArgument procArg = ClauseArgument::createProcedureArg("p");
@@ -1041,11 +1042,11 @@ TEST_CASE("QueryEvaluator: test combine") {
 				shared_ptr<EntityClauseResult>(new EntityClauseResult(
 						procArg,vector<PQLEntity>{}));
 
-        expectedSet = set<string>{};
+		expectedTable = vector<vector<PQLEntity>>{};
 
-        testCombine(entityClauseResultWithProcedure,
+        testCombine({entityClauseResultWithProcedure},
 					list<shared_ptr<RelationshipClauseResult>>{},
-					expectedSet);
+					expectedTable);
     }
 
     SECTION("SelectClause with ModifiesSClause") {
@@ -1072,25 +1073,31 @@ TEST_CASE("QueryEvaluator: test combine") {
                 varArg,
                 vector<PQLRelationship>{relationship1, relationship2}));
 
-        set<string> expectedSet = set<string>{"1", "2"};
+		vector<vector<PQLEntity>> expectedTable = vector<vector<PQLEntity>>{
+			{PQLEntity::generateStatement(1)}, {PQLEntity::generateStatement(2)}};
+
 
         // x = x + 1; y = y + 1; assign a; variable v; Select a such that Modifies(a,v)
-        testCombine(assignEntityClauseResult,
+        testCombine({assignEntityClauseResult},
 					list<shared_ptr<RelationshipClauseResult>>{assignAndVarRelationshipClauseResult},
-					expectedSet);
+					expectedTable);
 
         // x = x + 1; y = y + 1; assign a; variable v; Select v such that Modifies(a,v)
         shared_ptr<EntityClauseResult> varEntityClauseResult = shared_ptr<EntityClauseResult>(
 				new EntityClauseResult(varArg, varEntities));
 
-        expectedSet = set<string>{"x", "y"};
+        expectedTable = vector<vector<PQLEntity>>{
+				{PQLEntity::generateVariable("x")}, {PQLEntity::generateVariable("y")}};;
 
-        testCombine(varEntityClauseResult,
+        testCombine({varEntityClauseResult},
 					list<shared_ptr<RelationshipClauseResult>>{assignAndVarRelationshipClauseResult},
-					expectedSet);
+					expectedTable);
     }
 
+	// TODO: Add tests for boolean/multiple return types
 }
+
+// TODO: Add test for convertResultsToString
 
 // ==================== INTEGRATION TESTS ====================
 namespace {
@@ -1370,49 +1377,49 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 	pkb->addPatterns(patterns);
 
 	// ------ QPS ------
-	shared_ptr<SelectClause> selectClause = make_shared<SelectClause>(stmtArg);
+	shared_ptr<SelectClause> selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 	Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
 	set<string> expectedSet = set<string>{"1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
 	SECTION("Select only") {
 		testEvaluate(query, expectedSet, pkb);
 
-		selectClause = make_shared<SelectClause>(readArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({readArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"1"};
 		testEvaluate(query, expectedSet, pkb);
 
-		selectClause = make_shared<SelectClause>(printArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({printArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"4"};
 		testEvaluate(query, expectedSet, pkb);
 
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"2", "6", "8", "9"};
 		testEvaluate(query, expectedSet, pkb);
 
-		selectClause = make_shared<SelectClause>(whileArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({whileArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"3"};
 		testEvaluate(query, expectedSet, pkb);
 
-		selectClause = make_shared<SelectClause>(ifArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({ifArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"5", "7"};
 		testEvaluate(query, expectedSet, pkb);
 
-		selectClause = make_shared<SelectClause>(procArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({procArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"main"};
 		testEvaluate(query, expectedSet, pkb);
 
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"x", "y", "z"};
 		testEvaluate(query, expectedSet, pkb);
 
-		selectClause = make_shared<SelectClause>(constArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({constArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"0", "1", "3", "5"};
 		testEvaluate(query, expectedSet, pkb);
@@ -1421,68 +1428,68 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 	SECTION("Select + Follows") {
 
 		// Select s1 such that Follows(s1, s2)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new FollowsClause(stmtArg, secondStmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"1", "2", "3", "4"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s2 such that Follows(s1, s2)
-		selectClause = make_shared<SelectClause>(secondStmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({secondStmtArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"2", "3", "5", "7"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s1 such that Follows*(s1, s2)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsTClause(stmtArg, secondStmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"1", "2", "3", "4"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s2 such that Follows*(s1, s2)
-		selectClause = make_shared<SelectClause>(secondStmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({secondStmtArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"2", "3", "5", "7"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s such that Follows(r, s)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsClause(readArg, stmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"2"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s such that Follows*(r, s)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsTClause(readArg, stmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"2", "3", "7"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s such that Follows(a, s)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsClause(assignArg, stmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"3"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s such that Follows*(a, s)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsTClause(assignArg, stmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"3", "7"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s such that Follows(w, s)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsClause(whileArg, stmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"7"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s such that Follows*(w, s)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsTClause(whileArg, stmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"7"};
@@ -1493,40 +1500,40 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 	SECTION("Select + Parent") {
 
 		// Select s1 such that Parent(s1, s2)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new ParentClause(stmtArg, secondStmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"3", "5", "7"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s2 such that Parent(s1, s2)
-		selectClause = make_shared<SelectClause>(secondStmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({secondStmtArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"4", "5", "6", "8", "9"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select i such that Parent(i, s)
-		selectClause = make_shared<SelectClause>(ifArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({ifArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new ParentClause(ifArg, stmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"5", "7"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s such that Parent(i, s)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"6", "8", "9"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select w such that Parent(w, s)
-		selectClause = make_shared<SelectClause>(whileArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({whileArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new ParentClause(whileArg, stmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"3"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select s such that Parent(w, s)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"4", "5"};
 		testEvaluate(query, expectedSet, pkb);
@@ -1541,79 +1548,79 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 	SECTION("Select + Modifies") {
 
 		// Select s such that Modifies(s, v)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(stmtArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"1", "2", "3", "5", "6", "7", "8", "9"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Modifies(s, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"x", "y"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select r such that Modifies(r, v)
-		selectClause = make_shared<SelectClause>(readArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({readArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(readArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"1"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Modifies(r, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"y"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select a such that Modifies(a, v)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"2", "6", "8", "9"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Modifies(a, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"x", "y"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select w such that Modifies(w, v)
-		selectClause = make_shared<SelectClause>(whileArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({whileArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(whileArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"3"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Modifies(w, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"x"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select i such that Modifies(i, v)
-		selectClause = make_shared<SelectClause>(ifArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({ifArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(ifArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"5", "7"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Modifies(i, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"x", "y"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select pr such that Modifies(pr, v)
-		selectClause = make_shared<SelectClause>(procArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({procArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new ModifiesPClause(procArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"main"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Modifies(pr, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"x", "y"};
 		testEvaluate(query, expectedSet, pkb);
@@ -1623,79 +1630,79 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 	SECTION("Select + Uses") {
 
 		// Select s such that Uses(s, v)
-		selectClause = make_shared<SelectClause>(stmtArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new UsesSClause(stmtArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"2", "3", "4", "5", "6", "7", "9"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Uses(s, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"x", "y", "z"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select p such that Uses(p, v)
-		selectClause = make_shared<SelectClause>(printArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({printArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new UsesSClause(printArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"4"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Uses(p, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"z"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select a such that Uses(a, v)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new UsesSClause(assignArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"2", "6", "9"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Uses(a, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"x", "y", "z"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select w such that Uses(w, v)
-		selectClause = make_shared<SelectClause>(whileArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({whileArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new UsesSClause(whileArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"3"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Uses(w, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"x"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select i such that Uses(i, v)
-		selectClause = make_shared<SelectClause>(ifArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({ifArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new UsesSClause(ifArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"5", "7"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Uses(i, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"x", "y"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select pr such that Uses(pr, v)
-		selectClause = make_shared<SelectClause>(procArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({procArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new UsesPClause(procArg, varArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"main"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Uses(pr, v)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{});
 		expectedSet = set<string>{"x", "y", "z"};
 		testEvaluate(query, expectedSet, pkb);
@@ -1704,28 +1711,28 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 
 	SECTION("Select + Assign Pattern") {
 		// Select a pattern a(v, _)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		shared_ptr<PatternClause> patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, varArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{patternClause});
 		expectedSet = set<string>{"2", "6", "8", "9"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select a pattern a(_, _)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, wildcardArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{patternClause});
 		expectedSet = set<string>{"2", "6", "8", "9"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v pattern a(v, _)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, varArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{patternClause});
 		expectedSet = set<string>{"x", "y"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select a pattern a("x", _)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, XStringLiteralArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{patternClause});
 		expectedSet = set<string>{"2", "6"};
@@ -1800,7 +1807,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 
 	SECTION("Select + Such That + Pattern - non-empty results, two matching clauses") {
 		// Select a such that Modifies(a, v) pattern a(v, _)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, varArg));
 		shared_ptr<PatternClause> patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, varArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
@@ -1808,7 +1815,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Modifies(a, v) pattern a(v, _)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, varArg));
 		patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, varArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
@@ -1816,7 +1823,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select a such that Modifies(a, v) pattern a(v, _"x"_)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, varArg));
 		patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, varArg, a6SecondPatternStringWithWildcardsArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
@@ -1824,7 +1831,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select v such that Modifies(a, v) pattern a(v, _"x"_)
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, varArg));
 		patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, varArg, a6SecondPatternStringWithWildcardsArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
@@ -1832,7 +1839,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select a such that Follows(_, a) pattern a(_, "y") (Double wildcard, exposed bug in combinedTableJoin, now fixed)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsClause(wildcardArg, assignArg));
 		patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, wildcardArg, a2PatternStringWithWildcardsArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
@@ -1843,7 +1850,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 
 	SECTION("Select + Such That + Pattern - non-empty results, one matching clause") {
 		// Select a such that Modifies(1, "y") pattern a(v, _)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		ClauseArgument lineNumArg = ClauseArgument::createLineNumberArg("1");
 		ClauseArgument stringLiteralArg = ClauseArgument::createStringLiteralArg("y");
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(lineNumArg, stringLiteralArg));
@@ -1853,7 +1860,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select a such that Modifies(1, "y") pattern a("x", _)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, XStringLiteralArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
 		expectedSet = set<string>{"2", "6"};
@@ -1862,7 +1869,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 
 	SECTION("Select + Such That + Pattern - non-empty results, no matching clause") {
 		// Select r such that Modifies(1, "y") pattern a(v, _)
-		selectClause = make_shared<SelectClause>(readArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({readArg}));
 		ClauseArgument lineNumArg = ClauseArgument::createLineNumberArg("1");
 		ClauseArgument stringLiteralArg = ClauseArgument::createStringLiteralArg("y");
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(lineNumArg, stringLiteralArg));
@@ -1872,13 +1879,13 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select p such that Modifies(1, "y") pattern a(v, _)
-		selectClause = make_shared<SelectClause>(printArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({printArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
 		expectedSet = set<string>{"4"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select pr such that Modifies(1, "y") pattern a(v, _)
-		selectClause = make_shared<SelectClause>(procArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({procArg}));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
 		expectedSet = set<string>{"main"};
 		testEvaluate(query, expectedSet, pkb);
@@ -1887,7 +1894,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 	SECTION("Select + Such That + Pattern - empty results, select empty") {
 		// Select c such that Modifies(a, v) pattern a(v, _)
 		ClauseArgument callArg = ClauseArgument::createCallArg("c");
-		selectClause = make_shared<SelectClause>(callArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({callArg}));
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, varArg));
 		shared_ptr<PatternClause> patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, varArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
@@ -1897,7 +1904,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 
 	SECTION("Select + Such That + Pattern - empty results, no tables empty") {
 		// Select a such that Modifies(a, "y") pattern a("x", _)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, YStringLiteralArg));
 		shared_ptr<PatternClause> patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, XStringLiteralArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
@@ -1928,7 +1935,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 
 	SECTION("Select + Such That + Pattern - empty results, one relationship table empty") {
 		// Select a such that Follows*(i, a) pattern a(v, _)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new FollowsTClause(ifArg, assignArg));
 		shared_ptr<PatternClause> patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, varArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
@@ -1936,7 +1943,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select a such that Modifies(a, v) pattern a("z", _)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		relationshipClause = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, varArg));
 		patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, nonExistentStringLiteralArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
@@ -1946,7 +1953,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 
 	SECTION("Select + Such That + Pattern - empty results, two relationship tables empty") {
 		// Select a such that Follows*(i, a) pattern a("z", _)
-		selectClause = make_shared<SelectClause>(assignArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({assignArg}));
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new FollowsTClause(ifArg, assignArg));
 		shared_ptr<PatternClause> patternClause = shared_ptr<PatternClause>(new PatternAssignClause(assignArg, nonExistentStringLiteralArg, wildcardArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, list<shared_ptr<PatternClause>>{patternClause});
@@ -1959,7 +1966,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		*  Group 2: such that Parent*(w, a2) pattern a2("x", _"x"_)
 		*  Group 3: such that Uses(s2, _) such that Follows (3, s2)
 		*/
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 		
 		shared_ptr<RelationshipClause> group1Follows = shared_ptr<RelationshipClause>(new FollowsClause(stmtArg, assignArg));
 		shared_ptr<RelationshipClause> group1ModifiesS = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, varArg));
@@ -1987,7 +1994,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		*  Group 3: such that Uses(s2, _) such that Follows (3, s2)
 		*  Group 4: such that Parent(i, i)
 		*/
-		selectClause = make_shared<SelectClause>(varArg);
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({varArg}));
 
 		shared_ptr<RelationshipClause> group1Follows = shared_ptr<RelationshipClause>(new FollowsClause(stmtArg, assignArg));
 		shared_ptr<RelationshipClause> group1ModifiesS = shared_ptr<RelationshipClause>(new ModifiesSClause(assignArg, varArg));
