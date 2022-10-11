@@ -72,6 +72,11 @@ do
     ${path_to_autotester} ${iteration1}${one_constr_path}${i}Only_source.txt ${iteration1}${one_constr_path}${i}Only_queries.txt ${iteration1_output_folder}${i}onlyOut.xml
 done
 
+for i in calls
+do
+    ${path_to_autotester} ${iteration2}${one_constr_path}${i}Only_source.txt ${iteration2}${one_constr_path}${i}Only_queries.txt ${iteration2_output_folder}${i}onlyOut.xml
+done
+
 echo "Starting two constraint query test cases"
 for i in parent uses follows modifies
 do
