@@ -50,6 +50,11 @@ do
         ${path_to_autotester} ${iteration1}${invalid_s_path}invalidSource$i\_source.txt ${iteration1}${invalid_s_path}invalidSource$i\_queries.txt ${iteration1_output_folder}invalidSourceOut$i.xml
 done
 
+for i in {1..1}
+do	
+        ${path_to_autotester} ${iteration2}${invalid_s_path}invalidSource$i\_source.txt ${iteration2}${invalid_s_path}invalidSource$i\_queries.txt ${iteration2_output_folder}invalidSourceOut$i.xml
+done
+
 echo "Starting milestone test cases"
 for i in {1..3}
 do	

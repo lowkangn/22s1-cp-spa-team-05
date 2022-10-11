@@ -1,0 +1,7 @@
+procedure main {
+	read x;
+}
+
+procedure main {
+	read y;
+}
