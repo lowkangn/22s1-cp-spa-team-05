@@ -18,6 +18,11 @@ readonly milestoneBugs_path=./Tests05/iteration1/conditionsInWhile/
 readonly output_folder=./Code05/testOutputs/
 readonly sample_path=./Tests05/
 
+if [ ! -d $output_folder ]; then
+	echo "Making output folder: "${output_folder}
+	mkdir $output_folder
+fi
+
 echo "Using autotester at: "${path_to_autotester}
 
 echo "Starting invalid query test cases"
