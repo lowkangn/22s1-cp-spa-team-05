@@ -62,8 +62,7 @@ public:
 			string key = *i;
 			// check if inside
 			if (otherKeys.count(key) == 0) {
-				keysAreEqual = false;
-				break;
+				return false;
 			}
 		}
 
@@ -72,8 +71,7 @@ public:
 			string key = *i;
 			// check if inside
 			if (keys.count(key) == 0) {
-				keysAreEqual = false;
-				break;
+				return false;
 			}
 		}
 
