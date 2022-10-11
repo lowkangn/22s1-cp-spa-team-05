@@ -67,7 +67,10 @@ public:
 
 	}
 
-
+	/*
+		Checks if a node is inside.
+	*/
+	bool isInside(string nodeKey);
 
 
 	/*
@@ -85,5 +88,10 @@ public:
 		Checks if nodes 1 and 2 (specified by keys) are connected.
 	*/
 	bool canReachNodeBFromNodeA(string nodeAKey, string nodeBKey);
+
+	/*
+		Checks if node 2 is a neighbour of node 1. Expects 
+	*/
+	bool nodeBisNeighbourOfA(string nodeAkey, string nodeBKey);
 
 };

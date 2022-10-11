@@ -140,6 +140,18 @@ private:
 	shared_ptr<PkbEntity> convertClauseArgumentToPkbEntity(ClauseArgument clause);
 
 
+	/*
+		Retrieves all relationships by a lhs, rhs for relationships of a specified type, from tables.
+	*/
+	vector<PQLRelationship> retrieveRelationshipsFromTablesByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
+
+	/*
+		Retrieves all relationships by a lhs, rhs for relationships of a specified type, from graphs.
+	*/
+	vector<PQLRelationship> retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
+
+
+
 public: 
 	PKB() {}
 

@@ -633,14 +633,28 @@ vector<PQLRelationship> PKB::retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PKBT
 	// 3. if not, we need to get the graph and traverse to check 
 	if (relationshipType == PKBTrackedRelationshipType::NEXT) {
 		// 1. validation - must be a statement
+		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
+			throw PkbException("NEXT relationship expects lhs and rhs to both be statements!");
+		}
 
 		// 2. if both exact, evaulate directly 
+		if (lhs.isExactReference() && rhs.isExactReference()) {
+			// construct key from lhs and rhs
+
+			// query if direct neighbour
+			this->cfgManager.
+		}
+
 
 		// 3. else, we return all neighbours of the specified node
+		
 	}
 	else if (relationshipType == PKBTrackedRelationshipType::NEXTSTAR) {
 
 		// 1. validation - must be a statement
+		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
+			throw PkbException("NEXT relationship expects lhs and rhs to both be statements!");
+		}
 
 		// 2. if both exact, we can evaluate directly
 

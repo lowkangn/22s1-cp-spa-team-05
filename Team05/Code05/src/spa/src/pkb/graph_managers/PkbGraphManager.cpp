@@ -71,3 +71,27 @@ bool PkbGraphManager::canReachNodeBFromNodeA(string nodeAKey, string nodeBKey) {
 	return false; // completed bfs but did not find
 }
 
+bool PkbGraphManager::isInside(string nodeKey) {
+	return (this->getNode(nodeKey) != NULL);
+}
+
+bool PkbGraphManager::nodeBisNeighbourOfA(string nodeAKey, string nodeBKey) {
+	// get nodes
+	shared_ptr<PkbGraphNode> nodeA = this->getNode(nodeAKey);
+	shared_ptr<PkbGraphNode> nodeB = this->getNode(nodeBKey);
+
+	// if either do not exist, throw
+	if (nodeA == NULL || nodeB == NULL) {
+		throw PkbException("Trying to check if B can be reached from A, but either A or B do not exist.");
+	}
+
+	// check that b is in neighbours of a
+	vector<shared_ptr<PkbGraphNode>> neighbours = nodeA->getNeighbours();
+	for (shared_ptr<PkbGraphNode> n : neighbours) {
+		if (n->equals(nodeB)) { // we assume key equality works
+			return true;
+		}
+	}
+	return false;
+}
+
