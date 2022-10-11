@@ -7,7 +7,7 @@
 #include <qps/query_parser/parsers/ClauseParser.h>
 #include <qps/query/clause/WithBothExactClause.h>
 #include <qps/query/clause/WithOneExactClause.h>
-#include <qps/query/clause/WithRelationshipClause.h>
+#include <qps/query/clause/WithNoExactClause.h>
 
 #include <iostream>
 

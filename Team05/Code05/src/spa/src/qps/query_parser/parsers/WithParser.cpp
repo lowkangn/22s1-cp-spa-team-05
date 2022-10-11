@@ -119,7 +119,7 @@ shared_ptr<WithClause> WithParser::createWithClause(vector<ClauseArgument>& lhsA
 	}
 
 	if (lhsArgs.size() == 2 && rhsArgs.size() == 2) {
-		return make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+		return make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
 	}
 	
 	ClauseArgument exactArg = lhsArgs.size() == 1 ? lhsArgs.front() : rhsArgs.front();

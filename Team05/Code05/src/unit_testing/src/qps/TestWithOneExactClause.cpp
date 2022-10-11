@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include <qps/query/clause/WithBothExactClause.h>
 #include <qps/query/clause/WithOneExactClause.h>
-#include <qps/query/clause/WithRelationshipClause.h>
+#include <qps/query/clause/WithNoExactClause.h>
 #include <pkb/PKB.h>
 
 using namespace std;
@@ -295,7 +295,7 @@ TEST_CASE("WithOneExactClause: test equals") {
 		testEquals(first, second, false);
 		
 		vector<ClauseArgument> lhsArgs = { callArg, procNameAttributeArg };
-		second = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+		second = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
 		testEquals(first, second, false);
 	}
 }

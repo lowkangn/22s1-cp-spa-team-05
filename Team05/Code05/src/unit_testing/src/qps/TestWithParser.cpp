@@ -211,7 +211,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { v1Arg, varNameArg };
         rhsArgs = { v1Arg, varNameArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
@@ -219,7 +219,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { proc1Arg, procNameArg };
         rhsArgs = { proc1Arg, procNameArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
@@ -227,7 +227,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { const1Arg, valueArg };
         rhsArgs = { const1Arg, valueArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
@@ -235,7 +235,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { call1Arg, stmtNumArg };
         rhsArgs = { call1Arg, stmtNumArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
@@ -243,7 +243,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { r1Arg, stmtNumArg };
         rhsArgs = { r1Arg, stmtNumArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
@@ -251,7 +251,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { print1Arg, stmtNumArg };
         rhsArgs = { print1Arg, stmtNumArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
     }
 
@@ -261,7 +261,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { call1Arg, procNameArg };
         rhsArgs = { call1Arg, procNameArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
@@ -269,7 +269,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { r1Arg, varNameArg };
         rhsArgs = { r1Arg, varNameArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
@@ -277,7 +277,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { print1Arg, varNameArg };
         rhsArgs = { print1Arg, varNameArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
     }
 
@@ -287,7 +287,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { proc1Arg, procNameArg };
         rhsArgs = { call1Arg, procNameArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
@@ -295,7 +295,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { v1Arg, varNameArg };
         rhsArgs = { proc1Arg, procNameArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
@@ -303,7 +303,7 @@ TEST_CASE("WithParser: test parseNoError") {
         };
         lhsArgs = { s1Arg, stmtNumArg };
         rhsArgs = { const1Arg, valueArg };
-        expected = make_shared<WithRelationshipClause>(lhsArgs, rhsArgs);
+        expected = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
         testParseNoError(tokens, declarations, expected);
     }
 }
