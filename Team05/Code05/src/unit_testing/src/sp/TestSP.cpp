@@ -590,7 +590,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		};
 		testExtract(program, expectedEntities, expectedRelationships, expectedPattern);
 	}
-
+	
 	SECTION("Program with call statements") {
 		/*
 		procedure main {
@@ -603,7 +603,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 			4.     call beta;
 			} else {
 			5.     print y;
-			} 
+			}
 		}
 
 		procedure beta {
@@ -611,7 +611,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		}
 		*/
 	}
-
+	
 	string program = "procedure main {\ncall alpha;\n}\n procedure alpha {\nread y;\nif ( y > 5) then {\ncall beta;\n} else {\nprint y;\n}\n}\n procedure beta {\n y = y + 3;\n}";
 
 	// Creating tokens
@@ -663,6 +663,8 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 	Relationship alphaModifiesY = Relationship::createModifiesRelationship(procedureAlphaEntity, y2Entity);
 	Relationship assignModifiesY = Relationship::createModifiesRelationship(assignEntity, y6LhsEntity);
 	Relationship betaModifiesY = Relationship::createModifiesRelationship(procedureBetaEntity, y6LhsEntity);
+	Relationship callAlphaModifiesY = Relationship::createModifiesRelationship(callAlphaEntity, y2Entity);
+	Relationship callBetaModifiesY = Relationship::createModifiesRelationship(callBetaEntity, y6LhsEntity);
 
 	// Create parent relationships
 	Relationship ifParentCall = Relationship::createParentRelationship(ifEntity, callBetaEntity);
@@ -696,7 +698,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 	Relationship alphaCallsTBeta = Relationship::createCallsTRelationship(procedureAlphaEntity, procedureBetaEntity);
 	Relationship mainCallsTBeta = Relationship::createCallsTRelationship(procedureMainEntity, procedureBetaEntity);
 
-	vector<Relationship> expectedRelationships = vector<Relationship>{ readModifiesY, alphaModifiesY, assignModifiesY, betaModifiesY, 
+	vector<Relationship> expectedRelationships = vector<Relationship>{ readModifiesY, alphaModifiesY, assignModifiesY, betaModifiesY, callAlphaModifiesY, callBetaModifiesY,
 																	ifParentCall, ifParentPrint, ifParentTCall, ifParentTPrint, ifUsesY3, 
 																	ifUsesY5, printYUsesY5, alphaUsesY3, alphaUsesY5, assignUsesY6, 
 																	betaUsesY6, ifFollowsReadY, ifFollowsTReadY, mainCallsAlpha, 

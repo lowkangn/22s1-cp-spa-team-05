@@ -52,11 +52,28 @@ vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
 	}
 	// TODO (Not in milestone 1)
 	case ASTNodeType::CALL:
+		vector<Relationship> extractedModifies = this->handleCall(ast);
+		modifies.insert(modifies.end(), extractedModifies.begin(), extractedModifies.end());
 		break;
 	}
 
 	if (ast->hasContainer()) {
 		vector<shared_ptr<ASTNode>> children = ast->getChildren();
+
+		// If program node, we look ahead and store the procedures in the program
+		if (ast->isProgramNode()) {
+			for (int i = 0; i < children.size(); i++) {
+				shared_ptr<ASTNode> child = children[i];
+				assert(child->isProcedureNode());
+
+				/* 
+					We look ahead from root program node and add all procedures to
+					extract on demand
+				*/
+				allProcedures.push_back(child);
+			}
+		}
+
 		for (int i = 0; i < children.size(); i++) {
 			shared_ptr<ASTNode> child = children[i];
 			vector<Relationship> extractedRelationships = this->extract(child);
@@ -115,17 +132,33 @@ vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast)
 		throw ASTException("handleProcedure can only accept procedure AST nodes");
 	}
 
+	// if entry already exists in DP map, just return the mapped relationships
+	string procedureName = ast->extractEntity().getString();
+
+	// checks if procedure name is already in entry
+	if (procedureNameToRelationshipMap.find(procedureName) != procedureNameToRelationshipMap.end()) {
+		return procedureNameToRelationshipMap.at(procedureName);
+	}
+
+
 	Entity leftHandSide = ast->extractEntity();
 
 	vector<Relationship> extractedChildRelationships;
 	shared_ptr<ProcedureASTNode> procedureNode = dynamic_pointer_cast<ProcedureASTNode>(ast);
 	shared_ptr<ASTNode> childContainer = procedureNode->getStmtList();
 
+	vector<Relationship> collectedRelationships;
+
 	// Iterate through children and extract Procedure Stmt relationships
 	for (shared_ptr<ASTNode> child : childContainer->getChildren()) {
 		vector <Relationship> extractedRelationships = recursiveContainerExtract(leftHandSide, child);
 		extractedChildRelationships.insert(extractedChildRelationships.end(), extractedRelationships.begin(), extractedRelationships.end());
+
+		
 	}
+
+	// Update procedureToModifiedVariablesMap for DP purposes so future calls can refer to the result
+	procedureNameToRelationshipMap.insert(make_pair(procedureName, extractedChildRelationships));
 
 	return extractedChildRelationships;
 }
@@ -187,7 +220,102 @@ vector<Relationship> ModifiesExtractor::handleCall(shared_ptr<ASTNode> ast) {
 	if (currNodeType != ASTNodeType::CALL) {
 		throw ASTException("handleCall can only accept call AST nodes");
 	}
-	return vector<Relationship>();
+
+	vector<Relationship> extractedRelationships;
+
+	// We check that procedure call only has one child, that is the procedure it is calling
+	assert(ast->getChildren().size() == 1);
+	shared_ptr<ASTNode> procedureCalled = ast->getChildren()[0];
+
+	assert(procedureCalled->isProcedureNode());
+	string procedureCalledName = procedureCalled->extractEntity().getString();
+
+	// checks if procedure name is already in DP entry
+	if (procedureNameToRelationshipMap.find(procedureCalledName) != procedureNameToRelationshipMap.end()) {
+		vector<Relationship> procedureCalledRelationships = procedureNameToRelationshipMap.at(procedureCalledName);
+		
+		// get the call entity in question
+		Entity leftHandSide = ast->extractEntity();
+		assert(leftHandSide.getType() == EntityType::CALL);
+
+		/*
+			The DP relationships are in the form of procedure p : variable v
+			Take variable v (from rhs) and create relationship call c : variable v
+		*/
+		for (int i = 0; i < procedureCalledRelationships.size(); i++) {
+			Relationship currRelation = procedureCalledRelationships[i];
+			Entity rightHandSide = currRelation.getRhs();
+			assert(rightHandSide.getType() == EntityType::VARIABLE);
+
+			Relationship toAdd = Relationship::createModifiesRelationship(leftHandSide, rightHandSide);
+			extractedRelationships.push_back(toAdd);
+		}
+		return extractedRelationships;
+	}
+	else {
+		/*
+			Procedures from root program node added to allProcedures vector
+
+			We find the name of the called procedure, and string match it to the corect index in 
+			allProcedures
+			
+			e.g.
+
+						program
+					   /      \
+				 proc:first  proc:second
+					/           \
+				  stmtLst       ...
+				  /
+				 call
+				 /
+			proc:second
+			    /
+			empty stmtLst
+
+			allProcedures: vect {index 0: first, index 1: second}
+			In this case, the correct index is 1
+		*/
+		int index = -1;
+		for (int i = 0; i < allProcedures.size(); i++) {
+			shared_ptr<ASTNode> currProcedure = allProcedures[i];
+			assert(currProcedure->isProcedureNode());
+
+			string currProcedureName = currProcedure->extractEntity().getString();
+
+			if (currProcedureName == procedureCalledName) {
+				index = i;
+			}
+		}
+
+		if (index == -1) {
+			throw ASTException("Could not find name of procedure called in program");
+		}
+
+		// Now we know the index of the called procedure in allProcedures
+		shared_ptr<ASTNode> procedureToExtract = allProcedures[index];
+
+		// We use handleProcedure() to get relationships if entries are not in DP map
+		vector<Relationship> procedureCalledRelationships = this->handleProcedure(procedureToExtract);
+		
+		// Get the call entity in question
+		Entity leftHandSide = ast->extractEntity();
+		assert(leftHandSide.getType() == EntityType::CALL);
+
+		/*
+			The DP relationships are in the form of procedure p : variable v
+			Take variable v (from rhs) and create relationship call c : variable v
+		*/
+		for (int i = 0; i < procedureCalledRelationships.size(); i++) {
+			Relationship currRelation = procedureCalledRelationships[i];
+			Entity rightHandSide = currRelation.getRhs();
+			assert(rightHandSide.getType() == EntityType::VARIABLE);
+
+			Relationship toAdd = Relationship::createModifiesRelationship(leftHandSide, rightHandSide);
+			extractedRelationships.push_back(toAdd);
+		}
+		return extractedRelationships;
+	}
 }
 
 vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHandSide, shared_ptr<ASTNode> ast) {
