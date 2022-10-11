@@ -6,7 +6,7 @@
 using namespace std;
 
 
-string PkbPatternTable::add(shared_ptr<PkbStatementPattern> pattern) {
+string PkbPatternTable::add(shared_ptr<PkbPattern> pattern) {
 	// get key
 	string key = pattern->getKey();
 
@@ -21,25 +21,25 @@ string PkbPatternTable::add(shared_ptr<PkbStatementPattern> pattern) {
 }
 
 
-shared_ptr<PkbStatementPattern> PkbPatternTable::get(string& key) {
+shared_ptr<PkbPattern> PkbPatternTable::get(string& key) {
 	if (this->table.find(key) == this->table.end()) {
 		return NULL;
 	}
 	return this->table.at(key);
 }
 
-vector<shared_ptr<PkbStatementPattern>> PkbPatternTable::getAll() {
-	vector<shared_ptr<PkbStatementPattern>> output;
-	for (pair<string, shared_ptr<PkbStatementPattern>> const& keyValuePair : this->table) {
+vector<shared_ptr<PkbPattern>> PkbPatternTable::getAll() {
+	vector<shared_ptr<PkbPattern>> output;
+	for (pair<string, shared_ptr<PkbPattern>> const& keyValuePair : this->table) {
 		output.push_back(keyValuePair.second);
 	}
 	return output;
 }
 
-vector<shared_ptr<PkbStatementPattern>> PkbPatternTable::getAllThatMatchPostFixStrings(vector<string> postFixStrings) {
+vector<shared_ptr<PkbPattern>> PkbPatternTable::getAllThatMatchPostFixStrings(vector<string> postFixStrings) {
 		
 	// get all 
-	vector<shared_ptr<PkbStatementPattern>> patterns = this->getAll();
+	vector<shared_ptr<PkbPattern>> patterns = this->getAll();
 
 	// convert string to regex strings
 	vector<string> regexStrings;
@@ -48,8 +48,8 @@ vector<shared_ptr<PkbStatementPattern>> PkbPatternTable::getAllThatMatchPostFixS
 	}
 
 	// do matching row by row
-	vector<shared_ptr<PkbStatementPattern>> output;
-	for (shared_ptr<PkbStatementPattern> p : patterns) {
+	vector<shared_ptr<PkbPattern>> output;
+	for (shared_ptr<PkbPattern> p : patterns) {
 		if (p->isRegexMatch(regexStrings)) {
 			output.push_back(p);
 		}
@@ -57,4 +57,27 @@ vector<shared_ptr<PkbStatementPattern>> PkbPatternTable::getAllThatMatchPostFixS
 
 	// return all matches
 	return output;
+}
+
+vector<shared_ptr<PkbPattern>> PkbPatternTable::getVariableMatch(string conditions) {
+	// get all 
+	vector<shared_ptr<PkbPattern>> patterns = this->getAll();
+	
+	// If pattern to match is wildcard, set regex to to match all
+	if (conditions == WILDCARD_CHAR) {
+		return patterns;
+	}
+	else {
+		vector<shared_ptr<PkbPattern>> output;
+		// do matching row by row on the given condition
+		for (shared_ptr<PkbPattern> p : patterns) {
+			string varIdentifier = p->getVariableIdentifier();
+
+			// if variable matches given condition, append to resulting vector
+			if (varIdentifier == conditions) {
+				output.push_back(p);
+			}
+		}
+		return output;
+	}
 }

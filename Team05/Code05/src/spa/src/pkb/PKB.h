@@ -17,6 +17,8 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <sstream>
+
 using namespace std;
 
 const string FOLLOWS_TABLE = "follows";
@@ -27,6 +29,8 @@ const string USES_TABLE = "uses";
 const string MODIFIES_TABLE = "modifies";
 const string CALLS_TABLE = "calls";
 const string CALLSSTAR_TABLE = "callsStar";
+
+const string SPACE_DELIM = " ";
 
 class PKB : public PKBQueryHandler, public PKBUpdateHandler {
 private: 
@@ -50,6 +54,8 @@ private:
 
 	// patterns
 	PkbPatternTable assignPatterns;
+	PkbPatternTable ifPatterns;
+	PkbPatternTable whilePatterns;
 
 	// getters
 	shared_ptr<PkbRelationshipTable> getFollowsTable() {
@@ -111,7 +117,22 @@ private:
 	/*
 		Converts an internal pkb pattern to a pql pattern used in the qps.
 	*/
-	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> pattern);
+	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbPattern> pattern);
+
+	/*
+		Retrieves assign statements by lhs and rhs.
+	*/
+	vector<PQLPattern> retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs);
+
+	/*
+		Retrieves if patterns by lhs.
+	*/
+	vector<PQLPattern> retrieveIfPatterns(ClauseArgument lhs);
+
+	/*
+		Retrieves while patterns by lhs.
+	*/
+	vector<PQLPattern> retrieveWhilePatterns(ClauseArgument lhs);
 
 	/*
 		Helper function to check if retrieving the relationship, while semantically and syntacticall correct, is even 
@@ -195,14 +216,9 @@ public:
 	vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) override;
 
 	/*
-        Retrieves statements by lhs and rhs. 
+        Retrieves statements by lhs and rhs for Assign Patterns
     */
 	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
-
-	/*
-		Retrieves assign statements by lhs and rhs.
-	*/
-	vector<PQLPattern> retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs);
 
 	/*
 		Casts the PKB to its query handler interface as a shared pointer.
@@ -244,4 +260,3 @@ typedef bool (*PkbEntityFilter)(shared_ptr<PkbEntity> entity, ClauseArgument arg
 	that always evaluates to true for ease.
 */
 PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue = false);
-
