@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <unordered_map>
 #include <unordered_set>
 #include <qps/query/clause/ClauseArgument.h>
@@ -17,11 +18,22 @@ typedef vector<vector<PQLEntity>> Table;
 
 class ClauseResult {
 protected:
+	/* ================ Protected fields ================ */
+
 	vector<ClauseArgument> args;
 	Table table;
 
+	/* ============== Protected constructor ============== */
+
+	ClauseResult(vector<ClauseArgument> args, vector<vector<PQLEntity>> table) : args(args), table(table) {};
+
+	/* ================ Protected methods ================ */
+
 	/* Method for finding common synonyms */
 	vector<ClauseArgument> findConnectingArgs(ClauseResult otherResult);
+
+	/* Gets the indices in the table corresponding to the given args - returns empty if an arg is not found in table */
+	vector<int> getColumnIndices(vector<ClauseArgument> args);
 
 	/* Method for performing inner join (have common synonyms) */
 	ClauseResult performInnerJoin(ClauseResult otherResult, vector<ClauseArgument> connectingArgs);
@@ -29,15 +41,12 @@ protected:
 	/* Method for performing cross product (no common synonyms) */
 	ClauseResult performCrossProduct(ClauseResult otherResult);
 
-	/* Methods for adding stuff to table */
+	/* Method for adding argument to table */
 	void addArgumentToTable(ClauseArgument argumentToAdd) {
 		this->args.push_back(argumentToAdd);
 	}
 
-	void addArgumentsToTable(vector<ClauseArgument> argumentsToAdd) {
-		this->args.insert(this->args.end(), argumentsToAdd.begin(), argumentsToAdd.end());
-	}
-
+	/* Method for adding row to table */
 	void addRowToTable(Row rowToAdd) {
 		this->table.push_back(rowToAdd);
 	}
@@ -47,12 +56,16 @@ protected:
 		return this->table.size() == result.table.size();
 	}
 
+	/* Adds a column to the table */
+	void addColumn(ClauseResult resultToAdd);
+
+	/* Get column from table by index */
+	ClauseResult getColumn(int index);
+
 public:
-	/* ================ Constructors ================ */
+	/* ============= Public constructors ============= */
 
 	ClauseResult() {};
-
-	ClauseResult(vector<ClauseArgument> args, vector<vector<PQLEntity>> table) : args(args), table(table) {};
 
 	ClauseResult(vector<ClauseArgument> args, vector<PQLEntity> entities) : args(args) {
 		for (PQLEntity entity : entities) {
@@ -68,27 +81,20 @@ public:
 
 	/* ================ Public methods ================ */
 
-	/* Gets the indices in the table corresponding to the given args - returns empty if an arg is not found in table */
-	vector<int> getColumnIndices(vector<ClauseArgument> args);
-
 	/* Merges another ClauseResult */
 	ClauseResult mergeResult(ClauseResult resultToMerge);
 
-	/* Adds a column to the table */
-	void addColumn(ClauseResult resultToAdd);
+	/* Checks if any of the given args are in the table */
+	bool checkArgsInTable(vector<ClauseResult> results);
 
-	/* Get column from table by index */
-	ClauseResult getColumn(int index);
+	/* Gets table rearranged based on args from select results */
+	ClauseResult rearrangeTableWithSelectResults(vector<ClauseResult> selectResults);
 
-	/* Get args */
-	vector<ClauseArgument> getArgs() {
-		return this->args;
-	}
+	/* Duplicates an existing column and adds it to the table */
+	void duplicateColumn(ClauseResult column);
 
-	/* Get table */
-	Table getTable() {
-		return this->table;
-	}
+	/* Convert table to set of strings (output) */
+	set<string> convertTableToString(bool isBooleanReturnType);
 
 	/* Checks if result table is empty */
 	bool isEmpty() {

@@ -42,29 +42,11 @@ private:
 		return results;
 	}
 
-	bool checkSelectArgsInCombinedTable(vector<ClauseArgument> selectArgs, ClauseResult result) {
-		unordered_set<ClauseArgument> resultArgsSet;
-		vector<ClauseArgument> resultArgs = result.getArgs();
-		for (ClauseArgument resultArg : resultArgs) {
-			resultArgsSet.insert(resultArg);
-		}
-
-		for (ClauseArgument selectArg : selectArgs) {
-			if (resultArgsSet.find(selectArg) != resultArgsSet.end()) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	ClauseResult combineResults(list<ClauseResult> results);
 
-	Table getDesiredSynonymsTable(list<ClauseResult> selectResultsList, ClauseResult result);
+	ClauseResult getDesiredSynonymsResult(list<ClauseResult> selectResultsList, ClauseResult result);
 
-	Table getSelectSynonymsCrossProductTable(list<ClauseResult> selectResultsList);
-
-	set<string> convertTableToString(Table desiredSynonymsTable, bool isBooleanReturnType);
+	ClauseResult getSelectSynonymsCrossProductResult(list<ClauseResult> selectResultsList);
 
 public:
 	QueryEvaluator() {};

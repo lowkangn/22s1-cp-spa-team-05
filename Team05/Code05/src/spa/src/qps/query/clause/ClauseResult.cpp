@@ -1,5 +1,9 @@
 #include <qps/query/clause/ClauseResult.h>
 
+// =========================================================== //
+// ==================== PROTECTED METHODS ==================== //
+// =========================================================== //
+
 vector<ClauseArgument> ClauseResult::findConnectingArgs(ClauseResult otherResult) {
 	unordered_set<ClauseArgument> argSet;
 	for (ClauseArgument arg : this->args) {
@@ -13,6 +17,24 @@ vector<ClauseArgument> ClauseResult::findConnectingArgs(ClauseResult otherResult
 		}
 	}
 	return connectingArgs;
+}
+
+vector<int> ClauseResult::getColumnIndices(vector<ClauseArgument> args) {
+	unordered_map<ClauseArgument, int> argMap;
+	for (int i = 0; i < this->args.size(); i++) {
+		argMap.insert({this->args[i], i});
+	}
+
+	vector<int> indices;
+	for (ClauseArgument arg : args) {
+		unordered_map<ClauseArgument, int>::iterator mapIter = argMap.find(arg);
+		if (mapIter != argMap.end()) {
+			indices.push_back(mapIter->second);
+		} else {
+			indices.push_back(-1);
+		}
+	}
+	return indices;
 }
 
 ClauseResult ClauseResult::performInnerJoin(ClauseResult otherResult, vector<ClauseArgument> connectingArgs) {
@@ -36,7 +58,7 @@ ClauseResult ClauseResult::performInnerJoin(ClauseResult otherResult, vector<Cla
 
 	// Create new table and set up arguments (columns)
 	ClauseResult newResult = ClauseResult();
-	newResult.addArgumentsToTable(this->args);
+	newResult.args = this->args;
 	for (int i = 0; i < otherResult.args.size(); i++) {
 		if (otherTableKeyColumnIndicesSet.find(i) == otherTableKeyColumnIndicesSet.end()) {
 			newResult.addArgumentToTable(otherResult.args[i]);
@@ -69,8 +91,12 @@ ClauseResult ClauseResult::performInnerJoin(ClauseResult otherResult, vector<Cla
 ClauseResult ClauseResult::performCrossProduct(ClauseResult otherResult) {
 	// Create new table and set up arguments (columns)
 	ClauseResult newResult = ClauseResult();
-	newResult.addArgumentsToTable(this->args);
-	newResult.addArgumentsToTable(otherResult.args);
+	for (ClauseArgument arg : this->args) {
+		newResult.addArgumentToTable(arg);
+	}
+	for (ClauseArgument arg : otherResult.args) {
+		newResult.addArgumentToTable(arg);
+	}
 
 	// Create new rows and add to new table
 	for (Row thisTableRow : this->table) {
@@ -82,36 +108,6 @@ ClauseResult ClauseResult::performCrossProduct(ClauseResult otherResult) {
 	}
 
 	return newResult;
-}
-
-vector<int> ClauseResult::getColumnIndices(vector<ClauseArgument> args) {
-	unordered_map<ClauseArgument, int> argMap;
-	for (int i = 0; i < this->args.size(); i++) {
-		argMap.insert({this->args[i], i});
-	}
-
-	vector<int> indices;
-	for (ClauseArgument arg : args) {
-		unordered_map<ClauseArgument, int>::iterator mapIter = argMap.find(arg);
-		if (mapIter != argMap.end()) {
-			indices.push_back(mapIter->second);
-		} else {
-			indices.push_back(-1);
-		}
-	}
-	return indices;
-}
-
-ClauseResult ClauseResult::mergeResult(ClauseResult resultToMerge) {
-	// Find common synonyms between results
-	vector<ClauseArgument> connectingArgs = this->findConnectingArgs(resultToMerge);
-
-	// If there are connecting args, find common synonym columns and inner join on those, otherwise perform cross product
-	if (!connectingArgs.empty()) {
-		return this->performInnerJoin(resultToMerge, connectingArgs);
-	} else {
-		return this->performCrossProduct(resultToMerge);
-	}
 }
 
 void ClauseResult::addColumn(ClauseResult resultToAdd) {
@@ -136,4 +132,112 @@ ClauseResult ClauseResult::getColumn(int columnIndex) {
 		column.push_back({this->table[rowIndex][columnIndex]});
 	}
 	return ClauseResult({this->args[columnIndex]}, column);
+}
+
+// ======================================================== //
+// ==================== PUBLIC METHODS ==================== //
+// ======================================================== //
+
+ClauseResult ClauseResult::mergeResult(ClauseResult resultToMerge) {
+	// Find common synonyms between results
+	vector<ClauseArgument> connectingArgs = this->findConnectingArgs(resultToMerge);
+
+	// If there are connecting args, find common synonym columns and inner join on those, otherwise perform cross product
+	if (!connectingArgs.empty()) {
+		return this->performInnerJoin(resultToMerge, connectingArgs);
+	} else {
+		return this->performCrossProduct(resultToMerge);
+	}
+}
+
+bool ClauseResult::checkArgsInTable(vector<ClauseResult> results) {
+	// Get list of args from select results
+	vector<ClauseArgument> selectArgs;
+	for (ClauseResult selectResult : results) {
+		vector<ClauseArgument> currentArgs = selectResult.args;
+		selectArgs.insert(selectArgs.end(), currentArgs.begin(), currentArgs.end());
+	}
+
+	unordered_set<ClauseArgument> resultArgsSet;
+	for (ClauseArgument arg : this->args) {
+		resultArgsSet.insert(arg);
+	}
+
+	for (ClauseArgument selectArg : selectArgs) {
+		if (resultArgsSet.find(selectArg) != resultArgsSet.end()) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+ClauseResult ClauseResult::rearrangeTableWithSelectResults(vector<ClauseResult> selectResults) {
+	// Get args
+	vector<ClauseArgument> selectArgs;
+	for (ClauseResult selectResult : selectResults) {
+		vector<ClauseArgument> currentArgs = selectResult.args;
+		selectArgs.insert(selectArgs.end(), currentArgs.begin(), currentArgs.end());
+	}
+
+	// Find corresponding column indices
+	vector<int> desiredSynonymIndices = this->getColumnIndices(selectArgs);
+
+	// If arg not found in combined table, merge respective list from select result
+	for (int i = 0; i < desiredSynonymIndices.size(); i++) {
+		if (desiredSynonymIndices[i] == -1) {
+			ClauseResult newResult = this->mergeResult(selectResults[i]);
+			this->args = newResult.args;
+			this->table = newResult.table;
+			desiredSynonymIndices[i] = int(this->args.size()) - 1;
+		}
+	}
+
+	// If all selected args can be found in combined table, get table of desired synonyms
+	Table desiredSynonymsTable;
+	for (Row row : this->table) {
+		Row newRow;
+		for (int index : desiredSynonymIndices) {
+			newRow.push_back(row[index]);
+		}
+		desiredSynonymsTable.push_back(newRow);
+	}
+
+	return ClauseResult(selectArgs, desiredSynonymsTable);
+}
+
+void ClauseResult::duplicateColumn(ClauseResult column) {
+	assert(column.args.size() == 1); // Method is only called with a column as parameter
+	ClauseArgument arg = column.args[0];
+	int countIndex = column.getColumnIndices({arg})[0];
+	assert(countIndex != -1); // Method is only called if column is known to already exist in table
+	ClauseResult duplicatedColumn = getColumn(countIndex);
+	this->addColumn(duplicatedColumn);
+}
+
+set<string> ClauseResult::convertTableToString(bool isBooleanReturnType) {
+	set<string> entityStringsToReturn;
+
+	if (isBooleanReturnType) {
+		if (this->table.empty()) {
+			entityStringsToReturn.insert("FALSE");
+		} else {
+			entityStringsToReturn.insert("TRUE");
+		}
+	}
+	else {
+		for (Row row : this->table) {
+			string out;
+			vector<PQLEntity>::iterator entityIter = row.begin();
+			for (; entityIter != row.end(); entityIter++) {
+				if (entityIter != row.begin()) {
+					out += " ";
+				}
+				out += entityIter->toString();
+			}
+			entityStringsToReturn.insert(out);
+		}
+	}
+
+	return entityStringsToReturn;
 }
