@@ -41,7 +41,7 @@ shared_ptr<ClauseResult> WithOneExactClause::executeForStmtWithNameAttribute(sha
 		relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType::MODIFIES, synonym, this->exactArg);
 	}
 	else if (synonym.isCallSynonym()) {
-		//relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType::CALLSStatement, synonym, this->exactArg);
+		relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType::CALLSTMTATTRIBUTE, synonym, this->exactArg);
 	}
 	else {
 		throw PQLLogicError("For statements, only print, read and call synonyms can have a name attribute.");

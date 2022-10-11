@@ -24,6 +24,11 @@ namespace {
 		procedure z {
 			9. print z;
 			10.read b;
+			11.call main;
+			12.call y;
+		}
+		procedure y {
+			13.call main;
 		}
 	*/
 
@@ -77,6 +82,13 @@ namespace {
 	Entity r10Entity = Entity::createReadEntity(10);
 	Entity b10Entity = Entity::createVariableEntity(10, bToken);
 
+	Entity call11Entity = Entity::createCallEntity(11);
+	Entity call12Entity = Entity::createCallEntity(12);
+
+	Entity yProcedureEntity = Entity::createProcedureEntity(yToken);
+
+	Entity call13Entity = Entity::createCallEntity(13);
+
 	// Initialise uses relationships - procedure main
 	Relationship usesMainY2 = Relationship::createUsesRelationship(mainEntity, y2Entity);
 	Relationship usesMainXCond = Relationship::createUsesRelationship(mainEntity, xCondEntity);
@@ -122,6 +134,11 @@ namespace {
 	Relationship modifiesZProcedureB10 = Relationship::createModifiesRelationship(zProcedureEntity, b10Entity);
 	Relationship modifiesR10B10 = Relationship::createModifiesRelationship(r10Entity, b10Entity);
 
+	// Initialise call statement attribute relationships
+	Relationship callAttrC11Main = Relationship::createCallStmtAttributeRelationship(call11Entity, mainEntity);
+	Relationship callAttrC12Y = Relationship::createCallStmtAttributeRelationship(call12Entity, yProcedureEntity);
+	Relationship callAttrC13Main = Relationship::createCallStmtAttributeRelationship(call13Entity, mainEntity);
+
 	// Initialise corresponding PQLEntities
 	PQLEntity pqlR1 = PQLEntity::generateStatement(1);
 	PQLEntity pqlA2 = PQLEntity::generateStatement(2);
@@ -133,9 +150,13 @@ namespace {
 	PQLEntity pqlR8 = PQLEntity::generateStatement(8);
 	PQLEntity pqlP9 = PQLEntity::generateStatement(9);
 	PQLEntity pqlR10 = PQLEntity::generateStatement(10);
+	PQLEntity pqlC11 = PQLEntity::generateStatement(11);
+	PQLEntity pqlC12 = PQLEntity::generateStatement(12);
+	PQLEntity pqlC13 = PQLEntity::generateStatement(13);
 
 	PQLEntity pqlProcMain = PQLEntity::generateProcedure("main");
 	PQLEntity pqlProcZ = PQLEntity::generateProcedure("z");
+	PQLEntity pqlProcY = PQLEntity::generateProcedure("y");
 
 	PQLEntity pqlVarB = PQLEntity::generateVariable("b");
 	PQLEntity pqlVarX = PQLEntity::generateVariable("x");
@@ -183,6 +204,11 @@ namespace {
 	PQLRelationship pqlModifiesZProcedureB = PQLRelationship(pqlProcZ, pqlVarB);
 	PQLRelationship pqlModifiesR10B = PQLRelationship(pqlR10, pqlVarB);
 	
+	//Initiliase corresponding PQLRelationships (Call Attribute)
+	PQLRelationship pqlCallAttrC11Main = PQLRelationship(pqlC11, pqlProcMain);
+	PQLRelationship pqlCallAttrC12Y = PQLRelationship(pqlC12, pqlProcY);
+	PQLRelationship pqlCallAttrC13Main = PQLRelationship(pqlC13, pqlProcMain);
+
 	// Clause Arguments
 	ClauseArgument stmtArg = ClauseArgument::createStmtArg("s");
 	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
@@ -409,12 +435,15 @@ TEST_CASE("WithOneExactClause: test execute - non-default attributes") {
 
 	vector<Entity> entities{ mainEntity, r1Entity, y1Entity, a2Entity, x2Entity, y2Entity, whileEntity, xCondEntity,
 		zeroConstEntity, print4Entity, z4Entity, a5Entity, x5LhsEntity, x5RhsEntity, oneConstEntity, ifEntity, yCondEntity,
-		fiveConstEntity, print7Entity, y7Entity, r8Entity, z8Entity, zProcedureEntity, z9Entity, r10Entity, b10Entity, };
+		fiveConstEntity, print7Entity, y7Entity, r8Entity, z8Entity, zProcedureEntity, z9Entity, r10Entity, b10Entity, 
+		call11Entity, call12Entity, call13Entity};
 
 	vector<Relationship> relationships{ usesMainY2, usesMainXCond, usesMainZ4, usesMainX5, usesMainYCond, usesMainY7,
 		usesA2Y2, usesA5X5, usesW3XCond, usesW3Z4, usesW3X5, usesIf6YCond, usesIf6Y7, usesP4Z4, usesP7Y7, usesZProcedureZ9,
-		usesP9Z9, modifiesMainY1, modifiesMainX2, modifiesMainX5, modifiesMainZ8, modifiesA2X2, modifiesA5X5, modifiesW3X5,
-		modifiesIf6Z8, modifiesR1Y1, modifiesR8Z8, modifiesZProcedureB10, modifiesR10B10, };
+		usesP9Z9, 
+		modifiesMainY1, modifiesMainX2, modifiesMainX5, modifiesMainZ8, modifiesA2X2, modifiesA5X5, modifiesW3X5,
+		modifiesIf6Z8, modifiesR1Y1, modifiesR8Z8, modifiesZProcedureB10, modifiesR10B10, 
+		callAttrC11Main, callAttrC12Y, callAttrC13Main };
 
 	pkb->addEntities(entities);
 	pkb->addRelationships(relationships);
@@ -467,6 +496,24 @@ TEST_CASE("WithOneExactClause: test execute - non-default attributes") {
 
 	SECTION("call.procName") {
 		nonExactArgs = { callArg, procNameAttributeArg };
-		//TODO
+		
+		exactArg = mainLiteralArg;
+		clause = WithOneExactClause(exactArg, nonExactArgs);
+		expectedRetrievedFromPkb = { pqlCallAttrC11Main, pqlCallAttrC13Main, };
+		expectedClauseResult = RelationshipClauseResult(callArg, procNameAttributeArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	
+		exactArg = yLiteralArg;
+		clause = WithOneExactClause(exactArg, nonExactArgs);
+		expectedRetrievedFromPkb = { pqlCallAttrC12Y, };
+		expectedClauseResult = RelationshipClauseResult(callArg, procNameAttributeArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		exactArg = zLiteralArg;
+		clause = WithOneExactClause(exactArg, nonExactArgs);
+		expectedRetrievedFromPkb = {};
+		expectedClauseResult = RelationshipClauseResult(callArg, procNameAttributeArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
 	}
 }
