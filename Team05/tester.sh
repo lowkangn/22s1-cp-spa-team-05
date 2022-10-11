@@ -50,7 +50,7 @@ do
         ${path_to_autotester} ${iteration1}${invalid_s_path}invalidSource$i\_source.txt ${iteration1}${invalid_s_path}invalidSource$i\_queries.txt ${iteration1_output_folder}invalidSourceOut$i.xml
 done
 
-for i in {1..1}
+for i in {1..4}
 do	
         ${path_to_autotester} ${iteration2}${invalid_s_path}invalidSource$i\_source.txt ${iteration2}${invalid_s_path}invalidSource$i\_queries.txt ${iteration2_output_folder}invalidSourceOut$i.xml
 done
@@ -63,6 +63,8 @@ done
 
 echo "Starting no constraints query test cases"
 ${path_to_autotester} ${iteration1}${no_constr_path}noConstraints_source.txt ${iteration1}${no_constr_path}noConstraints_queries.txt ${iteration1_output_folder}outNoConstraints.xml
+
+${path_to_autotester} ${iteration2}${no_constr_path}noConstraints_source.txt ${iteration2}${no_constr_path}noConstraints_queries.txt ${iteration2_output_folder}outNoConstraints.xml
 
 echo "Starting one constraint query test cases"
 for i in follows modifies parent pattern uses
