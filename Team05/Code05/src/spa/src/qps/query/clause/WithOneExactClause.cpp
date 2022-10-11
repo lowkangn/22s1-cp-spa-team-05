@@ -3,7 +3,7 @@
 shared_ptr<ClauseResult> WithOneExactClause::execute(shared_ptr<PKBQueryHandler> pkb) {
 	ClauseArgument synonym = this->nonExactArgs.front();
 	ClauseArgument attribute = this->nonExactArgs.back();
-	assert(synonym.isSynonym() && attribute.isAttributeName && exactArg.isExactReference());
+	assert(synonym.isSynonym() && attribute.isAttributeName() && exactArg.isExactReference());
 
 	vector<PQLEntity> entity;
 	if (synonym.isProcedureSynonym()) {

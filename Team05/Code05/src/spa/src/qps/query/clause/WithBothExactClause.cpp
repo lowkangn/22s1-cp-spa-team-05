@@ -3,7 +3,7 @@
 shared_ptr<ClauseResult> WithBothExactClause::execute(shared_ptr<PKBQueryHandler> pkb) {
 	assert(this->lhs.isExactReference() && this->rhs.isExactReference());
 
-	assert((this->lhs.isLineNumber && this->rhs.isLineNumber())
+	assert((this->lhs.isLineNumber() && this->rhs.isLineNumber())
 		|| (this->lhs.isStringLiteral() && this->rhs.isStringLiteral()));
 
 	if (lhs != rhs) {
