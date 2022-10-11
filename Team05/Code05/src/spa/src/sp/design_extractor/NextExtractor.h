@@ -9,11 +9,11 @@
 
 using namespace std;
 
-class NextExtractor : public Extractor<Relationship> {
+class NextExtractor {
 
 public:
 	/*
 		This method is used to extract relationships from a provided control flow graph.
 	*/
-	virtual vector<Relationship> extract(shared_ptr<CFGNode> cfg) override;
+	virtual vector<Relationship> extract(shared_ptr<CFGNode> cfg);
 };

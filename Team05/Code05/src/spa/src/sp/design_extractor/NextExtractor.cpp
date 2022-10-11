@@ -26,5 +26,5 @@ vector<Relationship> NextExtractor::extract(shared_ptr<CFGNode> cfg)
 		}
 	}
 
-	return nextRelationships
+	return nextRelationships;
 }
