@@ -15,7 +15,8 @@ private:
         PARENT = 4,
         PARENTT = 5,
         CALLS = 6,
-        CALLST = 7
+        CALLST = 7,
+        CALLSTMTATTRIBUTE = 8,
     };
 
     Entity entity1;
@@ -58,6 +59,10 @@ public:
 
     static Relationship createCallsTRelationship(Entity& lhs, Entity& rhs) {
         return Relationship(lhs, rhs, RelationshipType::CALLST);
+    }
+
+    static Relationship createCallStmtAttributeRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::CALLSTMTATTRIBUTE);
     }
 
     Entity getLhs() {
@@ -104,5 +109,8 @@ public:
 
     bool isCallsT() {
         return this->type == RelationshipType::CALLST;
+    }
+    bool isCallsStmtAttribute() {
+        return this->type == RelationshipType::CALLSTMTATTRIBUTE;
     }
 };

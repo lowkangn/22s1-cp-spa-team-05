@@ -107,6 +107,9 @@ vector<Relationship> CallsAndCallsTExtractor::recursiveContainerExtract(Entity& 
 				}
 			}
 		}
+
+		Entity callStatement = callNode->extractEntity();
+		callsRelationships.push_back(Relationship::createCallStmtAttributeRelationship(callStatement, procedureCalled));
 	}
 	else if (ast->isIfNode()) {
 		shared_ptr<IfASTNode> ifNode = dynamic_pointer_cast<IfASTNode>(ast);

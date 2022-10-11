@@ -27,6 +27,7 @@ const string PARENT_TABLE = "parent";
 const string PARENTSTAR_TABLE = "parentStar";
 const string USES_TABLE = "uses";
 const string MODIFIES_TABLE = "modifies";
+const string CALLS_ATTRIBUTE_TABLE = "callsAttribute";
 
 const string SPACE_DELIM = " ";
 
@@ -46,6 +47,7 @@ private:
 		{PARENTSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{USES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{MODIFIES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{CALLS_ATTRIBUTE_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 	};
 
 	// patterns
@@ -71,6 +73,9 @@ private:
 	}
 	shared_ptr<PkbRelationshipTable> getModifiesTable() {
 		return this->relationshipTables[MODIFIES_TABLE];
+	}
+	shared_ptr<PkbRelationshipTable> getCallsAttributeTable() {
+		return this->relationshipTables[CALLS_ATTRIBUTE_TABLE];
 	}
 
 	/*

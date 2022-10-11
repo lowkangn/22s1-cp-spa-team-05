@@ -11,6 +11,7 @@
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
 #include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
+#include <pkb/design_objects/relationships/PkbCallStmtAttributeRelationship.h>
 #include <qps/query/clause/PQLEntity.h>
 #include <StringSplitter.h>
 
@@ -130,6 +131,10 @@ shared_ptr<PkbRelationship> PKB::externalRelationshipToPkbRelationship(Relations
 		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhsToPkbEntity, rhsToPkbEntity));
 		return pkbRelationship;
 	}
+	else if (relationship.isCallsStmtAttribute()) {
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbCallStmtAttributeRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		return pkbRelationship;
+	}
 	else {
 		throw PkbException("Unknown relationship being converted!");
 	}
@@ -197,6 +202,10 @@ void PKB::addRelationships(vector<Relationship> relationships) {
 		}
 		else if (r.isModifies()) {
 			shared_ptr<PkbRelationshipTable> table = this->getModifiesTable();
+			table->add(pkbRelationship);
+		}
+		else if (r.isCallsStmtAttribute()) {
+			shared_ptr<PkbRelationshipTable> table = this->getCallsAttributeTable();
 			table->add(pkbRelationship);
 		}
 		else {
@@ -370,6 +379,8 @@ shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelat
 		return this->getUsesTable();
 	case PKBTrackedRelationshipType::MODIFIES:
 		return this->getModifiesTable();
+	case PKBTrackedRelationshipType::CALLSTMTATTRIBUTE:
+		return this->getCallsAttributeTable();
 	default:
 		throw PkbException("Unknown relationship type to be retrieved!");
 	}
@@ -639,6 +650,8 @@ vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelat
 		case PKBTrackedRelationshipType::MODIFIES:
 			toFind = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(left, right));
 			break;
+		case PKBTrackedRelationshipType::CALLSTMTATTRIBUTE:
+			toFind = shared_ptr<PkbRelationship>(new PkbCallStmtAttributeRelationship(left, right));
 		default:
 			throw PkbException("Unknown relationship type to be retrieved!");
 		}
@@ -900,6 +913,9 @@ bool PKB::containsRelationship(Relationship relationship) {
 	}
 	else if (relationshiptoPkbRelationship->isModifies()) {
 		return this->getModifiesTable()->get(key) != NULL;
+	}
+	else if (relationshiptoPkbRelationship->isCallStmtAttribute()) {
+		return this->getCallsAttributeTable()->get(key) != NULL;
 	}
 	else throw PkbException("Relationship of unknown type being checked in PKB");
 }
