@@ -19,8 +19,8 @@ protected:
 	/* Extracts the ref portion of an attrCompare */
 	vector<ClauseArgument> parseRef();
 
-	/* Parses the attrName portion of an attrRef */
-	ClauseArgument parseAttribute();
+	/* Parses the attrName portion of an attrRef of the form synonym.attrName */
+	ClauseArgument parseAttribute(ClauseArgument synonym);
 
 	/* Creates the WithClause from the extracted ClauseArguments */
 	shared_ptr<WithClause> createWithClause(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs);

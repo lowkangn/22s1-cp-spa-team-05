@@ -26,7 +26,7 @@ TEST_CASE("WithBothExactClause: test equals") {
 
 	ClauseArgument procedureArg = ClauseArgument::createProcedureArg("someName");
 	ClauseArgument callsArg = ClauseArgument::createCallArg("c1");
-	ClauseArgument procNameArg = ClauseArgument::createProcNameAttributeArg();
+	ClauseArgument procNameArg = ClauseArgument::createProcNameAttributeArg(callsArg);
 
 	shared_ptr<WithClause> first;
 	shared_ptr<WithClause> second;

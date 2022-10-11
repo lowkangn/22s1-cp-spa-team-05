@@ -8,6 +8,10 @@ using namespace std;
 
 const string WILDCARD_IDENTIFIER = "_";
 const string EMPTY_IDENTIFIER = "";
+const string VALUE_IDENTIFIER = "VALUE";
+const string PROCNAME_IDENTIFIER = "PROCNAME";
+const string VARNAME_IDENTIFIER = "VARNAME";
+const string STMTNUM_IDENTIFIER = "STMTNUM";
 
 class ClauseArgument {
 private:
@@ -87,20 +91,24 @@ public:
 		return ClauseArgument(identifier, ArgumentType::PATTERN_STRING_WITH_WILDCARDS);
 	}
 
-	static ClauseArgument createValueAttributeArg() {
-		return ClauseArgument(EMPTY_IDENTIFIER, ArgumentType::VALUE);
+	static ClauseArgument createValueAttributeArg(ClauseArgument synonym) {
+		string identifier = synonym.getIdentifier() + VALUE_IDENTIFIER;
+		return ClauseArgument(identifier, ArgumentType::VALUE);
 	}
 
-	static ClauseArgument createProcNameAttributeArg() {
-		return ClauseArgument(EMPTY_IDENTIFIER, ArgumentType::PROCNAME);
+	static ClauseArgument createProcNameAttributeArg(ClauseArgument synonym) {
+		string identifier = synonym.getIdentifier() + PROCNAME_IDENTIFIER;
+		return ClauseArgument(identifier, ArgumentType::PROCNAME);
 	}
 
-	static ClauseArgument createStmtNumAttributeArg() {
-		return ClauseArgument(EMPTY_IDENTIFIER, ArgumentType::STMTNUM);
+	static ClauseArgument createStmtNumAttributeArg(ClauseArgument synonym) {
+		string identifier = synonym.getIdentifier() + STMTNUM_IDENTIFIER;
+		return ClauseArgument(identifier, ArgumentType::STMTNUM);
 	}
 
-	static ClauseArgument createVarNameAttributeArg() {
-		return ClauseArgument(EMPTY_IDENTIFIER, ArgumentType::VARNAME);
+	static ClauseArgument createVarNameAttributeArg(ClauseArgument synonym) {
+		string identifier = synonym.getIdentifier() + VARNAME_IDENTIFIER;
+		return ClauseArgument(identifier, ArgumentType::VARNAME);
 	}
 
 	static ClauseArgument createUndeclaredSynonymArg(string identifier) {

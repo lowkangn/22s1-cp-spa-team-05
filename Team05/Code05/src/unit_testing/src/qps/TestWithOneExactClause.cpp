@@ -216,9 +216,23 @@ namespace {
 	ClauseArgument readArg = ClauseArgument::createReadArg("r");
 	ClauseArgument printArg = ClauseArgument::createPrintArg("pp");
 
+	ClauseArgument stmtStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(stmtArg);
+	ClauseArgument assignStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(assignArg);
+	ClauseArgument callStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(callArg);
+	ClauseArgument readStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(readArg);
+	ClauseArgument printStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(printArg);
+
+	ClauseArgument callProcNameAttributeArg = ClauseArgument::createProcNameAttributeArg(callArg);
+	ClauseArgument readVarNameAttributeArg = ClauseArgument::createVarNameAttributeArg(readArg);
+	ClauseArgument printVarNameAttributeArg = ClauseArgument::createVarNameAttributeArg(printArg);
+
 	ClauseArgument variableArg = ClauseArgument::createVariableArg("v");
 	ClauseArgument constantArg = ClauseArgument::createConstantArg("const");
 	ClauseArgument procedureArg = ClauseArgument::createProcedureArg("proc");
+
+	ClauseArgument variableVarNameAttributeArg = ClauseArgument::createVarNameAttributeArg(variableArg);
+	ClauseArgument constantValueAttributeArg = ClauseArgument::createValueAttributeArg(constantArg);
+	ClauseArgument procedureProcNameAttributeArg = ClauseArgument::createProcNameAttributeArg(procedureArg);
 
 	ClauseArgument lineZeroArg = ClauseArgument::createLineNumberArg("0");
 	ClauseArgument lineOneArg = ClauseArgument::createLineNumberArg("1");
@@ -232,10 +246,6 @@ namespace {
 	ClauseArgument bLiteralArg = ClauseArgument::createStringLiteralArg("b");
 	ClauseArgument mainLiteralArg = ClauseArgument::createStringLiteralArg("main");
 
-	ClauseArgument stmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg();
-	ClauseArgument valueAttributeArg = ClauseArgument::createValueAttributeArg();
-	ClauseArgument procNameAttributeArg = ClauseArgument::createProcNameAttributeArg();
-	ClauseArgument varNameAttributeArg = ClauseArgument::createVarNameAttributeArg();
 };
 
 // =============== UNIT TESTS ====================
@@ -254,13 +264,13 @@ TEST_CASE("WithOneExactClause: test equals") {
 	shared_ptr<WithClause> second;
 	SECTION("Equal") {
 		ClauseArgument exactArg = lineOneArg;
-		vector<ClauseArgument> nonExactArgs = { stmtArg, stmtNumAttributeArg };
+		vector<ClauseArgument> nonExactArgs = { stmtArg, stmtStmtNumAttributeArg };
 		first = make_shared<WithOneExactClause>(exactArg, nonExactArgs);
 		second = make_shared<WithOneExactClause>(exactArg, nonExactArgs);
 		testEquals(first, second, true);
 
 		exactArg = zLiteralArg;
-		nonExactArgs = { procedureArg, procNameAttributeArg };
+		nonExactArgs = { procedureArg, procedureProcNameAttributeArg };
 		first = make_shared<WithOneExactClause>(exactArg, nonExactArgs);
 		second = make_shared<WithOneExactClause>(exactArg, nonExactArgs);
 		testEquals(first, second, true);
@@ -268,7 +278,7 @@ TEST_CASE("WithOneExactClause: test equals") {
 
 	SECTION("Not equal - same type, different arguments") {
 		ClauseArgument exactArg = lineOneArg;
-		vector<ClauseArgument> nonExactArgs = { constantArg, valueAttributeArg };
+		vector<ClauseArgument> nonExactArgs = { constantArg, constantValueAttributeArg };
 		first = make_shared<WithOneExactClause>(exactArg, nonExactArgs);
 		
 		//different exact arg
@@ -277,7 +287,7 @@ TEST_CASE("WithOneExactClause: test equals") {
 		testEquals(first, second, false);
 
 		//different both args
-		nonExactArgs = { readArg, stmtNumAttributeArg };
+		nonExactArgs = { readArg, readStmtNumAttributeArg };
 		second = make_shared<WithOneExactClause>(exactArg, nonExactArgs);
 		testEquals(first, second, false);
 
@@ -289,12 +299,12 @@ TEST_CASE("WithOneExactClause: test equals") {
 
 	SECTION("Not equal - different type of with clause") {
 		ClauseArgument exactArg = zLiteralArg;
-		vector<ClauseArgument> rhsArgs = { procedureArg, procNameAttributeArg };
+		vector<ClauseArgument> rhsArgs = { procedureArg, procedureProcNameAttributeArg };
 		first = make_shared<WithOneExactClause>(exactArg, rhsArgs);
 		second = make_shared<WithBothExactClause>(exactArg, exactArg);
 		testEquals(first, second, false);
 		
-		vector<ClauseArgument> lhsArgs = { callArg, procNameAttributeArg };
+		vector<ClauseArgument> lhsArgs = { callArg, callProcNameAttributeArg };
 		second = make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
 		testEquals(first, second, false);
 	}
@@ -335,7 +345,7 @@ TEST_CASE("WithOneExactClause: test execute - default attributes") {
 
 	// ------ QPS ------ 
 	ClauseArgument exactArg = lineZeroArg;
-	vector<ClauseArgument> nonExactArgs = { constantArg, valueAttributeArg };
+	vector<ClauseArgument> nonExactArgs = { constantArg, constantValueAttributeArg };
 	WithOneExactClause clause = WithOneExactClause(exactArg, nonExactArgs);
 
 	vector<PQLEntity> expectedRetrievedFromPkb = { pqlConstZero };
@@ -353,18 +363,18 @@ TEST_CASE("WithOneExactClause: test execute - default attributes") {
 
 	SECTION("statement.stmt#") {
 		exactArg = lineTenArg;
-		nonExactArgs = { stmtArg, stmtNumAttributeArg };
+		nonExactArgs = { stmtArg, stmtStmtNumAttributeArg };
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = { pqlR10 };
 		expectedClauseResult = EntityClauseResult(stmtArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
-		nonExactArgs = { readArg, stmtNumAttributeArg };
+		nonExactArgs = { readArg, readStmtNumAttributeArg };
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedClauseResult = EntityClauseResult(readArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
-		nonExactArgs = { assignArg, stmtNumAttributeArg };
+		nonExactArgs = { assignArg, assignStmtNumAttributeArg };
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = {};
 		expectedClauseResult = EntityClauseResult(assignArg, expectedRetrievedFromPkb);
@@ -373,7 +383,7 @@ TEST_CASE("WithOneExactClause: test execute - default attributes") {
 
 	SECTION("variable.varName") {
 		exactArg = zLiteralArg;
-		nonExactArgs = { variableArg, varNameAttributeArg };
+		nonExactArgs = { variableArg, variableVarNameAttributeArg };
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = { pqlVarZ };
 		expectedClauseResult = EntityClauseResult(variableArg, expectedRetrievedFromPkb);
@@ -394,7 +404,7 @@ TEST_CASE("WithOneExactClause: test execute - default attributes") {
 
 	SECTION("procedure.procName") {
 		exactArg = zLiteralArg;
-		nonExactArgs = { procedureArg, procNameAttributeArg };
+		nonExactArgs = { procedureArg, procedureProcNameAttributeArg };
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = { pqlProcZ };
 		expectedClauseResult = EntityClauseResult(procedureArg, expectedRetrievedFromPkb);
@@ -450,11 +460,11 @@ TEST_CASE("WithOneExactClause: test execute - non-default attributes") {
 
 	// ------ QPS ------ 
 	ClauseArgument exactArg = zLiteralArg;
-	vector<ClauseArgument> nonExactArgs = { readArg, varNameAttributeArg };
+	vector<ClauseArgument> nonExactArgs = { readArg, readVarNameAttributeArg };
 	WithOneExactClause clause = WithOneExactClause(exactArg, nonExactArgs);
 
 	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlModifiesR8Z, };
-	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(readArg, varNameAttributeArg, expectedRetrievedFromPkb);
+	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(readArg, readVarNameAttributeArg, expectedRetrievedFromPkb);
 
 	SECTION("read.varName") {
 		testExecute(clause, expectedClauseResult, pkb);
@@ -462,57 +472,57 @@ TEST_CASE("WithOneExactClause: test execute - non-default attributes") {
 		exactArg = bLiteralArg;
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = { pqlModifiesR10B, };
-		expectedClauseResult = RelationshipClauseResult(readArg, varNameAttributeArg, expectedRetrievedFromPkb);
+		expectedClauseResult = RelationshipClauseResult(readArg, readVarNameAttributeArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		exactArg = xLiteralArg;
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = {};
-		expectedClauseResult = RelationshipClauseResult(readArg, varNameAttributeArg, expectedRetrievedFromPkb);
+		expectedClauseResult = RelationshipClauseResult(readArg, readVarNameAttributeArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
 	SECTION("print.varName") {
-		nonExactArgs = { printArg, varNameAttributeArg };
+		nonExactArgs = { printArg, printVarNameAttributeArg };
 
 		exactArg = zLiteralArg;
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = { pqlUsesP4Z, pqlUsesP9Z};
-		expectedClauseResult = RelationshipClauseResult(printArg, varNameAttributeArg, expectedRetrievedFromPkb);
+		expectedClauseResult = RelationshipClauseResult(printArg, printVarNameAttributeArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		exactArg = yLiteralArg;
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = { pqlUsesP7Y, };
-		expectedClauseResult = RelationshipClauseResult(printArg, varNameAttributeArg, expectedRetrievedFromPkb);
+		expectedClauseResult = RelationshipClauseResult(printArg, printVarNameAttributeArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		exactArg = xLiteralArg;
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = {};
-		expectedClauseResult = RelationshipClauseResult(printArg, varNameAttributeArg, expectedRetrievedFromPkb);
+		expectedClauseResult = RelationshipClauseResult(printArg, printVarNameAttributeArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
 	SECTION("call.procName") {
-		nonExactArgs = { callArg, procNameAttributeArg };
+		nonExactArgs = { callArg, callProcNameAttributeArg };
 		
 		exactArg = mainLiteralArg;
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = { pqlCallAttrC11Main, pqlCallAttrC13Main, };
-		expectedClauseResult = RelationshipClauseResult(callArg, procNameAttributeArg, expectedRetrievedFromPkb);
+		expectedClauseResult = RelationshipClauseResult(callArg, callProcNameAttributeArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	
 		exactArg = yLiteralArg;
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = { pqlCallAttrC12Y, };
-		expectedClauseResult = RelationshipClauseResult(callArg, procNameAttributeArg, expectedRetrievedFromPkb);
+		expectedClauseResult = RelationshipClauseResult(callArg, callProcNameAttributeArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		exactArg = zLiteralArg;
 		clause = WithOneExactClause(exactArg, nonExactArgs);
 		expectedRetrievedFromPkb = {};
-		expectedClauseResult = RelationshipClauseResult(callArg, procNameAttributeArg, expectedRetrievedFromPkb);
+		expectedClauseResult = RelationshipClauseResult(callArg, callProcNameAttributeArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 	}

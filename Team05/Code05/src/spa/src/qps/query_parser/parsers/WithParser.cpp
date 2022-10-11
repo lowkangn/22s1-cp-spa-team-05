@@ -14,17 +14,17 @@ shared_ptr<WithClause> WithParser::parse() {
 
 vector<ClauseArgument> WithParser::parseRef() {
 	vector<ClauseArgument> args;
-	ClauseArgument ref = this->parseOneArgument();
-	args.push_back(ref);
+	ClauseArgument refOrSynonym = this->parseOneArgument();
+	args.push_back(refOrSynonym);
 
 	// a ref can be an '"' IDENT '"', INTEGER or a synonym '.' attrName
-	if (!ref.isSynonym() && !ref.isLineNumber() && !ref.isStringLiteral()) {
+	if (!refOrSynonym.isSynonym() && !refOrSynonym.isLineNumber() && !refOrSynonym.isStringLiteral()) {
 		throw PQLSyntaxError("ref of a with clause should be a '\"'IDENT'\"', INTEGER or an attrRef");
 	}
 
-	if (ref.isSynonym()) {
+	if (refOrSynonym.isSynonym()) {
 		this->consumeDot();
-		args.push_back(this->parseAttribute());
+		args.push_back(this->parseAttribute(refOrSynonym));
 	}
 
 	if (!this->tokens.empty() && this->tokens.front().isDot()) {
@@ -34,17 +34,17 @@ vector<ClauseArgument> WithParser::parseRef() {
 	return args;
 }
 
-ClauseArgument WithParser::parseAttribute() {
+ClauseArgument WithParser::parseAttribute(ClauseArgument synonym) {
 	PQLToken attrNameToken = this->tokens.front();
 	this->tokens.pop_front();
 	if (attrNameToken.isProcName()) {
-		return ClauseArgument::createProcNameAttributeArg();
+		return ClauseArgument::createProcNameAttributeArg(synonym);
 	}
 	else if (attrNameToken.isVarName()) {
-		return ClauseArgument::createVarNameAttributeArg();
+		return ClauseArgument::createVarNameAttributeArg(synonym);
 	}
 	else if (attrNameToken.isValue()) {
-		return ClauseArgument::createValueAttributeArg();
+		return ClauseArgument::createValueAttributeArg(synonym);
 	}
 	else if (attrNameToken.isStmtNumStmt()) {
 		if (this->tokens.empty()) {
@@ -55,7 +55,7 @@ ClauseArgument WithParser::parseAttribute() {
 		if (!attrNameToken.isStmtNumHash()) {
 			throw PQLSyntaxError("Expected '#' after 'stmt' in with clause, got: " + attrNameToken.getTokenString());
 		}
-		return ClauseArgument::createStmtNumAttributeArg();
+		return ClauseArgument::createStmtNumAttributeArg(synonym);
 	}
 	else {
 		throw PQLSyntaxError("Unkown attribute name: " + attrNameToken.getTokenString());
