@@ -19,16 +19,24 @@
 #include <sp/design_extractor/FollowsExtractor.h>
 #include <sp/design_extractor/FollowsTExtractor.h>
 #include <pkb/interfaces/PKBUpdateHandler.h>
+#include <sp/dataclasses/cfg/CFGNode.h>
+#include <sp/dataclasses/cfg/IfCFGNode.h>
+#include <sp/dataclasses/cfg/WhileCFGNode.h>
+
+#include <memory>
+#include <unordered_map>
+#include <vector>
 
 TEST_CASE("DesignExtractor: test : extractEntity()") {
 	auto test = [](shared_ptr<ASTNode> nodeToExtractFrom, vector<Entity> expectedEntity) {
 		//Given
 		shared_ptr<EntityExtractor> entityExtractor(new EntityExtractor());
 		shared_ptr<PatternExtractor> patternExtractor(new PatternExtractor());
+		shared_ptr<NextExtractor> nextExtractor(new NextExtractor());
 		shared_ptr<Extractor<Relationship>> modifiesExtractor = shared_ptr<Extractor<Relationship>>(new ModifiesExtractor());
 		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor };
 
-		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, relationExtractors);
+		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, *nextExtractor, relationExtractors);
 
 		extractor.setRootNode(nodeToExtractFrom);
 
@@ -111,6 +119,7 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 		// Given
 		shared_ptr<EntityExtractor> entityExtractor(new EntityExtractor());
 		shared_ptr<PatternExtractor> patternExtractor(new PatternExtractor());
+		shared_ptr<NextExtractor> nextExtractor(new NextExtractor());
 		shared_ptr<Extractor<Relationship>> modifiesExtractor = shared_ptr<Extractor<Relationship>>(new ModifiesExtractor());
 		shared_ptr<Extractor<Relationship>> parentExtractor = shared_ptr<Extractor<Relationship>>(new ParentExtractor());
 		shared_ptr<Extractor<Relationship>> parentTExtractor = shared_ptr<Extractor<Relationship>>(new ParentTExtractor());
@@ -119,7 +128,7 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 		shared_ptr<Extractor<Relationship>> followsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsTExtractor());
 		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, parentExtractor, parentTExtractor, usesExtractor, followsExtractor, followsTExtractor };
 
-		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, relationExtractors);
+		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, *nextExtractor, relationExtractors);
 		extractor.setRootNode(nodeToExtractFrom);
 
 		// When
@@ -495,4 +504,138 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 																	readFollowsTIf };
 		test(procedureNode, expectedResult); 
 	}
+}
+
+TEST_CASE("Test extractCFGRelationships") {
+	auto test = [](vector<shared_ptr<CFGNode>> nodesToExtractFrom, vector<Relationship> expectedRelations) {
+		// Given
+		shared_ptr<EntityExtractor> entityExtractor(new EntityExtractor());
+		shared_ptr<PatternExtractor> patternExtractor(new PatternExtractor());
+		shared_ptr<NextExtractor> nextExtractor(new NextExtractor());
+		shared_ptr<Extractor<Relationship>> modifiesExtractor = shared_ptr<Extractor<Relationship>>(new ModifiesExtractor());
+		shared_ptr<Extractor<Relationship>> parentExtractor = shared_ptr<Extractor<Relationship>>(new ParentExtractor());
+		shared_ptr<Extractor<Relationship>> parentTExtractor = shared_ptr<Extractor<Relationship>>(new ParentTExtractor());
+		shared_ptr<Extractor<Relationship>> usesExtractor = shared_ptr<Extractor<Relationship>>(new UsesExtractor());
+		shared_ptr<Extractor<Relationship>> followsExtractor = shared_ptr<Extractor<Relationship>>(new FollowsExtractor());
+		shared_ptr<Extractor<Relationship>> followsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsTExtractor());
+		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, parentExtractor, parentTExtractor, usesExtractor, followsExtractor, followsTExtractor };
+
+		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, *nextExtractor, relationExtractors);
+
+		// When
+		vector<Relationship> relationships = extractor.extractCFGRelationships(nodesToExtractFrom);
+
+		// Then
+		REQUIRE(relationships.size() == expectedRelations.size());
+
+		for (int i = 0; i < relationships.size(); i++) {
+			if (find(relationships.begin(), relationships.end(), expectedRelations[i]) != relationships.end()) {
+				REQUIRE(true);
+			}
+			else {
+				Relationship notFound = expectedRelations[i];
+				REQUIRE(false);
+			}
+		}
+	};
+
+	// Create CFG Nodes
+
+	// Procedure 1
+	/*
+		procedure main1 {
+		1.	x = 5;
+		2.	y = 10;
+		3.	print x;
+		}
+	*/
+	unordered_map<int, shared_ptr<CFGNode>> mainOneNodes = {
+		{1, CFGNode::createCFGNode(1)},
+		{2, CFGNode::createCFGNode(2)},
+		{3, CFGNode::createCFGNode(3)},
+	};
+
+	unordered_map<int, vector<int>> mainOneAdjList = {
+		{1, {2}},
+		{2, {3}},
+	};
+
+	shared_ptr<CFGNode> main1 = CFGNode::createCFGFromAdjacencyList(mainOneNodes, mainOneAdjList, 1);
+
+	// Procedure 2
+	/*
+		procedure main2 {
+		4.	if (x != 10) then {
+		5.		x = 5;	
+			} else {
+		6.		y = 10;
+			}
+		7.	read z;
+		}
+	*/
+	unordered_map<int, shared_ptr<CFGNode>> mainTwoNodes = {
+	{4, IfCFGNode::createCFGNode(4)},
+	// Then
+	{5, CFGNode::createCFGNode(5)},
+	// Else
+	{6, CFGNode::createCFGNode(6)},
+	// Outside If
+	{7, CFGNode::createCFGNode(7)},
+	};
+
+	unordered_map<int, vector<int>> mainTwoAdjList = {
+		{4, {5,6}},
+		{5, {7}},
+		{6, {7}},
+	};
+
+	shared_ptr<CFGNode> main2 = CFGNode::createCFGFromAdjacencyList(mainTwoNodes, mainTwoAdjList, 4);
+
+
+	// Procedure 3
+	/*
+		procedure main3 {
+		8.	while (x > z) {
+		9.		print z;
+		10.		call main2;
+			}
+		11.	q = z
+		}
+	*/
+	unordered_map<int, shared_ptr<CFGNode>> mainThreeNodes = {
+		{8, WhileCFGNode::createCFGNode(8)},
+		{9, CFGNode::createCFGNode(9)},
+		{10, CFGNode::createCFGNode(10)},
+		// Outside While
+		{11, CFGNode::createCFGNode(11)},
+	};
+
+	unordered_map<int, vector<int>> mainThreeAdjList = {
+		{8, {9,11}},
+		{9, {10}},
+		{10, {8}},
+	};
+
+	shared_ptr<CFGNode> main3 = CFGNode::createCFGFromAdjacencyList(mainThreeNodes, mainThreeAdjList, 8);
+
+	vector<shared_ptr<CFGNode>> nodesToExtractFrom = {
+		main1,
+		main2,
+		main3,
+	};
+
+	vector<Relationship> expectedRelations = {
+		Relationship::createNextRelationship(Entity::createStatementEntity(1), Entity::createStatementEntity(2)),
+		Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(3)),
+		Relationship::createNextRelationship(Entity::createStatementEntity(4), Entity::createStatementEntity(5)),
+		Relationship::createNextRelationship(Entity::createStatementEntity(4), Entity::createStatementEntity(6)),
+		Relationship::createNextRelationship(Entity::createStatementEntity(5), Entity::createStatementEntity(7)),
+		Relationship::createNextRelationship(Entity::createStatementEntity(6), Entity::createStatementEntity(7)),
+		Relationship::createNextRelationship(Entity::createStatementEntity(8), Entity::createStatementEntity(9)),
+		Relationship::createNextRelationship(Entity::createStatementEntity(8), Entity::createStatementEntity(11)),
+		Relationship::createNextRelationship(Entity::createStatementEntity(9), Entity::createStatementEntity(10)),
+		Relationship::createNextRelationship(Entity::createStatementEntity(10), Entity::createStatementEntity(8)),
+	};
+
+	test(nodesToExtractFrom, expectedRelations);
 }

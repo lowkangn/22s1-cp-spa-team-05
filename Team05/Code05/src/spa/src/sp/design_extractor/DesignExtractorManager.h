@@ -4,6 +4,7 @@
 #include <sp/design_extractor/Extractor.h>
 #include <sp/design_extractor/EntityExtractor.h>
 #include <sp/design_extractor/PatternExtractor.h>
+#include <sp/design_extractor/NextExtractor.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
@@ -21,6 +22,7 @@ private:
 	vector<shared_ptr<Extractor<Relationship>>> relationshipExtractorList;
 	EntityExtractor entityExtractor;
 	PatternExtractor patternExtractor;
+	NextExtractor nextExtractor;
 
 
 	vector<Relationship> relationships;
@@ -32,9 +34,10 @@ public:
 	/*
 		Constructor which takes in all the extractors
 	*/
-	DesignExtractorManager(EntityExtractor entityExtractor, PatternExtractor patternExtractor, vector<shared_ptr<Extractor<Relationship>>> relationshipExtractorList) {
+	DesignExtractorManager(EntityExtractor entityExtractor, PatternExtractor patternExtractor, NextExtractor nextExtractor, vector<shared_ptr<Extractor<Relationship>>> relationshipExtractorList) {
 		this->entityExtractor = entityExtractor;
 		this->patternExtractor = patternExtractor;
+		this->nextExtractor = nextExtractor;
 		this->relationshipExtractorList = relationshipExtractorList;
 	}
 
@@ -49,6 +52,11 @@ public:
 		Extracts all the Relationships from the AST
 	*/
 	vector<Relationship> extractRelationships(shared_ptr<ASTNode> ast);
+
+	/*
+		Extracts all the Relationships from the CFG
+	*/
+	vector<Relationship> extractCFGRelationships(vector<shared_ptr<CFGNode>> cfgs);
 
 	/*
 		Extracts all the Entities from the AST
