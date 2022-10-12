@@ -817,13 +817,19 @@ TEST_CASE("ModifiesExtractor: test extract") {
 			10. read x;
 			11. y = 6;
 			12. z = 7;
+			13. call beta;
 		}
 
+		procedure beta {
+			14. a = 8;
+		}
 		*/
 
 		// Creating tokens
 		Token mainToken = Token::createNameOrKeywordToken("main");
 		Token alphaToken = Token::createNameOrKeywordToken("alpha");
+		Token betaToken = Token::createNameOrKeywordToken("beta");
+
 
 		Token callToken = Token::createCallToken();
 
@@ -841,6 +847,7 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		Token constFiveToken = Token::createIntegerToken("5");
 		Token constSixToken = Token::createIntegerToken("6");
 		Token constSevenToken = Token::createIntegerToken("7");
+		Token constEightToken = Token::createIntegerToken("8");
 
 		Token readToken = Token::createReadToken();
 		Token whileToken = Token::createWhileToken();
@@ -855,9 +862,13 @@ TEST_CASE("ModifiesExtractor: test extract") {
 
 		shared_ptr<ASTNode> procedureMainNode = ProcedureASTNode::createProcedureNode(mainToken);
 		shared_ptr<ASTNode> procedureAlphaNode = ProcedureASTNode::createProcedureNode(alphaToken);
+		shared_ptr<ASTNode> procedureBetaNode = ProcedureASTNode::createProcedureNode(betaToken);
+
 
 		rootProgramNode->addChild(procedureMainNode);
 		rootProgramNode->addChild(procedureAlphaNode);
+		rootProgramNode->addChild(procedureBetaNode);
+
 
 		// Main
 
@@ -1026,11 +1037,19 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		assign12Node->setLineNumber(11);
 		constSevenNode->setLineNumber(11);
 
+		// Line 13 (call beta)
+		shared_ptr<ASTNode> callBeta = CallASTNode::createCallNode();
+		shared_ptr<ASTNode> calledBetaProc = ProcedureASTNode::createProcedureNode(betaToken);
+		shared_ptr<ASTNode> calledBetaStmtList = StatementListASTNode::createStatementListNode();
+
+		callBeta->setLineNumber(13);
+
 		procedureAlphaNode->addChild(alphaStmtList);
 
 		alphaStmtList->addChild(readXNode);
 		alphaStmtList->addChild(assign11Node);
 		alphaStmtList->addChild(assign12Node);
+		alphaStmtList->addChild(callBeta);
 
 		readXNode->addChild(x10Node);
 
@@ -1040,6 +1059,27 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		assign12Node->addChild(z12Node);
 		assign12Node->addChild(constSevenNode);
 
+		callBeta->addChild(calledBetaProc);
+		calledBetaProc->addChild(calledBetaStmtList);
+
+
+		// Beta
+		// Line 14
+		shared_ptr<ASTNode> betaStmtList = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> a14Node = VariableASTNode::createVariableNode(aToken);
+		shared_ptr<ASTNode> assign14Node = AssignASTNode::createAssignNode();
+		shared_ptr<ASTNode> constEightNode = ConstantValueASTNode::createConstantNode(constEightToken);
+
+		a14Node->setLineNumber(14);
+		assign14Node->setLineNumber(14);
+		constEightNode->setLineNumber(14);
+
+		procedureBetaNode->addChild(betaStmtList);
+
+		betaStmtList->addChild(assign14Node);
+
+		assign14Node->addChild(a14Node);
+		assign14Node->addChild(constEightNode);
 
 		// Creating entities
 
@@ -1078,6 +1118,13 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		Entity y11Entity = Entity::createVariableEntity(y11Node->getLineNumber(), yToken);
 		Entity z12Entity = Entity::createVariableEntity(z12Node->getLineNumber(), zToken);
 
+		Entity callBetaEntity = Entity::createCallEntity(callBeta->getLineNumber());
+
+		// Beta
+		Entity procedureBetaEntity = Entity::createProcedureEntity(betaToken);
+		Entity a14Entity = Entity::createVariableEntity(a14Node->getLineNumber(), aToken);
+		Entity assign14Entity = Entity::createAssignEntity(assign14Node->getLineNumber());
+
 		// Creating relationships
 
 		// Main
@@ -1087,6 +1134,13 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		Relationship mainModifiesX4 = Relationship::createModifiesRelationship(procedureMainEntity, x4Entity);
 		Relationship mainModifiesX7 = Relationship::createModifiesRelationship(procedureMainEntity, x7Entity);
 		Relationship mainModifiesY8 = Relationship::createModifiesRelationship(procedureMainEntity, y8Entity);
+
+		// Main modifies from indirect calls
+		Relationship mainModifiesX10 = Relationship::createModifiesRelationship(procedureMainEntity, x10Entity);
+		Relationship mainModifiesY11 = Relationship::createModifiesRelationship(procedureMainEntity, y11Entity);
+		Relationship mainModifiesZ12 = Relationship::createModifiesRelationship(procedureMainEntity, z12Entity);
+		Relationship mainModifiesA14 = Relationship::createModifiesRelationship(procedureMainEntity, a14Entity);
+
 
 		Relationship readModifiesX4 = Relationship::createModifiesRelationship(readEntity, y2Entity);
 
@@ -1107,23 +1161,38 @@ TEST_CASE("ModifiesExtractor: test extract") {
 		Relationship alphaModifiesX10 = Relationship::createModifiesRelationship(procedureAlphaEntity, x10Entity);
 		Relationship alphaModifiesY11 = Relationship::createModifiesRelationship(procedureAlphaEntity, y11Entity);
 		Relationship alphaModifiesZ12 = Relationship::createModifiesRelationship(procedureAlphaEntity, z12Entity);
+		Relationship alphaModifiesA14 = Relationship::createModifiesRelationship(procedureAlphaEntity, a14Entity);
+
 
 		Relationship readModifiesX10 = Relationship::createModifiesRelationship(readXEntity, x10Entity);
 		
 		Relationship assign11ModifiesY11 = Relationship::createModifiesRelationship(assign11Entity, y11Entity);
 		Relationship assign12ModifiesZ12 = Relationship::createModifiesRelationship(assign12Entity, z12Entity);
 
-		// call Alpha
-		Relationship callModifiesX10 = Relationship::createModifiesRelationship(callAlphaEntity, x10Entity);
-		Relationship callModifiesY11 = Relationship::createModifiesRelationship(callAlphaEntity, y11Entity);
-		Relationship callModifiesZ12 = Relationship::createModifiesRelationship(callAlphaEntity, z12Entity);
+		// call Alpha (direct)
+		Relationship callAModifiesX10 = Relationship::createModifiesRelationship(callAlphaEntity, x10Entity);
+		Relationship callAModifiesY11 = Relationship::createModifiesRelationship(callAlphaEntity, y11Entity);
+		Relationship callAModifiesZ12 = Relationship::createModifiesRelationship(callAlphaEntity, z12Entity);
+
+		// call Alpha (indirect)
+		Relationship callAModifiesA14 = Relationship::createModifiesRelationship(callAlphaEntity, a14Entity);
+
+		// call Beta (direct)
+		Relationship callBModifiesA14 = Relationship::createModifiesRelationship(callBetaEntity, a14Entity);
+
+		// Beta
+		Relationship betaModifiesA14 = Relationship::createModifiesRelationship(procedureBetaEntity, a14Entity);
+		Relationship assign14ModifiesA14 = Relationship::createModifiesRelationship(assign14Entity, a14Entity);
+
 
 
 		vector<Relationship> expectedResult = vector<Relationship>{ mainModifiesX1, mainModifiesY2, mainModifiesX4, mainModifiesX7,
 																	mainModifiesY8, assign1ModifiesX1, readModifiesX4, whileModifiesX4, assign4ModifiesX4,
 																	ifModifiesX7, ifModifiesY8, assign7ModifiesX7, assign8ModifiesY8,
 																	alphaModifiesX10, alphaModifiesY11, alphaModifiesZ12, readModifiesX10, assign11ModifiesY11,
-																	assign12ModifiesZ12, callModifiesX10, callModifiesY11, callModifiesZ12 };
+																	assign12ModifiesZ12, callAModifiesX10, callAModifiesY11, callAModifiesZ12,
+																	mainModifiesX10, mainModifiesY11, mainModifiesZ12, mainModifiesA14, alphaModifiesA14,
+																	callAModifiesA14, callBModifiesA14, betaModifiesA14, assign14ModifiesA14 };
 
 		testExtract(rootProgramNode, expectedResult);
 	}

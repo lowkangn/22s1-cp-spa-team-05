@@ -11,6 +11,7 @@
 #include <sp/dataclasses/ast/WhileASTNode.h>
 #include <sp/dataclasses/ast/ProcedureASTNode.h>
 #include <sp/dataclasses/ast/IfASTNode.h>
+#include <sp/dataclasses/ast/CallASTNode.h>
 #include <sp/design_extractor/ModifiesExtractor.h>
 
 vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
@@ -153,8 +154,6 @@ vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast)
 	for (shared_ptr<ASTNode> child : childContainer->getChildren()) {
 		vector <Relationship> extractedRelationships = recursiveContainerExtract(leftHandSide, child);
 		extractedChildRelationships.insert(extractedChildRelationships.end(), extractedRelationships.begin(), extractedRelationships.end());
-
-		
 	}
 
 	// Update procedureToModifiedVariablesMap for DP purposes so future calls can refer to the result
@@ -214,7 +213,6 @@ vector<Relationship> ModifiesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 	return extractedChildRelationships;
 }
 
-// TODO in a future iteration
 vector<Relationship> ModifiesExtractor::handleCall(shared_ptr<ASTNode> ast) {
 	ASTNodeType currNodeType = ast->getType();
 	if (currNodeType != ASTNodeType::CALL) {
@@ -275,6 +273,8 @@ vector<Relationship> ModifiesExtractor::handleCall(shared_ptr<ASTNode> ast) {
 
 			allProcedures: vect {index 0: first, index 1: second}
 			In this case, the correct index is 1
+			We need to do this because both proc:second AST nodes share the same name, but are different nodes (i.e. diff children and parents)
+
 		*/
 		int index = -1;
 		for (int i = 0; i < allProcedures.size(); i++) {
@@ -382,6 +382,70 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		}
 		break;
 	} 
+	case ASTNodeType::CALL: { // helps handle indirect procedure call (e.g. A calls B which calls C)
+		// Cast CallASTNode
+		shared_ptr<CallASTNode> callNode = dynamic_pointer_cast<CallASTNode>(ast);
+		
+		// Get referenced procedure
+		assert(callNode->getChildren().size() == 1);
+		shared_ptr<ASTNode> calledProcedure = callNode->getChildren()[0];
+		string calledProcName = calledProcedure->extractEntity().getString();
+
+		/*
+			Procedures from root program node added to allProcedures vector
+
+			We find the name of the called procedure, and string match it to the corect index in
+			allProcedures
+
+			e.g.
+
+						program
+						/      \
+					proc:first  proc:second
+					/           \
+					stmtLst       ...
+					/
+					call
+					/
+			proc:second
+				/
+			empty stmtLst
+
+			allProcedures: vect {index 0: first, index 1: second}
+			In this case, the correct index is 1.
+			We need to do this because both proc:second AST nodes share the same name, but are different nodes (i.e. diff children and parents)
+		*/
+		int index = -1;
+		for (int i = 0; i < allProcedures.size(); i++) {
+			shared_ptr<ASTNode> currProcedure = allProcedures[i];
+			assert(currProcedure->isProcedureNode());
+
+			string currProcedureName = currProcedure->extractEntity().getString();
+
+			// once we find the index of the referenced procedure in allProcedures, we can extract the procedure AST node
+			if (currProcedureName == calledProcName) {
+				index = i;
+			}
+		}
+
+		if (index == -1) {
+			throw ASTException("Could not find name of procedure called in program");
+		}
+
+		// Now we know the index of the called procedure in allProcedures
+		shared_ptr<ASTNode> procedureToExtract = allProcedures[index];
+
+		// Type-cast procedureToExtract to ProcedureASTNode
+		shared_ptr<ProcedureASTNode> calledProcNode = dynamic_pointer_cast<ProcedureASTNode>(procedureToExtract);
+
+		shared_ptr<ASTNode> childrenStmtLst = calledProcNode->getStmtList();
+
+		for (shared_ptr<ASTNode> child : childrenStmtLst->getChildren()) {
+			vector<Relationship> toAdd = recursiveContainerExtract(leftHandSide, child);
+			modifiesRelationships.insert(modifiesRelationships.end(), toAdd.begin(), toAdd.end());
+
+		}
+	}
 	}
 	return modifiesRelationships;
 }

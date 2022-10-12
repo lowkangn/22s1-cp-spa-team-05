@@ -29,6 +29,9 @@ private:
 	*/
 	unordered_map<string, vector<Relationship>> procedureNameToRelationshipMap;
 
+	/*
+		This keeps track of all procedures coming from root node 
+	*/
 	vector<shared_ptr<ASTNode>> allProcedures;
 
 public:

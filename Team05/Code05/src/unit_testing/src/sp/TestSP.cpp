@@ -70,6 +70,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		vector<Relationship> extractedRelationships = extractor.extractRelationships(programTree);
 		vector<Pattern> extractedPatterns = extractor.extractPatterns(programTree);
 
+
 		REQUIRE(extractedEntities.size() == expectedEntities.size());
 		REQUIRE(extractedRelationships.size() == expectedRelationships.size());
 		REQUIRE(extractedPatterns.size() == expectedPatterns.size());
@@ -95,6 +96,10 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 					isInExpectedRelationships = true;
 					break;
 				}
+			}
+			if (!isInExpectedRelationships) {
+				cout << extractedRelationships[i].getLhs().getString() << " ";
+				cout << extractedRelationships[i].getRhs().getString() << extractedRelationships[i].getRhs().getLine() << endl;
 			}
 			REQUIRE(isInExpectedRelationships);
 		}
@@ -660,11 +665,17 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 
 	// Create modifies relationships
 	Relationship readModifiesY = Relationship::createModifiesRelationship(readYEntity, y2Entity);
-	Relationship alphaModifiesY = Relationship::createModifiesRelationship(procedureAlphaEntity, y2Entity);
+	Relationship alphaModifiesY2 = Relationship::createModifiesRelationship(procedureAlphaEntity, y2Entity);
+	Relationship alphaModifiesY6 = Relationship::createModifiesRelationship(procedureAlphaEntity, y6LhsEntity);
 	Relationship assignModifiesY = Relationship::createModifiesRelationship(assignEntity, y6LhsEntity);
 	Relationship betaModifiesY = Relationship::createModifiesRelationship(procedureBetaEntity, y6LhsEntity);
-	Relationship callAlphaModifiesY = Relationship::createModifiesRelationship(callAlphaEntity, y2Entity);
+	Relationship callAlphaModifiesY2 = Relationship::createModifiesRelationship(callAlphaEntity, y2Entity);
+	Relationship callAlphaModifiesY6 = Relationship::createModifiesRelationship(callAlphaEntity, y6LhsEntity);
 	Relationship callBetaModifiesY = Relationship::createModifiesRelationship(callBetaEntity, y6LhsEntity);
+	Relationship mainModfiesY2 = Relationship::createModifiesRelationship(procedureMainEntity, y2Entity);
+	Relationship mainModfiesY6 = Relationship::createModifiesRelationship(procedureMainEntity, y6LhsEntity);
+	Relationship ifModifiesY6 = Relationship::createModifiesRelationship(ifEntity, y6LhsEntity);
+
 
 	// Create parent relationships
 	Relationship ifParentCall = Relationship::createParentRelationship(ifEntity, callBetaEntity);
@@ -698,7 +709,8 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 	Relationship alphaCallsTBeta = Relationship::createCallsTRelationship(procedureAlphaEntity, procedureBetaEntity);
 	Relationship mainCallsTBeta = Relationship::createCallsTRelationship(procedureMainEntity, procedureBetaEntity);
 
-	vector<Relationship> expectedRelationships = vector<Relationship>{ readModifiesY, alphaModifiesY, assignModifiesY, betaModifiesY, callAlphaModifiesY, callBetaModifiesY,
+	vector<Relationship> expectedRelationships = vector<Relationship>{ readModifiesY, alphaModifiesY2, assignModifiesY, betaModifiesY, callAlphaModifiesY2, callBetaModifiesY,
+																	alphaModifiesY6, callAlphaModifiesY6, mainModfiesY2, mainModfiesY6, ifModifiesY6,
 																	ifParentCall, ifParentPrint, ifParentTCall, ifParentTPrint, ifUsesY3, 
 																	ifUsesY5, printYUsesY5, alphaUsesY3, alphaUsesY5, assignUsesY6, 
 																	betaUsesY6, ifFollowsReadY, ifFollowsTReadY, mainCallsAlpha, 
