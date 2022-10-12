@@ -69,8 +69,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		vector<Entity> extractedEntities = extractor.extractEntities(programTree);
 		vector<Relationship> extractedRelationships = extractor.extractRelationships(programTree);
 		vector<Pattern> extractedPatterns = extractor.extractPatterns(programTree);
-
-
+		
 		REQUIRE(extractedEntities.size() == expectedEntities.size());
 		REQUIRE(extractedRelationships.size() == expectedRelationships.size());
 		REQUIRE(extractedPatterns.size() == expectedPatterns.size());
@@ -87,8 +86,6 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 			REQUIRE(isInExpectedEntities);
 		}
 		
-
-		
 		for (int i = 0; i < extractedRelationships.size(); i++) {
 			bool isInExpectedRelationships = false;
 			for (int j = 0; j < expectedRelationships.size(); j++) {
@@ -97,10 +94,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 					break;
 				}
 			}
-			if (!isInExpectedRelationships) {
-				cout << extractedRelationships[i].getLhs().getString() << " ";
-				cout << extractedRelationships[i].getRhs().getString() << extractedRelationships[i].getRhs().getLine() << endl;
-			}
+			
 			REQUIRE(isInExpectedRelationships);
 		}
 		
@@ -694,6 +688,16 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 	Relationship assignUsesY6 = Relationship::createUsesRelationship(assignEntity, y6RhsEntity);
 	Relationship betaUsesY6 = Relationship::createUsesRelationship(procedureBetaEntity, y6RhsEntity);
 
+	Relationship mainUsesY3 = Relationship::createUsesRelationship(procedureMainEntity, y3Entity);
+	Relationship mainUsesY6 = Relationship::createUsesRelationship(procedureMainEntity, y6RhsEntity);
+	Relationship mainUsesY5 = Relationship::createUsesRelationship(procedureMainEntity, y5Entity);
+	Relationship callAlphaUsesY3 = Relationship::createUsesRelationship(callAlphaEntity, y3Entity);
+	Relationship callAlphaUsesY6 = Relationship::createUsesRelationship(callAlphaEntity, y6RhsEntity);
+	Relationship callAlphaUsesY5 = Relationship::createUsesRelationship(callAlphaEntity, y5Entity);
+	Relationship alphaUsesY6 = Relationship::createUsesRelationship(procedureAlphaEntity, y6RhsEntity);
+	Relationship ifUsesY6 = Relationship::createUsesRelationship(ifEntity, y6RhsEntity);
+	Relationship callBetaUsesY6 = Relationship::createUsesRelationship(callBetaEntity, y6RhsEntity);
+
 	// create Follows relationship
 	Relationship ifFollowsReadY = Relationship::createFollowsRelationship(readYEntity, ifEntity);
 
@@ -714,7 +718,9 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 																	ifParentCall, ifParentPrint, ifParentTCall, ifParentTPrint, ifUsesY3, 
 																	ifUsesY5, printYUsesY5, alphaUsesY3, alphaUsesY5, assignUsesY6, 
 																	betaUsesY6, ifFollowsReadY, ifFollowsTReadY, mainCallsAlpha, 
-																	alphaCallsBeta, mainCallsTAlpha, alphaCallsTBeta, mainCallsTBeta };
+																	alphaCallsBeta, mainCallsTAlpha, alphaCallsTBeta, mainCallsTBeta,
+																	mainUsesY3, mainUsesY6, mainUsesY5, callAlphaUsesY3, callAlphaUsesY6, callAlphaUsesY5,
+																	alphaUsesY6, ifUsesY6, callBetaUsesY6 };
 
 	vector<Pattern> expectedPatterns = vector<Pattern>{
 			Pattern::createIfPattern(3, "y"),

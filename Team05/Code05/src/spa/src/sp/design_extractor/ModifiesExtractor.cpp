@@ -51,7 +51,6 @@ vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
 		modifies.insert(modifies.end(), extractedModifies.begin(), extractedModifies.end());
 		break;
 	}
-	// TODO (Not in milestone 1)
 	case ASTNodeType::CALL:
 		vector<Relationship> extractedModifies = this->handleCall(ast);
 		modifies.insert(modifies.end(), extractedModifies.begin(), extractedModifies.end());
@@ -136,11 +135,10 @@ vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast)
 	// if entry already exists in DP map, just return the mapped relationships
 	string procedureName = ast->extractEntity().getString();
 
-	// checks if procedure name is already in entry
+	// checks if procedure name is already in DP map entry
 	if (procedureNameToRelationshipMap.find(procedureName) != procedureNameToRelationshipMap.end()) {
 		return procedureNameToRelationshipMap.at(procedureName);
 	}
-
 
 	Entity leftHandSide = ast->extractEntity();
 
@@ -148,15 +146,13 @@ vector<Relationship> ModifiesExtractor::handleProcedure(shared_ptr<ASTNode> ast)
 	shared_ptr<ProcedureASTNode> procedureNode = dynamic_pointer_cast<ProcedureASTNode>(ast);
 	shared_ptr<ASTNode> childContainer = procedureNode->getStmtList();
 
-	vector<Relationship> collectedRelationships;
-
 	// Iterate through children and extract Procedure Stmt relationships
 	for (shared_ptr<ASTNode> child : childContainer->getChildren()) {
 		vector <Relationship> extractedRelationships = recursiveContainerExtract(leftHandSide, child);
 		extractedChildRelationships.insert(extractedChildRelationships.end(), extractedRelationships.begin(), extractedRelationships.end());
 	}
 
-	// Update procedureToModifiedVariablesMap for DP purposes so future calls can refer to the result
+	// Update procedureNameToRelationshipMapp for DP purposes so future calls can refer to the result
 	procedureNameToRelationshipMap.insert(make_pair(procedureName, extractedChildRelationships));
 
 	return extractedChildRelationships;
@@ -231,62 +227,17 @@ vector<Relationship> ModifiesExtractor::handleCall(shared_ptr<ASTNode> ast) {
 	// checks if procedure name is already in DP entry
 	if (procedureNameToRelationshipMap.find(procedureCalledName) != procedureNameToRelationshipMap.end()) {
 		vector<Relationship> procedureCalledRelationships = procedureNameToRelationshipMap.at(procedureCalledName);
-		
-		// get the call entity in question
-		Entity leftHandSide = ast->extractEntity();
-		assert(leftHandSide.getType() == EntityType::CALL);
 
-		/*
-			The DP relationships are in the form of procedure p : variable v
-			Take variable v (from rhs) and create relationship call c : variable v
-		*/
-		for (int i = 0; i < procedureCalledRelationships.size(); i++) {
-			Relationship currRelation = procedureCalledRelationships[i];
-			Entity rightHandSide = currRelation.getRhs();
-			assert(rightHandSide.getType() == EntityType::VARIABLE);
+		// procedure called relationships returns Modifies(p, v). Reformat it to Modifies(call stmt, v)
+		vector<Relationship> convertedRelationships = convertToCallRelationship(ast, procedureCalledRelationships);
+		extractedRelationships.insert(extractedRelationships.end(), convertedRelationships.begin(), convertedRelationships.end());
 
-			Relationship toAdd = Relationship::createModifiesRelationship(leftHandSide, rightHandSide);
-			extractedRelationships.push_back(toAdd);
-		}
 		return extractedRelationships;
 	}
-	else {
-		/*
-			Procedures from root program node added to allProcedures vector
+	else { // for procedures not in DP map
 
-			We find the name of the called procedure, and string match it to the corect index in 
-			allProcedures
-			
-			e.g.
-
-						program
-					   /      \
-				 proc:first  proc:second
-					/           \
-				  stmtLst       ...
-				  /
-				 call
-				 /
-			proc:second
-			    /
-			empty stmtLst
-
-			allProcedures: vect {index 0: first, index 1: second}
-			In this case, the correct index is 1
-			We need to do this because both proc:second AST nodes share the same name, but are different nodes (i.e. diff children and parents)
-
-		*/
-		int index = -1;
-		for (int i = 0; i < allProcedures.size(); i++) {
-			shared_ptr<ASTNode> currProcedure = allProcedures[i];
-			assert(currProcedure->isProcedureNode());
-
-			string currProcedureName = currProcedure->extractEntity().getString();
-
-			if (currProcedureName == procedureCalledName) {
-				index = i;
-			}
-		}
+		// Find the index of the called procedure in allProcedures
+		int index = findCalledProcedureIndex(procedureCalledName);
 
 		if (index == -1) {
 			throw ASTException("Could not find name of procedure called in program");
@@ -297,23 +248,11 @@ vector<Relationship> ModifiesExtractor::handleCall(shared_ptr<ASTNode> ast) {
 
 		// We use handleProcedure() to get relationships if entries are not in DP map
 		vector<Relationship> procedureCalledRelationships = this->handleProcedure(procedureToExtract);
-		
-		// Get the call entity in question
-		Entity leftHandSide = ast->extractEntity();
-		assert(leftHandSide.getType() == EntityType::CALL);
 
-		/*
-			The DP relationships are in the form of procedure p : variable v
-			Take variable v (from rhs) and create relationship call c : variable v
-		*/
-		for (int i = 0; i < procedureCalledRelationships.size(); i++) {
-			Relationship currRelation = procedureCalledRelationships[i];
-			Entity rightHandSide = currRelation.getRhs();
-			assert(rightHandSide.getType() == EntityType::VARIABLE);
+		// procedure called relationships returns Modifies(p, v). Reformat it to Modifies(call stmt, v)
+		vector<Relationship> convertedRelationships = convertToCallRelationship(ast, procedureCalledRelationships);
+		extractedRelationships.insert(extractedRelationships.end(), convertedRelationships.begin(), convertedRelationships.end());
 
-			Relationship toAdd = Relationship::createModifiesRelationship(leftHandSide, rightHandSide);
-			extractedRelationships.push_back(toAdd);
-		}
 		return extractedRelationships;
 	}
 }
@@ -382,7 +321,8 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		}
 		break;
 	} 
-	case ASTNodeType::CALL: { // helps handle indirect procedure call (e.g. A calls B which calls C)
+	case ASTNodeType::CALL: // helps handle indirect procedure call (e.g. A calls B which calls C)
+	{
 		// Cast CallASTNode
 		shared_ptr<CallASTNode> callNode = dynamic_pointer_cast<CallASTNode>(ast);
 		
@@ -391,42 +331,8 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		shared_ptr<ASTNode> calledProcedure = callNode->getChildren()[0];
 		string calledProcName = calledProcedure->extractEntity().getString();
 
-		/*
-			Procedures from root program node added to allProcedures vector
-
-			We find the name of the called procedure, and string match it to the corect index in
-			allProcedures
-
-			e.g.
-
-						program
-						/      \
-					proc:first  proc:second
-					/           \
-					stmtLst       ...
-					/
-					call
-					/
-			proc:second
-				/
-			empty stmtLst
-
-			allProcedures: vect {index 0: first, index 1: second}
-			In this case, the correct index is 1.
-			We need to do this because both proc:second AST nodes share the same name, but are different nodes (i.e. diff children and parents)
-		*/
-		int index = -1;
-		for (int i = 0; i < allProcedures.size(); i++) {
-			shared_ptr<ASTNode> currProcedure = allProcedures[i];
-			assert(currProcedure->isProcedureNode());
-
-			string currProcedureName = currProcedure->extractEntity().getString();
-
-			// once we find the index of the referenced procedure in allProcedures, we can extract the procedure AST node
-			if (currProcedureName == calledProcName) {
-				index = i;
-			}
-		}
+		// Find the index of the called procedure in allProcedures
+		int index = findCalledProcedureIndex(calledProcName);
 
 		if (index == -1) {
 			throw ASTException("Could not find name of procedure called in program");
