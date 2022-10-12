@@ -23,6 +23,8 @@ enum class PKBTrackedRelationshipType {
     PARENTSTAR,
     USES,
     MODIFIES,
+    CALLS,
+    CALLSSTAR
 };
 
 

@@ -1,0 +1,70 @@
+1 - Undeclared synonym
+procedure p;
+Select p such that Calls(p, p1)
+SemanticError
+5000
+2 - Different case Calls
+procedure p;
+Select p such that CallS(p, _)
+SyntaxError
+5000
+3 - Missing such that
+procedure p;
+Select p Calls(p, _)
+SyntaxError
+5000
+4 - constant as second arg
+procedure p; constant c;
+Select p such that Calls(p, c)
+SemanticError
+5000
+5 - variable as second arg (synonym)
+procedure p; variable v;
+Select p such that Calls(p, v)
+SemanticError
+5000
+6 - line number as second arg
+procedure p;
+Select p such that Calls(p, 3)
+SyntaxError
+5000
+7 - statement as second arg (synonym)
+procedure p; stmt s;
+Select p such that Calls*(p, s)
+SemanticError
+5000
+8 - constant as first arg
+constant c; procedure p;
+Select p such that Calls*(c, p)
+SemanticError
+5000
+9 - variable as first arg (synonym)
+variable v; procedure p;
+Select p such that Calls*(v, p)
+SemanticError
+5000
+10 - line number as first arg
+procedure p;
+Select p such that Calls*(5, p)
+SyntaxError
+5000
+11 - statement as first arg (synonym)
+stmt s; procedure p;
+Select p such that Calls(s, p)
+SemanticError
+5000
+12 - unmatched bracket
+procedure p, q;
+Select p such that Calls(p, q
+SyntaxError
+5000
+13 - missing brackets
+procedure p, q;
+Select p such that Calls p, q
+SyntaxError
+5000
+14 - extra semicolon
+procedure p, q;
+Select p such that Calls(p, q);
+SyntaxError
+5000

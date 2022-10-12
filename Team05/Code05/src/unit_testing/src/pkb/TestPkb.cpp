@@ -3,6 +3,8 @@
 #include <pkb/design_objects/entities/PkbProcedureEntity.h>
 #include <pkb/design_objects/entities/PkbVariableEntity.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/design_objects/relationships/PkbCallsRelationship.h>
+#include <pkb/design_objects/relationships/PkbCallsStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
@@ -679,6 +681,158 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 			PQLRelationship(procedureResult, xResult),
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
+	};
+
+	SECTION("Calls") {
+		/*
+			procedure main {
+				call alpha;
+				call beta;
+			}
+
+			procedure alpha {
+				call beta;
+			}
+
+			procedure beta {}
+		*/
+		Entity mainEntity = Entity::createProcedureEntity(Token::createNameOrKeywordToken("main"));
+		Entity alphaEntity = Entity::createProcedureEntity(Token::createNameOrKeywordToken("alpha"));
+		Entity betaEntity = Entity::createProcedureEntity(Token::createNameOrKeywordToken("beta"));
+		// vector of relationships to add
+		vector<Relationship> toAdd = {
+			Relationship::createCallsRelationship(mainEntity, alphaEntity),
+			Relationship::createCallsRelationship(mainEntity, betaEntity),
+			Relationship::createCallsRelationship(alphaEntity, betaEntity),
+		};
+		// shared, as PQLEntities
+		PQLEntity mainProcedureResult = PQLEntity::generateProcedure("main");
+		PQLEntity alphaProcedureResult = PQLEntity::generateProcedure("alpha");
+		PQLEntity betaProcedureResult = PQLEntity::generateProcedure("beta");
+
+
+		// test 1: both procedure synonyms
+		ClauseArgument lhs = ClauseArgument::createProcedureArg("p1");
+		ClauseArgument rhs = ClauseArgument::createProcedureArg("p2");
+		vector<PQLRelationship> expectedRelationships = {
+			PQLRelationship(mainProcedureResult, alphaProcedureResult),
+			PQLRelationship(mainProcedureResult, betaProcedureResult),
+			PQLRelationship(alphaProcedureResult, betaProcedureResult),
+		};
+		test(PKBTrackedRelationshipType::CALLS, lhs, rhs, expectedRelationships, toAdd);
+
+
+		// test 2: one wildcard, one specific procedure
+		lhs = ClauseArgument::createWildcardArg();
+		rhs = ClauseArgument::createStringLiteralArg("alpha");
+		expectedRelationships = {
+			PQLRelationship(mainProcedureResult, alphaProcedureResult),
+		};
+		test(PKBTrackedRelationshipType::CALLS, lhs, rhs, expectedRelationships, toAdd);
+
+		// test 3: one wildcard, one procedure synonym
+		lhs = ClauseArgument::createWildcardArg();
+		rhs = ClauseArgument::createProcedureArg("p");
+		expectedRelationships = {
+			PQLRelationship(mainProcedureResult, alphaProcedureResult),
+			PQLRelationship(mainProcedureResult, betaProcedureResult),
+			PQLRelationship(alphaProcedureResult, betaProcedureResult),
+		};
+		test(PKBTrackedRelationshipType::CALLS, lhs, rhs, expectedRelationships, toAdd);
+
+		// test 4: one specific procedure
+		lhs = ClauseArgument::createStringLiteralArg("main");
+		rhs = ClauseArgument::createProcedureArg("p");
+		expectedRelationships = {
+			PQLRelationship(mainProcedureResult, alphaProcedureResult),
+			PQLRelationship(mainProcedureResult, betaProcedureResult),
+		};
+		test(PKBTrackedRelationshipType::CALLS, lhs, rhs, expectedRelationships, toAdd);
+
+		// test 5: both specific procedures
+		lhs = ClauseArgument::createStringLiteralArg("main");
+		rhs = ClauseArgument::createStringLiteralArg("alpha");
+		expectedRelationships = {
+			PQLRelationship(mainProcedureResult, alphaProcedureResult),
+		};
+		test(PKBTrackedRelationshipType::CALLS, lhs, rhs, expectedRelationships, toAdd);
+	};
+
+	SECTION("CallsStar") {
+		/*
+			procedure main {
+				call alpha;
+			}
+
+			procedure alpha {
+				call beta;
+			}
+
+			procedure beta {}
+		*/
+		Entity mainEntity = Entity::createProcedureEntity(Token::createNameOrKeywordToken("main"));
+		Entity alphaEntity = Entity::createProcedureEntity(Token::createNameOrKeywordToken("alpha"));
+		Entity betaEntity = Entity::createProcedureEntity(Token::createNameOrKeywordToken("beta"));
+		// vector of relationships to add
+		vector<Relationship> toAdd = {
+			Relationship::createCallsTRelationship(mainEntity, alphaEntity),
+			Relationship::createCallsTRelationship(mainEntity, betaEntity),
+			Relationship::createCallsTRelationship(alphaEntity, betaEntity),
+
+		};
+		// shared, as PQLEntities
+		PQLEntity mainProcedureResult = PQLEntity::generateProcedure("main");
+		PQLEntity alphaProcedureResult = PQLEntity::generateProcedure("alpha");
+		PQLEntity betaProcedureResult = PQLEntity::generateProcedure("beta");
+
+
+		// test 1: both procedure synonyms
+		ClauseArgument lhs = ClauseArgument::createProcedureArg("p1");
+		ClauseArgument rhs = ClauseArgument::createProcedureArg("p2");
+		vector<PQLRelationship> expectedRelationships = {
+			PQLRelationship(mainProcedureResult, alphaProcedureResult),
+			PQLRelationship(mainProcedureResult, betaProcedureResult),
+			PQLRelationship(alphaProcedureResult, betaProcedureResult),
+		};
+		test(PKBTrackedRelationshipType::CALLSSTAR, lhs, rhs, expectedRelationships, toAdd);
+
+
+		// test 2: one wildcard, one specific procedure
+		lhs = ClauseArgument::createWildcardArg();
+		rhs = ClauseArgument::createStringLiteralArg("beta");
+		expectedRelationships = {
+			PQLRelationship(mainProcedureResult, betaProcedureResult),
+			PQLRelationship(alphaProcedureResult, betaProcedureResult),
+		};
+		test(PKBTrackedRelationshipType::CALLSSTAR, lhs, rhs, expectedRelationships, toAdd);
+
+		// test 3: one wildcard, one procedure synonym
+		lhs = ClauseArgument::createWildcardArg();
+		rhs = ClauseArgument::createProcedureArg("p");
+		expectedRelationships = {
+			PQLRelationship(mainProcedureResult, alphaProcedureResult),
+			PQLRelationship(mainProcedureResult, betaProcedureResult),
+			PQLRelationship(alphaProcedureResult, betaProcedureResult),
+		};
+		test(PKBTrackedRelationshipType::CALLSSTAR, lhs, rhs, expectedRelationships, toAdd);
+
+		// test 4: one specific procedure
+		lhs = ClauseArgument::createStringLiteralArg("main");
+		rhs = ClauseArgument::createProcedureArg("p");
+		expectedRelationships = {
+			PQLRelationship(mainProcedureResult, alphaProcedureResult),
+			PQLRelationship(mainProcedureResult, betaProcedureResult),
+		};
+		test(PKBTrackedRelationshipType::CALLSSTAR, lhs, rhs, expectedRelationships, toAdd);
+
+		// test 5: both specific procedures
+		lhs = ClauseArgument::createStringLiteralArg("main");
+		rhs = ClauseArgument::createStringLiteralArg("alpha");
+		expectedRelationships = {
+			PQLRelationship(mainProcedureResult, alphaProcedureResult),
+		};
+		test(PKBTrackedRelationshipType::CALLSSTAR, lhs, rhs, expectedRelationships, toAdd);
+
 	};
 
 	SECTION("Exact queries (by statement no., by variable name)") {

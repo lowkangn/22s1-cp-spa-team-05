@@ -21,6 +21,7 @@ const string THAT = "that";
 const string PATTERN = "pattern";
 
 // keywords for identifying Clause type
+const string PQL_CALLS = "Calls";
 const string PQL_MODIFIES = "Modifies";
 const string PQL_FOLLOWS = "Follows";
 const string PQL_USES = "Uses";
@@ -189,6 +190,10 @@ public:
 
     bool isFollows() {
         return isName() && tokenString == PQL_FOLLOWS;
+    }
+
+    bool isCalls() {
+        return isName() && tokenString == PQL_CALLS;
     }
 
     bool isStarModifier() {
