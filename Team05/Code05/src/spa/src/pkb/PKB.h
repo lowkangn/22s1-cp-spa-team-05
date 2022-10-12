@@ -164,7 +164,7 @@ public:
 	/*
 		Retrieves all procedure entities by name.
 	*/
-	vector<PQLEntity> retrieveProcedureEntityByName(string procedureName) override;
+	optional<PQLEntity> retrieveProcedureEntityByName(string procedureName) override;
 
 	/*
 		Retrieves all procedure entities.
@@ -174,7 +174,7 @@ public:
 	/*
 		Retrieves all statement entities by line number of a specified type.
 	*/
-	vector<PQLEntity> retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
+	optional<PQLEntity> retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
 	
 	/*
 		Retrieves all statement entities of a specified type.
@@ -199,12 +199,12 @@ public:
 	/*
 		Retrieves all variables by a name.
 	*/
-	vector<PQLEntity> retrieveVariableByName(string name) override;
+	optional<PQLEntity> retrieveVariableByName(string name) override;
 
 	/*
 		Retrieves all constants by a value.
 	*/
-	vector<PQLEntity> retrieveConstantByValue(int value) override;
+	optional<PQLEntity> retrieveConstantByValue(int value) override;
 
 	/*
 		Retrieves all relationships by a lhs, rhs for relationships of a specified type.

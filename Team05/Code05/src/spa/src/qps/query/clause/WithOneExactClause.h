@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include <qps/query/clause/WithClause.h>
 #include <qps/query/clause/EntityClauseResult.h>
 #include <qps/query/clause/RelationshipClauseResult.h>

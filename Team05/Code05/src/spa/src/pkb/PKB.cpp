@@ -264,7 +264,7 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 	}
 }
 
-vector<PQLEntity> PKB::retrieveProcedureEntityByName(string procedureName) {
+optional<PQLEntity> PKB::retrieveProcedureEntityByName(string procedureName) {
 	// create a procedure object out of it and use it to get a key
 	string key = PkbProcedureEntity(procedureName).getKey();
 
@@ -272,11 +272,11 @@ vector<PQLEntity> PKB::retrieveProcedureEntityByName(string procedureName) {
 	shared_ptr<PkbEntity> result = this->proceduresTable.get(key);
 	// if null, we return empty vector
 	if (result == NULL) {
-		return vector<PQLEntity>{};
+		return optional<PQLEntity>();
 	}
 	// else, we cast to PQLEntity
-	return vector<PQLEntity>{ PQLEntity::generateProcedure(procedureName) };
-
+	optional<PQLEntity> entity = PQLEntity::generateProcedure(procedureName);
+	return entity;
 }
 
 vector<PQLEntity> PKB::retrieveAllProcedureEntities() {
@@ -290,20 +290,21 @@ vector<PQLEntity> PKB::retrieveAllProcedureEntities() {
 	return out;
 }
 
-vector<PQLEntity> PKB::retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) {
+optional<PQLEntity> PKB::retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) {
 	// NOTE: currently, we keep all statements in a single table, as no two statements can have 
 	// the same line number, and that serves as a good primary key.
 	// by default, we just use a read statement as the entity to key on
 	string key = PkbStatementEntity::createReadStatementEntity(lineNumber)->getKey();
 	shared_ptr<PkbEntity> result = this->statementTable.get(key);
-	
-	// if null, we return empty vector
-	if (result == NULL) {
-		return vector<PQLEntity>{};
-	}
 
-	// else, we filter and cast to PQLEntity
-	return filterAndConvertStatementEntities({ result }, pkbTrackedStatementType);
+	// filter the result by statement type and cast to PQLEntity
+	vector<PQLEntity> entityVector = filterAndConvertStatementEntities({ result }, pkbTrackedStatementType);
+
+	if (entityVector.empty()) {
+		return optional<PQLEntity>();
+	}
+	optional<PQLEntity> entity = entityVector.front();
+	return entity;
 }
 
 vector<PQLEntity> PKB::retrieveStatementEntitiesByType(PKBTrackedStatementType pkbTrackedStatementType) {
@@ -315,18 +316,19 @@ vector<PQLEntity> PKB::retrieveAllStatementEntities() {
 	return this->retrieveStatementEntitiesByType(PKBTrackedStatementType::ALL);
 }
 
-vector<PQLEntity> PKB::retrieveVariableByName(string name) {
+optional<PQLEntity> PKB::retrieveVariableByName(string name) {
 	// create a procedure object out of it and use it to get a key
 	string key = PkbVariableEntity(name).getKey();
 
 	// get
 	shared_ptr<PkbEntity> result = this->variableTable.get(key);
-	// if null, we return empty vector
+	// if null, we return empty optional
 	if (result == NULL) {
-		return vector<PQLEntity>{};
+		return optional<PQLEntity>();
 	}
 	// else, we cast to PQLEntity
-	return vector<PQLEntity>{ PQLEntity::generateVariable(name) };
+	optional<PQLEntity> entity = PQLEntity::generateVariable(name);
+	return entity;
 }
 
 vector<PQLEntity> PKB::retrieveAllVariables() {
@@ -339,7 +341,7 @@ vector<PQLEntity> PKB::retrieveAllVariables() {
 	return out;
 }
 
-vector<PQLEntity> PKB::retrieveConstantByValue(int value) {
+optional<PQLEntity> PKB::retrieveConstantByValue(int value) {
 	// create a procedure object out of it and use it to get a key
 	string key = PkbConstantEntity(value).getKey();
 
@@ -347,10 +349,11 @@ vector<PQLEntity> PKB::retrieveConstantByValue(int value) {
 	shared_ptr<PkbEntity> result = this->constantsTable.get(key);
 	// if null, we return empty vector
 	if (result == NULL) {
-		return vector<PQLEntity>{};
+		return optional<PQLEntity>();
 	}
 	// else, we cast to PQLEntity
-	return vector<PQLEntity>{ PQLEntity::generateConstant(value) };
+	optional<PQLEntity> entity = PQLEntity::generateConstant(value);
+	return entity;
 }
 
 vector<PQLEntity> PKB::retrieveAllConstants() {

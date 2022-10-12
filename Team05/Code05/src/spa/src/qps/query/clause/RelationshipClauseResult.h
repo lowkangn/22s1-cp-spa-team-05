@@ -12,12 +12,6 @@ private:
     ClauseArgument firstArg;
     ClauseArgument secondArg;
     vector<PQLRelationship> relationships;
-    bool isRelationshipsEmpty;
-
-    RelationshipClauseResult(ClauseArgument firstArg, ClauseArgument secondArg) 
-        : firstArg(firstArg), secondArg(secondArg) {
-        this->isRelationshipsEmpty = false;
-    }
 
 public:
     RelationshipClauseResult(ClauseArgument firstArg, ClauseArgument secondArg, vector<PQLRelationship> relationships)
@@ -25,11 +19,6 @@ public:
         this->firstArg = firstArg;
         this->secondArg = secondArg;
         this->relationships = relationships;
-        this->isRelationshipsEmpty = relationships.empty();
-    }
-
-    RelationshipClauseResult generateNonEmptyDummyResult(ClauseArgument firstArg, ClauseArgument secondArg) {
-        return RelationshipClauseResult(firstArg, secondArg);
     }
 
     ClauseArgument getFirstArg() {
@@ -45,7 +34,7 @@ public:
     }
 
     bool isEmpty() {
-        return this->isRelationshipsEmpty;
+        return this->relationships.empty();
     }
 
     friend bool operator==(RelationshipClauseResult first, RelationshipClauseResult second);

@@ -5,19 +5,19 @@ shared_ptr<ClauseResult> WithOneExactClause::execute(shared_ptr<PKBQueryHandler>
 	ClauseArgument attribute = this->nonExactArgs.back();
 	assert(synonym.isSynonym() && attribute.isAttributeName() && exactArg.isExactReference());
 
-	vector<PQLEntity> entity;
+	optional<PQLEntity> maybeEntity;
 	if (synonym.isProcedureSynonym()) {
-		entity = pkb->retrieveProcedureEntityByName(exactArg.getIdentifier());
+		maybeEntity = pkb->retrieveProcedureEntityByName(exactArg.getIdentifier());
 	} 
 	else if (synonym.isVariableSynonym()) {
-		entity = pkb->retrieveVariableByName(exactArg.getIdentifier());
+		maybeEntity = pkb->retrieveVariableByName(exactArg.getIdentifier());
 	}
 	else if (synonym.isConstantSynonym()) {
-		entity = pkb->retrieveConstantByValue(exactArg.getLineNumber());
+		maybeEntity = pkb->retrieveConstantByValue(exactArg.getLineNumber());
 	}
 	else if (synonym.isStmtRefNoWildcard() && attribute.isStmtNumAttribute()) {
 		PKBTrackedStatementType stmtType = this->getPKBStmtType(synonym);
-		entity = pkb->retrieveStatementByLineNumberAndType(exactArg.getLineNumber(), stmtType);
+		maybeEntity = pkb->retrieveStatementByLineNumberAndType(exactArg.getLineNumber(), stmtType);
 	} 
 	else if (synonym.isStmtRefNoWildcard() && (attribute.isProcNameAttribute () || attribute.isVarNameAttribute())) {
 		return this->executeForStmtWithNameAttribute(pkb);
@@ -26,7 +26,14 @@ shared_ptr<ClauseResult> WithOneExactClause::execute(shared_ptr<PKBQueryHandler>
 		throw PQLLogicError("Unable to identify synonym type in with clause");
 	}
 
-	return make_shared<EntityClauseResult>(synonym, entity);
+	vector<PQLEntity> resultEntityVector = {};
+	// return ClauseResult empty if no entity was retrieved
+	if (!maybeEntity.has_value()) {
+		return make_shared<EntityClauseResult>(synonym, resultEntityVector);
+	}
+	// else return the retrieved entity
+	resultEntityVector.push_back(maybeEntity.value());
+	return make_shared<EntityClauseResult>(synonym, resultEntityVector);
 }
 
 shared_ptr<ClauseResult> WithOneExactClause::executeForStmtWithNameAttribute(shared_ptr<PKBQueryHandler> pkb) {
