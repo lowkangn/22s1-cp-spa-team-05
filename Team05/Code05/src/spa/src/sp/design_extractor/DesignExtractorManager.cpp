@@ -33,3 +33,14 @@ vector<Pattern> DesignExtractorManager::extractPatterns(shared_ptr<ASTNode> ast)
 	vector<Pattern> patterns = this->patternExtractor.extract(ast);
 	return patterns;
 };
+
+vector<Relationship> DesignExtractorManager::extractCFGRelationships(vector<shared_ptr<CFGNode>> cfgNodes) {
+	vector<Relationship> extractedCFGRelations;
+
+	for (shared_ptr<CFGNode> nodeToExtractFrom : cfgNodes) {
+		vector<Relationship> extractedRelations = this->nextExtractor.extract(nodeToExtractFrom);
+		extractedCFGRelations.insert(extractedCFGRelations.end(), extractedRelations.begin(), extractedRelations.end());
+	}
+
+	return extractedCFGRelations;
+};

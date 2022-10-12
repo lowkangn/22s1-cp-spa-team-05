@@ -1,0 +1,19 @@
+procedure main {
+	read x;
+	if (x > 5) then {
+		y = 8;
+		call alpha;
+	} else {
+		call beta;
+	}
+}
+
+procedure alpha {
+	while (y > 1) {
+		y = y / 2;
+	}
+}
+
+procedure beta {
+	print y;
+}

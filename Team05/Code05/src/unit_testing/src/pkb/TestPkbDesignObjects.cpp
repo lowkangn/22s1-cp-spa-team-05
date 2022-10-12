@@ -3,6 +3,9 @@
 #include <pkb/design_objects/entities/PkbProcedureEntity.h>
 #include <pkb/design_objects/entities/PkbVariableEntity.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/design_objects/relationships/PkbCallsRelationship.h>
+#include <pkb/design_objects/relationships/PkbCallsStarRelationship.h>
+#include <pkb/design_objects/relationships/PkbCallStmtAttributeRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
@@ -12,6 +15,8 @@
 #include <pkb/design_objects/patterns/PkbAssignPattern.h>
 #include <pkb/design_objects/patterns/PkbIfPattern.h>
 #include <pkb/design_objects/patterns/PkbWhilePattern.h>
+#include <pkb/design_objects/graphs/PkbGraphNode.h>
+#include <pkb/design_objects/graphs/PkbControlFlowGraphNode.h>
 
 #include <pkb/PkbException.h>
 
@@ -156,8 +161,21 @@ TEST_CASE("PkbRelationship: test ::getKey") {
 		string expectedKey = lhsKey + rhsKey + string("5");
 		test(r, expectedKey);
 	};
-
-
+	SECTION("Calls") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbCallsRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("6");
+		test(r, expectedKey);
+	};
+	SECTION("CallsStar") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("7");
+		test(r, expectedKey);
+	};
+	SECTION("CallsStmtAttribute") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbCallStmtAttributeRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("8");
+		test(r, expectedKey);
+	};
 }
 
 TEST_CASE("PkbAssignPattern throw error on creation with != 2 strings") {
@@ -530,3 +548,165 @@ TEST_CASE("PkbIfPattern::regexMatch, PkbWhilePattern::regexMatch") {
 	}
 	
 }
+
+TEST_CASE("PkbGraphNode: add and get neighbours") {
+	auto test = [](shared_ptr<PkbGraphNode> root, vector<shared_ptr<PkbGraphNode>> children) {
+		// given 
+		for (shared_ptr<PkbGraphNode> c : children) {
+			root->addNeighbour(c);
+		}
+
+		// when
+		vector<shared_ptr<PkbGraphNode>> neighbours = root->getNeighbours();
+
+		// then
+		for (shared_ptr<PkbGraphNode> c : children) {
+			REQUIRE(find(neighbours.begin(), neighbours.end(), c) != neighbours.end()); // is inside
+		}
+	};
+
+	// create one of each node type 
+	vector<shared_ptr<PkbGraphNode>> children = {
+		PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(2)),
+		PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createCallStatementEntity(3)),
+		PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createIfStatementEntity(4)),
+		PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createPrintStatementEntity(5)),
+		PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createReadStatementEntity(6)),
+		PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createWhileStatementEntity(7)),
+	};
+
+	shared_ptr<PkbGraphNode> root = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(1));
+
+	// test
+	test(root, children);
+	
+}
+
+TEST_CASE("PkbGraphNode: equals") {
+	auto test = [](shared_ptr<PkbGraphNode> one, shared_ptr<PkbGraphNode> other, bool expected) {
+		// given and when
+		bool isEquals = one->equals(other);
+
+		// then
+		REQUIRE(isEquals == expected);
+	};
+
+	SECTION("Same entity") {
+		shared_ptr<PkbGraphNode> one = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(2));
+		shared_ptr<PkbGraphNode> other = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(2));
+		bool expected = true;
+		test(one, other, expected);
+	}
+
+	SECTION("Same type but different") {
+		shared_ptr<PkbGraphNode> one = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createIfStatementEntity(4));
+		shared_ptr<PkbGraphNode> other = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createIfStatementEntity(3));
+		bool expected = false;
+		test(one, other, expected);
+	}
+
+	SECTION("different") {
+		shared_ptr<PkbGraphNode> one = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createPrintStatementEntity(5));
+		shared_ptr<PkbGraphNode> other = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createReadStatementEntity(6));
+		bool expected = false;
+		test(one, other, expected);
+	}
+
+	SECTION("full graph") {
+		/*
+		1	x = 1; // assign
+		2	call a; // call 
+		3	if (x == 1) then { // if
+		4		read b; // read
+			} else {
+		5		print x; // print
+			}
+		6	while (x == 1) { // while
+		7		x = 0; // assign
+			}
+		8	x = 1;
+			
+		*/
+
+		// graph 1
+		vector<vector<int>> adjList1 = { {1}, {2}, {3,4}, {5}, {5}, {6}, {5, 7}, {7} };
+		unordered_map<int, shared_ptr<PkbGraphNode>> nodeIdToNode1 = {
+			{0, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(1))},
+			{1, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createCallStatementEntity(2))},
+			{2, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createIfStatementEntity(3))},
+			{3, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createReadStatementEntity(4))},
+			{4, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createPrintStatementEntity(5))},
+			{5, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createWhileStatementEntity(6))},
+			{6, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(7))},
+			{7, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(8))},
+		};
+		shared_ptr<PkbGraphNode> one = PkbGraphNode::createGraphFromAdjList(0, adjList1, nodeIdToNode1);
+
+		// graph 2
+		vector<vector<int>> adjList2 = { {1}, {2}, {3,4}, {5}, {5}, {6}, {5, 7}, {7} };
+		unordered_map<int, shared_ptr<PkbGraphNode>> nodeIdToNode2 = {
+			{0, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(1))},
+			{1, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createCallStatementEntity(2))},
+			{2, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createIfStatementEntity(3))},
+			{3, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createReadStatementEntity(4))},
+			{4, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createPrintStatementEntity(5))},
+			{5, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createWhileStatementEntity(6))},
+			{6, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(7))},
+			{7, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(8))},
+		};
+		shared_ptr<PkbGraphNode> other = PkbGraphNode::createGraphFromAdjList(0, adjList2, nodeIdToNode2);
+		bool expected = true;
+		test(one, other, expected);
+	}
+}
+
+TEST_CASE("PkbControlFlowGraphNode: getKey") {
+	auto test = [](shared_ptr<PkbGraphNode> node, string expectedKey) {
+		// given and when
+		string key = node->getKey();
+
+		// then
+		REQUIRE(key == expectedKey);
+	};
+
+
+	// one test for each type
+	SECTION("Assign") {
+		shared_ptr<PkbGraphNode> node = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(2));
+		string expectedKey = PkbStatementEntity::createAssignStatementEntity(2)->getKey();
+		test(node, expectedKey);
+	}
+
+	SECTION("Calls") {
+		shared_ptr<PkbGraphNode> node = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createCallStatementEntity(2));
+		string expectedKey = PkbStatementEntity::createCallStatementEntity(2)->getKey();
+		test(node, expectedKey);
+	}
+
+	SECTION("If") {
+		shared_ptr<PkbGraphNode> node = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createIfStatementEntity(2));
+		string expectedKey = PkbStatementEntity::createIfStatementEntity(2)->getKey();
+		test(node, expectedKey);
+	}
+
+	SECTION("print") {
+		shared_ptr<PkbGraphNode> node = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createPrintStatementEntity(2));
+		string expectedKey = PkbStatementEntity::createPrintStatementEntity(2)->getKey();
+		test(node, expectedKey);
+	}
+
+	SECTION("read") {
+		shared_ptr<PkbGraphNode> node = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createReadStatementEntity(2));
+		string expectedKey = PkbStatementEntity::createReadStatementEntity(2)->getKey();
+		test(node, expectedKey);
+	}
+
+	SECTION("while") {
+		shared_ptr<PkbGraphNode> node = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createWhileStatementEntity(2));
+		string expectedKey = PkbStatementEntity::createWhileStatementEntity(2)->getKey();
+		test(node, expectedKey);
+	}
+}
+
+
+

@@ -16,7 +16,8 @@ private:
         PARENTT = 5,
         CALLS = 6,
         CALLST = 7,
-        CALLSTMTATTRIBUTE = 8,
+        NEXT = 8,
+        CALLSTMTATTRIBUTE = 9,
     };
 
     Entity entity1;
@@ -65,6 +66,10 @@ public:
         return Relationship(lhs, rhs, RelationshipType::CALLSTMTATTRIBUTE);
     }
 
+    static Relationship createNextRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::NEXT);
+    }
+
     Entity getLhs() {
         return this->entity1;
     }
@@ -107,10 +112,15 @@ public:
         return this->type == RelationshipType::CALLS;
     }
 
-    bool isCallsT() {
+    bool isCallsStar() {
         return this->type == RelationshipType::CALLST;
     }
+
     bool isCallsStmtAttribute() {
         return this->type == RelationshipType::CALLSTMTATTRIBUTE;
+    }
+
+    bool isNext() {
+        return this->type == RelationshipType::NEXT;
     }
 };

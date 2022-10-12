@@ -6,6 +6,7 @@
 #include <qps/query_parser/parsers/SelectSingleParser.h>
 #include <qps/query_parser/parsers/SelectMultipleParser.h>
 #include <qps/query_parser/parsers/DeclarationParser.h>
+#include <qps/query_parser/parsers/CallsParser.h>
 #include <qps/query_parser/parsers/FollowsParser.h>
 #include <qps/query_parser/parsers/ModifiesParser.h>
 #include <qps/query_parser/parsers/ParentParser.h>
@@ -107,6 +108,9 @@ shared_ptr<RelationshipClause> QueryParser::parseSuchThat(unordered_map<string, 
     }
     else if (token.isFollows()) {
         parserPointer = shared_ptr<SuchThatClauseParser>(new FollowsParser(this->tokens, declarations));
+    }
+    else if (token.isCalls()) {
+        parserPointer = shared_ptr<SuchThatClauseParser>(new CallsParser(this->tokens, declarations));
     }
     else {
         throw PQLSyntaxError("Only Modifies, Uses, Parent/Parent*, Follows/Follows* are supported as such that clauses.");
