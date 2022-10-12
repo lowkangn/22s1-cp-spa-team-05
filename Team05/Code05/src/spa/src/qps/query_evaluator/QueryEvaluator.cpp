@@ -55,11 +55,11 @@ ClauseResult QueryEvaluator::getDesiredSynonymsResult(list<ClauseResult> selectR
 	selectResults.insert(selectResults.end(), selectResultsList.begin(), selectResultsList.end());
 
 	// Check if any select args in combined table - if not, do cross product with select results
-	bool areSelectArgsInCombinedTable = combinedResult.checkArgsInTable(selectResults);
+	bool areSelectArgsInCombinedTable = combinedResult.checkSelectArgsInTable(selectResults);
 	if (!areSelectArgsInCombinedTable) {
 		return this->getSelectSynonymsCrossProductResult(selectResultsList);
 	} else {
-		return combinedResult.rearrangeTableWithSelectResults(selectResults);
+		return combinedResult.rearrangeTableToMatchSelectResults(selectResults);
 	}
 }
 
@@ -73,7 +73,7 @@ ClauseResult QueryEvaluator::getSelectSynonymsCrossProductResult(list<ClauseResu
 			if (combinedResult.isEmpty()) {
 			combinedResult = currentResult;
 		} else {
-			bool isSelectArgInCombinedResult = combinedResult.checkArgsInTable({currentResult});
+			bool isSelectArgInCombinedResult = combinedResult.checkSelectArgsInTable({currentResult});
 			if (isSelectArgInCombinedResult) {
 				combinedResult.duplicateColumn(currentResult);
 			} else {

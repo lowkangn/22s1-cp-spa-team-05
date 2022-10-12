@@ -23,10 +23,6 @@ protected:
 	vector<ClauseArgument> args;
 	Table table;
 
-	/* ============== Protected constructor ============== */
-
-	ClauseResult(vector<ClauseArgument> args, vector<vector<PQLEntity>> table) : args(args), table(table) {};
-
 	/* ================ Protected methods ================ */
 
 	/* Method for finding common synonyms */
@@ -67,6 +63,8 @@ public:
 
 	ClauseResult() {};
 
+	ClauseResult(vector<ClauseArgument> args, vector<vector<PQLEntity>> table) : args(args), table(table) {};
+
 	ClauseResult(vector<ClauseArgument> args, vector<PQLEntity> entities) : args(args) {
 		for (PQLEntity entity : entities) {
 			table.push_back(Row{entity});
@@ -85,10 +83,10 @@ public:
 	ClauseResult mergeResult(ClauseResult resultToMerge);
 
 	/* Checks if any of the given args are in the table */
-	bool checkArgsInTable(vector<ClauseResult> results);
+	bool checkSelectArgsInTable(vector<ClauseResult> selectResults);
 
 	/* Gets table rearranged based on args from select results */
-	ClauseResult rearrangeTableWithSelectResults(vector<ClauseResult> selectResults);
+	ClauseResult rearrangeTableToMatchSelectResults(vector<ClauseResult> selectResults);
 
 	/* Duplicates an existing column and adds it to the table */
 	void duplicateColumn(ClauseResult column);
@@ -100,4 +98,6 @@ public:
 	bool isEmpty() {
 		return this->table.empty();
 	}
+
+	virtual bool equals(shared_ptr<ClauseResult> other);
 };

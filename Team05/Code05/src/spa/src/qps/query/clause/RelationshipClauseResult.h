@@ -7,17 +7,18 @@
 #include <qps/query/clause/ClauseResult.h>
 
 class RelationshipClauseResult : public ClauseResult {
+private:
+	ClauseArgument getFirstArg() {
+		return this->args[0];
+	}
+
+	ClauseArgument getSecondArg() {
+		return this->args[1];
+	}
+
 public:
     RelationshipClauseResult(ClauseArgument firstArg, ClauseArgument secondArg, vector<PQLRelationship> relationships)
                                 : ClauseResult({firstArg, secondArg}, relationships) {};
 
-    ClauseArgument getFirstArg() {
-        return this->args[0];
-    }
-
-    ClauseArgument getSecondArg() {
-        return this->args[1];
-    }
-
-    friend bool operator==(RelationshipClauseResult first, RelationshipClauseResult second);
+	friend bool operator==(RelationshipClauseResult first, RelationshipClauseResult second);
 };

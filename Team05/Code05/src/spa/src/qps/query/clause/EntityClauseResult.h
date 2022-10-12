@@ -7,14 +7,15 @@
 #include <qps/query/clause/ClauseResult.h>
 
 class EntityClauseResult : public ClauseResult {
+private:
+	ClauseArgument getArg() {
+		return this->args[0];
+	}
+
 public:
     EntityClauseResult(ClauseArgument arg, vector<PQLEntity> entities) : ClauseResult({arg}, entities) {};
 
-    ClauseArgument getArg() {
-        return this->args[0];
-    }
-
-    friend bool operator==(EntityClauseResult first, EntityClauseResult second);
+	friend bool operator==(EntityClauseResult first, EntityClauseResult second);
 
 	friend bool operator<(EntityClauseResult first, EntityClauseResult second);
 };

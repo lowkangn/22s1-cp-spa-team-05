@@ -19,14 +19,14 @@ vector<ClauseArgument> ClauseResult::findConnectingArgs(ClauseResult otherResult
 	return connectingArgs;
 }
 
-vector<int> ClauseResult::getColumnIndices(vector<ClauseArgument> args) {
+vector<int> ClauseResult::getColumnIndices(vector<ClauseArgument> searchArgs) {
 	unordered_map<ClauseArgument, int> argMap;
 	for (int i = 0; i < this->args.size(); i++) {
 		argMap.insert({this->args[i], i});
 	}
 
 	vector<int> indices;
-	for (ClauseArgument arg : args) {
+	for (ClauseArgument arg : searchArgs) {
 		unordered_map<ClauseArgument, int>::iterator mapIter = argMap.find(arg);
 		if (mapIter != argMap.end()) {
 			indices.push_back(mapIter->second);
@@ -150,10 +150,10 @@ ClauseResult ClauseResult::mergeResult(ClauseResult resultToMerge) {
 	}
 }
 
-bool ClauseResult::checkArgsInTable(vector<ClauseResult> results) {
+bool ClauseResult::checkSelectArgsInTable(vector<ClauseResult> selectResults) {
 	// Get list of args from select results
 	vector<ClauseArgument> selectArgs;
-	for (ClauseResult selectResult : results) {
+	for (ClauseResult selectResult : selectResults) {
 		vector<ClauseArgument> currentArgs = selectResult.args;
 		selectArgs.insert(selectArgs.end(), currentArgs.begin(), currentArgs.end());
 	}
@@ -172,7 +172,7 @@ bool ClauseResult::checkArgsInTable(vector<ClauseResult> results) {
 	return false;
 }
 
-ClauseResult ClauseResult::rearrangeTableWithSelectResults(vector<ClauseResult> selectResults) {
+ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(vector<ClauseResult> selectResults) {
 	// Get args
 	vector<ClauseArgument> selectArgs;
 	for (ClauseResult selectResult : selectResults) {
@@ -183,13 +183,23 @@ ClauseResult ClauseResult::rearrangeTableWithSelectResults(vector<ClauseResult> 
 	// Find corresponding column indices
 	vector<int> desiredSynonymIndices = this->getColumnIndices(selectArgs);
 
+	// Map to check if arg not found in combined table has already been merged
+	unordered_map<ClauseArgument, int> missingArgMap;
+
 	// If arg not found in combined table, merge respective list from select result
 	for (int i = 0; i < desiredSynonymIndices.size(); i++) {
 		if (desiredSynonymIndices[i] == -1) {
-			ClauseResult newResult = this->mergeResult(selectResults[i]);
-			this->args = newResult.args;
-			this->table = newResult.table;
-			desiredSynonymIndices[i] = int(this->args.size()) - 1;
+			ClauseResult currentResult = selectResults[i];
+			unordered_map<ClauseArgument, int>::iterator mapIter = missingArgMap.find(currentResult.args[0]);
+			if ( mapIter == missingArgMap.end()) {
+				ClauseResult newResult = this->mergeResult(currentResult);
+				this->args = newResult.args;
+				this->table = newResult.table;
+				desiredSynonymIndices[i] = int(this->args.size()) - 1;
+				missingArgMap.insert({currentResult.args[0], int(this->args.size()) - 1});
+			} else {
+				desiredSynonymIndices[i] = mapIter->second;
+			}
 		}
 	}
 
@@ -209,9 +219,9 @@ ClauseResult ClauseResult::rearrangeTableWithSelectResults(vector<ClauseResult> 
 void ClauseResult::duplicateColumn(ClauseResult column) {
 	assert(column.args.size() == 1); // Method is only called with a column as parameter
 	ClauseArgument arg = column.args[0];
-	int countIndex = column.getColumnIndices({arg})[0];
+	int countIndex = this->getColumnIndices({arg})[0];
 	assert(countIndex != -1); // Method is only called if column is known to already exist in table
-	ClauseResult duplicatedColumn = getColumn(countIndex);
+	ClauseResult duplicatedColumn = this->getColumn(countIndex);
 	this->addColumn(duplicatedColumn);
 }
 
@@ -240,4 +250,8 @@ set<string> ClauseResult::convertTableToString(bool isBooleanReturnType) {
 	}
 
 	return entityStringsToReturn;
+}
+
+bool ClauseResult::equals(shared_ptr<ClauseResult> other) {
+	return (this->args == other->args) && (this->table == other->table);
 }
