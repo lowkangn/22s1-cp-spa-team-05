@@ -15,25 +15,21 @@ using namespace std;
 class PkbGraphManager {
 private:
 	unordered_map<string, shared_ptr<PkbGraphNode>> keyToNodeMap; // maps key -> node
+	shared_ptr<PkbGraphNode> rootNode; // rootNode
+	
 
 public:
-	/*
-		Default constructor. Initializes an empty manager.
-	*/
 	PkbGraphManager() {};
 
-	/*
-		Initializes a manager with a hashmap of keys pointing to nodes.
-	*/
-	PkbGraphManager(unordered_map<string, shared_ptr<PkbGraphNode>> keyToNodeMap) {
-		this->keyToNodeMap = keyToNodeMap;
-	}
 
 	/*
 		Constructor initializing a manager with a root node. It will carry out graph traversal to map
 		out the full graph internally.
 	*/
 	PkbGraphManager(shared_ptr<PkbGraphNode> rootNode) {
+
+		// assign root node
+		this->rootNode = rootNode;
 
 		// initialize for bfs
 		unordered_set<string> visited;
@@ -66,6 +62,15 @@ public:
 		}
 
 	}
+
+	/*
+		Gets the root node of the graph. We allow this past the abstraction barrier to allow 
+		external components to directly interface with the graph for traversal.
+	*/
+	shared_ptr<PkbGraphNode> getRootNode() {
+		return this->rootNode;
+	}
+
 
 	/*
 		Checks if a node is inside.

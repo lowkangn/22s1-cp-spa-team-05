@@ -28,6 +28,7 @@ const string PARENT_TABLE = "parent";
 const string PARENTSTAR_TABLE = "parentStar";
 const string USES_TABLE = "uses";
 const string MODIFIES_TABLE = "modifies";
+const string NEXT_TABLE = "next";
 
 const string SPACE_DELIM = " ";
 
@@ -47,6 +48,7 @@ private:
 		{PARENTSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{USES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{MODIFIES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{NEXT_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 	};
 
 	// patterns
@@ -77,6 +79,10 @@ private:
 	shared_ptr<PkbRelationshipTable> getModifiesTable() {
 		return this->relationshipTables[MODIFIES_TABLE];
 	}
+	shared_ptr<PkbRelationshipTable> getNextTable() {
+		return this->relationshipTables[NEXT_TABLE];
+	}
+	
 
 	/*
 		Converts an SP entity to a pkb entity with the correct underlying behaviour.
@@ -150,8 +156,6 @@ private:
 	*/
 	vector<PQLRelationship> retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
 
-
-
 public: 
 	PKB() {}
 
@@ -173,7 +177,7 @@ public:
 	/*
 		Add the control flow graph from the SP.
 	*/
-	void addCfg(CFGNode rootNode) override;
+	void addCfg(shared_ptr<PkbGraphNode> rootNode) override;
 
 	/*
 		Retrieves all procedure entities by name.

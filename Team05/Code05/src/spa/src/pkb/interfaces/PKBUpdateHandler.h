@@ -4,7 +4,8 @@
 #include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Entity.h>
-#include <sp/dataclasses/cfg/CFGNode.h>
+#include <pkb/design_objects/graphs/PkbGraphNode.h>
+#include <memory>
 
 using namespace std;
 
@@ -17,6 +18,6 @@ public:
     
     virtual void addEntities(vector<Entity> entities) = 0;
 
-    virtual void addCfg(CFGNode rootNode) = 0;
+    virtual void addCfg(shared_ptr<PkbGraphNode> rootNode) = 0;
 };
 

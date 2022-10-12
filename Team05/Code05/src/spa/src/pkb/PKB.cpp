@@ -11,6 +11,9 @@
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
 #include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
+#include <pkb/design_objects/relationships/PkbNextRelationship.h>
+#include <pkb/design_objects/graphs/PkbControlFlowGraphNode.h>
+#include <pkb/graph_extractors/PkbGraphNextStarRelationshipExtractor.h>
 #include <qps/query/clause/PQLEntity.h>
 #include <StringSplitter.h>
 
@@ -255,10 +258,10 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 	}
 }
 
-void PKB::addCfg(CFGNode rootNode) {
-	// 1. traverse the graph and construct a PKB graph
+void PKB::addCfg(shared_ptr<PkbGraphNode> rootNode) {
 
-	// 2. pass the pkb graph into the graph manager 
+	// 1. pass the pkb graph into the graph manager 
+	this->cfgManager = PkbGraphManager(rootNode);
 
 
 }
@@ -429,6 +432,8 @@ shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelat
 		return this->getUsesTable();
 	case PKBTrackedRelationshipType::MODIFIES:
 		return this->getModifiesTable();
+	case PKBTrackedRelationshipType::NEXT:
+		return this->getNextTable();
 	default:
 		throw PkbException("Unknown relationship type to be retrieved!");
 	}
@@ -565,17 +570,19 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 
 bool PKB::canShortCircuitRetrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
 
-	// 1. for parent and follows, cannot reference itself
+	// 1. for parent, next, follows, cannot reference itself
 	if (relationshipType == PKBTrackedRelationshipType::PARENT
 		|| relationshipType == PKBTrackedRelationshipType::PARENTSTAR
 		|| relationshipType == PKBTrackedRelationshipType::FOLLOWS
-		|| relationshipType == PKBTrackedRelationshipType::FOLLOWSSTAR) {
+		|| relationshipType == PKBTrackedRelationshipType::FOLLOWSSTAR
+		|| relationshipType == PKBTrackedRelationshipType::NEXT) {
 		if (lhs.isStmtRefNoWildcard() && rhs.isStmtRefNoWildcard() && lhs == rhs) {
 			// is identical. e.g Follows(s,s)
 			// no possible solution, return empty
 			return true;
 		}
-	}
+	} 
+
 
 	return false;
 }
@@ -601,13 +608,11 @@ shared_ptr<PkbEntity> PKB::convertClauseArgumentToPkbEntity(ClauseArgument claus
 }
 
 
-
 vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
 	// depending on type, we pass to the correct handler
 	switch (relationshipType) {
 
 	// graph types
-	case PKBTrackedRelationshipType::NEXT:
 	case PKBTrackedRelationshipType::NEXTSTAR:
 	case PKBTrackedRelationshipType::AFFECTS:
 	case PKBTrackedRelationshipType::AFFECTSSTAR:
@@ -615,6 +620,7 @@ vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelat
 		break;
 
 	// table types
+	case PKBTrackedRelationshipType::NEXT:
 	case PKBTrackedRelationshipType::FOLLOWS:
 	case PKBTrackedRelationshipType::FOLLOWSSTAR:
 	case PKBTrackedRelationshipType::MODIFIES:
@@ -623,7 +629,6 @@ vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelat
 	case PKBTrackedRelationshipType::USES:
 	default:
 		return retrieveRelationshipsFromTablesByTypeAndLhsRhs(relationshipType, lhs, rhs);
-
 	}
 }
 
@@ -631,36 +636,80 @@ vector<PQLRelationship> PKB::retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PKBT
 	// 1. validation of inputs
 	// 2. if both are exact, we can evaluate directly
 	// 3. if not, we need to get the graph and traverse to check 
-	if (relationshipType == PKBTrackedRelationshipType::NEXT) {
+	if (relationshipType == PKBTrackedRelationshipType::NEXTSTAR) {
 		// 1. validation - must be a statement
 		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
-			throw PkbException("NEXT relationship expects lhs and rhs to both be statements!");
+			throw PkbException("NEXTSTAR relationship expects lhs and rhs to both be statements!");
 		}
 
-		// 2. if both exact, evaulate directly 
+		// 2. there are four cases. 
+		// if lhs and rhs are exact, we can do a direct check.
+		// if exact and _, we need to do dfs from the specified node.
+		// if _ and exact, we do dfs starting from the root node.
+		// if _ and _, we do dfs from the root node and accumulate.
+		vector<PQLRelationship> out;
+
+		// case 1: both exact
 		if (lhs.isExactReference() && rhs.isExactReference()) {
 			// construct key from lhs and rhs
+			shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
+			shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
+			shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(lhsEntity);
+			shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(rhsEntity);
 
-			// query if direct neighbour
-			this->cfgManager.
+			// create graph nodes and get their keys 
+			string leftKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left)->getKey();
+			string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
+
+			// if they are connected, return. else, return empty list
+			if (this->cfgManager.canReachNodeBFromNodeA(leftKey, rightKey)) {
+				PQLEntity outLhs = this->pkbEntityToQpsPqlEntity(lhsEntity);
+				PQLEntity outRhs = this->pkbEntityToQpsPqlEntity(rhsEntity);
+				out.push_back(PQLRelationship(outLhs, outRhs));
+			}
+			return out;
 		}
 
 
-		// 3. else, we return all neighbours of the specified node
-		
-	}
-	else if (relationshipType == PKBTrackedRelationshipType::NEXTSTAR) {
+		// case 2: exact and wildcard
+		PkbGraphNextStarRelationshipExtractor extractor;
+		vector<shared_ptr<PkbRelationship>> extractedRelationships;
+		if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
+			// convert lhs to entity, graph node, then get node 
+			shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
+			shared_ptr<PkbGraphNode> startNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
+			
+			// starting from node, run dfs 
+			extractor.extractAllFromStart(startNode);
+			extractedRelationships = extractor.getExtractedRelationships();
 
-		// 1. validation - must be a statement
-		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
-			throw PkbException("NEXT relationship expects lhs and rhs to both be statements!");
+
+		}
+		// case 3: wildcard and exact
+		else if ((lhs.isWildcard() || rhs.isSynonym()) && (rhs.isExactReference())) {
+			// convert rhs to entity, graph node, then get target node 
+			shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
+			shared_ptr<PkbGraphNode> endNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
+
+			// starting from node, run dfs 
+			extractor.extractAllThatReachEnd(this->cfgManager.getRootNode(), endNode);
+			extractedRelationships = extractor.getExtractedRelationships();
+		}
+		else { // case 4: all wild card
+			// starting at root node, dfs all the way
+			extractor.extractAllFromStart(this->cfgManager.getRootNode());
+			extractedRelationships = extractor.getExtractedRelationships();
 		}
 
-		// 2. if both exact, we can evaluate directly
+		// for each result in output, convert
+		for (shared_ptr<PkbRelationship> r : extractedRelationships) {
 
-		// 3. else, we get the graph, traverse the graph and convert to a vector of entities
-
-
+			PQLEntity outLhs = this->pkbEntityToQpsPqlEntity(r->getLhs());
+			PQLEntity outRhs = this->pkbEntityToQpsPqlEntity(r->getRhs());
+			out.push_back(PQLRelationship(outLhs, outRhs));
+		}
+		return out;
+	
 	}
 	else if (relationshipType == PKBTrackedRelationshipType::AFFECTS) {
 		throw PkbException("Not implemented yet!");
@@ -709,6 +758,9 @@ vector<PQLRelationship> PKB::retrieveRelationshipsFromTablesByTypeAndLhsRhs(PKBT
 			break;
 		case PKBTrackedRelationshipType::MODIFIES:
 			toFind = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(left, right));
+			break;
+		case  PKBTrackedRelationshipType::NEXT:
+			toFind = shared_ptr<PkbRelationship>(new PkbNextRelationship(left, right));
 			break;
 		default:
 			throw PkbException("Unknown relationship type to be retrieved!");
