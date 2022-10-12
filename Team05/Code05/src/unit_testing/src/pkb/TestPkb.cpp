@@ -9,10 +9,13 @@
 #include <pkb/design_objects/relationships/PkbParentRelationship.h>
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
-#include<pkb/table_managers/PkbPatternTable.h>
+#include <pkb/design_objects/relationships/PkbNextStarRelationship.h>
+#include <pkb/design_objects/relationships/PkbNextRelationship.h>
+#include <pkb/table_managers/PkbPatternTable.h>
 #include <pkb/PkbException.h>
 #include <pkb/PKB.h>
-
+#include <pkb/design_objects/graphs/PkbGraphNode.h>
+#include <pkb/design_objects/graphs/PkbControlFlowGraphNode.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Entity.h>
@@ -239,7 +242,7 @@ TEST_CASE("Test retrieve statements by type") {
 	};
 }
 
-TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
+TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, vector<Relationship> toAdd) {
 		// given
 		PKB pkb;
@@ -732,6 +735,115 @@ TEST_CASE("Test add and retrieve relationship by type and lhs rhs") {
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 	};
+
+	/* TODO: awaiting SP implementation
+	SECTION("Next") {
+		/*
+			procedure p {
+			1.	x = 1;
+			2.	read x;
+			3.	if (x == 1) then {
+			4.		x = 2;
+			5.		call p; // recursive call
+			6.	} else {
+			7.		x = 3;
+				}
+			8.	while (x == 3) {
+			9.		x = 2;
+				}
+
+			}
+		*/
+	/*
+		// entity
+		Entity procedure = Entity::createProcedureEntity(Token::createNameOrKeywordToken("p"));
+		Entity x = Entity::createVariableEntity(INVALID_LINE_NUMBER, Token::createNameOrKeywordToken("x"));
+		Entity statement1 = Entity::createAssignEntity(1);
+		Entity statement2 = Entity::createReadEntity(2);
+		Entity statement3 = Entity::createIfEntity(3);
+		Entity statement4 = Entity::createAssignEntity(4);
+		Entity statement5 = Entity::createCallEntity(5);
+
+		// vector of relationships to add
+		vector<Relationship> toAdd = {
+			
+		};
+		// shared, as PQLEntities
+		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
+		PQLEntity xResult = PQLEntity::generateVariable("x");
+		PQLEntity statementResult1 = PQLEntity::generateStatement(1);
+		PQLEntity statementResult2 = PQLEntity::generateStatement(2);
+		PQLEntity statementResult3 = PQLEntity::generateStatement(3);
+		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
+		PQLEntity statementResult5 = PQLEntity::generateStatement(5);
+		
+		// test 1: both exact
+		ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+		ClauseArgument rhs = ClauseArgument::createVariableArg("v");
+		vector<PQLRelationship> expectedRelationships = {
+			
+		};
+		test(PKBTrackedRelationshipType::NEXT, lhs, rhs, expectedRelationships, toAdd);
+
+		// test 2: both wildcard
+
+
+
+		// test 3: exact, wildcard
+
+
+		// test 4: wildcard, exact
+
+		
+
+	}*/
+}
+
+TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
+	SECTION("NextStar") {
+		auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, shared_ptr<PkbGraphNode> graphToAdd) {
+			
+		};
+		
+
+		/*
+		1	x = 1; // assign
+		2	call a; // call
+		3	if (x == 1) then { // if
+		4		read b; // read
+			} else {
+		5		print x; // print
+			}
+		6	while (x == 1) { // while
+		7		x = 0; // assign
+			}
+		8	x = 1;
+
+		*/
+
+		// graph 
+		vector<vector<int>> adjList = { {1}, {2}, {3,4}, {5}, {5}, {6}, {5, 7}, {7} };
+		unordered_map<int, shared_ptr<PkbGraphNode>> nodeIdToNode = {
+			{0, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(1))},
+			{1, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createCallStatementEntity(2))},
+			{2, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createIfStatementEntity(3))},
+			{3, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createReadStatementEntity(4))},
+			{4, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createPrintStatementEntity(5))},
+			{5, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createWhileStatementEntity(6))},
+			{6, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(7))},
+			{7, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(8))},
+		};
+
+		shared_ptr<PkbGraphNode> graph = PkbGraphNode::createGraphFromAdjList(0, adjList, nodeIdToNode);
+
+		// expected relationships
+		vector<PQLRelationship> expectedRelationships = {
+
+		};
+
+		// test
+
+	}
 }
 
 TEST_CASE("Test retrieve relationship short circuits to empty result") {
@@ -834,6 +946,25 @@ TEST_CASE("Test retrieve relationship short circuits to empty result") {
 		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
 		test(toAdd, PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs);
 	}
+
+	/* TODO: after sp side implementation
+	SECTION("Next(s,s)") {
+		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
+		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
+		test(toAdd, PKBTrackedRelationshipType::NEXT, lhs, rhs);
+	}
+	SECTION("Next(a,a)") {
+		ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+		ClauseArgument rhs = ClauseArgument::createAssignArg("a");
+		test(toAdd, PKBTrackedRelationshipType::NEXT, lhs, rhs);
+	}
+
+	SECTION("Next(1,1)") {
+		ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+		ClauseArgument rhs = ClauseArgument::createLineNumberArg("1");
+		test(toAdd, PKBTrackedRelationshipType::NEXT, lhs, rhs);
+	}
+	*/
 }
 
 TEST_CASE("Test containsEntity") {
