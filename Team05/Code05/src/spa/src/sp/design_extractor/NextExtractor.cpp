@@ -19,9 +19,15 @@ vector<Relationship> NextExtractor::extract(shared_ptr<CFGNode> cfg)
 			nextRelationships.push_back(nextRelation);
 
 			// If it is not a cycle recursively extract
-			if (child->hash() < cfg->hash()) {
+			if (child->hash() > cfg->hash()) {
 				vector<Relationship> recursiveNextRelationships = this->extract(child);
-				nextRelationships.insert(nextRelationships.begin(), recursiveNextRelationships.begin(), recursiveNextRelationships.end());
+
+				// Insert only if it is not present in the accumalated list
+				for (Relationship toInsert : recursiveNextRelationships) {
+					if (find(nextRelationships.begin(), nextRelationships.end(), toInsert) == nextRelationships.end()){
+						nextRelationships.push_back(toInsert);
+					}
+				}
 			}
 		}
 	}

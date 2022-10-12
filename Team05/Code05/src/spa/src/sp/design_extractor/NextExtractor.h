@@ -5,7 +5,6 @@
 #include <sp/design_extractor/Extractor.h>
 
 #include <memory>
-#include <unordered_set>
 
 using namespace std;
 
