@@ -27,6 +27,8 @@ enum class PKBTrackedRelationshipType {
     NEXTSTAR,
     AFFECTS,
     AFFECTSSTAR,
+    CALLS,
+    CALLSSTAR
 };
 
 
