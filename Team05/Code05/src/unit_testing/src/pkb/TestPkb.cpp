@@ -863,7 +863,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 			Relationship::createModifiesRelationship(statement2, x),
 			Relationship::createModifiesRelationship(statement3, x),
 			Relationship::createModifiesRelationship(procedure, x),
-			Relationship::createModifiesRelationship(statement5, x),
+			 
 		};
 		// shared, as PQLEntities
 		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
@@ -890,7 +890,6 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 	};
 
-	/* TODO: awaiting SP implementation
 	SECTION("Next") {
 		/*
 			procedure p {
@@ -899,16 +898,15 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 			3.	if (x == 1) then {
 			4.		x = 2;
 			5.		call p; // recursive call
-			6.	} else {
-			7.		x = 3;
+				} else {
+			6.		x = 3;
 				}
-			8.	while (x == 3) {
-			9.		x = 2;
+			7.	while (x == 3) {
+			8.		x = 2;
 				}
 
 			}
 		*/
-	/*
 		// entity
 		Entity procedure = Entity::createProcedureEntity(Token::createNameOrKeywordToken("p"));
 		Entity x = Entity::createVariableEntity(INVALID_LINE_NUMBER, Token::createNameOrKeywordToken("x"));
@@ -917,10 +915,21 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 		Entity statement3 = Entity::createIfEntity(3);
 		Entity statement4 = Entity::createAssignEntity(4);
 		Entity statement5 = Entity::createCallEntity(5);
+		Entity statement6 = Entity::createAssignEntity(6);
+		Entity statement7 = Entity::createWhileEntity(7);
+		Entity statement8 = Entity::createAssignEntity(8);
 
 		// vector of relationships to add
 		vector<Relationship> toAdd = {
-			
+			Relationship::createNextRelationship(statement1, statement2),
+			Relationship::createNextRelationship(statement2, statement3),
+			Relationship::createNextRelationship(statement3, statement4), // if to inside if
+			Relationship::createNextRelationship(statement4, statement5),
+			Relationship::createNextRelationship(statement3, statement6), // if to else
+			Relationship::createNextRelationship(statement6, statement7), // else to after
+			Relationship::createNextRelationship(statement5, statement7), // if to after
+			Relationship::createNextRelationship(statement7, statement8), // whlile
+			Relationship::createNextRelationship(statement8, statement7), // while backedge
 		};
 		// shared, as PQLEntities
 		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
@@ -930,27 +939,66 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 		PQLEntity statementResult3 = PQLEntity::generateStatement(3);
 		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
 		PQLEntity statementResult5 = PQLEntity::generateStatement(5);
+		PQLEntity statementResult6 = PQLEntity::generateStatement(6);
+		PQLEntity statementResult7 = PQLEntity::generateStatement(7);
+		PQLEntity statementResult8 = PQLEntity::generateStatement(8);
 		
-		// test 1: both exact
-		ClauseArgument lhs = ClauseArgument::createAssignArg("a");
-		ClauseArgument rhs = ClauseArgument::createVariableArg("v");
+		// test 1a: both exact, both inside -> one result
+		ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+		ClauseArgument rhs = ClauseArgument::createLineNumberArg("2");
 		vector<PQLRelationship> expectedRelationships = {
-			
+			PQLRelationship(statementResult1, statementResult2),
+		};
+		test(PKBTrackedRelationshipType::NEXT, lhs, rhs, expectedRelationships, toAdd);
+
+		// test 1b: both exact, one not inside -> no result
+		lhs = ClauseArgument::createLineNumberArg("1");
+		rhs = ClauseArgument::createLineNumberArg("5");
+		expectedRelationships = {
 		};
 		test(PKBTrackedRelationshipType::NEXT, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 2: both wildcard
+		lhs = ClauseArgument::createWildcardArg(); // is wildcard
+		rhs = ClauseArgument::createStmtArg("s"); // essentially wildcard
+		expectedRelationships = { // expect all relationships
+			PQLRelationship(statementResult1, statementResult2),
+			PQLRelationship(statementResult2, statementResult3),
+			PQLRelationship(statementResult3, statementResult4),
+			PQLRelationship(statementResult4, statementResult5),
+			PQLRelationship(statementResult3, statementResult6),
+			PQLRelationship(statementResult6, statementResult7),
+			PQLRelationship(statementResult5, statementResult7),
+			PQLRelationship(statementResult7, statementResult8),
+			PQLRelationship(statementResult8, statementResult7),
+		};
+		test(PKBTrackedRelationshipType::NEXT, lhs, rhs, expectedRelationships, toAdd);
 
 
 
 		// test 3: exact, wildcard
+		lhs = ClauseArgument::createLineNumberArg("3"); // start at 3
+		rhs = ClauseArgument::createWildcardArg(); 
+		expectedRelationships = { // expect all relationships
+			PQLRelationship(statementResult3, statementResult4),
+			PQLRelationship(statementResult3, statementResult6),
+		};
+		test(PKBTrackedRelationshipType::NEXT, lhs, rhs, expectedRelationships, toAdd);
 
 
 		// test 4: wildcard, exact
+		lhs = ClauseArgument::createWildcardArg(); 
+		rhs = ClauseArgument::createLineNumberArg("7"); 
+		expectedRelationships = { // those that end at 7
+			PQLRelationship(statementResult6, statementResult7),
+			PQLRelationship(statementResult5, statementResult7),
+			PQLRelationship(statementResult8, statementResult7),
+		};
+		test(PKBTrackedRelationshipType::NEXT, lhs, rhs, expectedRelationships, toAdd);
 
 		
 
-	}*/
+	}
 }
 
 TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {

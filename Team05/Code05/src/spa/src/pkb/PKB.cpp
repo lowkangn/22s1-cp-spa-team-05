@@ -142,6 +142,10 @@ shared_ptr<PkbRelationship> PKB::externalRelationshipToPkbRelationship(Relations
 	else if (relationship.isCallsStar()) {
 		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
 		return pkbRelationship;
+
+	}  else if (relationship.isNext()) {
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbNextRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		return pkbRelationship;
 	} else {
 		throw PkbException("Unknown relationship being converted!");
 	}
@@ -217,6 +221,10 @@ void PKB::addRelationships(vector<Relationship> relationships) {
 		}
 		else if (r.isCallsStar()) {
 			shared_ptr<PkbRelationshipTable> table = this->getCallsStarTable();
+			table->add(pkbRelationship);
+		}
+		else if (r.isNext()) {
+			shared_ptr<PkbRelationshipTable> table = this->getNextTable();
 			table->add(pkbRelationship);
 		}
 		else {
@@ -783,6 +791,7 @@ vector<PQLRelationship> PKB::retrieveRelationshipsFromTablesByTypeAndLhsRhs(PKBT
 			break;
 		case  PKBTrackedRelationshipType::NEXT:
 			toFind = shared_ptr<PkbRelationship>(new PkbNextRelationship(left, right));
+			break;
 		case PKBTrackedRelationshipType::CALLS:
 			toFind = shared_ptr<PkbRelationship>(new PkbCallsRelationship(left, right));
 			break;

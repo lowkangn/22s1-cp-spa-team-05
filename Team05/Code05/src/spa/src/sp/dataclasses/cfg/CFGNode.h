@@ -38,6 +38,8 @@ public:
 
 	
 
+	
+
 	virtual void addChild(shared_ptr<CFGNode> node) {
 		this->nextNodes.push_back(node);
 	}
