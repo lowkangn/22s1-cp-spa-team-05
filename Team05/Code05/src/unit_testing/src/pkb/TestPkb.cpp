@@ -1002,13 +1002,28 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 }
 
 TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
-	SECTION("NextStar") {
-		auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, shared_ptr<PkbGraphNode> graphToAdd) {
-			
-		};
-		
+
+	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, shared_ptr<PkbGraphNode> graphToAdd) {
+		// given pkb 
+		PKB pkb;
+
+		// when add and retrieve relationships 
+		pkb.addCfg(graphToAdd);
+		vector<PQLRelationship> all = pkb.retrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs);
+
+		// then should be inside
+		REQUIRE(expectedRelationships.size() == all.size());
+		for (int i = 0; i < expectedRelationships.size(); i++) {
+			// retrieval all have been added
+			REQUIRE(find(all.begin(), all.end(), expectedRelationships[i]) != all.end());
+		}
+	};
+
+	SECTION("NextStar") { // TODO: consider refactor to cfgnode
+	
 
 		/*
+		procedure p {
 		1	x = 1; // assign
 		2	call a; // call
 		3	if (x == 1) then { // if
@@ -1020,11 +1035,11 @@ TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 		7		x = 0; // assign
 			}
 		8	x = 1;
-
+		}
 		*/
 
 		// graph 
-		vector<vector<int>> adjList = { {1}, {2}, {3,4}, {5}, {5}, {6}, {5, 7}, {7} };
+		vector<vector<int>> adjList = { {1}, {2}, {3,4}, {5}, {5}, {6}, {5, 7}, {} };
 		unordered_map<int, shared_ptr<PkbGraphNode>> nodeIdToNode = {
 			{0, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(1))},
 			{1, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createCallStatementEntity(2))},
@@ -1038,12 +1053,89 @@ TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 
 		shared_ptr<PkbGraphNode> graph = PkbGraphNode::createGraphFromAdjList(0, adjList, nodeIdToNode);
 
-		// expected relationships
+		// shared, as PQLEntities
+		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
+		PQLEntity xResult = PQLEntity::generateVariable("x");
+
+		PQLEntity statementResult1 = PQLEntity::generateStatement(1);
+		PQLEntity statementResult2 = PQLEntity::generateStatement(2);
+		PQLEntity statementResult3 = PQLEntity::generateStatement(3);
+		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
+		PQLEntity statementResult5 = PQLEntity::generateStatement(5);
+		PQLEntity statementResult6 = PQLEntity::generateStatement(6);
+		PQLEntity statementResult7 = PQLEntity::generateStatement(7);
+		PQLEntity statementResult8 = PQLEntity::generateStatement(8);
+
+		// test 1a: both exact but inside
+		ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+		ClauseArgument rhs = ClauseArgument::createLineNumberArg("2");
 		vector<PQLRelationship> expectedRelationships = {
+			PQLRelationship(statementResult1, statementResult2),
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
+
+		// test 1b: both exact but one not inside
+		lhs = ClauseArgument::createLineNumberArg("4");
+		rhs = ClauseArgument::createLineNumberArg("3");
+		expectedRelationships = {
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
+
+		// test 2: both wild card
+		lhs = ClauseArgument::createWildcardArg();
+		rhs = ClauseArgument::createStmtArg("s");
+		expectedRelationships = {
+			// 1 onwards
+			PQLRelationship(statementResult1, statementResult2),
+			PQLRelationship(statementResult1, statementResult3),
+			PQLRelationship(statementResult1, statementResult4),
+			PQLRelationship(statementResult1, statementResult5),
+			PQLRelationship(statementResult1, statementResult6),
+			PQLRelationship(statementResult1, statementResult7),
+			PQLRelationship(statementResult1, statementResult8),
+
+			// 2 onwards
+			PQLRelationship(statementResult2, statementResult3),
+			PQLRelationship(statementResult2, statementResult4),
+			PQLRelationship(statementResult2, statementResult5),
+			PQLRelationship(statementResult2, statementResult6),
+			PQLRelationship(statementResult2, statementResult7),
+			PQLRelationship(statementResult2, statementResult8),
+
+			// 3 onwards
+			PQLRelationship(statementResult3, statementResult4),
+			PQLRelationship(statementResult3, statementResult5),
+			PQLRelationship(statementResult3, statementResult6),
+			PQLRelationship(statementResult3, statementResult7),
+			PQLRelationship(statementResult3, statementResult8),
+
+			// 4 onwards
+			PQLRelationship(statementResult4, statementResult6),
+			PQLRelationship(statementResult4, statementResult7),
+			PQLRelationship(statementResult4, statementResult8),
+
+			// 5 onwards
+			PQLRelationship(statementResult5, statementResult6),
+			PQLRelationship(statementResult5, statementResult7),
+			PQLRelationship(statementResult5, statementResult8),
+
+			// 6 onwards
+			PQLRelationship(statementResult6, statementResult6), // while loop self loop
+			PQLRelationship(statementResult6, statementResult7),
+			PQLRelationship(statementResult6, statementResult8),
+
+			// 7 onwards
+			PQLRelationship(statementResult7, statementResult6), // while loop self loop
+			PQLRelationship(statementResult7, statementResult7), // while loop self loop
+			PQLRelationship(statementResult7, statementResult8),
 
 		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
 
-		// test
+		// test 3: exact then wildcard
+
+
+		// test 4: wildcard then exact 
 
 	}
 }
@@ -1149,7 +1241,7 @@ TEST_CASE("Test retrieve relationship short circuits to empty result") {
 		test(toAdd, PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs);
 	}
 
-	/* TODO: after sp side implementation
+
 	SECTION("Next(s,s)") {
 		ClauseArgument lhs = ClauseArgument::createStmtArg("s");
 		ClauseArgument rhs = ClauseArgument::createStmtArg("s");
@@ -1166,7 +1258,7 @@ TEST_CASE("Test retrieve relationship short circuits to empty result") {
 		ClauseArgument rhs = ClauseArgument::createLineNumberArg("1");
 		test(toAdd, PKBTrackedRelationshipType::NEXT, lhs, rhs);
 	}
-	*/
+	
 }
 
 TEST_CASE("Test containsEntity") {

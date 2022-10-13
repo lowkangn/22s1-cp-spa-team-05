@@ -22,6 +22,7 @@ class PkbGraphNextStarRelationshipExtractor  {
 private: 
 	bool extracted = false;
 	vector<shared_ptr<PkbRelationship>> extractedRelationships; // object-level variable as method is recursive
+	unordered_set<string> extractedRelationshipKeys; // keys to track what has been extracted
 	unordered_set<pair<string, string>, EdgeKeyHash> visitedEdges;
 
 	/*
