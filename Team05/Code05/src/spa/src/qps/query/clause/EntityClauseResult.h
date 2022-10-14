@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/ClauseArgument.h>
 #include <qps/query/clause/ClauseResult.h>

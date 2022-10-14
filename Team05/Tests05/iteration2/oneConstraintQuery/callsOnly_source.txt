@@ -1,0 +1,31 @@
+procedure main {
+	read x;
+	read y;
+	z = x + y;
+	if (z > 10) then {
+		call alpha;
+	} else {
+		call beta;
+	}
+}
+
+procedure alpha {
+	while (y <= 100) {
+		y = y * 2;
+		call charlie;
+	}
+}
+
+procedure beta {
+	print x;
+	print y;
+}
+
+procedure charlie {
+	z = z + 100;
+	call final;
+}
+
+procedure final {
+	print z;
+}

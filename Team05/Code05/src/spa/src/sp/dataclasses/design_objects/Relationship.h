@@ -13,7 +13,11 @@ private:
         FOLLOWS = 2,
         FOLLOWST = 3,
         PARENT = 4,
-        PARENTT = 5
+        PARENTT = 5,
+        CALLS = 6,
+        CALLST = 7,
+        NEXT = 8,
+        CALLSTMTATTRIBUTE = 9,
     };
 
     Entity entity1;
@@ -48,6 +52,22 @@ public:
 
     static Relationship createParentTRelationship(Entity& lhs, Entity& rhs) {
         return Relationship(lhs, rhs, RelationshipType::PARENTT);
+    }
+
+    static Relationship createCallsRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::CALLS);
+    }
+
+    static Relationship createCallsTRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::CALLST);
+    }
+
+    static Relationship createCallStmtAttributeRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::CALLSTMTATTRIBUTE);
+    }
+
+    static Relationship createNextRelationship(Entity& lhs, Entity& rhs) {
+        return Relationship(lhs, rhs, RelationshipType::NEXT);
     }
 
     Entity getLhs() {
@@ -86,5 +106,21 @@ public:
     }
     bool isUses() {
         return this->type == RelationshipType::USES;
+    }
+
+    bool isCalls() {
+        return this->type == RelationshipType::CALLS;
+    }
+
+    bool isCallsStar() {
+        return this->type == RelationshipType::CALLST;
+    }
+
+    bool isCallsStmtAttribute() {
+        return this->type == RelationshipType::CALLSTMTATTRIBUTE;
+    }
+
+    bool isNext() {
+        return this->type == RelationshipType::NEXT;
     }
 };

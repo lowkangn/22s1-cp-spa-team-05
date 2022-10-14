@@ -234,7 +234,7 @@ TEST_CASE("FollowsParser: test parseWithSemanticError") {
         testParseWithError(tokensList, declarationsMap);
     }
 
-    SECTION("Illegal arguments: procedure") {
+    SECTION("Illegal arguments: constant") {
         tokensList = list<PQLToken>{
             PQLToken::createNameToken("Follows"),
             PQLToken::createDelimiterToken("("),

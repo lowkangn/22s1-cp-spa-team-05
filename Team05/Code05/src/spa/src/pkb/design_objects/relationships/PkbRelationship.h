@@ -12,7 +12,10 @@ enum PkbRelationshipType {
 	PARENT,
 	PARENTSTAR,
 	USES,
-	MODIFIES
+	MODIFIES,
+	CALLS,
+	CALLSSTAR,
+	CALLSTMTATTRIBUTE,
 };
 
 class PkbRelationship {
@@ -52,6 +55,15 @@ public:
 	}
 	bool isModifies() {
 		return this->relationshipType == PkbRelationshipType::MODIFIES;
+	}
+	bool isCallStmtAttribute() {
+		return this->relationshipType == PkbRelationshipType::CALLSTMTATTRIBUTE;
+	}
+	bool isCalls() {
+		return this->relationshipType == PkbRelationshipType::CALLS;
+	}
+	bool isCallsStar() {
+		return this->relationshipType == PkbRelationshipType::CALLSSTAR;
 	}
 
 	string getKey() {

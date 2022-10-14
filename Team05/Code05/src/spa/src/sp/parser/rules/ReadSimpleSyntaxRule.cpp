@@ -34,7 +34,7 @@ list<Token> ReadSimpleSyntaxRule::consumeTokens(list<Token> tokens)
 	token = tokens.front();
 	tokens.pop_front(); // pop
 	if (!token.isNameToken()) {
-		throw SimpleSyntaxParserException("second token shouold be a name variable token.");
+		throw SimpleSyntaxParserException("second token should be a name variable token.");
 	}
 	childTokens.push_back(token);
 

@@ -2,6 +2,8 @@
 #include <pkb/design_objects/entities/PkbProcedureEntity.h>
 #include <pkb/design_objects/entities/PkbVariableEntity.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/design_objects/relationships/PkbCallsRelationship.h>
+#include <pkb/design_objects/relationships/PkbCallsStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
@@ -49,7 +51,10 @@ TEST_CASE("PkbRelationshipTable::add and ::get works correctly") {
 			shared_ptr<PkbRelationship>(new PkbParentRelationship(lhs, rhs)),
 			shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhs, rhs)),
 			shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhs, rhs)),
-			shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs))
+			shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs)),
+			shared_ptr<PkbRelationship>(new PkbCallsRelationship(lhs, rhs)),
+			shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(lhs, rhs)),
+			
 		};
 		vector<string> expectedKeys = {
 			lhsKey + rhsKey + string("0"),
@@ -58,6 +63,8 @@ TEST_CASE("PkbRelationshipTable::add and ::get works correctly") {
 			lhsKey + rhsKey + string("3"),
 			lhsKey + rhsKey + string("4"),
 			lhsKey + rhsKey + string("5"),
+			lhsKey + rhsKey + string("6"),
+			lhsKey + rhsKey + string("7"),
 		};
 		test(relationships, expectedKeys);
 	};
@@ -97,7 +104,9 @@ TEST_CASE("PkbRelationshipTable::getAll works correctly") {
 			shared_ptr<PkbRelationship>(new PkbParentRelationship(lhs, rhs)),
 			shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhs, rhs)),
 			shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhs, rhs)),
-			shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs))
+			shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs)),
+			shared_ptr<PkbRelationship>(new PkbCallsRelationship(lhs, rhs)),
+			shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(lhs, rhs)),
 		};
 		test(relationships);
 	};

@@ -17,6 +17,8 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <sstream>
+
 using namespace std;
 
 const string FOLLOWS_TABLE = "follows";
@@ -25,6 +27,11 @@ const string PARENT_TABLE = "parent";
 const string PARENTSTAR_TABLE = "parentStar";
 const string USES_TABLE = "uses";
 const string MODIFIES_TABLE = "modifies";
+const string CALLS_ATTRIBUTE_TABLE = "callsAttribute";
+const string CALLS_TABLE = "calls";
+const string CALLSSTAR_TABLE = "callsStar";
+
+const string SPACE_DELIM = " ";
 
 class PKB : public PKBQueryHandler, public PKBUpdateHandler {
 private: 
@@ -42,10 +49,15 @@ private:
 		{PARENTSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{USES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{MODIFIES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{CALLS_ATTRIBUTE_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{CALLS_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{CALLSSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 	};
 
 	// patterns
 	PkbPatternTable assignPatterns;
+	PkbPatternTable ifPatterns;
+	PkbPatternTable whilePatterns;
 
 	// getters
 	shared_ptr<PkbRelationshipTable> getFollowsTable() {
@@ -65,6 +77,17 @@ private:
 	}
 	shared_ptr<PkbRelationshipTable> getModifiesTable() {
 		return this->relationshipTables[MODIFIES_TABLE];
+	}
+	shared_ptr<PkbRelationshipTable> getCallsAttributeTable() {
+		return this->relationshipTables[CALLS_ATTRIBUTE_TABLE];
+	}
+
+	shared_ptr<PkbRelationshipTable> getCallsTable() {
+		return this->relationshipTables[CALLS_TABLE];
+	}
+
+	shared_ptr<PkbRelationshipTable> getCallsStarTable() {
+		return this->relationshipTables[CALLSSTAR_TABLE];
 	}
 
 	/*
@@ -99,7 +122,22 @@ private:
 	/*
 		Converts an internal pkb pattern to a pql pattern used in the qps.
 	*/
-	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbStatementPattern> pattern);
+	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbPattern> pattern);
+
+	/*
+		Retrieves assign statements by lhs and rhs.
+	*/
+	vector<PQLPattern> retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs);
+
+	/*
+		Retrieves if patterns by lhs.
+	*/
+	vector<PQLPattern> retrieveIfPatterns(ClauseArgument lhs);
+
+	/*
+		Retrieves while patterns by lhs.
+	*/
+	vector<PQLPattern> retrieveWhilePatterns(ClauseArgument lhs);
 
 	/*
 		Helper function to check if retrieving the relationship, while semantically and syntacticall correct, is even 
@@ -113,7 +151,10 @@ private:
 	*/
 	shared_ptr<PkbEntity> convertClauseArgumentToPkbEntity(ClauseArgument clause);
 
-
+	/* 
+		Helper function to filter pkb statement entities by their type and convert them to PQLEntities.
+	*/
+	vector<PQLEntity> filterAndConvertStatementEntities(vector<shared_ptr<PkbEntity>> statements, PKBTrackedStatementType pkbTrackedStatementType);
 public: 
 	PKB() {}
 
@@ -135,7 +176,7 @@ public:
 	/*
 		Retrieves all procedure entities by name.
 	*/
-	PQLEntity retrieveProcedureEntityByName(string procedureName) override;
+	optional<PQLEntity> retrieveProcedureEntityByName(string procedureName) override;
 
 	/*
 		Retrieves all procedure entities.
@@ -145,7 +186,7 @@ public:
 	/*
 		Retrieves all statement entities by line number of a specified type.
 	*/
-	PQLEntity retrieveStatementEntityByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
+	optional<PQLEntity> retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
 	
 	/*
 		Retrieves all statement entities of a specified type.
@@ -170,7 +211,12 @@ public:
 	/*
 		Retrieves all variables by a name.
 	*/
-	PQLEntity retrieveVariableByName(string name) override;
+	optional<PQLEntity> retrieveVariableByName(string name) override;
+
+	/*
+		Retrieves all constants by a value.
+	*/
+	optional<PQLEntity> retrieveConstantByValue(int value) override;
 
 	/*
 		Retrieves all relationships by a lhs, rhs for relationships of a specified type.
@@ -183,14 +229,9 @@ public:
 	vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) override;
 
 	/*
-        Retrieves statements by lhs and rhs. 
+        Retrieves statements by lhs and rhs for Assign Patterns
     */
 	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
-
-	/*
-		Retrieves assign statements by lhs and rhs.
-	*/
-	vector<PQLPattern> retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs);
 
 	/*
 		Casts the PKB to its query handler interface as a shared pointer.
@@ -232,4 +273,3 @@ typedef bool (*PkbEntityFilter)(shared_ptr<PkbEntity> entity, ClauseArgument arg
 	that always evaluates to true for ease.
 */
 PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue = false);
-

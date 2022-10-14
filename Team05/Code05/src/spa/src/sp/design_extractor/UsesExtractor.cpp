@@ -156,7 +156,7 @@ vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 
 // TODO in a future iteration
 vector<Relationship> UsesExtractor::handleCall(shared_ptr<ASTNode> ast) {
-	throw ASTException("Method not implemented!");
+	return vector<Relationship>{};
 }
 
 vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {

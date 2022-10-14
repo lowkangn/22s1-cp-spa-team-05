@@ -1,0 +1,12 @@
+procedure main {
+	print x;
+	call alpha;
+}
+
+procedure alpha {
+	call beta;
+}
+
+procedure beta {
+	call main;
+}
