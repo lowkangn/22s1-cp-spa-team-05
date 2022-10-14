@@ -1133,10 +1133,42 @@ TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
 
 		// test 3: exact then wildcard
+		lhs = ClauseArgument::createLineNumberArg("1");
+		rhs = ClauseArgument::createStmtArg("s");
+		expectedRelationships = {
+			// 1 onwards
+			PQLRelationship(statementResult1, statementResult2),
+			PQLRelationship(statementResult1, statementResult3),
+			PQLRelationship(statementResult1, statementResult4),
+			PQLRelationship(statementResult1, statementResult5),
+			PQLRelationship(statementResult1, statementResult6),
+			PQLRelationship(statementResult1, statementResult7),
+			PQLRelationship(statementResult1, statementResult8),
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
 
 
-		// test 4: wildcard then exact 
+		// test 4a: wildcard then exact, but exact not inside
+		lhs = ClauseArgument::createWildcardArg();
+		rhs = ClauseArgument::createLineNumberArg("1");
+		expectedRelationships = {};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
 
+		// test 4b: wildcard then exact, but exact is inside
+		lhs = ClauseArgument::createStmtArg("s");
+		rhs = ClauseArgument::createLineNumberArg("7");
+		expectedRelationships = {
+			// 1 onwards
+			PQLRelationship(statementResult1, statementResult7),
+			PQLRelationship(statementResult2, statementResult7),
+			PQLRelationship(statementResult3, statementResult7),
+			PQLRelationship(statementResult4, statementResult7),
+			PQLRelationship(statementResult5, statementResult7),
+			PQLRelationship(statementResult6, statementResult7),
+			PQLRelationship(statementResult7, statementResult7), 
+
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
 	}
 }
 
