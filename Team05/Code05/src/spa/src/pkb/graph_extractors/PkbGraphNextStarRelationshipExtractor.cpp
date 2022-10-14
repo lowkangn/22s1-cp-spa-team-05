@@ -4,8 +4,6 @@
 
 vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtractor::extractAllFromStartDfs(shared_ptr<PkbControlFlowGraphNode> startNode) {
 
-	// 0. add to visiting
-	this->visitingNodes.insert(startNode->getKey());
 
 	// 1. get neighbours
 	vector<shared_ptr<PkbGraphNode>> neighbours = startNode->getNeighbours();
@@ -17,15 +15,25 @@ vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtracto
 
 		// cast
 		shared_ptr<PkbControlFlowGraphNode> casted_n = static_pointer_cast<PkbControlFlowGraphNode>(n);
-		if (n == NULL) {
+		if (casted_n == NULL) {
 			throw PkbException("Tried to cast pkb graph node to cfg node, but couldn't.");
 		}
 
 		// if cycle (decreasing statement number), we don't recurse, but do add to downstream
 		vector<shared_ptr<PkbControlFlowGraphNode>> downstream;
-		if (this->visitingNodes.count(casted_n->getKey())) {
+		if (casted_n->getStatementLineNumber() <= startNode->getStatementLineNumber()) { // is cycle
+			// if not here before, give second chance
 			cout << "Cycle found" << endl;
-			downstream = { casted_n };
+			if (this->cycleVisited.count(startNode->getKey())) {
+				cout << "been here before " << endl;
+				downstream = { casted_n };
+			}
+			else {
+				cout << "not been here before, giving second chance" << endl;
+				this->cycleVisited.insert(startNode->getKey());
+				downstream = this->extractAllFromStartDfs(casted_n); // get all downstream children
+			}
+			
 		}
 		else {
 			// get all downstream children
@@ -55,8 +63,6 @@ vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtracto
 	// set state
 	this->extracted = true;
 
-	// as you return, remove from visiting
-	this->visitingNodes.erase(startNode->getKey());
 
 	return allDownstream;
 }

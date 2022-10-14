@@ -27,7 +27,7 @@ private:
 	bool extracted = false;
 	vector<shared_ptr<PkbRelationship>> extractedRelationships; // object-level variable as method is recursive
 	unordered_set<string> extractedRelationshipKeys; // keys to track what has been extracted
-	unordered_set<string> visitingNodes; // set to track which nodes we are visiting, for cycle detection
+	unordered_set<string> cycleVisited; // set to track which nodes have been hit as a cycle before to avoid double cycles
 
 	/*
 		Cumulatively extracts all nextstar relationships from the specified start node by
