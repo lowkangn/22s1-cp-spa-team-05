@@ -487,11 +487,6 @@ TEST_CASE("WithNoExactClause: test execute - the rest") {
 			// when
 			shared_ptr<ClauseResult> resPtr = withNoExactClause.execute(pkb);
 
-
-			/////=========================TODOOOOOOOOOO=======================
-			// 
-			// 
-			// 
 			// then
 			REQUIRE(resPtr->equals(expectedResult));
 	};
