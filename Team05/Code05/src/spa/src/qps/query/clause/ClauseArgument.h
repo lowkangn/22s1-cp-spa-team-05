@@ -7,6 +7,11 @@
 using namespace std;
 
 const string WILDCARD_IDENTIFIER = "_";
+const string EMPTY_IDENTIFIER = "";
+const string VALUE_IDENTIFIER = "VALUE";
+const string PROCNAME_IDENTIFIER = "PROCNAME";
+const string VARNAME_IDENTIFIER = "VARNAME";
+const string STMTNUM_IDENTIFIER = "STMTNUM";
 
 class ClauseArgument {
 private:
@@ -86,6 +91,26 @@ public:
 		return ClauseArgument(identifier, ArgumentType::PATTERN_STRING_WITH_WILDCARDS);
 	}
 
+	static ClauseArgument createValueAttributeArg(ClauseArgument synonym) {
+		string identifier = synonym.getIdentifier() + VALUE_IDENTIFIER;
+		return ClauseArgument(identifier, ArgumentType::VALUE);
+	}
+
+	static ClauseArgument createProcNameAttributeArg(ClauseArgument synonym) {
+		string identifier = synonym.getIdentifier() + PROCNAME_IDENTIFIER;
+		return ClauseArgument(identifier, ArgumentType::PROCNAME);
+	}
+
+	static ClauseArgument createStmtNumAttributeArg(ClauseArgument synonym) {
+		string identifier = synonym.getIdentifier() + STMTNUM_IDENTIFIER;
+		return ClauseArgument(identifier, ArgumentType::STMTNUM);
+	}
+
+	static ClauseArgument createVarNameAttributeArg(ClauseArgument synonym) {
+		string identifier = synonym.getIdentifier() + VARNAME_IDENTIFIER;
+		return ClauseArgument(identifier, ArgumentType::VARNAME);
+	}
+
 	static ClauseArgument createUndeclaredSynonymArg(string identifier) {
 		return ClauseArgument(identifier, ArgumentType::UNDECLARED_SYNONYM);
 	}
@@ -150,6 +175,29 @@ public:
 		return this->type == ArgumentType::PATTERN_STRING_WITH_WILDCARDS;
 	}
 
+	bool isValueAttribute() {
+		return this->type == ArgumentType::VALUE;
+	}
+
+	bool isProcNameAttribute() {
+		return this->type == ArgumentType::PROCNAME;
+	}
+
+	bool isStmtNumAttribute() {
+		return this->type == ArgumentType::STMTNUM;
+	}
+
+	bool isVarNameAttribute() {
+		return this->type == ArgumentType::VARNAME;
+	}
+
+	bool isAttributeName() {
+		return isValueAttribute()
+			|| isProcNameAttribute()
+			|| isStmtNumAttribute()
+			|| isVarNameAttribute();
+	}
+
 	bool isUndeclaredSynonym() {
 		return this->type == ArgumentType::UNDECLARED_SYNONYM;
 	}
@@ -208,6 +256,8 @@ public:
 	}
 
 	friend bool operator== (ClauseArgument first, ClauseArgument second);
+
+	friend bool operator!= (ClauseArgument first, ClauseArgument second);
 
 	friend bool operator< (ClauseArgument first, ClauseArgument second);
 };

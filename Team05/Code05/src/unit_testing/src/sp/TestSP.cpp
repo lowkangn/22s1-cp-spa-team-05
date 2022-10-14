@@ -696,11 +696,15 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 	Relationship alphaCallsTBeta = Relationship::createCallsTRelationship(procedureAlphaEntity, procedureBetaEntity);
 	Relationship mainCallsTBeta = Relationship::createCallsTRelationship(procedureMainEntity, procedureBetaEntity);
 
+	// create CallsAttribute Relationship
+	Relationship callAttribute1Alpha = Relationship::createCallStmtAttributeRelationship(callAlphaEntity, procedureAlphaEntity);
+	Relationship callAttribute4Beta = Relationship::createCallStmtAttributeRelationship(callBetaEntity, procedureBetaEntity);
+
 	vector<Relationship> expectedRelationships = vector<Relationship>{ readModifiesY, alphaModifiesY, assignModifiesY, betaModifiesY, 
 																	ifParentCall, ifParentPrint, ifParentTCall, ifParentTPrint, ifUsesY3, 
 																	ifUsesY5, printYUsesY5, alphaUsesY3, alphaUsesY5, assignUsesY6, 
-																	betaUsesY6, ifFollowsReadY, ifFollowsTReadY, mainCallsAlpha, 
-																	alphaCallsBeta, mainCallsTAlpha, alphaCallsTBeta, mainCallsTBeta };
+																	betaUsesY6, ifFollowsReadY, ifFollowsTReadY, mainCallsAlpha, callAttribute1Alpha,
+																	alphaCallsBeta, callAttribute4Beta, mainCallsTAlpha, alphaCallsTBeta, mainCallsTBeta };
 
 	vector<Pattern> expectedPatterns = vector<Pattern>{
 			Pattern::createIfPattern(3, "y"),
