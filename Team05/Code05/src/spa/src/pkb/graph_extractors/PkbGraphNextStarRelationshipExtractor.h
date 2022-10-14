@@ -12,15 +12,6 @@
 using namespace std;
 
 /*
-	Hash function for an edge, which we represent as a pair of strings.
-*/
-struct EdgeKeyHash {
-	size_t operator()(const pair<string, string>& p) const {
-		return hash<string>()(p.first) * 31 + hash<string>()(p.second);
-	}
-};
-
-/*
 	Handles extraction from a control flow graph of nextstar relationships. 
 */
 class PkbGraphNextStarRelationshipExtractor  {
@@ -44,13 +35,6 @@ private:
 
 
 public:
-
-	PkbGraphNextStarRelationshipExtractor() {
-		this->extractedRelationships = {};
-		this->extractedRelationshipKeys = {};
-		this->extracted = false;
-		this->cycleVisited = {};
-	}
 
 	/*
 		Cumulatively extracts all nextstar relationships from the specified start node by 

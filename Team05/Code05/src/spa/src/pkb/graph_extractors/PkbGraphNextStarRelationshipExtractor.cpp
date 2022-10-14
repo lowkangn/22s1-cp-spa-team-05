@@ -4,6 +4,7 @@
 
 vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtractor::extractAllFromStartDfs(shared_ptr<PkbControlFlowGraphNode> startNode) {
 
+	
 	// 1. get neighbours
 	vector<shared_ptr<PkbGraphNode>> neighbours = startNode->getNeighbours();
 
@@ -13,27 +14,27 @@ vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtracto
 	for (shared_ptr<PkbGraphNode> n : neighbours) {
 
 		// cast
-		shared_ptr<PkbControlFlowGraphNode> casted_n = static_pointer_cast<PkbControlFlowGraphNode>(n);
-		if (casted_n == NULL) {
+		shared_ptr<PkbControlFlowGraphNode> castedNeighbour = static_pointer_cast<PkbControlFlowGraphNode>(n);
+		if (castedNeighbour == NULL) {
 			throw PkbException("Tried to cast pkb graph node to cfg node, but couldn't.");
 		}
 
 		// if cycle (decreasing statement number), we don't recurse, but do add to downstream
 		vector<shared_ptr<PkbControlFlowGraphNode>> downstream;
-		if (casted_n->getStatementLineNumber() <= startNode->getStatementLineNumber()) { // is cycle
+		if (castedNeighbour->getStatementLineNumber() <= startNode->getStatementLineNumber()) { // is cycle
 			// if not here before, give second chance
 			if (this->cycleVisited.count(startNode->getKey())) {
-				downstream = { casted_n };
+				downstream = { castedNeighbour };
 			}
 			else {
 				this->cycleVisited.insert(startNode->getKey());
-				downstream = this->extractAllFromStartDfs(casted_n); // get all downstream children
+				downstream = this->extractAllFromStartDfs(castedNeighbour); // get all downstream children
 			}
 			
 		}
 		else {
 			// get all downstream children
-			downstream = this->extractAllFromStartDfs(casted_n);
+			downstream = this->extractAllFromStartDfs(castedNeighbour);
 		}
 
 		// for each downstream child, form relationship with self and it
@@ -77,27 +78,27 @@ vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtracto
 	for (shared_ptr<PkbGraphNode> n : neighbours) {
 
 		// cast
-		shared_ptr<PkbControlFlowGraphNode> casted_n = static_pointer_cast<PkbControlFlowGraphNode>(n);
-		if (casted_n == NULL) {
+		shared_ptr<PkbControlFlowGraphNode> castedNeighbour = static_pointer_cast<PkbControlFlowGraphNode>(n);
+		if (castedNeighbour == NULL) {
 			throw PkbException("Tried to cast pkb graph node to cfg node, but couldn't.");
 		}
 
 		// if cycle (decreasing statement number), we don't recurse, but do add to downstream
 		vector<shared_ptr<PkbControlFlowGraphNode>> downstream;
-		if (casted_n->getStatementLineNumber() <= startNode->getStatementLineNumber()) { // is cycle
+		if (castedNeighbour->getStatementLineNumber() <= startNode->getStatementLineNumber()) { // is cycle
 			// if not here before, give second chance
 			if (this->cycleVisited.count(startNode->getKey())) {
-				downstream = { casted_n };
+				downstream = { castedNeighbour };
 			}
 			else {
 				this->cycleVisited.insert(startNode->getKey());
-				downstream = this->extractAllFromStartDfs(casted_n); // get all downstream children
+				downstream = this->extractAllFromStartDfs(castedNeighbour); // get all downstream children
 			}
 
 		}
 		else {
 			// get all downstream children
-			downstream = this->extractAllFromStartDfs(casted_n);
+			downstream = this->extractAllFromStartDfs(castedNeighbour);
 		}
 
 		// for each downstream child, form relationship with self and it

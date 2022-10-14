@@ -292,10 +292,96 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 	}
 }
 
-void PKB::addCfg(shared_ptr<PkbGraphNode> rootNode) {
 
-	// 1. pass the pkb graph into the graph manager 
-	this->cfgManager = PkbGraphManager(rootNode);
+/*
+	Hash function for an edge, which we represent as a pair of strings.
+*/
+struct EdgeKeyHash {
+	size_t operator()(const pair<string, string>& p) const {
+		return hash<string>()(p.first) * 31 + hash<string>()(p.second);
+	}
+};
+
+
+void PKB::addCfg(shared_ptr<CFGNode> rootNode) {
+
+	// 1. traverse cfg to convert to pkb graph
+	// 1.1 pointer to new root node
+	shared_ptr<PkbGraphNode> node = NULL;
+
+	// 1.2 initialize edge visited list and queue
+	unordered_set<pair<string, string>, EdgeKeyHash> visitedEdges;
+	queue<shared_ptr<CFGNode>> q;
+	q.push(rootNode);
+
+	// 1.3 initialize node set
+	unordered_map<string, shared_ptr<PkbGraphNode>> keyToNodeMap;
+
+	// 2 bfs with visited edges
+	while (!q.empty()) {
+
+		// 1. pop
+		shared_ptr<CFGNode> n = q.front();
+		q.pop();
+
+		// 2. convert to pkb graph node. if already inside, use that.
+		shared_ptr<PkbStatementEntity> castedParent = static_pointer_cast<PkbStatementEntity>(this->externalEntityToPkbEntity(n->getEntity()));
+		if (castedParent == NULL) { // conversion failed
+			throw PkbException("Tried to convert cfg node to statement entity, but couldn't!");
+		}
+		shared_ptr<PkbGraphNode> parentNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(castedParent);
+		string parentKey = parentNode->getKey();
+		if (keyToNodeMap.count(parentKey)) {
+			parentNode = keyToNodeMap.at(parentKey);
+		}
+		else {
+			keyToNodeMap.insert({ parentKey, parentNode });
+		}
+
+
+
+		// 2.1 if root node not initialized, put it
+		if (node == NULL) {
+			node = parentNode;
+		}
+
+		// 3. traverse neighbours
+		for (shared_ptr<CFGNode> child : n->getChildren()) {
+
+			// 3.1 convert to pkbgraph node
+			shared_ptr<PkbStatementEntity> castedChild = static_pointer_cast<PkbStatementEntity>(this->externalEntityToPkbEntity(child->getEntity()));
+			if (castedChild == NULL) { // conversion failed
+				throw PkbException("Tried to convert cfg node to statement entity, but couldn't!");
+			}	
+			shared_ptr<PkbGraphNode> childNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(castedChild);
+
+			// 3.2 if already seen before, use that node instead. else, insert
+			string childKey = childNode->getKey();
+			if (keyToNodeMap.count(childKey)) {
+				childNode = keyToNodeMap.at(childKey);
+			}
+			else {
+				keyToNodeMap.insert({ childKey, childNode });
+			}
+
+			// 3.3 if edge visited, continue
+			pair<string, string> edgeKey = pair<string, string>(parentNode->getKey(), childNode->getKey());
+			if (visitedEdges.count(edgeKey)) {
+				continue;
+			}
+
+			// 3.4 else, add as neighbour of parent and to visited set
+			parentNode->addNeighbour(childNode); // add as neighbour of parent
+			visitedEdges.insert(edgeKey); // add edge to visited set 
+
+			// 3.4 add to queue and key map
+			q.push(child);
+		}
+	}
+
+
+	// 2. pass the pkb graph into the graph manager 
+	this->cfgManager = PkbGraphManager(node);
 
 
 }
@@ -710,8 +796,13 @@ vector<PQLRelationship> PKB::retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PKBT
 			string leftKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left)->getKey();
 			string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
 
+			// check they are both inside
+
+
 			// if they are connected, return. else, return empty list
-			if (this->cfgManager.canReachNodeBFromNodeA(leftKey, rightKey)) {
+			if (this->cfgManager.isInside(leftKey) 
+				&& this->cfgManager.isInside(rightKey)
+				&& this->cfgManager.canReachNodeBFromNodeA(leftKey, rightKey)) {
 				PQLEntity outLhs = this->pkbEntityToQpsPqlEntity(lhsEntity);
 				PQLEntity outRhs = this->pkbEntityToQpsPqlEntity(rhsEntity);
 				out.push_back(PQLRelationship(outLhs, outRhs));

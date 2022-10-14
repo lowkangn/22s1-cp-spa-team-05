@@ -196,7 +196,7 @@ public:
 	/*
 		Add the control flow graph from the SP.
 	*/
-	void addCfg(shared_ptr<PkbGraphNode> rootNode) override;
+	void addCfg(shared_ptr<CFGNode> rootNode) override;
 
 	/*
 		Retrieves all procedure entities by name.

@@ -952,7 +952,6 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 		test(PKBTrackedRelationshipType::NEXT, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 1b: both exact, one not inside -> no result
-		cout << "h";
 		lhs = ClauseArgument::createLineNumberArg("1");
 		rhs = ClauseArgument::createLineNumberArg("5");
 		expectedRelationships = {
@@ -1004,7 +1003,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 
 TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 
-	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, shared_ptr<PkbGraphNode> graphToAdd) {
+	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, shared_ptr<CFGNode> graphToAdd) {
 		// given pkb 
 		PKB pkb;
 
@@ -1040,19 +1039,29 @@ TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 		*/
 
 		// graph 
-		vector<vector<int>> adjList = { {1}, {2}, {3,4}, {5}, {5}, {6}, {5, 7}, {} };
-		unordered_map<int, shared_ptr<PkbGraphNode>> nodeIdToNode = {
-			{0, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(1))},
-			{1, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createCallStatementEntity(2))},
-			{2, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createIfStatementEntity(3))},
-			{3, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createReadStatementEntity(4))},
-			{4, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createPrintStatementEntity(5))},
-			{5, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createWhileStatementEntity(6))},
-			{6, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(7))},
-			{7, PkbControlFlowGraphNode::createPkbControlFlowGraphNode(PkbStatementEntity::createAssignStatementEntity(8))},
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2}},
+			{2, {3}},
+			{3, {4,5}},
+			{4, {6}},
+			{5, {6}},
+			{6, {7,8}},
+			{7, {6,8}},
+			{8, {}},
+				
+		};
+		unordered_map<int, shared_ptr<CFGNode>> nodeIdToNode = {
+			{1, CFGNode::createCFGNode(Entity::createAssignEntity(1))},
+			{2, CFGNode::createCFGNode(Entity::createCallEntity(2))},
+			{3, CFGNode::createCFGNode(Entity::createIfEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createReadEntity(4))},
+			{5, CFGNode::createCFGNode(Entity::createPrintEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createWhileEntity(6))},
+			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
+			{8, CFGNode::createCFGNode(Entity::createAssignEntity(8))},
 		};
 
-		shared_ptr<PkbGraphNode> graph = PkbGraphNode::createGraphFromAdjList(0, adjList, nodeIdToNode);
+		shared_ptr<CFGNode> graph = CFGNode::createCFGFromAdjacencyList(nodeIdToNode, adjList, 1);
 
 		// shared, as PQLEntities
 		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
