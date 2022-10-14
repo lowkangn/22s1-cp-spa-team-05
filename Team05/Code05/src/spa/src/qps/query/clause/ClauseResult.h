@@ -6,7 +6,7 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
-#include <cassert>
+#include <assert.h>
 #include <qps/query/clause/ClauseArgument.h>
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/PQLRelationship.h>
