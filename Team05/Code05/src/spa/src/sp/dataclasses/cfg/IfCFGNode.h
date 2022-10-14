@@ -9,12 +9,12 @@ using namespace std;
 
 class IfCFGNode : public CFGNode {
 protected:
-	IfCFGNode(int statementNumber) : CFGNode(statementNumber) {
+	IfCFGNode(Entity entity) : CFGNode(entity) {
 
 	}
 public:
 	static shared_ptr<IfCFGNode> createIfCFGNode(int statementNumber) {
-		return shared_ptr<IfCFGNode>(new IfCFGNode(statementNumber));
+		return shared_ptr<IfCFGNode>(new IfCFGNode(Entity::createIfEntity(statementNumber)));
 	}
 
 	shared_ptr<CFGNode> getNext() override {

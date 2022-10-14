@@ -14,8 +14,8 @@ TEST_CASE("CFG: Add Child") {
 		REQUIRE(nodeToAddTo->getNext()->equals(nodeToAdd));
 	};
 
-	shared_ptr<CFGNode> nodeToAdd = CFGNode::createCFGNode(1);
-	shared_ptr<CFGNode> nodeToAddTo = CFGNode::createCFGNode(2);
+	shared_ptr<CFGNode> nodeToAdd = CFGNode::createCFGNode(Entity::createAssignEntity(1));
+	shared_ptr<CFGNode> nodeToAddTo = CFGNode::createCFGNode(Entity::createAssignEntity(2));
 
 	testAddChild(nodeToAdd, nodeToAddTo);
 };
@@ -39,11 +39,11 @@ TEST_CASE("CFG: add child to IfCFGNode") {
 		REQUIRE_THROWS(nodeToCheck->getThenNode() == thenNodeToAdd);
 	};
 
-	shared_ptr<CFGNode> thenNodeToAdd = CFGNode::createCFGNode(4);
-	shared_ptr<CFGNode> elseNodeToAdd = CFGNode::createCFGNode(3);
+	shared_ptr<CFGNode> thenNodeToAdd = CFGNode::createCFGNode(Entity::createAssignEntity(4));
+	shared_ptr<CFGNode> elseNodeToAdd = CFGNode::createCFGNode(Entity::createAssignEntity(3));
 	shared_ptr<IfCFGNode> nodeToAddTo = IfCFGNode::createIfCFGNode(2);
 
-	shared_ptr<CFGNode> thenNodeToAdd2 = CFGNode::createCFGNode(4);
+	shared_ptr<CFGNode> thenNodeToAdd2 = CFGNode::createCFGNode(Entity::createAssignEntity(3));
 	shared_ptr<CFGNode> nodeToAddTo2 = IfCFGNode::createIfCFGNode(2);
 
 	SECTION("Test adding child to CFG") {
@@ -75,11 +75,11 @@ TEST_CASE("CFG: add child to WhileCFGNode") {
 		REQUIRE_THROWS(nodeToCheck->getNext() == nextNodeToAdd);
 	};
 
-	shared_ptr<CFGNode> nextNodeToAdd = CFGNode::createCFGNode(4);
-	shared_ptr<CFGNode> loopNodeToAdd = CFGNode::createCFGNode(3);
+	shared_ptr<CFGNode> nextNodeToAdd = CFGNode::createCFGNode(Entity::createAssignEntity(4));
+	shared_ptr<CFGNode> loopNodeToAdd = CFGNode::createCFGNode(Entity::createAssignEntity(3));
 	shared_ptr<CFGNode> nodeToAddTo = WhileCFGNode::createWhileCFGNode(2);
 
-	shared_ptr<CFGNode> nextNodeToAdd2 = CFGNode::createCFGNode(4);
+	shared_ptr<CFGNode> nextNodeToAdd2 = CFGNode::createCFGNode(Entity::createAssignEntity(4));
 	shared_ptr<CFGNode> nodeToAddTo2 = WhileCFGNode::createWhileCFGNode(2);
 
 	testAddChildToEndOfWhileCFG(nextNodeToAdd, loopNodeToAdd, nodeToAddTo);
@@ -98,16 +98,16 @@ TEST_CASE("CFG: test equals") {
 	SECTION("Basic test") {
 
 
-		shared_ptr<CFGNode> nodeOne = CFGNode::createCFGNode(4);
-		shared_ptr<CFGNode> nodeOneCopy = CFGNode::createCFGNode(4);
+		shared_ptr<CFGNode> nodeOne = CFGNode::createCFGNode(Entity::createAssignEntity(4));
+		shared_ptr<CFGNode> nodeOneCopy = CFGNode::createCFGNode(Entity::createAssignEntity(4));
 
 		testEquals(nodeOne, nodeOneCopy);
 	}
 
 	SECTION("Test with no cycle and one child") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
-			{4, CFGNode::createCFGNode(4)},
-			{5, CFGNode::createCFGNode(5)}
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))}
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -117,8 +117,8 @@ TEST_CASE("CFG: test equals") {
 		shared_ptr<CFGNode> nodeTwo = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 4);
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
-			{4, CFGNode::createCFGNode(4)},
-			{5, CFGNode::createCFGNode(5)}
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))}
 		};
 
 		unordered_map<int, vector<int>> adjListCopy = {
@@ -133,11 +133,11 @@ TEST_CASE("CFG: test equals") {
 	SECTION("Equals: Test with if") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
 			{1, IfCFGNode::createIfCFGNode(1)},
-			{2, CFGNode::createCFGNode(2)},
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
-			{5, CFGNode::createCFGNode(5)},
-			{6, CFGNode::createCFGNode(6)},
+			{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -150,11 +150,11 @@ TEST_CASE("CFG: test equals") {
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, IfCFGNode::createIfCFGNode(1)},
-			{2, CFGNode::createCFGNode(2)},
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
-			{5, CFGNode::createCFGNode(5)},
-			{6, CFGNode::createCFGNode(6)},
+			{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
 		};
 
 		unordered_map<int, vector<int>> adjListCopy = {
@@ -172,16 +172,16 @@ TEST_CASE("CFG: test equals") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
 			{1, IfCFGNode::createIfCFGNode(1)},
 			// Then
-			{2, CFGNode::createCFGNode(2)},
+			{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
 			// Else
-			{3, CFGNode::createCFGNode(3)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
 			// Then statement
-			{4, CFGNode::createCFGNode(4)},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 			// Else statement
-			{5, CFGNode::createCFGNode(5)},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
 			// Outside if
-			{6, CFGNode::createCFGNode(6)},
-			{7, CFGNode::createCFGNode(7)},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
+			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -195,11 +195,11 @@ TEST_CASE("CFG: test equals") {
 
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, IfCFGNode::createIfCFGNode(1)},
-			{2, CFGNode::createCFGNode(2)},
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
-			{5, CFGNode::createCFGNode(5)},
-			{6, CFGNode::createCFGNode(6)},
+			{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
 		};
 
 		unordered_map<int, vector<int>> adjListCopy = {
@@ -217,9 +217,9 @@ TEST_CASE("CFG: test equals") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
 			// In while
-			{2, CFGNode::createCFGNode(2)},
+			{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
 			// Outside while
-			{3, CFGNode::createCFGNode(3)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -232,9 +232,9 @@ TEST_CASE("CFG: test equals") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
 			// In while
-			{2, CFGNode::createCFGNode(2)},
+			{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
 			// Outside while
-			{3, CFGNode::createCFGNode(3)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
 		};
 
 		unordered_map<int, vector<int>> adjListCopy = {
@@ -251,9 +251,9 @@ TEST_CASE("CFG: test equals") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
 			// In while
-			{2, CFGNode::createCFGNode(2)},
+			{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
 			// Outside while
-			{3, CFGNode::createCFGNode(3)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -266,10 +266,10 @@ TEST_CASE("CFG: test equals") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
 			// In while
-			{2, CFGNode::createCFGNode(2)},
-			{3, CFGNode::createCFGNode(3)},
+			{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
 			// Outside while
-			{4, CFGNode::createCFGNode(4)},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 		};
 
 		unordered_map<int, vector<int>> adjListCopy = {
@@ -287,9 +287,9 @@ TEST_CASE("CFG: test equals") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
 			// In while
-			{2, CFGNode::createCFGNode(2)},
+			{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
 			// Outside while
-			{3, CFGNode::createCFGNode(3)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -302,10 +302,10 @@ TEST_CASE("CFG: test equals") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
 			// In while
-			{2, CFGNode::createCFGNode(2)},
+			{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
 			// Outside while
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 		};
 
 		unordered_map<int, vector<int>> adjListCopy = {
@@ -323,15 +323,15 @@ TEST_CASE("CFG: test equals") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
 			// If In while
-			{2, IfCFGNode::createCFGNode(2)},
+			{2, IfCFGNode::createIfCFGNode(2)},
 			// Then
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 			// Else
-			{5, CFGNode::createCFGNode(5)},
-			{6, CFGNode::createCFGNode(6)},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
 			// Outside while
-			{7, CFGNode::createCFGNode(7)},
+			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -346,15 +346,15 @@ TEST_CASE("CFG: test equals") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
 			// If In while
-			{2, IfCFGNode::createCFGNode(2)},
+			{2, IfCFGNode::createIfCFGNode(2)},
 			// Then
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 			// Else
-			{5, CFGNode::createCFGNode(5)},
-			{6, CFGNode::createCFGNode(6)},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
 			// Outside while
-			{7, CFGNode::createCFGNode(7)},
+			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
 		};
 
 		unordered_map<int, vector<int>> adjListCopy = {
@@ -373,24 +373,27 @@ TEST_CASE("CFG: test equals") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMap = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
 			// If In while
-			{2, IfCFGNode::createCFGNode(2)},
+			{2, IfCFGNode::createIfCFGNode(2)},
 			// Then
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 			// Else
-			{5, CFGNode::createCFGNode(5)},
-			{6, CFGNode::createCFGNode(6)},
-			// Else has extra statement
-			{6, CFGNode::createCFGNode(7)},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
+			// Outside if statement
+			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
 			// Outside while
-			{7, CFGNode::createCFGNode(8)},
+			{8, CFGNode::createCFGNode(Entity::createAssignEntity(8))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
 			{1, {2, 8}},
 			{2, {3,5}},
 			{3, {4}},
-			{5, {6, 7}},
+			{5, {6}},
+			{4, {7}},
+			{6, {7}},
+			{7, {1}},
 		};
 
 		shared_ptr<CFGNode> whileNode = CFGNode::createCFGFromAdjacencyList(CFGNodesMap, adjList, 1);
@@ -398,15 +401,15 @@ TEST_CASE("CFG: test equals") {
 		unordered_map<int, shared_ptr<CFGNode>> CFGNodesMapCopy = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
 			// If In while
-			{2, IfCFGNode::createCFGNode(2)},
+			{2, IfCFGNode::createIfCFGNode(2)},
 			// Then
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 			// Else
-			{5, CFGNode::createCFGNode(5)},
-			{6, CFGNode::createCFGNode(6)},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
 			// Outside while
-			{7, CFGNode::createCFGNode(7)},
+			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
 		};
 
 		unordered_map<int, vector<int>> adjListCopy = {
@@ -427,9 +430,9 @@ TEST_CASE("CFG: test equals") {
 			// While In while
 			{2, WhileCFGNode::createWhileCFGNode(2)},
 			// inNestedWhile
-			{3, CFGNode::createCFGNode(3)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
 			// outWhile
-			{4, CFGNode::createCFGNode(4)},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -444,9 +447,9 @@ TEST_CASE("CFG: test equals") {
 			// While In while
 			{2, WhileCFGNode::createWhileCFGNode(2)},
 			// inNestedWhile
-			{3, CFGNode::createCFGNode(3)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
 			// outWhile
-			{4, CFGNode::createCFGNode(4)},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 		};
 
 		unordered_map<int, vector<int>> adjListCopy = {

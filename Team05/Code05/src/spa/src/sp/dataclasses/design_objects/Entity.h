@@ -156,12 +156,7 @@ class Entity {
 			Token token = Token::getPlaceHolderToken();
 			return Entity(EntityType::BRACKET, DEAFULT_LINE_NUMBER, token);
 		}
-
-		static Entity createStatementEntity(int lineNumber) {
-			Token token = Token::createIntegerToken(to_string(lineNumber));
-			return Entity(EntityType::STATEMENT, lineNumber, token);
-		}
-		
+	
 		bool isReadEntity() {
 			return this->type == EntityType::READ;
 		}

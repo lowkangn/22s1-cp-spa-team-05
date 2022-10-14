@@ -35,10 +35,10 @@ TEST_CASE("Test extract") {
 	SECTION("Simple program test") {
 		// Create program
 		unordered_map<int, shared_ptr<CFGNode>> nodes = {
-			{1, CFGNode::createCFGNode(1)},
-			{2, CFGNode::createCFGNode(2)},
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
+			{1, CFGNode::createCFGNode(Entity::createAssignEntity(1))},
+			{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -51,9 +51,9 @@ TEST_CASE("Test extract") {
 
 		// Next Relations
 		vector<Relationship> expectedRelations = {
-			Relationship::createNextRelationship(Entity::createStatementEntity(1), Entity::createStatementEntity(2)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(3)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(3), Entity::createStatementEntity(4)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(1), Entity::createAssignEntity(2)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(2), Entity::createAssignEntity(3)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(3), Entity::createAssignEntity(4)),
 		};
 
 
@@ -63,16 +63,16 @@ TEST_CASE("Test extract") {
 	SECTION("If program test") {
 		// Create program
 		unordered_map<int, shared_ptr<CFGNode>> nodes = {
-			{1, CFGNode::createCFGNode(1)},
-			{2, IfCFGNode::createCFGNode(2)},
+			{1, CFGNode::createCFGNode(Entity::createAssignEntity(1))},
+			{2, IfCFGNode::createCFGNode(Entity::createIfEntity(2))},
 			// Then
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 			// Else
-			{5, CFGNode::createCFGNode(5)},
-			{6, CFGNode::createCFGNode(6)},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
 			// Outside If
-			{7, CFGNode::createCFGNode(7)},
+			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -88,13 +88,13 @@ TEST_CASE("Test extract") {
 
 		// Next Relations
 		vector<Relationship> expectedRelations = {
-			Relationship::createNextRelationship(Entity::createStatementEntity(1), Entity::createStatementEntity(2)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(3)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(5)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(3), Entity::createStatementEntity(4)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(5), Entity::createStatementEntity(6)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(4), Entity::createStatementEntity(7)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(6), Entity::createStatementEntity(7)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(1), Entity::createIfEntity(2)),
+			Relationship::createNextRelationship(Entity::createIfEntity(2), Entity::createAssignEntity(3)),
+			Relationship::createNextRelationship(Entity::createIfEntity(2), Entity::createAssignEntity(5)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(3), Entity::createAssignEntity(4)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(5), Entity::createAssignEntity(6)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(4), Entity::createAssignEntity(7)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(6), Entity::createAssignEntity(7)),
 		};
 
 		test(nodeToExtractFrom, expectedRelations);
@@ -103,12 +103,12 @@ TEST_CASE("Test extract") {
 	SECTION("while program test") {
 		// Create program
 		unordered_map<int, shared_ptr<CFGNode>> nodes = {
-			{1, CFGNode::createCFGNode(1)},
-			{2, WhileCFGNode::createCFGNode(2)},
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
+			{1, CFGNode::createCFGNode(Entity::createAssignEntity(1))},
+			{2, WhileCFGNode::createCFGNode(Entity::createWhileEntity(2))},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 			// Outside while
-			{5, CFGNode::createCFGNode(5)},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -122,11 +122,11 @@ TEST_CASE("Test extract") {
 
 		// Next Relations
 		vector<Relationship> expectedRelations = {
-			Relationship::createNextRelationship(Entity::createStatementEntity(1), Entity::createStatementEntity(2)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(3)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(5)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(3), Entity::createStatementEntity(4)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(4), Entity::createStatementEntity(2)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(1), Entity::createWhileEntity(2)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(2), Entity::createAssignEntity(3)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(2), Entity::createAssignEntity(5)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(3), Entity::createAssignEntity(4)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(4), Entity::createWhileEntity(2)),
 		};
 
 		test(nodeToExtractFrom, expectedRelations);
@@ -135,23 +135,23 @@ TEST_CASE("Test extract") {
 	SECTION("Nested if test") {
 		// Create program
 		unordered_map<int, shared_ptr<CFGNode>> nodes = {
-			{1, CFGNode::createCFGNode(1)},
-			{2, IfCFGNode::createCFGNode(2)},
+			{1, CFGNode::createCFGNode(Entity::createAssignEntity(1))},
+			{2, IfCFGNode::createCFGNode(Entity::createIfEntity(2))},
 			// Then
-			{3, CFGNode::createCFGNode(3)},
-			{4, CFGNode::createCFGNode(4)},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createAssignEntity(4))},
 			// Else
-			{5, IfCFGNode::createCFGNode(5)},
+			{5, IfCFGNode::createCFGNode(Entity::createIfEntity(5))},
 			// nested then
-			{6, CFGNode::createCFGNode(6)},
-			{7, CFGNode::createCFGNode(7)},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
+			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
 			// nested else
-			{8, CFGNode::createCFGNode(8)},
-			{9, CFGNode::createCFGNode(9)},
+			{8, CFGNode::createCFGNode(Entity::createAssignEntity(8))},
+			{9, CFGNode::createCFGNode(Entity::createAssignEntity(9))},
 			// outside nested while (in else)
-			{10, CFGNode::createCFGNode(10)},
+			{10, CFGNode::createCFGNode(Entity::createAssignEntity(10))},
 			// Outside first while
-			{11, CFGNode::createCFGNode(11)},
+			{11, CFGNode::createCFGNode(Entity::createAssignEntity(11))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -171,18 +171,18 @@ TEST_CASE("Test extract") {
 
 		// Next Relations
 		vector<Relationship> expectedRelations = {
-			Relationship::createNextRelationship(Entity::createStatementEntity(1), Entity::createStatementEntity(2)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(3)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(5)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(3), Entity::createStatementEntity(4)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(4), Entity::createStatementEntity(11)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(5), Entity::createStatementEntity(6)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(5), Entity::createStatementEntity(8)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(6), Entity::createStatementEntity(7)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(7), Entity::createStatementEntity(10)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(8), Entity::createStatementEntity(9)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(9), Entity::createStatementEntity(10)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(10), Entity::createStatementEntity(11)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(1), Entity::createIfEntity(2)),
+			Relationship::createNextRelationship(Entity::createIfEntity(2), Entity::createAssignEntity(3)),
+			Relationship::createNextRelationship(Entity::createIfEntity(2), Entity::createIfEntity(5)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(3), Entity::createAssignEntity(4)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(4), Entity::createAssignEntity(11)),
+			Relationship::createNextRelationship(Entity::createIfEntity(5), Entity::createAssignEntity(6)),
+			Relationship::createNextRelationship(Entity::createIfEntity(5), Entity::createAssignEntity(8)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(6), Entity::createAssignEntity(7)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(7), Entity::createAssignEntity(10)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(8), Entity::createAssignEntity(9)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(9), Entity::createAssignEntity(10)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(10), Entity::createAssignEntity(11)),
 		};
 
 		test(nodeToExtractFrom, expectedRelations);
@@ -191,17 +191,17 @@ TEST_CASE("Test extract") {
 	SECTION("Nested while") {
 		// Create program
 		unordered_map<int, shared_ptr<CFGNode>> nodes = {
-			{1, CFGNode::createCFGNode(1)},
-			{2, WhileCFGNode::createCFGNode(2)},
-			{3, CFGNode::createCFGNode(3)},
+			{1, CFGNode::createCFGNode(Entity::createAssignEntity(1))},
+			{2, WhileCFGNode::createCFGNode(Entity::createWhileEntity(2))},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
 			// Nested while
-			{4, WhileCFGNode::createCFGNode(4)},
-			{5, CFGNode::createCFGNode(5)},
-			{6, CFGNode::createCFGNode(6)},
+			{4, WhileCFGNode::createCFGNode(Entity::createWhileEntity(4))},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
 			// Oustide nested while
-			{7, CFGNode::createCFGNode(7)},
+			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
 			// Outside while
-			{8, CFGNode::createCFGNode(8)},
+			{8, CFGNode::createCFGNode(Entity::createAssignEntity(8))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -218,15 +218,15 @@ TEST_CASE("Test extract") {
 
 		// Next Relations
 		vector<Relationship> expectedRelations = {
-			Relationship::createNextRelationship(Entity::createStatementEntity(1), Entity::createStatementEntity(2)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(3)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(8)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(3), Entity::createStatementEntity(4)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(4), Entity::createStatementEntity(5)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(4), Entity::createStatementEntity(7)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(5), Entity::createStatementEntity(6)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(6), Entity::createStatementEntity(4)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(7), Entity::createStatementEntity(2)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(1), Entity::createWhileEntity(2)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(2), Entity::createAssignEntity(3)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(2), Entity::createAssignEntity(8)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(3), Entity::createWhileEntity(4)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(4), Entity::createAssignEntity(5)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(4), Entity::createAssignEntity(7)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(5), Entity::createAssignEntity(6)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(6), Entity::createWhileEntity(4)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(7), Entity::createWhileEntity(2)),
 		};
 
 		test(nodeToExtractFrom, expectedRelations);
@@ -235,21 +235,21 @@ TEST_CASE("Test extract") {
 	SECTION("Nested if inside while") {
 		// Create program
 		unordered_map<int, shared_ptr<CFGNode>> nodes = {
-			{1, CFGNode::createCFGNode(1)},
-			{2, WhileCFGNode::createCFGNode(2)},
-			{3, CFGNode::createCFGNode(3)},
+			{1, CFGNode::createCFGNode(Entity::createAssignEntity(1))},
+			{2, WhileCFGNode::createCFGNode(Entity::createWhileEntity(2))},
+			{3, CFGNode::createCFGNode(Entity::createAssignEntity(3))},
 			// if
-			{4, IfCFGNode::createCFGNode(4)},
+			{4, IfCFGNode::createCFGNode(Entity::createIfEntity(4))},
 			// then
-			{5, CFGNode::createCFGNode(5)},
-			{6, CFGNode::createCFGNode(6)},
+			{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
 			// else
-			{7, CFGNode::createCFGNode(7)},
-			{8, CFGNode::createCFGNode(8)},
+			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
+			{8, CFGNode::createCFGNode(Entity::createAssignEntity(8))},
 			// Oustide if
-			{9, CFGNode::createCFGNode(9)},
+			{9, CFGNode::createCFGNode(Entity::createAssignEntity(9))},
 			// Outside while
-			{10, CFGNode::createCFGNode(10)},
+			{10, CFGNode::createCFGNode(Entity::createAssignEntity(10))},
 		};
 
 		unordered_map<int, vector<int>> adjList = {
@@ -268,17 +268,17 @@ TEST_CASE("Test extract") {
 
 		// Next Relations
 		vector<Relationship> expectedRelations = {
-			Relationship::createNextRelationship(Entity::createStatementEntity(1), Entity::createStatementEntity(2)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(3)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(10)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(3), Entity::createStatementEntity(4)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(4), Entity::createStatementEntity(5)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(4), Entity::createStatementEntity(7)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(5), Entity::createStatementEntity(6)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(6), Entity::createStatementEntity(9)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(7), Entity::createStatementEntity(8)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(8), Entity::createStatementEntity(9)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(9), Entity::createStatementEntity(2)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(1), Entity::createWhileEntity(2)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(2), Entity::createAssignEntity(3)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(2), Entity::createAssignEntity(10)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(3), Entity::createIfEntity(4)),
+			Relationship::createNextRelationship(Entity::createIfEntity(4), Entity::createAssignEntity(5)),
+			Relationship::createNextRelationship(Entity::createIfEntity(4), Entity::createAssignEntity(7)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(5), Entity::createAssignEntity(6)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(6), Entity::createAssignEntity(9)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(7), Entity::createAssignEntity(8)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(8), Entity::createAssignEntity(9)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(9), Entity::createWhileEntity(2)),
 		};
 
 		test(nodeToExtractFrom, expectedRelations);
