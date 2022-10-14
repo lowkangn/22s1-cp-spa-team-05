@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <assert.h>
 #include <qps/query/clause/PQLRelationship.h>
 #include <qps/query/clause/ClauseArgument.h>
 #include <qps/query/clause/ClauseResult.h>
@@ -9,10 +10,12 @@
 class RelationshipClauseResult : public ClauseResult {
 private:
 	ClauseArgument getFirstArg() {
+		assert(this->args.size() == 2);
 		return this->args[0];
 	}
 
 	ClauseArgument getSecondArg() {
+		assert(this->args.size() == 2);
 		return this->args[1];
 	}
 

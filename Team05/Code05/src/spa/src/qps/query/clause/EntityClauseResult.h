@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <assert.h>
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/ClauseArgument.h>
 #include <qps/query/clause/ClauseResult.h>
@@ -9,6 +10,7 @@
 class EntityClauseResult : public ClauseResult {
 private:
 	ClauseArgument getArg() {
+		assert(this->args.size() == 1);
 		return this->args[0];
 	}
 
