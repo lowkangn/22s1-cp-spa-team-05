@@ -31,6 +31,9 @@ bool operator==(Query first, Query second) {
 	} else if (!first.areClausesAllEqual<PatternClause>(first.patternClauses, second.patternClauses)) {
 		// different pattern clauses
 		return false;
+	} else if (!first.areClausesAllEqual<WithClause>(first.withClauses, second.withClauses)) {
+		// different with clauses
+		return false;
 	}
 
 	return true;

@@ -9,6 +9,7 @@ shared_ptr<WithClause> WithParser::parse() {
 	// Verify the semantics
 	this->checkAttrCompare(lhsArgs, rhsArgs);
 
+	this->isParseCompleted = true;
 	return this->createWithClause(lhsArgs, rhsArgs);
 }
 

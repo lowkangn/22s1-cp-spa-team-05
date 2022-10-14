@@ -24,10 +24,11 @@ TEST_CASE("Query: test operator==") {
 																										ClauseArgument::createVariableArg("v")));
     shared_ptr<RelationshipClause> modifiesPClause = shared_ptr<RelationshipClause>(new ModifiesPClause(ClauseArgument::createProcedureArg("main"),
 																										ClauseArgument::createVariableArg("v")));
-
-    Query firstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause}, list<shared_ptr<PatternClause>>{});
-    Query sameAsFirstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause}, list<shared_ptr<PatternClause>>{});
-    Query secondQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesPClause}, list<shared_ptr<PatternClause>>{});
+    list<shared_ptr<PatternClause>> emptyPatterns{};
+    list<shared_ptr<WithClause>> emptyWiths{};
+    Query firstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause}, emptyPatterns, emptyWiths);
+    Query sameAsFirstQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesSClause}, emptyPatterns, emptyWiths);
+    Query secondQuery = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesPClause}, emptyPatterns, emptyWiths);
 
 	// TODO: Different select clauses, relationship clauses, pattern clauses
 

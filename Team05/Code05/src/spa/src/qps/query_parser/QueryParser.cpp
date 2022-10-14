@@ -30,7 +30,7 @@ Query QueryParser::parse() {
         throw PQLSemanticError(this->semanticErrorMessage);
     }
 
-    return Query(selectClause, this->suchThatClauses, this->patternClauses);   
+    return Query(selectClause, this->suchThatClauses, this->patternClauses, this->withClauses);   
 }
 
 shared_ptr<SelectClause> QueryParser::parseSelect(unordered_map<string, ArgumentType> declarations) {
@@ -151,7 +151,10 @@ shared_ptr<WithClause> QueryParser::parseWith(unordered_map<string, ArgumentType
         throw PQLSyntaxError("Query ended after with");
     }
     WithParser withParser = WithParser(this->tokens, declarations);
-    return withParser.parse();
+    shared_ptr<WithClause> clause = withParser.parse();
+    this->tokens = withParser.getRemainingTokens();
+    this->setSemanticErrorFromParser(make_shared<WithParser>(withParser));
+    return clause;
 }
 
 void QueryParser::setSemanticErrorFromParser(shared_ptr<SemanticChecker> parserPointer) {
