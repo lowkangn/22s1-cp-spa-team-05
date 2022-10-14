@@ -1,6 +1,7 @@
 #pragma once
 
-#include <pkb/design_objects/graphs/PkbGraphNode.h>
+#include <pkb/design_objects/graphs/PkbControlFlowGraphNode.h>
+
 #include <pkb/design_objects/relationships/PkbRelationship.h>
 #include <memory>
 #include <vector>
@@ -18,24 +19,27 @@ struct EdgeKeyHash {
 	}
 };
 
+/*
+	Handles extraction from a control flow graph of nextstar relationships. 
+*/
 class PkbGraphNextStarRelationshipExtractor  {
 private: 
 	bool extracted = false;
 	vector<shared_ptr<PkbRelationship>> extractedRelationships; // object-level variable as method is recursive
 	unordered_set<string> extractedRelationshipKeys; // keys to track what has been extracted
-	unordered_set<pair<string, string>, EdgeKeyHash> visitedEdges;
+	unordered_set<string> visitingNodes; // set to track which nodes we are visiting, for cycle detection
 
 	/*
 		Cumulatively extracts all nextstar relationships from the specified start node by
 		fully traversing the graph.
 	*/
-	vector<shared_ptr<PkbGraphNode>> extractAllFromStartDfs(shared_ptr<PkbGraphNode> startNode);
+	vector<shared_ptr<PkbControlFlowGraphNode>> extractAllFromStartDfs(shared_ptr<PkbControlFlowGraphNode> startNode);
 
 	/*
 		Cumulatively extracts all nextstar relationships that end at the specified node, starting from the
 		specified start node.
 	*/
-	vector<shared_ptr<PkbGraphNode>> extractAllThatReachEndDfs(shared_ptr<PkbGraphNode> startNode, shared_ptr<PkbGraphNode> endNode);
+	vector<shared_ptr<PkbControlFlowGraphNode>> extractAllThatReachEndDfs(shared_ptr<PkbControlFlowGraphNode> startNode, shared_ptr<PkbControlFlowGraphNode> endNode);
 
 
 public:
@@ -44,7 +48,7 @@ public:
 		Cumulatively extracts all nextstar relationships from the specified start node by 
 		fully traversing the graph.
 	*/
-	void extractAllFromStart(shared_ptr<PkbGraphNode> startNode) {
+	void extractAllFromStart(shared_ptr<PkbControlFlowGraphNode> startNode) {
 		this->extractAllFromStartDfs(startNode);
 	}
 
@@ -52,7 +56,7 @@ public:
 		Cumulatively extracts all nextstar relationships that end at the specified node, starting from the 
 		specified start node.
 	*/
-	void extractAllThatReachEnd(shared_ptr<PkbGraphNode> startNode, shared_ptr<PkbGraphNode> endNode) {
+	void extractAllThatReachEnd(shared_ptr<PkbControlFlowGraphNode> startNode, shared_ptr<PkbControlFlowGraphNode> endNode) {
 		this->extractAllThatReachEndDfs(startNode, endNode);
 	}
 

@@ -13,13 +13,12 @@ class PkbControlFlowGraphNode : public PkbGraphNode {
 
 private: 
 	shared_ptr<PkbStatementEntity> statementEntity; // explicit statement entity being wrapped
-
-protected:
-	PkbControlFlowGraphNode(shared_ptr<PkbStatementEntity> statementEntity) : PkbGraphNode(shared_ptr<PkbEntity>(statementEntity)) {
-		this->statementEntity = statementEntity;
-	}
+	
 
 public:
+    PkbControlFlowGraphNode(shared_ptr<PkbStatementEntity> statementEntity) : PkbGraphNode(shared_ptr<PkbEntity>(statementEntity)) {
+        this->statementEntity = statementEntity;
+    }
 
     // =========== Factories ====================
 
@@ -47,6 +46,10 @@ public:
 
     bool isCallStatementNode() {
         return this->statementEntity->isCallStatement();
+    }
+
+    int getStatementLineNumber() {
+        return this->entity->getLineNumber();
     }
 
     

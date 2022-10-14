@@ -2,42 +2,45 @@
 #include <pkb/design_objects/relationships/PkbNextStarRelationship.h>
 #include <iostream>
 
-vector<shared_ptr<PkbGraphNode>> PkbGraphNextStarRelationshipExtractor::extractAllFromStartDfs(shared_ptr<PkbGraphNode> startNode) {
-	
-	// check if there are any neighbours left 
+vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtractor::extractAllFromStartDfs(shared_ptr<PkbControlFlowGraphNode> startNode) {
+
+	// 0. add to visiting
+	this->visitingNodes.insert(startNode->getKey());
+
+	// 1. get neighbours
 	vector<shared_ptr<PkbGraphNode>> neighbours = startNode->getNeighbours();
-	vector<shared_ptr<PkbGraphNode>> unvisited;
-	string key = startNode->getKey();
-	cout << "entering, " << key << endl;
+	cout << "\nentering " << startNode->getAsEntity()->getKey() << " with " << neighbours.size() << " neighbours." << endl;
+	// 2. for each neighbour, we visit
+	// if neighbour statement number increasing, is cycle. we include but don't recurse on it	
+	vector<shared_ptr<PkbControlFlowGraphNode>> allDownstream = {startNode};
 	for (shared_ptr<PkbGraphNode> n : neighbours) {
-		
-		if (!this->visitedEdges.count(pair<string, string>(key, n->getKey()))) {
-			
-			unvisited.push_back(n);
+
+		// cast
+		shared_ptr<PkbControlFlowGraphNode> casted_n = static_pointer_cast<PkbControlFlowGraphNode>(n);
+		if (n == NULL) {
+			throw PkbException("Tried to cast pkb graph node to cfg node, but couldn't.");
 		}
-	}
 
-	// if no neighbours left, return itself in vector
-	vector<shared_ptr<PkbGraphNode>> allDownstream = { startNode };
-	if (unvisited.size() == 0) {
-		return allDownstream;
-	}
-	// if have, for each neighbour, add to visited list, get all child from vector 
-	
-	for (shared_ptr<PkbGraphNode> n : unvisited) {
-
-		// add to visited set
-		this->visitedEdges.insert(pair<string, string>(key, n->getKey()));
-
-		// get all downstream children
-		vector<shared_ptr<PkbGraphNode>> downstream = this->extractAllFromStartDfs(n);
+		// if cycle (decreasing statement number), we don't recurse, but do add to downstream
+		vector<shared_ptr<PkbControlFlowGraphNode>> downstream;
+		if (this->visitingNodes.count(casted_n->getKey())) {
+			cout << "Cycle found" << endl;
+			downstream = { casted_n };
+		}
+		else {
+			// get all downstream children
+			downstream = this->extractAllFromStartDfs(casted_n);
+			cout << "here instead" << downstream.size() << endl;
+		}
 
 		// for each downstream child, form relationship with self and it
 		for (shared_ptr<PkbGraphNode> c : downstream) {
+
 			// create relationship and add
 			shared_ptr<PkbRelationship> toAdd = shared_ptr<PkbRelationship>(new PkbNextStarRelationship(startNode->getAsEntity(), c->getAsEntity()));
+			cout << "Considering new relationship   " << startNode->getAsEntity()->getKey() << ", " << c->getAsEntity()->getKey() << endl;
 			if (!this->extractedRelationshipKeys.count(toAdd->getKey())) { // not already found
-				cout << "here" << key << ", " << c->getAsEntity()->getKey() << endl;
+				cout << "New relationship, adding  " << startNode->getAsEntity()->getKey() << ", " << c->getAsEntity()->getKey() << endl;
 				this->extractedRelationships.push_back(toAdd);
 				this->extractedRelationshipKeys.insert(toAdd->getKey());
 			}
@@ -46,54 +49,71 @@ vector<shared_ptr<PkbGraphNode>> PkbGraphNextStarRelationshipExtractor::extractA
 	
 		// extend
 		allDownstream.insert(allDownstream.end(), downstream.begin(), downstream.end());
+		cout << "leaving " << startNode->getAsEntity()->getKey() << endl;
 	}
 
 	// set state
 	this->extracted = true;
-	cout << "leaving, " << key << endl;
+
+	// as you return, remove from visiting
+	this->visitingNodes.erase(startNode->getKey());
 
 	return allDownstream;
 }
 
-vector<shared_ptr<PkbGraphNode>> PkbGraphNextStarRelationshipExtractor::extractAllThatReachEndDfs(shared_ptr<PkbGraphNode> startNode, shared_ptr<PkbGraphNode> endNode) {
+vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtractor::extractAllThatReachEndDfs(shared_ptr<PkbControlFlowGraphNode> startNode, shared_ptr<PkbControlFlowGraphNode> endNode) {
 	// 1. check if is target node. if yes, return self.
 	if (startNode->equals(endNode)) {
-		return vector<shared_ptr<PkbGraphNode>>{startNode};
+		return vector<shared_ptr<PkbControlFlowGraphNode>>{startNode};
 	}
 
-	// 2. check if there are any neighbours left 
+	// 2. get neighbours
 	vector<shared_ptr<PkbGraphNode>> neighbours = startNode->getNeighbours();
-	vector<shared_ptr<PkbGraphNode>> unvisited;
-	string key = startNode->getKey();
+
+	// 3. for each neighbour, do
+	// if neighbour statement number increasing, is cycle. we include but don't recurse on it	
+	vector<shared_ptr<PkbControlFlowGraphNode>> allDownstream;
+	bool hasOneNonCycleChild = false;
 	for (shared_ptr<PkbGraphNode> n : neighbours) {
-		if (!this->visitedEdges.count(pair<string, string>(key, n->getKey()))) {
-			unvisited.push_back(n);
+
+		// cast
+		shared_ptr<PkbControlFlowGraphNode> casted_n = static_pointer_cast<PkbControlFlowGraphNode>(n);
+		if (n == NULL) {
+			throw PkbException("Tried to cast pkb graph node to cfg node, but couldn't.");
 		}
-	}
 
-	// 2.1 if no neighbours left, terminal, but is not desired. return empty vector
-	if (unvisited.size() == 0) {
-		return vector<shared_ptr<PkbGraphNode>>();
-	}
-
-	// 2.2 else, do dfs on neighbours
-	vector<shared_ptr<PkbGraphNode>> allDownstream;
-	for (shared_ptr<PkbGraphNode> n : unvisited) {
-		// get all downstream children
-		vector<shared_ptr<PkbGraphNode>> downstream = this->extractAllThatReachEndDfs(n, endNode);
+		// if cycle (decreasing statement number), we don't recurse, but do add to downstream
+		vector<shared_ptr<PkbControlFlowGraphNode>> downstream;
+		if (casted_n->getStatementLineNumber() < startNode->getStatementLineNumber()) {
+			downstream = { casted_n };
+		}
+		else {
+			// get all downstream children
+			hasOneNonCycleChild = true;
+			downstream = this->extractAllFromStartDfs(casted_n);
+		}
 
 		// for each downstream child, form relationship with self and it
 		for (shared_ptr<PkbGraphNode> c : downstream) {
+
 			// create relationship and add
-			this->extractedRelationships.push_back(shared_ptr<PkbRelationship>(new PkbNextStarRelationship(startNode->getAsEntity(), c->getAsEntity())));
+			shared_ptr<PkbRelationship> toAdd = shared_ptr<PkbRelationship>(new PkbNextStarRelationship(startNode->getAsEntity(), c->getAsEntity()));
+			if (!this->extractedRelationshipKeys.count(toAdd->getKey())) { // not already found
+				cout << "adding" << startNode->getAsEntity()->getKey() << ", " << c->getAsEntity()->getKey() << endl;
+				this->extractedRelationships.push_back(toAdd);
+				this->extractedRelationshipKeys.insert(toAdd->getKey());
+			}
+		}
+
+		// if no neighbours, failed to find. same if terminal node in the sense that is just a cycle, failed to find target
+		if (neighbours.size() == 0 || !hasOneNonCycleChild) {
+			return vector<shared_ptr<PkbControlFlowGraphNode>>{};
 		}
 
 		// extend
 		allDownstream.insert(allDownstream.end(), downstream.begin(), downstream.end());
+
+		
 	}
-
-	// set state
-	this->extracted = true;
-
 	return allDownstream;
 }

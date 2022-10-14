@@ -707,7 +707,7 @@ vector<PQLRelationship> PKB::retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PKBT
 		if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
 			// convert lhs to entity, graph node, then get node 
 			shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
-			shared_ptr<PkbGraphNode> startNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
+			shared_ptr<PkbControlFlowGraphNode> startNode = shared_ptr<PkbControlFlowGraphNode>(new PkbControlFlowGraphNode(left));
 			
 			// starting from node, run dfs 
 			extractor.extractAllFromStart(startNode);
@@ -719,15 +719,17 @@ vector<PQLRelationship> PKB::retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PKBT
 		else if ((lhs.isWildcard() || rhs.isSynonym()) && (rhs.isExactReference())) {
 			// convert rhs to entity, graph node, then get target node 
 			shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
-			shared_ptr<PkbGraphNode> endNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
+			shared_ptr<PkbControlFlowGraphNode> endNode = shared_ptr<PkbControlFlowGraphNode>(new PkbControlFlowGraphNode(right));
+			shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(this->cfgManager.getRootNode());
 
 			// starting from node, run dfs 
-			extractor.extractAllThatReachEnd(this->cfgManager.getRootNode(), endNode);
+			extractor.extractAllThatReachEnd(startNode, endNode);
 			extractedRelationships = extractor.getExtractedRelationships();
 		}
 		else { // case 4: all wild card
 			// starting at root node, dfs all the way
-			extractor.extractAllFromStart(this->cfgManager.getRootNode());
+			shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(this->cfgManager.getRootNode());
+			extractor.extractAllFromStart(startNode);
 			extractedRelationships = extractor.getExtractedRelationships();
 		}
 
