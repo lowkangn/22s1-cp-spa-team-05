@@ -35,21 +35,17 @@ shared_ptr<ClauseResult> WithNoExactClause::handleBothSidesStmtNumAttribute(shar
 
 	// If both sides are the same type, we only need to retrieve either side. If one side is a stmt synonym, it suffices to retrieve the other side.
 	ClauseArgument synonymToGet = lhsSynonym;
-	ClauseArgument otherSynonym = lhsSynonym;
+	ClauseArgument otherSynonym = rhsSynonym;
 	if (this->lhsSynonym.isStmtSynonym()) {
 		synonymToGet = rhsSynonym;
 		otherSynonym = lhsSynonym;
-	}
-	else {
-		synonymToGet = lhsSynonym;
-		otherSynonym = rhsSynonym;
 	}
 	PKBTrackedStatementType statementType = this->getPKBStmtType(synonymToGet);
 	vector<PQLEntity> retrievedEntities = pkb->retrieveStatementEntitiesByType(statementType);
 
 	EntityClauseResult synonymToGetResult = EntityClauseResult(synonymToGet, retrievedEntities);
-	EntityClauseResult stmtSynonymResult = EntityClauseResult(otherSynonym, retrievedEntities);
-	ClauseResult finalResult = synonymToGetResult.mergeByForceInnerJoin(stmtSynonymResult, synonymToGet, otherSynonym);
+	EntityClauseResult otherSynonymResult = EntityClauseResult(otherSynonym, retrievedEntities);
+	ClauseResult finalResult = synonymToGetResult.mergeByForceInnerJoin(otherSynonymResult, synonymToGet, otherSynonym);
 	return make_shared<ClauseResult>(finalResult);
 }
 
