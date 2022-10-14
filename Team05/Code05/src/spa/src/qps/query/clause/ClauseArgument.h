@@ -260,4 +260,16 @@ public:
 	friend bool operator!= (ClauseArgument first, ClauseArgument second);
 
 	friend bool operator< (ClauseArgument first, ClauseArgument second);
+
+};
+
+template<> struct hash<ClauseArgument> {
+	size_t operator()(ClauseArgument arg) const noexcept {
+		// Can just use identifier since two different arguments won't have the same identifier
+		if (arg.isLineNumber()) {
+			return hash<string>{}(to_string(arg.getLineNumber()));
+		} else {
+			return hash<string>{}(arg.getIdentifier());
+		}
+	}
 };
