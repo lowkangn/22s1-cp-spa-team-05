@@ -4,8 +4,9 @@
 #include <algorithm>
 #include <qps/query/clause/PQLRelationship.h>
 #include <qps/query/clause/ClauseArgument.h>
+#include <qps/query/clause/ClauseResult.h>
 
-class RelationshipClauseResult {
+class RelationshipClauseResult : public ClauseResult {
 
 private:
     ClauseArgument firstArg;

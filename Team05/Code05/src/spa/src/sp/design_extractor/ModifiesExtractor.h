@@ -6,6 +6,8 @@
 #include <sp/dataclasses/ast/CallASTNode.h>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
+
 
 using namespace std;
 
@@ -37,8 +39,6 @@ private:
 
 	// HELPER FUNCTIONS
 
-	// HELPER FUNCTIONS
-
 	/*
 		This is a helper function to find the correct index of a called function in allProcedures
 
@@ -66,6 +66,7 @@ private:
 		We need to do this because both proc:second AST nodes share the same name, but are different nodes (i.e. diff children and parents)
 	*/
 
+	
 	int findCalledProcedureIndex(string procedureName) {
 		int index = -1;
 		for (int i = 0; i < allProcedures.size(); i++) {
@@ -76,18 +77,18 @@ private:
 
 			if (currProcedureName == procedureName) {
 				index = i;
+				return index;
 			}
 		}
-		return index;
 	}
-
+	
 	/*
 		DP map relationships are in the form of procedure p : variable v
 		This function takes variable v (from rhs) and create relationship call c : variable v
 	*/
 
-	vector<Relationship> convertToCallRelationship(shared_ptr<ASTNode> callNode, vector<Relationship> relationships) {
-		assert(callNode->getType() == ASTNodeType::CALL);
+	vector<Relationship> extractCallRelationshipFromProcedure(shared_ptr<ASTNode> callNode, vector<Relationship> relationships) {
+		assert(callNode->isCallNode());
 
 		vector<Relationship> converted;
 		Entity leftHandSide = callNode->extractEntity();

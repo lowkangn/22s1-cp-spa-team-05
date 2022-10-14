@@ -1186,13 +1186,38 @@ TEST_CASE("ModifiesExtractor: test extract") {
 
 
 
-		vector<Relationship> expectedResult = vector<Relationship>{ mainModifiesX1, mainModifiesY2, mainModifiesX4, mainModifiesX7,
-																	mainModifiesY8, assign1ModifiesX1, readModifiesX4, whileModifiesX4, assign4ModifiesX4,
-																	ifModifiesX7, ifModifiesY8, assign7ModifiesX7, assign8ModifiesY8,
-																	alphaModifiesX10, alphaModifiesY11, alphaModifiesZ12, readModifiesX10, assign11ModifiesY11,
-																	assign12ModifiesZ12, callAModifiesX10, callAModifiesY11, callAModifiesZ12,
-																	mainModifiesX10, mainModifiesY11, mainModifiesZ12, mainModifiesA14, alphaModifiesA14,
-																	callAModifiesA14, callBModifiesA14, betaModifiesA14, assign14ModifiesA14 };
+		vector<Relationship> expectedResult = vector<Relationship>{ mainModifiesX1,
+																	mainModifiesY2, 
+																	mainModifiesX4,
+																	mainModifiesX7,
+																	mainModifiesY8,
+																	assign1ModifiesX1, 
+																	readModifiesX4, 
+																	whileModifiesX4,
+																	assign4ModifiesX4,
+																	ifModifiesX7, 
+																	ifModifiesY8, 
+																	assign7ModifiesX7, 
+																	assign8ModifiesY8,
+																	alphaModifiesX10, 
+																	alphaModifiesY11, 
+																	alphaModifiesZ12,
+																	readModifiesX10,
+																	assign11ModifiesY11,
+																	assign12ModifiesZ12, 
+																	callAModifiesX10,
+																	callAModifiesY11, 
+																	callAModifiesZ12,
+																	mainModifiesX10, 
+																	mainModifiesY11,
+																	mainModifiesZ12,
+																	mainModifiesA14,
+																	alphaModifiesA14,
+																	callAModifiesA14, 
+																	callBModifiesA14, 
+																	betaModifiesA14, 
+																	assign14ModifiesA14 
+																};
 
 		testExtract(rootProgramNode, expectedResult);
 	}

@@ -83,7 +83,7 @@ TEST_CASE("QPSTokenizer: test isDelimiter") {
     testIsDelimiter('*', false);
     testIsDelimiter('/', false);
     testIsDelimiter('%', false);
-    testIsDelimiter('#', false);
+    testIsDelimiter('#', true);
     testIsDelimiter('|', false);
     testIsDelimiter('&', false);
     testIsDelimiter('!', false);
@@ -111,7 +111,7 @@ TEST_CASE("QPSTokenizer: test isOperator") {
     testIsOperator('a', false);
     testIsOperator('1', false);
     testIsOperator(':', false);
-    testIsOperator('.', false);
+    testIsOperator('.', true);
     testIsOperator(',', false);
     testIsOperator('{', false);
     testIsOperator('}', false);

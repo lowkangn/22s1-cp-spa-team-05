@@ -23,12 +23,12 @@ readonly sample_path=./Tests05/
 
 if [ ! -d $iteration1_output_folder ]; then
 	echo "Making output folder: "${iteration1_output_folder}
-	mkdir $iteration1_output_folder
+	mkdir -p $iteration1_output_folder
 fi
 
 if [ ! -d $iteration2_output_folder ]; then
 	echo "Making output folder: "${iteration2_output_folder}
-	mkdir $iteration2_output_folder
+	mkdir -p $iteration2_output_folder
 fi
 
 echo "Using autotester at: "${path_to_autotester}

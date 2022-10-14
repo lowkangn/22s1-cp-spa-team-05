@@ -1046,11 +1046,37 @@ TEST_CASE("UsesExtractor: test extract") {
 		Relationship assign14UsesB14 = Relationship::createUsesRelationship(assign14Entity, b14Entity);
 
 
-		vector<Relationship> expectedResult = vector<Relationship>{ mainUsesXCond, mainUsesX4, mainUsesY5, mainUsesYCond, mainUsesY7, mainUsesX8,
-				whileUsesXCond, whileUsesX4, whileUsesY5, assign4UsesX4, printUsesY5, ifUsesYCond, ifUsesY7, ifUsesX8, assign7UsesY7, assign8UsesX8,
-				mainUsesX10, mainUsesZ11, mainUsesB14, callAlphaUsesX10, callAlphaUsesZ11, callAlphaUsesZ14,
-				alphaUsesX10, alphaUsesZ11, alphaUsesB14, printUsesX10, assign11UsesZ11, callBetaUsesB14,
-				betaUsesB14, assign14UsesB14 };
+		vector<Relationship> expectedResult = vector<Relationship>{ mainUsesXCond, 
+																	mainUsesX4,
+																	mainUsesY5,
+																	mainUsesYCond, 
+																	mainUsesY7, 
+																	mainUsesX8,
+																	whileUsesXCond, 
+																	whileUsesX4, 
+																	whileUsesY5, 
+																	assign4UsesX4, 
+																	printUsesY5,
+																	ifUsesYCond, 
+																	ifUsesY7,
+																	ifUsesX8, 
+																	assign7UsesY7,
+																	assign8UsesX8,
+																	mainUsesX10, 
+																	mainUsesZ11, 
+																	mainUsesB14, 
+																	callAlphaUsesX10, 
+																	callAlphaUsesZ11,
+																	callAlphaUsesZ14,
+																	alphaUsesX10,
+																	alphaUsesZ11, 
+																	alphaUsesB14, 
+																	printUsesX10, 
+																	assign11UsesZ11, 
+																	callBetaUsesB14,
+																	betaUsesB14,
+																	assign14UsesB14
+																};
 
 
 		testExtract(rootProgramNode, expectedResult);

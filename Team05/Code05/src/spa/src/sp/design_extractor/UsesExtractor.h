@@ -75,6 +75,7 @@ private:
 
 			if (currProcedureName == procedureName) {
 				index = i;
+				return index;
 			}
 		}
 		return index;
@@ -85,8 +86,8 @@ private:
 		This function takes variable v (from rhs) and create relationship call c : variable v
 	*/
 
-	vector<Relationship> convertToCallRelationship(shared_ptr<ASTNode> callNode, vector<Relationship> relationships) {
-		assert(callNode->getType() == ASTNodeType::CALL);
+	vector<Relationship> extractCallRelationshipFromProcedure(shared_ptr<ASTNode> callNode, vector<Relationship> relationships) {
+		assert(callNode->isCallNode());
 		
 		vector<Relationship> converted;
 		Entity leftHandSide = callNode->extractEntity();

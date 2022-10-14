@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <optional>
 #include <qps/query/clause/ClauseArgument.h>
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/PQLRelationship.h>
@@ -23,8 +24,9 @@ enum class PKBTrackedRelationshipType {
     PARENTSTAR,
     USES,
     MODIFIES,
+    CALLSTMTATTRIBUTE,
     CALLS,
-    CALLSSTAR
+    CALLSSTAR,
 };
 
 
@@ -42,7 +44,7 @@ public:
         NOTE: we should refactor such that it does not return a PQLEntity, but instead a ProcedurePQLEntity for safety.
         We can always up cast as needed, but down casting is bad practice.
     */
-    virtual PQLEntity retrieveProcedureEntityByName(string procedureName) = 0;
+    virtual optional<PQLEntity> retrieveProcedureEntityByName(string procedureName) = 0;
 
     /*
         Retrieves all procedure entities. 
@@ -63,7 +65,7 @@ public:
         a specific type constrained to line number, it's much easier, than making a query by 
         type and then filtering on your own.
     */
-    virtual PQLEntity retrieveStatementEntityByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) = 0;
+    virtual optional<PQLEntity> retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) = 0;
 
     /*
         Retrieves statement entities of a specific type.
@@ -83,12 +85,17 @@ public:
     /*
         Retrieves variables by name.
     */
-    virtual PQLEntity retrieveVariableByName(string name) = 0;
+    virtual optional<PQLEntity> retrieveVariableByName(string name) = 0;
 
     /*
         Retrieves all constants.
     */
     virtual vector<PQLEntity> retrieveAllConstants() = 0;
+
+    /*
+        Retrieves constant by value.
+    */
+    virtual optional<PQLEntity> retrieveConstantByValue(int constantValue) = 0;
 
 
     // ===== Relationships =====

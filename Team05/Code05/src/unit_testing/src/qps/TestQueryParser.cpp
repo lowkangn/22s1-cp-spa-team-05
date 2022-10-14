@@ -19,6 +19,23 @@ using namespace std;
 class QueryParserTestHelper {
 private:
     QueryParser parserUnderTest;
+
+    template <class T>
+    void requireClausesEqual(list<shared_ptr<T>> expectedClauses, list<shared_ptr<T>> actualClauses) {
+        bool isEqualLength = expectedClauses.size() == actualClauses.size();
+        REQUIRE(isEqualLength);
+        if (isEqualLength) {
+            while (!actualClauses.empty()) {
+                shared_ptr<T> actualPtr = actualClauses.front();
+                shared_ptr<T> expectedPtr = expectedClauses.front();
+
+                REQUIRE((*expectedPtr).equals(actualPtr));
+                actualClauses.pop_front();
+                expectedClauses.pop_front();
+            }
+        }
+    }
+
 public:
     QueryParserTestHelper(const QueryParser& parser) : parserUnderTest(parser) {}
 
@@ -28,35 +45,14 @@ public:
 
     void requireSuchThatClausesEquals(list<shared_ptr<RelationshipClause>> expectedSuchThat) {
         list<shared_ptr<RelationshipClause>> actualSuchThat = this->parserUnderTest.suchThatClauses;
-        bool isEqual = actualSuchThat.size() == expectedSuchThat.size();
-        REQUIRE(isEqual);
-        if (isEqual) {
-            while (!actualSuchThat.empty()) {
-                shared_ptr<RelationshipClause> actualPtr = actualSuchThat.front();
-                shared_ptr<RelationshipClause> expectedPtr = expectedSuchThat.front();
-
-                REQUIRE((*expectedPtr).equals(actualPtr));
-                actualSuchThat.pop_front();
-                expectedSuchThat.pop_front();
-            }
-        }
+        requireClausesEqual<RelationshipClause>(expectedSuchThat, actualSuchThat);
     }
 
     void requirePatternClausesEquals(list<shared_ptr<PatternClause>> expectedPattern) {
         list<shared_ptr<PatternClause>> actualPattern = this->parserUnderTest.patternClauses;
-        bool isEqual = actualPattern.size() == expectedPattern.size();
-        REQUIRE(isEqual);
-        if (isEqual) {
-            while (!actualPattern.empty()) {
-                shared_ptr<PatternClause> actualPtr = actualPattern.front();
-                shared_ptr<PatternClause> expectedPtr = expectedPattern.front();
-                bool equals = (*expectedPtr).equals(actualPtr);
-                REQUIRE(equals);
-                actualPattern.pop_front();
-                expectedPattern.pop_front();
-            }
-        }
+        requireClausesEqual<PatternClause>(expectedPattern, actualPattern);
     }
+
 };
 
 namespace QPSTestUtil {
@@ -400,7 +396,6 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             followsTClauseA1andW1,
             followsTClauseS1and5,
         };
-
         testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern);
     }
 
@@ -637,5 +632,4 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
 
         testParseNoError(tokens, declarations, expectedSuchThat, expectedPattern);
     }
-
 }

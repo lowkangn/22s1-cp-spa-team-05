@@ -27,6 +27,7 @@ const string PARENT_TABLE = "parent";
 const string PARENTSTAR_TABLE = "parentStar";
 const string USES_TABLE = "uses";
 const string MODIFIES_TABLE = "modifies";
+const string CALLS_ATTRIBUTE_TABLE = "callsAttribute";
 const string CALLS_TABLE = "calls";
 const string CALLSSTAR_TABLE = "callsStar";
 
@@ -48,6 +49,7 @@ private:
 		{PARENTSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{USES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{MODIFIES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{CALLS_ATTRIBUTE_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{CALLS_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{CALLSSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 	};
@@ -75,6 +77,9 @@ private:
 	}
 	shared_ptr<PkbRelationshipTable> getModifiesTable() {
 		return this->relationshipTables[MODIFIES_TABLE];
+	}
+	shared_ptr<PkbRelationshipTable> getCallsAttributeTable() {
+		return this->relationshipTables[CALLS_ATTRIBUTE_TABLE];
 	}
 
 	shared_ptr<PkbRelationshipTable> getCallsTable() {
@@ -146,7 +151,10 @@ private:
 	*/
 	shared_ptr<PkbEntity> convertClauseArgumentToPkbEntity(ClauseArgument clause);
 
-
+	/* 
+		Helper function to filter pkb statement entities by their type and convert them to PQLEntities.
+	*/
+	vector<PQLEntity> filterAndConvertStatementEntities(vector<shared_ptr<PkbEntity>> statements, PKBTrackedStatementType pkbTrackedStatementType);
 public: 
 	PKB() {}
 
@@ -168,7 +176,7 @@ public:
 	/*
 		Retrieves all procedure entities by name.
 	*/
-	PQLEntity retrieveProcedureEntityByName(string procedureName) override;
+	optional<PQLEntity> retrieveProcedureEntityByName(string procedureName) override;
 
 	/*
 		Retrieves all procedure entities.
@@ -178,7 +186,7 @@ public:
 	/*
 		Retrieves all statement entities by line number of a specified type.
 	*/
-	PQLEntity retrieveStatementEntityByLineNumber(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
+	optional<PQLEntity> retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
 	
 	/*
 		Retrieves all statement entities of a specified type.
@@ -203,7 +211,12 @@ public:
 	/*
 		Retrieves all variables by a name.
 	*/
-	PQLEntity retrieveVariableByName(string name) override;
+	optional<PQLEntity> retrieveVariableByName(string name) override;
+
+	/*
+		Retrieves all constants by a value.
+	*/
+	optional<PQLEntity> retrieveConstantByValue(int value) override;
 
 	/*
 		Retrieves all relationships by a lhs, rhs for relationships of a specified type.
