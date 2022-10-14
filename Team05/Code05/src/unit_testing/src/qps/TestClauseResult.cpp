@@ -14,6 +14,8 @@ namespace {
 
 	// Initialise statement argument and entities
 	ClauseArgument stmtArg = ClauseArgument::createStmtArg("s");
+	ClauseArgument callArg = ClauseArgument::createCallArg("ca");
+	ClauseArgument readArg = ClauseArgument::createReadArg("r");
 	PQLEntity stmt1 = PQLEntity::generateStatement(1);
 	PQLEntity stmt2 = PQLEntity::generateStatement(2);
 	PQLEntity stmt3 = PQLEntity::generateStatement(3);
@@ -24,11 +26,17 @@ namespace {
 	ClauseArgument constArg = ClauseArgument::createConstantArg("c");
 	PQLEntity const11 = PQLEntity::generateConstant(11);
 	PQLEntity const12 = PQLEntity::generateConstant(12);
-	PQLEntity const13 = PQLEntity::generateConstant(13);
+	PQLEntity const13 = PQLEntity::generateConstant(13); 
+	PQLEntity const3 = PQLEntity::generateConstant(3);
 
 	// Initialise procedure argument and entities
 	ClauseArgument procArg = ClauseArgument::createProcedureArg("pr");
 	PQLEntity procMain = PQLEntity::generateProcedure("main");
+	PQLEntity procX = PQLEntity::generateProcedure("x");
+
+	// Initialise some attribute arguments
+	ClauseArgument callProcNameArg = ClauseArgument::createProcNameAttributeArg(callArg);
+	ClauseArgument readVarNameArg = ClauseArgument::createVarNameAttributeArg(readArg);
 
 	// Create result from selecting all variables: `Select v`
 	vector<ClauseArgument> selectVarArg = {varArg};
@@ -55,14 +63,16 @@ namespace {
 	Table selectConstResultTable = {
 			{const11},
 			{const12},
-			{const13}
+			{const13},
+			{const3},
 	};
 	ClauseResult selectConstResult = ClauseResult(selectConstArg, selectConstResultTable);
 
 	// Create result from selecting all procedure: `Select pr`
 	vector<ClauseArgument> selectProcArg = {procArg};
 	Table selectProcResultTable = {
-			{procMain}
+			{procMain},
+			{procX},
 	};
 	ClauseResult selectProcResult = ClauseResult(selectProcArg, selectProcResultTable);
 }
@@ -277,9 +287,11 @@ TEST_CASE("ClauseResult: test rearrangeTableToMatchSelectResults") {
 				{stmt1, const11},
 				{stmt1, const12},
 				{stmt1, const13},
+				{stmt1, const3},
 				{stmt2, const11},
 				{stmt2, const12},
-				{stmt2, const13}
+				{stmt2, const13},
+				{stmt2, const3},
 		};
 		ClauseResult expectedResult = ClauseResult(expectedResultArgs, expectedResultTable);
 		testRearrangeTableToMatchSelectResults(result, selectResults, expectedResult);
@@ -290,9 +302,11 @@ TEST_CASE("ClauseResult: test rearrangeTableToMatchSelectResults") {
 				{stmt1, varX, const11, const11},
 				{stmt1, varX, const12, const12},
 				{stmt1, varX, const13, const13},
+				{stmt1, varX, const3, const3},
 				{stmt2, varY, const11, const11},
 				{stmt2, varY, const12, const12},
-				{stmt2, varY, const13, const13}
+				{stmt2, varY, const13, const13},
+				{stmt2, varY, const3, const3}
 		};
 		expectedResult = ClauseResult(expectedResultArgs, expectedResultTable);
 		testRearrangeTableToMatchSelectResults(result, selectResults, expectedResult);
@@ -469,5 +483,97 @@ TEST_CASE("ClauseResult: test equals") {
 		};
 		diffTableSelectVarResult = ClauseResult(selectVarArg, diffSelectVarResultTable);
 		testEquals(selectVarResult, diffTableSelectVarResult, false);
+	}
+};
+
+TEST_CASE("ClauseResult: test mergeByForceInnerJoin") {
+	auto testMergeResult = [](ClauseResult first, ClauseResult second, 
+		ClauseArgument leftOn, ClauseArgument rightOn, ClauseResult expected) {
+		// when
+		ClauseResult actual = first.mergeByForceInnerJoin(second, leftOn, rightOn);
+
+		// then
+		REQUIRE(actual.equals(make_shared<ClauseResult>(expected)));
+	};
+
+	vector<ClauseArgument> firstResultArgs = { stmtArg, varArg };
+	Table firstResultTable = {
+			{stmt1, varX}
+	};
+	ClauseResult first = ClauseResult(firstResultArgs, firstResultTable);
+
+	vector<ClauseArgument> secondResultArgs = { procArg, varArg };
+	Table secondResultTable = {
+			{procMain, varY},
+			{procMain, varX}
+	};
+	ClauseResult second = ClauseResult(secondResultArgs, secondResultTable);
+
+	ClauseArgument firstOn = varArg;
+	ClauseArgument secondOn = procArg;
+	vector<ClauseArgument> combinedResultArgs = { stmtArg, varArg, procArg, varArg };
+	Table combinedResultTable = {};
+	ClauseResult combined = ClauseResult(combinedResultArgs, combinedResultTable);
+
+	SECTION("Force Inner Join - empty") {
+		testMergeResult(first, second, firstOn, secondOn, combined);
+	}
+
+	SECTION("Force Inner join - non-empty") {
+		firstResultArgs = { stmtArg, varArg };
+		firstResultTable = {
+				{stmt1, varX},
+				{stmt2, varY},
+				{stmt3, varZ}
+		};
+		first = ClauseResult(firstResultArgs, firstResultTable);
+
+		secondResultArgs = { procArg, varArg };
+		secondResultTable = {
+				{procMain, varX},
+				{procX, varY},
+				{procX, varX},
+		};
+		second = ClauseResult(secondResultArgs, secondResultTable);
+
+		firstOn = varArg;
+		secondOn = procArg;
+		combinedResultArgs = { stmtArg, varArg, procArg, varArg };
+		combinedResultTable = {
+				{stmt1, varX, procX, varY},
+				{stmt1, varX, procX, varX}
+		};
+		combined = ClauseResult(combinedResultArgs, combinedResultTable);
+
+		testMergeResult(first, second, firstOn, secondOn, combined);
+	}
+
+	SECTION("Force Inner join - non-empty, with attributes") {
+		firstResultArgs = { readArg, readVarNameArg };
+		firstResultTable = {
+				{stmt1, varX},
+				{stmt2, varY},
+				{stmt3, varX}
+		};
+		first = ClauseResult(firstResultArgs, firstResultTable);
+
+		secondResultArgs = { callArg, callProcNameArg };
+		secondResultTable = {
+				{stmt4, procMain},
+				{stmt5, procX},
+		};
+		second = ClauseResult(secondResultArgs, secondResultTable);
+
+		firstOn = readVarNameArg;
+		secondOn = callProcNameArg;
+		combinedResultArgs = { readArg, readVarNameArg, callArg, callProcNameArg };
+		combinedResultTable = {
+				{stmt1, varX, stmt5, procX},
+				{stmt3, varX, stmt5, procX},
+		};
+		combined = ClauseResult(combinedResultArgs, combinedResultTable);
+
+		// Note: equivalent to with r.varName = ca.ProcName
+		testMergeResult(first, second, firstOn, secondOn, combined);
 	}
 };
