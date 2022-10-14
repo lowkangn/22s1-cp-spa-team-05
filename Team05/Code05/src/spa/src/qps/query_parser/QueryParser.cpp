@@ -150,10 +150,10 @@ shared_ptr<WithClause> QueryParser::parseWith(unordered_map<string, ArgumentType
     if (this->tokens.empty()) {
         throw PQLSyntaxError("Query ended after with");
     }
-    WithParser withParser = WithParser(this->tokens, declarations);
-    shared_ptr<WithClause> clause = withParser.parse();
-    this->tokens = withParser.getRemainingTokens();
-    this->setSemanticErrorFromParser(make_shared<WithParser>(withParser));
+    shared_ptr<WithParser> withParser = make_shared<WithParser>(this->tokens, declarations);
+    shared_ptr<WithClause> clause = withParser->parse();
+    this->tokens = withParser->getRemainingTokens();
+    this->setSemanticErrorFromParser(withParser);
     return clause;
 }
 

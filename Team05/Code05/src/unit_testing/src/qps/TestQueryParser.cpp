@@ -92,15 +92,15 @@ namespace QPSTestUtil {
     PQLToken star = PQLToken::createOperatorToken("*");
 
     // clause operator tokens
-    PQLToken dot = PQLToken::createOperatorToken(".");
     PQLToken equals = PQLToken::createOperatorToken("=");
+    PQLToken dot = PQLToken::createOperatorToken(".");
 
-    // attribute tokens
+    // attribute name tokens
     PQLToken procName = PQLToken::createNameToken("procName");
     PQLToken varName = PQLToken::createNameToken("varName");
-    PQLToken value = PQLToken::createNameToken("value");
     PQLToken stmtNumStmt = PQLToken::createNameToken("stmt");
     PQLToken stmtNumHash = PQLToken::createDelimiterToken("#");
+    PQLToken value = PQLToken::createNameToken("value");
 
     // strings for tokens, declarations and ClauseArguments
     string s1String = "s1";
@@ -163,8 +163,8 @@ namespace QPSTestUtil {
     ClauseArgument w1Arg = ClauseArgument::createWhileArg(w1String);
     ClauseArgument i1Arg = ClauseArgument::createIfArg(i1String);
     ClauseArgument r1Arg = ClauseArgument::createReadArg(r1String);
-    ClauseArgument pri1Arg = ClauseArgument::createPrintArg(pri1String);
     ClauseArgument call1Arg = ClauseArgument::createCallArg(call1String);
+    ClauseArgument pri1Arg = ClauseArgument::createPrintArg(pri1String);
     ClauseArgument proc1Arg = ClauseArgument::createProcedureArg(proc1String);
     ClauseArgument proc2Arg = ClauseArgument::createProcedureArg(proc2String);
     ClauseArgument proc3Arg = ClauseArgument::createProcedureArg(proc3String);
@@ -241,8 +241,36 @@ TEST_CASE("QueryParser: test parseNoError") {
 
         selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({const1Arg}));
         modifiesClause = shared_ptr<RelationshipClause>(new ModifiesPClause(proc1Arg, quotedNameArg));
-        query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause}, emptyPatterns, emptyWiths);
+        query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause}, list<shared_ptr<PatternClause>>{}, 
+            list<shared_ptr<WithClause>>{});
 
+        testParseNoError(tokens, query);
+    }
+
+    SECTION("Select and with clause") {
+        list<PQLToken> tokens = list<PQLToken>{
+            variable, v1, comma, v2, semicolon,
+            select, v2,
+            with, v1, dot, varName, equals, quotationMark, name, quotationMark,
+        };
+
+        shared_ptr<SelectClause> selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({ v2Arg }));
+        shared_ptr<WithClause> withClause = shared_ptr<WithClause>(
+            new WithOneExactClause(quotedNameArg, vector<ClauseArgument>{v1Arg, ClauseArgument::createVarNameAttributeArg(v1Arg)}));
+        Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{}, list<shared_ptr<WithClause>>{withClause});
+
+        testParseNoError(tokens, query);
+
+        tokens = list<PQLToken>{
+            constant, const1, semicolon, stmt, s1 , semicolon,
+            select, const1,
+            with, two, equals, s1, dot, stmtNumStmt, stmtNumHash
+        };
+
+        selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({ const1Arg }));
+        withClause = shared_ptr<WithClause>(
+            new WithOneExactClause(twoLineNumberArg, vector<ClauseArgument>{s1Arg, ClauseArgument::createStmtNumAttributeArg(s1Arg)}));
+        query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{}, list<shared_ptr<WithClause>>{withClause});
         testParseNoError(tokens, query);
     }
 

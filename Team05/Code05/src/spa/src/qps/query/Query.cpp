@@ -17,6 +17,15 @@ list<shared_ptr<RelationshipClauseResult>> Query::executeSuchThatAndPattern(shar
 	return relationships;
 }
 
+list<shared_ptr<ClauseResult>> Query::executeWith(shared_ptr<PKBQueryHandler> pkb) {
+	list<shared_ptr<ClauseResult>> withResults;
+	list<shared_ptr<WithClause>>::iterator withIter = withClauses.begin();
+	for (; withIter != withClauses.end(); withIter++) {
+		withResults.push_back((*withIter)->execute(pkb));
+	}
+	return withResults;
+}
+
 bool operator==(Query first, Query second) {
 	shared_ptr<SelectClause> firstClause = first.selectClause;
 	shared_ptr<SelectClause> secondClause = second.selectClause;
