@@ -2,7 +2,7 @@
 
 set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pkb) {
 	list<ClauseResult> entitiesResults = dereferenceResults<ClauseResult>(query.executeSelect(pkb));
-	list<ClauseResult> relationshipsResults = dereferenceRelationshipResults(query.executeSuchThatAndPattern(pkb));
+	list<ClauseResult> relationshipsResults = dereferenceResults<RelationshipClauseResult>(query.executeSuchThatAndPattern(pkb));
 
 	// Empty lists indicate `Select BOOLEAN` with no constraint clauses, in which case just return TRUE
 	if (entitiesResults.empty() && relationshipsResults.empty()) {

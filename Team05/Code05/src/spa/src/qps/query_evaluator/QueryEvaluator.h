@@ -28,18 +28,10 @@ using namespace std;
 class QueryEvaluator {
 private:
 	template<class T>
-	list<T> dereferenceResults(list<shared_ptr<T>> entityResultPointers) {
+	list<ClauseResult> dereferenceResults(list<shared_ptr<T>> entityResultPointers) {
 		static_assert(is_base_of<ClauseResult, T>::value, "T must be a subclass of ClauseResult");
 		list<ClauseResult> results;
 		for (shared_ptr<ClauseResult> resultPointer : entityResultPointers) {
-			results.push_back(*resultPointer);
-		}
-		return results;
-	}
-
-	list<ClauseResult> dereferenceRelationshipResults(list<shared_ptr<RelationshipClauseResult>> relationshipResultPointers) {
-		list<ClauseResult> results;
-		for (shared_ptr<RelationshipClauseResult> resultPointer : relationshipResultPointers) {
 			results.push_back(*resultPointer);
 		}
 		return results;
