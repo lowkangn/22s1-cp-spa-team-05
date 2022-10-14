@@ -69,10 +69,3 @@ public:
 
     friend bool operator<(PQLEntity first, PQLEntity second);
 };
-
-template<> struct hash<PQLEntity> {
-	size_t operator()(PQLEntity entity) const noexcept {
-		// Can just use string since two different entities won't have the same string
-		return hash<string>{}(entity.toString());
-	}
-};
