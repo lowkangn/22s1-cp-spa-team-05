@@ -952,6 +952,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 		test(PKBTrackedRelationshipType::NEXT, lhs, rhs, expectedRelationships, toAdd);
 
 		// test 1b: both exact, one not inside -> no result
+		cout << "h";
 		lhs = ClauseArgument::createLineNumberArg("1");
 		rhs = ClauseArgument::createLineNumberArg("5");
 		expectedRelationships = {

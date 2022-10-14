@@ -696,11 +696,15 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 	Relationship alphaCallsTBeta = Relationship::createCallsTRelationship(procedureAlphaEntity, procedureBetaEntity);
 	Relationship mainCallsTBeta = Relationship::createCallsTRelationship(procedureMainEntity, procedureBetaEntity);
 
+	// create CallsAttribute Relationship
+	Relationship callAttribute1Alpha = Relationship::createCallStmtAttributeRelationship(callAlphaEntity, procedureAlphaEntity);
+	Relationship callAttribute4Beta = Relationship::createCallStmtAttributeRelationship(callBetaEntity, procedureBetaEntity);
+
 	vector<Relationship> expectedRelationships = vector<Relationship>{ readModifiesY, alphaModifiesY, assignModifiesY, betaModifiesY, 
 																	ifParentCall, ifParentPrint, ifParentTCall, ifParentTPrint, ifUsesY3, 
 																	ifUsesY5, printYUsesY5, alphaUsesY3, alphaUsesY5, assignUsesY6, 
-																	betaUsesY6, ifFollowsReadY, ifFollowsTReadY, mainCallsAlpha, 
-																	alphaCallsBeta, mainCallsTAlpha, alphaCallsTBeta, mainCallsTBeta };
+																	betaUsesY6, ifFollowsReadY, ifFollowsTReadY, mainCallsAlpha, callAttribute1Alpha,
+																	alphaCallsBeta, callAttribute4Beta, mainCallsTAlpha, alphaCallsTBeta, mainCallsTBeta };
 
 	vector<Pattern> expectedPatterns = vector<Pattern>{
 			Pattern::createIfPattern(3, "y"),
@@ -1279,24 +1283,24 @@ TEST_CASE("Test extractCFGRelations") {
 
 		vector<Relationship> expectedRelations = {
 			// main 1
-			Relationship::createNextRelationship(Entity::createStatementEntity(1),Entity::createStatementEntity(2)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(1),Entity::createStatementEntity(3)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(2),Entity::createStatementEntity(1)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(1),Entity::createReadEntity(2)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(1),Entity::createAssignEntity(3)),
+			Relationship::createNextRelationship(Entity::createReadEntity(2),Entity::createWhileEntity(1)),
 
 			// main2
-			Relationship::createNextRelationship(Entity::createStatementEntity(4),Entity::createStatementEntity(5)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(4),Entity::createStatementEntity(6)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(5),Entity::createStatementEntity(7)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(6),Entity::createStatementEntity(7)),
+			Relationship::createNextRelationship(Entity::createIfEntity(4),Entity::createReadEntity(5)),
+			Relationship::createNextRelationship(Entity::createIfEntity(4),Entity::createReadEntity(6)),
+			Relationship::createNextRelationship(Entity::createReadEntity(5),Entity::createPrintEntity(7)),
+			Relationship::createNextRelationship(Entity::createReadEntity(6),Entity::createPrintEntity(7)),
 
 			// main3
-			Relationship::createNextRelationship(Entity::createStatementEntity(8),Entity::createStatementEntity(9)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(9),Entity::createStatementEntity(10)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(9),Entity::createStatementEntity(12)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(10),Entity::createStatementEntity(11)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(10),Entity::createStatementEntity(13)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(11),Entity::createStatementEntity(10)),
-			Relationship::createNextRelationship(Entity::createStatementEntity(12),Entity::createStatementEntity(13)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(8),Entity::createIfEntity(9)),
+			Relationship::createNextRelationship(Entity::createIfEntity(9),Entity::createWhileEntity(10)),
+			Relationship::createNextRelationship(Entity::createIfEntity(9),Entity::createReadEntity(12)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(10),Entity::createPrintEntity(11)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(10),Entity::createCallEntity(13)),
+			Relationship::createNextRelationship(Entity::createPrintEntity(11),Entity::createWhileEntity(10)),
+			Relationship::createNextRelationship(Entity::createReadEntity(12),Entity::createCallEntity(13)),
 		};
 
 		test(program, expectedRelations);

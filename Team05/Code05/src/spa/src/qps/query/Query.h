@@ -5,6 +5,7 @@
 #include <qps/query/clause/SelectClause.h>
 #include <qps/query/clause/RelationshipClause.h>
 #include <qps/query/clause/PatternClause.h>
+#include <qps/query/clause/WithClause.h>
 #include <pkb/PKB.h>
 
 using namespace std;
@@ -40,8 +41,9 @@ private:
 public:
 
     /* Instantiates a Query object containing the clauses. */
-    Query(shared_ptr<SelectClause> select, list<shared_ptr<RelationshipClause>> relationships,
-		  list<shared_ptr<PatternClause>> patterns) {
+    Query(shared_ptr<SelectClause> select, 
+        list<shared_ptr<RelationshipClause>> relationships,
+        list<shared_ptr<PatternClause>> patterns) {
         selectClause = select;
         suchThatClauses = relationships;
 		patternClauses = patterns;

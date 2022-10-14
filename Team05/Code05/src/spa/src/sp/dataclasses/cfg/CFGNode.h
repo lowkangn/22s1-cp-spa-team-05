@@ -1,6 +1,8 @@
 #pragma once
 
 #include <sp/dataclasses/cfg/exceptions/CFGException.h>
+#include <sp/dataclasses/design_objects/Entity.h>
+
 #include <vector>
 #include <assert.h>
 #include <memory>
@@ -9,20 +11,21 @@
 using namespace std;
 
 class CFGNode {
+private:
+	Entity entity;
 protected:
-	CFGNode() {}
+	CFGNode() : entity(entity) {
+	}
 
-	CFGNode(int statementNumber) {
-		this->statementNumber = statementNumber;
+	CFGNode(Entity entity) : entity(entity) {
+		this->entity = entity;
 	}
 
 	vector<shared_ptr<CFGNode>> nextNodes;
 public:
 	// Default value for statementNumber is -1 which is also invalid
-	int statementNumber = -1;
-
-	static shared_ptr<CFGNode> createCFGNode(int statementNumber) {
-		return shared_ptr<CFGNode>(new CFGNode(statementNumber));
+	static shared_ptr<CFGNode> createCFGNode(Entity entity) {
+		return shared_ptr<CFGNode>(new CFGNode(entity));
 	}
 
 	vector<shared_ptr<CFGNode>> getChildren() {
@@ -51,7 +54,7 @@ public:
 		else {
 			for (int i = 0; i < this->nextNodes.size(); i++) {
 				// To prevent infinite recursion in the case of while
-				if (this->statementNumber < this->nextNodes[i]->statementNumber) {
+				if (this->entity.getLine() < this->nextNodes[i]->entity.getLine()) {
 					// Recursively check child node
 					if (!(this->nextNodes[i]->equals(other->nextNodes[i]))) {
 						return false;
@@ -59,17 +62,17 @@ public:
 				}
 				// It is a recursive case where the child node is pointing to a parent while
 				else {
-					if (!(this->nextNodes[i]->statementNumber == other->nextNodes[i]->statementNumber)) {
+					if (!(this->nextNodes[i]->getLineNumber() == other->nextNodes[i]->getLineNumber())) {
 						return false;
 					}
 				}
 			}
 		}
-		return this->statementNumber == other->statementNumber;
+		return this->entity == other->entity;
 	}
 
-	int hash() {
-		return this->statementNumber;
+	int getLineNumber() {
+		return this->entity.getLine();
 	}
 
 	virtual bool isIfNode() {
@@ -82,6 +85,10 @@ public:
 
 	virtual bool hasNext() {
 		return this->nextNodes.size() != 0;
+	}
+
+	Entity getEntity() {
+		return this->entity;
 	}
 
 	static shared_ptr<CFGNode> createCFGFromAdjacencyList(unordered_map<int, shared_ptr<CFGNode>>& cfgNodes, unordered_map<int, vector<int>> adjList, int rootIndex) {

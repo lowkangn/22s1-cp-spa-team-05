@@ -15,11 +15,12 @@ enum PkbRelationshipType {
 	MODIFIES,
 	CALLS,
 	CALLSSTAR,
+	CALLSTMTATTRIBUTE,
 	NEXT,
 	NEXTSTAR,
 	AFFECTS,
 	AFFECTSSTAR,
-
+	
 };
 
 class PkbRelationship {
@@ -59,6 +60,9 @@ public:
 	}
 	bool isModifies() {
 		return this->relationshipType == PkbRelationshipType::MODIFIES;
+	}
+	bool isCallStmtAttribute() {
+		return this->relationshipType == PkbRelationshipType::CALLSTMTATTRIBUTE;
 	}
 	bool isCalls() {
 		return this->relationshipType == PkbRelationshipType::CALLS;

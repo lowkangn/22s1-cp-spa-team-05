@@ -4,8 +4,9 @@
 #include <algorithm>
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/ClauseArgument.h>
+#include <qps/query/clause/ClauseResult.h>
 
-class EntityClauseResult {
+class EntityClauseResult : public ClauseResult {
 
 private:
     ClauseArgument arg;
@@ -25,9 +26,9 @@ public:
         return this->entities;
     }
 
-	bool hasArg(ClauseArgument argToFind) {
-		return this->arg == argToFind;
-	}
+    bool hasArg(ClauseArgument argToFind) {
+        return this->arg == argToFind;
+    }
 
     bool isEmpty() {
         return this->entities.empty();
