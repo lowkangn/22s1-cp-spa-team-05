@@ -9,12 +9,12 @@ using namespace std;
 
 class WhileCFGNode : public CFGNode {
 protected:
-	WhileCFGNode(int statementNumber) : CFGNode(statementNumber) {
+	WhileCFGNode(Entity entity) : CFGNode(entity) {
 
 	}
 public:
 	static shared_ptr<WhileCFGNode> createWhileCFGNode(int statementNumber) {
-		return shared_ptr<WhileCFGNode>(new WhileCFGNode(statementNumber));
+		return shared_ptr<WhileCFGNode>(new WhileCFGNode(Entity::createWhileEntity(statementNumber)));
 	}
 
 	shared_ptr<CFGNode> getNext() override {

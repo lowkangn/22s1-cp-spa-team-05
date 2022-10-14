@@ -550,9 +550,9 @@ TEST_CASE("Test extractCFGRelationships") {
 		}
 	*/
 	unordered_map<int, shared_ptr<CFGNode>> mainOneNodes = {
-		{1, CFGNode::createCFGNode(1)},
-		{2, CFGNode::createCFGNode(2)},
-		{3, CFGNode::createCFGNode(3)},
+		{1, CFGNode::createCFGNode(Entity::createAssignEntity(1))},
+		{2, CFGNode::createCFGNode(Entity::createAssignEntity(2))},
+		{3, CFGNode::createCFGNode(Entity::createPrintEntity(3))},
 	};
 
 	unordered_map<int, vector<int>> mainOneAdjList = {
@@ -574,13 +574,13 @@ TEST_CASE("Test extractCFGRelationships") {
 		}
 	*/
 	unordered_map<int, shared_ptr<CFGNode>> mainTwoNodes = {
-	{4, IfCFGNode::createCFGNode(4)},
+	{4, IfCFGNode::createIfCFGNode(4)},
 	// Then
-	{5, CFGNode::createCFGNode(5)},
+	{5, CFGNode::createCFGNode(Entity::createAssignEntity(5))},
 	// Else
-	{6, CFGNode::createCFGNode(6)},
+	{6, CFGNode::createCFGNode(Entity::createAssignEntity(6))},
 	// Outside If
-	{7, CFGNode::createCFGNode(7)},
+	{7, CFGNode::createCFGNode(Entity::createReadEntity(7))},
 	};
 
 	unordered_map<int, vector<int>> mainTwoAdjList = {
@@ -603,11 +603,11 @@ TEST_CASE("Test extractCFGRelationships") {
 		}
 	*/
 	unordered_map<int, shared_ptr<CFGNode>> mainThreeNodes = {
-		{8, WhileCFGNode::createCFGNode(8)},
-		{9, CFGNode::createCFGNode(9)},
-		{10, CFGNode::createCFGNode(10)},
+		{8, WhileCFGNode::createWhileCFGNode(8)},
+		{9, CFGNode::createCFGNode(Entity::createPrintEntity(9))},
+		{10, CFGNode::createCFGNode(Entity::createCallEntity(10))},
 		// Outside While
-		{11, CFGNode::createCFGNode(11)},
+		{11, CFGNode::createCFGNode(Entity::createAssignEntity(11))},
 	};
 
 	unordered_map<int, vector<int>> mainThreeAdjList = {
@@ -625,16 +625,18 @@ TEST_CASE("Test extractCFGRelationships") {
 	};
 
 	vector<Relationship> expectedRelations = {
-		Relationship::createNextRelationship(Entity::createStatementEntity(1), Entity::createStatementEntity(2)),
-		Relationship::createNextRelationship(Entity::createStatementEntity(2), Entity::createStatementEntity(3)),
-		Relationship::createNextRelationship(Entity::createStatementEntity(4), Entity::createStatementEntity(5)),
-		Relationship::createNextRelationship(Entity::createStatementEntity(4), Entity::createStatementEntity(6)),
-		Relationship::createNextRelationship(Entity::createStatementEntity(5), Entity::createStatementEntity(7)),
-		Relationship::createNextRelationship(Entity::createStatementEntity(6), Entity::createStatementEntity(7)),
-		Relationship::createNextRelationship(Entity::createStatementEntity(8), Entity::createStatementEntity(9)),
-		Relationship::createNextRelationship(Entity::createStatementEntity(8), Entity::createStatementEntity(11)),
-		Relationship::createNextRelationship(Entity::createStatementEntity(9), Entity::createStatementEntity(10)),
-		Relationship::createNextRelationship(Entity::createStatementEntity(10), Entity::createStatementEntity(8)),
+		Relationship::createNextRelationship(Entity::createAssignEntity(1), Entity::createAssignEntity(2)),
+		Relationship::createNextRelationship(Entity::createAssignEntity(2), Entity::createPrintEntity(3)),
+
+		Relationship::createNextRelationship(Entity::createIfEntity(4), Entity::createAssignEntity(5)),
+		Relationship::createNextRelationship(Entity::createIfEntity(4), Entity::createAssignEntity(6)),
+		Relationship::createNextRelationship(Entity::createAssignEntity(5), Entity::createReadEntity(7)),
+		Relationship::createNextRelationship(Entity::createAssignEntity(6), Entity::createReadEntity(7)),
+
+		Relationship::createNextRelationship(Entity::createWhileEntity(8), Entity::createPrintEntity(9)),
+		Relationship::createNextRelationship(Entity::createWhileEntity(8), Entity::createAssignEntity(11)),
+		Relationship::createNextRelationship(Entity::createPrintEntity(9), Entity::createCallEntity(10)),
+		Relationship::createNextRelationship(Entity::createCallEntity(10), Entity::createWhileEntity(8)),
 	};
 
 	test(nodesToExtractFrom, expectedRelations);
