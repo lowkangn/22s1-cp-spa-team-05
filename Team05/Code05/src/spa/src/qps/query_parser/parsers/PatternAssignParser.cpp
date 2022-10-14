@@ -38,14 +38,14 @@ vector<ClauseArgument> PatternAssignParser::extractArguments() {
 	vector<ClauseArgument> output;
 
 	// get first arg
-	ClauseArgument firstArg = parseOneArgument();
+	ClauseArgument firstArg = parseOneStmtRefOrEntRef();
 	output.push_back(firstArg);
 
 	// check '('
 	consumeOpenBracket();
 
 	// get second arg
-	ClauseArgument secondArg = parseOneArgument();
+	ClauseArgument secondArg = parseOneStmtRefOrEntRef();
 	output.push_back(secondArg);
 
 	// check ','

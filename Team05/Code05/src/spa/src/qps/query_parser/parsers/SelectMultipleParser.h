@@ -13,6 +13,9 @@ private:
 	/* Returns true if the clauseTypeToken matches the clause that the Parser parses */
 	bool isCorrectClauseType(PQLToken clauseTypeToken) override;
 
+	/* Parses one entry in the tuple of the Select Multiple clause. */
+	void parseOneEntry(list<ClauseArgument>& argumentListToAddTo);
+
 	/* Consumes the angled open bracket token. */
 	void consumeAngledOpenBracket() {
 		if (this->tokens.empty() || !this->tokens.front().isAngledOpenBracket()) {

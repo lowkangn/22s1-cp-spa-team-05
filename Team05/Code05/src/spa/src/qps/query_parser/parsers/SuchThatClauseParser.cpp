@@ -17,11 +17,11 @@ list<ClauseArgument> SuchThatClauseParser::extractArguments() {
 	consumeOpenBracket();
 
 	// get first arg and check ','
-	ClauseArgument firstArg = parseOneArgument();
+	ClauseArgument firstArg = parseOneStmtRefOrEntRef();
 	consumeComma();
 
 	// get second arg and check ')'
-	ClauseArgument secondArg = parseOneArgument();
+	ClauseArgument secondArg = parseOneStmtRefOrEntRef();
 	consumeCloseBracket();
 	
 	return list<ClauseArgument>{firstArg, secondArg};

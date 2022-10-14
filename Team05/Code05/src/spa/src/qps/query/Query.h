@@ -50,7 +50,7 @@ public:
     }
 
     /* Returns the results obtained from the query's SelectClause. */
-    list<shared_ptr<EntityClauseResult>> executeSelect(shared_ptr<PKBQueryHandler> pkb);
+    list<shared_ptr<ClauseResult>> executeSelect(shared_ptr<PKBQueryHandler> pkb);
 
 	/* Returns the results obtained from the query's SuchThat and Pattern clauses. */
 	list<shared_ptr<RelationshipClauseResult>> executeSuchThatAndPattern(shared_ptr<PKBQueryHandler> pkb);

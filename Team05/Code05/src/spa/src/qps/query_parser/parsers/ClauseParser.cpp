@@ -1,7 +1,10 @@
 #include <qps/query_parser/parsers/ClauseParser.h>
 
 ClauseArgument ClauseParser::parseSynonym() {
-    PQLToken synonymToken = this->tokens.front();
+	PQLToken synonymToken = this->tokens.front();
+	if (!synonymToken.isName()) {
+		throw PQLSyntaxError("Synonym expected, got: " + synonymToken.getTokenString());
+	}
 	this->tokens.pop_front();
     if (declarations.count(synonymToken.getTokenString()) == 0) {
 		this->semanticErrorMessage = "Synonym not declared: " + synonymToken.getTokenString();
@@ -10,7 +13,7 @@ ClauseArgument ClauseParser::parseSynonym() {
     return ClauseArgument::createArgument(synonymToken.getTokenString(), declarations.at(synonymToken.getTokenString()));
 }
 
-ClauseArgument ClauseParser::parseOneArgument() {
+ClauseArgument ClauseParser::parseOneStmtRefOrEntRef() {
 	PQLToken token = this->tokens.front();
 	if (token.isName()) {
 		return parseSynonym();
@@ -30,20 +33,23 @@ ClauseArgument ClauseParser::parseOneArgument() {
 }
 
 ClauseArgument ClauseParser::parseStringLiteral() {
-	// Ignore '"' token
+	// Check '"' token
+	PQLToken token = this->tokens.front();
+	if (!token.isQuote()) {
+		throw PQLSyntaxError("Quotation mark expected, got: " + token.getTokenString());
+	}
 	this->tokens.pop_front();
 
-	PQLToken token = this->tokens.front();
+	token = this->tokens.front();
 	if (!token.isName()) {
 		throw PQLSyntaxError("Expected name in quotes, got: " + token.getTokenString());
 	}
 	this->tokens.pop_front();
 
+	// Check '"' token
 	if (this->tokens.empty() || !this->tokens.front().isQuote()) {
 		throw PQLSyntaxError("Expected closing quote");
 	}
-
-	// Ignore '"' token
 	this->tokens.pop_front();
 
 	return ClauseArgument::createStringLiteralArg(token.getTokenString());
@@ -51,12 +57,18 @@ ClauseArgument ClauseParser::parseStringLiteral() {
 
 ClauseArgument ClauseParser::parseStatementNumber() {
 	PQLToken stmtNumToken = this->tokens.front();
+	if (!stmtNumToken.isInteger()) {
+		throw PQLSyntaxError("Integer expected, got: " + stmtNumToken.getTokenString());
+	}
 	this->tokens.pop_front();
 	return ClauseArgument::createLineNumberArg(stmtNumToken.getTokenString());
 }
 
 ClauseArgument ClauseParser::parseWildcard() {
 	PQLToken wildCardToken = this->tokens.front();
+	if (!wildCardToken.isUnderscore()) {
+		throw PQLSyntaxError("Wildcard expected, got: " + wildCardToken.getTokenString());
+	}
 	this->tokens.pop_front();
 	return ClauseArgument::createWildcardArg();
 }
