@@ -14,9 +14,6 @@ private:
 	ClauseArgument exactArg;
 	vector<ClauseArgument> nonExactArgs;
 
-	/* Gets the PKBTrackedStatementType corresponding to the synonym */
-	PKBTrackedStatementType getPKBStmtType(ClauseArgument& stmtSynonymArg);
-
 	/* Executes the clause when nonExactArgs is a statement with a name attribute (e.g. print.varName)*/
 	shared_ptr<ClauseResult> executeForStmtWithNameAttribute(shared_ptr<PKBQueryHandler> pkb);
 

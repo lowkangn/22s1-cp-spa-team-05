@@ -255,6 +255,10 @@ public:
 		return (this->isLineNumber() || this->isStringLiteral());	
 	}
 
+	bool isSameType(ClauseArgument other) {
+		return this->type == other.type;
+	}
+
 	friend bool operator== (ClauseArgument first, ClauseArgument second);
 
 	friend bool operator!= (ClauseArgument first, ClauseArgument second);

@@ -13,6 +13,16 @@ private:
     vector<PQLEntity> entities;
 
 public:
+
+    static EntityClauseResult createNonEmptyNoSynonymResult() {
+        vector<PQLEntity> nonEmptyDummyEntities{ PQLEntity::generateConstant(0) };
+        return EntityClauseResult(ClauseArgument::createWildcardArg(), nonEmptyDummyEntities);
+    }
+
+    static EntityClauseResult createEmptyNoSynonymResult() {
+        return EntityClauseResult(ClauseArgument::createWildcardArg(), vector<PQLEntity>{});
+    }
+    
     EntityClauseResult(ClauseArgument arg, vector<PQLEntity> entities) : arg(arg), entities(entities) {
         this->arg = arg;
         this->entities = entities;

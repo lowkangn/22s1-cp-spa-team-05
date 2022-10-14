@@ -121,30 +121,13 @@ shared_ptr<WithClause> WithParser::createWithClause(vector<ClauseArgument>& lhsA
 	if (lhsArgs.size() == 2 && rhsArgs.size() == 2) {
 		return make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
 	}
-	
+
 	ClauseArgument exactArg = lhsArgs.size() == 1 ? lhsArgs.front() : rhsArgs.front();
 	vector<ClauseArgument> nonExactArgs = lhsArgs.size() == 2 ? lhsArgs : rhsArgs;
 	assert(exactArg.isExactReference() && nonExactArgs.front().isSynonym() && nonExactArgs.back().isAttributeName());
 
 	return make_shared<WithOneExactClause>(exactArg, nonExactArgs);
 
-}
-
-bool WithParser::isNonDefaultAttribute(vector<ClauseArgument>& args) {
-	ClauseArgument syn = args.front();
-	ClauseArgument attribute = args.back();
-	if (syn.isCallSynonym() && attribute.isProcNameAttribute()) {
-		return true;
-	}
-	else if (syn.isReadSynonym() && attribute.isVarNameAttribute()) {
-		//equivalent to ModifiesS with syn as lhs
-		return true;
-	}
-	else if (syn.isPrintSynonym() && attribute.isVarNameAttribute()) {
-		//equivalent to UsesS with syn as lhs
-		return true;
-	}
-	return false;
 }
 
 void WithParser::consumeDot() {

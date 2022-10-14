@@ -7,7 +7,11 @@
 #include <pkb/interfaces/PKBQueryHandler.h>
 
 class WithClause {
-private:
+protected:
+
+	/* Gets the PKBTrackedStatementType corresponding to the synonym */
+	PKBTrackedStatementType getPKBStmtType(ClauseArgument& stmtSynonymArg);
+
 public:
 
 	WithClause() {}
