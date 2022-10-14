@@ -4,7 +4,7 @@ shared_ptr<ClauseResult> WithNoExactClause::execute(shared_ptr<PKBQueryHandler> 
 	if (this->lhsSynonym == this->rhsSynonym && this->lhsAttribute == this->rhsAttribute) {
 		return this->handleBothSidesEqual();
 	} 
-	else if (this->lhsSynonym.isStmtRefNoWildcard() && this->rhsSynonym.isStmtRefNoWildcard()) {
+	else if (this->lhsAttribute.isStmtNumAttribute() && this->rhsAttribute.isStmtNumAttribute()) {
 		return this->handleBothSidesStmtNumAttribute(pkb);
 	} 
 
@@ -15,10 +15,8 @@ shared_ptr<ClauseResult> WithNoExactClause::execute(shared_ptr<PKBQueryHandler> 
 	// Evaluate the '='
 	ClauseArgument leftOn = this->getEqualityCheckColumn(this->lhsSynonym, this->lhsAttribute);
 	ClauseArgument rightOn = this->getEqualityCheckColumn(this->rhsSynonym, this->rhsAttribute);
-	//ClauseResult finalResult = lhsResult->mergeByForceInnerJoin(*rhsResult, leftOn, rightOn);
-	//return make_shared<ClauseResult>(finalResult);
-
-	return make_shared<RelationshipClauseResult>(lhsSynonym, rhsSynonym, vector<PQLRelationship>{});
+	ClauseResult finalResult = lhsResult->mergeByForceInnerJoin(*rhsResult, leftOn, rightOn);
+	return make_shared<ClauseResult>(finalResult);
 }
 
 shared_ptr<EntityClauseResult> WithNoExactClause::handleBothSidesEqual() {
@@ -35,12 +33,10 @@ shared_ptr<ClauseResult> WithNoExactClause::handleBothSidesStmtNumAttribute(shar
 		return make_shared<EntityClauseResult>(EntityClauseResult::createEmptyNoSynonymResult());
 	}
 
-	
+	// If both sides are the same type, we only need to retrieve either side. If one side is a stmt synonym, it suffices to retrieve the other side.
 	ClauseArgument synonymToGet = lhsSynonym;
 	ClauseArgument otherSynonym = lhsSynonym;
-
-	// If both sides are the same type, we only need to retrieve either side. If one side is a stmt synonym, it suffices to retrieve the other side.
-	if (this->lhsSynonym.isSameType(this->rhsSynonym) || this->lhsSynonym.isStmtSynonym()) {
+	if (this->lhsSynonym.isStmtSynonym()) {
 		synonymToGet = rhsSynonym;
 		otherSynonym = lhsSynonym;
 	}
@@ -53,46 +49,8 @@ shared_ptr<ClauseResult> WithNoExactClause::handleBothSidesStmtNumAttribute(shar
 
 	EntityClauseResult synonymToGetResult = EntityClauseResult(synonymToGet, retrievedEntities);
 	EntityClauseResult stmtSynonymResult = EntityClauseResult(otherSynonym, retrievedEntities);
-	//ClauseResult finalResult = synonymToGetResult.mergeByForceInnerJoin(stmtSynonymResult, synonymToGet, otherSynonym);
-	//return make_shared<ClauseResult>(finalResult);
-	
-	/*
-	* 
-	Merges this ClauseResult with another ClauseResult by performing an inner join on the given join columns.
-	Throws PQLLogicError if a join column is not present in either ClauseResult.
-	ClauseResult mergeByForceInnerJoin(ClauseResult resultToMerge, ClauseArgument leftOn, ClauseArgument rightOn) {
-		bool leftHasArg = find(this->args.begin(), this->args.end(), leftOn) == this->args.end();
-		bool rightHasArg = find(resultToMerge.args.begin(), resultToMerge.args.end(), rightOn) == resultToMerge.args.end();
-		if (!leftHasArg || !rightHasArg) {
-			throw PQLLogicError("ClauseResults must have the columns to force inner join on");
-		}
-		resultToMerge.duplicateExistingColumnAs(rightOn, leftOn);
-		return this->performInnerJoin(resultToMerge, vector<ClauseArgument>{ leftOn });
-	}
-
-	//PROTECTED
-
-	Duplicates an existing column of this ClauseResult and renames it to the newColumnHeader.
-	ClauseResult duplicateExistingColumnAs(ClauseArgument headerOfColumnToDuplicate, ClauseArgument newColumnHeader) {
-		vector<int> indices = this->getColumnIndices(vector<ClauseArgument>{ headerOfColumnToDuplicate });
-		assert(indices.size() == 1 && indices.front() != -1); //column must be an existing column
-		
-		ClauseResult columnToDuplicate = this->getColumn(indices.front());
-		columnToDuplicate.renameColumn(headerOfColumnToDuplicate, newColumnHeader);
-		this->addColumn(columnToDuplicate);
-	}
-
-	Renames columns currently named oldName to newName
-	void renameColumn(ClauseArgument oldName, ClauseArgument newName) {
-		replace(args.begin(), args.end(), oldName, newName);
-	}
-	*/
-	vector<PQLRelationship> entitiesDuplicated;
-	for (PQLEntity entity : retrievedEntities) {
-		entitiesDuplicated.push_back(PQLRelationship(entity, entity));
-	}
-
-	return make_shared<RelationshipClauseResult>(synonymToGet, otherSynonym, entitiesDuplicated);
+	ClauseResult finalResult = synonymToGetResult.mergeByForceInnerJoin(stmtSynonymResult, synonymToGet, otherSynonym);
+	return make_shared<ClauseResult>(finalResult);
 }
 
 shared_ptr<ClauseResult> WithNoExactClause::retrieveForOneAttrRef(shared_ptr<PKBQueryHandler> pkb,

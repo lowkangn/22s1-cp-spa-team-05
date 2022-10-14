@@ -253,12 +253,14 @@ namespace {
 	vector<Entity> allEntities({ mainEntity, r1Entity, y1Entity, a2Entity, x2Entity, y2Entity, whileEntity, xCondEntity,
 		zeroConstEntity, print4Entity, z4Entity, a5Entity, x5LhsEntity, x5RhsEntity, oneConstEntity, ifEntity, yCondEntity,
 		fiveConstEntity, print7Entity, y7Entity, r8Entity, z8Entity, zProcedureEntity, print9Entity, z9Entity, r10Entity,
-		b10Entity, call11Entity, call12Entity, call13Entity });
+		b10Entity, call11Entity, call12Entity, yProcedureEntity, call13Entity });
 
 	vector<Relationship> allRelationships({ usesMainY2, usesMainXCond, usesMainZ4, usesMainX5, usesMainYCond, usesMainY7,
 		usesA2Y2, usesA5X5, usesW3XCond, usesW3Z4, usesW3X5, usesIf6YCond, usesIf6Y7, usesP4Z4, usesP7Y7, usesZProcedureZ9,
-		usesP9Z9, modifiesMainY1, modifiesMainX2, modifiesMainX5, modifiesMainZ8, modifiesA2X2, modifiesA5X5, modifiesW3X5,
-		modifiesIf6Z8, modifiesR1Y1, modifiesR8Z8, modifiesZProcedureB10, modifiesR10B10, });
+		usesP9Z9, 
+		modifiesMainY1, modifiesMainX2, modifiesMainX5, modifiesMainZ8, modifiesA2X2, modifiesA5X5, modifiesW3X5,
+		modifiesIf6Z8, modifiesR1Y1, modifiesR8Z8, modifiesZProcedureB10, modifiesR10B10, 
+		callAttrC11Main, callAttrC12Y,callAttrC13Main,});
 };
 
 // =============== UNIT TESTS ====================
@@ -372,13 +374,8 @@ TEST_CASE("WithNoExactClause: test execute - both sides stmtRefSynonym.stmt#") {
 			// when
 			shared_ptr<ClauseResult> resPtr = withNoExactClause.execute(pkb);
 
-
-			/////=========================TODOOOOOOOOOO=======================
-			// 
-			// 
-			// 
 			// then
-			//REQUIRE(resPtr->equals(expectedResult));
+			REQUIRE(resPtr->equals(expectedResult));
 	};
 
 	// ------ PKB ------ 
@@ -409,65 +406,75 @@ TEST_CASE("WithNoExactClause: test execute - both sides stmtRefSynonym.stmt#") {
 		}
 	}
 
-	/*
+	
 	SECTION("Non-empty result (at least one side is a stmt synonym)") {
 		vector<ClauseArgument> stmtArgSide{ stmtArg, stmtStmtNumAttributeArg };
+
 		ClauseArgument secondStmtArg = ClauseArgument::createStmtArg("ssss2");
 		ClauseArgument secondStmtStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(secondStmtArg);
 		vector<ClauseArgument> otherArgSide{ secondStmtArg, secondStmtStmtNumAttributeArg };
 		Table expectedTable{
 			{pqlR1, pqlR1}, {pqlA2, pqlA2}, {pqlW3, pqlW3}, {pqlP4, pqlP4}, {pqlA5, pqlA5},
-			{pqlI6, pqlI6}, {pqlP7, pqlP7}, {pqlR8, pqlR8}, {pqlP9, pqlP9}, {pqlR10, pqlR10}, 
-			{pqlC11, pqlC11}, {pqlC12, pqlC12}, {pqlC13, pqlC13}, 
+			{pqlI6, pqlI6}, {pqlP7, pqlP7}, {pqlR8, pqlR8}, {pqlP9, pqlP9}, {pqlR10, pqlR10},
+			{pqlC11, pqlC11}, {pqlC12, pqlC12}, {pqlC13, pqlC13},
 		};
-		vector<ClauseArgument> columnHeaders = { secondStmtArg, stmtArg }
+		vector<ClauseArgument> columnHeaders = { secondStmtArg, stmtArg };
 		shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
 		WithNoExactClause clause = WithNoExactClause(stmtArgSide, otherArgSide);
 		testExecute(clause, expected, pkb);
 	
 		otherArgSide = { printArg, printStmtNumAttributeArg };
-		expectedTable = { {pqlP4, pqlP7, pqlP9, };
-		expected = make_shared<EntityClauseResult>(printArg, expectedRetrievedFromPkb);
+		expectedTable = { {pqlP4, pqlP4}, {pqlP7, pqlP7}, {pqlP9, pqlP9}, }; 
+		columnHeaders = { printArg, stmtArg };
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
 		clause = WithNoExactClause(stmtArgSide, otherArgSide);
 		testExecute(clause, expected, pkb);
 		
 		otherArgSide = { readArg, readStmtNumAttributeArg };
-		expectedRetrievedFromPkb = { pqlR1, pqlR8, pqlR10, };
-		expected = make_shared<EntityClauseResult>(readArg, expectedRetrievedFromPkb);
+		expectedTable = { {pqlR1, pqlR1}, {pqlR8, pqlR8},{pqlR10, pqlR10} };
+		columnHeaders = { readArg, stmtArg };
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
 		clause = WithNoExactClause(otherArgSide, stmtArgSide);
 		testExecute(clause, expected, pkb);
 	
 		otherArgSide = { callArg, callStmtNumAttributeArg };
-		expectedRetrievedFromPkb = { pqlC11, pqlC12, pqlC13, };
-		expected = make_shared<EntityClauseResult>(callArg, expectedRetrievedFromPkb);
+		expectedTable = { {pqlC11, pqlC11}, {pqlC12, pqlC12}, {pqlC13, pqlC13}, };
+		columnHeaders = { callArg, stmtArg };
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
 		clause = WithNoExactClause(otherArgSide, stmtArgSide);
 		testExecute(clause, expected, pkb);
 
 		otherArgSide = { whileArg, whileStmtNumAttributeArg };
-		expectedRetrievedFromPkb = { pqlW3, };
-		expected = make_shared<EntityClauseResult>(whileArg, expectedRetrievedFromPkb);
+		expectedTable = { {pqlW3, pqlW3}, };
+		columnHeaders = { whileArg, stmtArg };
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
 		clause = WithNoExactClause(stmtArgSide, otherArgSide);
 		testExecute(clause, expected, pkb);
 
 		otherArgSide = { ifArg, ifStmtNumAttributeArg };
-		expectedRetrievedFromPkb = { pqlI6, };
-		expected = make_shared<EntityClauseResult>(ifArg, expectedRetrievedFromPkb);
+		expectedTable = { {pqlI6, pqlI6}, };
+		columnHeaders = { ifArg, stmtArg };
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
 		clause = WithNoExactClause(otherArgSide, stmtArgSide);
 		testExecute(clause, expected, pkb);
+
 	}
 	
 	SECTION("Non-empty result (same statement type, different synonym)") {
 		vector<ClauseArgument> lhsArgs{ assignArg, assignStmtNumAttributeArg };
+
 		ClauseArgument secondAssignArg = ClauseArgument::createAssignArg("aaaa2");
 		ClauseArgument secondAssignStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(secondAssignArg);
-		vector<ClauseArgument> otherArgSide{ secondAssignArg, secondAssignStmtNumAttributeArg };
+		vector<ClauseArgument> rhsArgs{ secondAssignArg, secondAssignStmtNumAttributeArg };
+
 		Table expectedTable{ {pqlA2, pqlA2}, {pqlA5, pqlA5}, };
-		vector<ClauseArgument> columnHeaders = { assignArg, secondAssignArg }
+		vector<ClauseArgument> columnHeaders = { assignArg, secondAssignArg };
 		shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
-		WithNoExactClause clause = WithNoExactClause(stmtArgSide, otherArgSide);
+
+		WithNoExactClause clause = WithNoExactClause(lhsArgs, rhsArgs);
 		testExecute(clause, expected, pkb);
 	}
-	*/
+	
 }
 
 TEST_CASE("WithNoExactClause: test execute - the rest") {
@@ -486,7 +493,7 @@ TEST_CASE("WithNoExactClause: test execute - the rest") {
 			// 
 			// 
 			// then
-			//REQUIRE(resPtr->equals(expectedResult));
+			REQUIRE(resPtr->equals(expectedResult));
 	};
 
 	// ------ PKB ------ 
@@ -503,10 +510,9 @@ TEST_CASE("WithNoExactClause: test execute - the rest") {
 		vector<ClauseArgument> columnHeaders = { procedureArg, secondSameTypeArg };
 
 		WithNoExactClause clause = WithNoExactClause(lhsArgs, rhsArgs);
-		//Table expectedTable{ { pqlProcMain, pqlProcMain }, { pqlProcY, pqlProcY }, { pqlProcZ, pqlProcZ } };
-		//shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
-		//testExecute(clause, expected, pkb);
-
+		Table expectedTable{ { pqlProcMain, pqlProcMain }, { pqlProcZ, pqlProcZ }, { pqlProcY, pqlProcY } };
+		shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
+		testExecute(clause, expected, pkb);
 
 		lhsArgs = { variableArg, variableVarNameAttributeArg };
 		secondSameTypeArg = ClauseArgument::createVariableArg("secondVariable");
@@ -514,10 +520,10 @@ TEST_CASE("WithNoExactClause: test execute - the rest") {
 		rhsArgs = { secondSameTypeArg, secondSameTypeArgSameAttributeArg };
 		columnHeaders = { variableArg, secondSameTypeArg };
 
-		WithNoExactClause clause = WithNoExactClause(lhsArgs, rhsArgs);
-		//Table expectedTable{ { pqlVarB, pqlVarB }, { pqlVarX, pqlVarX }, { pqlVarY, pqlVarY }, { pqlVarZ, pqlVarZ } };
-		//shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
-		//testExecute(clause, expected, pkb);
+		clause = WithNoExactClause(lhsArgs, rhsArgs);
+		expectedTable = { { pqlVarY, pqlVarY }, { pqlVarX, pqlVarX }, { pqlVarB, pqlVarB }, { pqlVarZ, pqlVarZ } };
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
+		testExecute(clause, expected, pkb);
 
 
 		lhsArgs = { constantArg, constantValueAttributeArg };
@@ -526,10 +532,10 @@ TEST_CASE("WithNoExactClause: test execute - the rest") {
 		rhsArgs = { secondSameTypeArg, secondSameTypeArgSameAttributeArg };
 		columnHeaders = { constantArg, secondSameTypeArg };
 
-		WithNoExactClause clause = WithNoExactClause(lhsArgs, rhsArgs);
-		//Table expectedTable{ { pqlConstZero, pqlConstZero }, { pqlConstOne, pqlConstOne }, { pqlConstFive, pqlConstFive } };
-		//shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
-		//testExecute(clause, expected, pkb);
+		clause = WithNoExactClause(lhsArgs, rhsArgs);
+		expectedTable = { { pqlConstZero, pqlConstZero }, { pqlConstOne, pqlConstOne }, { pqlConstFive, pqlConstFive } };
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
+		testExecute(clause, expected, pkb);
 	}
 
 	SECTION("Different types (names)") {
@@ -537,42 +543,45 @@ TEST_CASE("WithNoExactClause: test execute - the rest") {
 		vector<ClauseArgument> rhsArgs{ variableArg, variableVarNameAttributeArg };
 		vector<ClauseArgument> columnHeaders{ procedureArg, variableArg };
 		WithNoExactClause clause = WithNoExactClause(lhsArgs, rhsArgs);
-		//Table expectedTable{ { { pqlProcY, pqlVarY }, { pqlProcZ, pqlVarZ } };
-		//shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
-		//testExecute(clause, expected, pkb);
+		Table expectedTable{ 
+			{ pqlProcY, pqlVarY }, 
+			{ pqlProcZ, pqlVarZ } 
+		};
+		shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
+		testExecute(clause, expected, pkb);
 
 		lhsArgs = { procedureArg, procedureProcNameAttributeArg };
 		rhsArgs = { readArg, readVarNameAttributeArg };
 		columnHeaders = { procedureArg, readArg, readVarNameAttributeArg };
 		clause = WithNoExactClause(lhsArgs, rhsArgs);
-		//Table expectedTable{ 
-		//	{ pqlProcY, pqlR1, pqlVarY }, 
-		//	{ pqlProcZ, pqlR8, pqlVarZ },
-		//};
-		//shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
-		//testExecute(clause, expected, pkb);
+		expectedTable = { 
+			{ pqlProcY, pqlR1, pqlVarY }, 
+			{ pqlProcZ, pqlR8, pqlVarZ },
+		};
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
+		testExecute(clause, expected, pkb);
 		
 		lhsArgs = { printArg, printVarNameAttributeArg };
 		rhsArgs = { readArg, readVarNameAttributeArg };
 		columnHeaders = { printArg, printVarNameAttributeArg, readArg, readVarNameAttributeArg };
 		clause = WithNoExactClause(lhsArgs, rhsArgs);
-		//Table expectedTable{ 
-		//	{ pqlP7, pqlVarY, pqlR1, pqlVarY },
-		//  { pqlP4, pqlVarZ, pqlR8, pqlVarZ },
-		//  { pqlP9, pqlVarZ, pqlR8, pqlVarZ },
-		//};
-		//shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
-		//testExecute(clause, expected, pkb);
+		expectedTable = { 
+			{ pqlP7, pqlVarY, pqlR1, pqlVarY },
+			{ pqlP4, pqlVarZ, pqlR8, pqlVarZ },
+			{ pqlP9, pqlVarZ, pqlR8, pqlVarZ },
+		};
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
+		testExecute(clause, expected, pkb);
 
 		lhsArgs = { callArg, callProcNameAttributeArg };
 		rhsArgs = { printArg, printVarNameAttributeArg };
 		columnHeaders = { callArg, callProcNameAttributeArg, printArg, printVarNameAttributeArg };
 		clause = WithNoExactClause(lhsArgs, rhsArgs);
-		//Table expectedTable{ 
-		//	{ pqlC12, pqlProcY, pqlP7, pqlVarY },
-		//};
-		//shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
-		//testExecute(clause, expected, pkb);
+		expectedTable = { 
+			{ pqlC12, pqlProcY, pqlP7, pqlVarY },
+		};
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
+		testExecute(clause, expected, pkb);
 	}
 
 	SECTION("Different types (integers)") {
@@ -581,30 +590,29 @@ TEST_CASE("WithNoExactClause: test execute - the rest") {
 		vector<ClauseArgument> columnHeaders{ constantArg, stmtArg };
 		WithNoExactClause clause = WithNoExactClause(lhsArgs, rhsArgs);
 
-		//Table expectedTable{ { 
-		// { pqlConstFive, pqlA5 }, 
-		// { pqlConstOne, pqlR1 },
-		// };
-		//shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
-		//testExecute(clause, expected, pkb);
+		Table expectedTable{
+			{ pqlConstOne, pqlR1 },
+			{ pqlConstFive, pqlA5 },
+		};
+		shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
+		testExecute(clause, expected, pkb);
 
 		lhsArgs = { ifArg, ifStmtNumAttributeArg };
 		rhsArgs = { constantArg, constantValueAttributeArg };
 		columnHeaders = { ifArg, constantArg, };
 		clause = WithNoExactClause(lhsArgs, rhsArgs);
-		//Table expectedTable{};
-		//shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
-		//testExecute(clause, expected, pkb);
+		expectedTable = {};
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
+		testExecute(clause, expected, pkb);
 
 		lhsArgs = { assignArg, assignStmtNumAttributeArg };
 		rhsArgs = { constantArg, constantValueAttributeArg };
 		columnHeaders = { assignArg, constantArg, };
 		clause = WithNoExactClause(lhsArgs, rhsArgs);
-		//Table expectedTable{ 
-		//	{ pqlA5, pqlConstFive },
-		//};
-		//shared_ptr<ClauseResult> expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
-		//testExecute(clause, expected, pkb);
-
+		expectedTable = { 
+			{ pqlA5, pqlConstFive },
+		};
+		expected = make_shared<ClauseResult>(columnHeaders, expectedTable);
+		testExecute(clause, expected, pkb);
 	}
 }

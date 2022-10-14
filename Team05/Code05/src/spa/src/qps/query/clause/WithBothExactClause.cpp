@@ -10,7 +10,7 @@ shared_ptr<ClauseResult> WithBothExactClause::execute(shared_ptr<PKBQueryHandler
 		return make_shared<EntityClauseResult>(this->lhs, vector<PQLEntity>{});
 	}
 
-	return make_shared<EntityClauseResult>(EntityClauseResult::createNonEmptyNoSynonymResult);
+	return make_shared<EntityClauseResult>(EntityClauseResult::createNonEmptyNoSynonymResult());
 }
 
 bool WithBothExactClause::equals(shared_ptr<WithClause> other) {

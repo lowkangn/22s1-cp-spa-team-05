@@ -84,14 +84,14 @@ TEST_CASE("WithBothExactClause: test execute") {
 	ClauseArgument secondStringArg = ClauseArgument::createStringLiteralArg("notfirst");
 
 	SECTION("Non-empty results") {
+		EntityClauseResult expectedClauseResult = EntityClauseResult::createNonEmptyNoSynonymResult();
+
 		WithBothExactClause clause = WithBothExactClause(integer1Arg, integer1Arg);
 		vector<PQLEntity> expectedEntityVector = { stmt1Entity };
-		EntityClauseResult expectedClauseResult = EntityClauseResult(integer1Arg, expectedEntityVector);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		clause = WithBothExactClause(secondStringArg, secondStringArg);
 		expectedEntityVector = { secondVariableEntity };
-		expectedClauseResult = EntityClauseResult(secondStringArg, expectedEntityVector);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 

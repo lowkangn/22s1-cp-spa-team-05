@@ -3,10 +3,9 @@
 #include <qps/query/clause/WithClause.h>
 #include <qps/query/clause/EntityClauseResult.h>
 
-/* WithTrivialClause encapsulates a with clause
-	whose lhs and rhs are either both exact references,
-	or both the same syn.AttrName
-	e.g. `with 1 = 1`, `with v.varName = v.varName`
+/* WithBothExactClause encapsulates a with clause
+	whose lhs and rhs are both exact references.
+	e.g. with 1 = 1, with "x" = "x"
 */
 class WithBothExactClause : public WithClause {
 private:
