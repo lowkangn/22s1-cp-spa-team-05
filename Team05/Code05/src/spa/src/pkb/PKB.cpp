@@ -298,7 +298,9 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 */
 struct EdgeKeyHash {
 	size_t operator()(const pair<string, string>& p) const {
+		// we choose 31 as it's a prime number typically used for hashing strings
 		return hash<string>()(p.first) * 31 + hash<string>()(p.second);
+
 	}
 };
 

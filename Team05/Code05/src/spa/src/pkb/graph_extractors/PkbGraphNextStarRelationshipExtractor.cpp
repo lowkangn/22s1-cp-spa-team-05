@@ -75,10 +75,10 @@ vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtracto
 	// 2. for each neighbour, we visit
 	// if neighbour statement number increasing, is cycle. we include but don't recurse on it	
 	vector<shared_ptr<PkbControlFlowGraphNode>> allDownstream = { startNode };
-	for (shared_ptr<PkbGraphNode> n : neighbours) {
+	for (shared_ptr<PkbGraphNode> neighbour : neighbours) {
 
 		// cast
-		shared_ptr<PkbControlFlowGraphNode> castedNeighbour = static_pointer_cast<PkbControlFlowGraphNode>(n);
+		shared_ptr<PkbControlFlowGraphNode> castedNeighbour = static_pointer_cast<PkbControlFlowGraphNode>(neighbour);
 		if (castedNeighbour == NULL) {
 			throw PkbException("Tried to cast pkb graph node to cfg node, but couldn't.");
 		}
@@ -102,10 +102,10 @@ vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtracto
 		}
 
 		// for each downstream child, form relationship with self and it
-		for (shared_ptr<PkbGraphNode> c : downstream) {
+		for (shared_ptr<PkbGraphNode> child : downstream) {
 
 			// create relationship and add
-			shared_ptr<PkbRelationship> toAdd = shared_ptr<PkbRelationship>(new PkbNextStarRelationship(startNode->getAsEntity(), c->getAsEntity()));
+			shared_ptr<PkbRelationship> toAdd = shared_ptr<PkbRelationship>(new PkbNextStarRelationship(startNode->getAsEntity(), child->getAsEntity()));
 			if (!this->extractedRelationshipKeys.count(toAdd->getKey())) { // not already found
 				this->extractedRelationships.push_back(toAdd);
 				this->extractedRelationshipKeys.insert(toAdd->getKey());
