@@ -14,9 +14,6 @@ protected:
 	/* Checks the semantic compatibility of the synonym and the attribute */
 	void checkSynonymAttributeCompatible(ClauseArgument& synonym, ClauseArgument& attribute);
 
-	/* Returns true if the synonym-attribute pair is not the default attribute of the synonym */
-	bool isNonDefaultAttribute(vector<ClauseArgument>& args);
-
 	AttributeClauseParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations)
 		: ClauseParser(tokens, declarations) {}
 

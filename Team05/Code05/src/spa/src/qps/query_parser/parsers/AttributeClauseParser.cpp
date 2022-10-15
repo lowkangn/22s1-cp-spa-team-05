@@ -26,7 +26,7 @@ ClauseArgument AttributeClauseParser::parseAttribute(ClauseArgument synonym) {
 		return ClauseArgument::createStmtNumAttributeArg(synonym);
 	}
 	else {
-		throw PQLSyntaxError("Unkown attribute name: " + attrNameToken.getTokenString());
+		throw PQLSyntaxError("Unknown attribute name: " + attrNameToken.getTokenString());
 	}
 }
 
