@@ -1,0 +1,65 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+@startuml
+!include style.puml
+
+
+actor User as User
+
+box "Query Processing System" QPS_COLOR_T1
+participant ":QPS" as QPS QPS_COLOR
+participant ":QueryTokenizer" as QueryTokenizer QPS_COLOR
+participant ":QueryParser" as QueryParser QPS_COLOR
+participant ":QueryEvaluator" as QueryEvaluator QPS_COLOR
+end box
+
+User -> QPS
+activate QPS
+
+create QueryTokenizer
+QPS -> QueryTokenizer
+activate QueryTokenizer
+
+QueryTokenizer --> QPS
+deactivate QueryTokenizer
+
+QPS -> QueryTokenizer: tokenize()
+activate QueryTokenizer
+
+QueryTokenizer --> QPS: tokens
+deactivate QueryTokenizer
+
+create QueryParser
+QPS -> QueryParser
+activate QueryParser
+
+QueryParser --> QPS
+deactivate QueryParser
+
+QPS -> QueryParser: parse()
+activate QueryParser
+
+QueryParser --> QPS: query
+deactivate QueryParser
+
+create QueryEvaluator
+QPS -> QueryEvaluator
+activate QueryEvaluator
+
+QueryEvaluator --> QPS
+deactivate QueryEvaluator
+
+QPS -> QueryEvaluator: evaluate(query, pkb)
+activate QueryEvaluator
+
+QueryEvaluator --> QPS: set<string>
+deactivate QueryEvaluator
+
+QPS --> User
+deactivate QPS
+
+@enduml
+@enduml

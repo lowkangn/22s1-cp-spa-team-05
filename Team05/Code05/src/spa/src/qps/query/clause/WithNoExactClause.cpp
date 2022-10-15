@@ -26,7 +26,7 @@ shared_ptr<EntityClauseResult> WithNoExactClause::handleBothSidesEqual() {
 
 shared_ptr<ClauseResult> WithNoExactClause::handleBothSidesStmtNumAttribute(shared_ptr<PKBQueryHandler> pkb) {
 	assert(lhsAttribute.isStmtNumAttribute() && rhsAttribute.isStmtNumAttribute());
-	assert(this->lhsSynonym != this->rhsSynonym, "== case should be handled by handleBothSidesEqual");
+	assert(this->lhsSynonym != this->rhsSynonym); // == case should be handled by handleBothSidesEqual
 
 	if (!this->lhsSynonym.isSameType(this->rhsSynonym) && !this->lhsSynonym.isStmtSynonym() 
 		&& !this->rhsSynonym.isStmtSynonym()) {

@@ -83,7 +83,7 @@ TEST_CASE("QPSTokenizer: test isDelimiter") {
     testIsDelimiter('*', false);
     testIsDelimiter('/', false);
     testIsDelimiter('%', false);
-    testIsDelimiter('#', true);
+    testIsDelimiter('#', false);
     testIsDelimiter('|', false);
     testIsDelimiter('&', false);
     testIsDelimiter('!', false);
@@ -201,32 +201,35 @@ TEST_CASE("QPSTokenizer: test skipWhitespaceOrNewlineInStream") {
 
 }
 
-TEST_CASE("QPSTokenizer: test extractNameFromStream") {
-    auto test = [](string s, string expectedStringOfToken, char expectedNextChar) {
+TEST_CASE("QPSTokenizer: test extractNameOrKeywordFromStream") {
+    auto test = [](string s, string expectedStringOfToken, PQLTokenType expectedTypeOfToken, char expectedNextChar) {
         // ----- given -----
         QPSTokenizer tokenizer = QPSTokenizer();
         stringstream ss(s);
         istream& stream = ss;
 
         // ----- when -----
-        PQLToken t = tokenizer.extractNameFromStream(stream);
+        PQLToken t = tokenizer.extractNameOrKeywordFromStream(stream);
 
         // ----- then -----
         REQUIRE(t.getTokenString() == expectedStringOfToken);
-        REQUIRE(t.getTokenType() == PQLTokenType::NAME);
+        REQUIRE(t.getTokenType() == expectedTypeOfToken);
         REQUIRE(char(stream.peek()) == expectedNextChar);
     };
 
     SECTION("Some valid name") {
-        test("myFavouriteVariable", "myFavouriteVariable", EOF);
+        test("myFavouriteVariable", "myFavouriteVariable", PQLTokenType::NAME, EOF);
     }
 
     SECTION("Some characters after not used") {
-        test("assign a;\nSelect a;", "assign", ' ');
-        test("a1;\nSelect a1;", "a1", ';');
-        test("a11b22;\nSelect a11b22;", "a11b22", ';');
+        test("assign a;\nSelect a;", "assign", PQLTokenType::NAME, ' ');
+        test("a1;\nSelect a1;", "a1", PQLTokenType::NAME, ';');
+        test("a11b22;\nSelect a11b22;", "a11b22", PQLTokenType::NAME, ';');
     }
 
+    SECTION("Keywords that cannot be used as name") {
+        test("stmt#= \n \t r.stmt#", "stmt#", PQLTokenType::KEYWORD_ONLY, '=');
+    }
 }
 
 TEST_CASE("QPSTokenizer: test extractIntegerFromStream correct extracts") {
@@ -260,7 +263,7 @@ TEST_CASE("QPSTokenizer: test extractIntegerFromStream correct extracts") {
     }
 
 }
-
+/*
 TEST_CASE("QPSTokenizer: test extractIntegerFromStream correct throws") {
     auto test = [](string s) {
         // ----- given -----
@@ -269,7 +272,7 @@ TEST_CASE("QPSTokenizer: test extractIntegerFromStream correct throws") {
         istream& stream = ss;
 
         // ----- when & then -----
-        REQUIRE_THROWS(tokenizer.extractIntegerFromStream(stream));
+        REQUIRE_THROWS_AS(tokenizer.extractIntegerFromStream(stream), PQLSyntaxError);
     };
 
     SECTION("Integer followed by alphabetical character") {
@@ -277,7 +280,7 @@ TEST_CASE("QPSTokenizer: test extractIntegerFromStream correct throws") {
     }
 
 }
-
+*/
 TEST_CASE("QPSTokenizer: test extractDelimiterFromStream") {
 
     auto test = [](string s, string expectedStringOfToken, char expectedNextChar) {
@@ -415,4 +418,24 @@ TEST_CASE("QPSTokenizer: test tokenize works correctly") {
         test(testString, expectedTokensList);
     }
 
+}
+
+TEST_CASE("QPSTokenizer: test tokenize throws for invalid char") {
+    auto test = [](string s) {
+        // ----- given -----
+        QPSTokenizer tokenizer = QPSTokenizer();
+        stringstream ss(s);
+        istream& stream = ss;
+
+        // ----- when & then -----
+        REQUIRE_THROWS_AS(tokenizer.tokenize(stream), PQLSyntaxError);
+    };
+
+    SECTION("stmt and # separated") {
+        string testString = "stmt c; Select c with c.stmt\t#=1";
+        test(testString);
+
+        testString = "stmt c; Select c with c.stmt       #=1";
+        test(testString);
+    }
 }

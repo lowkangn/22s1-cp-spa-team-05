@@ -106,8 +106,7 @@ TEST_CASE("SelectMultipleParser: test parseNoError") {
 				PQLToken::createDelimiterToken(","),
 				PQLToken::createNameToken("r1"),
 				PQLToken::createOperatorToken("."),
-				PQLToken::createNameToken("stmt"),
-				PQLToken::createDelimiterToken("#"),
+				PQLToken::createKeywordOnlyToken("stmt#"),
 				PQLToken::createDelimiterToken(","),
 				PQLToken::createNameToken("v1"),
 				PQLToken::createOperatorToken("."),
@@ -296,8 +295,7 @@ TEST_CASE("SelectMultipleParser: test parseWithSemanticError") {
 				PQLToken::createDelimiterToken("<"),
 				PQLToken::createNameToken("const1"),
 				PQLToken::createOperatorToken("."),
-				PQLToken::createNameToken("stmt"),
-				PQLToken::createDelimiterToken("#"),
+				PQLToken::createKeywordOnlyToken("stmt#"),
 				PQLToken::createDelimiterToken(">")
 		};
 		testParseWithSemanticError(tokens, declarations);

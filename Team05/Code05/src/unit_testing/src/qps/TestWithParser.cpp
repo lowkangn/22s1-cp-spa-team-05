@@ -16,8 +16,8 @@ namespace WithParserTestUtil {
 
     // attributes
     PQLToken value = PQLToken::createNameToken("value");
-    PQLToken stmtNumStmt = PQLToken::createNameToken("stmt");
-    PQLToken stmtNumHash = PQLToken::createDelimiterToken("#");
+    PQLToken stmtNumStmtOnly = PQLToken::createNameToken("stmt");
+    PQLToken stmtNum = PQLToken::createKeywordOnlyToken("stmt#");
     PQLToken varName = PQLToken::createNameToken("varName");
     PQLToken procName = PQLToken::createNameToken("procName");
 
@@ -157,14 +157,14 @@ TEST_CASE("WithParser: test parseNoError") {
 
         //statements
         tokens = list<PQLToken>{
-            one, equals, s1, dot, stmtNumStmt, stmtNumHash
+            one, equals, s1, dot, stmtNum, 
         };
         nonExactArgs = { s1Arg, s1StmtNumArg };
         expected = make_shared<WithOneExactClause>(oneArg, nonExactArgs);
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
-           a1, dot, stmtNumStmt, stmtNumHash, equals, two,
+           a1, dot, stmtNum, equals, two,
         };
         nonExactArgs = { a1Arg, a1StmtNumArg };
         expected = make_shared<WithOneExactClause>(twoArg, nonExactArgs);
@@ -243,7 +243,7 @@ TEST_CASE("WithParser: test parseNoError") {
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
-            call1, dot, stmtNumStmt, stmtNumHash, equals, call1, dot, stmtNumStmt, stmtNumHash,
+            call1, dot, stmtNum, equals, call1, dot, stmtNum,
         };
         lhsArgs = { call1Arg, call1StmtNumArg };
         rhsArgs = { call1Arg, call1StmtNumArg };
@@ -251,7 +251,7 @@ TEST_CASE("WithParser: test parseNoError") {
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
-           r1, dot, stmtNumStmt, stmtNumHash, equals, r1, dot, stmtNumStmt, stmtNumHash,
+           r1, dot, stmtNum, equals, r1, dot, stmtNum,
         };
         lhsArgs = { r1Arg, r1StmtNumArg };
         rhsArgs = { r1Arg, r1StmtNumArg };
@@ -259,7 +259,7 @@ TEST_CASE("WithParser: test parseNoError") {
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
-           print1, dot, stmtNumStmt, stmtNumHash, equals, print1, dot, stmtNumStmt, stmtNumHash,
+           print1, dot, stmtNum, equals, print1, dot, stmtNum,
         };
         lhsArgs = { print1Arg, print1StmtNumArg };
         rhsArgs = { print1Arg, print1StmtNumArg };
@@ -311,7 +311,7 @@ TEST_CASE("WithParser: test parseNoError") {
         testParseNoError(tokens, declarations, expected);
 
         tokens = list<PQLToken>{
-           s1, dot, stmtNumStmt, stmtNumHash, equals, const1, dot, value,
+           s1, dot, stmtNum, equals, const1, dot, value,
         };
         lhsArgs = { s1Arg, s1StmtNumArg };
         rhsArgs = { const1Arg, const1ValueArg };
@@ -346,9 +346,9 @@ TEST_CASE("WithParser: test parseWithSemanticError") {
     SECTION("Mismatch betwwen synonym type and attribute") {
         
         list<list<PQLToken>> tokenLists = {
-            {v1, dot, stmtNumStmt, stmtNumHash, equals, const1, dot, value},
-            {proc1, dot, stmtNumStmt, stmtNumHash, equals, const1, dot, value},
-            {const1, dot, stmtNumStmt, stmtNumHash, equals, const1, dot, value},
+            {v1, dot, stmtNum, equals, const1, dot, value},
+            {proc1, dot, stmtNum, equals, const1, dot, value},
+            {const1, dot, stmtNum, equals, const1, dot, value},
             {proc1, dot, varName, equals, const1, dot, value},
             {s1, dot, procName, equals, const1, dot, value},
             {const1, dot, varName, equals, const1, dot, value},
@@ -374,10 +374,10 @@ TEST_CASE("WithParser: test parseWithSemanticError") {
             {quotationMark, someName, quotationMark, equals, const1, dot, value},
             {const1, dot, value, equals, quotationMark, someName, quotationMark,},
             {proc1, dot, procName, equals, one},
-            {s1, dot, stmtNumStmt, stmtNumHash, equals, quotationMark, someName, quotationMark,},
+            {s1, dot, stmtNum, equals, quotationMark, someName, quotationMark,},
             {v1, dot, varName, equals, two},
-            {quotationMark, otherName, quotationMark, equals, i1, dot, stmtNumStmt, stmtNumHash,},
-            {quotationMark, otherName, quotationMark, equals, a1, dot, stmtNumStmt, stmtNumHash,},
+            {quotationMark, otherName, quotationMark, equals, i1, dot, stmtNum,},
+            {quotationMark, otherName, quotationMark, equals, a1, dot, stmtNum,},
             {call1, dot, procName, equals, two},
             {one, equals, print1, dot, varName},
             {r1, dot, varName, equals, one},
@@ -392,11 +392,11 @@ TEST_CASE("WithParser: test parseWithSemanticError") {
 
         list<list<PQLToken>> tokenLists = {
             {v1, dot, varName, equals, const1, dot, value},
-            {v1, dot, varName, equals, s1, dot, stmtNumStmt, stmtNumHash},
+            {v1, dot, varName, equals, s1, dot, stmtNum},
             {const1, dot, value, equals, proc1, dot, procName,},
-            {proc1, dot, procName, equals, call1, dot, stmtNumStmt, stmtNumHash},
-            {call1, dot, procName, equals, call1, dot, stmtNumStmt, stmtNumHash},
-            {print1, dot, stmtNumStmt, stmtNumHash, equals, r1, dot, varName},
+            {proc1, dot, procName, equals, call1, dot, stmtNum},
+            {call1, dot, procName, equals, call1, dot, stmtNum},
+            {print1, dot, stmtNum, equals, r1, dot, varName},
         };
 
         for (list<PQLToken> tokens : tokenLists) {
@@ -430,7 +430,7 @@ TEST_CASE("WithParser: test parseWithSyntaxError") {
 
     SECTION("Missing dot in attrRef") {
         list<PQLToken> tokens = list<PQLToken>{
-            two, equals, s1, stmtNumStmt, stmtNumHash
+            two, equals, s1, stmtNum
         };
         testParseWithError(tokens, declarations);
 
@@ -448,8 +448,8 @@ TEST_CASE("WithParser: test parseWithSyntaxError") {
             {v1, equals, quotationMark, someName, quotationMark,},
             {v1, dot, varName, equals, proc1},
             {one, equals, const1},
-            {a1, dot, stmtNumStmt, equals, const1, dot, value},
-            {a1, dot, stmtNumStmt, stmtNumHash, equals, i1, dot, unknownAttribute},
+            {a1, dot, stmtNumStmtOnly, equals, const1, dot, value},
+            {a1, dot, stmtNum, equals, i1, dot, unknownAttribute},
         };
 
         for (list<PQLToken> tokens : tokenLists) {
@@ -464,7 +464,7 @@ TEST_CASE("WithParser: test parseWithSyntaxError") {
             {quotationMark, someName, quotationMark, v1, dot, varName,},
             {const1, dot, value, one},
             {call1, dot, procName, print1, dot, varName},
-            {i1, dot, stmtNumStmt, stmtNumHash, const1, dot, value},
+            {i1, dot, stmtNum, const1, dot, value},
         };
 
         for (list<PQLToken> tokens : tokenLists) {
@@ -475,9 +475,9 @@ TEST_CASE("WithParser: test parseWithSyntaxError") {
     SECTION("Attempting to find attribute of non-synonyn") {
         list<list<PQLToken>> tokenLists = {
            {const1, dot, value, equals, one, dot, value,},
-           {one, dot, stmtNumStmt, stmtNumHash, equals, two},
+           {one, dot, stmtNum, equals, two},
            {quotationMark, someName, quotationMark, dot, varName, equals, v1, dot, varName,},
-           {const1, dot, value, equals, quotationMark, otherName, quotationMark, dot, stmtNumStmt, stmtNumHash},
+           {const1, dot, value, equals, quotationMark, otherName, quotationMark, dot, stmtNum},
            {const1, dot, value, equals, quotationMark, someName, quotationMark, dot, value},
         };
 
