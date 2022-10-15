@@ -217,7 +217,6 @@ TEST_CASE("UsesPClause: test execute") {
 
 	};
 
-
 	// ------ PKB ------ 
 	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
 

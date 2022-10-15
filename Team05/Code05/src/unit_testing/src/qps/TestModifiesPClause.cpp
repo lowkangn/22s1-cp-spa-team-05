@@ -92,7 +92,7 @@ namespace {
 			7. x = y;
 		}
 
-		procedure noUses {
+		procedure noModifies {
 			8. print y;
 		}
 	*/
@@ -100,7 +100,7 @@ namespace {
 	// Initialise tokens
 	Token mainToken = Token::createNameOrKeywordToken("main");
 	Token testToken = Token::createNameOrKeywordToken("test");
-	Token noUsesToken = Token::createNameOrKeywordToken("noUses");
+	Token noModifiesToken = Token::createNameOrKeywordToken("noModifies");
 	Token yToken = Token::createNameOrKeywordToken("y");
 	Token xToken = Token::createNameOrKeywordToken("x");
 
@@ -137,7 +137,7 @@ namespace {
 	ClauseArgument variableArg = ClauseArgument::createVariableArg("v");
 	ClauseArgument mainLiteralArg = ClauseArgument::createStringLiteralArg("main");
 	ClauseArgument testLiteralArg = ClauseArgument::createStringLiteralArg("test");
-	ClauseArgument noUsesLiteralArg = ClauseArgument::createStringLiteralArg("noUses");
+	ClauseArgument noModifiesLiteralArg = ClauseArgument::createStringLiteralArg("noModifies");
 	ClauseArgument xLiteralArg = ClauseArgument::createStringLiteralArg("x");
 	ClauseArgument yLiteralArg = ClauseArgument::createStringLiteralArg("y");
 	ClauseArgument zLiteralArg = ClauseArgument::createStringLiteralArg("z");
@@ -196,8 +196,8 @@ TEST_CASE("ModifiesPClause: test execute") {
 	SECTION("Procedure string literal - empty results") {
 		expectedRetrievedFromPkb = {};
 
-		clause = ModifiesPClause(noUsesLiteralArg, variableArg);
-		expectedClauseResult = RelationshipClauseResult(noUsesLiteralArg, variableArg, expectedRetrievedFromPkb);
+		clause = ModifiesPClause(noModifiesLiteralArg, variableArg);
+		expectedClauseResult = RelationshipClauseResult(noModifiesLiteralArg, variableArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
