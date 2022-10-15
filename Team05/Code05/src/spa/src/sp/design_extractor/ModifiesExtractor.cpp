@@ -70,7 +70,7 @@ vector<Relationship> ModifiesExtractor::extract(shared_ptr<ASTNode> ast) {
 					We look ahead from root program node and add all procedures to
 					extract on demand
 				*/
-				allProcedures.push_back(child);
+				allProcedures.emplace(child->extractEntity().getString(), child);
 			}
 		}
 
@@ -229,15 +229,12 @@ vector<Relationship> ModifiesExtractor::handleCall(shared_ptr<ASTNode> ast) {
 		return extractedRelationships;
 	}
 
-	// Find the index of the called procedure in allProcedures
-	int index = this->findCalledProcedureIndex(procedureCalledName);
-
-	if (index == -1) {
-		throw ASTException("Could not find name of procedure called in program");
+	if (!allProcedures.at(procedureCalledName)) {
+		throw ASTException("Procedure called could not be found");
 	}
 
-	// Now we know the index of the called procedure in allProcedures
-	shared_ptr<ASTNode> procedureToExtract = allProcedures[index];
+	// Get the called procedure in allProcedures from the name
+	shared_ptr<ASTNode> procedureToExtract = allProcedures.at(procedureCalledName);
 
 	// We use handleProcedure() to get relationships if entries are not in DP map
 	vector<Relationship> procedureCalledRelationships = this->handleProcedure(procedureToExtract);
@@ -324,16 +321,13 @@ vector<Relationship> ModifiesExtractor::recursiveContainerExtract(Entity& leftHa
 		shared_ptr<ASTNode> calledProcedure = callNode->getChildren()[0];
 		string calledProcName = calledProcedure->extractEntity().getString();
 
-		// Find the index of the called procedure in allProcedures
-		int index = this->findCalledProcedureIndex(calledProcName);
-
-		if (index == -1) {
-			throw ASTException("Could not find name of procedure called in program");
+		if (!allProcedures.at(calledProcName)) {
+			throw ASTException("Procedure called could not be found");
 		}
 
-		// Now we know the index of the called procedure in allProcedures
-		shared_ptr<ASTNode> procedureToExtract = allProcedures[index];
-
+		// Get procedure from allProcedures map using name
+		shared_ptr<ASTNode> procedureToExtract = allProcedures.at(calledProcName);
+		
 		// Type-cast procedureToExtract to ProcedureASTNode
 		assert(procedureToExtract->isProcedureNode());
 		shared_ptr<ProcedureASTNode> calledProcNode = dynamic_pointer_cast<ProcedureASTNode>(procedureToExtract);

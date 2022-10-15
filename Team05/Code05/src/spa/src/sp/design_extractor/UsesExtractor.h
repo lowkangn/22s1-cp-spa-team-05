@@ -34,52 +34,7 @@ private:
 	/*
 		This keeps track of all procedures coming from root node
 	*/
-	vector<shared_ptr<ASTNode>> allProcedures;
-
-	// HELPER FUNCTIONS
-
-	/*
-		This is a helper function to find the correct index of a called function in allProcedures
-
-		Procedures from root program node added to allProcedures vector
-
-		We find the name of the called procedure, and string match it to the corect index in
-		allProcedures
-
-		e.g.
-
-					program
-					/      \
-				proc:first  proc:second
-				/           \
-				stmtLst       ...
-				/
-				call
-				/
-		proc:second
-			/
-		empty stmtLst
-
-		allProcedures: vect {index 0: first, index 1: second}
-		In this case, the correct index is 1
-		We need to do this because both proc:second AST nodes share the same name, but are different nodes (i.e. diff children and parents)
-	*/
-
-	int findCalledProcedureIndex(string procedureName) {
-		int index = -1;
-		for (int i = 0; i < allProcedures.size(); i++) {
-			shared_ptr<ASTNode> currProcedure = allProcedures[i];
-			assert(currProcedure->isProcedureNode());
-
-			string currProcedureName = currProcedure->extractEntity().getString();
-
-			if (currProcedureName == procedureName) {
-				index = i;
-				return index;
-			}
-		}
-		return index;
-	}
+	unordered_map<string, shared_ptr<ASTNode>> allProcedures;
 
 	/*
 		DP map relationships are in the form of procedure p : variable v
