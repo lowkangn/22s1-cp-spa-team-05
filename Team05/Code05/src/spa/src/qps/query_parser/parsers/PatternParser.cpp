@@ -17,7 +17,6 @@ void PatternParser::checkArguments(vector<ClauseArgument>& args) {
 	if (args.size() == 4) {
 		// first arg must be if
 		ClauseArgument arg = args[0];
-
 		if (!arg.isIfSynonym()) {
 			this->semanticErrorMessage = "First arg for pattern with 3 inputs must be if";
 		}
@@ -55,10 +54,10 @@ void PatternParser::checkArguments(vector<ClauseArgument>& args) {
 			this->semanticErrorMessage = "Second arg for pattern must be a variable synonym, string name, or wildcard";
 		}
 
-		// if not wildcard, check that the first synonym is not a while
+		// if not wildcard, the first synonym must be assign, cannot be while
 		arg = args[2];
 		if (!arg.isWildcard() && !args[0].isAssignSynonym()) {
-			this->semanticErrorMessage = "Third arg for non-assign pattern must only be wildcard";
+			this->semanticErrorMessage = "First arg for pattern with pattern string must be an assign synonym";
 		}
 	}
 }
@@ -91,14 +90,17 @@ vector<ClauseArgument> PatternParser::extractArguments() {
 	vector<ClauseArgument> output;
 
 	// get first arg
-	ClauseArgument firstArg = parseOneArgument();
+	ClauseArgument firstArg = this->parseSynonym();
 	output.push_back(firstArg);
 
 	// check '('
 	consumeOpenBracket();
 
 	// get second arg
-	ClauseArgument secondArg = parseOneArgument();
+	ClauseArgument secondArg = parseOneStmtRefOrEntRef();
+	if (secondArg.isLineNumber()) {
+		throw PQLSyntaxError("First arg inside brackets for patterns cannot be an integer");
+	}
 	output.push_back(secondArg);
 
 	// check ','
@@ -126,30 +128,16 @@ vector<ClauseArgument> PatternParser::extractArguments() {
 		throw PQLSyntaxError("Third argument to Pattern should start with quote or underscore");
 	}
 
-	// check ')', or get fourth arg (for if patterns)
-	// In this case, we are sure that the fourth arg (if any) MUST be a wildcard
-	if (!this->tokens.empty() && this->tokens.front().isCloseBracket()) {
-		consumeCloseBracket();
-	}
-	else if (!this->tokens.empty() && this->tokens.front().isComma()) {
-		consumeComma();
-		PQLToken wildcardToken = this->tokens.front();
-		this->tokens.pop_front();
-
-		// double check that this is a wildcard, rather than a pattern string with wild cards
-		if (this->tokens.empty() || !this->tokens.front().isQuote()) {
-			ClauseArgument fourthArg = ClauseArgument::createWildcardArg();
-			output.push_back(fourthArg);
-			consumeCloseBracket();
-		}
-		else {
-			throw PQLSyntaxError("Fourth argument to Pattern must only be wildcard");
-		}
-	}
-	else {
+	if (this->tokens.empty()) {
 		throw PQLSyntaxError("Must either end with fourth argument or closed bracket");
+	} 
+
+	// If there ')' is not next, there must be a fourth arg which must be a wildcard
+	if (!this->tokens.front().isCloseBracket()) {
+		consumeComma();
+		output.push_back(this->parseWildcard());
 	}
-	
+	consumeCloseBracket();
 
 	return output;
 }
