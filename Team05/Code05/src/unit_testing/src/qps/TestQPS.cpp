@@ -5,7 +5,7 @@
 namespace {
 	/* Corresponds to the following SIMPLE source (with line numbers)
 		procedure main {
-	1:		while (v > 1) {
+	1:		while (v > 1 && t == 2) {
 	2:			y = x + 1 * 0;
 	3:			if (b > 0) then {
 	4:				read x;
@@ -16,6 +16,9 @@ namespace {
 	7:			z = 1000 - 0 + b;
 			}
 	8:		print x;
+	9:		if (c == 0 && d == 1 || e == 2) {
+	10:			print f;		
+			}
 		}
 
 	For which the following relationships hold:
@@ -28,7 +31,9 @@ namespace {
 	UsesS: (1,v), (1,x), (1,b), (2,x), (3,b), (7,b) (8,x)
 	UsesP: (main, rhsU) where rhsU is an rhs of UsesS
 	PatternAssign: 2(y, _"x"_), 2(y, _"1"_), 2(y, _"0"_), 2(y, _"1*0"_), 2(y, _"x+1*0"_), 2(y, "x+1*0"),
-				   7(z, _"0"_), 7(z, _"1000"_), 7(z, _"1000-0"_), 7(z, _"1000-0+b"_), 7(z, "1000-0+b") 
+				   7(z, _"0"_), 7(z, _"1000"_), 7(z, _"1000-0"_), 7(z, _"1000-0+b"_), 7(z, "1000-0+b")
+	PatternWhile: 1("v", _), 1("t", _)
+	PatternWhile: 3("b", _, _), 9("c", _, _), 9("d", _, _), 9("e", _, _)
 	*/
 
 	// Initialise statement entities
@@ -40,14 +45,22 @@ namespace {
 	Entity r6 = Entity::createReadEntity(6);
 	Entity a7 = Entity::createAssignEntity(7);
 	Entity p8 = Entity::createPrintEntity(8);
+	Entity i9 = Entity::createIfEntity(9);
+	Entity p10 = Entity::createPrintEntity(10);
+
 
 	// Initialise tokens for non-statement entities
 	Token mainToken = Token::createNameOrKeywordToken("main");
 	Token vToken = Token::createNameOrKeywordToken("v");
+	Token tToken = Token::createNameOrKeywordToken("t");
 	Token constOneToken = Token::createIntegerToken("1");
 	Token yToken = Token::createNameOrKeywordToken("y");
 	Token xToken = Token::createNameOrKeywordToken("x");
 	Token bToken = Token::createNameOrKeywordToken("b");
+	Token cToken = Token::createNameOrKeywordToken("c");
+	Token dToken = Token::createNameOrKeywordToken("d");
+	Token eToken = Token::createNameOrKeywordToken("e");
+	Token fToken = Token::createNameOrKeywordToken("f");
 	Token constZeroToken = Token::createIntegerToken("0");
 	Token stmtToken = Token::createNameOrKeywordToken("stmt");
 	Token zToken = Token::createNameOrKeywordToken("z");
@@ -56,6 +69,7 @@ namespace {
 	// Initialise non-statement entities
 	Entity main = Entity::createProcedureEntity(mainToken);
 	Entity v1 = Entity::createVariableEntity(1, vToken);
+	Entity t1 = Entity::createVariableEntity(1, tToken);
 	Entity constOne1 = Entity::createConstantEntity(1, constOneToken);
 	Entity y2 = Entity::createVariableEntity(2, yToken);
 	Entity x2 = Entity::createVariableEntity(2, xToken);
@@ -71,6 +85,10 @@ namespace {
 	Entity constOneThousand7 = Entity::createConstantEntity(7, constOneThousandToken);
 	Entity b7 = Entity::createVariableEntity(7, bToken);
 	Entity x8 = Entity::createVariableEntity(8, xToken);
+	Entity c9 = Entity::createVariableEntity(9, cToken);
+	Entity d9 = Entity::createVariableEntity(9, dToken);
+	Entity e9 = Entity::createVariableEntity(9, eToken);
+	Entity f10 = Entity::createVariableEntity(10, fToken);
 
 	// Initialise parent relationships
 	Relationship parentW1A2 = Relationship::createParentRelationship(w1, a2);
@@ -79,6 +97,7 @@ namespace {
 	Relationship parentI3R4 = Relationship::createParentRelationship(i3, r4);
 	Relationship parentI3R5 = Relationship::createParentRelationship(i3, r5);
 	Relationship parentI3R6 = Relationship::createParentRelationship(i3, r6);
+	Relationship parentI9P10 = Relationship::createParentRelationship(i9, p10);
 
 	// Initialise parentStar relationships
 	Relationship parentStarW1A2 = Relationship::createParentTRelationship(w1, a2);
@@ -87,6 +106,7 @@ namespace {
 	Relationship parentStarI3R4 = Relationship::createParentTRelationship(i3, r4);
 	Relationship parentStarI3R5 = Relationship::createParentTRelationship(i3, r5);
 	Relationship parentStarI3R6 = Relationship::createParentTRelationship(i3, r6);
+	Relationship parentStarI9P10 = Relationship::createParentTRelationship(i9, p10);
 	Relationship parentStarW1R4 = Relationship::createParentTRelationship(w1, r4);
 	Relationship parentStarW1R5 = Relationship::createParentTRelationship(w1, r5);
 	Relationship parentStarW1R6 = Relationship::createParentTRelationship(w1, r6);
@@ -114,12 +134,19 @@ namespace {
 
 	// Initialise Uses relationships -- only statements required for iter 1
 	Relationship usesW1V1 = Relationship::createUsesRelationship(w1, v1);
+	Relationship usesW1T1 = Relationship::createUsesRelationship(w1, t1);
 	Relationship usesW1X2 = Relationship::createUsesRelationship(w1, x2);
 	Relationship usesW1B3 = Relationship::createUsesRelationship(w1, b3);
 
 	Relationship usesA2X2 = Relationship::createUsesRelationship(a2, x2);
 	Relationship usesI3B3 = Relationship::createUsesRelationship(i3, b3);
 	Relationship usesP8X8 = Relationship::createUsesRelationship(p8, x8);
+
+	Relationship usesI9C9 = Relationship::createUsesRelationship(i9, c9);
+	Relationship usesI9D9 = Relationship::createUsesRelationship(i9, d9);
+	Relationship usesI9E9 = Relationship::createUsesRelationship(i9, e9);
+
+	Relationship usesP10F10 = Relationship::createUsesRelationship(p10, f10);
 
 
 	// Initialise Follows relationships
@@ -134,11 +161,25 @@ namespace {
 	Relationship followsStarI3A7 = Relationship::createFollowsTRelationship(i3, a7);
 	Relationship followsStarR5R6 = Relationship::createFollowsTRelationship(r5, r6);
 	Relationship followsStarA2A7 = Relationship::createFollowsTRelationship(a2, a7);
+	Relationship followsStarW1I9 = Relationship::createFollowsTRelationship(w1, i9);
+
 
 
 	// Initialise PatternAssigns
 	Pattern patternA2Y2 = Pattern::createAssignPattern(a2.getLine(), " " + yToken.getString() + " ", " x 1 0 * + "); //is x+1*0
 	Pattern patternA7Z7 = Pattern::createAssignPattern(a7.getLine(), " " + zToken.getString() + " ", " 1000 0 - b + "); //is 1000-0+b
+
+	// Initialise PatternWhile
+	Pattern patternWhileV1 = Pattern::createWhilePattern(w1.getLine(), vToken.getString());
+	Pattern patternWhileT1 = Pattern::createWhilePattern(w1.getLine(), tToken.getString());
+
+	// Initialise PatternIf
+	Pattern patternIf3 = Pattern::createIfPattern(i3.getLine(), bToken.getString());
+	Pattern patternIf9C9 = Pattern::createIfPattern(i9.getLine(), cToken.getString());
+	Pattern patternIf9D9 = Pattern::createIfPattern(i9.getLine(), dToken.getString());
+	Pattern patternIf9E9 = Pattern::createIfPattern(i9.getLine(), eToken.getString());
+
+
 };
 
 TEST_CASE("QPS: test working correctly") {
@@ -161,6 +202,7 @@ TEST_CASE("QPS: test working correctly") {
 		for (string s : autoTesterResults) {
 			autoTesterSet.insert(s);
 		}
+		
 		REQUIRE(autoTesterSet == expectedResult);
     };
 
@@ -174,27 +216,30 @@ TEST_CASE("QPS: test working correctly") {
 	vector<Relationship> allParentAndParentStar{ 
 		parentW1A2, parentW1I3, parentW1A7, parentI3R4, parentI3R5, parentI3R6,
 		parentStarW1A2, parentStarW1I3, parentStarW1A7, parentStarI3R4, parentStarI3R5, parentStarI3R6,
-		parentStarW1R4, parentStarW1R5, parentStarW1R6 };
+		parentStarW1R4, parentStarW1R5, parentStarW1R6, parentStarI9P10, parentI9P10 };
 
 	vector<Relationship> allFollowsAndFollowsStar{
 		followsW1P8, followsA2I3, followsI3A7, followsR5R6, followsStarW1P8, followsStarA2I3,
-		followsStarI3A7, followsStarR5R6, followsStarA2A7 };
+		followsStarI3A7, followsStarR5R6, followsStarA2A7, followsStarW1I9 };
 	
 	vector<Relationship> allModifies{ 
 		modifiesW1Y2, modifiesW1X4, modifiesW1Y5, modifiesW1Stmt6, modifiesW1Z7, modifiesA2Y2,
 		modifiesI3X4, modifiesI3Y5, modifiesI3Stmt6, modifiesR4X4, modifiesR5Y5, modifiesR6Stmt6,
 		modifiesA7Z7 };
 	
-	vector<Relationship> allUses{ usesW1V1, usesW1X2, usesW1B3, usesA2X2, usesI3B3, usesP8X8};
+	vector<Relationship> allUses{ usesW1V1, usesW1T1, usesW1X2, usesW1B3, usesA2X2, usesI3B3, usesP8X8,
+								usesI9C9, usesI9D9, usesI9E9, usesP10F10 };
 
-	vector<Pattern> allPatternAssigns{ patternA2Y2, patternA7Z7 };
+	vector<Pattern> allPatterns{ patternA2Y2, patternA7Z7, patternWhileT1, patternWhileV1, patternIf3,
+								patternIf9C9, patternIf9D9, patternIf9E9 };
+
 	
 	pkb->addEntities(entities);
 	pkb->addRelationships(allParentAndParentStar);
 	pkb->addRelationships(allFollowsAndFollowsStar);
 	pkb->addRelationships(allModifies);
 	pkb->addRelationships(allUses);
-	pkb->addPatterns(allPatternAssigns);
+	pkb->addPatterns(allPatterns);
 
 	string queryString = "stmt s; Select s";
 	set<string> expectedResult{ "1", "2", "3", "4", "5", "6", "7", "8"};
@@ -224,11 +269,11 @@ TEST_CASE("QPS: test working correctly") {
 
 	SECTION("Select and such that") {
 		queryString = "stmt child;\n Select child such that Parent(_, child)";
-		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6" };
+		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "10"};
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt stmt, child;\n Select child such that Parent(stmt, child)";
-		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6" };
+		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "10"};
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt s;\n Select s such that Parent(1, s)";
@@ -236,7 +281,7 @@ TEST_CASE("QPS: test working correctly") {
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt Parent;\n Select Parent such that Parent* (Parent, _)";
-		expectedResult = set<string>{ "1", "3" };
+		expectedResult = set<string>{ "1", "3", "9"};
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable Select;\n Select Select such that Modifies(6, Select)";
@@ -248,11 +293,11 @@ TEST_CASE("QPS: test working correctly") {
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt s; \n Select s such that Uses(s, _)";
-		expectedResult = set<string>{ "1", "2", "3", "8" };
+		expectedResult = set<string>{ "1", "2", "3", "8", "9", "10"};
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable variable; stmt s; \n Select variable such that Uses(s, variable)";
-		expectedResult = set<string>{ "v", "x", "b" };
+		expectedResult = set<string>{ "v", "x", "b", "t", "c", "d", "e", "f"};
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable variable; \n Select variable such that Follows(1, 8)";
@@ -334,6 +379,45 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{ };
 		testQPS(queryString, expectedResult, pkb);
 
+		// while patterns
+		queryString = "while w; \n Select w pattern w(\"v\", _)";
+		expectedResult = set<string>{ "1" };
+		testQPS(queryString, expectedResult, pkb);
+
+		// while patterns
+		queryString = "while w; variable v; \n Select v pattern w(v, _)";
+		expectedResult = set<string>{ "v", "t" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "while w; \n Select w pattern w(\"t\", _)";
+		expectedResult = set<string>{ "1" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "while w; \n Select w pattern w(_, _)";
+		expectedResult = set<string>{ "1" };
+		testQPS(queryString, expectedResult, pkb);
+
+		// if patterns
+		queryString = "if i; \n Select i pattern i(\"b\", _, _)";
+		expectedResult = set<string>{ "3" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "if i; \n Select i pattern i(\"c\", _, _)";
+		expectedResult = set<string>{ "9" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "if i; \n Select i pattern i(\"d\", _, _)";
+		expectedResult = set<string>{ "9" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "if i; variable v; \n Select v pattern i(v, _, _)";
+		expectedResult = set<string>{ "b", "c", "d", "e" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "if i; \n Select i pattern i(_, _, _)";
+		expectedResult = set<string>{ "3", "9" };
+		testQPS(queryString, expectedResult, pkb);
+
 	}
 
 	SECTION("Select, such that and Pattern") {
@@ -366,6 +450,17 @@ TEST_CASE("QPS: test working correctly") {
 		queryString = "assign a; constant c; if i; while w; \n Select c pattern a(\"y\", _\"0\"_ ) such that Parent(w, i) " ;
 		expectedResult = set<string>{ "0", "1", "1000"};
 		testQPS(queryString, expectedResult, pkb);
+
+		// Select statement with parent of if pattern with c
+		queryString = "stmt s; if i; Select s pattern i(\"c\", _, _) such that Parent(i, s)";
+		expectedResult = set<string>{ "10" };
+		testQPS(queryString, expectedResult, pkb);
+
+		// Select statement with Parent* of while pattern with t
+		queryString = "stmt s; while w; Select s pattern w(\"t\", _) such that Parent*(w, s)";
+		expectedResult = set<string>{ "2", "3", "4", "5", "6", "7" };
+		testQPS(queryString, expectedResult, pkb);
+
 
 	}
 
