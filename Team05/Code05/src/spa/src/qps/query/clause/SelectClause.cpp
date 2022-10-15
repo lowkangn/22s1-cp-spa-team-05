@@ -51,26 +51,9 @@ shared_ptr<EntityClauseResult> SelectClause::getSingleEntityResult(shared_ptr<PK
 }
 
 bool SelectClause::equals(shared_ptr<SelectClause> other) {
-	if (dynamic_pointer_cast<SelectClause>(other) == nullptr) {
+	if (other == nullptr) {
 		return false;
 	}
-	shared_ptr<SelectClause> otherSelect = dynamic_pointer_cast<SelectClause>(other);
-
-	if (this->isBooleanReturnType != otherSelect->isBooleanReturnType) {
-		return false;
-	}
-
-	list<ClauseArgument>::iterator thisIter = this->selectArgs.begin();
-	list<ClauseArgument>::iterator otherIter = otherSelect->selectArgs.begin();
-
-	bool isArgEqual;
-	while (thisIter != this->selectArgs.end()) {
-		isArgEqual = (*thisIter == *otherIter);
-		if (!isArgEqual) {
-			return false;
-		}
-		thisIter++;
-		otherIter++;
-	}
-	return true;
+	return this->isBooleanReturnType == other->isBooleanReturnType
+		&& this->selectArgs == other->selectArgs;
 }

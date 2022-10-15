@@ -9,8 +9,8 @@ shared_ptr<ClauseResult> WithNoExactClause::execute(shared_ptr<PKBQueryHandler> 
 	} 
 
 	// Evaluate each side of the with clause
-	shared_ptr<ClauseResult> lhsResult = this->retrieveForOneAttrRef(pkb, this->lhsSynonym, this->lhsAttribute);
-	shared_ptr<ClauseResult> rhsResult = this->retrieveForOneAttrRef(pkb, this->rhsSynonym, this->rhsAttribute);
+	shared_ptr<ClauseResult> lhsResult = this->getSingleAttrRefResult(pkb, this->lhsSynonym, this->lhsAttribute);
+	shared_ptr<ClauseResult> rhsResult = this->getSingleAttrRefResult(pkb, this->rhsSynonym, this->rhsAttribute);
 	
 	// Evaluate the '='
 	ClauseArgument leftOn = this->getEqualityCheckColumn(this->lhsSynonym, this->lhsAttribute);
@@ -20,12 +20,13 @@ shared_ptr<ClauseResult> WithNoExactClause::execute(shared_ptr<PKBQueryHandler> 
 }
 
 shared_ptr<EntityClauseResult> WithNoExactClause::handleBothSidesEqual() {
+	//both sides are exactly equal, so this with clause does not add any constraint to the final result
 	return make_shared<EntityClauseResult>(EntityClauseResult::createNonEmptyNoSynonymResult());
 }
 
 shared_ptr<ClauseResult> WithNoExactClause::handleBothSidesStmtNumAttribute(shared_ptr<PKBQueryHandler> pkb) {
 	assert(lhsAttribute.isStmtNumAttribute() && rhsAttribute.isStmtNumAttribute());
-	assert(this->lhsSynonym != this->rhsSynonym); // == case should be handled by handleBothSidesEqual
+	assert(this->lhsSynonym != this->rhsSynonym, "== case should be handled by handleBothSidesEqual");
 
 	if (!this->lhsSynonym.isSameType(this->rhsSynonym) && !this->lhsSynonym.isStmtSynonym() 
 		&& !this->rhsSynonym.isStmtSynonym()) {
@@ -47,42 +48,6 @@ shared_ptr<ClauseResult> WithNoExactClause::handleBothSidesStmtNumAttribute(shar
 	EntityClauseResult otherSynonymResult = EntityClauseResult(otherSynonym, retrievedEntities);
 	ClauseResult finalResult = synonymToGetResult.mergeByForceInnerJoin(otherSynonymResult, synonymToGet, otherSynonym);
 	return make_shared<ClauseResult>(finalResult);
-}
-
-shared_ptr<ClauseResult> WithNoExactClause::retrieveForOneAttrRef(shared_ptr<PKBQueryHandler> pkb,
-	ClauseArgument& synonym, ClauseArgument& attribute) {
-	if (synonym.isProcedureSynonym()) {
-		return make_shared<EntityClauseResult>(synonym, pkb->retrieveAllProcedureEntities());
-	}
-	else if (synonym.isConstantSynonym()) {
-		return make_shared<EntityClauseResult>(synonym, pkb->retrieveAllConstants());
-	}
-	else if (synonym.isVariableSynonym()) {
-		return make_shared<EntityClauseResult>(synonym, pkb->retrieveAllVariables());
-	}
-	else if (synonym.isStmtRefNoWildcard() && attribute.isStmtNumAttribute()) {
-		PKBTrackedStatementType statementType = this->getPKBStmtType(synonym);
-		return make_shared<EntityClauseResult>(synonym, pkb->retrieveStatementEntitiesByType(statementType));
-	}
-	else {
-		//non-default attributes, modelled as relationships
-		PKBTrackedRelationshipType relationshipToRetrieve;
-		if (synonym.isCallSynonym() && attribute.isProcNameAttribute()) {
-			relationshipToRetrieve = PKBTrackedRelationshipType::CALLSTMTATTRIBUTE;
-		}
-		else if (synonym.isReadSynonym() && attribute.isVarNameAttribute()) {
-			relationshipToRetrieve = PKBTrackedRelationshipType::MODIFIES;
-		}
-		else if (synonym.isPrintSynonym() && attribute.isVarNameAttribute()) {
-			relationshipToRetrieve = PKBTrackedRelationshipType::USES;
-		}
-		else {
-			throw PQLLogicError("Unkown atrrRef being executed");
-		}
-		ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
-		return make_shared<RelationshipClauseResult>(synonym, attribute,
-			pkb->retrieveRelationshipByTypeAndLhsRhs(relationshipToRetrieve, synonym, wildcardArg));
-	}
 }
 
 ClauseArgument WithNoExactClause::getEqualityCheckColumn(ClauseArgument& synonym, ClauseArgument& attribute) {

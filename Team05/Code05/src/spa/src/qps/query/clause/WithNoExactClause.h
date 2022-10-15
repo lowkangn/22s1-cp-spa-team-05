@@ -21,10 +21,6 @@ private:
 	/* Handles execution when both sides have a stmt# attribute (e.g. s.stmt# = r.stmt#) */
 	shared_ptr<ClauseResult> handleBothSidesStmtNumAttribute(shared_ptr<PKBQueryHandler> pkb);
 
-	/* Returns the result of retrieving from the pkb for one side of the with clause */
-	shared_ptr<ClauseResult> retrieveForOneAttrRef(shared_ptr<PKBQueryHandler> pkb, 
-		ClauseArgument& oneSideSynonym, ClauseArgument& oneSideAttribute);
-
 	/* Returns the column which should be used to perform equality check on. */
 	ClauseArgument getEqualityCheckColumn(ClauseArgument& oneSideSynonym, ClauseArgument& oneSideAttribute);
 
