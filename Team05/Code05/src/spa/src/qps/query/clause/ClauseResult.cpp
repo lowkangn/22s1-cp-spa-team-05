@@ -169,15 +169,19 @@ ClauseResult ClauseResult::mergeByForceInnerJoin(ClauseResult resultToMerge, Cla
 	if (!leftHasArg || !rightHasArg) {
 		throw PQLLogicError("ClauseResults must have the columns to force inner join on");
 	}
-	// temporarily rename any possible natural join synonyms
+
+	string leftPlaceholderSuffix = "left";
+	string rightPlaceholderSuffix = "right";
+
+	// temporarily rename any possible natural join synonyms 
 	vector<ClauseArgument> connectingArgs = this->findConnectingArgs(resultToMerge);
 	int i = 0;
 	for (ClauseArgument arg : connectingArgs) {
 		if (arg != leftOn) {
-			this->renameColumns(arg, ClauseArgument::createStmtArg(to_string(i) + "left"));
+			this->renameColumns(arg, ClauseArgument::createStmtArg(to_string(i) + leftPlaceholderSuffix));
 		}
 		if (arg != rightOn) {
-			resultToMerge.renameColumns(arg, ClauseArgument::createStmtArg(to_string(i) + "right"));
+			resultToMerge.renameColumns(arg, ClauseArgument::createStmtArg(to_string(i) + rightPlaceholderSuffix));
 		}
 		i++;
 	}
@@ -187,8 +191,8 @@ ClauseResult ClauseResult::mergeByForceInnerJoin(ClauseResult resultToMerge, Cla
 	// undo temporary renaming
 	i = 0;
 	for (ClauseArgument arg : connectingArgs) {
-		merged.renameColumns(ClauseArgument::createStmtArg(to_string(i) + "left"), arg);
-		merged.renameColumns(ClauseArgument::createStmtArg(to_string(i) + "right"), arg);
+		merged.renameColumns(ClauseArgument::createStmtArg(to_string(i) + leftPlaceholderSuffix), arg);
+		merged.renameColumns(ClauseArgument::createStmtArg(to_string(i) + rightPlaceholderSuffix), arg);
 		i++;
 	}
 	return merged;

@@ -15,11 +15,15 @@ private:
 	}
 
 public:
+    /* Creates a non empty result with no synoynms. Equivalent to a clause result that poses no constraint on the final query result */
     static EntityClauseResult createNonEmptyNoSynonymResult() {
-        vector<PQLEntity> nonEmptyDummyEntities{ PQLEntity::generateConstant(0) };
-        return EntityClauseResult(ClauseArgument::createWildcardArg(), nonEmptyDummyEntities);
+        int aConstantThatDoesntMatter = 0;
+        PQLEntity whateverEntityYouLike = PQLEntity::generateConstant(aConstantThatDoesntMatter);
+        vector<PQLEntity> notEmptyVector{ whateverEntityYouLike };
+        return EntityClauseResult(ClauseArgument::createWildcardArg(), notEmptyVector);
     }
 
+    /* Creates an empty result with no synoynms. Equivalent to a clause result that makes the final query result empty */
     static EntityClauseResult createEmptyNoSynonymResult() {
         return EntityClauseResult(ClauseArgument::createWildcardArg(), vector<PQLEntity>{});
     }
