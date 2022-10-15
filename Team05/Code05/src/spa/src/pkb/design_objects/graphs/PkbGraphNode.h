@@ -34,6 +34,11 @@ public:
 		return this->children;
 	}
 
+	shared_ptr<PkbEntity> getAsEntity() {
+		return this->entity;
+	}
+
+
 	/*
 		Returns a unique key identifying the node.
 	*/

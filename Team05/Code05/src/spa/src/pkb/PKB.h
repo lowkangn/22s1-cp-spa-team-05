@@ -13,6 +13,7 @@
 #include <pkb/table_managers/PkbRelationshipTable.h>
 #include <pkb/table_managers/PkbPatternTable.h>
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/graph_managers/PkbGraphManager.h>
 
 #include <map>
 #include <string>
@@ -27,6 +28,7 @@ const string PARENT_TABLE = "parent";
 const string PARENTSTAR_TABLE = "parentStar";
 const string USES_TABLE = "uses";
 const string MODIFIES_TABLE = "modifies";
+const string NEXT_TABLE = "next";
 const string CALLS_ATTRIBUTE_TABLE = "callsAttribute";
 const string CALLS_TABLE = "calls";
 const string CALLSSTAR_TABLE = "callsStar";
@@ -49,6 +51,7 @@ private:
 		{PARENTSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{USES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{MODIFIES_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
+		{NEXT_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{CALLS_ATTRIBUTE_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{CALLS_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
 		{CALLSSTAR_TABLE, shared_ptr<PkbRelationshipTable>(new PkbRelationshipTable())},
@@ -58,6 +61,10 @@ private:
 	PkbPatternTable assignPatterns;
 	PkbPatternTable ifPatterns;
 	PkbPatternTable whilePatterns;
+
+	// graphs
+	PkbGraphManager cfgManager;
+	
 
 	// getters
 	shared_ptr<PkbRelationshipTable> getFollowsTable() {
@@ -78,10 +85,12 @@ private:
 	shared_ptr<PkbRelationshipTable> getModifiesTable() {
 		return this->relationshipTables[MODIFIES_TABLE];
 	}
-	shared_ptr<PkbRelationshipTable> getCallsAttributeTable() {
+	shared_ptr<PkbRelationshipTable> getNextTable() {
+		return this->relationshipTables[NEXT_TABLE];
+	}
+		shared_ptr<PkbRelationshipTable> getCallsAttributeTable() {
 		return this->relationshipTables[CALLS_ATTRIBUTE_TABLE];
 	}
-
 	shared_ptr<PkbRelationshipTable> getCallsTable() {
 		return this->relationshipTables[CALLS_TABLE];
 	}
@@ -151,10 +160,21 @@ private:
 	*/
 	shared_ptr<PkbEntity> convertClauseArgumentToPkbEntity(ClauseArgument clause);
 
+	/*
+		Retrieves all relationships by a lhs, rhs for relationships of a specified type, from tables.
+	*/
+	vector<PQLRelationship> retrieveRelationshipsFromTablesByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
+
+	/*
+		Retrieves all relationships by a lhs, rhs for relationships of a specified type, from graphs.
+	*/
+	vector<PQLRelationship> retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
+
 	/* 
 		Helper function to filter pkb statement entities by their type and convert them to PQLEntities.
 	*/
 	vector<PQLEntity> filterAndConvertStatementEntities(vector<shared_ptr<PkbEntity>> statements, PKBTrackedStatementType pkbTrackedStatementType);
+
 public: 
 	PKB() {}
 
@@ -172,6 +192,11 @@ public:
 		Add extracted entities from the SP.
 	*/
 	void addEntities(vector<Entity> entities) override;
+
+	/*
+		Add the control flow graph from the SP.
+	*/
+	void addCfg(shared_ptr<CFGNode> rootNode) override;
 
 	/*
 		Retrieves all procedure entities by name.

@@ -13,6 +13,9 @@
 #include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbUsesRelationship.h>
 #include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
+#include <pkb/design_objects/relationships/PkbNextRelationship.h>
+#include <pkb/design_objects/graphs/PkbControlFlowGraphNode.h>
+#include <pkb/graph_extractors/PkbGraphNextStarRelationshipExtractor.h>
 #include <pkb/design_objects/relationships/PkbCallStmtAttributeRelationship.h>
 #include <qps/query/clause/PQLEntity.h>
 #include <StringSplitter.h>
@@ -144,6 +147,10 @@ shared_ptr<PkbRelationship> PKB::externalRelationshipToPkbRelationship(Relations
 	else if (relationship.isCallsStar()) {
 		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
 		return pkbRelationship;
+
+	}  else if (relationship.isNext()) {
+		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbNextRelationship(lhsToPkbEntity, rhsToPkbEntity));
+		return pkbRelationship;
 	} else {
 		throw PkbException("Unknown relationship being converted!");
 	}
@@ -225,6 +232,10 @@ void PKB::addRelationships(vector<Relationship> relationships) {
 			shared_ptr<PkbRelationshipTable> table = this->getCallsStarTable();
 			table->add(pkbRelationship);
 		}
+		else if (r.isNext()) {
+			shared_ptr<PkbRelationshipTable> table = this->getNextTable();
+			table->add(pkbRelationship);
+		}
 		else {
 			throw PkbException("Unknown relationship being added to PKB!");
 		}
@@ -279,6 +290,102 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 			throw PkbException("Unknown pattern type being added!");
 		}
 	}
+}
+
+
+/*
+	Hash function for an edge, which we represent as a pair of strings.
+*/
+struct EdgeKeyHash {
+	size_t operator()(const pair<string, string>& p) const {
+		// we choose 31 as it's a prime number typically used for hashing strings
+		return hash<string>()(p.first) * 31 + hash<string>()(p.second);
+
+	}
+};
+
+
+void PKB::addCfg(shared_ptr<CFGNode> rootNode) {
+
+	// 1. traverse cfg to convert to pkb graph
+	// 1.1 pointer to new root node
+	shared_ptr<PkbGraphNode> node = NULL;
+
+	// 1.2 initialize edge visited list and queue
+	unordered_set<pair<string, string>, EdgeKeyHash> visitedEdges;
+	queue<shared_ptr<CFGNode>> q;
+	q.push(rootNode);
+
+	// 1.3 initialize node set
+	unordered_map<string, shared_ptr<PkbGraphNode>> keyToNodeMap;
+
+	// 2 bfs with visited edges
+	while (!q.empty()) {
+
+		// 1. pop
+		shared_ptr<CFGNode> n = q.front();
+		q.pop();
+
+		// 2. convert to pkb graph node. if already inside, use that.
+		shared_ptr<PkbStatementEntity> castedParent = static_pointer_cast<PkbStatementEntity>(this->externalEntityToPkbEntity(n->getEntity()));
+		if (castedParent == NULL) { // conversion failed
+			throw PkbException("Tried to convert cfg node to statement entity, but couldn't!");
+		}
+		shared_ptr<PkbGraphNode> parentNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(castedParent);
+		string parentKey = parentNode->getKey();
+		if (keyToNodeMap.count(parentKey)) {
+			parentNode = keyToNodeMap.at(parentKey);
+		}
+		else {
+			keyToNodeMap.insert({ parentKey, parentNode });
+		}
+
+
+
+		// 2.1 if root node not initialized, put it
+		if (node == NULL) {
+			node = parentNode;
+		}
+
+		// 3. traverse neighbours
+		for (shared_ptr<CFGNode> child : n->getChildren()) {
+
+			// 3.1 convert to pkbgraph node
+			shared_ptr<PkbStatementEntity> castedChild = static_pointer_cast<PkbStatementEntity>(this->externalEntityToPkbEntity(child->getEntity()));
+			if (castedChild == NULL) { // conversion failed
+				throw PkbException("Tried to convert cfg node to statement entity, but couldn't!");
+			}	
+			shared_ptr<PkbGraphNode> childNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(castedChild);
+
+			// 3.2 if already seen before, use that node instead. else, insert
+			string childKey = childNode->getKey();
+			if (keyToNodeMap.count(childKey)) {
+				childNode = keyToNodeMap.at(childKey);
+			}
+			else {
+				keyToNodeMap.insert({ childKey, childNode });
+			}
+
+			// 3.3 if edge visited, continue
+			pair<string, string> edgeKey = pair<string, string>(parentNode->getKey(), childNode->getKey());
+			if (visitedEdges.count(edgeKey)) {
+				continue;
+			}
+
+			// 3.4 else, add as neighbour of parent and to visited set
+			parentNode->addNeighbour(childNode); // add as neighbour of parent
+			visitedEdges.insert(edgeKey); // add edge to visited set 
+
+			// 3.4 add to queue and key map
+			q.push(child);
+		}
+	}
+
+
+	// 2. pass the pkb graph into the graph manager 
+	this->cfgManager = PkbGraphManager(node);
+
+
 }
 
 optional<PQLEntity> PKB::retrieveProcedureEntityByName(string procedureName) {
@@ -399,6 +506,8 @@ shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelat
 		return this->getUsesTable();
 	case PKBTrackedRelationshipType::MODIFIES:
 		return this->getModifiesTable();
+	case PKBTrackedRelationshipType::NEXT:
+		return this->getNextTable();
 	case PKBTrackedRelationshipType::CALLSTMTATTRIBUTE:
 		return this->getCallsAttributeTable();
 	case PKBTrackedRelationshipType::CALLS:
@@ -601,17 +710,18 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 
 bool PKB::canShortCircuitRetrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
 
-	// 1. for parent and follows, cannot reference itself
+	// 1. for parent, next, follows, cannot reference itself
 	if (relationshipType == PKBTrackedRelationshipType::PARENT
 		|| relationshipType == PKBTrackedRelationshipType::PARENTSTAR
 		|| relationshipType == PKBTrackedRelationshipType::FOLLOWS
-		|| relationshipType == PKBTrackedRelationshipType::FOLLOWSSTAR) {
+		|| relationshipType == PKBTrackedRelationshipType::FOLLOWSSTAR
+		|| relationshipType == PKBTrackedRelationshipType::NEXT) {
 		if (lhs.isStmtRefNoWildcard() && rhs.isStmtRefNoWildcard() && lhs == rhs) {
 			// is identical. e.g Follows(s,s)
 			// no possible solution, return empty
 			return true;
 		}
-	}
+	} 
 
 	return false;
 }
@@ -637,8 +747,128 @@ shared_ptr<PkbEntity> PKB::convertClauseArgumentToPkbEntity(ClauseArgument claus
 }
 
 
-
 vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
+	// depending on type, we pass to the correct handler
+	switch (relationshipType) {
+
+	// graph types
+	case PKBTrackedRelationshipType::NEXTSTAR:
+	case PKBTrackedRelationshipType::AFFECTS:
+	case PKBTrackedRelationshipType::AFFECTSSTAR:
+		return retrieveRelationshipsFromGraphsByTypeAndLhsRhs(relationshipType, lhs, rhs);
+		break;
+
+	// table types
+	case PKBTrackedRelationshipType::NEXT:
+	case PKBTrackedRelationshipType::FOLLOWS:
+	case PKBTrackedRelationshipType::FOLLOWSSTAR:
+	case PKBTrackedRelationshipType::MODIFIES:
+	case PKBTrackedRelationshipType::PARENT:
+	case PKBTrackedRelationshipType::PARENTSTAR:
+	case PKBTrackedRelationshipType::USES:
+	default:
+		return retrieveRelationshipsFromTablesByTypeAndLhsRhs(relationshipType, lhs, rhs);
+	}
+}
+
+vector<PQLRelationship> PKB::retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
+
+	if (relationshipType == PKBTrackedRelationshipType::NEXTSTAR) {
+		// 1. validation - must be a statement
+		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
+			throw PkbException("NEXTSTAR relationship expects lhs and rhs to both be statements!");
+		}
+
+		// 2. there are four cases. 
+		// if lhs and rhs are exact, we can do a direct check.
+		// if exact and _, we need to do dfs from the specified node.
+		// if _ and exact, we do dfs starting from the root node.
+		// if _ and _, we do dfs from the root node and accumulate.
+		vector<PQLRelationship> out;
+
+		// case 1: both exact
+		if (lhs.isExactReference() && rhs.isExactReference()) {
+			// construct key from lhs and rhs
+			shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
+			shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
+			shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(lhsEntity);
+			shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(rhsEntity);
+
+			// create graph nodes and get their keys 
+			string leftKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left)->getKey();
+			string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
+
+			// check they are both inside
+
+
+			// if they are connected, return. else, return empty list
+			if (this->cfgManager.isInside(leftKey) 
+				&& this->cfgManager.isInside(rightKey)
+				&& this->cfgManager.canReachNodeBFromNodeA(leftKey, rightKey)) {
+				PQLEntity outLhs = this->pkbEntityToQpsPqlEntity(lhsEntity);
+				PQLEntity outRhs = this->pkbEntityToQpsPqlEntity(rhsEntity);
+				out.push_back(PQLRelationship(outLhs, outRhs));
+			}
+			return out;
+		}
+
+
+		// case 2: exact and wildcard
+		PkbGraphNextStarRelationshipExtractor extractor;
+		vector<shared_ptr<PkbRelationship>> extractedRelationships;
+		if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
+			// convert lhs to entity, graph node, then get node 
+			shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
+			shared_ptr<PkbGraphNode> leftAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
+			shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(this->cfgManager.getNode(leftAsNode->getKey()));
+			
+			// starting from node, run dfs 
+			extractor.extractAllFromStart(startNode, true);
+			extractedRelationships = extractor.getExtractedRelationships();
+
+		}
+		// case 3: wildcard and exact
+		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isExactReference())) {
+			// convert rhs to entity, graph node, then get target node 
+			shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
+			shared_ptr<PkbGraphNode> rightAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
+			shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(this->cfgManager.getNode(rightAsNode->getKey()));
+			shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(this->cfgManager.getRootNode());
+
+			// starting from node, run dfs 
+			extractor.extractAllThatReachEnd(startNode, endNode, true);
+			extractedRelationships = extractor.getExtractedRelationships();
+		}
+		else { // case 4: all wild card
+			// starting at root node, dfs all the way
+			shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(this->cfgManager.getRootNode());
+			extractor.extractAllFromStart(startNode);
+			extractedRelationships = extractor.getExtractedRelationships();
+		}
+
+		// for each result in output, convert
+		for (shared_ptr<PkbRelationship> r : extractedRelationships) {
+
+			PQLEntity outLhs = this->pkbEntityToQpsPqlEntity(r->getLhs());
+			PQLEntity outRhs = this->pkbEntityToQpsPqlEntity(r->getRhs());
+			out.push_back(PQLRelationship(outLhs, outRhs));
+		}
+		return out;
+	
+	}
+	else if (relationshipType == PKBTrackedRelationshipType::AFFECTS) {
+		throw PkbException("Not implemented yet!");
+	}
+	else if (relationshipType == PKBTrackedRelationshipType::AFFECTSSTAR) {
+		throw PkbException("Not implemented yet!");
+	}
+	else {
+		throw PkbException("Unknown graph type relationship trying to be retrieved.");
+	}
+}
+
+
+vector<PQLRelationship> PKB::retrieveRelationshipsFromTablesByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
 	// 0. get table based on type
 	shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(relationshipType);
 
@@ -673,6 +903,9 @@ vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelat
 			break;
 		case PKBTrackedRelationshipType::MODIFIES:
 			toFind = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(left, right));
+			break;
+		case  PKBTrackedRelationshipType::NEXT:
+			toFind = shared_ptr<PkbRelationship>(new PkbNextRelationship(left, right));
 			break;
 		case PKBTrackedRelationshipType::CALLSTMTATTRIBUTE:
 			toFind = shared_ptr<PkbRelationship>(new PkbCallStmtAttributeRelationship(left, right));
