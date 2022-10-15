@@ -1,0 +1,80 @@
+1 - Undeclared synonym
+procedure p;
+Select p with p.procName = call.procName
+SemanticError
+5000
+2 - Different case with
+procedure p;
+Select p With p.procName = "main"
+SyntaxError
+5000
+3 - Using such that instead of with
+procedure p;
+Select p such that p.procName = "main"
+SyntaxError
+5000
+4 - Unknown attribute
+procedure p;
+Select p with p.PROCNAME = "main"
+SyntaxError
+5000
+5 - Mismatched attribute (const, lineNum)
+constant c;
+Select c with c.stmt# = 1
+SemanticError
+5000
+6 - Mismatched attribute (var, lineNum)
+variable v;
+Select v with  v.stmt# = 1
+SemanticError
+5000
+7 - Mismatched attribute (assign, varName)
+assign a;
+Select a with a.varName = "x"
+SemanticError
+5000
+8 - Mismatched attribute (stmt, procName)
+stmt s;
+Select s with s.procName = "main"
+SemanticError
+5000
+9 - Mismatched attribute (var, value)
+variable v;
+Select v with v.value = 5
+SemanticError
+5000
+10 - Mismatched attribute (procedure, lineNum)
+procedure p;
+Select p with p.stmt# = 1
+SemanticError
+5000
+11 - Quoted number
+constant c;
+Select c with c.value = "5"
+SyntaxError
+5000
+12 - Double equal sign
+constant c;
+Select c with c.value == 5
+SyntaxError
+5000
+13 - Mismatched attrRefs (varName, lineNum)
+variable v; stmt s;
+Select s with s.stmt# = v.varName
+SemanticError
+5000
+14 - Mismatched attrRefs (procName, lineNum)
+call c; stmt s;
+Select s with s.stmt# = c.procName
+SemanticError
+5000
+15 - Mismatched attrRefs (procName, value)
+call c; constant const;
+Select c with c.procName = const.value 
+SemanticError
+5000
+16 - Mismatched attrRefs (varName, value)
+read r; constant const;
+Select r with r.varName = const.value 
+SemanticError
+5000
