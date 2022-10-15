@@ -32,7 +32,7 @@ protected:
 
 	/* ==== Methods to parse a single argument of the clause and consume the token(s) used. ==== */
 
-	ClauseArgument parseOneArgument();
+	ClauseArgument parseOneStmtRefOrEntRef();
 
 	ClauseArgument parseSynonym();
 

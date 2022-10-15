@@ -1,7 +1,7 @@
 #include <qps/query_evaluator/QueryEvaluator.h>
 
 set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pkb) {
-	list<ClauseResult> entitiesResults = dereferenceResults<EntityClauseResult>(query.executeSelect(pkb));
+	list<ClauseResult> entitiesResults = dereferenceResults<ClauseResult>(query.executeSelect(pkb));
 	list<ClauseResult> relationshipsResults = dereferenceResults<RelationshipClauseResult>(query.executeSuchThatAndPattern(pkb));
 	list<ClauseResult> withResults = dereferenceResults<ClauseResult>(query.executeWith(pkb));
 

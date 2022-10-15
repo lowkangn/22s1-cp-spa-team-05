@@ -10,7 +10,7 @@
 #include <qps/query_parser/parsers/FollowsParser.h>
 #include <qps/query_parser/parsers/ModifiesParser.h>
 #include <qps/query_parser/parsers/ParentParser.h>
-#include <qps/query_parser/parsers/PatternAssignParser.h>
+#include <qps/query_parser/parsers/PatternParser.h>
 #include <qps/query_parser/parsers/UsesParser.h>
 #include <qps/query_parser/parsers/WithParser.h>
 
@@ -134,12 +134,16 @@ shared_ptr<PatternClause> QueryParser::parsePattern(unordered_map<string, Argume
 
     //first check is required to prevent .at from throwing when synonym is not declared
     bool isSynonymDeclared = declarations.count(token.getTokenString()) > 0;
-	if (!isSynonymDeclared || !(declarations.at(token.getTokenString()) == ArgumentType::ASSIGN)) {
+
+    // check if synonym is either empty, or not while/if/assign for pattern
+	if (!isSynonymDeclared || !(declarations.at(token.getTokenString()) == ArgumentType::ASSIGN
+        || declarations.at(token.getTokenString()) == ArgumentType::WHILE
+        || declarations.at(token.getTokenString()) == ArgumentType::IF)) {
         this->isSemanticallyValid = false;
         this->semanticErrorMessage = "Invalid synonym after 'pattern'";
 	}
 
-    parserPointer = shared_ptr<PatternParser>(new PatternAssignParser(this->tokens, declarations));
+    parserPointer = shared_ptr<PatternParser>(new PatternParser(this->tokens, declarations));
 	shared_ptr<PatternClause> clause = parserPointer->parse();
 	this->tokens = parserPointer->getRemainingTokens(); 
     this->setSemanticErrorFromParser(parserPointer);

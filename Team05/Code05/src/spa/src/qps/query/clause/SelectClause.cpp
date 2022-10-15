@@ -2,12 +2,26 @@
 
 #include <memory>
 
-list<shared_ptr<EntityClauseResult>> SelectClause::execute(shared_ptr<PKBQueryHandler> pkb) {
-	list<shared_ptr<EntityClauseResult>> resultList;
-	if (!isBooleanReturnType) {
-		for (ClauseArgument argument : selectArgs) {
-			shared_ptr<EntityClauseResult> result = this->getSingleEntityResult(pkb, argument);
-			resultList.push_back(result);
+list<shared_ptr<ClauseResult>> SelectClause::execute(shared_ptr<PKBQueryHandler> pkb) {
+	list<shared_ptr<ClauseResult>> resultList;
+	// no results to retrieve for select boolean
+	if (isBooleanReturnType) {
+		return resultList;
+	}
+
+	list<ClauseArgument>::iterator argsIter = this->selectArgs.begin();
+	while (argsIter != this->selectArgs.end()) {
+		ClauseArgument synonym = *argsIter;
+		
+		// check arg immediately after synonym
+		argsIter++;
+		if (argsIter != this->selectArgs.end() && argsIter->isAttributeName()) {
+			// if arg after synonym is an attribute, they form an attrRef so we retrieve the attrRef
+			resultList.push_back(this->getSingleAttrRefResult(pkb, synonym, *argsIter));
+			argsIter++;
+		} else {
+			// else, retrieve the synonym
+			resultList.push_back(this->getSingleEntityResult(pkb, synonym));
 		}
 	}
 	return resultList;
@@ -20,30 +34,17 @@ shared_ptr<EntityClauseResult> SelectClause::getSingleEntityResult(shared_ptr<PK
 
 	vector<PQLEntity> entities;
 
-	if (toSelect.isStmtSynonym()) {
-		entities = pkb->retrieveAllStatementEntities();
-	} else if (toSelect.isProcedureSynonym()) {
+	if (toSelect.isProcedureSynonym()) {
 		entities = pkb->retrieveAllProcedureEntities();
 	} else if (toSelect.isVariableSynonym()) {
 		entities = pkb->retrieveAllVariables();
 	} else if (toSelect.isConstantSynonym()) {
 		entities = pkb->retrieveAllConstants();
+	} else if (toSelect.isStmtRefNoWildcard()) {
+		PKBTrackedStatementType stmtType = this->getPKBStmtType(toSelect);
+		entities = pkb->retrieveStatementEntitiesByType(stmtType);
 	} else {
-		if (toSelect.isReadSynonym()) {
-			entities = pkb->retrieveStatementEntitiesByType(PKBTrackedStatementType::READ);
-		} else if (toSelect.isPrintSynonym()) {
-			entities = pkb->retrieveStatementEntitiesByType(PKBTrackedStatementType::PRINT);
-		} else if (toSelect.isAssignSynonym()) {
-			entities = pkb->retrieveStatementEntitiesByType(PKBTrackedStatementType::ASSIGN);
-		} else if (toSelect.isCallSynonym()) {
-			entities = pkb->retrieveStatementEntitiesByType(PKBTrackedStatementType::CALL);
-		} else if (toSelect.isWhileSynonym()) {
-			entities = pkb->retrieveStatementEntitiesByType(PKBTrackedStatementType::WHILE);
-		} else if (toSelect.isIfSynonym()) {
-			entities = pkb->retrieveStatementEntitiesByType(PKBTrackedStatementType::IF);
-		} else {
 			throw PQLLogicError("Cannot identify SelectClause argument");
-		}
 	}
 
     return make_shared<EntityClauseResult>(toSelect, entities);

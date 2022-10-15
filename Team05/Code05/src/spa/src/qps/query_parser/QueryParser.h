@@ -13,7 +13,6 @@
 #include <qps/query_parser/parsers/ModifiesParser.h>
 #include <qps/query_parser/parsers/ParentParser.h>
 #include <qps/query_parser/parsers/PatternParser.h>
-#include <qps/query_parser/parsers/PatternAssignParser.h>
 #include <qps/query_parser/parsers/UsesParser.h>
 
 #include <list>

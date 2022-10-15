@@ -299,3 +299,11 @@ set<string> ClauseResult::convertTableToString(bool isBooleanReturnType) {
 bool ClauseResult::equals(shared_ptr<ClauseResult> other) {
 	return (this->args == other->args) && (this->table == other->table);
 }
+
+bool operator<(ClauseResult first, ClauseResult second) {
+	return first.args < second.args || (first.args == second.args && first.table < second.table);
+}
+
+bool operator==(ClauseResult first, ClauseResult second) {
+	return first.args == second.args && first.table == second.table;
+}

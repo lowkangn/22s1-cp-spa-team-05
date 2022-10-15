@@ -7,6 +7,10 @@
 #include <qps/query_parser/parsers/ClauseParser.h>
 #include <qps/query/clause/PatternClause.h>
 #include <common/PostFixConverter.h>
+#include <qps/query/clause/PatternAssignClause.h>
+#include <qps/query/clause/PatternIfClause.h>
+#include <qps/query/clause/PatternWhileClause.h>
+
 
 #include <iostream>
 
@@ -101,19 +105,15 @@ public:
 	PatternParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
 			ClauseParser(tokens, declarations) {};
 
-	/* Parses this parser's tokens into a Clause. (Template method:
-	   behaviour depends on implementation of virtual functions) */
+	/* Parses this parser's tokens into a Clause. */
 	shared_ptr<PatternClause> parse();
 
 	/* Extracts the LHS and RHS arguments of the such that clause */
-	virtual vector<ClauseArgument> extractArguments() = 0;
-
-	/* Returns true if the clauseTypeToken matches the clause that the Parser parses */
-	virtual bool isCorrectClauseType(PQLToken clauseTypeToken) = 0;
+	vector<ClauseArgument> extractArguments();
 
 	/* Checks that the arguments fulfill the constraints of the clause; throws a PQL error otherwise */
-	virtual void checkArguments(vector<ClauseArgument>& args) = 0;
+	void checkArguments(vector<ClauseArgument>& args);
 
 	/* Creates the clause given the clause type and arguments */
-	virtual shared_ptr<PatternClause> createClause(PQLToken clauseTypeToken, vector<ClauseArgument>& args) = 0;
+	shared_ptr<PatternClause> createClause(PQLToken clauseTypeToken, vector<ClauseArgument>& args);
 };

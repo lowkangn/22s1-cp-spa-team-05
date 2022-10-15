@@ -5,11 +5,10 @@
 
 #include <qps/query_tokenizer/PQLToken.h>
 #include <qps/query_parser/ArgumentType.h>
-#include <qps/query_parser/parsers/SemanticChecker.h>
-#include <qps/query_parser/parsers/ClauseParser.h>
+#include <qps/query_parser/parsers/AttributeClauseParser.h>
 #include <qps/query/clause/SelectClause.h>
 
-class SelectParser : public ClauseParser {
+class SelectParser : public AttributeClauseParser {
 protected:
 	/* Returns true if the clauseTypeToken matches the clause that the Parser parses */
 	virtual bool isCorrectClauseType(PQLToken clauseTypeToken) = 0;
@@ -22,7 +21,7 @@ protected:
 
 public:
 	SelectParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
-		ClauseParser(tokens, declarations) {};
+		AttributeClauseParser(tokens, declarations) {};
 
 	/* Parses this parser's tokens into a Clause. (Template method:
 	   behaviour depends on implementation of virtual functions) */

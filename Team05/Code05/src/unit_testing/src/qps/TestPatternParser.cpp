@@ -1,18 +1,17 @@
 #include "catch.hpp"
 #include <qps/query_parser/parsers/PatternParser.h>
-#include <qps/query_parser/parsers/PatternAssignParser.h>
 #include <iostream>
 
 using namespace std;
 
 // =============== UNIT TESTS ====================
 
-TEST_CASE("PatternAssignParser: test parsePatternAssignNoError") {
+TEST_CASE("PatternParser: test parsePatternAssignNoError for Assign Patterns") {
 	auto testParseNoError = [](list<PQLToken> tokens,
 							   unordered_map<string, ArgumentType> declarations,
 							   PatternAssignClause expected) {
 		// given
-		PatternAssignParser parser = PatternAssignParser(tokens, declarations);
+		PatternParser parser = PatternParser(tokens, declarations);
 
 		// when
 		shared_ptr<PatternClause> actualPtr = parser.parse();
@@ -296,11 +295,208 @@ TEST_CASE("PatternAssignParser: test parsePatternAssignNoError") {
 
 }
 
-TEST_CASE("PatternAssignParser: test parseWithSemanticError") {
+TEST_CASE("PatternParser: test parsePatternWhileNoError for While Clause") {
+	auto testParseNoError = [](list<PQLToken> tokens,
+		unordered_map<string, ArgumentType> declarations,
+		PatternWhileClause expected) {
+			// given
+			PatternParser parser = PatternParser(tokens, declarations);
+
+			// when
+			shared_ptr<PatternClause> actualPtr = parser.parse();
+
+			// then
+			REQUIRE(expected.equals(actualPtr));
+	};
+
+	SECTION("LHS variable, RHS wildcard for while patterns") {
+		list<PQLToken> tokensList = list<PQLToken>{
+				PQLToken::createNameToken("w"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createNameToken("v"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+				{"w", ArgumentType::WHILE},
+				{"v", ArgumentType::VARIABLE}
+		};
+
+		PatternWhileClause expected = PatternWhileClause(
+			ClauseArgument::createWhileArg("w"),
+			ClauseArgument::createVariableArg("v"),
+			ClauseArgument::createWildcardArg());
+
+		testParseNoError(tokensList, declarationsMap, expected);
+	}
+
+	SECTION("LHS variable, RHS wildcard for while patterns") {
+		list<PQLToken> tokensList = list<PQLToken>{
+				PQLToken::createNameToken("w"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createNameToken("v"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+				{"w", ArgumentType::WHILE},
+				{"v", ArgumentType::VARIABLE}
+		};
+
+		PatternWhileClause expected = PatternWhileClause(
+			ClauseArgument::createWhileArg("w"),
+			ClauseArgument::createVariableArg("v"),
+			ClauseArgument::createWildcardArg());
+
+		testParseNoError(tokensList, declarationsMap, expected);
+	}
+
+	SECTION("LHS string literal, RHS wildcard") {
+		list<PQLToken> tokensList = list<PQLToken>{
+				PQLToken::createNameToken("w"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createNameToken("x"),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+				{"w", ArgumentType::WHILE}
+		};
+
+		PatternWhileClause expected = PatternWhileClause(
+			ClauseArgument::createWhileArg("w"),
+			ClauseArgument::createStringLiteralArg("x"),
+			ClauseArgument::createWildcardArg());
+
+		testParseNoError(tokensList, declarationsMap, expected);
+	}
+
+	SECTION("LHS wildcard, RHS wildcard") {
+		list<PQLToken> tokensList = list<PQLToken>{
+				PQLToken::createNameToken("w"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+				{"w", ArgumentType::WHILE},
+		};
+
+		PatternWhileClause expected = PatternWhileClause(
+			ClauseArgument::createWhileArg("w"),
+			ClauseArgument::createWildcardArg(),
+			ClauseArgument::createWildcardArg());
+
+		testParseNoError(tokensList, declarationsMap, expected);
+	}
+}
+
+TEST_CASE("PatternParser: test parsePatternIfNoError for If Clause") {
+	auto testParseNoError = [](list<PQLToken> tokens,
+		unordered_map<string, ArgumentType> declarations,
+		PatternIfClause expected) {
+			// given
+			PatternParser parser = PatternParser(tokens, declarations);
+
+			// when
+			shared_ptr<PatternClause> actualPtr = parser.parse();
+
+			// then
+			REQUIRE(expected.equals(actualPtr));
+	};
+
+	SECTION("LHS variable") {
+		list<PQLToken> tokensList = list<PQLToken>{
+				PQLToken::createNameToken("i"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createNameToken("v"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+				{"i", ArgumentType::IF},
+				{"v", ArgumentType::VARIABLE}
+		};
+
+		PatternIfClause expected = PatternIfClause(
+			ClauseArgument::createIfArg("i"),
+			ClauseArgument::createVariableArg("v"),
+			ClauseArgument::createWildcardArg());
+
+		testParseNoError(tokensList, declarationsMap, expected);
+	}
+
+	SECTION("LHS string literal") {
+		list<PQLToken> tokensList = list<PQLToken>{
+				PQLToken::createNameToken("i"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createNameToken("x"),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+				{"i", ArgumentType::IF}
+		};
+
+		PatternIfClause expected = PatternIfClause(
+			ClauseArgument::createIfArg("i"),
+			ClauseArgument::createStringLiteralArg("x"),
+			ClauseArgument::createWildcardArg());
+
+		testParseNoError(tokensList, declarationsMap, expected);
+	}
+
+	SECTION("All wildcard") {
+		list<PQLToken> tokensList = list<PQLToken>{
+				PQLToken::createNameToken("i"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+				{"i", ArgumentType::IF},
+		};
+
+		PatternIfClause expected = PatternIfClause(
+			ClauseArgument::createIfArg("i"),
+			ClauseArgument::createWildcardArg(),
+			ClauseArgument::createWildcardArg());
+
+		testParseNoError(tokensList, declarationsMap, expected);
+	}
+}
+
+TEST_CASE("PatternParser: test parseWithSemanticError") {
 	auto testParseWithError = [](list<PQLToken> tokens,
 		unordered_map<string, ArgumentType> declarations) {
 			// given
-			PatternAssignParser parser = PatternAssignParser(tokens, declarations);
+			PatternParser parser = PatternParser(tokens, declarations);
 
 			// when
 			parser.parse();
@@ -308,6 +504,7 @@ TEST_CASE("PatternAssignParser: test parseWithSemanticError") {
 			// then
 			REQUIRE(!parser.isSemanticallyValid());
 	};
+
 
 	SECTION("Invalid second argument") {
 
@@ -324,6 +521,40 @@ TEST_CASE("PatternAssignParser: test parseWithSemanticError") {
 
 		unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
 				{"a", ArgumentType::ASSIGN},
+				{"s", ArgumentType::STMT}
+		};
+
+		testParseWithError(tokensList, declarationsMap);
+
+		// second arg of if/while pattern not entRef or wildcard
+
+		tokensList = list<PQLToken>{
+				PQLToken::createNameToken("w"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createNameToken("s"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		declarationsMap = unordered_map<string, ArgumentType>{
+				{"w", ArgumentType::WHILE},
+				{"s", ArgumentType::STMT}
+		};
+
+		testParseWithError(tokensList, declarationsMap);
+
+		tokensList = list<PQLToken>{
+				PQLToken::createNameToken("i"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createNameToken("s"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		declarationsMap = unordered_map<string, ArgumentType>{
+				{"i", ArgumentType::IF},
 				{"s", ArgumentType::STMT}
 		};
 
@@ -458,13 +689,34 @@ TEST_CASE("PatternAssignParser: test parseWithSemanticError") {
 		testParseWithError(tokensList, declarationsMap);
 	}
 
+	SECTION("Wrong synonym type for assign pattern") {
+
+		// third arg is a variable synonym
+		list<PQLToken> tokensList = list<PQLToken>{
+				PQLToken::createNameToken("w"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createNameToken("v"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createNameToken("t"),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+				{"w", ArgumentType::WHILE},
+				{"t", ArgumentType::VARIABLE}
+		};
+
+		testParseWithError(tokensList, declarationsMap);
+	}
 }
 
-TEST_CASE("PatternAssignParser: test parseWithSyntaxError") {
+TEST_CASE("PatternParser: test parseWithSyntaxError") {
 	auto testParseWithError = [](list<PQLToken> tokens,
 		unordered_map<string, ArgumentType> declarations) {
 			// given
-			PatternAssignParser parser = PatternAssignParser(tokens, declarations);
+			PatternParser parser = PatternParser(tokens, declarations);
 
 			// then
 			REQUIRE_THROWS_AS(parser.parse(), PQLSyntaxError);
@@ -640,6 +892,53 @@ TEST_CASE("PatternAssignParser: test parseWithSyntaxError") {
 				{"a", ArgumentType::ASSIGN},
 				{"v", ArgumentType::VARIABLE},
 				{"c", ArgumentType::CONSTANT}
+		};
+
+		testParseWithError(tokensList, declarationsMap);
+
+		tokensList = list<PQLToken>{
+				PQLToken::createNameToken("i"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createNameToken("v"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createNameToken("t"),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		declarationsMap = unordered_map<string, ArgumentType>{
+				{"i", ArgumentType::IF},
+				{"t", ArgumentType::VARIABLE}
+		};
+
+		testParseWithError(tokensList, declarationsMap);
+	}
+
+	SECTION("Pattern if invalid fourth argument") {
+
+		list<PQLToken> tokensList = list<PQLToken>{
+				PQLToken::createNameToken("i"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createNameToken("v"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createNameToken("t"),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		unordered_map<string, ArgumentType> declarationsMap = unordered_map<string, ArgumentType>{
+				{"i", ArgumentType::IF},
+				{"t", ArgumentType::VARIABLE}
 		};
 
 		testParseWithError(tokensList, declarationsMap);

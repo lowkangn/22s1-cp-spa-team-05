@@ -113,4 +113,8 @@ public:
 	}
 
 	virtual bool equals(shared_ptr<ClauseResult> other);
+
+	friend bool operator<(ClauseResult first, ClauseResult second);
+
+	friend bool operator==(ClauseResult first, ClauseResult second);
 };

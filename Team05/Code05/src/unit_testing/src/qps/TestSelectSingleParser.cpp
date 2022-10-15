@@ -42,16 +42,57 @@ TEST_CASE("SelectSingleParser: test parseNoError") {
 
     testParseNoError(tokens, declarations, expected);
 
-	// Select BOOLEAN as declared synonym should be parsed by SelectSingleParser
-	tokens = list<PQLToken>{
-			PQLToken::createNameToken("BOOLEAN")
-	};
+    SECTION("BOOLEAN declared as a synonym") {
+        // Select BOOLEAN as declared synonym should be parsed by SelectSingleParser
+        tokens = list<PQLToken>{
+                PQLToken::createNameToken("BOOLEAN")
+        };
 
-	declarations = unordered_map<string, ArgumentType>{{"BOOLEAN", ArgumentType::VARIABLE}};
-	varArg = ClauseArgument::createVariableArg("BOOLEAN");
-	expected = SelectClause::createSynonymSelectClause({varArg});
+        declarations = unordered_map<string, ArgumentType>{ {"BOOLEAN", ArgumentType::VARIABLE} };
+        varArg = ClauseArgument::createVariableArg("BOOLEAN");
+        expected = SelectClause::createSynonymSelectClause({ varArg });
 
-	testParseNoError(tokens, declarations, expected);
+        testParseNoError(tokens, declarations, expected);
+    }
+
+    SECTION("Select an attribute") {
+        tokens = list<PQLToken>{
+            PQLToken::createNameToken("someProcedureName"),
+            PQLToken::createOperatorToken("."),
+            PQLToken::createNameToken("procName"),
+        };
+        declarations = unordered_map<string, ArgumentType>{ {"someProcedureName", ArgumentType::PROCEDURE}, };
+        ClauseArgument procedureArg = ClauseArgument::createProcedureArg("someProcedureName");
+        ClauseArgument procNameArg = ClauseArgument::createProcNameAttributeArg(procedureArg);
+        expected = SelectClause::createSynonymSelectClause({ procedureArg, procNameArg });
+
+        testParseNoError(tokens, declarations, expected);
+
+        tokens = list<PQLToken>{
+            PQLToken::createNameToken("rrr"),
+            PQLToken::createOperatorToken("."),
+            PQLToken::createNameToken("varName"),
+        };
+        declarations = unordered_map<string, ArgumentType>{ {"rrr", ArgumentType::READ}, };
+        ClauseArgument readArg = ClauseArgument::createReadArg("rrr");
+        ClauseArgument varNameArg = ClauseArgument::createVarNameAttributeArg(readArg);
+        expected = SelectClause::createSynonymSelectClause({ readArg, varNameArg });
+
+        testParseNoError(tokens, declarations, expected);
+
+        tokens = list<PQLToken>{
+            PQLToken::createNameToken("ppp"),
+            PQLToken::createOperatorToken("."),
+            PQLToken::createNameToken("stmt"),
+            PQLToken::createDelimiterToken("#"),
+        };
+        declarations = unordered_map<string, ArgumentType>{ {"ppp", ArgumentType::PRINT}, };
+        ClauseArgument printArg = ClauseArgument::createPrintArg("ppp");
+        ClauseArgument stmtNumArg = ClauseArgument::createStmtNumAttributeArg(printArg);
+        expected = SelectClause::createSynonymSelectClause({ printArg, stmtNumArg });
+
+        testParseNoError(tokens, declarations, expected);
+    }
 }
 
 TEST_CASE("SelectSingleParser: test parseWithSemanticError") {
@@ -87,6 +128,32 @@ TEST_CASE("SelectSingleParser: test parseWithSemanticError") {
             {"v2", ArgumentType::CONSTANT}
         };
 
+        testParseWithSemanticError(tokens, declarations);
+    }
+
+    SECTION("Mistmatched attrRef") {
+        list<PQLToken> tokens = list<PQLToken>{
+            PQLToken::createNameToken("someProcedureName"),
+            PQLToken::createOperatorToken("."),
+            PQLToken::createNameToken("varName"),
+        };
+        unordered_map<string, ArgumentType> declarations = unordered_map<string, ArgumentType>{ {"someProcedureName", ArgumentType::PROCEDURE}, };
+        testParseWithSemanticError(tokens, declarations);
+
+        tokens = list<PQLToken>{
+            PQLToken::createNameToken("rrr"),
+            PQLToken::createOperatorToken("."),
+            PQLToken::createNameToken("procName"),
+        };
+        declarations = unordered_map<string, ArgumentType>{ {"rrr", ArgumentType::READ}, };
+        testParseWithSemanticError(tokens, declarations);
+
+        tokens = list<PQLToken>{
+            PQLToken::createNameToken("ppp"),
+            PQLToken::createOperatorToken("."),
+            PQLToken::createNameToken("value")
+        };
+        declarations = unordered_map<string, ArgumentType>{ {"ppp", ArgumentType::PRINT}, };
         testParseWithSemanticError(tokens, declarations);
     }
 }
