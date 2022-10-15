@@ -79,16 +79,21 @@ namespace {
 	Pattern b5Pattern = Pattern::createIfPattern(5, "b");
 	Pattern d5Pattern = Pattern::createIfPattern(5, "d");
 
+
 	// Initialise PQLEntities and PQLRelationships
 	PQLEntity firstStmtEntity = PQLEntity::generateStatement(1);
 	PQLEntity secondStmtEntity = PQLEntity::generateStatement(3);
 	PQLEntity thirdStmtEntity = PQLEntity::generateStatement(5);
+	PQLEntity fourthStmtEntity = PQLEntity::generateStatement(7);
 	PQLEntity firstVarEntity = PQLEntity::generateVariable("x");
 	PQLEntity secondVarEntity = PQLEntity::generateVariable("y");
 	PQLEntity thirdVarEntity = PQLEntity::generateVariable("z");
 	PQLEntity fourthVarEntity = PQLEntity::generateVariable("a");
 	PQLEntity fifthVarEntity = PQLEntity::generateVariable("b");
 	PQLEntity sixthVarEntity = PQLEntity::generateVariable("d");
+	PQLEntity seventhVarEntity = PQLEntity::generateConstant(2);
+	PQLEntity eigthVarEntity = PQLEntity::generateConstant(1);
+
 
 	PQLRelationship firstRelationship = PQLRelationship(firstStmtEntity, firstVarEntity);
 	PQLRelationship secondRelationship = PQLRelationship(firstStmtEntity, secondVarEntity);
@@ -97,6 +102,7 @@ namespace {
 	PQLRelationship fifthRelationship = PQLRelationship(secondStmtEntity, fifthVarEntity);
 	PQLRelationship sixthRelationship = PQLRelationship(thirdStmtEntity, sixthVarEntity);
 	PQLRelationship seventhRelationship = PQLRelationship(thirdStmtEntity, fifthVarEntity);
+
 
 	// Initialise ClauseArguments
 	ClauseArgument ifArg = ClauseArgument::createIfArg("i");

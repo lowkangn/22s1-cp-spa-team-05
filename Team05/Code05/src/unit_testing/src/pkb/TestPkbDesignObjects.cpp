@@ -5,6 +5,7 @@
 #include <pkb/design_objects/entities/PkbStatementEntity.h>
 #include <pkb/design_objects/relationships/PkbCallsRelationship.h>
 #include <pkb/design_objects/relationships/PkbCallsStarRelationship.h>
+#include <pkb/design_objects/relationships/PkbCallStmtAttributeRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
 #include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
 #include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
@@ -168,6 +169,11 @@ TEST_CASE("PkbRelationship: test ::getKey") {
 	SECTION("CallsStar") {
 		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(lhs, rhs));
 		string expectedKey = lhsKey + rhsKey + string("7");
+		test(r, expectedKey);
+	};
+	SECTION("CallsStmtAttribute") {
+		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbCallStmtAttributeRelationship(lhs, rhs));
+		string expectedKey = lhsKey + rhsKey + string("8");
 		test(r, expectedKey);
 	};
 }

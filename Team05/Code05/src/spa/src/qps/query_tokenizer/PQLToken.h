@@ -19,6 +19,7 @@ const string SELECT = "Select";
 const string SUCH = "such";
 const string THAT = "that";
 const string PATTERN = "pattern";
+const string WITH = "with";
 
 // keywords for identifying Clause type
 const string PQL_CALLS = "Calls";
@@ -27,6 +28,17 @@ const string PQL_FOLLOWS = "Follows";
 const string PQL_USES = "Uses";
 const string PQL_PARENT = "Parent";
 const string PQL_STAR_MODIFIER = "*";
+
+// keywords for identifying attrName
+const string ATTRIBUTE_PROCNAME = "procName";
+const string ATTRIBUTE_VARNAME = "varName";
+const string ATTRIBUTE_VALUE = "value";
+const string ATTRIBUTE_STMT_NUM_STMT = "stmt";
+const string ATTRIBUTE_STMT_NUM_HASH = "#";
+
+// operators
+const string EQUALS = "=";
+const string DOT = ".";
 
 // delimiters
 const string SEMICOLON = ";";
@@ -37,6 +49,7 @@ const string ANGLED_OPEN_BRACKET = "<";
 const string ANGLED_CLOSED_BRACKET = ">";
 const string QUOTE = "\"";
 const string UNDERSCORE = "_";
+const string HASH = "#";
 
 // keyword for Select boolean return type
 const string BOOLEAN_KEYWORD = "BOOLEAN";
@@ -160,6 +173,14 @@ public:
         return isDelimiter() && tokenString == UNDERSCORE;
     }
 
+    // Operator indicators
+    bool isEquals() {
+        return isOperator() && tokenString == EQUALS;
+    }
+
+    bool isDot() {
+        return isOperator() && tokenString == DOT;
+    }
 
     // Query section indicators
     bool isSelect() {
@@ -173,6 +194,9 @@ public:
     }
     bool isPattern() {
         return isName() && tokenString == PATTERN;
+    }
+    bool isWith() {
+        return isName() && tokenString == WITH;
     }
 
     // Clause Type indicators
@@ -198,6 +222,27 @@ public:
 
     bool isStarModifier() {
         return tokenString == PQL_STAR_MODIFIER;
+    }
+
+    // attrName idicators
+    bool isProcName() {
+        return isName() && tokenString == ATTRIBUTE_PROCNAME;
+    }
+    
+    bool isVarName() {
+        return isName() && tokenString == ATTRIBUTE_VARNAME;
+    }
+    
+    bool isValue() {
+        return isName() && tokenString == ATTRIBUTE_VALUE;
+    }
+
+    bool isStmtNumStmt() {
+        return isName() && tokenString == ATTRIBUTE_STMT_NUM_STMT;
+    }
+
+    bool isStmtNumHash() {
+        return isDelimiter() && tokenString == ATTRIBUTE_STMT_NUM_HASH;
     }
 
 	// Boolean keyword indicator

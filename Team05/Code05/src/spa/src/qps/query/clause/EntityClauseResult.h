@@ -2,38 +2,22 @@
 
 #include <vector>
 #include <algorithm>
+#include <assert.h>
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/ClauseArgument.h>
+#include <qps/query/clause/ClauseResult.h>
 
-class EntityClauseResult {
-
+class EntityClauseResult : public ClauseResult {
 private:
-    ClauseArgument arg;
-    vector<PQLEntity> entities;
-
-public:
-    EntityClauseResult(ClauseArgument arg, vector<PQLEntity> entities) : arg(arg), entities(entities) {
-        this->arg = arg;
-        this->entities = entities;
-    }
-
-    ClauseArgument getArg() {
-        return this->arg;
-    }
-
-    vector<PQLEntity> getEntities() {
-        return this->entities;
-    }
-
-	bool hasArg(ClauseArgument argToFind) {
-		return this->arg == argToFind;
+	ClauseArgument getArg() {
+		assert(this->args.size() == 1);
+		return this->args[0];
 	}
 
-    bool isEmpty() {
-        return this->entities.empty();
-    }
+public:
+    EntityClauseResult(ClauseArgument arg, vector<PQLEntity> entities) : ClauseResult({arg}, entities) {};
 
-    friend bool operator==(EntityClauseResult first, EntityClauseResult second);
+	friend bool operator==(EntityClauseResult first, EntityClauseResult second);
 
 	friend bool operator<(EntityClauseResult first, EntityClauseResult second);
 };

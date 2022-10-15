@@ -384,6 +384,11 @@ TEST_CASE("QPS: test working correctly") {
 		expectedResult = set<string>{ "1" };
 		testQPS(queryString, expectedResult, pkb);
 
+		// while patterns
+		queryString = "while w; variable v; \n Select v pattern w(v, _)";
+		expectedResult = set<string>{ "v", "t" };
+		testQPS(queryString, expectedResult, pkb);
+
 		queryString = "while w; \n Select w pattern w(\"t\", _)";
 		expectedResult = set<string>{ "1" };
 		testQPS(queryString, expectedResult, pkb);
@@ -403,6 +408,10 @@ TEST_CASE("QPS: test working correctly") {
 
 		queryString = "if i; \n Select i pattern i(\"d\", _, _)";
 		expectedResult = set<string>{ "9" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "if i; variable v; \n Select v pattern i(v, _, _)";
+		expectedResult = set<string>{ "b", "c", "d", "e" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "if i; \n Select i pattern i(_, _, _)";

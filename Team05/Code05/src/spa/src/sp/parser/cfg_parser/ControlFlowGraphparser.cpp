@@ -68,7 +68,7 @@ shared_ptr<CFGNode> ControlFlowParser::handleWhile(shared_ptr<ASTNode> whileNode
 	// Get root of statement list within while
 	shared_ptr<CFGNode> stmtListCFG = this->handleStatementList(stmtList);
 
-	shared_ptr<WhileCFGNode> whileCFGNode = WhileCFGNode::createWhileCFGNode(whileNode->getLineNumber());
+	shared_ptr<WhileCFGNode> whileCFGNode = WhileCFGNode::createWhileCFGNode(rootNode->getLineNumber());
 
 	// Append statement list first
 	whileCFGNode->addChild(stmtListCFG);
@@ -84,7 +84,7 @@ shared_ptr<CFGNode> ControlFlowParser::handleStatementList(shared_ptr<ASTNode> r
 	vector<shared_ptr<ASTNode>> children = rootNode->getChildren();
 
 	// Initialize dummy node so that we can iterate through
-	shared_ptr<CFGNode> dummyCFG = CFGNode::createCFGNode(-1);
+	shared_ptr<CFGNode> dummyCFG = CFGNode::createCFGNode(Entity::createStmtLstEntity());
 
 	shared_ptr<CFGNode> currentCFG = dummyCFG;
 	int counter = 0;
@@ -102,7 +102,8 @@ shared_ptr<CFGNode> ControlFlowParser::handleStatementList(shared_ptr<ASTNode> r
 			childCFGNode = this->handleWhile(currentAST);
 		}
 		else {
-			childCFGNode = CFGNode::createCFGNode(currentAST->getLineNumber());
+			Entity entity = currentAST->extractEntity();
+			childCFGNode = CFGNode::createCFGNode(entity);
 		}
 		
 		this->addChildToEndOfNode(currentCFG, childCFGNode);

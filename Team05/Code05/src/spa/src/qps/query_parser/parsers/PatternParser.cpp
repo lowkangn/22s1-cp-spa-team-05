@@ -30,12 +30,12 @@ void PatternParser::checkArguments(vector<ClauseArgument>& args) {
 
 		arg = args[2];
 		if (!arg.isWildcard()) {
-			this->semanticErrorMessage = "Third arg for if pattern must wildcard";
+			throw PQLSyntaxError("Third argument to If Pattern must only be wildcard");
 		}
 
 		arg = args[3];
 		if (!arg.isWildcard()) {
-			this->semanticErrorMessage = "Fourth arg for if pattern must wildcard";
+			throw PQLSyntaxError("Fourth argument to If Pattern must only be wildcard");
 		}
 
 		
@@ -55,6 +55,11 @@ void PatternParser::checkArguments(vector<ClauseArgument>& args) {
 			this->semanticErrorMessage = "Second arg for pattern must be a variable synonym, string name, or wildcard";
 		}
 
+		// if not wildcard, check that the first synonym is not a while
+		arg = args[2];
+		if (!arg.isWildcard() && !args[0].isAssignSynonym()) {
+			this->semanticErrorMessage = "Third arg for non-assign pattern must only be wildcard";
+		}
 	}
 }
 

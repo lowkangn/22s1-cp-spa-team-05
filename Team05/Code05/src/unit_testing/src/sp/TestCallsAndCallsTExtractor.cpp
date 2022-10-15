@@ -113,14 +113,17 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		betaProcedureNode->addChild(betaStmtListNode);
 
 		shared_ptr<ASTNode> callAlphaNode = CallASTNode::createCallNode();
+		callAlphaNode->setLineNumber(1);
 		callAlphaNode->addChild(alphaProcedureNode);
 		mainStmtListNode->addChild(callAlphaNode);
 
 		shared_ptr<ASTNode> callMainBetaNode = CallASTNode::createCallNode();
+		callMainBetaNode->setLineNumber(2);
 		callMainBetaNode->addChild(betaProcedureNode);
 		mainStmtListNode->addChild(callMainBetaNode);
 
 		shared_ptr<ASTNode> callAlphaBetaNode = CallASTNode::createCallNode();
+		callAlphaBetaNode->setLineNumber(3);
 		callAlphaBetaNode->addChild(betaProcedureNode);
 		alphaStmtListNode->addChild(callAlphaBetaNode);
 
@@ -133,6 +136,9 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		Entity mainEntity = Entity::createProcedureEntity(mainToken);
 		Entity alphaEntity = Entity::createProcedureEntity(alphaToken);
 		Entity betaEntity = Entity::createProcedureEntity(betaToken);
+		Entity call1 = Entity::createCallEntity(1);
+		Entity call2 = Entity::createCallEntity(2);
+		Entity call3 = Entity::createCallEntity(3);
 
 		// Create relationships
 		Relationship callsMainAlpha = Relationship::createCallsRelationship(mainEntity, alphaEntity);
@@ -141,9 +147,13 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		Relationship callsTMainAlpha = Relationship::createCallsTRelationship(mainEntity, alphaEntity);
 		Relationship callsTMainBeta = Relationship::createCallsTRelationship(mainEntity, betaEntity);
 		Relationship callsTAlphaBeta = Relationship::createCallsTRelationship(alphaEntity, betaEntity);
+		Relationship callsAttribute1Alpha = Relationship::createCallStmtAttributeRelationship(call1, alphaEntity);
+		Relationship callsAttribute2Beta = Relationship::createCallStmtAttributeRelationship(call2, betaEntity);
+		Relationship callsAttribute3Beta = Relationship::createCallStmtAttributeRelationship(call3, betaEntity);
 
-		vector<Relationship> expectedCallsAndCallsTRelationships{ callsMainAlpha, callsTMainAlpha, callsMainBeta,
-				callsTMainBeta, callsAlphaBeta, callsTAlphaBeta };
+		vector<Relationship> expectedCallsAndCallsTRelationships{ callsMainAlpha, callsTMainAlpha, callsAttribute1Alpha,
+				callsMainBeta, callsTMainBeta, callsAttribute2Beta, callsAlphaBeta, callsTAlphaBeta,
+				callsAttribute3Beta, };
 
 		test(programNode, expectedCallsAndCallsTRelationships);
 	}	
@@ -171,12 +181,14 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		shared_ptr<ASTNode> readNode = ReadASTNode::createReadNode();
 		
 		shared_ptr<ASTNode> callAlpha1Node = CallASTNode::createCallNode();
+		callAlpha1Node->setLineNumber(1);
 		callAlpha1Node->addChild(alphaProcedureNode);
 		mainStmtListNode->addChild(callAlpha1Node);
 
 		mainStmtListNode->addChild(readNode);
 
 		shared_ptr<ASTNode> callAlpha2Node = CallASTNode::createCallNode();
+		callAlpha2Node->setLineNumber(3);
 		callAlpha2Node->addChild(alphaProcedureNode);
 		mainStmtListNode->addChild(callAlpha2Node);
 
@@ -187,12 +199,17 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		// Create entities
 		Entity mainEntity = Entity::createProcedureEntity(mainToken);
 		Entity alphaEntity = Entity::createProcedureEntity(alphaToken);
+		Entity call1 = Entity::createCallEntity(1);
+		Entity call3 = Entity::createCallEntity(3);
 
 		// Create relationships
 		Relationship callsMainAlpha = Relationship::createCallsRelationship(mainEntity, alphaEntity);
 		Relationship callsTMainAlpha = Relationship::createCallsTRelationship(mainEntity, alphaEntity);
+		Relationship callsAttribute1Alpha = Relationship::createCallStmtAttributeRelationship(call1, alphaEntity);
+		Relationship callsAttribute3Alpha = Relationship::createCallStmtAttributeRelationship(call3, alphaEntity);
 
-		vector<Relationship> expectedCallsAndCallsTRelationships{ callsMainAlpha, callsTMainAlpha };
+		vector<Relationship> expectedCallsAndCallsTRelationships{ callsMainAlpha, callsTMainAlpha, callsAttribute1Alpha,
+				callsAttribute3Alpha, };
 
 		test(programNode, expectedCallsAndCallsTRelationships);
 	}
@@ -249,10 +266,12 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		mainStmtListNode->addChild(mainIfNode);
 
 		shared_ptr<ASTNode> callMainAlphaNode = CallASTNode::createCallNode();
+		callMainAlphaNode->setLineNumber(3);
 		callMainAlphaNode->addChild(alphaProcedureNode);
 		thenStmtListNode->addChild(callMainAlphaNode);
 
 		shared_ptr<ASTNode> callMainBetaNode = CallASTNode::createCallNode();
+		callMainBetaNode->setLineNumber(4);
 		callMainBetaNode->addChild(betaProcedureNode);
 		elseStmtListNode->addChild(callMainBetaNode);
 
@@ -276,6 +295,7 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		thenStmtListNode2->addChild(whileNode);
 
 		shared_ptr<ASTNode> callAlphaBetaNode = CallASTNode::createCallNode();
+		callAlphaBetaNode->setLineNumber(8);
 		callAlphaBetaNode->addChild(betaProcedureNode);
 		whileStmtListNode->addChild(callAlphaBetaNode);
 
@@ -291,6 +311,9 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		Entity mainEntity = Entity::createProcedureEntity(mainToken);
 		Entity alphaEntity = Entity::createProcedureEntity(alphaToken);
 		Entity betaEntity = Entity::createProcedureEntity(betaToken);
+		Entity call3 = Entity::createCallEntity(3);
+		Entity call4 = Entity::createCallEntity(4);
+		Entity call8 = Entity::createCallEntity(8);
 
 		// Create relationships
 		Relationship callsMainAlpha = Relationship::createCallsRelationship(mainEntity, alphaEntity);
@@ -299,9 +322,12 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		Relationship callsTMainBeta = Relationship::createCallsTRelationship(mainEntity, betaEntity);
 		Relationship callsAlphaBeta = Relationship::createCallsRelationship(alphaEntity, betaEntity);
 		Relationship callsTAlphaBeta = Relationship::createCallsTRelationship(alphaEntity, betaEntity);
+		Relationship callsAttribute3Alpha = Relationship::createCallStmtAttributeRelationship(call3, alphaEntity);
+		Relationship callsAttribute4Beta = Relationship::createCallStmtAttributeRelationship(call4, betaEntity);
+		Relationship callsAttribute8Beta = Relationship::createCallStmtAttributeRelationship(call8, betaEntity);
 
-		vector<Relationship> expectedCallsAndCallsTRelationships{ callsMainAlpha, callsTMainAlpha, callsMainBeta, callsTMainBeta,
-				callsAlphaBeta, callsTAlphaBeta };
+		vector<Relationship> expectedCallsAndCallsTRelationships{ callsMainAlpha, callsTMainAlpha, callsAttribute3Alpha,
+				callsMainBeta, callsTMainBeta, callsAttribute4Beta, callsAlphaBeta, callsTAlphaBeta, callsAttribute8Beta };
 
 		test(programNode, expectedCallsAndCallsTRelationships);
 	}
@@ -354,22 +380,27 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		deltaProcedureNode->addChild(deltaStmtListNode);
 
 		shared_ptr<ASTNode> callMainAlphaNode = CallASTNode::createCallNode();
+		callMainAlphaNode->setLineNumber(1);
 		callMainAlphaNode->addChild(alphaProcedureNode);
 		mainStmtListNode->addChild(callMainAlphaNode);
 
 		shared_ptr<ASTNode> callMainBetaNode = CallASTNode::createCallNode();
+		callMainBetaNode->setLineNumber(2);
 		callMainBetaNode->addChild(betaProcedureNode);
 		mainStmtListNode->addChild(callMainBetaNode);
 
 		shared_ptr<ASTNode> callAlphaCharlieNode = CallASTNode::createCallNode();
+		callAlphaCharlieNode->setLineNumber(3);
 		callAlphaCharlieNode->addChild(charlieProcedureNode);
 		alphaStmtListNode->addChild(callAlphaCharlieNode);
 
 		shared_ptr<ASTNode> callBetaDeltaNode = CallASTNode::createCallNode();
+		callBetaDeltaNode->setLineNumber(4);
 		callBetaDeltaNode->addChild(deltaProcedureNode);
 		betaStmtListNode->addChild(callBetaDeltaNode);
 
 		shared_ptr<ASTNode> callDeltaCharlieNode = CallASTNode::createCallNode();
+		callDeltaCharlieNode->setLineNumber(5);
 		callDeltaCharlieNode->addChild(charlieProcedureNode);
 		deltaStmtListNode->addChild(callDeltaCharlieNode);
 
@@ -386,6 +417,11 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		Entity betaEntity = Entity::createProcedureEntity(betaToken);
 		Entity charlieEntity = Entity::createProcedureEntity(charlieToken);
 		Entity deltaEntity = Entity::createProcedureEntity(deltaToken);
+		Entity call1 = Entity::createCallEntity(1);
+		Entity call2 = Entity::createCallEntity(2);
+		Entity call3 = Entity::createCallEntity(3);
+		Entity call4= Entity::createCallEntity(4);
+		Entity call5 = Entity::createCallEntity(5);
 
 		// Create relationships
 		Relationship callsMainAlpha = Relationship::createCallsRelationship(mainEntity, alphaEntity);
@@ -404,9 +440,16 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		Relationship callsTMainDelta = Relationship::createCallsTRelationship(mainEntity, deltaEntity);
 		Relationship callsTBetaCharlie = Relationship::createCallsTRelationship(betaEntity, charlieEntity);
 
-		vector<Relationship> expectedCallsAndCallsTRelationships{ callsMainAlpha, callsTMainAlpha, callsMainBeta, callsTMainBeta,
-				callsAlphaCharlie, callsTAlphaCharlie, callsBetaDelta, callsTBetaDelta, callsDeltaCharlie, callsTDeltaCharlie,
-				callsTMainCharlie, callsTMainDelta, callsTBetaCharlie };
+		Relationship callsAttribute1Alpha = Relationship::createCallStmtAttributeRelationship(call1, alphaEntity);
+		Relationship callsAttribute2Beta = Relationship::createCallStmtAttributeRelationship(call2, betaEntity);
+		Relationship callsAttribute3Charlie = Relationship::createCallStmtAttributeRelationship(call3, charlieEntity);
+		Relationship callsAttribute4Delta = Relationship::createCallStmtAttributeRelationship(call4, deltaEntity);
+		Relationship callsAttribute5Charlie = Relationship::createCallStmtAttributeRelationship(call5, charlieEntity);
+
+		vector<Relationship> expectedCallsAndCallsTRelationships{ callsMainAlpha, callsTMainAlpha, callsAttribute1Alpha, callsMainBeta, 
+				callsTMainBeta, callsAttribute2Beta, callsAlphaCharlie, callsTAlphaCharlie, callsAttribute3Charlie, callsBetaDelta, 
+				callsTBetaDelta, callsAttribute4Delta, callsDeltaCharlie, callsTDeltaCharlie, callsAttribute5Charlie, callsTMainCharlie, 
+				callsTMainDelta, callsTBetaCharlie, };
 
 		test(programNode, expectedCallsAndCallsTRelationships);
 	}

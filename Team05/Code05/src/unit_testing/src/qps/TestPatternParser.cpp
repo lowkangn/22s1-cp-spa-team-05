@@ -709,26 +709,6 @@ TEST_CASE("PatternParser: test parseWithSemanticError") {
 		};
 
 		testParseWithError(tokensList, declarationsMap);
-
-		tokensList = list<PQLToken>{
-				PQLToken::createNameToken("i"),
-				PQLToken::createDelimiterToken("("),
-				PQLToken::createNameToken("v"),
-				PQLToken::createDelimiterToken(","),
-				PQLToken::createDelimiterToken("\""),
-				PQLToken::createNameToken("t"),
-				PQLToken::createDelimiterToken("\""),
-				PQLToken::createDelimiterToken(","),
-				PQLToken::createDelimiterToken("_"),
-				PQLToken::createDelimiterToken(")")
-		};
-
-		declarationsMap = unordered_map<string, ArgumentType>{
-				{"i", ArgumentType::IF},
-				{"t", ArgumentType::VARIABLE}
-		};
-
-		testParseWithError(tokensList, declarationsMap);
 	}
 }
 
@@ -912,6 +892,28 @@ TEST_CASE("PatternParser: test parseWithSyntaxError") {
 				{"a", ArgumentType::ASSIGN},
 				{"v", ArgumentType::VARIABLE},
 				{"c", ArgumentType::CONSTANT}
+		};
+
+		testParseWithError(tokensList, declarationsMap);
+
+		tokensList = list<PQLToken>{
+				PQLToken::createNameToken("i"),
+				PQLToken::createDelimiterToken("("),
+				PQLToken::createNameToken("v"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createNameToken("t"),
+				PQLToken::createDelimiterToken("\""),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(","),
+				PQLToken::createDelimiterToken("_"),
+				PQLToken::createDelimiterToken(")")
+		};
+
+		declarationsMap = unordered_map<string, ArgumentType>{
+				{"i", ArgumentType::IF},
+				{"t", ArgumentType::VARIABLE}
 		};
 
 		testParseWithError(tokensList, declarationsMap);

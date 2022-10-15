@@ -2,6 +2,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <unordered_map>
 
 #include <qps/exceptions/PQLSyntaxError.h>
 
@@ -23,6 +24,10 @@ enum class ArgumentType {
 	PATTERN_STRING,
     WILDCARD,
 	PATTERN_STRING_WITH_WILDCARDS,
+    PROCNAME,
+    VARNAME,
+    STMTNUM,
+    VALUE,
     UNDECLARED_SYNONYM
 };
 
