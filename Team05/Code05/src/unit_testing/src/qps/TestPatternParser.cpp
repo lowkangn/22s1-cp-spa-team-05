@@ -689,7 +689,7 @@ TEST_CASE("PatternParser: test parseWithSemanticError") {
 		testParseWithError(tokensList, declarationsMap);
 	}
 
-	SECTION("Pattern if/while invalid third argument") {
+	SECTION("Wrong synonym type for assign pattern") {
 
 		// third arg is a variable synonym
 		list<PQLToken> tokensList = list<PQLToken>{
