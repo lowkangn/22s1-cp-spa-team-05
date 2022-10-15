@@ -15,6 +15,7 @@ private:
     shared_ptr<SelectClause> selectClause;
     list<shared_ptr<RelationshipClause>> suchThatClauses;
 	list<shared_ptr<PatternClause>> patternClauses;
+	list<shared_ptr<WithClause>> withClauses;
     
     template <class T>
 	bool areClausesAllEqual(list<shared_ptr<T>> firstClauseList, list<shared_ptr<T>> secondClauseList) {
@@ -37,16 +38,17 @@ private:
 		return true;
 	}
 
-
 public:
 
     /* Instantiates a Query object containing the clauses. */
     Query(shared_ptr<SelectClause> select, 
         list<shared_ptr<RelationshipClause>> relationships,
-        list<shared_ptr<PatternClause>> patterns) {
+        list<shared_ptr<PatternClause>> patterns, 
+		list<shared_ptr<WithClause>> withs) {
         selectClause = select;
         suchThatClauses = relationships;
 		patternClauses = patterns;
+		withClauses = withs;
     }
 
     /* Returns the results obtained from the query's SelectClause. */
@@ -54,6 +56,9 @@ public:
 
 	/* Returns the results obtained from the query's SuchThat and Pattern clauses. */
 	list<shared_ptr<RelationshipClauseResult>> executeSuchThatAndPattern(shared_ptr<PKBQueryHandler> pkb);
+
+	/* Returns the results obtained from the query's With clauses. */
+	list<shared_ptr<ClauseResult>> executeWith(shared_ptr<PKBQueryHandler> pkb);
 
 	/* Checks if the requested return type is BOOLEAN */
 	bool checkIfBooleanReturnType() {

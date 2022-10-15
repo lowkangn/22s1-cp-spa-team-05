@@ -9,6 +9,7 @@ shared_ptr<WithClause> WithParser::parse() {
 	// Verify the semantics
 	this->checkAttrCompare(lhsArgs, rhsArgs);
 
+	this->isParseCompleted = true;
 	return this->createWithClause(lhsArgs, rhsArgs);
 }
 
@@ -82,7 +83,7 @@ shared_ptr<WithClause> WithParser::createWithClause(vector<ClauseArgument>& lhsA
 	if (lhsArgs.size() == 2 && rhsArgs.size() == 2) {
 		return make_shared<WithNoExactClause>(lhsArgs, rhsArgs);
 	}
-	
+
 	ClauseArgument exactArg = lhsArgs.size() == 1 ? lhsArgs.front() : rhsArgs.front();
 	vector<ClauseArgument> nonExactArgs = lhsArgs.size() == 2 ? lhsArgs : rhsArgs;
 	assert(exactArg.isExactReference() && nonExactArgs.front().isSynonym() && nonExactArgs.back().isAttributeName());

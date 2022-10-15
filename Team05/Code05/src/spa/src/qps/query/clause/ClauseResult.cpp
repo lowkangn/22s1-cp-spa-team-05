@@ -134,6 +134,19 @@ ClauseResult ClauseResult::getColumn(int columnIndex) {
 	return ClauseResult({this->args[columnIndex]}, column);
 }
 
+void ClauseResult::duplicateExistingColumnAs(ClauseArgument headerOfColumnToDuplicate, ClauseArgument newColumnHeader) {
+	vector<int> indices = this->getColumnIndices(vector<ClauseArgument>{ headerOfColumnToDuplicate });
+	assert(indices.size() == 1 && indices.front() != -1); //column must be an existing column
+
+	ClauseResult columnToDuplicate = this->getColumn(indices.front());
+	columnToDuplicate.renameColumns(headerOfColumnToDuplicate, newColumnHeader);
+	this->addColumn(columnToDuplicate);
+}
+
+void ClauseResult::renameColumns(ClauseArgument oldName, ClauseArgument newName) {
+	replace(this->args.begin(), this->args.end(), oldName, newName);
+}
+
 // ======================================================== //
 // ==================== PUBLIC METHODS ==================== //
 // ======================================================== //
@@ -148,6 +161,41 @@ ClauseResult ClauseResult::mergeResult(ClauseResult resultToMerge) {
 	} else {
 		return this->performCrossProduct(resultToMerge);
 	}
+}
+
+ClauseResult ClauseResult::mergeByForceInnerJoin(ClauseResult resultToMerge, ClauseArgument leftOn, ClauseArgument rightOn) {
+	bool leftHasArg = *find(this->args.begin(), this->args.end(), leftOn) == leftOn;
+	bool rightHasArg = *find(resultToMerge.args.begin(), resultToMerge.args.end(), rightOn) == rightOn;
+	if (!leftHasArg || !rightHasArg) {
+		throw PQLLogicError("ClauseResults must have the columns to force inner join on");
+	}
+
+	string leftPlaceholderSuffix = "left";
+	string rightPlaceholderSuffix = "right";
+
+	// temporarily rename any possible natural join synonyms 
+	vector<ClauseArgument> connectingArgs = this->findConnectingArgs(resultToMerge);
+	int i = 0;
+	for (ClauseArgument arg : connectingArgs) {
+		if (arg != leftOn) {
+			this->renameColumns(arg, ClauseArgument::createStmtArg(to_string(i) + leftPlaceholderSuffix));
+		}
+		if (arg != rightOn) {
+			resultToMerge.renameColumns(arg, ClauseArgument::createStmtArg(to_string(i) + rightPlaceholderSuffix));
+		}
+		i++;
+	}
+	// perform join
+	resultToMerge.duplicateExistingColumnAs(rightOn, leftOn);
+	ClauseResult merged = this->performInnerJoin(resultToMerge, vector<ClauseArgument>{ leftOn });
+	// undo temporary renaming
+	i = 0;
+	for (ClauseArgument arg : connectingArgs) {
+		merged.renameColumns(ClauseArgument::createStmtArg(to_string(i) + leftPlaceholderSuffix), arg);
+		merged.renameColumns(ClauseArgument::createStmtArg(to_string(i) + rightPlaceholderSuffix), arg);
+		i++;
+	}
+	return merged;
 }
 
 bool ClauseResult::checkSelectArgsInTable(vector<ClauseResult> selectResults) {

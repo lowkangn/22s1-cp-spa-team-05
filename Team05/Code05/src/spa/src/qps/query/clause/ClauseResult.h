@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <assert.h>
+#include <algorithm>
 #include <qps/query/clause/ClauseArgument.h>
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/PQLRelationship.h>
@@ -60,6 +61,12 @@ protected:
 	/* Get column from table by index */
 	ClauseResult getColumn(int index);
 
+	/* Duplicates an existing column of this ClauseResult with the header changed to newColumnHeader. */
+	void duplicateExistingColumnAs(ClauseArgument headerOfColumnToDuplicate, ClauseArgument newColumnHeader);
+
+	/* Renames columns currently named oldName to newName */
+	void renameColumns(ClauseArgument oldName, ClauseArgument newName);
+
 public:
 	/* ============= Public constructors ============= */
 
@@ -83,6 +90,10 @@ public:
 
 	/* Merges another ClauseResult */
 	ClauseResult mergeResult(ClauseResult resultToMerge);
+
+	/* Merges this ClauseResult with another ClauseResult by performing an inner join on the given join columns.
+		Keeps both join columns. */
+	ClauseResult mergeByForceInnerJoin(ClauseResult resultToMerge, ClauseArgument leftOn, ClauseArgument rightOn);
 
 	/* Checks if any of the given args are in the table */
 	bool checkSelectArgsInTable(vector<ClauseResult> selectResults);

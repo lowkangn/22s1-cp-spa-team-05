@@ -10,14 +10,7 @@ shared_ptr<ClauseResult> WithBothExactClause::execute(shared_ptr<PKBQueryHandler
 		return make_shared<EntityClauseResult>(this->lhs, vector<PQLEntity>{});
 	}
 
-	vector<PQLEntity> entity;
-	if (lhs.isLineNumber()) {
-		entity.emplace_back(PQLEntity::generateStatement(this->lhs.getLineNumber()));
-	}
-	else {
-		entity.emplace_back(PQLEntity::generateVariable(this->lhs.getIdentifier()));
-	}
-	return make_shared<EntityClauseResult>(this->lhs, entity);
+	return make_shared<EntityClauseResult>(EntityClauseResult::createNonEmptyNoSynonymResult());
 }
 
 bool WithBothExactClause::equals(shared_ptr<WithClause> other) {

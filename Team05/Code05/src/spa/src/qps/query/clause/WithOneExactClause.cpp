@@ -56,33 +56,6 @@ shared_ptr<ClauseResult> WithOneExactClause::executeForStmtWithNameAttribute(sha
 	return make_shared<RelationshipClauseResult>(synonym, attribute, relationships);
 }
 
-PKBTrackedStatementType WithOneExactClause::getPKBStmtType(ClauseArgument& stmtSynonymArg) {
-	if (stmtSynonymArg.isReadSynonym()) {
-		return PKBTrackedStatementType::READ;
-	}
-	else if (stmtSynonymArg.isPrintSynonym()) {
-		return PKBTrackedStatementType::PRINT;
-	}
-	else if (stmtSynonymArg.isAssignSynonym()) {
-		return PKBTrackedStatementType::ASSIGN;
-	}
-	else if (stmtSynonymArg.isCallSynonym()) {
-		return PKBTrackedStatementType::CALL;
-	}
-	else if (stmtSynonymArg.isWhileSynonym()) {
-		return PKBTrackedStatementType::WHILE;
-	}
-	else if (stmtSynonymArg.isIfSynonym()) {
-		return PKBTrackedStatementType::IF;
-	}
-	else if (stmtSynonymArg.isStmtSynonym()) {
-		return PKBTrackedStatementType::ALL;
-	}
-	else {
-		throw PQLLogicError("Cannot identify stmt type in with clause synonym");
-	}
-}
-
 bool WithOneExactClause::equals(shared_ptr<WithClause> other) {
 	if (dynamic_pointer_cast<WithOneExactClause>(other) == nullptr) {
 		return false;

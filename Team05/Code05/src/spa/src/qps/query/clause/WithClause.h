@@ -5,9 +5,9 @@
 
 #include <qps/query/clause/ClauseResult.h>
 #include <pkb/interfaces/PKBQueryHandler.h>
+#include <qps/query/clause/AttributeClause.h>
 
-class WithClause {
-private:
+class WithClause : public AttributeClause {
 public:
 
 	WithClause() {}

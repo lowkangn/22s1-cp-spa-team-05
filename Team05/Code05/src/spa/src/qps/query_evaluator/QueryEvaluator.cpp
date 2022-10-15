@@ -3,19 +3,21 @@
 set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pkb) {
 	list<ClauseResult> entitiesResults = dereferenceResults<ClauseResult>(query.executeSelect(pkb));
 	list<ClauseResult> relationshipsResults = dereferenceResults<RelationshipClauseResult>(query.executeSuchThatAndPattern(pkb));
+	list<ClauseResult> withResults = dereferenceResults<ClauseResult>(query.executeWith(pkb));
 
 	// Empty lists indicate `Select BOOLEAN` with no constraint clauses, in which case just return TRUE
-	if (entitiesResults.empty() && relationshipsResults.empty()) {
+	if (entitiesResults.empty() && relationshipsResults.empty() && withResults.empty()) {
 		return set<string>{"TRUE"};
 	}
 
-	if (relationshipsResults.empty()) {
+	if (relationshipsResults.empty() && withResults.empty()) {
 		ClauseResult selectSynonymsCrossProductResult = this->getSelectSynonymsCrossProductResult(entitiesResults);
 		return selectSynonymsCrossProductResult.convertTableToString(false);
 	}
 
 	// Combine constraint clauses - if returns empty, then no query matches
-	ClauseResult combinedResult = this->combineResults(relationshipsResults);
+	withResults.splice(withResults.end(), relationshipsResults);
+	ClauseResult combinedResult = this->combineResults(withResults);
 	if (combinedResult.isEmpty()) {
 		return combinedResult.convertTableToString(query.checkIfBooleanReturnType());
 	}

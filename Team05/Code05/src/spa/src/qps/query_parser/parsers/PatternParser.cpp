@@ -132,7 +132,7 @@ vector<ClauseArgument> PatternParser::extractArguments() {
 		throw PQLSyntaxError("Must either end with fourth argument or closed bracket");
 	} 
 
-	// If there ')' is not next, there must be a fourth arg which must be a wildcard
+	// If a ')' is not next, there must be a fourth arg which must be a wildcard
 	if (!this->tokens.front().isCloseBracket()) {
 		consumeComma();
 		output.push_back(this->parseWildcard());

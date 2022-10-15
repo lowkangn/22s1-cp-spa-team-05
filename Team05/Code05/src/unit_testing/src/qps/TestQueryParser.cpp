@@ -43,14 +43,18 @@ public:
         this->parserUnderTest.parseConstraints(declarations);
     }
 
-    void requireSuchThatClausesEquals(list<shared_ptr<RelationshipClause>> expectedSuchThat) {
+    void requireAllEquals(list<shared_ptr<RelationshipClause>> expectedSuchThat,
+        list<shared_ptr<PatternClause>> expectedPattern,
+        list<shared_ptr<WithClause>> expectedWith) {
+
         list<shared_ptr<RelationshipClause>> actualSuchThat = this->parserUnderTest.suchThatClauses;
         requireClausesEqual<RelationshipClause>(expectedSuchThat, actualSuchThat);
-    }
 
-    void requirePatternClausesEquals(list<shared_ptr<PatternClause>> expectedPattern) {
         list<shared_ptr<PatternClause>> actualPattern = this->parserUnderTest.patternClauses;
         requireClausesEqual<PatternClause>(expectedPattern, actualPattern);
+
+        list<shared_ptr<WithClause>> actualWith = this->parserUnderTest.withClauses;
+        requireClausesEqual<WithClause>(expectedWith, actualWith);
     }
 
 };
@@ -78,6 +82,7 @@ namespace QPSTestUtil {
     PQLToken such = PQLToken::createNameToken("such");
     PQLToken that = PQLToken::createNameToken("that");
     PQLToken pattern = PQLToken::createNameToken("pattern");
+    PQLToken with = PQLToken::createNameToken("with");
 
     PQLToken calls = PQLToken::createNameToken("Calls");
     PQLToken modifies = PQLToken::createNameToken("Modifies");
@@ -85,6 +90,17 @@ namespace QPSTestUtil {
     PQLToken follows = PQLToken::createNameToken("Follows");
     PQLToken parent = PQLToken::createNameToken("Parent");
     PQLToken star = PQLToken::createOperatorToken("*");
+
+    // clause operator tokens
+    PQLToken equals = PQLToken::createOperatorToken("=");
+    PQLToken dot = PQLToken::createOperatorToken(".");
+
+    // attribute name tokens
+    PQLToken procName = PQLToken::createNameToken("procName");
+    PQLToken varName = PQLToken::createNameToken("varName");
+    PQLToken stmtNumStmt = PQLToken::createNameToken("stmt");
+    PQLToken stmtNumHash = PQLToken::createDelimiterToken("#");
+    PQLToken value = PQLToken::createNameToken("value");
 
     // strings for tokens, declarations and ClauseArguments
     string s1String = "s1";
@@ -95,10 +111,11 @@ namespace QPSTestUtil {
     string i1String = "i1";
     string r1String = "r1";
     string pri1String = "pri1";
+    string call1String = "call1";
     string proc1String = "proc1";
     string proc2String = "proc2";
     string proc3String = "proc3";
-    string c1String = "c1";
+    string const1String = "const1";
     string v1String = "v1";
     string v2String = "v2";
 
@@ -111,10 +128,11 @@ namespace QPSTestUtil {
     PQLToken i1 = PQLToken::createNameToken(i1String);
     PQLToken r1 = PQLToken::createNameToken(r1String);
     PQLToken pri1 = PQLToken::createNameToken(pri1String);
+    PQLToken call1 = PQLToken::createNameToken(call1String);
     PQLToken proc1 = PQLToken::createNameToken(proc1String);
     PQLToken proc2 = PQLToken::createNameToken(proc2String);
     PQLToken proc3 = PQLToken::createNameToken(proc3String);
-    PQLToken c1 = PQLToken::createNameToken(c1String);
+    PQLToken const1 = PQLToken::createNameToken(const1String);
     PQLToken v1 = PQLToken::createNameToken(v1String);
     PQLToken v2 = PQLToken::createNameToken(v2String);
 
@@ -128,10 +146,11 @@ namespace QPSTestUtil {
         { i1String, ArgumentType::IF },
         { r1String, ArgumentType::READ },
         { pri1String, ArgumentType::PRINT },
+        { call1String, ArgumentType::CALL },
         { proc1String, ArgumentType::PROCEDURE },
         { proc2String, ArgumentType::PROCEDURE },
         { proc3String, ArgumentType::PROCEDURE },
-        { c1String, ArgumentType::CONSTANT },
+        { const1String, ArgumentType::CONSTANT },
         { v1String, ArgumentType::VARIABLE },
         { v2String, ArgumentType::VARIABLE },
     };
@@ -144,11 +163,12 @@ namespace QPSTestUtil {
     ClauseArgument w1Arg = ClauseArgument::createWhileArg(w1String);
     ClauseArgument i1Arg = ClauseArgument::createIfArg(i1String);
     ClauseArgument r1Arg = ClauseArgument::createReadArg(r1String);
+    ClauseArgument call1Arg = ClauseArgument::createCallArg(call1String);
     ClauseArgument pri1Arg = ClauseArgument::createPrintArg(pri1String);
     ClauseArgument proc1Arg = ClauseArgument::createProcedureArg(proc1String);
     ClauseArgument proc2Arg = ClauseArgument::createProcedureArg(proc2String);
     ClauseArgument proc3Arg = ClauseArgument::createProcedureArg(proc3String);
-    ClauseArgument c1Arg = ClauseArgument::createConstantArg(c1String);
+    ClauseArgument const1Arg = ClauseArgument::createConstantArg(const1String);
     ClauseArgument v1Arg = ClauseArgument::createVariableArg(v1String);
     ClauseArgument v2Arg = ClauseArgument::createVariableArg(v2String);
 
@@ -183,6 +203,10 @@ TEST_CASE("QueryParser: test parseNoError") {
         REQUIRE(actual == expected);
     };
 
+    list<shared_ptr<RelationshipClause>> emptyRelationships{};
+    list<shared_ptr<PatternClause>> emptyPatterns{};
+    list<shared_ptr<WithClause>> emptyWiths{};
+
     SECTION("Select clause only") {
         list<PQLToken> tokens = list<PQLToken>{
             procedure, proc1, semicolon,
@@ -190,7 +214,7 @@ TEST_CASE("QueryParser: test parseNoError") {
         };
 
         shared_ptr<SelectClause> selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({proc1Arg}));
-        Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{});
+        Query query = Query(selectClause, emptyRelationships, emptyPatterns, emptyWiths);
 
         testParseNoError(tokens, query);
     }
@@ -205,20 +229,48 @@ TEST_CASE("QueryParser: test parseNoError") {
         shared_ptr<SelectClause> selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({v2Arg}));
         shared_ptr<RelationshipClause> modifiesClause = shared_ptr<RelationshipClause>(
             new ModifiesSClause(twoLineNumberArg, v1Arg));
-        Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause}, list<shared_ptr<PatternClause>>{});
+        Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause}, emptyPatterns, emptyWiths);
 
         testParseNoError(tokens, query);
 
         tokens = list<PQLToken>{
-            constant, c1, semicolon, procedure, proc1, semicolon,
-            select, c1,
+            constant, const1, semicolon, procedure, proc1, semicolon,
+            select, const1,
             such, that, modifies, openBracket, proc1, comma, quotationMark, name, quotationMark, closeBracket,
         };
 
-        selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({c1Arg}));
+        selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({const1Arg}));
         modifiesClause = shared_ptr<RelationshipClause>(new ModifiesPClause(proc1Arg, quotedNameArg));
-        query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause}, list<shared_ptr<PatternClause>>{});
+        query = Query(selectClause, list<shared_ptr<RelationshipClause>>{modifiesClause}, list<shared_ptr<PatternClause>>{}, 
+            list<shared_ptr<WithClause>>{});
 
+        testParseNoError(tokens, query);
+    }
+
+    SECTION("Select and with clause") {
+        list<PQLToken> tokens = list<PQLToken>{
+            variable, v1, comma, v2, semicolon,
+            select, v2,
+            with, v1, dot, varName, equals, quotationMark, name, quotationMark,
+        };
+
+        shared_ptr<SelectClause> selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({ v2Arg }));
+        shared_ptr<WithClause> withClause = shared_ptr<WithClause>(
+            new WithOneExactClause(quotedNameArg, vector<ClauseArgument>{v1Arg, ClauseArgument::createVarNameAttributeArg(v1Arg)}));
+        Query query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{}, list<shared_ptr<WithClause>>{withClause});
+
+        testParseNoError(tokens, query);
+
+        tokens = list<PQLToken>{
+            constant, const1, semicolon, stmt, s1 , semicolon,
+            select, const1,
+            with, two, equals, s1, dot, stmtNumStmt, stmtNumHash
+        };
+
+        selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({ const1Arg }));
+        withClause = shared_ptr<WithClause>(
+            new WithOneExactClause(twoLineNumberArg, vector<ClauseArgument>{s1Arg, ClauseArgument::createStmtNumAttributeArg(s1Arg)}));
+        query = Query(selectClause, list<shared_ptr<RelationshipClause>>{}, list<shared_ptr<PatternClause>>{}, list<shared_ptr<WithClause>>{withClause});
         testParseNoError(tokens, query);
     }
 
@@ -266,13 +318,16 @@ TEST_CASE("QueryParser: test parseNoError") {
             firstPatternAssign, secondPatternAssign, thirdPatternAssign,
         };
 
-        Query query = Query(selectClause, expectedSuchThat, expectedPattern);
+       
+        list<shared_ptr<WithClause>> expectedWiths{};
+
+        Query query = Query(selectClause, expectedSuchThat, expectedPattern, expectedWiths);
 
         testParseNoError(tokens, query);
     }
 }
 
-TEST_CASE("QueryParser: test parseConstraints single clause") {
+TEST_CASE("QueryParser: test parseConstraints single such that clause") {
     auto testParseNoError = [](list<PQLToken> tokens, 
         unordered_map<string, ArgumentType> declarations,
         list<shared_ptr<RelationshipClause>> expected) {
@@ -284,7 +339,7 @@ TEST_CASE("QueryParser: test parseConstraints single clause") {
             helper.parseConstraints(declarations);
 
             // then
-            helper.requireSuchThatClausesEquals(expected);
+            helper.requireAllEquals(expected, list<shared_ptr<PatternClause>>{}, list<shared_ptr<WithClause>>{});
     };
 
 
@@ -358,7 +413,8 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
     auto testParseNoError = [](list<PQLToken> tokens,
         unordered_map<string, ArgumentType> declarations,
         list<shared_ptr<RelationshipClause>> expectedSuchThat,
-        list<shared_ptr<PatternClause>> expectedPattern) {
+        list<shared_ptr<PatternClause>> expectedPattern,
+        list<shared_ptr<WithClause>> expectedWith) {
             // given
             QueryParser parser = QueryParser(tokens);
             QueryParserTestHelper helper = QueryParserTestHelper(parser);
@@ -367,13 +423,13 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             helper.parseConstraints(declarations);
 
             // then
-            helper.requireSuchThatClausesEquals(expectedSuchThat);
-            helper.requirePatternClausesEquals(expectedPattern);
+            helper.requireAllEquals(expectedSuchThat, expectedPattern, expectedWith);
     };
 
     // Empty clause lists used for testing
     list<shared_ptr<RelationshipClause>> emptySuchThat = list<shared_ptr<RelationshipClause>>{};
     list<shared_ptr<PatternClause>> emptyPattern = list<shared_ptr<PatternClause>>{};
+    list<shared_ptr<WithClause>> emptyWith = list<shared_ptr<WithClause>>{};
 
 
     // Follows clauses
@@ -396,7 +452,7 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             followsTClauseA1andW1,
             followsTClauseS1and5,
         };
-        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern);
+        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern, emptyWith);
     }
 
     // Parent clauses
@@ -420,7 +476,7 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             parentClausePrint1andIf1,
         };
 
-        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern);
+        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern, emptyWith);
     }
 
     // Modifies clauses
@@ -448,7 +504,7 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             modifiesPClauseProcedure1andVariable1,
         };
 
-        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern);
+        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern, emptyWith);
     }
 
     // Uses clauses
@@ -476,7 +532,7 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             usesSClausePrint1andVariable1,
         };
 
-        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern);
+        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern, emptyWith);
     }
 
     // Calls clauses
@@ -500,7 +556,7 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             callsClauseProc2andProc3,
         };
 
-        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern);
+        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern, emptyWith);
     }
 
     SECTION("All of the above such that clauses") {
@@ -544,7 +600,7 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             usesSClausePrint1andVariable1,
         };
 
-        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern);
+        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern, emptyWith);
     }
 
     // Pattern Assign Clauses
@@ -592,24 +648,65 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             patternAssign2Variable1AndPlusBracket,
         };
 
-        testParseNoError(tokens, declarations, emptySuchThat, expectedPattern);
+        testParseNoError(tokens, declarations, emptySuchThat, expectedPattern, emptyWith);
+    }
+
+    // With Clauses
+    shared_ptr<WithClause> with25 = make_shared<WithBothExactClause>(twoLineNumberArg, fiveLineNumberArg);
+    shared_ptr<WithClause> withNameName = make_shared<WithBothExactClause>(quotedNameArg, quotedNameArg);
+    
+    shared_ptr<WithClause> withNameProc1ProcName = make_shared<WithOneExactClause>(quotedNameArg,
+        vector<ClauseArgument>{proc1Arg, ClauseArgument::createProcNameAttributeArg(proc1Arg)});
+    shared_ptr<WithClause> withPri1StmtNum5 = make_shared<WithOneExactClause>(fiveLineNumberArg,
+        vector<ClauseArgument>{pri1Arg, ClauseArgument::createStmtNumAttributeArg(pri1Arg)});
+
+    shared_ptr<WithClause> withR1VarNameCall1ProcName = make_shared<WithNoExactClause>(
+        vector<ClauseArgument>{r1Arg, ClauseArgument::createVarNameAttributeArg(r1Arg)},
+        vector<ClauseArgument>{call1Arg, ClauseArgument::createProcNameAttributeArg(call1Arg)});
+    shared_ptr<WithClause> withConst1ValueS1StmtNum = make_shared<WithNoExactClause>(
+        vector<ClauseArgument>{const1Arg, ClauseArgument::createValueAttributeArg(const1Arg)},
+        vector<ClauseArgument>{s1Arg, ClauseArgument::createStmtNumAttributeArg(s1Arg)});
+
+    SECTION("Multiple withs") {
+        list<PQLToken> tokens = list<PQLToken>{
+            with, two, equals, five,
+            with, quotationMark, name, quotationMark, equals, quotationMark, name, quotationMark,
+            with, quotationMark, name, quotationMark, equals, proc1, dot, procName,
+            with, pri1, dot, stmtNumStmt, stmtNumHash, equals, five,
+            with, r1, dot, varName, equals, call1, dot, procName,
+            with, const1, dot, value, equals, s1, dot, stmtNumStmt, stmtNumHash,
+        };
+
+        list<shared_ptr<WithClause>> expectedWith = list<shared_ptr<WithClause>>{
+            with25, withNameName, withNameProc1ProcName, withPri1StmtNum5, 
+            withR1VarNameCall1ProcName, withConst1ValueS1StmtNum
+        };
+
+        testParseNoError(tokens, declarations, emptySuchThat, emptyPattern, expectedWith);
     }
 
     SECTION("Everything everywhere all at once") {
         list<PQLToken> tokens = list<PQLToken>{
             such, that, uses, openBracket, proc1, comma, v1, closeBracket,
+            with, two, equals, five,
+            with, quotationMark, name, quotationMark, equals, quotationMark, name, quotationMark,
             such, that, parent, star, openBracket, i1, comma, pri1, closeBracket,
             pattern, a1, openBracket, v1, comma, wildcard, quotationMark, name, quotationMark, wildcard, closeBracket,
+            with, const1, dot, value, equals, s1, dot, stmtNumStmt, stmtNumHash,
             such, that, follows, star, openBracket, a1, comma, w1, closeBracket,
             pattern, a1, openBracket, wildcard, comma, wildcard, closeBracket,
+            with, r1, dot, varName, equals, call1, dot, procName,
             such, that, parent, openBracket, wildcard, comma, i1, closeBracket,
             pattern, a2, openBracket, v1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
             pattern, a2, openBracket, v1, comma,
                 quotationMark, name, plusToken, openBracket, openBracket, five, closeBracket, closeBracket, quotationMark, closeBracket,
             such, that, modifies, openBracket, proc1, comma, v1, closeBracket,
+            with, pri1, dot, stmtNumStmt, stmtNumHash, equals, five,
             such, that, uses, openBracket, i1, comma, wildcard, closeBracket,
             such, that, calls, star, openBracket, proc1, comma, proc3, closeBracket,
             such, that, calls, openBracket, proc2, comma, proc3, closeBracket,
+            with, quotationMark, name, quotationMark, equals, proc1, dot, procName,
+           
         };
 
         list<shared_ptr<RelationshipClause>> expectedSuchThat = list<shared_ptr<RelationshipClause>>{
@@ -630,6 +727,15 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             patternAssign2Variable1AndPlusBracket,
         };
 
-        testParseNoError(tokens, declarations, expectedSuchThat, expectedPattern);
+        list<shared_ptr<WithClause>> expectedWith = list<shared_ptr<WithClause>>{
+            with25, 
+            withNameName, 
+            withConst1ValueS1StmtNum, 
+            withR1VarNameCall1ProcName, 
+            withPri1StmtNum5,
+            withNameProc1ProcName,
+        };
+
+        testParseNoError(tokens, declarations, expectedSuchThat, expectedPattern, expectedWith);
     }
 }
