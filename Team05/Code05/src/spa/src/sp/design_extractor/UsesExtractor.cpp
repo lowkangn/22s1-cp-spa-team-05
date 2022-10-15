@@ -7,6 +7,7 @@
 #include <sp/dataclasses/ast/PrintASTNode.h>
 #include <sp/dataclasses/ast/ProcedureASTNode.h>
 #include <sp/dataclasses/ast/WhileASTNode.h>
+#include <sp/dataclasses/ast/CallASTNode.h>
 #include <sp/design_extractor/UsesExtractor.h>
 
 vector<Relationship> UsesExtractor::extract(shared_ptr<ASTNode> ast) {
@@ -56,6 +57,18 @@ vector<Relationship> UsesExtractor::extract(shared_ptr<ASTNode> ast) {
 	// If it is a container type we need to recursively extract children
 	if (ast->hasContainer()) {
 		vector<shared_ptr<ASTNode>> children = ast->getChildren();
+
+		// If program node, we look ahead and store the procedures in the program
+		if (ast->isProgramNode()) {
+			for (int i = 0; i < children.size(); i++) {
+				shared_ptr<ASTNode> child = children[i];
+				assert(child->isProcedureNode());
+
+				// We look ahead from root program node and add all procedures to extract on demand
+				allProcedures.emplace(child->extractEntity().getString(), child);
+			}
+		}
+
 		for (int i = 0; i < children.size(); i++) {
 			shared_ptr<ASTNode> child = children[i];
 			vector<Relationship> extractedRelationships = this->extract(child);
@@ -67,6 +80,18 @@ vector<Relationship> UsesExtractor::extract(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> UsesExtractor::handleProcedure(shared_ptr<ASTNode> ast) {
+	if (!ast->isProcedureNode()) {
+		throw ASTException("handleProcedure can only accept procedure AST nodes");
+	}
+
+	// if entry already exists in DP map, just return the mapped relationships
+	string procedureName = ast->extractEntity().getString();
+
+	// checks if procedure name is already in DP map entry
+	if (procedureNameToRelationshipMap.find(procedureName) != procedureNameToRelationshipMap.end()) {
+		return procedureNameToRelationshipMap.at(procedureName);
+	}
+
 	Entity leftHandSide = ast->extractEntity();
 
 	vector<Relationship> extractedChildRelationships;
@@ -79,10 +104,16 @@ vector<Relationship> UsesExtractor::handleProcedure(shared_ptr<ASTNode> ast) {
 		extractedChildRelationships.insert(extractedChildRelationships.end(), extractedRelationships.begin(), extractedRelationships.end());
 	}
 
+	// Update procedureNameToRelationshipMap for DP purposes so future calls can refer to the result
+	procedureNameToRelationshipMap.emplace(procedureName, extractedChildRelationships);
+
 	return extractedChildRelationships;
 }
 
 vector<Relationship> UsesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
+	if (!ast->isAssignNode()) {
+		throw ASTException("handleAssign can only accept assign AST nodes");
+	}
 	vector<Relationship> usesRelationships = vector<Relationship>();
 
 	// This is the Right hand side of the assign relation
@@ -98,6 +129,9 @@ vector<Relationship> UsesExtractor::handleAssign(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> UsesExtractor::handlePrint(shared_ptr<ASTNode> ast) {
+	if (!ast->isPrintNode()) {
+		throw ASTException("handleAssign can only accept assign AST nodes");
+	}
 	shared_ptr<PrintASTNode> printNode = dynamic_pointer_cast<PrintASTNode>(ast);
 
 	Entity printEntity = printNode->extractEntity();
@@ -106,6 +140,9 @@ vector<Relationship> UsesExtractor::handlePrint(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> UsesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
+	if (!ast->isWhileNode()) {
+		throw ASTException("handleWhile can only accept while AST nodes");
+	}
 	vector<Relationship> usesRelationships = vector<Relationship>();
 
 	shared_ptr<WhileASTNode> whileNode = dynamic_pointer_cast<WhileASTNode>(ast);
@@ -126,6 +163,9 @@ vector<Relationship> UsesExtractor::handleWhile(shared_ptr<ASTNode> ast) {
 }
 
 vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
+	if (!ast->isIfNode()) {
+		throw ASTException("handleIf can only accept if AST nodes");
+	}
 	vector<Relationship> usesRelationships = vector<Relationship>();
 
 	shared_ptr<IfASTNode> ifASTNode = dynamic_pointer_cast<IfASTNode>(ast);
@@ -154,9 +194,47 @@ vector<Relationship> UsesExtractor::handleIf(shared_ptr<ASTNode> ast) {
 	return usesRelationships;
 }
 
-// TODO in a future iteration
 vector<Relationship> UsesExtractor::handleCall(shared_ptr<ASTNode> ast) {
-	return vector<Relationship>{};
+	if (!ast->isCallNode()) {
+		throw ASTException("handleCall can only accept call AST nodes");
+	}
+
+	vector<Relationship> extractedRelationships;
+
+	// We check that procedure call only has one child, that is the procedure it is calling
+	assert(ast->getChildren().size() == 1);
+	shared_ptr<ASTNode> procedureCalled = ast->getChildren()[0];
+
+	assert(procedureCalled->isProcedureNode());
+	string procedureCalledName = procedureCalled->extractEntity().getString();
+
+	// checks if procedure name is already in DP entry
+	if (procedureNameToRelationshipMap.find(procedureCalledName) != procedureNameToRelationshipMap.end()) {
+		vector<Relationship> procedureCalledRelationships = procedureNameToRelationshipMap.at(procedureCalledName);
+
+		// procedure called relationships returns Uses(p, v). Reformat it to Uses(call stmt, v)
+		vector<Relationship> convertedRelationships = extractCallRelationshipFromProcedure(ast, procedureCalledRelationships);
+		extractedRelationships.insert(extractedRelationships.end(), convertedRelationships.begin(), convertedRelationships.end());
+		
+		return extractedRelationships;
+	}
+
+	if (!allProcedures.at(procedureCalledName)) {
+		throw ASTException("Procedure called could not be found");
+	}
+
+	// Get the called procedure in allProcedures from the name
+	shared_ptr<ASTNode> procedureToExtract = allProcedures.at(procedureCalledName);
+
+	// We use handleProcedure() to get relationships if entries are not in DP map
+	vector<Relationship> procedureCalledRelationships = this->handleProcedure(procedureToExtract);
+
+	// procedure called relationships returns Uses(p, v). Reformat it to Uses(call stmt, v)
+	vector<Relationship> convertedRelationships = extractCallRelationshipFromProcedure(ast, procedureCalledRelationships);
+	extractedRelationships.insert(extractedRelationships.end(), convertedRelationships.begin(), convertedRelationships.end());
+		
+	return extractedRelationships;
+	
 }
 
 vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
@@ -256,6 +334,34 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSi
 			usesRelationships.insert(usesRelationships.end(), toAdd.begin(), toAdd.end());
 		}
 		break;
+	}
+	case ASTNodeType::CALL: // helps handle indirect procedure call (e.g. A calls B which calls C)
+	{
+		// Cast CallASTNode
+		shared_ptr<CallASTNode> callNode = dynamic_pointer_cast<CallASTNode>(ast);
+
+		// Get referenced procedure
+		assert(callNode->getChildren().size() == 1);
+		shared_ptr<ASTNode> calledProcedure = callNode->getChildren()[0];
+		string calledProcName = calledProcedure->extractEntity().getString();
+
+		if (!allProcedures.at(calledProcName)) {
+			throw ASTException("Procedure called could not be found");
+		}
+
+		// Get the called procedure in allProcedures from the name
+		shared_ptr<ASTNode> procedureToExtract = allProcedures.at(calledProcName);
+
+		// Type-cast procedureToExtract to ProcedureASTNode
+		shared_ptr<ProcedureASTNode> calledProcNode = dynamic_pointer_cast<ProcedureASTNode>(procedureToExtract);
+
+		shared_ptr<ASTNode> childrenStmtLst = calledProcNode->getStmtList();
+
+		for (shared_ptr<ASTNode> child : childrenStmtLst->getChildren()) {
+			vector<Relationship> toAdd = this->recursiveContainerExtract(leftHandSide, child);
+			usesRelationships.insert(usesRelationships.end(), toAdd.begin(), toAdd.end());
+
+		}
 	}
 	}
 	return usesRelationships;
