@@ -128,10 +128,10 @@ vector<ClauseArgument> PatternParser::extractArguments() {
 
 	// check ')', or get fourth arg (for if patterns)
 	// In this case, we are sure that the fourth arg (if any) MUST be a wildcard
-	if (this->tokens.front().isCloseBracket()) {
+	if (!this->tokens.empty() && this->tokens.front().isCloseBracket()) {
 		consumeCloseBracket();
 	}
-	else if (this->tokens.front().isComma()) {
+	else if (!this->tokens.empty() && this->tokens.front().isComma()) {
 		consumeComma();
 		PQLToken wildcardToken = this->tokens.front();
 		this->tokens.pop_front();
