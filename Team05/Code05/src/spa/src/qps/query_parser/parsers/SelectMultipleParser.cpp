@@ -8,29 +8,32 @@ list<ClauseArgument> SelectMultipleParser::extractArguments() {
 	// check '<'
 	consumeAngledOpenBracket();
 
-	// get first synonym
-	ClauseArgument firstArg = parseOneArgument();
-	if (!firstArg.isSynonym()) {
-		throw PQLSyntaxError("Select tuple should only have synonyms");
-	}
-	argumentList.push_back(firstArg);
+	// add first entry (synonym or synonym.attrName)
+	this->parseOneEntry(argumentList);
 
 	while (!this->tokens.empty() && !this->tokens.front().isAngledCloseBracket()) {
 		// check ','
 		consumeComma();
 
-		// get next synonym
-		ClauseArgument nextArg = parseOneArgument();
-		if (!nextArg.isSynonym()) {
-			throw PQLSyntaxError("Select tuple should only have synonyms");
-		}
-		argumentList.push_back(nextArg);
+		// add next entry (synonym or synonym.attrName)
+		this->parseOneEntry(argumentList);
 	}
 
 	// check '>'
 	consumeAngledCloseBracket();
-
+	
 	return argumentList;
+}
+
+void SelectMultipleParser::parseOneEntry(list<ClauseArgument>& argumentListToAddTo) {
+	ClauseArgument synonym = this->parseSynonym();
+	argumentListToAddTo.push_back(synonym);
+	if (!this->tokens.empty() && this->tokens.front().isDot()) {
+		this->consumeDot();
+		ClauseArgument attribute = this->parseAttribute(synonym);
+		argumentListToAddTo.push_back(attribute);
+		this->checkSynonymAttributeCompatible(synonym, attribute);
+	}
 }
 
 shared_ptr<SelectClause> SelectMultipleParser::createClause(list<ClauseArgument>& args) {

@@ -5,6 +5,7 @@
 #include <set>
 #include <unordered_set>
 #include <algorithm>
+#include <type_traits>
 
 #include <qps/query/clause/EntityClauseResult.h>
 #include <qps/query/clause/RelationshipClauseResult.h>
@@ -26,17 +27,11 @@ using namespace std;
 
 class QueryEvaluator {
 private:
-	list<ClauseResult> dereferenceEntityResults(list<shared_ptr<EntityClauseResult>> entityResultPointers) {
+	template<class T>
+	list<ClauseResult> dereferenceResults(list<shared_ptr<T>> resultPointers) {
+		static_assert(is_base_of<ClauseResult, T>::value, "T must be a subclass of ClauseResult");
 		list<ClauseResult> results;
-		for (shared_ptr<EntityClauseResult> resultPointer : entityResultPointers) {
-			results.push_back(*resultPointer);
-		}
-		return results;
-	}
-
-	list<ClauseResult> dereferenceRelationshipResults(list<shared_ptr<RelationshipClauseResult>> relationshipResultPointers) {
-		list<ClauseResult> results;
-		for (shared_ptr<RelationshipClauseResult> resultPointer : relationshipResultPointers) {
+		for (shared_ptr<ClauseResult> resultPointer : resultPointers) {
 			results.push_back(*resultPointer);
 		}
 		return results;

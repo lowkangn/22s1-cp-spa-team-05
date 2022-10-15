@@ -14,7 +14,7 @@ shared_ptr<WithClause> WithParser::parse() {
 
 vector<ClauseArgument> WithParser::parseRef() {
 	vector<ClauseArgument> args;
-	ClauseArgument refOrSynonym = this->parseOneArgument();
+	ClauseArgument refOrSynonym = this->parseOneStmtRefOrEntRef();
 	args.push_back(refOrSynonym);
 
 	// a ref can be an '"' IDENT '"', INTEGER or a synonym '.' attrName
@@ -32,34 +32,6 @@ vector<ClauseArgument> WithParser::parseRef() {
 	}
 
 	return args;
-}
-
-ClauseArgument WithParser::parseAttribute(ClauseArgument synonym) {
-	PQLToken attrNameToken = this->tokens.front();
-	this->tokens.pop_front();
-	if (attrNameToken.isProcName()) {
-		return ClauseArgument::createProcNameAttributeArg(synonym);
-	}
-	else if (attrNameToken.isVarName()) {
-		return ClauseArgument::createVarNameAttributeArg(synonym);
-	}
-	else if (attrNameToken.isValue()) {
-		return ClauseArgument::createValueAttributeArg(synonym);
-	}
-	else if (attrNameToken.isStmtNumStmt()) {
-		if (this->tokens.empty()) {
-			throw PQLSyntaxError("Query ended after 'stmt' in with clause");
-		}
-		attrNameToken = this->tokens.front();
-		this->tokens.pop_front();
-		if (!attrNameToken.isStmtNumHash()) {
-			throw PQLSyntaxError("Expected '#' after 'stmt' in with clause, got: " + attrNameToken.getTokenString());
-		}
-		return ClauseArgument::createStmtNumAttributeArg(synonym);
-	}
-	else {
-		throw PQLSyntaxError("Unkown attribute name: " + attrNameToken.getTokenString());
-	}
 }
 
 void WithParser::checkAttrCompare(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs) {
@@ -98,18 +70,7 @@ void WithParser::checkRef(vector<ClauseArgument>& args) {
 	ClauseArgument synonym = args.front();
 	ClauseArgument attrName = args.back();
 
-	bool acceptsProcName = synonym.isProcedureSynonym() || synonym.isCallSynonym();
-	bool acceptsVarName = synonym.isVariableSynonym() || synonym.isPrintSynonym() || synonym.isReadSynonym();
-	bool acceptsValue = synonym.isConstantSynonym();
-	bool acceptsStmtNum = synonym.isStmtRefNoWildcard();
-
-	bool isSemanticallyCorrect = (acceptsProcName && attrName.isProcNameAttribute())
-		|| (acceptsVarName && attrName.isVarNameAttribute())
-		|| (acceptsValue && attrName.isValueAttribute())
-		|| (acceptsStmtNum && attrName.isStmtNumAttribute());
-	if (!isSemanticallyCorrect) {
-		this->semanticErrorMessage = "With clause synonym and attribute name do not match";
-	}
+	this->checkSynonymAttributeCompatible(synonym, attrName);
 }
 
 shared_ptr<WithClause> WithParser::createWithClause(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs) {
@@ -128,33 +89,6 @@ shared_ptr<WithClause> WithParser::createWithClause(vector<ClauseArgument>& lhsA
 
 	return make_shared<WithOneExactClause>(exactArg, nonExactArgs);
 
-}
-
-bool WithParser::isNonDefaultAttribute(vector<ClauseArgument>& args) {
-	ClauseArgument syn = args.front();
-	ClauseArgument attribute = args.back();
-	if (syn.isCallSynonym() && attribute.isProcNameAttribute()) {
-		return true;
-	}
-	else if (syn.isReadSynonym() && attribute.isVarNameAttribute()) {
-		//equivalent to ModifiesS with syn as lhs
-		return true;
-	}
-	else if (syn.isPrintSynonym() && attribute.isVarNameAttribute()) {
-		//equivalent to UsesS with syn as lhs
-		return true;
-	}
-	return false;
-}
-
-void WithParser::consumeDot() {
-	if (this->tokens.empty() || !this->tokens.front().isDot()) {
-		throw PQLSyntaxError("Expected '.'");
-	}
-	this->tokens.pop_front();
-	if (this->tokens.empty()) {
-		throw PQLSyntaxError("Expected argument after '.'");
-	}
 }
 
 void WithParser::consumeEquals() {

@@ -2,12 +2,26 @@
 
 #include <memory>
 
-list<shared_ptr<EntityClauseResult>> SelectClause::execute(shared_ptr<PKBQueryHandler> pkb) {
-	list<shared_ptr<EntityClauseResult>> resultList;
-	if (!isBooleanReturnType) {
-		for (ClauseArgument argument : selectArgs) {
-			shared_ptr<EntityClauseResult> result = this->getSingleEntityResult(pkb, argument);
-			resultList.push_back(result);
+list<shared_ptr<ClauseResult>> SelectClause::execute(shared_ptr<PKBQueryHandler> pkb) {
+	list<shared_ptr<ClauseResult>> resultList;
+	// no results to retrieve for select boolean
+	if (isBooleanReturnType) {
+		return resultList;
+	}
+
+	list<ClauseArgument>::iterator argsIter = this->selectArgs.begin();
+	while (argsIter != this->selectArgs.end()) {
+		ClauseArgument synonym = *argsIter;
+		
+		// check arg immediately after synonym
+		argsIter++;
+		if (argsIter != this->selectArgs.end() && argsIter->isAttributeName()) {
+			// if arg after synonym is an attribute, they form an attrRef so we retrieve the attrRef
+			resultList.push_back(this->getSingleAttrRefResult(pkb, synonym, *argsIter));
+			argsIter++;
+		} else {
+			// else, retrieve the synonym
+			resultList.push_back(this->getSingleEntityResult(pkb, synonym));
 		}
 	}
 	return resultList;

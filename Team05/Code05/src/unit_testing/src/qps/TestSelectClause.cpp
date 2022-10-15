@@ -80,6 +80,9 @@ namespace {
 			9.     y = z;
 			   }
 		}
+		procedure procedure {
+			10. call main;
+		}
 	*/
 
 	// Initialise statements
@@ -92,16 +95,28 @@ namespace {
 	Entity if7Entity = Entity::createIfEntity(7);
 	Entity a8Entity = Entity::createAssignEntity(8);
 	Entity a9Entity = Entity::createAssignEntity(9);
+	Entity callEntity = Entity::createCallEntity(10);
 
 	// Initialise entities
 	Entity main = Entity::createProcedureEntity(Token::createNameOrKeywordToken("main"));
+	Entity procedure = Entity::createProcedureEntity(Token::createNameOrKeywordToken("procedure"));
 	Entity y = Entity::createVariableEntity(1, Token::createNameOrKeywordToken("y"));
 	Entity x = Entity::createVariableEntity(2, Token::createNameOrKeywordToken("x"));
 	Entity zeroEntity = Entity::createConstantEntity(3, Token::createIntegerToken("0"));
-	Entity z = Entity::createVariableEntity(4, Token::createNameOrKeywordToken("z"));
+	Entity z4 = Entity::createVariableEntity(4, Token::createNameOrKeywordToken("z"));
+	Entity z9 = Entity::createVariableEntity(9, Token::createNameOrKeywordToken("z"));
 	Entity oneEntity = Entity::createConstantEntity(6, Token::createIntegerToken("1"));
 	Entity fiveEntity = Entity::createConstantEntity(7, Token::createIntegerToken("5"));
 	Entity threeEntity = Entity::createConstantEntity(8, Token::createIntegerToken("3"));
+
+	// Initialise relationships
+	Relationship modifiesR1Y = Relationship::createModifiesRelationship(readEntity, y);
+	Relationship usesP4Z4 = Relationship::createUsesRelationship(printEntity, z4);
+	Relationship callsAttributeC10Main = Relationship::createCallStmtAttributeRelationship(callEntity, main);
+	// + Additional relationshps that should not get retrieved
+	Relationship modifiesA2X = Relationship::createModifiesRelationship(a2Entity, x);
+	Relationship usesIf7Z9 = Relationship::createUsesRelationship(if7Entity, z9);
+	Relationship callsProcedureMain = Relationship::createCallsRelationship(procedure, main);
 
 	// Initialise corresponding PQLEntities and PQLRelationships
 	PQLEntity pqlR1 = PQLEntity::generateStatement(1);
@@ -113,8 +128,10 @@ namespace {
 	PQLEntity pqlI7 = PQLEntity::generateStatement(7);
 	PQLEntity pqlA8 = PQLEntity::generateStatement(8);
 	PQLEntity pqlA9 = PQLEntity::generateStatement(9);
+	PQLEntity pqlC10 = PQLEntity::generateStatement(10);
 
 	PQLEntity pqlMain = PQLEntity::generateProcedure("main");
+	PQLEntity pqlProcedure = PQLEntity::generateProcedure("procedure");
 	PQLEntity pqlX = PQLEntity::generateVariable("x");
 	PQLEntity pqlY = PQLEntity::generateVariable("y");
 	PQLEntity pqlZ = PQLEntity::generateVariable("z");
@@ -123,13 +140,18 @@ namespace {
 	PQLEntity pql3 = PQLEntity::generateConstant(3);
 	PQLEntity pql5 = PQLEntity::generateConstant(5);
 
+	PQLRelationship pqlModifiesR1Y = PQLRelationship(pqlR1, pqlY);
+	PQLRelationship pqlUsesP4Z = PQLRelationship(pqlP4, pqlZ);
+	PQLRelationship pqlCallsAttributeC10Main = PQLRelationship(pqlC10, pqlMain);
+
 	// Clause Arguments
 	ClauseArgument stmtArg = ClauseArgument::createStmtArg("s");
 	ClauseArgument readArg = ClauseArgument::createReadArg("r");
-	ClauseArgument printArg = ClauseArgument::createPrintArg("p");
+	ClauseArgument printArg = ClauseArgument::createPrintArg("pp");
 	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
 	ClauseArgument whileArg = ClauseArgument::createWhileArg("w");
 	ClauseArgument ifArg = ClauseArgument::createIfArg("i");
+	ClauseArgument callArg = ClauseArgument::createCallArg("ca");
 	ClauseArgument procArg = ClauseArgument::createProcedureArg("p");
 	ClauseArgument varArg = ClauseArgument::createVariableArg("v");
 	ClauseArgument constArg = ClauseArgument::createConstantArg("c");
@@ -137,20 +159,33 @@ namespace {
 
 	ClauseArgument anotherAssignArg = ClauseArgument::createAssignArg("a1");
 
+	ClauseArgument stmtStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(stmtArg);
+	ClauseArgument assignStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(assignArg);
+	ClauseArgument callStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(callArg);
+	ClauseArgument readStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(readArg);
+	ClauseArgument printStmtNumAttributeArg = ClauseArgument::createStmtNumAttributeArg(printArg);
+
+	ClauseArgument callProcNameAttributeArg = ClauseArgument::createProcNameAttributeArg(callArg);
+	ClauseArgument readVarNameAttributeArg = ClauseArgument::createVarNameAttributeArg(readArg);
+	ClauseArgument printVarNameAttributeArg = ClauseArgument::createVarNameAttributeArg(printArg);
+
+	ClauseArgument varVarNameAttributeArg = ClauseArgument::createVarNameAttributeArg(varArg);
+	ClauseArgument constValueAttributeArg = ClauseArgument::createValueAttributeArg(constArg);
+	ClauseArgument procProcNameAttributeArg = ClauseArgument::createProcNameAttributeArg(procArg);
 }
 
 TEST_CASE("SelectClause: test execute") {
 	auto testExecute = [](SelectClause selectClause,
-			set<EntityClauseResult> expectedSet, shared_ptr<PKB> pkb) {
+			set<ClauseResult> expectedSet, shared_ptr<PKB> pkb) {
 		// given
 		shared_ptr<PKBQueryHandler> pkbInterface = shared_ptr<PKBQueryHandler>(pkb);
 
 		// when
-		list<shared_ptr<EntityClauseResult>> actualList = selectClause.execute(pkb);
+		list<shared_ptr<ClauseResult>> actualList = selectClause.execute(pkb);
 
 		// then
-		set<EntityClauseResult> actualSet;
-		for (shared_ptr<EntityClauseResult> actualResult : actualList) {
+		set<ClauseResult> actualSet;
+		for (shared_ptr<ClauseResult> actualResult : actualList) {
 			actualSet.insert(*actualResult);
 		}
 
@@ -160,14 +195,15 @@ TEST_CASE("SelectClause: test execute") {
 	// ------ PKB ------
 	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
 	vector<Entity> entities{ readEntity, a2Entity, whileEntity, printEntity, if5Entity, a6Entity, if7Entity, a8Entity, a9Entity,
-							 main, x, y, z, zeroEntity, oneEntity, threeEntity, fiveEntity };
-
+							 callEntity, main, procedure, x, y, z4, z9, zeroEntity, oneEntity, threeEntity, fiveEntity };
+	vector<Relationship> relationships{ modifiesR1Y, usesP4Z4, callsAttributeC10Main, modifiesA2X, usesIf7Z9, callsProcedureMain};
 	// ------ PKB ------
 	pkb->addEntities(entities);
+	pkb->addRelationships(relationships);
 
 	// ------ QPS ------
 	SelectClause selectClause = SelectClause::createBooleanSelectClause();
-	set<EntityClauseResult> expectedSet = {};
+	set<ClauseResult> expectedSet = {};
 
 	SECTION("Boolean return type") {
 		testExecute(selectClause, expectedSet, pkb);
@@ -176,7 +212,7 @@ TEST_CASE("SelectClause: test execute") {
 	SECTION("Single return type") {
 		selectClause = SelectClause::createSynonymSelectClause({stmtArg});
 		EntityClauseResult result = EntityClauseResult(stmtArg,vector<PQLEntity>{
-			pqlR1, pqlA2, pqlW3, pqlP4, pqlI5, pqlA6, pqlI7, pqlA8, pqlA9});
+			pqlR1, pqlA2, pqlW3, pqlP4, pqlI5, pqlA6, pqlI7, pqlA8, pqlA9, pqlC10});
 		expectedSet = {result};
 		testExecute(selectClause, expectedSet, pkb);
 
@@ -207,7 +243,7 @@ TEST_CASE("SelectClause: test execute") {
 		testExecute(selectClause, expectedSet, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({procArg});
-		result = EntityClauseResult(procArg,vector<PQLEntity>{pqlMain});
+		result = EntityClauseResult(procArg,vector<PQLEntity>{pqlMain, pqlProcedure});
 		expectedSet = {result};
 		testExecute(selectClause, expectedSet, pkb);
 
@@ -223,7 +259,7 @@ TEST_CASE("SelectClause: test execute") {
 	}
 
 	SECTION("Multiple return types") {
-		selectClause = SelectClause::createSynonymSelectClause({assignArg, readArg});
+		selectClause = SelectClause::createSynonymSelectClause({assignArg, readArg });
 		EntityClauseResult assignResult = EntityClauseResult(assignArg,vector<PQLEntity>{
 				pqlA2, pqlA6, pqlA8, pqlA9});
 		EntityClauseResult readResult = EntityClauseResult(readArg,vector<PQLEntity>{pqlR1});
@@ -239,6 +275,31 @@ TEST_CASE("SelectClause: test execute") {
 		EntityClauseResult anotherAssignResult = EntityClauseResult(anotherAssignArg,vector<PQLEntity>{
 				pqlA2, pqlA6, pqlA8, pqlA9});
 		expectedSet = {assignResult, anotherAssignResult};
+		testExecute(selectClause, expectedSet, pkb);
+	}
+
+	SECTION("Select attributes") {
+		selectClause = SelectClause::createSynonymSelectClause({ assignArg, assignStmtNumAttributeArg });
+		EntityClauseResult assignStmtNumResult = EntityClauseResult(assignArg, vector<PQLEntity>{
+			pqlA2, pqlA6, pqlA8, pqlA9});
+		expectedSet = { assignStmtNumResult };
+		testExecute(selectClause, expectedSet, pkb);
+
+		selectClause = SelectClause::createSynonymSelectClause({ constArg, constValueAttributeArg, readArg, readVarNameAttributeArg, readArg });
+		EntityClauseResult constValueResult = EntityClauseResult(constArg, vector<PQLEntity>{
+			pql0, pql1, pql3, pql5});
+		RelationshipClauseResult readVarNameResult = RelationshipClauseResult(readArg, readVarNameAttributeArg,
+			vector<PQLRelationship>{pqlModifiesR1Y});
+		EntityClauseResult readResult = EntityClauseResult(readArg, vector<PQLEntity>{pqlR1});
+		expectedSet = { constValueResult, readVarNameResult, readResult };
+		testExecute(selectClause, expectedSet, pkb);
+
+		selectClause = SelectClause::createSynonymSelectClause({ callArg, callProcNameAttributeArg, procArg, ifArg });
+		RelationshipClauseResult callProcNameResult = RelationshipClauseResult(callArg, callProcNameAttributeArg,
+			vector<PQLRelationship>{pqlCallsAttributeC10Main});
+		EntityClauseResult procResult = EntityClauseResult(procArg, vector<PQLEntity>{pqlMain, pqlProcedure});
+		EntityClauseResult ifResult = EntityClauseResult(ifArg, vector<PQLEntity>{pqlI5, pqlI7});
+		expectedSet = { callProcNameResult, procResult, ifResult };
 		testExecute(selectClause, expectedSet, pkb);
 	}
 }
