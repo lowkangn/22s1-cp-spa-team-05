@@ -62,10 +62,7 @@ do
 done
 
 echo "Starting no constraint query test cases"
-for i in calls
-do
-    ${path_to_autotester} ${iteration2}${no_constr_path}$noConstraints_source.txt ${iteration2}${no_constr_path}$noConstraints_source_queries.txt ${iteration2_output_folder}${i}noConstraints.xml
-done
+${path_to_autotester} ${iteration2}${no_constr_path}noConstraints_source.txt ${iteration2}${no_constr_path}noConstraints_queries.txt ${iteration2_output_folder}noConstraints.xml
 
 echo "starting boolean return value test cases"
 # no constraints
