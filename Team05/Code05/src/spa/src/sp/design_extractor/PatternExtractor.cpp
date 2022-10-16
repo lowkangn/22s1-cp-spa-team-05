@@ -91,9 +91,9 @@ vector<Pattern> PatternExtractor::handleIf(shared_ptr<ASTNode> ast) {
 	string condString = this->handleCondition(condNode);
 	if (condString != "") {
 		Pattern pattern = Pattern::createIfPattern(ifNode->getLineNumber(), condString);
-		extractedPatterns.insert(extractedPatterns.end(), elseExtractedPatterns.begin(), elseExtractedPatterns.end());
 		extractedPatterns.push_back(pattern);
 	}
+	extractedPatterns.insert(extractedPatterns.end(), elseExtractedPatterns.begin(), elseExtractedPatterns.end());
 
 	return extractedPatterns;
 }
