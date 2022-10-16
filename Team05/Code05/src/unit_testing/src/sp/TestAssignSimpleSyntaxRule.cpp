@@ -319,6 +319,52 @@ TEST_CASE("AssignSimpleSyntaxRule::constructNode") {
 		test(rule, expectedASTNode);
 	}
 
+	SECTION("AssignSimpleSyntaxRule : constructNode -> x = (((x))) + 1") {
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token equalsToken = Token::createEqualsToken();
+		Token oneToken = Token::createIntegerToken("1");
+		Token semiColon = Token::createSemicolonToken();
+		Token plusToken = Token::createPlusToken();
+
+		list<Token> tokensToConsume = {
+			xToken,
+			equalsToken,
+			Token::createOpenBracketToken(),
+			xToken,
+			Token::createCloseBracketToken(),
+			plusToken,
+			oneToken,
+			semiColon,
+		};
+
+		// Create rule
+		AssignSimpleSyntaxRule rule = AssignSimpleSyntaxRule();
+		list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+		// Create assign node
+		shared_ptr<ASTNode> expectedASTNode = AssignASTNode::createAssignNode();
+
+		// Create LHS
+		shared_ptr<ASTNode> variableNode = VariableASTNode::createVariableNode(xToken);
+
+		// Create RHS
+		shared_ptr<ASTNode> expressionNode = ExpressionASTNode::createExpressionNode(plusToken);
+		shared_ptr<ASTNode> bracketsNode = BracketsASTNode::createBracketsNode();
+		shared_ptr<ASTNode> expressionXNode = VariableASTNode::createVariableNode(xToken);
+		shared_ptr<ASTNode> constantNode = ConstantValueASTNode::createConstantNode(oneToken);
+
+		expressionNode->addChild(bracketsNode);
+		expressionNode->addChild(constantNode);
+
+		bracketsNode->addChild(expressionXNode);
+
+		expectedASTNode->addChild(variableNode);
+		expectedASTNode->addChild(expressionNode);
+
+		test(rule, expectedASTNode);
+	}
+
 	SECTION("AssignSimpleSyntaxRule : constructNode -> x = x + 1") {
 		// x = x + 1;
 		Token leftHandSideToken = Token::createNameOrKeywordToken("x");
