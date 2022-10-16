@@ -245,6 +245,10 @@ vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
 		Entity variable = ast->extractEntity();
 		variables.push_back(variable);
 	}
+	else if (ast->isBracketsNode()) {
+		vector<Entity> variableInBrackets = this->extractVariables(ast);
+		variables.insert(variables.end(), variableInBrackets.begin(), variableInBrackets.end());
+	}
 	else if (ast->isExpression()) {
 		// Recursively extract the variables in the sub-expression.
 		shared_ptr<ExpressionASTNode> expressionNode = dynamic_pointer_cast<ExpressionASTNode>(ast);
