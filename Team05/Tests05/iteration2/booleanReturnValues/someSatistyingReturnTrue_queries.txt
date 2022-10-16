@@ -1,0 +1,86 @@
+1 - Single constraint, such that Modifies(a,v)
+assign a; variable v;
+Select BOOLEAN such that Modifies(a, "y")
+TRUE
+5000
+2 - Single constraint, such that Modifies(r,v)
+read r; variable v;
+Select BOOLEAN such that Modifies(r, "x")
+TRUE
+5000
+3 - Single constraint, such that Modifies(s,v)
+stmt s; variable v;
+Select BOOLEAN such that Modifies(s, v)
+TRUE
+5000
+4 - Single constraint, such that Modifies(p,v)
+procedure p; variable v;
+Select BOOLEAN such that Modifies(p, "x")
+TRUE
+5000
+5 - Single constraint, such that Modifies(c,v)
+call c; variable v;
+Select BOOLEAN such that Modifies(c, "y")
+TRUE
+5000
+6 - Single constraint, such that Uses(a,v)
+assign a; variable v;
+Select BOOLEAN such that Uses(a, "y")
+TRUE
+5000
+7 - Single constraint, such that Uses(pn,v)
+print pn; variable v;
+Select BOOLEAN such that Uses(pn, v)
+TRUE
+5000
+8 - Single constraint, such that Uses(s,v)
+stmt s; variable v;
+Select BOOLEAN such that Uses(s, v)
+TRUE
+5000
+9 - Single constraint, such that Uses(p,v)
+procedure p; variable v;
+Select BOOLEAN such that Uses(p, "x")
+TRUE
+5000
+10 - Single constraint, such that Uses(c,v)
+call c; variable v;
+Select BOOLEAN such that Uses(c, "y")
+TRUE
+5000
+11 - Single constraint, such that Follows(s1,s2)
+stmt s1; stmt s2;
+Select BOOLEAN such that Follows(1, 2)
+TRUE
+5000
+12 - Single constraint, such that Follows*(s1,s2)
+stmt s1; stmt s2;
+Select BOOLEAN such that Follows*(1, 12)
+TRUE
+5000
+13 - Single constraint, such that Parent(s1,s2)
+stmt s1; stmt s2;
+Select BOOLEAN such that Parent(2, 3)
+TRUE
+5000
+14 - Single constraint, such that Parent*(s1,s2)
+stmt s1; stmt s2;
+Select BOOLEAN such that Parent*(2, 6)
+TRUE
+5000
+15 - Single constraint, such that Calls(p1,p2)
+procedure p1; procedure p2;
+Select BOOLEAN such that Calls(p1, "beta")
+TRUE
+5000
+16 - Single constraint, such that Calls*(p1,p2)
+procedure p1; procedure p2;
+Select BOOLEAN such that Calls*("main", "charlie")
+FALSE
+5000
+17 - 6 constraints, all true except the pattern
+assign a; stmt s; variable v; procedure p1; procedure p2; if if;
+Select BOOLEAN such that Modifies(a,v) such that Uses(s,v) such that Parent(s,_) such that Calls*(p1,p2) such that Follows*(_,s) pattern if ("x", _, _) 
+TRUE
+5000
+

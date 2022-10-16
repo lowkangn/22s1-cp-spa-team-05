@@ -1,0 +1,5 @@
+1 - Select boolean
+variable v;
+Select BOOLEAN
+TRUE
+5000

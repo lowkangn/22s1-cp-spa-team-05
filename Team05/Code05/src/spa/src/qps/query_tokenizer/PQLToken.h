@@ -11,7 +11,8 @@ enum class PQLTokenType {
     NAME,
     INTEGER,
     OPERATOR,
-    DELIMITER
+    DELIMITER,
+    KEYWORD_ONLY
 };
 
 // keywords that form the select-cl
@@ -35,6 +36,7 @@ const string ATTRIBUTE_VARNAME = "varName";
 const string ATTRIBUTE_VALUE = "value";
 const string ATTRIBUTE_STMT_NUM_STMT = "stmt";
 const string ATTRIBUTE_STMT_NUM_HASH = "#";
+const string ATTRIBUTE_STMT_NUM = "stmt#";
 
 // operators
 const string EQUALS = "=";
@@ -99,6 +101,10 @@ public:
         return PQLToken(tokenString, PQLTokenType::OPERATOR);
     }
 
+    static PQLToken createKeywordOnlyToken(string tokenString) {
+        return PQLToken(tokenString, PQLTokenType::KEYWORD_ONLY);
+    }
+
     /**
      * Returns the string representation of the token.
      *
@@ -139,6 +145,9 @@ public:
     bool isOperator() {
         return tokenType == PQLTokenType::OPERATOR;
     }
+    bool isKeywordOnly() {
+        return tokenType == PQLTokenType::KEYWORD_ONLY;
+    }
 
     // Delimiter indicators
     bool isSemicolon() {
@@ -157,13 +166,13 @@ public:
         return isDelimiter() && tokenString == PQL_CLOSED_BRACKET;
     }
 
-	bool isAngledOpenBracket() {
-		return isDelimiter() && tokenString == ANGLED_OPEN_BRACKET;
-	}
+    bool isAngledOpenBracket() {
+        return isDelimiter() && tokenString == ANGLED_OPEN_BRACKET;
+    }
 
-	bool isAngledCloseBracket() {
-		return isDelimiter() && tokenString == ANGLED_CLOSED_BRACKET;
-	}
+    bool isAngledCloseBracket() {
+        return isDelimiter() && tokenString == ANGLED_CLOSED_BRACKET;
+    }
 
     bool isQuote() {
         return isDelimiter() && tokenString == QUOTE;
@@ -228,21 +237,17 @@ public:
     bool isProcName() {
         return isName() && tokenString == ATTRIBUTE_PROCNAME;
     }
-    
+
     bool isVarName() {
         return isName() && tokenString == ATTRIBUTE_VARNAME;
     }
-    
+
     bool isValue() {
         return isName() && tokenString == ATTRIBUTE_VALUE;
     }
 
-    bool isStmtNumStmt() {
-        return isName() && tokenString == ATTRIBUTE_STMT_NUM_STMT;
-    }
-
-    bool isStmtNumHash() {
-        return isDelimiter() && tokenString == ATTRIBUTE_STMT_NUM_HASH;
+    bool isStmtNum() {
+        return isKeywordOnly() && tokenString == ATTRIBUTE_STMT_NUM;
     }
 
 	// Boolean keyword indicator

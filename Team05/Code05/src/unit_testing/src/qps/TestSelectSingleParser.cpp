@@ -83,8 +83,7 @@ TEST_CASE("SelectSingleParser: test parseNoError") {
         tokens = list<PQLToken>{
             PQLToken::createNameToken("ppp"),
             PQLToken::createOperatorToken("."),
-            PQLToken::createNameToken("stmt"),
-            PQLToken::createDelimiterToken("#"),
+            PQLToken::createKeywordOnlyToken("stmt#"),
         };
         declarations = unordered_map<string, ArgumentType>{ {"ppp", ArgumentType::PRINT}, };
         ClauseArgument printArg = ClauseArgument::createPrintArg("ppp");

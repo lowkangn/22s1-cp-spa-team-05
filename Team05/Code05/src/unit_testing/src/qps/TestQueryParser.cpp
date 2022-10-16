@@ -98,8 +98,7 @@ namespace QPSTestUtil {
     // attribute name tokens
     PQLToken procName = PQLToken::createNameToken("procName");
     PQLToken varName = PQLToken::createNameToken("varName");
-    PQLToken stmtNumStmt = PQLToken::createNameToken("stmt");
-    PQLToken stmtNumHash = PQLToken::createDelimiterToken("#");
+    PQLToken stmtNum = PQLToken::createKeywordOnlyToken("stmt#");
     PQLToken value = PQLToken::createNameToken("value");
 
     // strings for tokens, declarations and ClauseArguments
@@ -264,7 +263,7 @@ TEST_CASE("QueryParser: test parseNoError") {
         tokens = list<PQLToken>{
             constant, const1, semicolon, stmt, s1 , semicolon,
             select, const1,
-            with, two, equals, s1, dot, stmtNumStmt, stmtNumHash
+            with, two, equals, s1, dot, stmtNum,
         };
 
         selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({ const1Arg }));
@@ -672,9 +671,9 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             with, two, equals, five,
             with, quotationMark, name, quotationMark, equals, quotationMark, name, quotationMark,
             with, quotationMark, name, quotationMark, equals, proc1, dot, procName,
-            with, pri1, dot, stmtNumStmt, stmtNumHash, equals, five,
+            with, pri1, dot, stmtNum, equals, five,
             with, r1, dot, varName, equals, call1, dot, procName,
-            with, const1, dot, value, equals, s1, dot, stmtNumStmt, stmtNumHash,
+            with, const1, dot, value, equals, s1, dot, stmtNum,
         };
 
         list<shared_ptr<WithClause>> expectedWith = list<shared_ptr<WithClause>>{
@@ -692,7 +691,7 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             with, quotationMark, name, quotationMark, equals, quotationMark, name, quotationMark,
             such, that, parent, star, openBracket, i1, comma, pri1, closeBracket,
             pattern, a1, openBracket, v1, comma, wildcard, quotationMark, name, quotationMark, wildcard, closeBracket,
-            with, const1, dot, value, equals, s1, dot, stmtNumStmt, stmtNumHash,
+            with, const1, dot, value, equals, s1, dot, stmtNum,
             such, that, follows, star, openBracket, a1, comma, w1, closeBracket,
             pattern, a1, openBracket, wildcard, comma, wildcard, closeBracket,
             with, r1, dot, varName, equals, call1, dot, procName,
@@ -701,7 +700,7 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             pattern, a2, openBracket, v1, comma,
                 quotationMark, name, plusToken, openBracket, openBracket, five, closeBracket, closeBracket, quotationMark, closeBracket,
             such, that, modifies, openBracket, proc1, comma, v1, closeBracket,
-            with, pri1, dot, stmtNumStmt, stmtNumHash, equals, five,
+            with, pri1, dot, stmtNum, equals, five,
             such, that, uses, openBracket, i1, comma, wildcard, closeBracket,
             such, that, calls, star, openBracket, proc1, comma, proc3, closeBracket,
             such, that, calls, openBracket, proc2, comma, proc3, closeBracket,
