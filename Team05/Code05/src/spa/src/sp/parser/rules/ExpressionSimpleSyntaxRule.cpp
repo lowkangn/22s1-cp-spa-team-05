@@ -156,7 +156,13 @@ shared_ptr<ASTNode> ExpressionSimpleSyntaxRule::constructNode() {
 
 	if (isSingleExpression) {
 		shared_ptr<ASTNode> expressionNode = this->childRules[LHS_RULE]->constructNode();
+		if (this->lhsIsExpression) {
+			shared_ptr<ASTNode> lhsBrackets = BracketsASTNode::createBracketsNode();
+			lhsBrackets->addChild(expressionNode);
+			return lhsBrackets;
+		}
 		return expressionNode;
+
 	}
 	else {
 		shared_ptr<ASTNode> rootNode = this->childRules[OPERATOR_RULE]->constructNode();

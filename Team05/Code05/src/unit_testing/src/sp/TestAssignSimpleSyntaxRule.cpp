@@ -53,6 +53,24 @@ TEST_CASE("AssignSimpleSyntaxRule :: consumeTokens") {
 		list<Token> expectedTokens = { Token::createNameOrKeywordToken("othervariableonnextline") };
 		test(AssignSimpleSyntaxRule(), tokens, expectedTokens);
 	}
+
+	SECTION("AssignSimpleSyntaxRule: Consumes exactly correct tokens, expression with extra brackets") {
+		list<Token> tokens = {
+				Token::createNameOrKeywordToken("soomevariable"),
+				Token::createEqualsToken(),
+				Token::createOpenBracketToken(),
+				Token::createIntegerToken("1"),
+				Token::createCloseBracketToken(),
+				Token::createPlusToken(),
+				Token::createIntegerToken("5"),
+				Token::createSemicolonToken(),
+				Token::createNameOrKeywordToken("othervariableonnextline"),
+		};
+		list<Token> expectedTokens = { Token::createNameOrKeywordToken("othervariableonnextline") };
+		test(AssignSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
+
 	SECTION("AssignSimpleSyntaxRule: Missing = token") {
 		list<Token> tokens = {
 				Token::createNameOrKeywordToken("soomevariable"),
@@ -62,8 +80,6 @@ TEST_CASE("AssignSimpleSyntaxRule :: consumeTokens") {
 		};
 		testThrowsException(AssignSimpleSyntaxRule(), tokens);
 	}
-
-
 
 	SECTION("AssignSimpleSyntaxRule: Missing token after equal") {
 		list<Token> tokens = {
@@ -130,7 +146,38 @@ TEST_CASE("AssignSimpleSyntaxRule :: generateChildRules") {
 		test(AssignSimpleSyntaxRule(), tokensToConsume, expectedChildren);
 	}
 
+	SECTION("AssignSimpleSyntaxRule: expression x = (x) + 1") {
+		list<Token> tokensToConsume = {
+			Token::createNameOrKeywordToken("x"),
+			Token::createEqualsToken(),
+			Token::createOpenBracketToken(),
+			Token::createNameOrKeywordToken("x"),
+			Token::createCloseBracketToken(),
+			Token::createPlusToken(),
+			Token::createIntegerToken("1"),
+			Token::createSemicolonToken(),
+		};
 
+		// create lhs rule
+		shared_ptr<SimpleSyntaxRule> lhsRule = shared_ptr<SimpleSyntaxRule>(new NameSimpleSyntaxRule());
+		list<Token> tokensInLHSRule = { Token::createNameOrKeywordToken("x") };
+		lhsRule->consumeTokens(tokensInLHSRule);
+
+		// create rhs rule
+		shared_ptr<SimpleSyntaxRule> rhsRule = shared_ptr<SimpleSyntaxRule>(new ExpressionSimpleSyntaxRule());
+		list<Token> tokensInRHSRule = { Token::createOpenBracketToken(),
+										Token::createNameOrKeywordToken("x"),
+										Token::createCloseBracketToken(),
+										Token::createPlusToken(),
+										Token::createIntegerToken("1") };
+		rhsRule->consumeTokens(tokensInRHSRule);
+
+		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+				lhsRule,
+				rhsRule
+		};
+		test(AssignSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+	}
 
 	SECTION("AssignSimpleSyntaxRule: expression x = x + 1") {
 		list<Token> tokensToConsume = {
@@ -222,6 +269,52 @@ TEST_CASE("AssignSimpleSyntaxRule::constructNode") {
 
 		expectedASTNode->addChild(variableNode);
 		expectedASTNode->addChild(constantNode);
+
+		test(rule, expectedASTNode);
+	}
+
+	SECTION("AssignSimpleSyntaxRule : constructNode -> x = (x) + 1") {
+		Token xToken = Token::createNameOrKeywordToken("x");
+		Token equalsToken = Token::createEqualsToken();
+		Token oneToken = Token::createIntegerToken("1");
+		Token semiColon = Token::createSemicolonToken();
+		Token plusToken = Token::createPlusToken();
+
+		list<Token> tokensToConsume = {
+			xToken,
+			equalsToken,
+			Token::createOpenBracketToken(),
+			xToken,
+			Token::createCloseBracketToken(),
+			plusToken,
+			oneToken,
+			semiColon,
+		};
+
+		// Create rule
+		AssignSimpleSyntaxRule rule = AssignSimpleSyntaxRule();
+		list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+		// Create assign node
+		shared_ptr<ASTNode> expectedASTNode = AssignASTNode::createAssignNode();
+
+		// Create LHS
+		shared_ptr<ASTNode> variableNode = VariableASTNode::createVariableNode(xToken);
+
+		// Create RHS
+		shared_ptr<ASTNode> expressionNode = ExpressionASTNode::createExpressionNode(plusToken);
+		shared_ptr<ASTNode> bracketsNode = BracketsASTNode::createBracketsNode();
+		shared_ptr<ASTNode> expressionXNode = VariableASTNode::createVariableNode(xToken);
+		shared_ptr<ASTNode> constantNode = ConstantValueASTNode::createConstantNode(oneToken);
+
+		expressionNode->addChild(bracketsNode);
+		expressionNode->addChild(constantNode);
+
+		bracketsNode->addChild(expressionXNode);
+
+		expectedASTNode->addChild(variableNode);
+		expectedASTNode->addChild(expressionNode);
 
 		test(rule, expectedASTNode);
 	}

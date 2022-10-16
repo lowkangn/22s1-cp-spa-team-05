@@ -87,6 +87,18 @@ TEST_CASE("RelationalExpressionSimpleSyntaxRule::consumeTokens") {
 		test(RelationalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
 	}
 
+	SECTION("RelationalExpressionSimpleSyntaxRule: Consumes exactly correct tokens : brackets") {
+		list<Token> tokens = {
+			Token::createOpenBracketToken(),
+			Token::createNameOrKeywordToken("k"),
+			Token::createCloseBracketToken(),
+			Token::createEqualityToken(),
+			Token::createIntegerToken("10"),
+		};
+		list<Token> expectedTokens = {};
+		test(RelationalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
 }
 
 TEST_CASE("RelationalExpressionSimpleSyntaxRule::generateChildRules") {
@@ -108,6 +120,54 @@ TEST_CASE("RelationalExpressionSimpleSyntaxRule::generateChildRules") {
 			REQUIRE((*rule).equals(*otherRule));
 		}
 	};
+
+	SECTION("Test with brackets") {
+		list<Token> tokensToConsume = {
+			Token::createOpenBracketToken(),
+			Token::createNameOrKeywordToken("k"),
+			Token::createCloseBracketToken(),
+			Token::createEqualityToken(),
+			Token::createIntegerToken("10"),
+		};
+
+		// create relational rule
+		shared_ptr<SimpleSyntaxRule> relationalRule = shared_ptr<SimpleSyntaxRule>(new RelationalExpressionSimpleSyntaxRule());
+		list<Token> tokensRule = { Token::createOpenBracketToken(),
+									Token::createNameOrKeywordToken("k"),
+									Token::createCloseBracketToken(),
+									Token::createEqualityToken(),
+									Token::createIntegerToken("10"), };
+		relationalRule->consumeTokens(tokensRule);
+
+		// create lhs rule
+		shared_ptr <RelationalFactorSimpleSyntaxRule> lhsRule (new RelationalFactorSimpleSyntaxRule());
+		list<Token> tokensInLHSRule {
+			Token::createOpenBracketToken(),
+			Token::createNameOrKeywordToken("k"),
+			Token::createCloseBracketToken(),
+		};
+		lhsRule->consumeTokens(tokensInLHSRule);
+
+		// create operator rule
+		shared_ptr<SimpleSyntaxRule> operatorRule = shared_ptr<SimpleSyntaxRule>(new OperatorSimpleSyntaxRule());
+		list<Token> tokensInOperatorRule = { Token::createEqualityToken() };
+		operatorRule->consumeTokens(tokensInOperatorRule);
+
+		// create rhs rule
+		shared_ptr <RelationalFactorSimpleSyntaxRule> rhsRule(new RelationalFactorSimpleSyntaxRule());
+		list<Token> tokensInRHSRule{
+			Token::createIntegerToken("10")
+		};
+		rhsRule->consumeTokens(tokensInRHSRule);
+
+		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+			lhsRule,
+			operatorRule,
+			rhsRule
+		};
+
+		test(RelationalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+	}
 	
 }
 
@@ -141,5 +201,4 @@ TEST_CASE("RelationalExpressionSimpleSyntaxRule::constructNode") {
 
 		test(rule, expectedASTNode);
 	}
-
 }
