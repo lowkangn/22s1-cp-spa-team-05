@@ -1,0 +1,25 @@
+1 - Single constraint, such that Modifies(a,v)
+assign a; variable v;
+select BOOLEAN such that Modifies(3, "x")
+FALSE
+5000
+2 - Single constraint, such that Modifies(r,v)
+read r; variable v;
+select BOOLEAN such that Modifies(2, "x")
+FALSE
+5000
+3 - Single constraint, such that Modifies(s,v)
+statement s; variable v;
+select BOOLEAN such that Modifies(s, "z")
+FALSE
+5000
+4 - Single constraint, such that Modifies(p,v)
+procedure p; variable v;
+select BOOLEAN such that Modifies(p, "z")
+FALSE
+5000
+5 - Single constraint, such that Modifies(c,v)
+call c; variable v;
+select BOOLEAN such that Modifies(c, "z")
+FALSE
+5000
