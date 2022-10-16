@@ -1,0 +1,105 @@
+1 - WithBothExact - Is cs3203 = aGoodModule
+Select BOOLEAN with "cs3203" 
+= "aGoodModule"
+FALSE
+5000
+2 - WithBothExact - select procedure if cs3203 = cs3203
+procedure p;
+Select <p> with "cs3203" = "cs3203"
+main, a, y, procedure
+5000
+3 - WithBothExact - select constants and variables if 1 = 1
+constant c; variable v;
+Select <   c   ,  v  > with 1 = 1
+0 x, 0 y, 0 z, 0 a, 0 procedure, 2 x, 2 y, 2 z, 2 a, 2 procedure, 10 x, 10 y, 10 z, 10 a, 10 procedure 
+5000
+4 - WithBothExact - select constants if 1 = 2
+constant c;
+Select c with 1 = 2
+
+5000
+5 - WithOneExact - select assignment on line 12 (lhs attrRef)
+assign a;
+Select a with a.stmt# = 12
+12
+5000
+6 - WithOneExact - select print on line 2 (rhs attrRef)
+print p;
+Select p with 2 = p .        stmt#
+2
+5000
+7 - WithOneExact - select constant with value 0
+constant c;
+Select c with c	.value=0
+0
+5000
+8 - WithOneExact - select prints that print variable a
+print with;
+Select with with with.varName="a"
+7
+5000
+9 - WithOneExact - select calls that call procedure a
+call c;
+Select c with	 "a"=c.procName
+6, 10
+5000
+10 - WithOneExact - select reads with variable named procedure
+read read;
+Select read with "	procedure	"=read.varName
+8
+5000
+11 - WithOneExact - Is there a read whose variable is named procedure
+read read;
+Select BOOLEAN with "procedure"=read.varName
+TRUE
+5000
+12 - WithBothAttrRef - Select procedures that are called
+procedure p; call c;
+Select p with c .procName=p. procName
+a, procedure
+5000
+13 - WithBothAttrRef - Select constants that are the line number of some statement
+stmt stmt; constant const;
+Select const with stmt.stmt#=const. value
+2, 10
+5000
+14 - WithBothAttrRef - Select procedures and variables with the same name
+procedure pprocName; variable v;
+Select <pprocName,v> with pprocName.procName=v.varName
+procedure procedure, a a, y y
+5000
+15 - WithBothAttrRef - Select all procedures if a procedure and variable have the same name
+procedure p, pp; variable v;
+Select pp with p.procName=v.varName
+procedure, a, y, main
+5000
+16 - WithBothAttrRef - Select reads and calls whos name attributes are the same
+read r; call c;
+Select <r,c> with c.procName=r.varName
+8 5
+5000
+17 - WithBothAttrRef - Select prints and calls whos name attributes are the same
+print r; call c;
+Select <r,c> with c.procName=r.varName
+7 6, 7 10
+5000
+18 - WithBothAttrRef - Select prints that print the same variable as a print
+print p, pp;
+Select p with p.varName = pp.varName
+2, 7, 9
+5000
+19 - WithBothAttrRef - Select whiles with the same line number as an if (empty)
+while w; if i;
+Select w with i. stmt# = w.stmt#
+
+5000
+20 - WithBothAttrRef - Select whiles and statements with the same line number
+while w; stmt s;
+Select <w,s> with s. stmt# = w.stmt#
+11 11
+5000
+21 - WithBothAttrRef - Select triples of variables which are printed, whiles, and ifs
+while w; if i; variable v; print p;
+Select <v,w,i> with p.varName = v.varName
+y 11 4, a 11 4
+5000
