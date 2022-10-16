@@ -1,0 +1,70 @@
+1 - boolean, parentStar, follows, pattern if, pattern while, with 2 attrRef varName, with 1 attrRef stmtNum, 1 group- true
+if i1, i2; print p; while w; read r; Select BOOLEAN such that Parent*(i1,i2) pattern i1("j",_,_)
+such that Follows(p, i2) with i1.stmt#=5 pattern w("i",_) such that Parent(w, i2) with p.varName = r.varName such that Parent(i2,r) 
+TRUE
+5000
+2 - boolean, parentStar, follows, pattern if, pattern while, with 2 attrRef varName, with 1 attrRef stmtNum, 1 group - false
+if i1, i2; print p; while w; read r; Select BOOLEAN such that Parent*(i1,i2) pattern i1("j",_,_)
+such that Follows(p, i2) with i1.stmt#=11 pattern w("i",_) such that Parent(w, i2) with p.varName = r.varName such that Parent(i2,r) 
+FALSE
+5000
+3 - single, usesP, modifiesP, parent, calls, 1 group
+procedure proc, proc2; variable v; while w; Select proc such that Uses(proc, v) 
+such that Modifies(proc, v) such that Calls(proc2, proc) such that Uses(proc2, v)
+z2, z1
+5000
+4 - single tuple, usesS call, modifiesP, followsStar, pattern if exact, 1 group
+call c; procedure proc; variable v; if i; Select <v> such that Modifies(proc, v) 
+pattern i("k",_,_) such that Uses(c, v) such that Follows*(i, c)
+x, y, z
+5000
+5 - multiple, modifiesS call, pattern while synonym, with 2 attrRef stmtNumValue, with 1 attrRef value, 1 group
+variable v; while w; assign a; call c; constant const; Select <c, v> with 
+w.stmt#=const.value such that Modifies(c, v) pattern w(v,_) with const.value=9
+15 z, 30 z
+5000
+7 - multiple, pattern if, pattern while ident, pattern assign exact, pattern assign brackets and operators, 2 groups
+if i; while w; assign a, a1; Select <i, a, a1> pattern a(_, "z+1/2") pattern i(_,_,_)  
+pattern w("z",_) pattern a1(_, _"(((2*0))) / ( (((5))) +0)"_) pattern a1(_,_"20/z"_)
+5 8 6, 5 8 21, 5 8 36, 5 23 6, 5 23 21, 5 23 36, 5 38 6, 5 38 21, 5 38 36, 20 8 6, 20 8 21, 20 8 36, 20 23 6, 20 23 21, 20 23 36, 20 38 6, 20 38 21, 20 38 36, 35 8 6, 35 8 21, 35 8 36, 35 23 6, 35 23 21, 35 23 36, 35 38 6, 35 38 21, 35 38 36
+5000
+8 - multiple, with 2 attrRef varName, with 1 attrRef stmtNum, with 1 attrRef varName, with no attrRef, 3 groups
+print p, p1; read r; Select <p, r> with p.varName = r.varName with 
+r.varName="y" with "abcde"="abcde" with p1.varName=p.varName with p1.stmt#=10
+10 12, 10 27, 10 42, 25 12, 25 27, 25 42, 40 12, 40 27, 40 42
+5000
+9 - multiple with repeat, callsStar, pattern if synonym, pattern assign exact brackets and operators, with 2 attrRef varNameProcName, with 1 attrRef procName, 3 groups
+procedure proc1, proc2; read r; assign a; variable v; call ca; if i; Select <ca, ca, proc1> pattern a(_, "z+((((1/2))))") such that
+Calls*(proc1,"z2") with r.varName = proc1.procName pattern i(v,_,_) such that Modifies(proc2, "z2") with     "z2" = proc2.procName
+15 15 z, 30 30 z,
+5000
+10 - same as above without restriction on selected proc1 procname, 3 groups
+procedure proc1, proc2; read r; assign a; variable v; call ca; if i; Select <ca, ca, proc1> pattern a(_, "z+((((1/2))))") such that
+Calls*(proc1,"z2") pattern i(v,_,_) such that Modifies(proc2, "z2") with     "z2" = proc2.procName
+15 15 z, 15 15 z1, 30 30 z, 30 30 z1
+5000
+11 - multiple with repeat, usesP ident, pattern assign exact brackets no operator, followsStar, with 2 attrRef procName, usesS container, pattern while exact, 4 groups
+procedure proc1, proc2; read r; assign a; variable v, v1; call ca; if i; while w; Select <proc1, proc1, v, v> such that Uses(w, "i") pattern w("z",_) 
+such that Follows*(i, ca) such that Uses(i, v1) with "j" = v1.varName such that Modifies(r, "z")  pattern a(v, "(x)") such that Uses(proc1,"z")
+z z x x, z1 z1 x x, z2 z2 x x
+5000
+12 - multiple no repeat, usesS container, modifiesS container, with no attrRef name, with no attrRef integer, pattern while if, follows, parent, calls, 5 groups
+while w, w1; if i, i1; variable v, v1; stmt s; Select <w, v, i ,v1> such that Uses(w, v) pattern w(_,_) such that Modifies(i, v1) pattern i(_,_,_)
+with 1 = 1 with "boo"="boo" such that Calls("z1","z2") such that Follows(s, w) such that Parent(w1, i1) 
+9 i 5 y, 9 i 5 z, 9 i 20 y, 9 i 20 z, 9 i 35 y, 9 i 35 z, 9 z 5 y, 9 z 5 z, 9 z 20 y, 9 z 20 z, 9 z 35 y, 9 z 35 z, 9 y 5 y, 9 y 5 z, 9 y 20 y, 9 y 20 z, 9 y 35 y, 9 y 35 z, 24 i 5 y, 24 i 5 z, 24 i 20 y, 24 i 20 z, 24 i 35 y, 24 i 35 z, 24 z 5 y, 24 z 5 z, 24 z 20 y, 24 z 20 z, 24 z 35 y, 24 z 35 z, 24 y 5 y, 24 y 5 z, 24 y 20 y, 24 y 20 z, 24 y 35 y, 24 y 35 z, 39 i 5 y, 39 i 5 z, 39 i 20 y, 39 i 20 z, 39 i 35 y, 39 i 35 z, 39 z 5 y, 39 z 5 z, 39 z 20 y, 39 z 20 z, 39 z 35 y, 39 z 35 z, 39 y 5 y, 39 y 5 z, 39 y 20 y, 39 y 20 z, 39 y 35 y, 39 y 35 z
+5000
+13 - same as above but with 1 not selected group empty, 5 groups 1 empty
+while w, w1; if i, i1; variable v, v1; stmt s; Select <w, v, i ,v1> such that Uses(w, v) pattern w(_,_) such that Modifies(i, v1) pattern i(_,_,_)
+with 1 = 1 with "boo"="boo" such that Calls("z2","z1") such that Follows(s, w) such that Parent(w1, i1) 
+
+5000
+14 - 10 groups none empty
+while w, w1; if i, i1; read r; variable v, v1; assign a, a1; stmt s; constant const; Select <const> such that Uses(w, v) with 12345 = 12345 such that Modifies(i, v1) 
+pattern i1(_,_,_) with r.varName="z" with s.stmt#=w1.stmt# such that Calls*("z","z2") pattern a("x", "x") pattern a1 (_, _"1000"_)
+1, 2, 10, 1000, 20, 5, 0, 9
+5000
+15 - 10 groups 1 empty
+while w, w1; if i, i1; read r; variable v, v1; assign a, a1; stmt s; constant const; Select <const> such that Uses(w, v) with 12345 = 12345 such that Modifies(i, v1) 
+pattern i1(_,_,_) with r.varName="z" with s.stmt#=46 such that Calls*("z","z2") pattern a("x", "x") pattern a1 (_, _"1000"_)
+
+5000
