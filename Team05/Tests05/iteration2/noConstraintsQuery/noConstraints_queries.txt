@@ -48,3 +48,68 @@ call c;
 Select c
 4, 5
 5000
+11 - Select all variable varnames
+variable v;
+Select v.varName
+x, y
+5000
+12 - Select all constant values
+constant c;
+Select c.value
+5, 8, 1, 2
+5000
+13 - Select all statement stmtnums
+stmt s;
+Select s.stmt#
+1, 2, 3, 4, 5, 6, 7, 8
+5000
+14 - Select all assign stmtnum
+assign a;
+Select a.stmt#
+3, 7
+5000
+15 - Select all reads stmtnum
+read s;
+Select s.stmt#
+1
+5000
+16 - Select all prints stmtnum
+print v;
+Select v.stmt#
+8
+5000
+17 - Select all ifs stmtnum
+if i;
+Select i.stmt#
+2
+5000
+18 - Select all whiles stmtnum
+while w;
+Select w.stmt#
+6
+5000
+19 - Select all procedures procname
+procedure n;
+Select n.procName
+main, alpha, beta
+5000
+20 - Select all calls stmtnum
+call c;
+Select c.stmt#
+4, 5
+5000
+21 - Select all reads varName
+read s;
+Select s.varName
+x
+5000
+22 - Select all prints varName
+print v;
+Select v.varName
+y
+5000
+23 - Select all calls procname
+call c;
+Select c.procName
+alpha, beta
+5000
