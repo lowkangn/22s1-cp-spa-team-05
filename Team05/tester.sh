@@ -33,8 +33,9 @@ readonly multipleReturn=multipleReturn/
 readonly no_constr_path=noConstraintsQuery/
 readonly one_constr_path=oneConstraintQuery/
 readonly two_constr_path=twoConstraintsQuery/
+readonly multi_constr_path=multipleConstraintsQuery/
 readonly boolean_return_values_path=booleanReturnValues/
-
+readonly stress_test_path=stressTests/
 
 # ==================== run tests ====================
 echo "Using autotester at: "${path_to_autotester}
@@ -57,7 +58,7 @@ do
     ${path_to_autotester} ${iteration1}${invalid_q_path}invalid$i\_source.txt ${iteration1}${invalid_q_path}invalid$i\_queries.txt ${iteration1_output_folder}invalidQueryOut$i.xml
 done
 
-for i in Calls
+for i in Calls With
 do	
     ${path_to_autotester} ${iteration2}${invalid_q_path}invalid$i\_source.txt ${iteration2}${invalid_q_path}invalid$i\_queries.txt ${iteration2_output_folder}invalidQueryOut$i.xml
 done
@@ -89,7 +90,7 @@ do
     ${path_to_autotester} ${iteration1}${one_constr_path}${i}Only_source.txt ${iteration1}${one_constr_path}${i}Only_queries.txt ${iteration1_output_folder}${i}onlyOut.xml
 done
 
-for i in calls modifies uses
+for i in calls modifies uses with
 do
     ${path_to_autotester} ${iteration2}${one_constr_path}${i}Only_source.txt ${iteration2}${one_constr_path}${i}Only_queries.txt ${iteration2_output_folder}${i}onlyOut.xml
 done
@@ -114,6 +115,19 @@ echo "Starting multiple return query test cases"
 for i in multipleReturn
 do
     ${path_to_autotester} ${iteration2}${multipleReturn}multipleReturn_source.txt ${iteration2}${multipleReturn}multipleReturn_queries.txt ${iteration2_output_folder}multipleReturn.xml
+done
+
+echo "Starting multi clause query test cases"
+for i in multipleConstraints
+do
+	${path_to_autotester} ${iteration2}${multi_constr_path}${i}_source.txt ${iteration2}${multi_constr_path}${i}_queries.txt ${iteration2_output_folder}${i}Out.xml
+done
+
+# Stress tests
+echo "Starting stress tests"
+for i in callChain nesting
+do
+	${path_to_autotester} ${iteration2}${stress_test_path}${i}StressTest_source.txt ${iteration2}${stress_test_path}${i}StressTest_queries.txt ${iteration2_output_folder}${i}StressTestOut.xml
 done
 
 # For random testing, modify Sample_queries.txt and Sample_source.txt

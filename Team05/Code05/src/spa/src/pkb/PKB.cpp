@@ -568,9 +568,9 @@ vector<PQLEntity> PKB::filterAndConvertStatementEntities(vector<shared_ptr<PkbEn
 	vector<PQLEntity> output;
 	for (shared_ptr<PkbEntity> statement : statements) {
 		// cast to statement entity
-		PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*statement));
+		shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
 
-		if (filter(cast)) { // use filter
+		if (cast != nullptr && filter(cast.get())) { // use filter
 			// create pql entity
 			PQLEntity entity = PQLEntity::generateStatement(cast->getLineNumber());
 			output.push_back(entity);

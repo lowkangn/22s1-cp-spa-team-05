@@ -1,0 +1,25 @@
+1 - ParentsStar - select parentStars of deepest nested line (120)
+stmt s;
+Select s such that Parent*(s, 120)
+1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 100, 103, 106, 109, 112, 115, 118
+5000
+2 - Parent - select a while that is parent of an if that is parent of a while and so on for 37 nesting levels
+while w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, w16, w17, w18; if i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15, i16, i17, i18, i19;
+Select w0 such that Parent(w0, i1) such that Parent(i1, w1) such that Parent(w1, i2) such that Parent(i2, w2) such that Parent(w2, i3) such that Parent(i3, w3) such that Parent(w3, i4) such that Parent(i4, w4) such that Parent(w4, i5) such that Parent(i5, w5) such that Parent(w5, i6) such that Parent(i6, w6) such that Parent(w6, i7) such that Parent(i7, w7) such that Parent(w7, i8) such that Parent(i8, w8) such that Parent(w8, i9) such that Parent(i9, w9) such that Parent(w9, i10) such that Parent(i10, w10) such that Parent(w10, i11) such that Parent(i11, w11) such that Parent(w11, i12) such that Parent(i12, w12) such that Parent(w12, i13) such that Parent(i13, w13) such that Parent(w13, i14) such that Parent(i14, w14) such that Parent(w14, i15) such that Parent(i15, w15) such that Parent(w15, i16) such that Parent(i16, w16) such that Parent(w16, i17) such that Parent(i17, w17) such that Parent(w17, i18) such that Parent(i18, w18) such that Parent (w18, i19)
+1, 7
+5000
+3 - Parent - select reads with a parent
+read r;
+Select r such that Parent(_, r)
+121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140
+5000
+4 - Parent - select prints with a parentStar
+print p; stmt s;
+Select p such that Parent*(s, p)
+3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84, 87, 90, 93, 96, 99, 102, 105, 108, 111, 114, 117, 120
+5000
+5 - Parent - select calls with a parent
+call c;
+Select c such that Parent(_, c)
+2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 50, 53, 56, 59, 62, 65, 68, 71, 74, 77, 80, 83, 86, 89, 92, 95, 98, 101, 104, 107, 110, 113, 116, 119,
+5000
