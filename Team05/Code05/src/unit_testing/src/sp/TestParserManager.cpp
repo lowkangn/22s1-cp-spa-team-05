@@ -111,4 +111,65 @@ TEST_CASE("ParserManager::parse works correctly") {
 		shared_ptr<ASTNode> expectedProgramNode = ProgramASTNode::createProgramNode();		
 		testThrows(tokens, expectedProgramNode);
 	}
+
+	SECTION("Parsing program with brackets inside expressions") {
+		Lexer lexer = Lexer();
+		string program = "procedure z { \
+							while ((k) == 10) {\
+								read x;\
+							}\
+						}";
+
+		stringstream ss(program);
+		istream& stream = ss;
+
+		list<Token> tokens = lexer.tokenize(ss);
+
+		shared_ptr<ASTNode> expectedProgramNode = ProgramASTNode::createProgramNode();
+
+		// 2. program node has a procedure node as sole child 
+		shared_ptr<ASTNode> procedureNode = ProcedureASTNode::createProcedureNode(Token::createNameOrKeywordToken("z"));
+		expectedProgramNode->addChild(procedureNode);
+
+		shared_ptr<ASTNode> stmtLstNode = StatementListASTNode::createStatementListNode();
+		procedureNode->addChild(stmtLstNode);
+
+		// While node
+		shared_ptr<ASTNode> whileNode = WhileASTNode::createWhileNode();
+		whileNode->setLineNumber(1);
+
+		stmtLstNode->addChild(whileNode);
+
+		// Condition
+		shared_ptr<ASTNode> operatorNode = ExpressionASTNode::createExpressionNode(Token::createEqualityToken());
+		shared_ptr<ASTNode> bracketsNode = BracketsASTNode::createBracketsNode();
+		shared_ptr<ASTNode> kNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("k"));
+		shared_ptr<ASTNode> constNode = ConstantValueASTNode::createConstantNode(Token::createIntegerToken("10"));
+
+		operatorNode->setLineNumber(1);
+		bracketsNode->setLineNumber(1);
+		kNode->setLineNumber(1);
+		constNode->setLineNumber(1);
+		
+		operatorNode->addChild(bracketsNode);
+		operatorNode->addChild(constNode);
+
+		bracketsNode->addChild(kNode);
+		whileNode->addChild(operatorNode);
+
+		// Statement list
+		shared_ptr<ASTNode> whileStmtLstNode = StatementListASTNode::createStatementListNode();
+		whileNode->addChild(whileStmtLstNode);
+
+		shared_ptr<ASTNode> readNode = ReadASTNode::createReadNode();
+		shared_ptr<ASTNode> variableXNode = VariableASTNode::createVariableNode(Token::createNameOrKeywordToken("x"));
+		
+		readNode->setLineNumber(2);
+		variableXNode->setLineNumber(2);
+
+		readNode->addChild(variableXNode);
+		whileStmtLstNode->addChild(readNode);
+
+		test(tokens, expectedProgramNode);
+	}
 }

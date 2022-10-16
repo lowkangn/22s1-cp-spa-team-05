@@ -209,5 +209,4 @@ TEST_CASE("WhileSimpleSyntaxRule::constructNode") {
 
 		test(rule, expectedASTNode);
 	}
-
 }

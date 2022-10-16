@@ -82,14 +82,13 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::consumeTokens(list<Token> tok
 			this->condToken = token;
 
 			// Get Second Conditional Expression
-			list<Token> secondCondExpression = parseCondition(tokens);
+			list<Token> secondCondExpression = this->parseCondition(tokens);
 			this->rhsCond = secondCondExpression;
-
 		}
 		// We know it is an relational expression
 		else {
 			this->isRelationalExpression = true;
-			childTokens = this->parseCondition(tokens);
+			childTokens = this->parseRelationalExpression(tokens);
 		}
 	} else if (token.isNameToken() || token.isIntegerToken()) {
 		this->isRelationalExpression = true;
@@ -140,6 +139,41 @@ shared_ptr<ASTNode> ConditionalExpressionSimpleSyntaxRule::constructNode() {
 	}
 }
 
+
+list<Token> ConditionalExpressionSimpleSyntaxRule::parseRelationalExpression(list<Token>& tokens)
+{
+	list<Token> childTokens;
+
+	bool seenRelationalOperator = false;
+
+	Token token = tokens.front();
+
+	// Get until the relational operator
+	while (!tokens.empty() && !seenRelationalOperator) {
+		token = tokens.front();
+		tokens.pop_front();
+
+		if (token.isRelationalOperator()) {
+			seenRelationalOperator = true;
+		}
+
+		childTokens.push_back(token);
+	}
+
+	if (!seenRelationalOperator) {
+		throw SimpleSyntaxParserException("Relational Operator not found in parsing expression");
+	}
+
+	// Get rest of the expression
+	while (!tokens.empty()) {
+		token = tokens.front();
+		tokens.pop_front();
+		childTokens.push_back(token);
+	}
+
+	return childTokens;
+}
+
 list<Token> ConditionalExpressionSimpleSyntaxRule::parseCondition(list<Token> &tokens) {
 
 	list<Token> childTokens;
@@ -172,6 +206,7 @@ list<Token> ConditionalExpressionSimpleSyntaxRule::parseCondition(list<Token> &t
 	}
 	return childTokens;
 }
+
 
 bool ConditionalExpressionSimpleSyntaxRule::isTwoConditional(list<Token> tokens) {
 	if (!tokens.front().isOpenBracketToken()) {
