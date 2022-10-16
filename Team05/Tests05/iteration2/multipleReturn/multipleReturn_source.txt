@@ -1,0 +1,29 @@
+procedure main {
+	if ((x + 1) >= (k)) then {
+		read x;
+		print y;
+	} else {
+		x = 10 - y + (q + z);
+		call alpha;
+	}
+	f = t + y;
+}
+
+procedure alpha {
+	call beta;
+	x = 10;
+	y = 1 - (1);
+	while (x % (10 - 10 + z) >= 16) {
+		x = x + 1;
+		print x;
+	}
+	q = q - 1;
+}
+
+procedure beta {
+	print x;
+	print z;
+	read x;
+	read z;
+	x = x + 1 - (1 - 2) + (6 % 7);
+}

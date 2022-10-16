@@ -29,6 +29,7 @@ readonly iteration2_output_folder=./Code05/testOutputs/iteration2/
 
 readonly invalid_q_path=invalidQuery/
 readonly invalid_s_path=invalidSource/
+readonly multipleReturn=multipleReturn/
 readonly no_constr_path=noConstraintsQuery/
 readonly one_constr_path=oneConstraintQuery/
 readonly two_constr_path=twoConstraintsQuery/
@@ -36,6 +37,8 @@ readonly boolean_return_values_path=booleanReturnValues/
 
 
 # ==================== run tests ====================
+echo "Using autotester at: "${path_to_autotester}
+
 if [ ! -d $iteration1_output_folder ]; then
 	echo "Making output folder: "${iteration1_output_folder}
 	mkdir -p $iteration1_output_folder
@@ -107,6 +110,11 @@ ${path_to_autotester} ${iteration2}${boolean_return_values_path}noneSatisfyingRe
 # all true
 ${path_to_autotester} ${iteration2}${boolean_return_values_path}someSatistyingReturnTrue_source.txt ${iteration2}${boolean_return_values_path}someSatistyingReturnTrue_queries.txt ${iteration2_output_folder}booleanReturnValuesSomeSatisfyingOut.xml
 
+echo "Starting multiple return query test cases"
+for i in multipleReturn
+do
+    ${path_to_autotester} ${iteration2}${multipleReturn}multipleReturn_source.txt ${iteration2}${multipleReturn}multipleReturn_queries.txt ${iteration2_output_folder}multipleReturn.xml
+done
 
 # For random testing, modify Sample_queries.txt and Sample_source.txt
 echo "starting local sample test cases"
