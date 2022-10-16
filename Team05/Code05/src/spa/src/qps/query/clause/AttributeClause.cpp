@@ -28,7 +28,7 @@ shared_ptr<ClauseResult> AttributeClause::getSingleAttrRefResult(shared_ptr<PKBQ
 			relationshipToRetrieve = PKBTrackedRelationshipType::USES;
 		}
 		else {
-			throw PQLLogicError("Unknown atrrRef being executed");
+			throw PQLLogicError("Unknown attrRef being executed");
 		}
 		ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
 		return make_shared<RelationshipClauseResult>(synonym, attribute,

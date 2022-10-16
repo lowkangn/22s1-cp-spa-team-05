@@ -30,8 +30,8 @@ Select <re, v> such that Modifies(re, v)
 5000
 7 - Test with different return types - print and the variable being printed
 variable v; print pr;
-Select <pr, v> such that Uses(pr, v)
-3 y, 12 x, 14 x, 15 z
+Select <pr, v, pr.varName> such that Uses(pr, v)
+3 y y, 12 x x, 14 x x, 15 z z
 5000
 8 - Test with different return types - assign and the variable Modified
 variable v; assign a;
@@ -52,4 +52,9 @@ Select <w,v> such that Uses(w, v)
 if ifs; while w; variable v;
 Select <ifs,w> such that Modifies(ifs,v) such that Modifies(w,v)
 1 10
+5000
+12 - Test with reads with their variables and nested prints with their variables and calls stmt num
+print p; read r; call ca;
+Select <p, p.varName, r, r.varName, ca.stmt#> such that Parent(_,p)
+3 y 2 x 5, 3 y 16 x 5, 3 y 17 z 5, 12 x 2 x 5, 12 x 16 x 5, 12 x 17 z 5, 3 y 2 x 7, 3 y 16 x 7, 3 y 17 z 7, 12 x 2 x 7, 12 x 16 x 7, 12 x 17 z 7
 5000

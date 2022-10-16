@@ -71,18 +71,11 @@ ClauseResult QueryEvaluator::getSelectSynonymsCrossProductResult(list<ClauseResu
 	selectResults.insert(selectResults.end(), selectResultsList.begin(), selectResultsList.end());
 	ClauseResult combinedResult;
 
-	for (ClauseResult currentResult : selectResults) {
-			if (combinedResult.isEmpty()) {
-			combinedResult = currentResult;
-		} else {
-			bool isSelectArgInCombinedResult = combinedResult.checkSelectArgsInTable({currentResult});
-			if (isSelectArgInCombinedResult) {
-				combinedResult.duplicateColumn(currentResult);
-			} else {
-				combinedResult = combinedResult.mergeResult(currentResult);
-			}
-		}
+	vector<ClauseResult> selectResultsWithoutAttribute;
+
+	for (ClauseResult selectResult : selectResults) {
+		combinedResult = mergeIntoCombinedIfNotInTable(combinedResult, selectResult);
 	}
 
-	return combinedResult;
+	return this->getDesiredSynonymsResult(selectResultsList, combinedResult);
 }

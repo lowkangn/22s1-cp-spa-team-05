@@ -33,10 +33,10 @@ print p, p1; read r; Select <p, r> with p.varName = r.varName with
 r.varName="y" with "abcde"="abcde" with p1.varName=p.varName with p1.stmt#=10
 10 12, 10 27, 10 42, 25 12, 25 27, 25 42, 40 12, 40 27, 40 42
 5000
-8 - multiple with repeat, callsStar, pattern if synonym, pattern assign exact brackets and operators, with 2 attrRef varNameProcName, with 1 attrRef procName, 3 groups
-procedure proc1, proc2; read r; assign a; variable v; call ca; if i; Select <ca, ca, proc1> pattern a(_, "z+((((1/2))))") such that
+8 - multiple connected attribute, callsStar, pattern if synonym, pattern assign exact brackets and operators, with 2 attrRef varNameProcName, with 1 attrRef procName, 3 groups
+procedure proc1, proc2; read r; assign a; variable v; call ca; if i; Select <ca, ca.procName, proc1> pattern a(_, "z+((((1/2))))") such that
 Calls*(proc1,"z2") with r.varName = proc1.procName pattern i(v,_,_) such that Modifies(proc2, "z2") with     "z2" = proc2.procName
-15 15 z, 30 30 z,
+15 z1 z, 30 z2 z,
 5000
 9 - same as above without restriction on selected proc1 procname, 3 groups
 procedure proc1, proc2; read r; assign a; variable v; call ca; if i; Select <ca, ca, proc1> pattern a(_, "z+((((1/2))))") such that
@@ -44,7 +44,7 @@ Calls*(proc1,"z2") pattern i(v,_,_) such that Modifies(proc2, "z2") with     "z2
 15 15 z, 15 15 z1, 30 30 z, 30 30 z1
 5000
 10 - multiple with repeat, usesP ident, pattern assign exact brackets no operator, followsStar, with 2 attrRef procName, usesS container, pattern while exact, 4 groups
-procedure proc1, proc2; read r; assign a; variable v, v1; call ca; if i; while w; Select <proc1, proc1, v, v> such that Uses(w, "i") pattern w("z",_) 
+procedure proc1, proc2; read r; assign a; variable v, v1; call ca; if i; while w; Select <proc1, proc1.procName, v, v.varName> such that Uses(w, "i") pattern w("z",_) 
 such that Follows*(i, ca) such that Uses(i, v1) with "j" = v1.varName such that Modifies(r, "z")  pattern a(v, "(x)") such that Uses(proc1,"z")
 z z x x, z1 z1 x x, z2 z2 x x
 5000
@@ -64,7 +64,7 @@ with 1 = 1 with "boo"="boo" such that Calls("z1","z2") such that Follows(s, w) s
 
 5000
 14 - 6 groups none empty 
-while w, w1; if i, i1; read r; variable v, v1; assign a, a1; stmt s; constant const; Select <const> such that Uses(w, v) 
+while w, w1; if i, i1; read r; variable v, v1; assign a, a1; stmt s; constant const; Select <const.value> such that Uses(w, v) 
 with 12345 = 12345 such that Modifies(i, v1) with r.varName="z" with s.stmt#=w1.stmt#
 0, 1, 2, 5, 9, 10, 20, 1000
 5000

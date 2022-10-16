@@ -1,4 +1,3 @@
-#pragma once
 #include <qps/query/clause/PatternIfClause.h>
 
 shared_ptr<RelationshipClauseResult> PatternIfClause::execute(shared_ptr<PKBQueryHandler> pkb) {

@@ -147,6 +147,24 @@ void ClauseResult::renameColumns(ClauseArgument oldName, ClauseArgument newName)
 	replace(this->args.begin(), this->args.end(), oldName, newName);
 }
 
+ClauseResult ClauseResult::convertSynonymsColumnToAttributesColumn(ClauseResult selectResult) {
+	unordered_map<PQLEntity, PQLEntity> synonymAttributeMap;
+	assert(this->args.size() == 1);
+	assert(selectResult.args.size() == 2);
+	for (Row row : selectResult.table) {
+		synonymAttributeMap.insert({row[0], row[1]});
+	}
+
+	Column newColumn;
+	for (Row row : this->table) {
+		unordered_map<PQLEntity, PQLEntity>::iterator mapIter = synonymAttributeMap.find(row[0]);
+		assert(mapIter != synonymAttributeMap.end());
+		newColumn.push_back({mapIter->second});
+	}
+
+	return ClauseResult({selectResult.args[1]}, newColumn);
+}
+
 // ======================================================== //
 // ==================== PUBLIC METHODS ==================== //
 // ======================================================== //
@@ -221,37 +239,64 @@ bool ClauseResult::checkSelectArgsInTable(vector<ClauseResult> selectResults) {
 }
 
 ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(vector<ClauseResult> selectResults) {
-	// Get args
-	vector<ClauseArgument> selectArgs;
-	for (ClauseResult selectResult : selectResults) {
-		vector<ClauseArgument> currentArgs = selectResult.args;
-		selectArgs.insert(selectArgs.end(), currentArgs.begin(), currentArgs.end());
-	}
+	// Vector to keep track of which columns contain desired results
+	vector<int> desiredSynonymIndices;
 
-	// Find corresponding column indices
-	vector<int> desiredSynonymIndices = this->getColumnIndices(selectArgs);
+	for (ClauseResult currentResult : selectResults) {
+		vector<int> currentDesiredSynonymIndices = this->getColumnIndices(currentResult.args);
+		assert(currentDesiredSynonymIndices.size() == 1 || currentDesiredSynonymIndices.size() == 2);
 
-	// Map to check if arg not found in combined table has already been merged
-	unordered_map<ClauseArgument, int> missingArgMap;
-
-	// If arg not found in combined table, merge respective list from select result
-	for (int i = 0; i < desiredSynonymIndices.size(); i++) {
-		if (desiredSynonymIndices[i] == -1) {
-			ClauseResult currentResult = selectResults[i];
-			unordered_map<ClauseArgument, int>::iterator mapIter = missingArgMap.find(currentResult.args[0]);
-			if ( mapIter == missingArgMap.end()) {
-				ClauseResult newResult = this->mergeResult(currentResult);
+		// Select arg has one column: default attribute
+		if (currentDesiredSynonymIndices.size() == 1) {
+			// If in table, return index
+			if (currentDesiredSynonymIndices[0] != -1) {
+				desiredSynonymIndices.push_back(currentDesiredSynonymIndices[0]);
+			}
+			// If not in table, merge
+			else {
+				ClauseResult newResult = this->performCrossProduct(currentResult);
 				this->args = newResult.args;
 				this->table = newResult.table;
-				desiredSynonymIndices[i] = int(this->args.size()) - 1;
-				missingArgMap.insert({currentResult.args[0], int(this->args.size()) - 1});
-			} else {
-				desiredSynonymIndices[i] = mapIter->second;
+				int indexOfNewColumn = int(this->args.size()) - 1;
+				desiredSynonymIndices.push_back(indexOfNewColumn);
+			}
+		}
+
+		// Select arg has two columns: non-default attribute in second column
+		else {
+			// If in table, return index to attribute column
+			if (currentDesiredSynonymIndices[0] != -1 && currentDesiredSynonymIndices[1] != -1) {
+				desiredSynonymIndices.push_back(currentDesiredSynonymIndices[1]);
+			}
+			// If not in table, merge
+			else {
+				if (currentDesiredSynonymIndices[0] == -1) {
+					ClauseResult newResult = this->performCrossProduct(currentResult);
+					this->args = newResult.args;
+					this->table = newResult.table;
+				} else {
+					ClauseResult synonymColumn = this->getColumn(currentDesiredSynonymIndices[0]);
+					ClauseResult attributeColumn = synonymColumn.convertSynonymsColumnToAttributesColumn(currentResult);
+					this->addColumn(attributeColumn);
+				}
+				int indexOfNewColumn = int(this->args.size()) - 1;
+				desiredSynonymIndices.push_back(indexOfNewColumn);
 			}
 		}
 	}
 
-	// If all selected args can be found in combined table, get table of desired synonyms
+	// Obtain select args
+	vector<ClauseArgument> selectArgs;
+	for (ClauseResult selectResult : selectResults) {
+		assert(selectResult.args.size() == 1 || selectResult.args.size() == 2);
+		if (selectResult.args.size() == 1) {
+			selectArgs.push_back(selectResult.args[0]);
+		} else {
+			selectArgs.push_back(selectResult.args[1]);
+		}
+	}
+
+	// All selected args should now be in combined table, so get table of desired synonyms
 	Table desiredSynonymsTable;
 	for (Row row : this->table) {
 		Row newRow;
@@ -301,7 +346,11 @@ set<string> ClauseResult::convertTableToString(bool isBooleanReturnType) {
 }
 
 bool ClauseResult::equals(shared_ptr<ClauseResult> other) {
-	return (this->args == other->args) && (this->table == other->table);
+	Table firstTable = this->table;
+	Table secondTable = other->table;
+	sort(firstTable.begin(), firstTable.end());
+	sort(secondTable.begin(), secondTable.end());
+	return (this->args == other->args) && (firstTable == secondTable);
 }
 
 bool operator<(ClauseResult first, ClauseResult second) {
@@ -309,5 +358,5 @@ bool operator<(ClauseResult first, ClauseResult second) {
 }
 
 bool operator==(ClauseResult first, ClauseResult second) {
-	return first.args == second.args && first.table == second.table;
+	return first.equals(make_shared<ClauseResult>(second));
 }

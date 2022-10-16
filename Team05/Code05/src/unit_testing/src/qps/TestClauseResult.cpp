@@ -453,6 +453,15 @@ TEST_CASE("ClauseResult: test equals") {
 	SECTION("Equal") {
 		testEquals(selectVarResult, selectVarResult, true);
 		testEquals(selectVarResult, anotherSelectVarResult, true);
+
+		// same arg, different table - different rows
+		Table diffSelectVarResultTable = {
+				{varX},
+				{varZ},
+				{varY}
+		};
+		ClauseResult diffTableSelectVarResult = ClauseResult(selectVarArg, diffSelectVarResultTable);
+		testEquals(selectVarResult, diffTableSelectVarResult, true);
 	}
 
 	SECTION("Not equal") {
@@ -473,15 +482,6 @@ TEST_CASE("ClauseResult: test equals") {
 				{varY}
 		};
 		ClauseResult diffTableSelectVarResult = ClauseResult(selectVarArg, diffSelectVarResultTable);
-		testEquals(selectVarResult, diffTableSelectVarResult, false);
-
-		// same arg, different table - different rows
-		diffSelectVarResultTable = {
-				{varX},
-				{varZ},
-				{varY}
-		};
-		diffTableSelectVarResult = ClauseResult(selectVarArg, diffSelectVarResultTable);
 		testEquals(selectVarResult, diffTableSelectVarResult, false);
 	}
 };
