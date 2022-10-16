@@ -111,4 +111,17 @@ TEST_CASE("ParserManager::parse works correctly") {
 		shared_ptr<ASTNode> expectedProgramNode = ProgramASTNode::createProgramNode();		
 		testThrows(tokens, expectedProgramNode);
 	}
+
+	SECTION("Parsing an invalid program with while containing a semi-colon at the end") {
+		Lexer lexer = Lexer();
+		string program = "\nprocedure main {\n\tif ((x + 1) >= (k)) then {\n\t\tread x;\n\t\tprint y;\n\t} else {\n\t\tx = 10 - y + (q + z);\n\t\tcall alpha;\n\t}\n\tf = t + y;\n}\n\nprocedure alpha {\n\tcall beta;\n\tx = 10;\n\ty = 1 - (1);\n\twhile (x % (10 - 10 + z) >= 16) {\n\t\tx = x + 1;\n\t\tprint x;\n\t}\n\tq = q - 1;\n}\n\nprocedure beta {\n\tprint x;\n\tprint z;\n\tread x;\n\tread z;\n\tx = x + 1 - (1 - 2) + (6 % 7);\n}\n";
+
+		stringstream ss(program);
+		istream& stream = ss;
+
+		list<Token> tokens = lexer.tokenize(ss);
+
+		shared_ptr<ASTNode> expectedProgramNode = ProgramASTNode::createProgramNode();		
+		test(tokens, expectedProgramNode);
+	}
 }

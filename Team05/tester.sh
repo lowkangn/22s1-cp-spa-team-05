@@ -13,6 +13,7 @@ readonly iteration2=./Tests05/iteration2/
 readonly path_to_autotester=./Code05/out/build/x64-${config}/src/autotester/autotester.exe
 readonly invalid_q_path=invalidQuery/
 readonly invalid_s_path=invalidSource/
+readonly multipleReturn=multipleReturn/
 readonly no_constr_path=noConstraintsQuery/
 readonly one_constr_path=oneConstraintQuery/
 readonly two_constr_path=twoConstraintsQuery/
@@ -81,6 +82,12 @@ echo "Starting two constraint query test cases"
 for i in parent uses follows modifies
 do
     ${path_to_autotester} ${iteration1}${two_constr_path}${i}AndPattern_source.txt ${iteration1}${two_constr_path}${i}AndPattern_queries.txt ${iteration1_output_folder}${i}AndPatternOut.xml
+done
+
+echo "Starting multiple return query test cases"
+for i in multipleReturn
+do
+    ${path_to_autotester} ${iteration2}${multipleReturn}multipleReturn_source.txt ${iteration2}${multipleReturn}multipleReturn_queries.txt ${iteration2_output_folder}multipleReturn.xml
 done
 
 # For random testing, modify Sample_queries.txt and Sample_source.txt
