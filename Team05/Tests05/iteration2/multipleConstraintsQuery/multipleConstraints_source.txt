@@ -1,0 +1,72 @@
+procedure z { 
+   x = x;
+   x = x + 1000 - z + i;
+   read x;
+   while ( 1 < 2 ) {
+  	if ( ( (k) < 10 ) && ( j * 2 < 5 )) then {
+    		y = x + 20 / z + 2 * 0 / ( 5 + ((0)) ) + z + 1 / 2;
+    		read z;
+        } else {
+    		z = z + 1 / 2;
+		while ((0 != (i + 1) % ((2))) || (!( ( (((z))) + 1 ) < 2 )) ) {
+			print y;
+			if ( (1 == 1) && ((0)+2 < 5 ) ) then {
+				read y;
+			} else {
+				read z;
+			}
+		}
+        }
+  	z = x + z - 9;
+  	call z1;
+    }
+}
+
+procedure z1 { 
+   x = x;
+   x = x + 1000 - z + i;
+   read x;
+   while ( 1 < 2 ) {
+  	if ( ( (k) < 10 ) && ( j * 2 < 5 )) then {
+    		y = x + 20 / z + 2 * 0 / ( 5 + ((0)) ) + z + 1 / 2;
+    		read z;
+        } else {
+    		z = z + 1 / 2;
+		while ((0 != (i + 1) % ((2))) || (!( ( (((z))) + 1 ) < 2 )) ) {
+			print y;
+			if ( (1 == 1) && ((0)+2 < 5 ) ) then {
+				read y;
+			} else {
+				read z;
+			}
+		}
+        }
+  	z = x + z - 9;
+  	call z2;
+    }
+}
+
+
+procedure z2 { 
+   x = x;
+   x = x + 1000 - z + i;
+   read x;
+   while ( 1 < 2 ) {
+  	if ( ( (k) < 10 ) && ( j * 2 < 5 )) then {
+    		y = x + 20 / z + 2 * 0 / ( 5 + ((0)) ) + z + 1 / 2;
+    		read z;
+        } else {
+    		z = z + 1 / 2;
+		while ((0 != (i + 1) % ((2))) || (!( ( (((z))) + 1 ) < 2 )) ) {
+			print y;
+			if ( (1 == 1) && ((0)+2 < 5 ) ) then {
+				read y;
+			} else {
+				read z;
+			}
+		}
+        }
+  	z = x + z - 9;
+  	read z2;
+    }
+}

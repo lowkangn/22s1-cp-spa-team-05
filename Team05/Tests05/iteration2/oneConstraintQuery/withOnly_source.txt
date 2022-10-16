@@ -1,0 +1,28 @@
+procedure main {
+	read x;
+	print y;
+	z = x + y + 0;
+	if (z > 10) then {
+		call procedure;
+	} else {
+		call a;
+	}
+}
+procedure a {
+	print a;
+}
+
+
+
+
+procedure y {
+	read procedure;
+	print y;
+}
+
+procedure procedure {
+	call a;
+	while (a < 10) {
+	a = a + 2;
+	}
+}

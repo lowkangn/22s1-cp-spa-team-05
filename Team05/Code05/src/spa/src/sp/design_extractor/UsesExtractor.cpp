@@ -219,7 +219,7 @@ vector<Relationship> UsesExtractor::handleCall(shared_ptr<ASTNode> ast) {
 		return extractedRelationships;
 	}
 
-	if (!allProcedures.at(procedureCalledName)) {
+	if (allProcedures.find(procedureCalledName) == allProcedures.end()) {
 		throw ASTException("Procedure called could not be found");
 	}
 
@@ -244,6 +244,11 @@ vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
 		// Extract the variable and add it to the result.
 		Entity variable = ast->extractEntity();
 		variables.push_back(variable);
+	}
+	else if (ast->isBracketsNode()) {
+		shared_ptr<ASTNode> child = ast->getChildren()[0];
+		vector<Entity> variableInBrackets = this->extractVariables(child);
+		variables.insert(variables.end(), variableInBrackets.begin(), variableInBrackets.end());
 	}
 	else if (ast->isExpression()) {
 		// Recursively extract the variables in the sub-expression.
@@ -345,7 +350,7 @@ vector<Relationship> UsesExtractor::recursiveContainerExtract(Entity& leftHandSi
 		shared_ptr<ASTNode> calledProcedure = callNode->getChildren()[0];
 		string calledProcName = calledProcedure->extractEntity().getString();
 
-		if (!allProcedures.at(calledProcName)) {
+		if (allProcedures.find(calledProcName) == allProcedures.end()) {
 			throw ASTException("Procedure called could not be found");
 		}
 

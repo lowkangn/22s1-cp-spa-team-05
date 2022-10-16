@@ -8,7 +8,7 @@ list<PQLToken> QPSTokenizer::tokenize(istream& stream) {
         char currentChar = char(stream.peek());
 
         if (this->isAlphabetical(currentChar)) {
-            tokenLst.emplace_back(extractNameFromStream(stream));
+            tokenLst.emplace_back(extractNameOrKeywordFromStream(stream));
         } else if (this->isDigit(currentChar)) {
             tokenLst.emplace_back(extractIntegerFromStream(stream));
         } else if (this->isDelimiter(currentChar)) {
@@ -47,7 +47,6 @@ bool QPSTokenizer::isDelimiter(char c) {
         case ';':
         case '\"':
         case '_':
-        case '#':
             return true;
         default:
             return false;
@@ -73,10 +72,18 @@ bool QPSTokenizer::isWhitespaceOrNewline(char c) {
     return isspace(c) || c == '\n';
 }
 
-PQLToken QPSTokenizer::extractNameFromStream(istream& stream) {
+PQLToken QPSTokenizer::extractNameOrKeywordFromStream(istream& stream) {
     string word;
     while (isalnum(stream.peek())) {
         word += char(stream.get());
+    }
+    string nextChar;
+    nextChar += char(stream.peek());
+
+    //if the word is stmt and # is immediately after, then it is the stmt# keyword
+    if (word == ATTRIBUTE_STMT_NUM_STMT && nextChar == ATTRIBUTE_STMT_NUM_HASH) {
+        word += char(stream.get());
+        return PQLToken::createKeywordOnlyToken(word);
     }
     return PQLToken::createNameToken(word);
 }

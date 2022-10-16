@@ -13,22 +13,22 @@ stmt s; variable v;
 Select v such that Modifies(s, v)
 x, y, z
 5000
-4 - ModifiesS - select assigns that modify "x" (appears on 6lhs, 7rhs)
+4 - ModifiesS - select assigns that modify x (appears on 6lhs, 7rhs)
 assign a;
 Select a such that Modifies(a, "x")
 6
 5000
-5 - ModifiesS - select assigns that modify "a" (appears only on rhs)
+5 - ModifiesS - select assigns that modify a (appears only on rhs)
 assign a;
 Select a such that Modifies(a, "a")
 none
 5000
-6 - ModifiesS - select reads that modify "x"
+6 - ModifiesS - select reads that modify x
 read r;
 Select r such that Modifies(r, "x")
 1
 5000
-7 - ModifiesS - select reads that modify "y"
+7 - ModifiesS - select reads that modify y
 read r;
 Select r such that Modifies(r, "y")
 none
@@ -53,22 +53,22 @@ while w;
 Select w such that Modifies(w, _)
 5
 5000
-12 - ModifiesS - select whiles that modify "x" (modified, in stmtLst)
+12 - ModifiesS - select whiles that modify x (modified, in stmtLst)
 while w;
 Select w such that Modifies(w, "x")
 5
 5000
-13 - ModifiesS - select whiles that modify "c" (not modified, in stmtLst)
+13 - ModifiesS - select whiles that modify c (not modified, in stmtLst)
 while w;
 Select w such that Modifies(w, "c")
 none
 5000
-14 - ModifiesS - select whiles that modify "b" (not modified, in condition)
+14 - ModifiesS - select whiles that modify b (not modified, in condition)
 while w;
 Select w such that Modifies(w, "b")
 none
 5000
-15 - ModifiesS - select whiles that modify "z" (modified, not in stmtLst)
+15 - ModifiesS - select whiles that modify z (modified, not in stmtLst)
 while w;
 Select w such that Modifies(w, "z")
 none

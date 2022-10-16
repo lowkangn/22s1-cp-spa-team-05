@@ -228,17 +228,17 @@ variable v; stmt s; assign a, a2;
 Select v such that Parent(s, a) pattern a2(_,_)
 x, z, i, b, a, y, k
 5000
-47 - parentPatBoolean - select procedures if there are parents of assignments with "1" in rhs
+47 - parentPatBoolean - select procedures if there are parents of assignments with 1 in rhs
 procedure p; stmt s; assign a;
 Select p such that Parent(s, a) pattern a(_,_"1"_)
 parentPat
 5000
-48 - parentPatBoolean - select procedures if there are parents of assignments with "5" in rhs
+48 - parentPatBoolean - select procedures if there are parents of assignments with 5 in rhs
 procedure p; stmt s; assign a;
 Select p such that Parent(s, a) pattern a(_,_"5"_)
 none
 5000
-49 - parentPatBoolean - select stmts if there are parents of an assignment with "z" in rhs
+49 - parentPatBoolean - select stmts if there are parents of an assignment with z in rhs
 stmt s, s2; assign a;
 Select s such that Parent(s2, a) pattern a(_,_"z"_)
 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
@@ -458,17 +458,17 @@ variable v; stmt s; assign a, a2;
 Select v such that Parent*(s, a) pattern a2(_,_)
 x, z, i, b, a, y, k
 5000
-93 - parent*PatBoolean - select procedures if there are parent*s of assignments with "1" in rhs
+93 - parent*PatBoolean - select procedures if there are parent*s of assignments with 1 in rhs
 procedure p; stmt s; assign a;
 Select p such that Parent*(s, a) pattern a(_,_"1"_)
 parentPat
 5000
-94 - parent*PatBoolean - select procedures if there are parent*s of assignments with "5" in rhs
+94 - parent*PatBoolean - select procedures if there are parent*s of assignments with 5 in rhs
 procedure p; stmt s; assign a;
 Select p such that Parent*(s, a) pattern a(_,_"5"_)
 none
 5000
-95 - parent*PatBoolean - select stmts if there are parent*s of an assignment with "z" in rhs
+95 - parent*PatBoolean - select stmts if there are parent*s of an assignment with z in rhs
 stmt s, s2; assign a;
 Select s such that Parent*(s2, a) pattern a(_,_"z"_)
 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
