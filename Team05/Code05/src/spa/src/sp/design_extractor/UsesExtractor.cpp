@@ -246,7 +246,8 @@ vector<Entity> UsesExtractor::extractVariables(shared_ptr<ASTNode> ast) {
 		variables.push_back(variable);
 	}
 	else if (ast->isBracketsNode()) {
-		vector<Entity> variableInBrackets = this->extractVariables(ast);
+		shared_ptr<ASTNode> child = ast->getChildren()[0];
+		vector<Entity> variableInBrackets = this->extractVariables(child);
 		variables.insert(variables.end(), variableInBrackets.begin(), variableInBrackets.end());
 	}
 	else if (ast->isExpression()) {
