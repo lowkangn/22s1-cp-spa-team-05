@@ -242,8 +242,7 @@ ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(vector<ClauseResul
 	// Vector to keep track of which columns contain desired results
 	vector<int> desiredSynonymIndices;
 
-	for (int i = 0; i < selectResults.size(); i++) {
-		ClauseResult currentResult = selectResults[i];
+	for (ClauseResult currentResult : selectResults) {
 		vector<int> currentDesiredSynonymIndices = this->getColumnIndices(currentResult.args);
 		assert(currentDesiredSynonymIndices.size() == 1 || currentDesiredSynonymIndices.size() == 2);
 
@@ -255,10 +254,11 @@ ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(vector<ClauseResul
 			}
 			// If not in table, merge
 			else {
-				ClauseResult newResult = this->mergeResult(currentResult);
+				ClauseResult newResult = this->performCrossProduct(currentResult);
 				this->args = newResult.args;
 				this->table = newResult.table;
-				desiredSynonymIndices.push_back(int(this->args.size()) - 1);
+				int indexOfNewColumn = int(this->args.size()) - 1;
+				desiredSynonymIndices.push_back(indexOfNewColumn);
 			}
 		}
 
@@ -271,7 +271,7 @@ ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(vector<ClauseResul
 			// If not in table, merge
 			else {
 				if (currentDesiredSynonymIndices[0] == -1) {
-					ClauseResult newResult = this->mergeResult(currentResult);
+					ClauseResult newResult = this->performCrossProduct(currentResult);
 					this->args = newResult.args;
 					this->table = newResult.table;
 				} else {
@@ -279,7 +279,8 @@ ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(vector<ClauseResul
 					ClauseResult attributeColumn = synonymColumn.convertSynonymsColumnToAttributesColumn(currentResult);
 					this->addColumn(attributeColumn);
 				}
-				desiredSynonymIndices.push_back(int(this->args.size()) - 1);
+				int indexOfNewColumn = int(this->args.size()) - 1;
+				desiredSynonymIndices.push_back(indexOfNewColumn);
 			}
 		}
 	}
@@ -357,9 +358,5 @@ bool operator<(ClauseResult first, ClauseResult second) {
 }
 
 bool operator==(ClauseResult first, ClauseResult second) {
-	Table firstTable = first.table;
-	Table secondTable = second.table;
-	sort(firstTable.begin(), firstTable.end());
-	sort(secondTable.begin(), secondTable.end());
-	return (first.args == second.args) && (firstTable == secondTable);
+	return first.equals(make_shared<ClauseResult>(second));
 }

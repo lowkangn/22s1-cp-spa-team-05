@@ -983,7 +983,33 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		testEvaluate(query, expectedSet, pkb);
 	}
 
-	SECTION("Select multiple return values + With") {
+	SECTION("Select multiple return values (incl. attributes)") {
+		// Select <ca, ca.procName>;
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({callArg, callArg, callProcNameAttributeArg}));
+		query = Query(selectClause, emptyRelationships, emptyPatterns, emptyWiths);
+		expectedSet = set<string>{"11 x", "10 main"};
+		testEvaluate(query, expectedSet, pkb);
+
+		// Select <ca.procName, ca>;
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({callArg, callProcNameAttributeArg, callArg}));
+		query = Query(selectClause, emptyRelationships, emptyPatterns, emptyWiths);
+		expectedSet = set<string>{"x 11", "main 10"};
+		testEvaluate(query, expectedSet, pkb);
+
+		// Select <ca, ca.procName, ca>;
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({callArg, callArg, callProcNameAttributeArg, callArg}));
+		query = Query(selectClause, emptyRelationships, emptyPatterns, emptyWiths);
+		expectedSet = set<string>{"11 x 11", "10 main 10"};
+		testEvaluate(query, expectedSet, pkb);
+
+		// Select <ca, ca.procName, r, r.varName>;
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({callArg, callArg, callProcNameAttributeArg, readArg, readArg, readVarNameAttributeArg}));
+		query = Query(selectClause, emptyRelationships, emptyPatterns, emptyWiths);
+		expectedSet = set<string>{"11 x 1 y", "10 main 1 y"};
+		testEvaluate(query, expectedSet, pkb);
+	}
+
+	SECTION("Select multiple return values (incl. attributes) + With") {
 		// Select <ca, v> with ca.procName = v.varName;
 		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({callArg, varArg}));
 		shared_ptr<WithClause> withClause = shared_ptr<WithClause>(new WithNoExactClause({callArg, callProcNameAttributeArg}, {varArg, variableVarNameAttributeArg}));
@@ -1003,6 +1029,13 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		withClause = shared_ptr<WithClause>(new WithNoExactClause({callArg, callProcNameAttributeArg}, {varArg, variableVarNameAttributeArg}));
 		query = Query(selectClause, emptyRelationships, emptyPatterns, list<shared_ptr<WithClause>>{withClause});
 		expectedSet = set<string>{"x y 1"};
+		testEvaluate(query, expectedSet, pkb);
+
+		// Select <ca, ca.procName, v> with ca.procName = v.varName;
+		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({callArg, callArg, callProcNameAttributeArg, varArg}));
+		withClause = shared_ptr<WithClause>(new WithNoExactClause({callArg, callProcNameAttributeArg}, {varArg, variableVarNameAttributeArg}));
+		query = Query(selectClause, emptyRelationships, emptyPatterns, list<shared_ptr<WithClause>>{withClause});
+		expectedSet = set<string>{"11 x x"};
 		testEvaluate(query, expectedSet, pkb);
 
 		// Select <ca.procName, c, ca.procName, v> with ca.procName = v.varName;

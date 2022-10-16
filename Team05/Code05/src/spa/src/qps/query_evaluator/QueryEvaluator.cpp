@@ -73,17 +73,7 @@ ClauseResult QueryEvaluator::getSelectSynonymsCrossProductResult(list<ClauseResu
 
 	vector<ClauseResult> selectResultsWithoutAttribute;
 
-	// Merge results with attributes first
 	for (ClauseResult selectResult : selectResults) {
-		if (!selectResult.isResultWithAttribute()) {
-			selectResultsWithoutAttribute.push_back(selectResult);
-			continue;
-		}
-		combinedResult = mergeIntoCombinedIfNotInTable(combinedResult, selectResult);
-	}
-
-	// Merge results without attributes
-	for (ClauseResult selectResult : selectResultsWithoutAttribute) {
 		combinedResult = mergeIntoCombinedIfNotInTable(combinedResult, selectResult);
 	}
 
