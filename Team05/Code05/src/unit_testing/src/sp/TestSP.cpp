@@ -1326,3 +1326,11 @@ TEST_CASE("Test extractCFGRelations") {
 		test(program, expectedRelations);
 	}
 }
+
+TEST_CASE("dummy ") {
+	string program = "procedure main {\n\tread x;\n\tif (x > 5) then {\n\t\ty = 8;\n\t\tcall alpha;\n\t\tif (x > 7) then {\n\t\t\ty = 7;\n\t\t} else {\n\t\t\tcall beta;\n\t\t}\n\t} else {\n\t\tcall beta;\n\t}\n}\n\nprocedure alpha {\n\twhile (y > 1) {\n\t\ty = y / 2;\n\t}\n\t\n}\n\nprocedure beta {\n\tprint y;\n\tcall alpha\n}";
+	stringstream ss(program);
+
+	SourceProcessor sp = SourceProcessor(ss);
+
+}
