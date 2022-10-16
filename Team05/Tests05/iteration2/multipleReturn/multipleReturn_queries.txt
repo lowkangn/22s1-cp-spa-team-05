@@ -1,0 +1,55 @@
+1 - Select all variables pairs
+variable v;
+Select <v, v>
+x x, y y, q q, f f, t t, z z, k k
+5000
+2 - Select all next stmts
+stmt s1,s2;
+Select <s1, s2> such that Follows (s1,s2)
+1 6, 2 3, 4 5, 7 8, 8 9, 9 10, 10 13, 11 12, 14 15, 15 16, 16 17, 17 18
+5000
+3 - find pair of procedure that call each other
+procedure p, q;
+Select <p, q> such that Calls (p, q)
+alpha beta, main alpha
+5000
+4 - Select procedure pairs that modify x
+procedure p,q;
+Select <p, q> such that Modifies (p, "x") such that Modifies(q, "x")
+alpha beta, main alpha, main beta, alpha main, alpha alpha, beta beta, main main, beta alpha, beta main
+5000
+5 - Select pairs of variables that are read and modify x and y
+read p,q;
+Select <p, q> such that Modifies (p, "x") such that Modifies(q, "z")
+2 17, 16 17
+5000
+6 - Test with different return types - read and the variable being modified
+variable v; read re;
+Select <re, v> such that Modifies(re, v)
+2 x, 16 x, 17 z
+5000
+7 - Test with different return types - print and the variable being printed
+variable v; print pr;
+Select <pr, v> such that Uses(pr, v)
+3 y, 12 x, 14 x, 15 z
+5000
+8 - Test with different return types - assign and the variable Modified
+variable v; assign a;
+Select <a, v> such that Modifies(a, v)
+4 x, 6 f, 8 x, 9 y, 11 x, 13 q, 18 x
+5000
+9 - Test with if - variable modifies in if stmt
+if ifs; variable v;
+Select <ifs, v> such that Modifies(ifs, v)
+1 x, 1 y, 1 q, 1 z
+5000
+10 - Test with while uses variable
+while w; variable v;
+Select <w,v> such that Uses(w, v)
+10 x, 10 z
+5000
+11 - Test with if and while modifies the same variable
+if ifs; while w; variable v;
+Select <ifs,w> such that Modifies(ifs,v) such that Modifies(w,v)
+1 10
+5000

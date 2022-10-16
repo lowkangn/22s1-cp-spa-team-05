@@ -43,3 +43,8 @@ procedure n;
 Select n
 main, alpha, beta
 5000
+10 - Select all calls
+call c;
+Select c
+4, 5
+5000

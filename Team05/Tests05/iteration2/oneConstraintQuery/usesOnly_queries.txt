@@ -1,0 +1,115 @@
+1 - Uses - select procedures that use any variables (synonym)
+procedure p; variable v;
+Select p such that Uses(p, v)
+main, test, usesXAndY, usesX
+5000
+2 - Uses - select procedures that use any variables (wildcard)
+procedure p;
+Select p such that Uses(p, _)
+main, test, usesXAndY, usesX
+5000
+3 - Uses - select variables used by any procedure
+procedure p; variable v;
+Select v such that Uses(p, v)
+x, y
+5000
+4 - Uses - select procedures that use y
+procedure p;
+Select p such that Uses(p, "y")
+main, test, usesXAndY
+5000
+5 - Uses - select variables used by usesXAndY (synonym)
+variable v;
+Select v such that Uses("usesXAndY", v)
+x, y
+5000
+6 - Uses - select all procedures if noUses uses a variable (synonym)
+procedure p; variable v;
+Select p such that Uses("noUses", v)
+none
+5000
+7 - Uses - select all procedures if usesX uses a variable (wildcard)
+procedure p;
+Select p such that Uses("usesX", _)
+main, test, noUses, usesXAndY, usesX
+5000
+8 - Uses - select all variables if noUses uses a variable (synonym)
+variable v, v1;
+Select v such that Uses("noUses", v1)
+none
+5000
+9 - Uses - select all variables if usesX uses a variable (wildcard)
+variable v;
+Select v such that Uses("usesX", _)
+x, y, z
+5000
+10 - Uses - select all variables if main uses z
+variable v;
+Select v such that Uses("main", "z")
+none
+5000
+11 - Uses - select all variables if test uses y
+variable v;
+Select v such that Uses("test", "y")
+x, y, z
+5000
+12 - Uses - select all procedures if noUses uses z
+procedure p;
+Select p such that Uses("noUses", "z")
+none
+5000
+13 - Uses - select all procedures if usesXAndY uses x
+procedure p;
+Select p such that Uses("usesXAndY", "x")
+main, test, noUses, usesXAndY, usesX
+5000
+14 - Uses - select call that uses any variables (synonym)
+call c; variable v;
+Select c such that Uses(c, v)
+8, 10, 13
+5000
+15 - Uses - select call that uses any variables (wildcard)
+call c; variable v;
+Select c such that Uses(c, _)
+8, 10, 13
+5000
+16 - Uses - select variables used by any call
+call c; variable v;
+Select v such that Uses(c, v)
+x, y
+5000
+17 - Uses - select calls that use x
+call c;
+Select c such that Uses(c, "x")
+8, 10, 13
+5000
+18 - Uses - select variables used by 8 (synonym)
+variable v;
+Select v such that Uses(8, v)
+x, y
+5000
+19 - Uses - select all variables if 10 uses a variable (wildcard)
+variable v;
+Select v such that Uses(10, _)
+x, y, z
+5000
+20 - Uses - select all variables if 4 uses a variable (synonym)
+variable v, v1;
+Select v such that Uses(4, v1)
+none
+5000
+21 - Uses - select all variables if 13 uses a variable (wildcard)
+variable v;
+Select v such that Uses(13, _)
+x, y, z
+5000
+22 - Uses - select all variables if 4 uses z
+variable v;
+Select v such that Uses(4, "z")
+none
+5000
+23 - Uses - select all variables if 13 uses x
+variable v;
+Select v such that Uses(13, "x")
+x, y, z
+5000
