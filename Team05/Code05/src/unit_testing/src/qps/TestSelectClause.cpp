@@ -113,7 +113,7 @@ namespace {
 	Relationship modifiesR1Y = Relationship::createModifiesRelationship(readEntity, y);
 	Relationship usesP4Z4 = Relationship::createUsesRelationship(printEntity, z4);
 	Relationship callsAttributeC10Main = Relationship::createCallStmtAttributeRelationship(callEntity, main);
-	// + Additional relationshps that should not get retrieved
+	// + Additional relationships that should not get retrieved
 	Relationship modifiesA2X = Relationship::createModifiesRelationship(a2Entity, x);
 	Relationship usesIf7Z9 = Relationship::createUsesRelationship(if7Entity, z9);
 	Relationship callsProcedureMain = Relationship::createCallsRelationship(procedure, main);
@@ -176,7 +176,7 @@ namespace {
 
 TEST_CASE("SelectClause: test execute") {
 	auto testExecute = [](SelectClause selectClause,
-			set<ClauseResult> expectedSet, shared_ptr<PKB> pkb) {
+			vector<ClauseResult> expected, shared_ptr<PKB> pkb) {
 		// given
 		shared_ptr<PKBQueryHandler> pkbInterface = shared_ptr<PKBQueryHandler>(pkb);
 
@@ -184,12 +184,12 @@ TEST_CASE("SelectClause: test execute") {
 		list<shared_ptr<ClauseResult>> actualList = selectClause.execute(pkb);
 
 		// then
-		set<ClauseResult> actualSet;
+		vector<ClauseResult> actual;
 		for (shared_ptr<ClauseResult> actualResult : actualList) {
-			actualSet.insert(*actualResult);
+			actual.push_back(*actualResult);
 		}
 
-		REQUIRE(actualSet == expectedSet);
+		REQUIRE(actual == expected);
 	};
 
 	// ------ PKB ------
@@ -203,59 +203,59 @@ TEST_CASE("SelectClause: test execute") {
 
 	// ------ QPS ------
 	SelectClause selectClause = SelectClause::createBooleanSelectClause();
-	set<ClauseResult> expectedSet = {};
+	vector<ClauseResult> expected = {};
 
 	SECTION("Boolean return type") {
-		testExecute(selectClause, expectedSet, pkb);
+		testExecute(selectClause, expected, pkb);
 	}
 
 	SECTION("Single return type") {
 		selectClause = SelectClause::createSynonymSelectClause({stmtArg});
 		EntityClauseResult result = EntityClauseResult(stmtArg,vector<PQLEntity>{
 			pqlR1, pqlA2, pqlW3, pqlP4, pqlI5, pqlA6, pqlI7, pqlA8, pqlA9, pqlC10});
-		expectedSet = {result};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {result};
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({assignArg});
 		result = EntityClauseResult(assignArg,vector<PQLEntity>{
 				pqlA2, pqlA6, pqlA8, pqlA9});
-		expectedSet = {result};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {result};
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({readArg});
 		result = EntityClauseResult(readArg,vector<PQLEntity>{pqlR1});
-		expectedSet = {result};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {result};
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({printArg});
 		result = EntityClauseResult(printArg,vector<PQLEntity>{{pqlP4}});
-		expectedSet = {result};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {result};
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({ifArg});
 		result = EntityClauseResult(ifArg,vector<PQLEntity>{pqlI5, pqlI7});
-		expectedSet = {result};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {result};
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({whileArg});
 		result = EntityClauseResult(whileArg,vector<PQLEntity>{pqlW3});
-		expectedSet = {result};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {result};
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({procArg});
 		result = EntityClauseResult(procArg,vector<PQLEntity>{pqlMain, pqlProcedure});
-		expectedSet = {result};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {result};
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({varArg});
 		result = EntityClauseResult(varArg,vector<PQLEntity>{pqlX, pqlY, pqlZ});
-		expectedSet = {result};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {result};
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({constArg});
 		result = EntityClauseResult(constArg,vector<PQLEntity>{pql0, pql1, pql3, pql5});
-		expectedSet = {result};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {result};
+		testExecute(selectClause, expected, pkb);
 	}
 
 	SECTION("Multiple return types") {
@@ -263,27 +263,27 @@ TEST_CASE("SelectClause: test execute") {
 		EntityClauseResult assignResult = EntityClauseResult(assignArg,vector<PQLEntity>{
 				pqlA2, pqlA6, pqlA8, pqlA9});
 		EntityClauseResult readResult = EntityClauseResult(readArg,vector<PQLEntity>{pqlR1});
-		expectedSet = {assignResult, readResult};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {assignResult, readResult};
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({assignArg, varArg});
 		EntityClauseResult varResult = EntityClauseResult(varArg,vector<PQLEntity>{pqlX, pqlY, pqlZ});
-		expectedSet = {assignResult, varResult};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {assignResult, varResult};
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({assignArg, anotherAssignArg});
 		EntityClauseResult anotherAssignResult = EntityClauseResult(anotherAssignArg,vector<PQLEntity>{
 				pqlA2, pqlA6, pqlA8, pqlA9});
-		expectedSet = {assignResult, anotherAssignResult};
-		testExecute(selectClause, expectedSet, pkb);
+		expected = {assignResult, anotherAssignResult};
+		testExecute(selectClause, expected, pkb);
 	}
 
 	SECTION("Select attributes") {
 		selectClause = SelectClause::createSynonymSelectClause({ assignArg, assignStmtNumAttributeArg });
 		EntityClauseResult assignStmtNumResult = EntityClauseResult(assignArg, vector<PQLEntity>{
 			pqlA2, pqlA6, pqlA8, pqlA9});
-		expectedSet = { assignStmtNumResult };
-		testExecute(selectClause, expectedSet, pkb);
+		expected = { assignStmtNumResult };
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({ constArg, constValueAttributeArg, readArg, readVarNameAttributeArg, readArg });
 		EntityClauseResult constValueResult = EntityClauseResult(constArg, vector<PQLEntity>{
@@ -291,15 +291,15 @@ TEST_CASE("SelectClause: test execute") {
 		RelationshipClauseResult readVarNameResult = RelationshipClauseResult(readArg, readVarNameAttributeArg,
 			vector<PQLRelationship>{pqlModifiesR1Y});
 		EntityClauseResult readResult = EntityClauseResult(readArg, vector<PQLEntity>{pqlR1});
-		expectedSet = { constValueResult, readVarNameResult, readResult };
-		testExecute(selectClause, expectedSet, pkb);
+		expected = { constValueResult, readVarNameResult, readResult };
+		testExecute(selectClause, expected, pkb);
 
 		selectClause = SelectClause::createSynonymSelectClause({ callArg, callProcNameAttributeArg, procArg, ifArg });
 		RelationshipClauseResult callProcNameResult = RelationshipClauseResult(callArg, callProcNameAttributeArg,
 			vector<PQLRelationship>{pqlCallsAttributeC10Main});
 		EntityClauseResult procResult = EntityClauseResult(procArg, vector<PQLEntity>{pqlMain, pqlProcedure});
 		EntityClauseResult ifResult = EntityClauseResult(ifArg, vector<PQLEntity>{pqlI5, pqlI7});
-		expectedSet = { callProcNameResult, procResult, ifResult };
-		testExecute(selectClause, expectedSet, pkb);
+		expected = { callProcNameResult, procResult, ifResult };
+		testExecute(selectClause, expected, pkb);
 	}
 }

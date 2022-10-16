@@ -26,7 +26,7 @@ public :
 		NOTE: we expect the internal strings to be postfix 
 		e.g. x + z * y -> +x*zy. This allows us to model a tree with strings.
 	*/
-	bool isRegexMatch(vector<string> regexStrings) {
+	bool isRegexMatch(vector<string> regexStrings) override {
 		if (regexStrings.size() != this->strings.size()) {
 			throw PkbException("Trying to regex match, expecting exactly 2 regex strings, one for lhs and rhs.");
 		}
@@ -56,7 +56,7 @@ public :
 	/* 
 		Returns the LHS variable in assign statement
 	*/
-	string getVariableIdentifier() {
+	string getVariableIdentifier() override {
 		assert(this->strings.size() > 0 && this->statement->isAssignStatement());
 		return this->strings[0];
 	}
