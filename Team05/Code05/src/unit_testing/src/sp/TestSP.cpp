@@ -134,7 +134,6 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 
 		testExtract(program, expectedEntities, expectedRelationships, expectedPatterns);
 
-
 	}
 	
 	

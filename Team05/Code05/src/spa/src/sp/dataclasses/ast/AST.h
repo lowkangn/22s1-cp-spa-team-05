@@ -122,6 +122,10 @@ public:
 		return this->type == ASTNodeType::CALL;
 	}
 
+	bool isBracketsNode() {
+		return this->type == ASTNodeType::BRACKETS;
+	}
+
 	bool hasContainer() {
 		return this->isProgramNode() ||
 			this->isProcedureNode() ||
