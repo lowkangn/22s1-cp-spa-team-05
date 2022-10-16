@@ -48,3 +48,8 @@ while w; variable v;
 Select <w,v> such that Uses(w, v)
 10 x, 10 z
 5000
+11 - Test with if and while modifies the same variable
+if ifs; while w; variable v;
+Select <ifs,w> such that Modifies(ifs,v) such that Modifies(w,v)
+1 10
+5000
