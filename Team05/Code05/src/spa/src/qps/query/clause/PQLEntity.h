@@ -69,3 +69,9 @@ public:
 
     friend bool operator<(PQLEntity first, PQLEntity second);
 };
+
+template<> struct hash<PQLEntity> {
+	size_t operator()(PQLEntity entity) const noexcept {
+		return hash<string>{}(entity.toString());
+	}
+};

@@ -67,6 +67,9 @@ protected:
 	/* Renames columns currently named oldName to newName */
 	void renameColumns(ClauseArgument oldName, ClauseArgument newName);
 
+	/* Converts a column of synonyms to their corresponding attributes given a select result */
+	ClauseResult convertSynonymsColumnToAttributesColumn(ClauseResult selectResult);
+
 public:
 	/* ============= Public constructors ============= */
 
@@ -110,6 +113,13 @@ public:
 	/* Checks if result table is empty */
 	bool isEmpty() {
 		return this->table.empty();
+	}
+
+	bool isResultWithAttribute() {
+		if (this->args.size() != 2) {
+			return false;
+		}
+		return this->args[1].isAttributeName();
 	}
 
 	virtual bool equals(shared_ptr<ClauseResult> other);

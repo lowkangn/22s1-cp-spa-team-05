@@ -1,7 +1,6 @@
 #include "catch.hpp"
 #include <qps/query/Query.h>
 #include <qps/query/clause/SelectClause.h>
-#include <qps/query/clause/SelectClause.cpp>
 #include <qps/query/clause/ModifiesSClause.h>
 #include <qps/query/clause/ModifiesPClause.h>
 
@@ -46,8 +45,6 @@ TEST_CASE("Query: test operator==") {
 
 // =============== INTEGRATION TESTS ====================
 
-// TODO: Waiting for PKB interaction implementation
-TEST_CASE("Query: test evaluateSelect") {}
-
-// TODO: Waiting for PKB interaction implementation
-TEST_CASE("Query: test evaluateSuchThatAndPattern") {}
+/* Owing to the fact that the Query methods only involve the calling of each individual clause's execute methods, in light
+ * of already having tests for these individual clauses, and in the interest of time, we have chosen to exclude these tests.
+ */

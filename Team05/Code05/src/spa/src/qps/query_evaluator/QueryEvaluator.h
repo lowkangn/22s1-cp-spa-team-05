@@ -20,6 +20,10 @@
 #include <qps/query/clause/UsesPClause.h>
 #include <qps/query/clause/PatternClause.h>
 #include <qps/query/clause/PatternAssignClause.h>
+#include <qps/query/clause/WithClause.h>
+#include <qps/query/clause/WithNoExactClause.h>
+#include <qps/query/clause/WithOneExactClause.h>
+#include <qps/query/clause/WithBothExactClause.h>
 #include <qps/query/Query.h>
 #include <pkb/PKB.h>
 
@@ -35,6 +39,18 @@ private:
 			results.push_back(*resultPointer);
 		}
 		return results;
+	}
+
+	ClauseResult mergeIntoCombinedIfNotInTable(ClauseResult combinedResult, ClauseResult resultToMerge) {
+		if (combinedResult.isEmpty()) {
+			combinedResult = resultToMerge;
+		} else {
+			bool isSelectArgInCombinedResult = combinedResult.checkSelectArgsInTable({resultToMerge});
+			if (!isSelectArgInCombinedResult) {
+				combinedResult = combinedResult.mergeResult(resultToMerge);
+			}
+		}
+		return combinedResult;
 	}
 
 	ClauseResult combineResults(list<ClauseResult> results);
