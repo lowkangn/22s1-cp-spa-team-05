@@ -212,7 +212,14 @@ TEST_CASE("PatternExtractor: test extract") {
 		REQUIRE(expectedResult.size() == extractedPattern.size());
 		// Then
 		for (int i = 0; i < extractedPattern.size(); i++) {
-			REQUIRE(extractedPattern[i].equals(expectedResult[i]));
+			bool isInExpectedPatterns = false;
+			for (int j = 0; j < expectedResult.size(); j++) {
+				if (extractedPattern[i].equals(expectedResult[j])) {
+					isInExpectedPatterns = true;
+					break;
+				}
+			}
+			REQUIRE(isInExpectedPatterns);
 		}
 	};
 

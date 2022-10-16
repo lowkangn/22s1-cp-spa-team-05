@@ -1,0 +1,185 @@
+1 - If Pattern - select all if statements with a control variable with wildcard
+if i;
+Select i pattern i(_,_,_)
+1, 11, 20
+5000
+2 - If Pattern - extract if pattern in an if statement without any control variables
+if i;
+Select i pattern i("z",_,_)
+20
+5000
+3 - If Pattern - select all if statements using x
+if i;
+Select i pattern i("x",_,_)
+1, 11
+5000
+4 - If Pattern - select all if statements using y
+if i;
+Select i pattern i("y",_,_)
+1, 11
+5000
+5 - If pattern - select statement on rhs of if condition, c
+if i;
+Select i pattern i("c",_,_)
+11
+5000
+6 - If pattern - select statement on rhs of if condition, f
+if i;
+Select i pattern i("f",_,_)
+11
+5000
+7 - If pattern - select statement on lhs of second if condition, e
+if i;
+Select i pattern i("e",_,_)
+11
+5000
+8 - While pattern - select all while statements with a control variable with wildcard
+while w;
+Select w pattern w(_, _)
+6, 14, 17, 23
+5000
+9 - While pattern - select all while statements using x
+while w;
+Select w pattern w("x", _)
+6, 14, 17
+5000
+10 - While pattern - select all while statements using y
+while w;
+Select w pattern w("y", _)
+6, 14
+5000
+11 - While pattern - select single while statement with condition appearing on rhs
+while w;
+Select w pattern w("i", _)
+14
+5000
+12 - While pattern - select single while statement in an if statement without any control variables
+while w;
+Select w pattern w("q", _)
+23
+5000
+13 - Assign pattern - select assigns with any pattern (wildcard LHS)
+assign a;
+Select a pattern a(_, _)
+3, 4, 7, 8, 9, 10, 12, 13, 18, 21, 22, 23, 25, 26, 27
+5000
+14 - patternAssign - select assigns with any pattern (variable LHS)
+assign a; variable v;
+Select a pattern a(v, _)
+3, 4, 7, 8, 9, 10, 12, 13, 18, 21, 22, 23, 25, 26, 27
+5000
+15 - patternAssign - select assigns with variable name y on rhs
+assign a;
+Select a pattern a(_, _"y"_)
+10, 12, 21, 22, 26
+5000
+16 - patternAssign - select assigns with variable name x on rhs
+assign a;
+Select a pattern a(_, _"x"_)
+12, 18, 21, 22, 25
+5000
+17 - patternAssign - select assigns with same variable name x on both sides
+assign a;
+Select a pattern a("x", _"x"_)
+18, 25
+5000
+18 - patternAssign - select assigns with y on RHS, z on LHS
+assign a;
+Select a pattern a("z", _"y"_)
+12, 22
+5000
+19 - patternAssign - select assigns with constant 10 on RHS
+assign a; variable v;
+Select a pattern a(v, _"10"_)
+25, 26
+5000
+20 - patternAssign - select assigns with constant 0 on RHS (should not match any ifs or whiles)
+assign a;
+Select a pattern a(_, _"0"_)
+9, 12, 13
+5000
+21 - patternAssign - select assigns with b on LHS, y on RHS (should not match just because of LHS match)
+assign a;
+Select a pattern a("b", _"y"_)
+none
+5000
+22 - patternAssign - select variables on LHS of assign pattern
+assign a; variable v;
+Select v pattern a(v, _)
+y, x, b, z, i, k, t
+5000
+23 - patternAssign - select variables on LHS of assign pattern with 2 on rhs 
+assign a; variable v;
+Select v pattern a(v, _"2"_)
+y, x, i, z
+5000
+24 - patternAssign - as boolean (true) 
+assign a; variable v, v1;
+Select v pattern a(v1, _"5"_)
+a, b, c, d, e, f, i, j, k, n, q, t, x, y, z
+5000
+25 - patternIf - as boolean (true)
+if i; variable v;
+Select v pattern i("y", _, _)
+a, b, c, d, e, f, i, j, k, n, q, t, x, y, z
+5000
+26 - patternWhile - as boolean (true)
+while w; variable v;
+Select v pattern w("q", _)
+a, b, c, d, e, f, i, j, k, n, q, t, x, y, z
+5000
+27 - patternAssign - as boolean (false) 
+assign a; variable v, v1;
+Select v pattern a("h", _)
+none
+5000
+28 - patternIf - as boolean (false)
+if i; variable v;
+Select v pattern i("h", _, _)
+none
+5000
+29 - patternWhile - as boolean (false)
+while w; variable v;
+Select v pattern w("h", _)
+none
+5000
+30 - patternAssign - 3 + n on rhs (return none)
+assign a;
+Select a pattern a(_, _"3 + n"_)
+none
+5000
+31 - patternAssign - 2 + y on rhs (return assign statement success)
+assign a;
+Select a pattern a(_, _"x % 2"_)
+21
+5000
+32 - patternAssign - 0 + n on rhs (return only 12 but not 9)
+assign a;
+Select a pattern a(_, _"0 + n"_)
+12
+5000
+32 - patternAssign - x + y on rhs (return only 12 but not 21)
+assign a;
+Select a pattern a(_, _"x + y"_)
+12
+5000
+32 - patternAssign - 10 on rhs
+assign a; variable v;
+Select a pattern a(v, _"10"_)
+25, 26
+5000
+33 - patternAssign - x on lhs and rhs (exact)
+assign a;
+Select a pattern a("x", "x")
+none
+5000
+33 - patternAssign - x on lhs and sub-expression of x on rhs
+assign a;
+Select a pattern a("x", _"x"_)
+18, 25
+5000
+34 - patternAssign - 1 on rhs (do not match 10 on rhs)
+assign a;
+Select a pattern a(_, _"1"_)
+3, 18, 23
+5000
