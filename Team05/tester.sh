@@ -35,7 +35,7 @@ readonly one_constr_path=oneConstraintQuery/
 readonly two_constr_path=twoConstraintsQuery/
 readonly multi_constr_path=multipleConstraintsQuery/
 readonly boolean_return_values_path=booleanReturnValues/
-
+readonly stress_test_path=stressTests/
 
 # ==================== run tests ====================
 echo "Using autotester at: "${path_to_autotester}
@@ -123,6 +123,12 @@ do
 	${path_to_autotester} ${iteration2}${multi_constr_path}${i}_source.txt ${iteration2}${multi_constr_path}${i}_queries.txt ${iteration2_output_folder}${i}Out.xml
 done
 
+# Stress tests
+echo "Starting stress tests"
+for i in callChain nesting
+do
+	${path_to_autotester} ${iteration2}${stress_test_path}${i}StressTest_source.txt ${iteration2}${stress_test_path}${i}StressTest_queries.txt ${iteration2_output_folder}${i}StressTestOut.xml
+done
 
 # For random testing, modify Sample_queries.txt and Sample_source.txt
 echo "starting local sample test cases"

@@ -599,5 +599,10 @@ procedure proc199 {
 	 call proc200;
 }
 procedure proc200 {
-	 print p;
+	 print x;
+	 read x;
+	 call procNoModifiesXNoUsesX;
+}
+procedure procNoModifiesXNoUsesX {
+	 read k;
 }
