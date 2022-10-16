@@ -22,5 +22,5 @@ procedure alpha {
 
 procedure beta {
 	print y;
-	call alpha
+	call alpha;
 }

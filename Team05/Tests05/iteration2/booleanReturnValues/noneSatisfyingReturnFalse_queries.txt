@@ -1,25 +1,90 @@
 1 - Single constraint, such that Modifies(a,v)
 assign a; variable v;
-select BOOLEAN such that Modifies(3, "x")
+Select BOOLEAN such that Modifies(3, "x")
 FALSE
 5000
 2 - Single constraint, such that Modifies(r,v)
 read r; variable v;
-select BOOLEAN such that Modifies(2, "x")
+Select BOOLEAN such that Modifies(2, "x")
 FALSE
 5000
 3 - Single constraint, such that Modifies(s,v)
-statement s; variable v;
-select BOOLEAN such that Modifies(s, "z")
+stmt s; variable v;
+Select BOOLEAN such that Modifies(s, "z")
 FALSE
 5000
 4 - Single constraint, such that Modifies(p,v)
 procedure p; variable v;
-select BOOLEAN such that Modifies(p, "z")
+Select BOOLEAN such that Modifies(p, "z")
 FALSE
 5000
 5 - Single constraint, such that Modifies(c,v)
 call c; variable v;
-select BOOLEAN such that Modifies(c, "z")
+Select BOOLEAN such that Modifies(c, "z")
 FALSE
+5000
+6 - Single constraint, such that Uses(a,v)
+assign a; variable v;
+Select BOOLEAN such that Uses(a, "x")
+FALSE
+5000
+7 - Single constraint, such that Uses(pn,v)
+print pn; variable v;
+Select BOOLEAN such that Uses(pn, "x")
+FALSE
+5000
+8 - Single constraint, such that Uses(s,v)
+stmt s; variable v;
+Select BOOLEAN such that Uses(s, "z")
+FALSE
+5000
+9 - Single constraint, such that Uses(p,v)
+procedure p; variable v;
+Select BOOLEAN such that Uses(p, "z")
+FALSE
+5000
+10 - Single constraint, such that Uses(c,v)
+call c; variable v;
+Select BOOLEAN such that Uses(c, "x")
+FALSE
+5000
+11 - Single constraint, such that Follows(s1,s2)
+stmt s1; stmt s2;
+Select BOOLEAN such that Follows(9, s2)
+FALSE
+5000
+12 - Single constraint, such that Follows*(s1,s2)
+stmt s1; stmt s2;
+Select BOOLEAN such that Follows*(9, 3)
+FALSE
+5000
+13 - Single constraint, such that Parent(s1,s2)
+stmt s1; stmt s2;
+Select BOOLEAN such that Parent(3, 2)
+FALSE
+5000
+14 - Single constraint, such that Parent*(s1,s2)
+stmt s1; stmt s2;
+Select BOOLEAN such that Parent*(7, 7)
+FALSE
+5000
+15 - Single constraint, such that Calls(p1,p2)
+procedure p1; procedure p2;
+Select BOOLEAN such that Calls(p1, "main")
+FALSE
+5000
+16 - Single constraint, such that Calls*(p1,p2)
+procedure p1; procedure p2;
+Select BOOLEAN such that Calls*("alpha", p2)
+FALSE
+5000
+17 - 6 constraints, all true except the pattern
+assign a; stmt s; variable v; procedure p1; procedure p2; if if;
+Select BOOLEAN such that Modifies(a,v) such that Uses(s,v) such that Parent(s,_) such that Calls*(p1,p2) such that Follows*(_,s) pattern if ("z", _, _) 
+FALSE
+5000
+18 - 6 constraints, same as 17 but all true. just to sanity check
+assign a; stmt s; variable v; procedure p1; procedure p2; if if;
+Select BOOLEAN such that Modifies(a,v) such that Uses(s,v) such that Parent(s,_) such that Calls*(p1,p2) such that Follows*(_,s) 
+TRUE
 5000
