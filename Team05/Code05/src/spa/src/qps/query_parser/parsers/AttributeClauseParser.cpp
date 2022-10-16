@@ -14,15 +14,7 @@ ClauseArgument AttributeClauseParser::parseAttribute(ClauseArgument synonym) {
 	else if (attrNameToken.isValue()) {
 		return ClauseArgument::createValueAttributeArg(synonym);
 	}
-	else if (attrNameToken.isStmtNumStmt()) {
-		if (this->tokens.empty()) {
-			throw PQLSyntaxError("Query ended after 'stmt' in with clause");
-		}
-		attrNameToken = this->tokens.front();
-		this->tokens.pop_front();
-		if (!attrNameToken.isStmtNumHash()) {
-			throw PQLSyntaxError("Expected '#' after 'stmt' in with clause, got: " + attrNameToken.getTokenString());
-		}
+	else if (attrNameToken.isStmtNum()) {
 		return ClauseArgument::createStmtNumAttributeArg(synonym);
 	}
 	else {

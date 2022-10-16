@@ -69,7 +69,7 @@ public:
      * @param stream to obtain name string from.
      * @return PQLToken object encapsulating the name token.
      */
-    PQLToken extractNameFromStream(istream& stream);
+    PQLToken extractNameOrKeywordFromStream(istream& stream);
 
     /**
      * Takes a stream and removes a string from the front to make an integer token.
