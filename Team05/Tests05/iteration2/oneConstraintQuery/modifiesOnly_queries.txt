@@ -1,0 +1,65 @@
+1 - Modifies - select procedures that modify any variables (synonym)
+procedure p; variable v;
+Select p such that Modifies(p, v)
+main, test, modifiesXAndY, modifiesY
+5000
+2 - Modifies - select procedures that modify any variables (wildcard)
+procedure p;
+Select p such that Modifies(p, _)
+main, test, modifiesXAndY, modifiesY
+5000
+3 - Modifies - select variables modified by any procedure
+procedure p; variable v;
+Select v such that Modifies(p, v)
+x, y, z
+5000
+4 - Modifies - select procedures that modify x
+procedure p;
+Select p such that Modifies(p, "x")
+main, test, modifiesXAndY
+5000
+5 - Modifies - select variables modified by modifiesXAndY (synonym)
+variable v;
+Select v such that Modifies("modifiesXAndY", v)
+x, y
+5000
+6 - Modifies - select all procedures if noModifies modifies a variable (synonym)
+procedure p; variable v;
+Select p such that Modifies("noModifies", v)
+none
+5000
+7 - Modifies - select all procedures if modifiesY modifies a variable (wildcard)
+procedure p;
+Select p such that Modifies("modifiesY", _)
+main, test, noModifies, modifiesXAndY, modifiesY
+5000
+8 - Modifies - select all variables if noModifies modifies a variable (synonym)
+variable v, v1;
+Select v such that Modifies("noModifies", v1)
+none
+5000
+9 - Modifies - select all variables if modifiesY modifies a variable (wildcard)
+variable v;
+Select v such that Modifies("modifiesY", _)
+x, y, z
+5000
+10 - Modifies - select all variables if main modifies z
+variable v;
+Select v such that Modifies("main", "z")
+none
+5000
+11 - Modifies - select all variables if test modifies z
+variable v;
+Select v such that Modifies("test", "z")
+x, y, z
+5000
+12 - Modifies - select all procedures if noModifies modifies z
+procedure p;
+Select p such that Modifies("noModifies", "z")
+none
+5000
+13 - Modifies - select all procedures if test modifies z
+procedure p;
+Select p such that Modifies("test", "z")
+main, test, noModifies, modifiesXAndY, modifiesY
+5000

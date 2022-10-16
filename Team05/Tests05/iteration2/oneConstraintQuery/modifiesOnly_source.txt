@@ -1,0 +1,31 @@
+procedure main {
+	read y;
+	x = y;
+	while (x > 0) {
+		call noModifies;
+		x = x - 1;
+	}
+	if (y < 5) then {
+		y = 3;
+	} else {
+		call modifiesXAndY;
+	}
+}
+
+procedure test {
+	z = 2;
+	call modifiesXAndY;
+}
+
+procedure noModifies {
+	print z;
+}
+
+procedure modifiesXAndY {
+	read x;
+	call modifiesY;
+}
+
+procedure modifiesY {
+	y = x;
+}
