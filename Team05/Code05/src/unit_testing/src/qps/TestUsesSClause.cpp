@@ -91,31 +91,58 @@ namespace {
 			1. read y;
 			2. x = y;
 			3. while (x > 0) {
-			4.	   print z;
+			4.	   call noUses;
 			5.     x = x - 1;
 			   }
 			6. if (y < 5) then {
 			7.     y = 3;
 			   } else {
-			8.     y = z;
+			8.     call usesXAndY;
 			   }
+		}
+
+		procedure test {
+			9.	z = 2;
+			10. call usesXAndY;
+		}
+
+		procedure noUses {
+			11. read z;
+		}
+
+		procedure usesXAndY {
+			12. print y;
+			13. call usesX;
+		}
+
+		procedure usesX {
+			14. y = x;
 		}
 	*/
 
 	// Initialise tokens
 	Token mainToken = Token::createNameOrKeywordToken("main");
+	Token testToken = Token::createNameOrKeywordToken("test");
+	Token noUsesToken = Token::createNameOrKeywordToken("noUses");
+	Token usesXYToken = Token::createNameOrKeywordToken("usesXAndY");
+	Token usesXToken = Token::createNameOrKeywordToken("usesX");
 	Token yToken = Token::createNameOrKeywordToken("y");
 	Token xToken = Token::createNameOrKeywordToken("x");
 	Token zToken = Token::createNameOrKeywordToken("z");
 	Token zeroToken = Token::createIntegerToken("0");
 	Token oneToken = Token::createIntegerToken("1");
+	Token twoToken = Token::createIntegerToken("2");
 	Token threeToken = Token::createIntegerToken("3");
 	Token fiveToken = Token::createIntegerToken("5");
 
 	// Initialise entities
 	Entity mainEntity = Entity::createProcedureEntity(mainToken);
+	Entity testEntity = Entity::createProcedureEntity(testToken);
+	Entity noUsesEntity = Entity::createProcedureEntity(noUsesToken);
+	Entity usesXYEntity = Entity::createProcedureEntity(usesXYToken);
+	Entity usesXEntity = Entity::createProcedureEntity(usesXToken);
 
-	Entity readEntity = Entity::createReadEntity(1);
+	Entity read1Entity = Entity::createReadEntity(1);
 	Entity y1Entity = Entity::createVariableEntity(1, yToken);
 
 	Entity a2Entity = Entity::createAssignEntity(2);
@@ -126,8 +153,7 @@ namespace {
 	Entity xCondEntity = Entity::createVariableEntity(3, xToken);
 	Entity zeroConstEntity = Entity::createConstantEntity(3, zeroToken);
 
-	Entity printEntity = Entity::createPrintEntity(4);
-	Entity z4Entity = Entity::createVariableEntity(4, zToken);
+	Entity call4Entity = Entity::createCallEntity(4);
 
 	Entity a5Entity = Entity::createAssignEntity(5);
 	Entity x5LhsEntity = Entity::createVariableEntity(5, xToken);
@@ -142,54 +168,92 @@ namespace {
 	Entity y7Entity = Entity::createVariableEntity(7, yToken);
 	Entity threeConstEntity = Entity::createConstantEntity(7, threeToken);
 
-	Entity a8Entity = Entity::createAssignEntity(8);
-	Entity y8Entity = Entity::createVariableEntity(8, yToken);
-	Entity z8Entity = Entity::createVariableEntity(8, zToken);
+	Entity call8Entity = Entity::createCallEntity(8);
+
+	Entity a9Entity = Entity::createAssignEntity(9);
+	Entity z9Entity = Entity::createVariableEntity(9, zToken);
+	Entity twoConstEntity = Entity::createConstantEntity(9, twoToken);
+
+	Entity call10Entity = Entity::createCallEntity(10);
+
+	Entity read11Entity = Entity::createReadEntity(11);
+	Entity z11Entity = Entity::createVariableEntity(11, zToken);
+
+	Entity print12Entity = Entity::createPrintEntity(12);
+	Entity y12Entity = Entity::createVariableEntity(12, yToken);
+
+	Entity call13Entity = Entity::createCallEntity(13);
+
+	Entity a14Entity = Entity::createAssignEntity(14);
+	Entity y14Entity = Entity::createVariableEntity(14, yToken);
+	Entity x14Entity = Entity::createVariableEntity(14, xToken);
 
 	// Initialise uses relationships
 	Relationship usesMainY2 = Relationship::createUsesRelationship(mainEntity, y2Entity);
 	Relationship usesMainXCond = Relationship::createUsesRelationship(mainEntity, xCondEntity);
-	Relationship usesMainZ4 = Relationship::createUsesRelationship(mainEntity, z4Entity);
 	Relationship usesMainX5 = Relationship::createUsesRelationship(mainEntity, x5RhsEntity);
 	Relationship usesMainYCond = Relationship::createUsesRelationship(mainEntity, yCondEntity);
-	Relationship usesMainZ8 = Relationship::createUsesRelationship(mainEntity, z8Entity);
+	Relationship usesMainY12 = Relationship::createUsesRelationship(mainEntity, y12Entity);
+	Relationship usesMainX14 = Relationship::createUsesRelationship(mainEntity, x14Entity);
 
 	Relationship usesA2Y2 = Relationship::createUsesRelationship(a2Entity, y2Entity);
 
 	Relationship usesW3XCond = Relationship::createUsesRelationship(whileEntity, xCondEntity);
-	Relationship usesW3Z4 = Relationship::createUsesRelationship(whileEntity, z4Entity);
 	Relationship usesW3X5 = Relationship::createUsesRelationship(whileEntity, x5RhsEntity);
 
 	Relationship usesIf6YCond = Relationship::createUsesRelationship(ifEntity, yCondEntity);
-	Relationship usesIf6Z8 = Relationship::createUsesRelationship(ifEntity, z8Entity);
+	Relationship usesIf6Y12 = Relationship::createUsesRelationship(ifEntity, y12Entity);
+	Relationship usesIf6X14 = Relationship::createUsesRelationship(ifEntity, x14Entity);
 
-	Relationship usesP4Z4 = Relationship::createUsesRelationship(printEntity, z4Entity);
-	Relationship usesA5X5 = Relationship::createUsesRelationship(a5Entity, x5RhsEntity);
-	Relationship usesA8Z8 = Relationship::createUsesRelationship(a8Entity, z8Entity);
+	Relationship usesC8Y12 = Relationship::createUsesRelationship(call8Entity, y12Entity);
+	Relationship usesC8X14 = Relationship::createUsesRelationship(call8Entity, x14Entity);
+
+	Relationship usesTestY12 = Relationship::createUsesRelationship(testEntity, y12Entity);
+	Relationship usesTestX14 = Relationship::createUsesRelationship(testEntity, x14Entity);
+
+	Relationship usesC10Y12 = Relationship::createUsesRelationship(call10Entity, y12Entity);
+	Relationship usesC10X14 = Relationship::createUsesRelationship(call10Entity, x14Entity);
+
+	Relationship usesUsesXYY12 = Relationship::createUsesRelationship(usesXYEntity, y12Entity);
+	Relationship usesUsesXYX14 = Relationship::createUsesRelationship(usesXYEntity, x14Entity);
+
+	Relationship usesP12Y12 = Relationship::createUsesRelationship(print12Entity, y12Entity);
+	Relationship usesC13X14 = Relationship::createUsesRelationship(call13Entity, x14Entity);
+
+	Relationship usesUsesXX14 = Relationship::createUsesRelationship(usesXEntity, x14Entity);
+
+	Relationship usesA14X14 = Relationship::createUsesRelationship(a14Entity, x14Entity);
 
 	// Initialise corresponding PQLEntities and PQLRelationships
 	PQLEntity pqlA2 = PQLEntity::generateStatement(2);
 	PQLEntity pqlW3 = PQLEntity::generateStatement(3);
-	PQLEntity pqlP4 = PQLEntity::generateStatement(4);
 	PQLEntity pqlA5 = PQLEntity::generateStatement(5);
 	PQLEntity pqlI6 = PQLEntity::generateStatement(6);
-	PQLEntity pqlA8 = PQLEntity::generateStatement(8);
+	PQLEntity pqlC8 = PQLEntity::generateStatement(8);
+	PQLEntity pqlC10 = PQLEntity::generateStatement(10);
+	PQLEntity pqlP12 = PQLEntity::generateStatement(12);
+	PQLEntity pqlC13 = PQLEntity::generateStatement(13);
+	PQLEntity pqlA14 = PQLEntity::generateStatement(14);
 	
 	PQLEntity pqlVarX = PQLEntity::generateVariable("x");
 	PQLEntity pqlVarY = PQLEntity::generateVariable("y");
-	PQLEntity pqlVarZ = PQLEntity::generateVariable("z");
 
 	PQLRelationship pqlUsesA2Y = PQLRelationship(pqlA2, pqlVarY);
 
 	PQLRelationship pqlUsesW3X = PQLRelationship(pqlW3, pqlVarX);
-	PQLRelationship pqlUsesW3Z = PQLRelationship(pqlW3, pqlVarZ);
 
 	PQLRelationship pqlUsesIf6Y = PQLRelationship(pqlI6, pqlVarY);
-	PQLRelationship pqlUsesIf6Z = PQLRelationship(pqlI6, pqlVarZ);
+	PQLRelationship pqlUsesIf6X = PQLRelationship(pqlI6, pqlVarX);
+	PQLRelationship pqlUsesC8Y = PQLRelationship(pqlC8, pqlVarY);
+	PQLRelationship pqlUsesC8X = PQLRelationship(pqlC8, pqlVarX);
 
-	PQLRelationship pqlUsesP4Z = PQLRelationship(pqlP4, pqlVarZ);
-	PQLRelationship pqlUsesA5X = PQLRelationship(pqlA5, pqlVarX);
-	PQLRelationship pqlUsesA8Z = PQLRelationship(pqlA8, pqlVarZ);
+	PQLRelationship pqlUsesC10Y = PQLRelationship(pqlC10, pqlVarY);
+	PQLRelationship pqlUsesC10X = PQLRelationship(pqlC10, pqlVarX);
+
+	PQLRelationship pqlUsesP12Y = PQLRelationship(pqlP12, pqlVarY);
+	PQLRelationship pqlUsesC13X = PQLRelationship(pqlC13, pqlVarX);
+
+	PQLRelationship pqlUsesA14X = PQLRelationship(pqlA14, pqlVarX);
 
 	// Clause Arguments
 	ClauseArgument stmtArg = ClauseArgument::createStmtArg("s");
@@ -197,6 +261,8 @@ namespace {
 	ClauseArgument variableArg = ClauseArgument::createVariableArg("v");
 	ClauseArgument ifArg = ClauseArgument::createIfArg("if");
 	ClauseArgument whileArg = ClauseArgument::createWhileArg("while");
+	ClauseArgument readArg = ClauseArgument::createReadArg("r");
+	ClauseArgument callArg = ClauseArgument::createCallArg("c");
 	ClauseArgument lineOneArg = ClauseArgument::createLineNumberArg("1");
 	ClauseArgument lineTwoArg = ClauseArgument::createLineNumberArg("2");
 	ClauseArgument lineSixArg = ClauseArgument::createLineNumberArg("6");
@@ -204,7 +270,7 @@ namespace {
 	ClauseArgument printArg = ClauseArgument::createPrintArg("pp");
 	ClauseArgument xLiteralArg = ClauseArgument::createStringLiteralArg("x");
 	ClauseArgument yLiteralArg = ClauseArgument::createStringLiteralArg("y");
-	ClauseArgument aLiteralArg = ClauseArgument::createStringLiteralArg("a");
+	ClauseArgument zLiteralArg = ClauseArgument::createStringLiteralArg("z");
 };
 
 TEST_CASE("UsesSClause: test execute") {
@@ -227,12 +293,16 @@ TEST_CASE("UsesSClause: test execute") {
 	// ------ PKB ------ 
 	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
 
-	vector<Entity> entities{ mainEntity, readEntity, y1Entity, a2Entity, x2Entity, y2Entity, whileEntity, xCondEntity, 
-		zeroConstEntity, printEntity, z4Entity, a5Entity, x5LhsEntity, x5RhsEntity, oneConstEntity, ifEntity, 
-		yCondEntity, fiveConstEntity, a7Entity, y7Entity, threeConstEntity, a8Entity, y8Entity, z8Entity };
+	vector<Entity> entities{ mainEntity, testEntity, noUsesEntity, usesXYEntity, usesXEntity, read1Entity, y1Entity,
+			a2Entity, x2Entity, y2Entity, whileEntity, xCondEntity, zeroConstEntity, call4Entity, a5Entity, x5LhsEntity,
+			x5RhsEntity, oneConstEntity, ifEntity, yCondEntity, fiveConstEntity, a7Entity, y7Entity, threeConstEntity, 
+			call8Entity, a9Entity, z9Entity, twoConstEntity, call10Entity, read11Entity, z11Entity, print12Entity, 
+			y12Entity, call13Entity, a14Entity, y14Entity, x14Entity };
 
-	vector<Relationship> relationships{ usesMainY2, usesMainXCond, usesMainZ4, usesMainX5, usesMainYCond, usesMainZ8, 
-		usesA2Y2, usesW3XCond, usesW3Z4, usesW3X5, usesIf6YCond, usesIf6Z8, usesP4Z4, usesA5X5, usesA8Z8 };
+	vector<Relationship> relationships{ usesMainY2, usesMainXCond, usesMainX5, usesMainYCond, usesMainY12, usesMainX14, 
+			usesA2Y2, usesW3XCond, usesW3X5, usesIf6YCond, usesIf6Y12, usesIf6X14, usesC8Y12, usesC8X14, usesTestY12,
+			usesTestX14, usesC10Y12, usesC10X14, usesUsesXYY12, usesUsesXYX14, usesP12Y12, usesC13X14, usesUsesXX14, 
+			usesA14X14 };
 
 	pkb->addEntities(entities);
 	pkb->addRelationships(relationships);
@@ -241,8 +311,8 @@ TEST_CASE("UsesSClause: test execute") {
 	// ------ QPS ------ 
 	UsesSClause clause = UsesSClause(stmtArg, variableArg);
 
-	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlUsesA2Y, pqlUsesW3X, pqlUsesW3Z, pqlUsesIf6Y, 
-		pqlUsesIf6Z, pqlUsesP4Z, pqlUsesA5X, pqlUsesA8Z };
+	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlUsesA2Y, pqlUsesW3X, pqlUsesIf6Y, pqlUsesIf6X, pqlUsesC8Y,
+			pqlUsesC8X, pqlUsesC10Y, pqlUsesC10X, pqlUsesP12Y, pqlUsesC13X, pqlUsesA14X };
 
 	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(stmtArg, variableArg,
 		expectedRetrievedFromPkb);
@@ -253,23 +323,36 @@ TEST_CASE("UsesSClause: test execute") {
 
 	SECTION("Other stmtRef synonyms - non empty results") {
 		clause = UsesSClause(ifArg, variableArg);
-		expectedRetrievedFromPkb = { pqlUsesIf6Y, pqlUsesIf6Z };
+		expectedRetrievedFromPkb = { pqlUsesIf6Y, pqlUsesIf6X };
 		expectedClauseResult = RelationshipClauseResult(ifArg, variableArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		clause = UsesSClause(whileArg, variableArg);
-		expectedRetrievedFromPkb = { pqlUsesW3X, pqlUsesW3Z };
+		expectedRetrievedFromPkb = { pqlUsesW3X };
 		expectedClauseResult = RelationshipClauseResult(whileArg, variableArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		clause = UsesSClause(assignArg, variableArg);
-		expectedRetrievedFromPkb = { pqlUsesA2Y, pqlUsesA5X, pqlUsesA8Z };
+		expectedRetrievedFromPkb = { pqlUsesA2Y, pqlUsesA14X };
 		expectedClauseResult = RelationshipClauseResult(assignArg, variableArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
 		clause = UsesSClause(printArg, variableArg);
-		expectedRetrievedFromPkb = { pqlUsesP4Z };
+		expectedRetrievedFromPkb = { pqlUsesP12Y };
 		expectedClauseResult = RelationshipClauseResult(printArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesSClause(callArg, variableArg);
+		expectedRetrievedFromPkb = { pqlUsesC8Y, pqlUsesC8X, pqlUsesC10Y, pqlUsesC10X, pqlUsesC13X };
+		expectedClauseResult = RelationshipClauseResult(callArg, variableArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Other stmtRef synonyms - empty results") {
+;		expectedRetrievedFromPkb = {};
+
+		clause = UsesSClause(readArg, variableArg);
+		expectedClauseResult = RelationshipClauseResult(readArg, variableArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
@@ -280,7 +363,7 @@ TEST_CASE("UsesSClause: test execute") {
 		testExecute(clause, expectedClauseResult, pkb);
 
 		clause = UsesSClause(lineSixArg, variableArg);
-		expectedRetrievedFromPkb = { pqlUsesIf6Y, pqlUsesIf6Z };
+		expectedRetrievedFromPkb = { pqlUsesIf6Y, pqlUsesIf6X };
 		expectedClauseResult = RelationshipClauseResult(lineSixArg, variableArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
@@ -303,21 +386,26 @@ TEST_CASE("UsesSClause: test execute") {
 		expectedClauseResult = RelationshipClauseResult(whileArg, xLiteralArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
-		clause = UsesSClause(assignArg, xLiteralArg);
-		expectedRetrievedFromPkb = { pqlUsesA5X };
-		expectedClauseResult = RelationshipClauseResult(assignArg, xLiteralArg, expectedRetrievedFromPkb);
+		clause = UsesSClause(assignArg, yLiteralArg);
+		expectedRetrievedFromPkb = { pqlUsesA2Y };
+		expectedClauseResult = RelationshipClauseResult(assignArg, yLiteralArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = UsesSClause(callArg, xLiteralArg);
+		expectedRetrievedFromPkb = { pqlUsesC8X, pqlUsesC10X, pqlUsesC13X };
+		expectedClauseResult = RelationshipClauseResult(callArg, xLiteralArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
 	SECTION("String literal - empty results") {
 		expectedRetrievedFromPkb = {};
 
-		clause = UsesSClause(ifArg, xLiteralArg);
-		expectedClauseResult = RelationshipClauseResult(ifArg, xLiteralArg, expectedRetrievedFromPkb);
+		clause = UsesSClause(whileArg, yLiteralArg);
+		expectedClauseResult = RelationshipClauseResult(whileArg, yLiteralArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
-		clause = UsesSClause(ifArg, aLiteralArg);
-		expectedClauseResult = RelationshipClauseResult(ifArg, aLiteralArg, expectedRetrievedFromPkb);
+		clause = UsesSClause(ifArg, zLiteralArg);
+		expectedClauseResult = RelationshipClauseResult(ifArg, zLiteralArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
@@ -334,35 +422,5 @@ TEST_CASE("UsesSClause: test execute") {
 		clause = UsesSClause(lineTwoArg, xLiteralArg);
 		expectedClauseResult = RelationshipClauseResult(lineTwoArg, xLiteralArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
-	}
-
-	/* Corresponds to the following SIMPLE source (with line numbers)
-		procedure main {
-			1. read y;
-			2. x = y;
-		}
-	*/
-
-	// ------ PKB ------ 
-	shared_ptr<PKB> pkbSimpleProgram = shared_ptr<PKB>(new PKB());
-
-	vector<Entity> entitiesSimpleProgram{ mainEntity, readEntity, y1Entity, a2Entity, x2Entity, y2Entity };
-
-	vector<Relationship> relationshipsSimpleProgram{ usesMainY2, usesA2Y2 };
-
-	pkbSimpleProgram->addEntities(entitiesSimpleProgram);
-	pkbSimpleProgram->addRelationships(relationshipsSimpleProgram);
-
-	// ------ QPS ------ 
-	SECTION("Other stmtRef synonyms - empty results") {
-		expectedRetrievedFromPkb = {};
-
-		clause = UsesSClause(ifArg, variableArg);
-		expectedClauseResult = RelationshipClauseResult(ifArg, variableArg, expectedRetrievedFromPkb);
-		testExecute(clause, expectedClauseResult, pkbSimpleProgram);
-
-		clause = UsesSClause(whileArg, variableArg);
-		expectedClauseResult = RelationshipClauseResult(whileArg, variableArg, expectedRetrievedFromPkb);
-		testExecute(clause, expectedClauseResult, pkbSimpleProgram);
 	}
 }
