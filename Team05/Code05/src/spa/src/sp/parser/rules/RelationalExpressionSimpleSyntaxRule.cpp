@@ -27,27 +27,12 @@ list<Token> RelationalExpressionSimpleSyntaxRule::consumeTokens(list<Token> toke
 	Token token = tokens.front();
 	list<Token> childTokens;
 
-	int numOpenBracketSeen = 0;
-	if (token.isOpenBracketToken()) {
-		int numOpenBracketSeen = 1;
-		tokens.pop_front();
-	}
-
 	while (!tokens.empty() && !tokens.front().isRelationalOperator()) {
 		token = tokens.front();
 		tokens.pop_front();
-		if (token.isOpenBracketToken()) {
-			numOpenBracketSeen += 1;
-		} else if (token.isClosedBracketToken()) {
-			numOpenBracketSeen -= 1;
-			if (numOpenBracketSeen == 0) {
-				break;
-			}
-		}
 		this->lhsTokens.push_back(token);
+
 	}
-
-
 
 	if (tokens.empty()) {
 		throw SimpleSyntaxParserException("Relational Expression must contain opeartor");
@@ -63,7 +48,7 @@ list<Token> RelationalExpressionSimpleSyntaxRule::consumeTokens(list<Token> toke
 
 	// Parse the second relational factor
 	token = tokens.front();
-	numOpenBracketSeen = 1;
+	int numOpenBracketSeen = 1;
 	while (!tokens.empty()) {
 		token = tokens.front();
 		tokens.pop_front();

@@ -45,22 +45,10 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, just a relational operator test") {
 		list<Token> tokens = {
 				Token::createOpenBracketToken(),
-				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
 				Token::createCloseBracketToken(),
-				Token::createCloseBracketToken()
-		};
-		list<Token> expectedTokens = {};
-		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
-	}
-
-	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, just a relational operator test") {
-		list<Token> tokens = {
-				Token::createOpenBracketToken(),
-				Token::createPlaceholderToken(),
-				Token::createCloseBracketToken()
 		};
 		list<Token> expectedTokens = {};
 		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
@@ -68,14 +56,36 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, Not test") {
 		list<Token> tokens = {
-				Token::createOpenBracketToken(),
 				Token::createNotToken(),
 				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
 				Token::createCloseBracketToken(),
-				Token::createCloseBracketToken()
+		};
+		list<Token> expectedTokens = {};
+		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
+	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, Rel_expr with bracekts") {
+		list<Token> tokens = {
+		Token::createOpenBracketToken(),
+		Token::createNameOrKeywordToken("k"),
+		Token::createCloseBracketToken(),
+		Token::createEqualityToken(),
+		Token::createIntegerToken("10"),
+		};
+		list<Token> expectedTokens = {};
+		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
+	}
+
+	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, Rel_expr with bracekts") {
+		list<Token> tokens = {
+		Token::createIntegerToken("10"),
+		Token::createEqualityToken(),
+		Token::createOpenBracketToken(),
+		Token::createNameOrKeywordToken("k"),
+		Token::createCloseBracketToken(),
 		};
 		list<Token> expectedTokens = {};
 		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
@@ -84,7 +94,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, two relational expressions") {
 		list<Token> tokens = {
 				Token::createOpenBracketToken(),
-				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
@@ -95,7 +104,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
 				Token::createCloseBracketToken(),
-				Token::createCloseBracketToken()
 		};
 		list<Token> expectedTokens = {};
 		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
@@ -104,7 +112,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens, doesnt consume extra tokens") {
 		list<Token> tokens = {
 				Token::createOpenBracketToken(),
-				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("soomevariable"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
@@ -115,7 +122,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
 				Token::createCloseBracketToken(),
-				Token::createCloseBracketToken(),
 		};
 		list<Token> expectedTokens = { };
 		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
@@ -123,7 +129,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens (!((1==0) && (1==0))), doesnt consume extra tokens") {
 		list<Token> tokens = {
-				Token::createOpenBracketToken(),
 				Token::createNotToken(),
 				Token::createOpenBracketToken(),
 				Token::createOpenBracketToken(),
@@ -136,7 +141,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 				Token::createIntegerToken("1"),
 				Token::createEqualityToken(),
 				Token::createIntegerToken("0"),
-				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken(),
 		};
@@ -146,7 +150,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens (1>=1%((0-1))), doesnt consume extra tokens") {
 		list<Token> tokens = {
-				Token::createOpenBracketToken(),
 				Token::createIntegerToken("1"),
 				Token::createGreaterThanEqualToken(),
 				Token::createIntegerToken("1"),
@@ -158,7 +161,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 				Token::createIntegerToken("1"),
 				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken(),
-				Token::createCloseBracketToken(),
 		};
 		list<Token> expectedTokens = { };
 		test(ConditionalExpressionSimpleSyntaxRule(), tokens, expectedTokens);
@@ -166,7 +168,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 
 	SECTION("ConditionalExpressionSimpleSyntaxRule: Consumes exactly correct tokens (1>=1%((1))), doesnt consume extra tokens") {
 		list<Token> tokens = {
-				Token::createOpenBracketToken(),
 				Token::createIntegerToken("1"),
 				Token::createGreaterThanEqualToken(),
 				Token::createIntegerToken("1"),
@@ -174,7 +175,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 				Token::createOpenBracketToken(),
 				Token::createOpenBracketToken(),
 				Token::createIntegerToken("1"),
-				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken(),
 		};
@@ -187,7 +187,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 		list<Token> tokens = {
 				Token::createOpenBracketToken(),
 				Token::createOpenBracketToken(),
-				Token::createOpenBracketToken(),
 				Token::createNameOrKeywordToken("v"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
@@ -211,7 +210,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: consumeTokens") {
 				Token::createNameOrKeywordToken("q"),
 				Token::createGreaterThanEqualToken(),
 				Token::createNameOrKeywordToken("x"),
-				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken(),
 				Token::createCloseBracketToken(),
 		};
@@ -251,6 +249,31 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule :: generateChildRules") {
 		shared_ptr<SimpleSyntaxRule> relationalRule = shared_ptr<SimpleSyntaxRule>(new RelationalExpressionSimpleSyntaxRule());
 		list<Token> tokensRule = { Token::createNameOrKeywordToken("soomevariable"),Token::createGreaterThanEqualToken(),
 								   Token::createNameOrKeywordToken("x"), };
+		relationalRule->consumeTokens(tokensRule);
+
+		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
+				relationalRule,
+		};
+
+		test(ConditionalExpressionSimpleSyntaxRule(), tokensToConsume, expectedChildren);
+	}
+
+	SECTION("rel_expr with brackets") {
+		list<Token> tokensToConsume = {
+			Token::createOpenBracketToken(),
+			Token::createNameOrKeywordToken("k"),
+			Token::createCloseBracketToken(),
+			Token::createEqualityToken(),
+			Token::createIntegerToken("10"),
+		};
+
+		// create relational rule
+		shared_ptr<SimpleSyntaxRule> relationalRule = shared_ptr<SimpleSyntaxRule>(new RelationalExpressionSimpleSyntaxRule());
+		list<Token> tokensRule = { Token::createOpenBracketToken(),
+									Token::createNameOrKeywordToken("k"),
+									Token::createCloseBracketToken(),
+									Token::createEqualityToken(),
+									Token::createIntegerToken("10"), };
 		relationalRule->consumeTokens(tokensRule);
 
 		vector<shared_ptr<SimpleSyntaxRule>> expectedChildren = {
@@ -624,8 +647,6 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule::constructNode") {
 		shared_ptr<ASTNode> FourNode = ConstantValueASTNode::createConstantNode(constFourToken);
 		shared_ptr<ASTNode> eqaulityNodeTwo = ExpressionASTNode::createExpressionNode(equalityToken);
 
-
-
 		expectedASTNode->addChild(eqaulityNodeOne);
 		expectedASTNode->addChild(eqaulityNodeTwo);
 
@@ -638,4 +659,59 @@ TEST_CASE("ConditionalExpressionSimpleSyntaxRule::constructNode") {
 		test(rule, expectedASTNode);
 	}
 
+	SECTION("Test term with brackets #1") {
+		Token openBracket = Token::createOpenBracketToken();
+		Token constTenToken = Token::createIntegerToken("10");
+		Token equalityToken = Token::createEqualityToken();
+		Token closedBracket = Token::createCloseBracketToken();
+		Token kToken = Token::createNameOrKeywordToken("k");
+
+		list<Token> tokensToConsume = { openBracket, kToken, closedBracket, equalityToken, constTenToken };
+
+		ConditionalExpressionSimpleSyntaxRule rule = ConditionalExpressionSimpleSyntaxRule();
+		list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+		shared_ptr<ASTNode> expectedASTNode = ExpressionASTNode::createExpressionNode(equalityToken);
+
+		shared_ptr<ASTNode> bracketASTNode = BracketsASTNode::createBracketsNode();
+		shared_ptr<ASTNode> variableASTNode = VariableASTNode::createVariableNode(kToken);
+
+		shared_ptr<ASTNode> constASTNode = ConstantValueASTNode::createConstantNode(constTenToken);
+
+		expectedASTNode->addChild(bracketASTNode);
+		expectedASTNode->addChild(constASTNode);
+
+		bracketASTNode->addChild(variableASTNode);
+
+		test(rule, expectedASTNode);
+	}
+
+	SECTION("Test term with brackets #2") {
+		Token openBracket = Token::createOpenBracketToken();
+		Token constTenToken = Token::createIntegerToken("10");
+		Token equalityToken = Token::createEqualityToken();
+		Token closedBracket = Token::createCloseBracketToken();
+		Token kToken = Token::createNameOrKeywordToken("k");
+
+		list<Token> tokensToConsume = { constTenToken ,equalityToken, openBracket, kToken, closedBracket};
+
+		ConditionalExpressionSimpleSyntaxRule rule = ConditionalExpressionSimpleSyntaxRule();
+		list<Token> remainingTokens = rule.consumeTokens(tokensToConsume);
+		vector<shared_ptr<SimpleSyntaxRule>> childRules = rule.generateChildRules();
+
+		shared_ptr<ASTNode> expectedASTNode = ExpressionASTNode::createExpressionNode(equalityToken);
+
+		shared_ptr<ASTNode> bracketASTNode = BracketsASTNode::createBracketsNode();
+		shared_ptr<ASTNode> variableASTNode = VariableASTNode::createVariableNode(kToken);
+
+		shared_ptr<ASTNode> constASTNode = ConstantValueASTNode::createConstantNode(constTenToken);
+
+		expectedASTNode->addChild(constASTNode);
+		expectedASTNode->addChild(bracketASTNode);
+
+		bracketASTNode->addChild(variableASTNode);
+
+		test(rule, expectedASTNode);
+	}
 }
