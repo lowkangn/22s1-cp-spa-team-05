@@ -1,0 +1,226 @@
+procedure main{
+    while (x > 1) {
+        call second;
+        print x;
+        if (x > 1) then{
+          call second;
+          print x;
+          while (x > 1) {
+              call second;
+              print x;
+              if (x > 1) then{
+                call second;
+                print x;
+                while (x > 1) {
+                    call second;
+                    print x;
+                    if (x > 1) then{
+                      call second;
+                      print x;
+                      while (x > 1) {
+                          call second;
+                          print x;
+                          if (x > 1) then{
+                            call second;
+                            print x;
+                            while (x > 1) {
+                                call second;
+                                print x;
+                                if (x > 1) then{
+                                  call second;
+                                  print x;
+                                  while (x > 1) {
+                                      call second;
+                                      print x;
+                                      if (x > 1) then{
+                                        call second;
+                                        print x;
+                                        while (x > 1) {
+                                            call second;
+                                            print x;
+                                            if (x > 1) then{
+                                              call second;
+                                              print x;
+                                              while (x > 1) {
+                                                  call second;
+                                                  print x;
+                                                  if (x > 1) then{
+                                                    call second;
+                                                    print x;
+                                                    while (x > 1) {
+                                                        call second;
+                                                        print x;
+                                                        if (x > 1) then{
+                                                          call second;
+                                                          print x;
+                                                          while (x > 1) {
+                                                              call second;
+                                                              print x;
+                                                              if (x > 1) then{
+                                                                call second;
+                                                                print x;
+                                                                while (x > 1) {
+                                                                    call second;
+                                                                    print x;
+                                                                    if (x > 1) then{
+                                                                      call second;
+                                                                      print x;
+                                                                      while (x > 1) {
+                                                                          call second;
+                                                                          print x;
+                                                                          if (x > 1) then{
+                                                                            call second;
+                                                                            print x;
+                                                                            while (x > 1) {
+                                                                                call second;
+                                                                                print x;
+                                                                                if (x > 1) then{
+                                                                                  call second;
+                                                                                  print x;
+                                                                                  while (x > 1) {
+                                                                                      call second;
+                                                                                      print x;
+                                                                                      if (x > 1) then{
+                                                                                        call second;
+                                                                                        print x;
+                                                                                        while (x > 1) {
+                                                                                            call second;
+                                                                                            print x;
+                                                                                            if (x > 1) then{
+                                                                                              call second;
+                                                                                              print x;
+                                                                                              while (x > 1) {
+                                                                                                  call second;
+                                                                                                  print x;
+                                                                                                  if (x > 1) then{
+                                                                                                    call second;
+                                                                                                    print x;
+                                                                                                    while (x > 1) {
+                                                                                                        call second;
+                                                                                                        print x;
+                                                                                                        if (x > 1) then{
+                                                                                                          call second;
+                                                                                                          print x;
+                                                                                                          while (x > 1) {
+                                                                                                              call second;
+                                                                                                              print x;
+                                                                                                              if (x > 1) then{
+                                                                                                                call second;
+                                                                                                                print x;
+                                                                                                                while (x > 1) {
+                                                                                                                    call second;
+                                                                                                                    print x;
+                                                                                                                    if (x > 1) then{
+                                                                                                                      call second;
+                                                                                                                      print x;
+                                                                                                                      while (x > 1) {
+                                                                                                                          call second;
+                                                                                                                          print x;
+                                                                                                                          if (x > 1) then{
+                                                                                                                            call second;
+                                                                                                                            print x;
+                                                                                                                          }
+                                                                                                                          else {
+                                                                                                                              read x;
+                                                                                                                          }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                    else {
+                                                                                                                        read x;
+                                                                                                                    }
+                                                                                                                }
+                                                                                                              }
+                                                                                                              else {
+                                                                                                                  read x;
+                                                                                                              }
+                                                                                                          }
+                                                                                                        }
+                                                                                                        else {
+                                                                                                            read x;
+                                                                                                        }
+                                                                                                    }
+                                                                                                  }
+                                                                                                  else {
+                                                                                                      read x;
+                                                                                                  }
+                                                                                              }
+                                                                                            }
+                                                                                            else {
+                                                                                                read x;
+                                                                                            }
+                                                                                        }
+                                                                                      }
+                                                                                      else {
+                                                                                          read x;
+                                                                                      }
+                                                                                  }
+                                                                                }
+                                                                                else {
+                                                                                    read x;
+                                                                                }
+                                                                            }
+                                                                          }
+                                                                          else {
+                                                                              read x;
+                                                                          }
+                                                                      }
+                                                                    }
+                                                                    else {
+                                                                        read x;
+                                                                    }
+                                                                }
+                                                              }
+                                                              else {
+                                                                  read x;
+                                                              }
+                                                          }
+                                                        }
+                                                        else {
+                                                            read x;
+                                                        }
+                                                    }
+                                                  }
+                                                  else {
+                                                      read x;
+                                                  }
+                                              }
+                                            }
+                                            else {
+                                                read x;
+                                            }
+                                        }
+                                      }
+                                      else {
+                                          read x;
+                                      }
+                                  }
+                                }
+                                else {
+                                    read x;
+                                }
+                            }
+                          }
+                          else {
+                              read x;
+                          }
+                      }
+                    }
+                    else {
+                        read x;
+                    }
+                }
+              }
+              else {
+                  read x;
+              }
+          }
+        }
+        else {
+            read x;
+        }
+    }
+}
+
+procedure second{
+    read x;
+}
