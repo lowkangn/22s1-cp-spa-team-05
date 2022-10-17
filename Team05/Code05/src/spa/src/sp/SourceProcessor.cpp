@@ -28,7 +28,7 @@ vector<Relationship> SourceProcessor::extractRelations() {
 		throw SPException("SP has not been initialized with the source program");
 	}
 	vector<Relationship> relations = this->designManager.extractRelationships(this->astRoot);
-	//vector<Relationship> cfgRelations = this->designManager.extractCFGRelationships(this->controlFlowGraphs);
+	vector<Relationship> cfgRelations = this->designManager.extractCFGRelationships(this->controlFlowGraphs);
 
 	return relations;
 }

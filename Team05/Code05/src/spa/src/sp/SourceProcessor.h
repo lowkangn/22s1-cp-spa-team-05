@@ -61,10 +61,10 @@ public:
 		// Get a control flow graph using ControlFlowGraphParser
 		ControlFlowParser cfgParser = ControlFlowParser();
 
-		//vector<shared_ptr<CFGNode>> controlFlowGraphs = cfgParser.parse(root);
+		vector<shared_ptr<CFGNode>> controlFlowGraphs = cfgParser.parse(root);
 
 		this->astRoot = root;
-		//this->controlFlowGraphs = controlFlowGraphs;
+		this->controlFlowGraphs = controlFlowGraphs;
 		this->isInitialized = true;
 	};
 
