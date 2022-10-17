@@ -225,6 +225,7 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 
 		testExtract(program, expectedEntities, expectedRelationships, expectedPatterns);
 	}
+
 	
 
 	SECTION("Multi-procedure program") {
@@ -764,7 +765,7 @@ TEST_CASE("Test Source Processor : extractEntity") {
 		stringstream ss(sourceProgram);
 
 		SourceProcessor sp = SourceProcessor(ss);
-		
+
 		vector<Entity> entities = sp.extractEntities();
 
 		sort(entities.begin(), entities.end(), compareEntity);
@@ -788,7 +789,7 @@ TEST_CASE("Test Source Processor : extractEntity") {
 				while (y >= 0) {
 					x = x + 10;
 					y = y - 10;
-				} 
+				}
 			} else {
 				y = x % 2 + y;
 				z = 5 * x - y;
@@ -876,7 +877,7 @@ TEST_CASE("Test Source Processor : extractEntity") {
 		string program = "procedure main {\n     while (! ((1==2) && (3==4)))  {\n\t\tread x;\n\t }\n\t y = 5;\n\t }";
 		vector<Entity> expected{
 			Entity::createProcedureEntity(Token::createNameOrKeywordToken("main")),
-			
+
 			Entity::createWhileEntity(1),
 			Entity::createExpressionEntity(1, Token::createAndToken()),
 			Entity::createExpressionEntity(1, Token::createEqualityToken()),
@@ -898,7 +899,7 @@ TEST_CASE("Test Source Processor : extractEntity") {
 		string program = "procedure main {\n     while (1>= 1%((0-1)) )  {\n\t\tread x;\n\t }\n\t x = 4;\n\t }";
 		vector<Entity> expected{
 			Entity::createProcedureEntity(Token::createNameOrKeywordToken("main")),
-			
+
 			Entity::createWhileEntity(1),
 
 			Entity::createExpressionEntity(1, Token::createGreaterThanEqualToken()),
@@ -922,7 +923,7 @@ TEST_CASE("Test Source Processor : extractEntity") {
 		string program = "procedure main {\n     while (1>= 1%((1)) )  {\n\t\tread x;\n\t }\n\t x = 4;\n\t }";
 		vector<Entity> expected{
 			Entity::createProcedureEntity(Token::createNameOrKeywordToken("main")),
-			
+
 			Entity::createWhileEntity(1),
 
 			Entity::createExpressionEntity(1, Token::createGreaterThanEqualToken()),
@@ -1249,6 +1250,7 @@ TEST_CASE("Test Source Processor : extractRelations") {
 	}
 }
 
+/*
 TEST_CASE("Test extractCFGRelations") {
 	auto test = [](string sourceProgram, vector<Relationship> expectedRelations) {
 		stringstream ss(sourceProgram);
@@ -1298,7 +1300,6 @@ TEST_CASE("Test extractCFGRelations") {
 				}
 			13.	call main2;
 			}
-		*/
 		string program = "procedure main1 {\n\twhile (1>= 1%((1))) {\n\t\tread x;\n\t}\n\tx = x + 1;\n\t}\n\n\tprocedure main2 {\n\t\tif (x >= (y - 10)) then {\n\t\t\tread x;\n\t\t} else {\n\t\t\tread y;\n\t\t}\n\t\tprint z;\n\t}\n\n\tprocedure main3 {\n\t\tx = 10;\n\t\tif (x == 5) then {\n\t\t\twhile (x != 0) {\n\t\t\t\tprint z;\n\t\t\t}\n\t\t} else {\n\t\t\tread z;\n\t\t}\n\t\tcall main2;\n\t}\n";
 
 		vector<Relationship> expectedRelations = {
@@ -1326,3 +1327,4 @@ TEST_CASE("Test extractCFGRelations") {
 		test(program, expectedRelations);
 	}
 }
+*/
