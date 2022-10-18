@@ -6,15 +6,37 @@ skinparam classBackgroundColor SP_COLOR
 
 Package "Source Processor" <<Rectangle>>{
 Interface Extractor <<Interface>>
+Interface CFGExtractor <<Interface>>
 
-Class SourceProcessor
-Class Lexer
-Class ParserManager
+Class SourceProcessor {
+    + extractEntities() : list<Entity>
+    + extractPatterns() : list<Pattern>
+    + extractRelations() : list<Relationship>
+    + extractCFGRelations() : list<Relationship>
+}
+
+Class Lexer {
+    + tokenize(istream): list<Token>
+}
+
+Class ParserManager {
+    + parse() : AST
+}
+
+Class ControlFlowParser {
+    + parse(AST) : CFG
+}
+
 Class EntityExtractor
 Class PatternExtractor
 Class "Extractor<Relationship>"
-Class DesignExtractorManager
+Class NextExtractor
+Class DesignExtractorManager {
+    + extractRelationships(AST) : list<Relationship>
+}
+
 Class AST
+Class CFG
 }
 
 Class HiddenOutside #FFFFFF
@@ -22,11 +44,14 @@ Class HiddenOutside2 #FFFFFF
 
 HiddenOutside ..> SourceProcessor
 
-SourceProcessor .left.> Lexer: creates >
+SourceProcessor .right.> Lexer: creates >
 SourceProcessor ..> ParserManager: creates >
-SourceProcessor -right-> "1" DesignExtractorManager
-SourceProcessor -down-> "1" AST
+SourceProcessor ..> ControlFlowParser: creates >
+SourceProcessor -left-> "1" DesignExtractorManager
+SourceProcessor --> "1" AST
+SourceProcessor --> "*" CFG
 
+DesignExtractorManager --> "1" NextExtractor
 DesignExtractorManager --> "1" EntityExtractor
 DesignExtractorManager --> "1" PatternExtractor
 DesignExtractorManager --> "1..*" "Extractor<Relationship>"
@@ -34,9 +59,11 @@ DesignExtractorManager --> "1..*" "Extractor<Relationship>"
 EntityExtractor ..|> Extractor
 PatternExtractor ..|> Extractor
 "Extractor<Relationship>" ..|> Extractor
+NextExtractor ..|> CFGExtractor
 
-Lexer <.. ParserManager: tokens >
+Lexer <.down. ParserManager: tokens >
 
 ParserManager ..> AST: creates >
+ControlFlowParser ..> CFG: creates >
 DesignExtractorManager .up.> HiddenOutside2: relationships
 @enduml

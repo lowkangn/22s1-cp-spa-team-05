@@ -6,16 +6,62 @@ skinparam classBackgroundColor QPS_COLOR
 
 Package "Query Processing System" <<Rectangle>>{
 
-Class QPS
-Class QPSTokenizer
-Class QueryParser
-Class QueryEvaluator
-Class QueryResultsProjector
-Class Query
-Class SelectClause
-Class RelationshipClause
-Class PatternClause 
+Class QPS {
+    + evaluate(string, PKBQueryHandler)
+    + projectResults(list<string>)
 }
+
+Class QPSTokenizer {
+    + tokenize(istream): list<PQLToken>
+}
+
+Class QueryParser {
+    + parse() : Query
+}
+
+Class QueryEvaluator {
+    + evaluate(Query, PKBQueryHandler) : set<string>
+}
+
+Class QueryResultsProjector {
+    + populateResultsList(list<string>)
+}
+
+Class ClauseParser {
+    + parse()
+    + {abstract} checkArguments()
+    + {abstract} createClause()
+}
+
+Class Query
+Class ConcreteClauseParser
+
+Class SelectClause {
+    - args : list<ClauseArgument>
+
+    + execute(PKBQueryHandler) : list<ClauseResult>
+}
+
+Class RelationshipClause {
+    - lhs : ClauseArgument
+    - rhs : ClauseArgument
+
+    + {abstract} execute(PKBQueryHandler) : ClauseResult
+}
+
+Class PatternClause {
+    - lhs : ClauseArgument
+    - rhs : ClauseArgument
+
+    + execute(PKBQueryHandler) : ClauseResult
+}
+
+Class WithClause {
+    + execute(PKBQueryHandler) : ClauseResult
+}
+}
+
+ConcreteClauseParser -up-|> ClauseParser
 
 Class HiddenOutside #FFFFFF
 HiddenOutside ..> QPS
@@ -24,12 +70,15 @@ QPS <.left. QPSTokenizer : creates >
 QPS ..> QueryParser : creates >
 QPSTokenizer <.down. QueryParser: tokens >
 QueryParser ..> Query: creates >
+QueryParser ..> ClauseParser: creates >
+ClauseParser ..> QueryParser: clauses >
 QueryEvaluator .down.> Query: executes >
 Query -down-> "1" SelectClause
 Query -down-> "0..*" RelationshipClause
 Query -down-> "0..*" PatternClause
+Query -right-> "0..*" WithClause
 QPS .right.> QueryResultsProjector: creates >
 QueryEvaluator .right.> QueryResultsProjector: results >
-QPS .down.> QueryEvaluator: creates >
+QPS .down..> QueryEvaluator: creates >
 
 @enduml

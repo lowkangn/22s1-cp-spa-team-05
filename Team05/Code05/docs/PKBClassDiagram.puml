@@ -5,23 +5,65 @@ skinparam arrowColor PKB_COLOR
 skinparam classBackgroundColor PKB_COLOR
 
 Package "Program Knowledge Base" <<Rectangle>>{
-Interface PKBUpdateHandler <<Interface>>
-Interface PKBQueryHandler <<Interface>>
-
-Class PKB
-Class PkbEntityTable
-Class PkbPatternTable
-Class PkbRelationshipTable
-
+    
+Interface PKBUpdateHandler <<Interface>> {
+    + addRelationships(list<Relationship>)
+    + addEntities(list<Entity)
+    + addPatterns(list<Pattern)
+    + addCfg(CFGNode)
 }
 
+Interface PKBQueryHandler <<Interface>> {
+    + retrieveRelationshipsByTypeLhsAndRhs(RelationshipType, 
+        ClauseArg, ClauseArg) : list<PQLRelationship>
+    + retrieveAllStatementEntities() : list<PQLEntity>
+    + retrieveAllVariables() : list<PQLEntity>
+    + retrieveAllConstants() : list<PQLEntity>
+    + retrieveAllProcedureEntities() : list<PQLEntity>
+    + retrieveProcedureEntityByName(string) : PQLEntity
+    + retrieveVariableByName(string): PQLEntity
+    + retrieveStatementByLineNumber(int, StatementType) : PQLEntity
+    + retrieveStatementEntitiesByType(StatementType) : list<PQLEntity>
+    + retrieveRelationshipsByType(RelationshipType) : list<PQLEntity>
+    + retrievePatterns(StatementType, ClauseArg, ClauseArg) : list<PQLPattern>
+    + retrieveAssignPatterns(ClauseArg, ClauseArg) : list<PQLPattern>
+}
+
+Class PKB 
+Class PkbEntityTable
+Class PkbPatternTable
+
+Class PkbRelationshipTable {
+    + addToRelationshipTable()  
+}
+
+Class PkbGraphManager
+
+Class PkbRepository {
+    
+    + getCfgManager() : cfgManager
+}
+
+Class PkbQueryManager  {
+    + retrieveRelationshipsByType(type)
+} 
+
+Class PkbUpdateManager {
+    + addRelationships(relationships)
+}
+}
 Class HiddenOutside #FFFFFF
 HiddenOutside ..> PKB
 
 PKB .left.|> PKBQueryHandler
 PKB .right.|> PKBUpdateHandler
-PKB -down-> "1..*" PkbEntityTable
-PKB -down-> "1" PkbPatternTable
-PKB -down-> "1..*" PkbRelationshipTable
+PKB -down-> "1" PkbQueryManager
+PKB -down--> "1" PkbRepository
+PKB -down-> "1" PkbUpdateManager
+PkbUpdateManager -right-> PkbRepository
+PkbRepository -down-> "1..*" PkbEntityTable
+PkbRepository -down-> "1..*" PkbPatternTable
+PkbRepository -down-> "1..*" PkbRelationshipTable
+PkbRepository -down-> "1" PkbGraphManager
 
 @enduml

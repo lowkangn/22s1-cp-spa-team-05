@@ -5,62 +5,76 @@
 actor User as User
 
 box "Source Processor" SP_COLOR_T1
-participant ":SourceProcessor" as SourceProcessor SP_COLOR
+participant ":SourceProcessor" as SP SP_COLOR
 participant ":Lexer" as Lexer SP_COLOR
 participant ":ParserManager" as ParserManager SP_COLOR
 participant ":DesignExtractorManager" as DesignManager SP_COLOR
+participant ":ControlFlowParser" as CFParser SP_COLOR
 end box
 
-create SourceProcessor
-User -> SourceProcessor: stream
-activate SourceProcessor
+create SP
+User -> SP: stream
+activate SP
 
 create DesignManager
-SourceProcessor -> DesignManager
+SP -> DesignManager
 activate DesignManager
 
-DesignManager --> SourceProcessor
+DesignManager --> SP
 deactivate DesignManager
 
 create Lexer
-SourceProcessor -> Lexer
+SP -> Lexer
 activate Lexer
 
-Lexer --> SourceProcessor
+Lexer --> SP
 deactivate Lexer
 
-SourceProcessor -> Lexer: tokenize(stream)
+SP -> Lexer: tokenize(stream)
 activate Lexer
 
-Lexer --> SourceProcessor: tokens
+Lexer --> SP: tokens
 deactivate Lexer
 
 create ParserManager
-SourceProcessor -> ParserManager: tokens
+SP -> ParserManager: tokens
 activate ParserManager
 
-ParserManager --> SourceProcessor
+ParserManager --> SP
 deactivate ParserManager
 
-SourceProcessor -> ParserManager: parse()
+SP -> ParserManager: parse()
 activate ParserManager
 
-ParserManager --> SourceProcessor: AST
+ParserManager --> SP: AST
 deactivate ParserManager
 
-SourceProcessor --> User
-deactivate SourceProcessor
+create CFParser
+SP -> CFParser
+activate CFParser
 
-User -> SourceProcessor: extractRelations()
-activate SourceProcessor
+CFParser --> SP
+deactivate CFParser
 
-SourceProcessor -> DesignManager: extractRelationships()
+SP -> CFParser: parse(AST)
+activate CFParser
+
+CFParser --> SP: CFG
+deactivate CFParser
+
+SP --> User
+deactivate SP
+
+User -> SP: extractRelations()
+activate SP
+
+SP -> DesignManager: extractRelationships(AST)
 activate DesignManager
 
-DesignManager --> SourceProcessor: relationships
+DesignManager --> SP: relationships
 deactivate DesignManager
 
-SourceProcessor --> User: relationships
-deactivate SourceProcessor
+SP --> User: relationships
+deactivate SP
 
 @enduml

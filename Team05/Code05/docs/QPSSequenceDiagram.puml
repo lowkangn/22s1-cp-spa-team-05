@@ -9,9 +9,10 @@ participant ":QPS" as QPS QPS_COLOR
 participant ":QueryTokenizer" as QueryTokenizer QPS_COLOR
 participant ":QueryParser" as QueryParser QPS_COLOR
 participant ":QueryEvaluator" as QueryEvaluator QPS_COLOR
+participant ":QueryResultsProjector" as ResultsProjector QPS_COLOR
 end box
 
-User -> QPS
+User -> QPS: evaluate(queryString, pkb)
 activate QPS
 
 create QueryTokenizer
@@ -21,14 +22,14 @@ activate QueryTokenizer
 QueryTokenizer --> QPS
 deactivate QueryTokenizer
 
-QPS -> QueryTokenizer: tokenize()
+QPS -> QueryTokenizer: tokenize(queryString)
 activate QueryTokenizer
 
 QueryTokenizer --> QPS: tokens
 deactivate QueryTokenizer
 
 create QueryParser
-QPS -> QueryParser
+QPS -> QueryParser: tokens
 activate QueryParser
 
 QueryParser --> QPS
@@ -50,7 +51,7 @@ deactivate QueryEvaluator
 QPS -> QueryEvaluator: evaluate(query, pkb)
 activate QueryEvaluator
 
-QueryEvaluator --> QPS: set<string>
+QueryEvaluator --> QPS: results
 deactivate QueryEvaluator
 
 QPS --> User
