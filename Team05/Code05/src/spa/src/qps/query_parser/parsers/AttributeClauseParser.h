@@ -14,7 +14,7 @@ protected:
 	/* Checks the semantic compatibility of the synonym and the attribute */
 	void checkSynonymAttributeCompatible(ClauseArgument& synonym, ClauseArgument& attribute);
 
-	AttributeClauseParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations)
+	AttributeClauseParser(list<PQLToken>& tokens, unordered_map<string, ArgumentType> declarations)
 		: ClauseParser(tokens, declarations) {}
 
 };

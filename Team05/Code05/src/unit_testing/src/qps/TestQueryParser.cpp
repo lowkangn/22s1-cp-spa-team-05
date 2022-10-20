@@ -83,6 +83,7 @@ namespace QPSTestUtil {
     PQLToken that = PQLToken::createNameToken("that");
     PQLToken pattern = PQLToken::createNameToken("pattern");
     PQLToken with = PQLToken::createNameToken("with");
+    PQLToken and = PQLToken::createNameToken("and");
 
     PQLToken calls = PQLToken::createNameToken("Calls");
     PQLToken modifies = PQLToken::createNameToken("Modifies");
@@ -273,7 +274,7 @@ TEST_CASE("QueryParser: test parseNoError") {
         testParseNoError(tokens, query);
     }
 
-    SECTION("Select, many such that and pattern clauses") {
+    SECTION("Select, many such that and pattern clauses, and 'and'") {
         list<PQLToken> tokens = list<PQLToken>{
             variable, v1, comma, v2, semicolon, 
             assign, a1, comma, a2, semicolon,
@@ -282,12 +283,12 @@ TEST_CASE("QueryParser: test parseNoError") {
             if_, i1, semicolon,
             select, v2,
             such, that, calls, openBracket, proc1, comma, proc2, closeBracket,
-            such, that, modifies, openBracket, two, comma, v1, closeBracket,
+            and, modifies, openBracket, two, comma, v1, closeBracket,
             pattern, a1, openBracket, v1, comma, wildcard, quotationMark, name, quotationMark, wildcard, closeBracket,
             such, that, follows, star, openBracket, a1, comma, i1, closeBracket,
             pattern, a1, openBracket, wildcard, comma, wildcard, closeBracket,
             such, that, parent, openBracket, wildcard, comma, i1, closeBracket,
-            such, that, uses, openBracket, proc1, comma, wildcard, closeBracket,
+            and, uses, openBracket, proc1, comma, wildcard, closeBracket,
             pattern, a2, openBracket, v1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
         };
 
@@ -324,6 +325,7 @@ TEST_CASE("QueryParser: test parseNoError") {
 
         testParseNoError(tokens, query);
     }
+
 }
 
 TEST_CASE("QueryParser: test parseConstraints single such that clause") {

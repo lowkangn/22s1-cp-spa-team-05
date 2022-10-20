@@ -22,7 +22,7 @@ using namespace std;
 */
 class ClauseParser : public SemanticChecker {
 protected:
-	list<PQLToken> tokens;
+	list<PQLToken>& tokens;
 
     /* Boolean for checking that getRemainingTokens is not called before parse */
     bool isParseCompleted = false;
@@ -55,9 +55,8 @@ protected:
 
 public:
 
-	ClauseParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) {
-		this->tokens = tokens; 
-		this->declarations = declarations;
+	ClauseParser(list<PQLToken>& tokens, unordered_map<string, ArgumentType> declarations) :
+		tokens(tokens), declarations(declarations) {
 		this->semanticErrorMessage = NO_SEMANTIC_ERROR_MESSAGE;
 	};
 

@@ -36,6 +36,6 @@ private:
 	}
 
 public:
-	SelectMultipleParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
+	SelectMultipleParser(list<PQLToken>& tokens, unordered_map<string, ArgumentType> declarations) :
 		SelectParser(tokens, declarations) {};
 };

@@ -13,7 +13,7 @@ class FollowsParser : public SuchThatClauseParser {
 private:
 	bool isStar;
 public:
-	FollowsParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
+	FollowsParser(list<PQLToken>& tokens, unordered_map<string, ArgumentType> declarations) :
 		SuchThatClauseParser(tokens, declarations) {
 		this->isStar = false;
 	};
