@@ -604,6 +604,50 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
         testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern, emptyWith);
     }
 
+    SECTION("All of the above such that clauses, but with 'and'") {
+        list<PQLToken> tokens = list<PQLToken>{
+            such, that, calls, star, openBracket, proc1, comma, proc3, closeBracket,
+            and, calls, openBracket, wildcard, comma, proc2, closeBracket,
+            and, calls, openBracket, proc2, comma, proc3, closeBracket,
+            and, follows, openBracket, s2, comma, a1, closeBracket,
+            and, follows, star, openBracket, a1, comma, w1, closeBracket,
+            and, follows, star, openBracket, s1, comma, five, closeBracket,
+            and, parent, star, openBracket, i1, comma, pri1, closeBracket,
+            and, parent, openBracket, wildcard, comma, i1, closeBracket,
+            and, parent, openBracket, pri1, comma, i1, closeBracket,
+            and, modifies, openBracket, five, comma, v1, closeBracket,
+            and, modifies, openBracket, r1, comma, quotationMark, name, quotationMark, closeBracket,
+            and, modifies, openBracket, quotationMark, name, quotationMark, comma, wildcard, closeBracket,
+            and, modifies, openBracket, proc1, comma, v1, closeBracket,
+            and, uses, openBracket, quotationMark, name, quotationMark, comma, quotationMark, name, quotationMark, closeBracket,
+            and, uses, openBracket, proc1, comma, v1, closeBracket,
+            and, uses, openBracket, i1, comma, wildcard, closeBracket,
+            and, uses, openBracket, pri1, comma, v1, closeBracket,
+        };
+
+        list<shared_ptr<RelationshipClause>> expectedSuchThat = list<shared_ptr<RelationshipClause>>{
+            callsTClauseProc1andProc3,
+            callsClauseWildcardandProc2,
+            callsClauseProc2andProc3,
+            followsClauseS2andA1,
+            followsTClauseA1andW1,
+            followsTClauseS1and5,
+            parentTClauseIf1andPrint1,
+            parentClauseWildcardandIf1,
+            parentClausePrint1andIf1,
+            modifiesSClause5andVariable1,
+            modifiesSClauseRead1andQuotedName,
+            modifiesPClauseQuotedNameandWildcard,
+            modifiesPClauseProcedure1andVariable1,
+            usesPClauseQuotedNameandQuotedName,
+            usesPClauseProcedure1andVariable1,
+            usesSClauseIf1andWildcard,
+            usesSClausePrint1andVariable1,
+        };
+
+        testParseNoError(tokens, declarations, expectedSuchThat, emptyPattern, emptyWith);
+    }
+
     // Pattern Assign Clauses
 
     shared_ptr<PatternClause> patternAssign1WildcardAndWildcard = shared_ptr<PatternClause>(
@@ -652,6 +696,34 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
         testParseNoError(tokens, declarations, emptySuchThat, expectedPattern, emptyWith);
     }
 
+    // Pattern container statements
+    shared_ptr<PatternClause> patternIfWildcard = shared_ptr<PatternClause>(
+        new PatternIfClause(i1Arg, wildcardArg, wildcardArg));
+    shared_ptr<PatternClause> patternIfVariable1 = shared_ptr<PatternClause>(
+        new PatternIfClause(i1Arg, v1Arg, wildcardArg));
+    shared_ptr<PatternClause> patternWhileVariable1 = shared_ptr<PatternClause>(
+        new PatternWhileClause(w1Arg, v1Arg, wildcardArg));
+    shared_ptr<PatternClause> patternWhileQuotedName = shared_ptr<PatternClause>(
+        new PatternWhileClause(w1Arg, quotedNameArg, wildcardArg));
+
+    SECTION("Many many pattern assigns") {
+        list<PQLToken> tokens = list<PQLToken>{
+            pattern, i1, openBracket, wildcard, comma, wildcard, comma, wildcard, closeBracket,
+            pattern, i1, openBracket, v1, comma, wildcard, comma, wildcard, closeBracket,
+            pattern, w1, openBracket, v1, comma, wildcard, closeBracket,
+            pattern, w1, openBracket, quotationMark, name, quotationMark, comma, wildcard, closeBracket,
+        };
+
+        list<shared_ptr<PatternClause>> expectedPattern = list<shared_ptr<PatternClause>>{
+            patternIfWildcard,
+            patternIfVariable1,
+            patternWhileVariable1,
+            patternWhileQuotedName,
+        };
+
+        testParseNoError(tokens, declarations, emptySuchThat, expectedPattern, emptyWith);
+    }
+
     // With Clauses
     shared_ptr<WithClause> with25 = make_shared<WithBothExactClause>(twoLineNumberArg, fiveLineNumberArg);
     shared_ptr<WithClause> withNameName = make_shared<WithBothExactClause>(quotedNameArg, quotedNameArg);
@@ -686,27 +758,49 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
         testParseNoError(tokens, declarations, emptySuchThat, emptyPattern, expectedWith);
     }
 
+    SECTION("Multiple withs, but with 'and'") {
+        list<PQLToken> tokens = list<PQLToken>{
+            with, two, equals, five,
+            and, quotationMark, name, quotationMark, equals, quotationMark, name, quotationMark,
+            and, quotationMark, name, quotationMark, equals, proc1, dot, procName,
+            and, pri1, dot, stmtNum, equals, five,
+            and, r1, dot, varName, equals, call1, dot, procName,
+            and, const1, dot, value, equals, s1, dot, stmtNum,
+        };
+
+        list<shared_ptr<WithClause>> expectedWith = list<shared_ptr<WithClause>>{
+            with25, withNameName, withNameProc1ProcName, withPri1StmtNum5,
+            withR1VarNameCall1ProcName, withConst1ValueS1StmtNum
+        };
+
+        testParseNoError(tokens, declarations, emptySuchThat, emptyPattern, expectedWith);
+    }
+
     SECTION("Everything everywhere all at once") {
         list<PQLToken> tokens = list<PQLToken>{
             such, that, uses, openBracket, proc1, comma, v1, closeBracket,
             with, two, equals, five,
-            with, quotationMark, name, quotationMark, equals, quotationMark, name, quotationMark,
             such, that, parent, star, openBracket, i1, comma, pri1, closeBracket,
             pattern, a1, openBracket, v1, comma, wildcard, quotationMark, name, quotationMark, wildcard, closeBracket,
             with, const1, dot, value, equals, s1, dot, stmtNum,
             such, that, follows, star, openBracket, a1, comma, w1, closeBracket,
             pattern, a1, openBracket, wildcard, comma, wildcard, closeBracket,
-            with, r1, dot, varName, equals, call1, dot, procName,
+            with, quotationMark, name, quotationMark, equals, quotationMark, name, quotationMark,
+            and, r1, dot, varName, equals, call1, dot, procName,
+            and, pri1, dot, stmtNum, equals, five,
             such, that, parent, openBracket, wildcard, comma, i1, closeBracket,
             pattern, a2, openBracket, v1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
-            pattern, a2, openBracket, v1, comma,
+            and, a2, openBracket, v1, comma,
                 quotationMark, name, plusToken, openBracket, openBracket, five, closeBracket, closeBracket, quotationMark, closeBracket,
+            and, i1, openBracket, v1, comma, wildcard, comma, wildcard, closeBracket,
             such, that, modifies, openBracket, proc1, comma, v1, closeBracket,
-            with, pri1, dot, stmtNum, equals, five,
             such, that, uses, openBracket, i1, comma, wildcard, closeBracket,
-            such, that, calls, star, openBracket, proc1, comma, proc3, closeBracket,
-            such, that, calls, openBracket, proc2, comma, proc3, closeBracket,
+            and, calls, star, openBracket, proc1, comma, proc3, closeBracket,
+            and, calls, openBracket, proc2, comma, proc3, closeBracket,
             with, quotationMark, name, quotationMark, equals, proc1, dot, procName,
+            pattern, i1, openBracket, wildcard, comma, wildcard, comma, wildcard, closeBracket,
+            and, w1, openBracket, v1, comma, wildcard, closeBracket,
+            pattern, w1, openBracket, quotationMark, name, quotationMark, comma, wildcard, closeBracket,
            
         };
 
@@ -726,12 +820,16 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             patternAssign1WildcardAndWildcard,
             patternAssign2Variable1AndMultMinus,
             patternAssign2Variable1AndPlusBracket,
+            patternIfVariable1,
+            patternIfWildcard,
+            patternWhileVariable1,
+            patternWhileQuotedName,
         };
 
         list<shared_ptr<WithClause>> expectedWith = list<shared_ptr<WithClause>>{
-            with25, 
+            with25,
+            withConst1ValueS1StmtNum,
             withNameName, 
-            withConst1ValueS1StmtNum, 
             withR1VarNameCall1ProcName, 
             withPri1StmtNum5,
             withNameProc1ProcName,
