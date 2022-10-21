@@ -11,7 +11,7 @@
 
 class UsesParser : public SuchThatClauseParser {
 public:
-	UsesParser(list<PQLToken>& tokens, unordered_map<string, ArgumentType> declarations) :
+	UsesParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) :
 		SuchThatClauseParser(tokens, declarations) {};
 
 	bool isCorrectClauseType(PQLToken clauseTypeToken) override;

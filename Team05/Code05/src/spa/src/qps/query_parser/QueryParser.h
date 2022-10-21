@@ -2,15 +2,19 @@
 
 #include <qps/query_tokenizer/PQLToken.h>
 #include <qps/query/Query.h>
+
 #include <qps/query_parser/parsers/SelectParser.h>
+#include <qps/query_parser/parsers/SelectBooleanParser.h>
+#include <qps/query_parser/parsers/SelectSingleParser.h>
+#include <qps/query_parser/parsers/SelectMultipleParser.h>
 #include <qps/query_parser/parsers/DeclarationParser.h>
 
 #include <qps/query_parser/query_parser_states/SuchThatState.h>
 #include <qps/query_parser/query_parser_states/PatternState.h>
 #include <qps/query_parser/query_parser_states/WithState.h>
 
-
 #include <list>
+#include <memory>
 #include <unordered_map>
 
 using namespace std;
@@ -30,9 +34,9 @@ private:
     bool isSemanticallyValid = true;
     string semanticErrorMessage;
 
-	shared_ptr<SelectClause> parseSelect(unordered_map<string, ArgumentType> declarations);
+	shared_ptr<SelectClause> parseSelect(const unordered_map<string, ArgumentType>& declarations);
 
-	void parseConstraints(unordered_map<string, ArgumentType> declarations);
+	void parseConstraints(const unordered_map<string, ArgumentType>& declarations);
 
 public:
 

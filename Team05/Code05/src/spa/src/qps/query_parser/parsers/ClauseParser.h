@@ -55,11 +55,9 @@ protected:
 
 public:
 
-	ClauseParser(list<PQLToken>& tokens, unordered_map<string, ArgumentType> declarations) :
+	ClauseParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) :
 		tokens(tokens), declarations(declarations) {
 		this->semanticErrorMessage = NO_SEMANTIC_ERROR_MESSAGE;
 	};
 
-	/* Returns the tokens stored in this ClauseParser */
-	list<PQLToken> getRemainingTokens();
 };

@@ -11,7 +11,7 @@
 
 class ModifiesParser : public SuchThatClauseParser {
 public:
-	ModifiesParser(list<PQLToken>& tokens, unordered_map<string, ArgumentType> declarations) :
+	ModifiesParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) :
 		SuchThatClauseParser(tokens, declarations) {};
 
 	bool isCorrectClauseType(PQLToken clauseTypeToken) override;

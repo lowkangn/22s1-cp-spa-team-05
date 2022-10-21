@@ -7,5 +7,5 @@ class PatternState : public QueryParserState {
 public:
 	PatternState(QueryParser* context) : QueryParserState(context) {}
 
-	void parseOneClause(list<PQLToken>& tokens, unordered_map<string, ArgumentType>& declarations) override;
+	void parseOneClause(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) override;
 };

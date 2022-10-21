@@ -1,7 +1,7 @@
 #include <qps/query_parser/query_parser_states/PatternState.h>
 #include <qps/query_parser/QueryParser.h>
 
-void PatternState::parseOneClause(list<PQLToken>& tokens, unordered_map<string, ArgumentType>& declarations) {
+void PatternState::parseOneClause(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) {
 	if (tokens.empty() || !tokens.front().isName()) {
 		throw PQLSyntaxError("Missing synonym after pattern");
 	}

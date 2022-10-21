@@ -14,6 +14,6 @@ private:
 	bool isCorrectClauseType(PQLToken clauseTypeToken) override;
 
 public:
-	SelectSingleParser(list<PQLToken>& tokens, unordered_map<string, ArgumentType> declarations) :
+	SelectSingleParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) :
 			SelectParser(tokens, declarations) {};
 };

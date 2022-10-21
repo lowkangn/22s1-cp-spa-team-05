@@ -102,7 +102,7 @@ protected:
 	}
 
 public:
-	PatternParser(list<PQLToken>& tokens, unordered_map<string, ArgumentType> declarations) :
+	PatternParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) :
 			ClauseParser(tokens, declarations) {};
 
 	/* Parses this parser's tokens into a Clause. */

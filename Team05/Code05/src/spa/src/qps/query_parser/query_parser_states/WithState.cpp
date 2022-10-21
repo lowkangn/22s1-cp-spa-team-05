@@ -1,7 +1,7 @@
 #include <qps/query_parser/query_parser_states/WithState.h>
 #include <qps/query_parser/QueryParser.h>
 
-void WithState::parseOneClause(list<PQLToken>& tokens, unordered_map<string, ArgumentType>& declarations) {
+void WithState::parseOneClause(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) {
 	if (tokens.empty()) {
 		throw PQLSyntaxError("Query ended after with");
 	}

@@ -32,7 +32,7 @@ protected:
 	void checkAttrCompare(vector<ClauseArgument>& lhsArgs, vector<ClauseArgument>& rhsArgs);
 
 public:
-	WithParser(list<PQLToken>& tokens, unordered_map<string, ArgumentType> declarations) :
+	WithParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) :
 		AttributeClauseParser(tokens, declarations) {};
 
 	/* Parses this with parser's tokens into a with clause. */

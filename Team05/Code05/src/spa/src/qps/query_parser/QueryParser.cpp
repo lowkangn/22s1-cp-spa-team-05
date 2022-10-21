@@ -1,19 +1,9 @@
-#include <memory>
-
 #include <qps/query_parser/QueryParser.h>
-#include <qps/query_parser/parsers/SelectParser.h>
-#include <qps/query_parser/parsers/SelectBooleanParser.h>
-#include <qps/query_parser/parsers/SelectSingleParser.h>
-#include <qps/query_parser/parsers/SelectMultipleParser.h>
-#include <qps/query_parser/parsers/DeclarationParser.h>
-#include <qps/query_parser/parsers/PatternParser.h>
-#include <qps/query_parser/parsers/WithParser.h>
 
 Query QueryParser::parse() {
     DeclarationParser declParser = DeclarationParser(this->tokens);
     unordered_map<string, ArgumentType> declarations = declParser.parse();
     this->setSemanticErrorFromParser(make_shared<SemanticChecker>(declParser));
-	this->tokens = declParser.getRemainingTokens();
 
     shared_ptr<SelectClause> selectClause = parseSelect(declarations);
 
@@ -28,7 +18,7 @@ Query QueryParser::parse() {
     return Query(selectClause, this->suchThatClauses, this->patternClauses, this->withClauses);   
 }
 
-shared_ptr<SelectClause> QueryParser::parseSelect(unordered_map<string, ArgumentType> declarations) {
+shared_ptr<SelectClause> QueryParser::parseSelect(const unordered_map<string, ArgumentType>& declarations) {
 	if (this->tokens.empty() || !this->tokens.front().isSelect()) {
 		throw PQLSyntaxError("Missing 'Select'");
 	}
@@ -55,12 +45,11 @@ shared_ptr<SelectClause> QueryParser::parseSelect(unordered_map<string, Argument
 	}
 
 	shared_ptr<SelectClause> clause = parserPointer->parse();
-	this->tokens = parserPointer->getRemainingTokens();
 	this->setSemanticErrorFromParser(parserPointer);
 	return clause;
 }
 
-void QueryParser::parseConstraints(unordered_map<string, ArgumentType> declarations) {
+void QueryParser::parseConstraints(const unordered_map<string, ArgumentType>& declarations) {
     assert(!this->tokens.empty());
     PQLToken token = this->tokens.front();
     while (!this->tokens.empty()) {

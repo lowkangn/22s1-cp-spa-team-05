@@ -21,7 +21,7 @@ protected:
 
 public:
 	/* Parses one clause by consuming PQLTokens for one clause from tokens  */
-	virtual void parseOneClause(list<PQLToken>& tokens, unordered_map<string, ArgumentType>& declarations) = 0;
+	virtual void parseOneClause(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) = 0;
 
 
 };

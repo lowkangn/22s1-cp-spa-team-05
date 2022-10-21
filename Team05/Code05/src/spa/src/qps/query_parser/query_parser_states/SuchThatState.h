@@ -11,5 +11,5 @@ class SuchThatState : public QueryParserState {
 public:
 	SuchThatState(QueryParser* context) : QueryParserState(context) {}
 
-	void parseOneClause(list<PQLToken>& tokens, unordered_map<string, ArgumentType>& declarations) override;
+	void parseOneClause(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) override;
 };

@@ -1,7 +1,7 @@
 #include <qps/query_parser/query_parser_states/SuchThatState.h>
 #include <qps/query_parser/QueryParser.h>
 
-void SuchThatState::parseOneClause(list<PQLToken>& tokens, unordered_map<string, ArgumentType>& declarations) {
+void SuchThatState::parseOneClause(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) {
     if (tokens.empty()) {
         throw PQLSyntaxError("Missing relRef after such that");
     }

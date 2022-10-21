@@ -20,7 +20,7 @@ protected:
 	virtual shared_ptr<SelectClause> createClause(list<ClauseArgument>& args) = 0;
 
 public:
-	SelectParser(list<PQLToken>& tokens, unordered_map<string, ArgumentType> declarations) :
+	SelectParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) :
 		AttributeClauseParser(tokens, declarations) {};
 
 	/* Parses this parser's tokens into a Clause. (Template method:
