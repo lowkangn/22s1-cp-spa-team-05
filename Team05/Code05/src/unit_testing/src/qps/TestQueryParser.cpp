@@ -83,7 +83,7 @@ namespace QPSTestUtil {
     PQLToken that = PQLToken::createNameToken("that");
     PQLToken pattern = PQLToken::createNameToken("pattern");
     PQLToken with = PQLToken::createNameToken("with");
-    PQLToken and = PQLToken::createNameToken("and");
+    PQLToken and_ = PQLToken::createNameToken("and");
 
     PQLToken calls = PQLToken::createNameToken("Calls");
     PQLToken modifies = PQLToken::createNameToken("Modifies");
@@ -283,12 +283,12 @@ TEST_CASE("QueryParser: test parseNoError") {
             if_, i1, semicolon,
             select, v2,
             such, that, calls, openBracket, proc1, comma, proc2, closeBracket,
-            and, modifies, openBracket, two, comma, v1, closeBracket,
+            and_, modifies, openBracket, two, comma, v1, closeBracket,
             pattern, a1, openBracket, v1, comma, wildcard, quotationMark, name, quotationMark, wildcard, closeBracket,
             such, that, follows, star, openBracket, a1, comma, i1, closeBracket,
             pattern, a1, openBracket, wildcard, comma, wildcard, closeBracket,
             such, that, parent, openBracket, wildcard, comma, i1, closeBracket,
-            and, uses, openBracket, proc1, comma, wildcard, closeBracket,
+            and_, uses, openBracket, proc1, comma, wildcard, closeBracket,
             pattern, a2, openBracket, v1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
         };
 
@@ -607,22 +607,22 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
     SECTION("All of the above such that clauses, but with 'and'") {
         list<PQLToken> tokens = list<PQLToken>{
             such, that, calls, star, openBracket, proc1, comma, proc3, closeBracket,
-            and, calls, openBracket, wildcard, comma, proc2, closeBracket,
-            and, calls, openBracket, proc2, comma, proc3, closeBracket,
-            and, follows, openBracket, s2, comma, a1, closeBracket,
-            and, follows, star, openBracket, a1, comma, w1, closeBracket,
-            and, follows, star, openBracket, s1, comma, five, closeBracket,
-            and, parent, star, openBracket, i1, comma, pri1, closeBracket,
-            and, parent, openBracket, wildcard, comma, i1, closeBracket,
-            and, parent, openBracket, pri1, comma, i1, closeBracket,
-            and, modifies, openBracket, five, comma, v1, closeBracket,
-            and, modifies, openBracket, r1, comma, quotationMark, name, quotationMark, closeBracket,
-            and, modifies, openBracket, quotationMark, name, quotationMark, comma, wildcard, closeBracket,
-            and, modifies, openBracket, proc1, comma, v1, closeBracket,
-            and, uses, openBracket, quotationMark, name, quotationMark, comma, quotationMark, name, quotationMark, closeBracket,
-            and, uses, openBracket, proc1, comma, v1, closeBracket,
-            and, uses, openBracket, i1, comma, wildcard, closeBracket,
-            and, uses, openBracket, pri1, comma, v1, closeBracket,
+            and_, calls, openBracket, wildcard, comma, proc2, closeBracket,
+            and_, calls, openBracket, proc2, comma, proc3, closeBracket,
+            and_, follows, openBracket, s2, comma, a1, closeBracket,
+            and_, follows, star, openBracket, a1, comma, w1, closeBracket,
+            and_, follows, star, openBracket, s1, comma, five, closeBracket,
+            and_, parent, star, openBracket, i1, comma, pri1, closeBracket,
+            and_, parent, openBracket, wildcard, comma, i1, closeBracket,
+            and_, parent, openBracket, pri1, comma, i1, closeBracket,
+            and_, modifies, openBracket, five, comma, v1, closeBracket,
+            and_, modifies, openBracket, r1, comma, quotationMark, name, quotationMark, closeBracket,
+            and_, modifies, openBracket, quotationMark, name, quotationMark, comma, wildcard, closeBracket,
+            and_, modifies, openBracket, proc1, comma, v1, closeBracket,
+            and_, uses, openBracket, quotationMark, name, quotationMark, comma, quotationMark, name, quotationMark, closeBracket,
+            and_, uses, openBracket, proc1, comma, v1, closeBracket,
+            and_, uses, openBracket, i1, comma, wildcard, closeBracket,
+            and_, uses, openBracket, pri1, comma, v1, closeBracket,
         };
 
         list<shared_ptr<RelationshipClause>> expectedSuchThat = list<shared_ptr<RelationshipClause>>{
@@ -761,11 +761,11 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
     SECTION("Multiple withs, but with 'and'") {
         list<PQLToken> tokens = list<PQLToken>{
             with, two, equals, five,
-            and, quotationMark, name, quotationMark, equals, quotationMark, name, quotationMark,
-            and, quotationMark, name, quotationMark, equals, proc1, dot, procName,
-            and, pri1, dot, stmtNum, equals, five,
-            and, r1, dot, varName, equals, call1, dot, procName,
-            and, const1, dot, value, equals, s1, dot, stmtNum,
+            and_, quotationMark, name, quotationMark, equals, quotationMark, name, quotationMark,
+            and_, quotationMark, name, quotationMark, equals, proc1, dot, procName,
+            and_, pri1, dot, stmtNum, equals, five,
+            and_, r1, dot, varName, equals, call1, dot, procName,
+            and_, const1, dot, value, equals, s1, dot, stmtNum,
         };
 
         list<shared_ptr<WithClause>> expectedWith = list<shared_ptr<WithClause>>{
@@ -786,20 +786,20 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
             such, that, follows, star, openBracket, a1, comma, w1, closeBracket,
             pattern, a1, openBracket, wildcard, comma, wildcard, closeBracket,
             with, quotationMark, name, quotationMark, equals, quotationMark, name, quotationMark,
-            and, r1, dot, varName, equals, call1, dot, procName,
-            and, pri1, dot, stmtNum, equals, five,
+            and_, r1, dot, varName, equals, call1, dot, procName,
+            and_, pri1, dot, stmtNum, equals, five,
             such, that, parent, openBracket, wildcard, comma, i1, closeBracket,
             pattern, a2, openBracket, v1, comma, quotationMark, name, multiplyToken, name, minusToken, five, quotationMark, closeBracket,
-            and, a2, openBracket, v1, comma,
+            and_, a2, openBracket, v1, comma,
                 quotationMark, name, plusToken, openBracket, openBracket, five, closeBracket, closeBracket, quotationMark, closeBracket,
-            and, i1, openBracket, v1, comma, wildcard, comma, wildcard, closeBracket,
+            and_, i1, openBracket, v1, comma, wildcard, comma, wildcard, closeBracket,
             such, that, modifies, openBracket, proc1, comma, v1, closeBracket,
             such, that, uses, openBracket, i1, comma, wildcard, closeBracket,
-            and, calls, star, openBracket, proc1, comma, proc3, closeBracket,
-            and, calls, openBracket, proc2, comma, proc3, closeBracket,
+            and_, calls, star, openBracket, proc1, comma, proc3, closeBracket,
+            and_, calls, openBracket, proc2, comma, proc3, closeBracket,
             with, quotationMark, name, quotationMark, equals, proc1, dot, procName,
             pattern, i1, openBracket, wildcard, comma, wildcard, comma, wildcard, closeBracket,
-            and, w1, openBracket, v1, comma, wildcard, closeBracket,
+            and_, w1, openBracket, v1, comma, wildcard, closeBracket,
             pattern, w1, openBracket, quotationMark, name, quotationMark, comma, wildcard, closeBracket,
            
         };
@@ -852,7 +852,7 @@ TEST_CASE("QueryParser: test parseConstraints SyntaxError for invalid 'and'") {
     list<PQLToken> tokens;
 
     SECTION("'and' without previous clause") {
-        tokens = list<PQLToken>{ and, modifies, openBracket, s1, comma, v1, closeBracket };
+        tokens = list<PQLToken>{ and_, modifies, openBracket, s1, comma, v1, closeBracket };
         testParseWithError(tokens, declarations);
     }
 
@@ -860,39 +860,39 @@ TEST_CASE("QueryParser: test parseConstraints SyntaxError for invalid 'and'") {
         //such that first
         tokens = list<PQLToken>{ 
             such, that, modifies, openBracket, s1, comma, v1, closeBracket,
-            and, a1, openBracket, v1, comma, wildcard, closeBracket,
+            and_, a1, openBracket, v1, comma, wildcard, closeBracket,
         };
         testParseWithError(tokens, declarations);
 
         tokens = list<PQLToken>{
             such, that, modifies, openBracket, s1, comma, v1, closeBracket,
-            and, v1, dot, varName, equals, proc1, dot, procName,
+            and_, v1, dot, varName, equals, proc1, dot, procName,
         };
         testParseWithError(tokens, declarations);
 
         //pattern first
         tokens = list<PQLToken>{
             pattern, a1, openBracket, v1, comma, wildcard, closeBracket,
-            and, modifies, openBracket, s1, comma, v1, closeBracket,
+            and_, modifies, openBracket, s1, comma, v1, closeBracket,
         };
         testParseWithError(tokens, declarations);
 
         tokens = list<PQLToken>{
             pattern, a1, openBracket, v1, comma, wildcard, closeBracket,
-            and, v1, dot, varName, equals, proc1, dot, procName,
+            and_, v1, dot, varName, equals, proc1, dot, procName,
         };
         testParseWithError(tokens, declarations);
 
         //with first
         tokens = list<PQLToken>{
             with, v1, dot, varName, equals, proc1, dot, procName,
-            and, modifies, openBracket, s1, comma, v1, closeBracket,
+            and_, modifies, openBracket, s1, comma, v1, closeBracket,
         };
         testParseWithError(tokens, declarations);
 
         tokens = list<PQLToken>{
             with, v1, dot, varName, equals, proc1, dot, procName,
-            and, a1, openBracket, v1, comma, wildcard, closeBracket,
+            and_, a1, openBracket, v1, comma, wildcard, closeBracket,
         };
         testParseWithError(tokens, declarations);
     }
