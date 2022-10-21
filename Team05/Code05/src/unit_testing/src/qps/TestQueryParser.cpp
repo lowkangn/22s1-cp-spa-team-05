@@ -838,3 +838,62 @@ TEST_CASE("QueryParser: test parseConstraints Multiple clauses") {
         testParseNoError(tokens, declarations, expectedSuchThat, expectedPattern, expectedWith);
     }
 }
+
+TEST_CASE("QueryParser: test parseConstraints SyntaxError for invalid 'and'") {
+    auto testParseWithError = [](list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) {
+        // given
+        QueryParser parser = QueryParser(tokens);
+        QueryParserTestHelper helper = QueryParserTestHelper(parser);
+
+        // when & then
+        REQUIRE_THROWS_AS(helper.parseConstraints(declarations), PQLSyntaxError);
+    };
+
+    list<PQLToken> tokens;
+
+    SECTION("'and' without previous clause") {
+        tokens = list<PQLToken>{ and, modifies, openBracket, s1, comma, v1, closeBracket };
+        testParseWithError(tokens, declarations);
+    }
+
+    SECTION("'and' with different previous clause type") {
+        //such that first
+        tokens = list<PQLToken>{ 
+            such, that, modifies, openBracket, s1, comma, v1, closeBracket,
+            and, a1, openBracket, v1, comma, wildcard, closeBracket,
+        };
+        testParseWithError(tokens, declarations);
+
+        tokens = list<PQLToken>{
+            such, that, modifies, openBracket, s1, comma, v1, closeBracket,
+            and, v1, dot, varName, equals, proc1, dot, procName,
+        };
+        testParseWithError(tokens, declarations);
+
+        //pattern first
+        tokens = list<PQLToken>{
+            pattern, a1, openBracket, v1, comma, wildcard, closeBracket,
+            and, modifies, openBracket, s1, comma, v1, closeBracket,
+        };
+        testParseWithError(tokens, declarations);
+
+        tokens = list<PQLToken>{
+            pattern, a1, openBracket, v1, comma, wildcard, closeBracket,
+            and, v1, dot, varName, equals, proc1, dot, procName,
+        };
+        testParseWithError(tokens, declarations);
+
+        //with first
+        tokens = list<PQLToken>{
+            with, v1, dot, varName, equals, proc1, dot, procName,
+            and, modifies, openBracket, s1, comma, v1, closeBracket,
+        };
+        testParseWithError(tokens, declarations);
+
+        tokens = list<PQLToken>{
+            with, v1, dot, varName, equals, proc1, dot, procName,
+            and, a1, openBracket, v1, comma, wildcard, closeBracket,
+        };
+        testParseWithError(tokens, declarations);
+    }
+}

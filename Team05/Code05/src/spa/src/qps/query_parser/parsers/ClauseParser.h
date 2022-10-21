@@ -28,7 +28,7 @@ protected:
     bool isParseCompleted = false;
 
 	/* A mapping from each synonym to its type */
-	unordered_map<string, ArgumentType> declarations;
+	const unordered_map<string, ArgumentType>& declarations;
 
 	/* ==== Methods to parse a single argument of the clause and consume the token(s) used. ==== */
 
