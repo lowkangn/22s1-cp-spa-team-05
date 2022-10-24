@@ -9,10 +9,10 @@ TEST_CASE("QueryResultsCombiner: test combine") {
 	auto testCombine = [](vector<ClauseResult> selectResults,
 			vector<vector<ClauseResult>> optimisedConstraintResults, ClauseResult expected) {
 		// given
-		QueryResultsCombiner combiner = QueryResultsCombiner();
+		QueryResultsCombiner combiner = QueryResultsCombiner(selectResults, optimisedConstraintResults);
 
 		// when
-		ClauseResult actual = combiner.combine(selectResults, optimisedConstraintResults);
+		ClauseResult actual = combiner.combine();
 
 		// then
 

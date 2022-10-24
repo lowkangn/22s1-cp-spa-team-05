@@ -15,40 +15,40 @@ ClauseResult QueryResultsCombiner::combineResults(vector<ClauseResult> results) 
 	return combinedResult;
 }
 
-ClauseResult QueryResultsCombiner::getDesiredSynonymsResult(vector<ClauseResult> selectResults, ClauseResult combinedResult) {
+ClauseResult QueryResultsCombiner::getDesiredSynonymsResult(ClauseResult combinedResult) {
 	// If no select results, we are returning boolean, so just return table
-	if (selectResults.empty()) {
+	if (this->selectResults.empty()) {
 		return combinedResult;
 	}
 
 	// Check if any select args in combined table - if not, do cross product with select results
-	bool areSelectArgsInCombinedTable = combinedResult.checkSelectArgsInTable(selectResults);
+	bool areSelectArgsInCombinedTable = combinedResult.checkSelectArgsInTable(this->selectResults);
 	if (!areSelectArgsInCombinedTable) {
-		return this->getSelectSynonymsCrossProductResult(selectResults);
+		return this->getSelectSynonymsCrossProductResult();
 	} else {
-		return combinedResult.rearrangeTableToMatchSelectResults(selectResults);
+		return combinedResult.rearrangeTableToMatchSelectResults(this->selectResults);
 	}
 }
 
-ClauseResult QueryResultsCombiner::getSelectSynonymsCrossProductResult(vector<ClauseResult> selectResults) {
+ClauseResult QueryResultsCombiner::getSelectSynonymsCrossProductResult() {
 	ClauseResult combinedResult;
 	vector<ClauseResult> selectResultsWithoutAttribute;
 
-	for (ClauseResult selectResult : selectResults) {
+	for (const ClauseResult& selectResult : this->selectResults) {
 		combinedResult = mergeIntoCombinedIfNotInTable(combinedResult, selectResult);
 	}
 
-	return this->getDesiredSynonymsResult(selectResults, combinedResult);
+	return this->getDesiredSynonymsResult(combinedResult);
 }
 
-ClauseResult QueryResultsCombiner::combine(vector<ClauseResult> selectResults, vector<vector<ClauseResult>> optimisedConstraintResults) {
-	if (optimisedConstraintResults.empty()) {
-		return this->getSelectSynonymsCrossProductResult(selectResults);
+ClauseResult QueryResultsCombiner::combine() {
+	if (this->optimisedConstraintResults.empty()) {
+		return this->getSelectSynonymsCrossProductResult();
 	}
 
 	// Combine constraint clauses - if returns empty, then no query matches
 	ClauseResult combinedResult;
-	for (vector<ClauseResult> resultsGroup : optimisedConstraintResults) {
+	for (const vector<ClauseResult>& resultsGroup : this->optimisedConstraintResults) {
 		ClauseResult groupCombinedResult = this->combineResults(resultsGroup);
 		if (groupCombinedResult.isEmpty()) {
 			return groupCombinedResult;
@@ -64,5 +64,5 @@ ClauseResult QueryResultsCombiner::combine(vector<ClauseResult> selectResults, v
 	}
 
 	// Get a table of entries matching combination specified in select clause
-	return this->getDesiredSynonymsResult(selectResults, combinedResult);
+	return this->getDesiredSynonymsResult(combinedResult);
 }

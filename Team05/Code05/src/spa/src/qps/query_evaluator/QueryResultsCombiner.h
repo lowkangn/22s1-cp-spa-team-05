@@ -8,6 +8,9 @@ using namespace std;
 
 class QueryResultsCombiner {
 private:
+	vector<ClauseResult> selectResults;
+	vector<vector<ClauseResult>> optimisedConstraintResults;
+
 	ClauseResult mergeIntoCombinedIfNotInTable(ClauseResult combinedResult, ClauseResult resultToMerge) {
 		if (combinedResult.isEmpty()) {
 			combinedResult = resultToMerge;
@@ -22,12 +25,15 @@ private:
 
 	ClauseResult combineResults(vector<ClauseResult> results);
 
-	ClauseResult getDesiredSynonymsResult(vector<ClauseResult> selectResultsList, ClauseResult result);
+	ClauseResult getDesiredSynonymsResult(ClauseResult result);
 
-	ClauseResult getSelectSynonymsCrossProductResult(vector<ClauseResult> selectResultsList);
+	ClauseResult getSelectSynonymsCrossProductResult();
 
 public:
-	QueryResultsCombiner() {};
+	QueryResultsCombiner(vector<ClauseResult> selectResults, vector<vector<ClauseResult>> optimisedConstraintResults) {
+		this->selectResults = selectResults;
+		this->optimisedConstraintResults = optimisedConstraintResults;
+	}
 
-	ClauseResult combine(vector<ClauseResult> selectResults, vector<vector<ClauseResult>> optimisedConstraintResults);
+	ClauseResult combine();
 };

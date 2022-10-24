@@ -9,10 +9,10 @@ TEST_CASE("QueryResultsOptimiser: test optimise") {
 	auto testCombine = [](vector<ClauseResult> selectResults,
 			vector<ClauseResult> relationshipResults, vector<ClauseResult> withResults, vector<vector<ClauseResult>> expected) {
 		// given
-		QueryResultsOptimiser optimiser = QueryResultsOptimiser();
+		QueryResultsOptimiser optimiser = QueryResultsOptimiser(selectResults, relationshipResults, withResults);
 
 		// when
-		vector<vector<ClauseResult>> actual = optimiser.optimise(selectResults, relationshipResults, withResults);
+		vector<vector<ClauseResult>> actual = optimiser.optimise();
 
 		// then
 		REQUIRE(actual == expected);

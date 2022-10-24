@@ -10,11 +10,11 @@ set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pk
 		return {"TRUE"};
 	}
 
-	QueryResultsOptimiser optimiser = QueryResultsOptimiser();
-	vector<vector<ClauseResult>> optimisedConstraintResults = optimiser.optimise(selectResults, relationshipsResults, withResults);
+	QueryResultsOptimiser optimiser(selectResults, relationshipsResults, withResults);
+	vector<vector<ClauseResult>> optimisedConstraintResults = optimiser.optimise();
 
-	QueryResultsCombiner combiner = QueryResultsCombiner();
-	ClauseResult result = combiner.combine(selectResults, optimisedConstraintResults);
+	QueryResultsCombiner combiner(selectResults, optimisedConstraintResults);
+	ClauseResult result = combiner.combine();
 	// TODO: evaluate shouldn't be handling conversion to string
 	return result.convertTableToString(query.checkIfBooleanReturnType());
 }

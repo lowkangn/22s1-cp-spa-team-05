@@ -2,9 +2,20 @@
 
 #include <qps/query/clause/ClauseResult.h>
 
-class QueryResultsOptimiser {
-public:
-	QueryResultsOptimiser() {};
+using namespace std;
 
-	vector<vector<ClauseResult>> optimise(vector<ClauseResult> selectResults, vector<ClauseResult> relationshipResults, vector<ClauseResult> withResults);
+class QueryResultsOptimiser {
+private:
+	vector<ClauseResult> selectResults;
+	vector<ClauseResult> relationshipsResults;
+	vector<ClauseResult> withResults;
+
+public:
+	QueryResultsOptimiser(vector<ClauseResult> selectResults, vector<ClauseResult> relationshipsResults, vector<ClauseResult> withResults) {
+		this->selectResults = selectResults;
+		this->relationshipsResults = relationshipsResults;
+		this->withResults = withResults;
+	};
+
+	vector<vector<ClauseResult>> optimise();
 };
