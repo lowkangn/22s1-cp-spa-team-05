@@ -9,19 +9,19 @@ void SuchThatState::parseOneClause(list<PQLToken>& tokens, const unordered_map<s
     shared_ptr<SuchThatClauseParser> parserPointer;
 
     if (token.isModifies()) {
-        parserPointer = shared_ptr<SuchThatClauseParser>(new ModifiesParser(tokens, declarations));
+        parserPointer = make_shared<ModifiesParser>(tokens, declarations);
     }
     else if (token.isParent()) {
-        parserPointer = shared_ptr<SuchThatClauseParser>(new ParentParser(tokens, declarations));
+        parserPointer = make_shared<ParentParser>(tokens, declarations);
     }
     else if (token.isUses()) {
-        parserPointer = shared_ptr<SuchThatClauseParser>(new UsesParser(tokens, declarations));
+        parserPointer = make_shared<UsesParser>(tokens, declarations);
     }
     else if (token.isFollows()) {
-        parserPointer = shared_ptr<SuchThatClauseParser>(new FollowsParser(tokens, declarations));
+        parserPointer = make_shared<FollowsParser>(tokens, declarations);
     }
     else if (token.isCalls()) {
-        parserPointer = shared_ptr<SuchThatClauseParser>(new CallsParser(tokens, declarations));
+        parserPointer = make_shared<CallsParser>(tokens, declarations);
     }
     else {
         throw PQLSyntaxError("Only Modifies, Uses, Parent/Parent*, Follows/Follows* are supported as such that clauses.");

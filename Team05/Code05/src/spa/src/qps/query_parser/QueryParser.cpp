@@ -32,13 +32,13 @@ shared_ptr<SelectClause> QueryParser::parseSelect(const unordered_map<string, Ar
 	shared_ptr<SelectParser> parserPointer;
 
 	if (token.isBooleanKeyword() && declarations.count(token.getTokenString()) == 0) {
-		parserPointer = shared_ptr<SelectParser>(new SelectBooleanParser(this->tokens, declarations));
+		parserPointer = make_shared<SelectBooleanParser>(this->tokens, declarations);
 	}
 	else if (token.isName()) {
-		parserPointer = shared_ptr<SelectParser>(new SelectSingleParser(this->tokens, declarations));
+		parserPointer = make_shared<SelectSingleParser>(this->tokens, declarations);
 	}
 	else if (token.isAngledOpenBracket()) {
-		parserPointer = shared_ptr<SelectParser>(new SelectMultipleParser(this->tokens, declarations));
+		parserPointer = make_shared<SelectMultipleParser>(this->tokens, declarations);
 	}
 	else {
 		throw PQLSyntaxError("Expected BOOLEAN, synonym or tuple of synonyms after select, got: " + token.getTokenString());
