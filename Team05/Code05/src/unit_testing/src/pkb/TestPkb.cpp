@@ -1128,7 +1128,7 @@ TEST_CASE("Test retrieve relationship short circuits to empty result") {
 
 }
 
-/*
+
 TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 
 	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, shared_ptr<CFGNode> graphToAdd) {
@@ -1165,7 +1165,7 @@ TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 		8	x = 1;
 		}
 		*/
-/*
+
 		// graph 
 		unordered_map<int, vector<int>> adjList = {
 			{1, {2}},
@@ -1190,7 +1190,7 @@ TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 		};
 
 		shared_ptr<CFGNode> graph = CFGNode::createCFGFromAdjacencyList(nodeIdToNode, adjList, 1);
-		/*
+		
 		// shared, as PQLEntities
 		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
 		PQLEntity xResult = PQLEntity::generateVariable("x");
@@ -1307,11 +1307,43 @@ TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 
 		};
 		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
+
+		// test 4c: wildcard then typed
+		lhs = ClauseArgument::createStmtArg("s");
+		rhs = ClauseArgument::createAssignArg("a");
+		expectedRelationships = {
+			PQLRelationship(statementResult1, statementResult7),
+			PQLRelationship(statementResult1, statementResult8),
+			PQLRelationship(statementResult2, statementResult7),
+			PQLRelationship(statementResult2, statementResult8),
+			PQLRelationship(statementResult3, statementResult7),
+			PQLRelationship(statementResult3, statementResult8),
+			PQLRelationship(statementResult4, statementResult7),
+			PQLRelationship(statementResult4, statementResult8),
+			PQLRelationship(statementResult5, statementResult7),
+			PQLRelationship(statementResult5, statementResult8),
+			PQLRelationship(statementResult6, statementResult7),
+			PQLRelationship(statementResult6, statementResult8),
+			PQLRelationship(statementResult7, statementResult7), // while loop self loop
+			PQLRelationship(statementResult7, statementResult8),
+
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
+
+		// test 4d: typed then typed
+		lhs = ClauseArgument::createCallArg("c");
+		rhs = ClauseArgument::createAssignArg("a");
+		expectedRelationships = {
+			PQLRelationship(statementResult2, statementResult7),
+			PQLRelationship(statementResult2, statementResult8),
+
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
 	}
 }
 
 
-*/
+
 
 
 
