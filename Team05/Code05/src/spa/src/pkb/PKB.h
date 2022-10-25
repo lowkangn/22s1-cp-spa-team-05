@@ -9,11 +9,11 @@
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/PQLRelationship.h>
 
-#include <pkb/table_managers/PkbEntityTable.h>
-#include <pkb/table_managers/PkbRelationshipTable.h>
-#include <pkb/table_managers/PkbPatternTable.h>
-#include <pkb/design_objects/entities/PkbStatementEntity.h>
-#include <pkb/graph_managers/PkbGraphManager.h>
+#include <pkb/pkbRepository/table_managers/PkbEntityTable.h>
+#include <pkb/pkbRepository/table_managers/PkbRelationshipTable.h>
+#include <pkb/pkbRepository/table_managers/PkbPatternTable.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/pkbRepository/graph_managers/PkbGraphManager.h>
 
 #include <map>
 #include <string>

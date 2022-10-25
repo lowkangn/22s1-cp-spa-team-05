@@ -4,9 +4,9 @@
 #include <sstream>
 #include <pkb/interfaces/PKBUpdateHandler.h>
 #include <pkb/PKB.h>
-#include <pkb/table_managers/PkbEntityTable.h>
-#include <pkb/table_managers/PkbRelationshipTable.h>
-#include <pkb/table_managers/PkbPatternTable.h>
+#include <pkb/pkbRepository/table_managers/PkbEntityTable.h>
+#include <pkb/pkbRepository/table_managers/PkbRelationshipTable.h>
+#include <pkb/pkbRepository/table_managers/PkbPatternTable.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/lexer/Lexer.h>
