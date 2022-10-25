@@ -9,8 +9,7 @@
 #include <sp/design_extractor/UsesExtractor.h>
 #include <sp/design_extractor/ParentExtractor.h>
 #include <sp/design_extractor/ParentTExtractor.h>
-#include <sp/design_extractor/FollowsExtractor.h>
-#include <sp/design_extractor/FollowsTExtractor.h>
+#include <sp/design_extractor/FollowsAndFollowsTExtractor.h>
 #include <sp/design_extractor/CallsAndCallsTExtractor.h>
 
 #include <sp/dataclasses/tokens/Token.h>
@@ -36,8 +35,7 @@ private:
 		PatternExtractor(),
 		NextExtractor(),
 		{
-			shared_ptr<Extractor<Relationship>>(new FollowsExtractor()),
-			shared_ptr<Extractor<Relationship>>(new FollowsTExtractor()),
+			shared_ptr<Extractor<Relationship>>(new FollowsAndFollowsTExtractor()),
 			shared_ptr<Extractor<Relationship>>(new ParentExtractor()),
 			shared_ptr<Extractor<Relationship>>(new ParentTExtractor()),
 			shared_ptr<Extractor<Relationship>>(new ModifiesExtractor()),

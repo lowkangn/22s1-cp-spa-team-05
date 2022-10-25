@@ -16,8 +16,7 @@
 #include <sp/dataclasses/ast/ReadASTNode.h>
 #include <sp/dataclasses/ast/AssignASTNode.h>
 #include <sp/dataclasses/ast/PrintASTNode.h>
-#include <sp/design_extractor/FollowsExtractor.h>
-#include <sp/design_extractor/FollowsTExtractor.h>
+#include <sp/design_extractor/FollowsAndFollowsTExtractor.h>
 #include <pkb/interfaces/PKBUpdateHandler.h>
 #include <sp/dataclasses/cfg/CFGNode.h>
 #include <sp/dataclasses/cfg/IfCFGNode.h>
@@ -124,9 +123,9 @@ TEST_CASE("DesignExtractor: test : extractRelationships()") {
 		shared_ptr<Extractor<Relationship>> parentExtractor = shared_ptr<Extractor<Relationship>>(new ParentExtractor());
 		shared_ptr<Extractor<Relationship>> parentTExtractor = shared_ptr<Extractor<Relationship>>(new ParentTExtractor());
 		shared_ptr<Extractor<Relationship>> usesExtractor = shared_ptr<Extractor<Relationship>>(new UsesExtractor());
-		shared_ptr<Extractor<Relationship>> followsExtractor = shared_ptr<Extractor<Relationship>>(new FollowsExtractor());
-		shared_ptr<Extractor<Relationship>> followsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsTExtractor());
-		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, parentExtractor, parentTExtractor, usesExtractor, followsExtractor, followsTExtractor };
+		shared_ptr<Extractor<Relationship>> followsAndFollowsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsAndFollowsTExtractor());
+		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, 
+			parentExtractor, parentTExtractor, usesExtractor, followsAndFollowsTExtractor };
 
 		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, *nextExtractor, relationExtractors);
 		extractor.setRootNode(nodeToExtractFrom);
@@ -516,9 +515,9 @@ TEST_CASE("Test extractCFGRelationships") {
 		shared_ptr<Extractor<Relationship>> parentExtractor = shared_ptr<Extractor<Relationship>>(new ParentExtractor());
 		shared_ptr<Extractor<Relationship>> parentTExtractor = shared_ptr<Extractor<Relationship>>(new ParentTExtractor());
 		shared_ptr<Extractor<Relationship>> usesExtractor = shared_ptr<Extractor<Relationship>>(new UsesExtractor());
-		shared_ptr<Extractor<Relationship>> followsExtractor = shared_ptr<Extractor<Relationship>>(new FollowsExtractor());
-		shared_ptr<Extractor<Relationship>> followsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsTExtractor());
-		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, parentExtractor, parentTExtractor, usesExtractor, followsExtractor, followsTExtractor };
+		shared_ptr<Extractor<Relationship>> followsAndFollowsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsAndFollowsTExtractor());
+		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, 
+			parentExtractor, parentTExtractor, usesExtractor, followsAndFollowsTExtractor };
 
 		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, *nextExtractor, relationExtractors);
 
