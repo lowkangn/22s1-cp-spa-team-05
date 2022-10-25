@@ -91,6 +91,28 @@ private:
 	}
 
 	/*
+		Maps the external facing type to an internal corresponding type.
+	*/
+	PkbStatementType pkbTrackedStatmentTypeToInternalType(PKBTrackedStatementType t) {
+
+		switch (t) {
+		case PKBTrackedStatementType::ASSIGN:
+			return PkbStatementType::ASSIGN;
+		case PKBTrackedStatementType::CALL:
+			return PkbStatementType::CALL;
+		case PKBTrackedStatementType::IF:
+			return PkbStatementType::IF;
+		case PKBTrackedStatementType::WHILE:
+			return PkbStatementType::WHILE;
+		case PKBTrackedStatementType::PRINT:
+			return PkbStatementType::PRINT;
+		case PKBTrackedStatementType::READ:
+			return PkbStatementType::READ;
+		default:
+			throw PkbException("Type cannot be mapped! e.g. ALL");
+		}
+	}
+	/*
 		Converts an internal pkb pattern to a pql pattern used in the qps.
 	*/
 	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbPattern> pattern);

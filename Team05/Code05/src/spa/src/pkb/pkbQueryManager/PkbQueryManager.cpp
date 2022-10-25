@@ -1,9 +1,6 @@
 #include <pkb/pkbQueryManager/PkbQueryManager.h>
 
 
-
-
-
 /*
 	Converts an internal pkb pattern to a pql pattern used in the qps.
 */
@@ -105,50 +102,16 @@ vector<PQLEntity> PkbQueryManager::retrieveStatementEntitiesByType(PKBTrackedSta
 	// 0. get all statements
 	vector<shared_ptr<PkbEntity>> statements = this->entityHelper.retrieveAllStatementEntities(repository);
 
-	// 1. create a filter by type
-	// we define it locally to keep it to the scope of this function
-	typedef bool (*PkbStatementEntityFilter)(PkbStatementEntity* statement);
+	// 1. if need to filter
+	PkbStatementEntityFilter filter = this->entityHelper.getFilterToCheckForStatementType(PkbStatementType::ASSIGN, true);
+	if (pkbTrackedStatementType != PKBTrackedStatementType::ALL) {
+		// convert type
+		PkbStatementType converted = this->pkbTrackedStatmentTypeToInternalType(pkbTrackedStatementType);
 
-	PkbStatementEntityFilter filter = [](PkbStatementEntity* statement) {
-		return true;
-	};
-
-	// go through switch case to get specific filter by type
-	if (pkbTrackedStatementType == PKBTrackedStatementType::ALL) {
-		// do nothing
+		// get filter
+		filter = this->entityHelper.getFilterToCheckForStatementType(converted, false);
 	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::READ) {
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isReadStatement();
-		};
-	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::PRINT) {
-
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isPrintStatement();
-		};
-	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::WHILE) {
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isWhileStatement();
-		};
-	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::IF) {
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isIfStatement();
-		};
-	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::ASSIGN) {
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isAssignStatement();
-		};
-	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::CALL) {
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isCallStatement();
-		};
-	}
-
+	
 	// 2. go through statements, filter, convert
 	vector<PQLEntity> out;
 	for (shared_ptr<PkbEntity> statement : statements) {
@@ -229,10 +192,25 @@ optional<PQLEntity> PkbQueryManager::retrieveStatementByLineNumberAndType(int li
 	// NOTE: currently, we keep all statements in a single table, as no two statements can have 
 	// the same line number, and that serves as a good primary key.
 	// by default, we just use a read statement as the entity to key on
+
+	// get by hash
 	string key = PkbStatementEntity::createReadStatementEntity(lineNumber)->getKey();
 	shared_ptr<PkbEntity> result = this->entityHelper.retrieveEntityByTypeAndKey(key, PkbEntityType::STATEMENT, repository);
 
-	if (result == NULL) {
+	// get filter
+	PkbStatementEntityFilter filter = this->entityHelper.getFilterToCheckForStatementType(PkbStatementType::ASSIGN, true);
+	if (pkbTrackedStatementType != PKBTrackedStatementType::ALL) {
+		// convert type
+		PkbStatementType converted = this->pkbTrackedStatmentTypeToInternalType(pkbTrackedStatementType);
+
+		// get filter
+		filter = this->entityHelper.getFilterToCheckForStatementType(converted, false);
+	}
+
+	// cast and filter
+	assert(result->isStatement());
+	shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(result);
+	if (result == NULL || (cast != nullptr && !filter(cast.get()))) {
 		return optional<PQLEntity>();
 	}
 	optional<PQLEntity> entity = this->pkbEntityToQpsPqlEntity(result);
