@@ -11,24 +11,8 @@
 
 class DeclarationParser : public SemanticChecker {
 private:
-	list<PQLToken> tokens;
+	list<PQLToken>& tokens;
 	unordered_map<string, ArgumentType> declarations;
-public:
-	DeclarationParser(list<PQLToken> tokens) {
-		this->tokens = tokens;
-		this->semanticErrorMessage = NO_SEMANTIC_ERROR_MESSAGE;
-	};
-
-	unordered_map<string, ArgumentType> getDeclarations() {
-		return this->declarations;
-	};
-
-	list<PQLToken> getRemainingTokens() {
-		return this->tokens;
-	};
-
-	/* Parses all declarations in the query. */
-	unordered_map<string, ArgumentType> parse();
 
 	/**
 	 * Parses one declaration clause, defined
@@ -39,4 +23,16 @@ public:
 	void parseOneDeclaration();
 
 	bool isSynonymAlreadyDeclared(string synonym);
+
+public:
+	DeclarationParser(list<PQLToken>& tokens) : tokens(tokens) {
+		this->semanticErrorMessage = NO_SEMANTIC_ERROR_MESSAGE;
+	};
+
+	unordered_map<string, ArgumentType> getDeclarations() {
+		return this->declarations;
+	};
+
+	/* Parses all declarations in the query. */
+	unordered_map<string, ArgumentType> parse();
 };

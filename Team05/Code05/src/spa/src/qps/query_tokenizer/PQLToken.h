@@ -21,6 +21,7 @@ const string SUCH = "such";
 const string THAT = "that";
 const string PATTERN = "pattern";
 const string WITH = "with";
+const string PQL_AND = "and";
 
 // keywords for identifying Clause type
 const string PQL_CALLS = "Calls";
@@ -206,6 +207,9 @@ public:
     }
     bool isWith() {
         return isName() && tokenString == WITH;
+    }
+    bool isAnd() {
+        return isName() && tokenString == PQL_AND;
     }
 
     // Clause Type indicators

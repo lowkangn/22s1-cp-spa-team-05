@@ -1,21 +1,20 @@
 #pragma once
 
-#include <qps/exceptions/PQLSyntaxError.h>
-#include <qps/exceptions/PQLSemanticError.h>
 #include <qps/query_tokenizer/PQLToken.h>
-#include <qps/query_parser/ArgumentType.h>
 #include <qps/query/Query.h>
-#include <qps/query/clause/PatternClause.h>
-#include <qps/query_parser/parsers/WithParser.h>
+
 #include <qps/query_parser/parsers/SelectParser.h>
+#include <qps/query_parser/parsers/SelectBooleanParser.h>
+#include <qps/query_parser/parsers/SelectSingleParser.h>
+#include <qps/query_parser/parsers/SelectMultipleParser.h>
 #include <qps/query_parser/parsers/DeclarationParser.h>
-#include <qps/query_parser/parsers/FollowsParser.h>
-#include <qps/query_parser/parsers/ModifiesParser.h>
-#include <qps/query_parser/parsers/ParentParser.h>
-#include <qps/query_parser/parsers/PatternParser.h>
-#include <qps/query_parser/parsers/UsesParser.h>
+
+#include <qps/query_parser/query_parser_states/SuchThatState.h>
+#include <qps/query_parser/query_parser_states/PatternState.h>
+#include <qps/query_parser/query_parser_states/WithState.h>
 
 #include <list>
+#include <memory>
 #include <unordered_map>
 
 using namespace std;
@@ -30,20 +29,14 @@ private:
     list<shared_ptr<PatternClause>> patternClauses;
     list<shared_ptr<WithClause>> withClauses;
 
+    shared_ptr<QueryParserState> currentState;
+
     bool isSemanticallyValid = true;
     string semanticErrorMessage;
 
-    void setSemanticErrorFromParser(shared_ptr<SemanticChecker> parserPointer);
+	shared_ptr<SelectClause> parseSelect(const unordered_map<string, ArgumentType>& declarations);
 
-	shared_ptr<SelectClause> parseSelect(unordered_map<string, ArgumentType> declarations);
-
-	void parseConstraints(unordered_map<string, ArgumentType> declarations);
-
-    shared_ptr<RelationshipClause> parseSuchThat(unordered_map<string, ArgumentType>& declarations);
-
-    shared_ptr<PatternClause> parsePattern(unordered_map<string, ArgumentType>& declarations);
-
-    shared_ptr<WithClause> parseWith(unordered_map<string, ArgumentType>& declarations);
+	void parseConstraints(const unordered_map<string, ArgumentType>& declarations);
 
 public:
 
@@ -67,6 +60,20 @@ public:
      * @return Query object.
      */
     Query parse();
+
+    void addWithClause(shared_ptr<WithClause> clause) {
+        this->withClauses.push_back(clause);
+    }
+
+    void addPatternClause(shared_ptr<PatternClause> clause) {
+        this->patternClauses.push_back(clause);
+    }
+
+    void addRelationshipClause(shared_ptr<RelationshipClause> clause) {
+        this->suchThatClauses.push_back(clause);
+    }
+
+    void setSemanticErrorFromParser(shared_ptr<SemanticChecker> parserPointer);
 
     /* A class that can access private fields to help with testing */
     friend class QueryParserTestHelper;
