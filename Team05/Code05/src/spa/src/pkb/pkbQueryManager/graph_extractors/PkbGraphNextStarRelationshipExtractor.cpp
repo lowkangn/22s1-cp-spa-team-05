@@ -1,4 +1,4 @@
-#include <pkb/pkbRepository/graph_extractors/PkbGraphNextStarRelationshipExtractor.h>
+#include <pkb/pkbQueryManager/graph_extractors/PkbGraphNextStarRelationshipExtractor.h>
 #include <pkb/pkbRepository/design_objects/relationships/PkbNextStarRelationship.h>
 #include <iostream>
 

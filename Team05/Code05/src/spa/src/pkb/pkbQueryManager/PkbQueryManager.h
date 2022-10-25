@@ -14,6 +14,7 @@
 #include <pkb/interfaces/PKBQueryHandler.h>
 #include <pkb/pkbQueryManager/PkbEntityQueryHelper.h>
 #include <pkb/pkbQueryManager/PkbRelationshipQueryHelper.h>
+#include <pkb/pkbQueryManager/PkbPatternQueryHelper.h>
 
 
 using namespace std;
@@ -24,6 +25,7 @@ private:
 	// ==================== attributes ====================
 	PkbEntityQueryHelper entityHelper;
 	PkbRelationshipQueryHelper relationshipHelper;
+	PkbPatternQueryHelper patternHelper;
 
 
 	// ==================== helper functions ====================
@@ -42,6 +44,9 @@ private:
 		}
 		else if (entity->isStatement()) {
 			return PQLEntity::generateStatement(entity->getLineNumber());
+		}
+		else if (entity->isConstant()) {
+			return PQLEntity::generateConstant(entity->getValue());
 		}
 		else {
 			throw PkbException("Unknown PkbEntity type being passed to QPS!");
@@ -74,6 +79,12 @@ private:
 			return PkbRelationshipType::PARENTSTAR;
 		case PKBTrackedRelationshipType::USES:
 			return PkbRelationshipType::USES;
+		case PKBTrackedRelationshipType::CALLS:
+			return PkbRelationshipType::CALLS;
+		case PKBTrackedRelationshipType::CALLSSTAR:
+			return PkbRelationshipType::CALLSSTAR;
+		case PKBTrackedRelationshipType::CALLSTMTATTRIBUTE:
+			return PkbRelationshipType::CALLSTMTATTRIBUTE;
 		default:
 			throw PkbException("Type cannot be mapped! e.g. ALL");
 		}
@@ -150,5 +161,9 @@ public:
 	*/
 	vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
 
+	/*
+		Retrieves statements by lhs and rhs for Assign Patterns
+	*/
+	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
 
 };

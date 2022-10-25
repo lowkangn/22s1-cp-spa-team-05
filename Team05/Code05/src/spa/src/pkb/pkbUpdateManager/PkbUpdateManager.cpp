@@ -2,7 +2,27 @@
 #include <pkb/pkbRepository/design_objects/patterns/PkbAssignPattern.h>
 #include <pkb/pkbRepository/design_objects/patterns/PkbIfPattern.h>
 #include <pkb/pkbRepository/design_objects/patterns/PkbWhilePattern.h>
+
 #include <pkb/pkbRepository/design_objects/graphs/PkbControlFlowGraphNode.h>
+
+#include <pkb/pkbRepository/design_objects/entities/PkbProcedureEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbVariableEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbConstantEntity.h>
+
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/patterns/PkbWhilePattern.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbUsesRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbModifiesRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbNextRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbNextStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallStmtAttributeRelationship.h>
+
 #include <StringSplitter.h>
 
 using namespace std;
@@ -186,7 +206,7 @@ vector<shared_ptr<PkbPattern>> PkbUpdateManager::externalPatternToPkbPattern(Pat
 
 // ==================== Public methods ====================
 
-shared_ptr<PkbRepository> PkbUpdateManager::addEntities(vector<Entity> entities, shared_ptr<PkbRepository> repository)
+void PkbUpdateManager::addEntities(vector<Entity> entities, shared_ptr<PkbRepository> repository)
 {
 	for (Entity e : entities) {
 		// 0. skip opeartor entities
@@ -200,10 +220,9 @@ shared_ptr<PkbRepository> PkbUpdateManager::addEntities(vector<Entity> entities,
 		// 2. add, letting repository handle sorting logic
 		repository->addPkbEntity(converted);
 	}
-	return repository;
 }
 
-shared_ptr<PkbRepository> PkbUpdateManager::addRelationships(vector<Relationship> relationships, shared_ptr<PkbRepository> repository)
+void PkbUpdateManager::addRelationships(vector<Relationship> relationships, shared_ptr<PkbRepository> repository)
 {
 	for (Relationship r : relationships) {
 		// 1. convert
@@ -212,22 +231,23 @@ shared_ptr<PkbRepository> PkbUpdateManager::addRelationships(vector<Relationship
 		// 2. add, letting repository handle sorting logic
 		repository->addPkbRelationship(converted);
 	}
-	return repository;
 }
 
-shared_ptr<PkbRepository> PkbUpdateManager::addPatterns(vector<Pattern> patterns, shared_ptr<PkbRepository> repository)
+void PkbUpdateManager::addPatterns(vector<Pattern> patterns, shared_ptr<PkbRepository> repository)
 {
 	for (Pattern p : patterns) {
 		// 1. convert
-		shared_ptr<PkbPattern> converted = this->externalPatternToPkbPattern(e);
+		vector<shared_ptr<PkbPattern>> converted = this->externalPatternToPkbPattern(p);
 
 		// 2. add, letting repository handle sorting logic
-		repository->addPkbPattern(converted);
+		for (shared_ptr<PkbPattern> c : converted) {
+			repository->addPkbPattern(c);
+		}
+		
 	}
-	return repository;
 }
 
-shared_ptr<PkbRepository> PkbUpdateManager::addCfg(shared_ptr<CFGNode> rootNode, shared_ptr<PkbRepository> repository)
+void PkbUpdateManager::addCfg(shared_ptr<CFGNode> rootNode, shared_ptr<PkbRepository> repository)
 {
 	/*
 		Hash function for an edge, which we represent as a pair of strings.

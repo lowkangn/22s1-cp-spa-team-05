@@ -209,7 +209,7 @@ public:
 		case PkbPatternType::WHILE:
 			return this->whilePatterns;
 		default:
-			throw PkbException("Unknown pattern type to be retrieved!");
+			throw PkbException("Unknown pattern table to be retrieved!");
 		}
 	}
 

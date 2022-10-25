@@ -230,7 +230,7 @@ optional<PQLEntity> PkbQueryManager::retrieveStatementByLineNumberAndType(int li
 	// the same line number, and that serves as a good primary key.
 	// by default, we just use a read statement as the entity to key on
 	string key = PkbStatementEntity::createReadStatementEntity(lineNumber)->getKey();
-	shared_ptr<PkbEntity> result = this->entityHelper.retrieveEntityByTypeAndKey(key);
+	shared_ptr<PkbEntity> result = this->entityHelper.retrieveEntityByTypeAndKey(key, PkbEntityType::STATEMENT, repository);
 
 	if (result == NULL) {
 		return optional<PQLEntity>();
@@ -248,7 +248,7 @@ optional<PQLEntity> PkbQueryManager::retrieveProcedureEntityByName(string proced
 	string key = PkbProcedureEntity(procedureName).getKey();
 
 	// get
-	shared_ptr<PkbEntity> result = this->entityHelper.retrieveEntityByTypeAndKey(key);
+	shared_ptr<PkbEntity> result = this->entityHelper.retrieveEntityByTypeAndKey(key, PkbEntityType::PROCEDURE, repository);
 	// if null, we return empty vector
 	if (result == NULL) {
 		return optional<PQLEntity>();
@@ -267,7 +267,7 @@ optional<PQLEntity> PkbQueryManager::retrieveVariableByName(string name, shared_
 	string key = PkbVariableEntity(name).getKey();
 
 	// get
-	shared_ptr<PkbEntity> result = this->entityHelper.retrieveEntityByTypeAndKey(key);
+	shared_ptr<PkbEntity> result = this->entityHelper.retrieveEntityByTypeAndKey(key, PkbEntityType::VARIABLE, repository);
 	// if null, we return empty vector
 	if (result == NULL) {
 		return optional<PQLEntity>();
@@ -285,7 +285,7 @@ optional<PQLEntity> PkbQueryManager::retrieveConstantByValue(int value, shared_p
 	string key = PkbConstantEntity(value).getKey();
 
 	// get
-	repository->getEntityTableByType(PkbEntityType::CONSTANT).get(key);
+	shared_ptr<PkbEntity> result = this->entityHelper.retrieveEntityByTypeAndKey(key, PkbEntityType::CONSTANT, repository);
 	// if null, we return empty vector
 	if (result == NULL) {
 		return optional<PQLEntity>();
@@ -310,7 +310,7 @@ vector<PQLRelationship> PkbQueryManager::retrieveRelationshipByTypeAndLhsRhs(PKB
 	case PkbRelationshipType::NEXTSTAR:
 	case PkbRelationshipType::AFFECTS:
 	case PkbRelationshipType::AFFECTSSTAR:
-		found = this->relationshipHelper.retrieveRelationshipsFromGraphsByTypeAndLhsRhs(convertedRelationshipType, lhs, rhs);
+		found = this->relationshipHelper.retrieveRelationshipsFromGraphsByTypeAndLhsRhs(convertedRelationshipType, lhs, rhs, repository);
 		break;
 
 		// table types
@@ -322,13 +322,44 @@ vector<PQLRelationship> PkbQueryManager::retrieveRelationshipByTypeAndLhsRhs(PKB
 	case PkbRelationshipType::PARENTSTAR:
 	case PkbRelationshipType::USES:
 	default:
-		found = this->relationshipHelper.retrieveRelationshipsFromTablesByTypeAndLhsRhs(convertedRelationshipType, lhs, rhs);
+		found = this->relationshipHelper.retrieveRelationshipsFromTablesByTypeAndLhsRhs(convertedRelationshipType, lhs, rhs, repository);
 	}
 
 	// 3. then we convert to pql relationship
 	vector<PQLRelationship> out;
 	for (shared_ptr<PkbRelationship> r : found) {
-		out.push_back(PQLRelationship(this->pkbEntityToQpsPqlEntity(r->getLhs()), this->pkbEntityToQpsPqlEntity(r->getRhs()));
+		out.push_back(PQLRelationship(this->pkbEntityToQpsPqlEntity(r->getLhs()), this->pkbEntityToQpsPqlEntity(r->getRhs())));
 	}
 	return out;
+}
+
+
+vector<PQLPattern> PkbQueryManager::retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository) {
+
+	// retrieve
+	vector<shared_ptr<PkbPattern>> retrieved;
+	if (statementType == PKBTrackedStatementType::ASSIGN) {
+		retrieved=this->patternHelper.retrieveAssignPatterns(lhs, rhs, repository);
+
+	}
+	else if (statementType == PKBTrackedStatementType::IF) {
+		assert(rhs.isWildcard());
+		retrieved = this->patternHelper.retrieveIfPatterns(lhs, rhs, repository);
+	}
+	else if (statementType == PKBTrackedStatementType::WHILE) {
+		assert(rhs.isWildcard());
+		retrieved = this->patternHelper.retrieveWhilePatterns(lhs, rhs, repository);
+	}
+	else {
+		throw PkbException("Unknown pattern type to be retrieved!");
+	}
+
+	// convert
+	vector<PQLPattern> out;
+	for (shared_ptr<PkbPattern> p : retrieved) {
+		out.push_back(this->pkbPatternToPqlPattern(p));
+	}
+	return out;
+
+
 }

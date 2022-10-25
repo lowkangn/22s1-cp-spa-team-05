@@ -1,5 +1,134 @@
 #include <pkb/pkbQueryManager/PkbRelationshipQueryHelper.h>
 
+PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue) {
+
+	// default filter is true
+	PkbEntityFilter filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+		return true;
+	};
+
+	// depending on clause argument, we return the filter
+	if (arg.isWildcard() || alwaysTrue) {
+		return filter;
+	}
+	else if (arg.isVariableSynonym()) {
+		// return only true if entity is a variable
+		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+			return entity->isVariable();
+		};
+	}
+	else if (arg.isProcedureSynonym()) {
+		// return only true if entity is a procedure
+		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+			return entity->isProcedure();
+		};
+	}
+	else if (arg.isStmtSynonym()) {
+		// return only true if entity is a statement
+		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+			return entity->isStatement();
+		};
+	}
+	else if (arg.isLineNumber()) {
+		// entity must be a statement matching line number
+		// return only true if entity has that line number
+		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+			if (!entity->isStatement()) {
+				return false;
+			}
+			// else, cast and check if assign
+			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			return cast->getLineNumber() == arg.getLineNumber();
+		};
+	}
+	else if (arg.isStringLiteral()) {
+		// can be procedure or variable name
+		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+			if (entity->isVariable()) {
+				// castand check 
+				PkbVariableEntity* cast = dynamic_cast<PkbVariableEntity*>(&(*entity));
+				return cast->getIdentifier() == arg.getIdentifier();
+			}
+			else if (entity->isProcedure()) {
+				// castand check 
+				PkbProcedureEntity* cast = dynamic_cast<PkbProcedureEntity*>(&(*entity));
+				return cast->getIdentifier() == arg.getIdentifier();
+			}
+			return false;
+		};
+
+	}
+	else if (arg.isAssignSynonym()) {
+		// return only true if entity is a an assign statement
+		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+			if (!entity->isStatement()) {
+				return false;
+			}
+			// else, cast and check if assign
+			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			return cast->isAssignStatement();
+		};
+	}
+	else if (arg.isPrintSynonym()) {
+		// return only true if entity is a print statement
+		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+			if (!entity->isStatement()) {
+				return false;
+			}
+			// else, cast and check if print
+			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			return cast->isPrintStatement();
+		};
+	}
+	else if (arg.isReadSynonym()) {
+		// return only true if entity is a read statement
+		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+			if (!entity->isStatement()) {
+				return false;
+			}
+			// else, cast and check if read
+			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			return cast->isReadStatement();
+		};
+	}
+	else if (arg.isCallSynonym()) {
+		// return only true if entity is a call statement
+		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+			if (!entity->isStatement()) {
+				return false;
+			}
+			// else, cast and check if call
+			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			return cast->isCallStatement();
+		};
+	}
+	else if (arg.isWhileSynonym()) {
+		// return only true if entity is a while statement
+		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+			if (!entity->isStatement()) {
+				return false;
+			}
+			// else, cast and check if while
+			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			return cast->isWhileStatement();
+		};
+	}
+	else if (arg.isIfSynonym()) {
+		// return only true if entity is if  statement
+		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
+			if (!entity->isStatement()) {
+				return false;
+			}
+			// else, cast and check if if
+			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			return cast->isIfStatement();
+		};
+	}
+
+	return filter;
+}
+
+
 vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelationshipsFromTablesByTypeAndLhsRhs(PkbRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository)
 {
 	// 0. get table based on type

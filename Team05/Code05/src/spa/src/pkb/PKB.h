@@ -35,10 +35,6 @@ private:
 	PkbUpdateManager updateManager;
 	PkbQueryManager queryManager;
 
-	
-
-	
-
 public: 
 	PKB() {}
 
@@ -140,21 +136,5 @@ public:
 
 };
 
-// helper methods
-/*
-	A filter applied to a pkb statement. This is used
-	in filtering statements
-*/
-typedef bool (*PkbStatementEntityFilter)(PkbStatementEntity* statement);
 
-/*
-	A filter applied to a pkb entity. This is used
-	in filtering relationships by lhs and rhs.
-*/
-typedef bool (*PkbEntityFilter)(shared_ptr<PkbEntity> entity, ClauseArgument arg);
-/*
-	Converts a clause argument to a filter that can be applied to a PkbEntity. This is used
-	in filtering relationships by lhs and rhs. We provide a flag to return a dummy filter 
-	that always evaluates to true for ease.
-*/
-PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue = false);
+

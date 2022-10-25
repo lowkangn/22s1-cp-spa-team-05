@@ -58,21 +58,21 @@ public:
 	/*
 		Updates the repository by reference.
 	*/
-	shared_ptr<PkbRepository> addEntities(vector<Entity> entities, shared_ptr<PkbRepository> repository);
+	void addEntities(vector<Entity> entities, shared_ptr<PkbRepository> repository);
 
 	/*
 		Updates the repository by reference.
 	*/
-	shared_ptr<PkbRepository> addRelationships(vector<Relationship> relationships, shared_ptr<PkbRepository> repository);
+	void addRelationships(vector<Relationship> relationships, shared_ptr<PkbRepository> repository);
 
 	/*
 		Updates the repository by reference.
 	*/
-	shared_ptr<PkbRepository> addPatterns(vector<Pattern> patterns, shared_ptr<PkbRepository> repository);
+	void addPatterns(vector<Pattern> patterns, shared_ptr<PkbRepository> repository);
 
 	/*
 		Updates the repository by reference.
 	*/
-	shared_ptr<PkbRepository> addCfg(shared_ptr<CFGNode> rootNode, shared_ptr<PkbRepository> repository);
+	void addCfg(shared_ptr<CFGNode> rootNode, shared_ptr<PkbRepository> repository);
 
 };
