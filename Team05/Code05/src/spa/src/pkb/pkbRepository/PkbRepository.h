@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include <pkb/pkbRepository/table_managers/PkbEntityTable.h>
 #include <pkb/pkbRepository/table_managers/PkbRelationshipTable.h>
 #include <pkb/pkbRepository/table_managers/PkbPatternTable.h>
@@ -80,43 +82,43 @@ public:
 
 	void addPkbRelationship(shared_ptr<PkbRelationship> r) {
 		if (r->isFollows()) {
-			shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(PkbRelationshipType::FOLLOWS);
+			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::FOLLOWS);
 			table->add(r);
 		}
 		else if (r->isFollowsStar()) {
-			shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(PkbRelationshipType::FOLLOWSSTAR);
+			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::FOLLOWSSTAR);
 			table->add(r);
 		}
 		else if (r->isParent()) {
-			shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(PkbRelationshipType::PARENT);
+			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::PARENT);
 			table->add(r);
 		}
 		else if (r->isParentStar()) {
-			shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(PkbRelationshipType::PARENTSTAR);
+			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::PARENTSTAR);
 			table->add(r);
 		}
 		else if (r->isUses()) {
-			shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(PkbRelationshipType::USES);
+			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::USES);
 			table->add(r);
 		}
 		else if (r->isModifies()) {
-			shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(PkbRelationshipType::MODIFIES);
+			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::MODIFIES);
 			table->add(r);
 		}
 		else if (r->isCallStmtAttribute()) {
-			shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(PkbRelationshipType::CALLSTMTATTRIBUTE);
+			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::CALLSTMTATTRIBUTE);
 			table->add(r);
 		}
 		else if (r->isCalls()) {
-			shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(PkbRelationshipType::CALLS);
+			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::CALLS);
 			table->add(r);
 		}
 		else if (r->isCallsStar()) {
-			shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(PkbRelationshipType::CALLSSTAR);
+			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::CALLSSTAR);
 			table->add(r);
 		}
 		else if (r->isNext()) {
-			shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(PkbRelationshipType::NEXT);
+			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::NEXT);
 			table->add(r);
 		}
 		else {
@@ -150,7 +152,7 @@ public:
 	/*
 		Maps the supported relationship types to an internal table.
 	*/
-	shared_ptr<PkbRelationshipTable> getTableByRelationshipType(PkbRelationshipType relationshipType) {
+	shared_ptr<PkbRelationshipTable> getRelationshipTableByRelationshipType(PkbRelationshipType relationshipType) {
 		switch (relationshipType) {
 		case PkbRelationshipType::FOLLOWS:
 			return this->relationshipTables[FOLLOWS_TABLE];
@@ -214,8 +216,5 @@ public:
 	shared_ptr<PkbGraphManager> getCfg() {
 		return this->cfgManager;
 	}
-
-
-	
 
 };

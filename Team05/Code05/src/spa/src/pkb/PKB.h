@@ -16,7 +16,7 @@
 #include <pkb/pkbRepository/graph_managers/PkbGraphManager.h>
 #include <pkb/pkbRepository/PkbRepository.h>
 #include <pkb/pkbUpdateManager/PkbUpdateManager.h>
-
+#include <pkb/pkbQueryManager/PkbQueryManager.h>
 
 #include <map>
 #include <string>
@@ -33,18 +33,9 @@ private:
 	// ======================== attributes ==============================
 	shared_ptr<PkbRepository> repository = shared_ptr<PkbRepository>(new PkbRepository());
 	PkbUpdateManager updateManager;
+	PkbQueryManager queryManager;
 
 	
-	/*
-		Converts an internal Pkb entity to a pql entity used in the qps.
-	*/
-	PQLEntity pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity);
-
-
-	/*
-		Converts an internal pkb pattern to a pql pattern used in the qps.
-	*/
-	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbPattern> pattern);
 
 	/*
 		Retrieves assign statements by lhs and rhs.
@@ -115,10 +106,7 @@ public:
 
 	// ============================== Retrieve handler API ==============================
 
-	/*
-		Retrieves all procedure entities by name.
-	*/
-	optional<PQLEntity> retrieveProcedureEntityByName(string procedureName) override;
+	// ******************** ALL ********************
 
 	/*
 		Retrieves all procedure entities.
@@ -126,22 +114,12 @@ public:
 	vector<PQLEntity> retrieveAllProcedureEntities() override;
 
 	/*
-		Retrieves all statement entities by line number of a specified type.
-	*/
-	optional<PQLEntity> retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
-	
-	/*
-		Retrieves all statement entities of a specified type.
-	*/
-	vector<PQLEntity> retrieveStatementEntitiesByType(PKBTrackedStatementType pkbTrackedStatementType) override;
-	
-	/*
 		Retrieves all statement entities, regardless of type.
 	*/
 	vector<PQLEntity> retrieveAllStatementEntities() override;
-	
+
 	/*
-		Retrieves all variables. 
+		Retrieves all variables.
 	*/
 	vector<PQLEntity> retrieveAllVariables() override;
 
@@ -149,6 +127,32 @@ public:
 		Retrieves all constants.
 	*/
 	vector<PQLEntity> retrieveAllConstants() override;
+
+	// ******************** BY TYPE ********************
+
+	/*
+		Retrieves all statement entities of a specified type.
+	*/
+	vector<PQLEntity> retrieveStatementEntitiesByType(PKBTrackedStatementType pkbTrackedStatementType) override;
+
+	/*
+		Retrieves all relationships of a specified type.
+	*/
+	vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) override;
+
+	// ******************** BY IDENTIFIER ********************
+
+	/*
+		Retrieves all statement entities by line number of a specified type.
+	*/
+	optional<PQLEntity> retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) override;
+
+
+	/*
+		Retrieves all procedure entities by name.
+	*/
+	optional<PQLEntity> retrieveProcedureEntityByName(string procedureName) override;
+
 
 	/*
 		Retrieves all variables by a name.
@@ -160,30 +164,21 @@ public:
 	*/
 	optional<PQLEntity> retrieveConstantByValue(int value) override;
 
+	// ******************** BY DETAIL ********************
+
 	/*
 		Retrieves all relationships by a lhs, rhs for relationships of a specified type.
 	*/
 	vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) override;
 	
-	/*
-		Retrieves all relationships of a specified type.
-	*/
-	vector<PQLRelationship> retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) override;
-
+	
 	/*
         Retrieves statements by lhs and rhs for Assign Patterns
     */
 	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
 
-	/*
-		Casts the PKB to its query handler interface as a shared pointer.
-	*/
-	shared_ptr<PKBQueryHandler> getQueryHandler();
-
-	/*
-		Casts the PKB to its update handler interface as a shared pointer.
-	*/
-	shared_ptr<PKBUpdateHandler> getUpdateHandler();
+	
+	// ******************** CONTAINS ********************
 
 	/*
 	*	Checks if SP entity exists in PKB

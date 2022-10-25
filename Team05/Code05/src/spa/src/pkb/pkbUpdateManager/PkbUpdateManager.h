@@ -1,3 +1,6 @@
+#pragma once
+
+
 #include <sp/dataclasses/design_objects/Entity.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
@@ -21,7 +24,6 @@ using namespace std;
 class PkbUpdateManager {
 	
 private:
-	// ==================== helper functions ====================
 	
 	// ==================== helper functions ====================
 	/*

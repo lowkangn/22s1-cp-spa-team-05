@@ -24,291 +24,86 @@
 
 using namespace std;
 
+// ==================== Private methods ====================
 
-PQLEntity PKB::pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity) {
-	// based on entity type, use pqlentity api
-	if (entity->isProcedure()) {
-		return PQLEntity::generateProcedure(entity->getIdentifier());
-	}
-	else if (entity->isVariable()) {
-		return PQLEntity::generateVariable(entity->getIdentifier());
-	}
-	else if (entity->isStatement()) {
-		return PQLEntity::generateStatement(entity->getLineNumber());
-	} else {
-		throw PkbException("Unknown PkbEntity type being passed to QPS!");
-	}
-}
+
+
+// ==================== Public methods ====================
+
+// ******************** update ********************
 
 void PKB::addEntities(vector<Entity> entities) {
-	
-	this->updateManager.addEntities(entities, this->repository);
-	
+	this->repository = this->updateManager.addEntities(entities, this->repository);
 }
+
 
 void PKB::addRelationships(vector<Relationship> relationships) {
-	for (Relationship r : relationships) {
-		// convert lhs and rhs to entities
-		shared_ptr<PkbRelationship> pkbRelationship = externalRelationshipToPkbRelationship(r);
-
-		// depending on relationship type, we choose the table 
-		// and create the object as a casted shared pointer
-		
-		
-
-	}
+	this->repository = this->updateManager.addRelationships(relationships, this->repository);
 }
+
 
 void PKB::addPatterns(vector<Pattern> patterns) {
-	// for every pattern
-	for (Pattern p : patterns) {
-		int currLineNum = p.getEntity().getLine();
-		if (p.isIfPattern()) {
-			// get the pattern string from if pattern
-			string conditions = p.getRhs();
-
-			// split the pattern string and create a table (e.g. "x y z" -> [x, y, z])
-			vector<string> variables = StringSplitter::splitStringByDelimiter(conditions, SPACE_DELIM);
-
-			// create if pattern for each variable and add it to table
-			for (string v : variables) {
-				vector<string> varToAdd = { v };
-				shared_ptr<PkbPattern> pattern = PkbIfPattern::createIfPattern(currLineNum, varToAdd);
-				this->ifPatterns.add(pattern);
-			}
-		}
-		else if (p.isWhilePattern()) {
-			// get the pattern string from while pattern
-			string conditions = p.getRhs();
-
-			// split the pattern string and create a table (e.g. "x y z" -> [x, y, z])
-			vector<string> variables = StringSplitter::splitStringByDelimiter(conditions, SPACE_DELIM);
-
-			// create while pattern for each variable and add it to table
-			for (string v : variables) {
-				vector<string> varToAdd = { v };
-				shared_ptr<PkbPattern> pattern = PkbWhilePattern::createWhilePattern(currLineNum, varToAdd);
-				this->whilePatterns.add(pattern);
-			}
-		}
-		else if (p.isAssignPattern()) {
-			vector<string> strings = {
-				p.getLhs(),
-				p.getRhs()
-			};
-			
-			// create required assign pattern
-			shared_ptr<PkbPattern> pattern = PkbAssignPattern::createAssignPattern(currLineNum, strings);
-			this->assignPatterns.add(pattern);
-
-		}
-		else {
-			throw PkbException("Unknown pattern type being added!");
-		}
-	}
+	this->repository = this->updateManager.addPatterns(patterns, this->repository);
 }
-
-
-
 
 
 void PKB::addCfg(shared_ptr<CFGNode> rootNode) {
-
-	
-
-
+	this->repository = this->updateManager.addCfg(rootNode, this->repository);
 }
 
-optional<PQLEntity> PKB::retrieveProcedureEntityByName(string procedureName) {
-	// create a procedure object out of it and use it to get a key
-	string key = PkbProcedureEntity(procedureName).getKey();
 
-	// get
-	shared_ptr<PkbEntity> result = this->proceduresTable.get(key);
-	// if null, we return empty vector
-	if (result == NULL) {
-		return optional<PQLEntity>();
-	}
-	// else, we cast to PQLEntity
-	optional<PQLEntity> entity = PQLEntity::generateProcedure(procedureName);
-	return entity;
-}
+// ******************** retrieval ********************
 
+// -------------------- all --------------------
 vector<PQLEntity> PKB::retrieveAllProcedureEntities() {
-	vector<PQLEntity> out;
-	vector<shared_ptr<PkbEntity>> all = this->proceduresTable.getAll();
-	for (shared_ptr<PkbEntity> procedure : all) {
-
-		// append to list
-		out.push_back(PQLEntity::generateProcedure(procedure->getIdentifier()));
-	}
-	return out;
-}
-
-optional<PQLEntity> PKB::retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) {
-	// NOTE: currently, we keep all statements in a single table, as no two statements can have 
-	// the same line number, and that serves as a good primary key.
-	// by default, we just use a read statement as the entity to key on
-	string key = PkbStatementEntity::createReadStatementEntity(lineNumber)->getKey();
-	shared_ptr<PkbEntity> result = this->statementTable.get(key);
-
-	// filter the result by statement type and cast to PQLEntity
-	vector<PQLEntity> entityVector = filterAndConvertStatementEntities({ result }, pkbTrackedStatementType);
-
-	if (entityVector.empty()) {
-		return optional<PQLEntity>();
-	}
-	optional<PQLEntity> entity = entityVector.front();
-	return entity;
-}
-
-vector<PQLEntity> PKB::retrieveStatementEntitiesByType(PKBTrackedStatementType pkbTrackedStatementType) {
-	vector<shared_ptr<PkbEntity>> result = this->statementTable.getAll();
-	return filterAndConvertStatementEntities(result, pkbTrackedStatementType);
+	return this->queryManager.retrieveAllProcedureEntities(this->repository);
 }
 
 vector<PQLEntity> PKB::retrieveAllStatementEntities() {
-	return this->retrieveStatementEntitiesByType(PKBTrackedStatementType::ALL);
-}
-
-optional<PQLEntity> PKB::retrieveVariableByName(string name) {
-	// create a procedure object out of it and use it to get a key
-	string key = PkbVariableEntity(name).getKey();
-
-	// get
-	shared_ptr<PkbEntity> result = this->variableTable.get(key);
-	// if null, we return empty optional
-	if (result == NULL) {
-		return optional<PQLEntity>();
-	}
-	// else, we cast to PQLEntity
-	optional<PQLEntity> entity = PQLEntity::generateVariable(name);
-	return entity;
-}
-
-vector<PQLEntity> PKB::retrieveAllVariables() {
-	vector<PQLEntity> out;
-	vector<shared_ptr<PkbEntity>> all = this->variableTable.getAll();
-	for (shared_ptr<PkbEntity> variable : all) {		
-		// append to list
-		out.push_back(PQLEntity::generateVariable(variable->getIdentifier()));
-	}
-	return out;
-}
-
-optional<PQLEntity> PKB::retrieveConstantByValue(int value) {
-	// create a procedure object out of it and use it to get a key
-	string key = PkbConstantEntity(value).getKey();
-
-	// get
-	shared_ptr<PkbEntity> result = this->constantsTable.get(key);
-	// if null, we return empty vector
-	if (result == NULL) {
-		return optional<PQLEntity>();
-	}
-	// else, we cast to PQLEntity
-	optional<PQLEntity> entity = PQLEntity::generateConstant(value);
-	return entity;
+	return this->queryManager.retrieveAllStatementEntities(this->repository);
 }
 
 vector<PQLEntity> PKB::retrieveAllConstants() {
-	vector<PQLEntity> out;
-	vector<shared_ptr<PkbEntity>> all = this->constantsTable.getAll();
-	for (shared_ptr<PkbEntity> variable : all) {
-		// append to list
-		out.push_back(PQLEntity::generateConstant(variable->getValue()));
-	}
-	return out;
+	return this->queryManager.retrieveAllConstants(this->repository);
+}
+
+vector<PQLEntity> PKB::retrieveAllVariables() {
+	return this->queryManager.retrieveAllVariables(this->repository);
 }
 
 
-shared_ptr<PkbRelationshipTable> PKB::getTableByRelationshipType(PKBTrackedRelationshipType relationshipType) {
-	// based on relationship type, we get the specific table 
-	switch (relationshipType) {
-	case PKBTrackedRelationshipType::FOLLOWS:
-		return this->getFollowsTable();
-	case PKBTrackedRelationshipType::FOLLOWSSTAR:
-		return this->getFollowsStarTable();
-	case PKBTrackedRelationshipType::PARENT:
-		return  this->getParentTable();
-	case PKBTrackedRelationshipType::PARENTSTAR:
-		return this->getParentStarTable();
-	case PKBTrackedRelationshipType::USES:
-		return this->getUsesTable();
-	case PKBTrackedRelationshipType::MODIFIES:
-		return this->getModifiesTable();
-	case PKBTrackedRelationshipType::NEXT:
-		return this->getNextTable();
-	case PKBTrackedRelationshipType::CALLSTMTATTRIBUTE:
-		return this->getCallsAttributeTable();
-	case PKBTrackedRelationshipType::CALLS:
-		return this->getCallsTable();
-	case PKBTrackedRelationshipType::CALLSSTAR:
-		return this->getCallsStarTable();
-	default:
-		throw PkbException("Unknown relationship type to be retrieved!");
-	}
+// -------------------- by type --------------------
+vector<PQLEntity> PKB::retrieveStatementEntitiesByType(PKBTrackedStatementType pkbTrackedStatementType) {
+	
+	return this->queryManager.retrieveStatementEntitiesByType(pkbTrackedStatementType, this->repository);
 }
 
-vector<PQLEntity> PKB::filterAndConvertStatementEntities(vector<shared_ptr<PkbEntity>> statements, 
-	PKBTrackedStatementType pkbTrackedStatementType) {
-
-	// initialize a default filter by type
-	PkbStatementEntityFilter filter = [](PkbStatementEntity* statement) {
-		return true;
-	};
-
-	// go through switch case to get specific filter by type
-	if (pkbTrackedStatementType == PKBTrackedStatementType::ALL) {
-		// do nothing
-	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::READ) {
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isReadStatement();
-		};
-	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::PRINT) {
-
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isPrintStatement();
-		};
-	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::WHILE) {
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isWhileStatement();
-		};
-	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::IF) {
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isIfStatement();
-		};
-	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::ASSIGN) {
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isAssignStatement();
-		};
-	}
-	else if (pkbTrackedStatementType == PKBTrackedStatementType::CALL) {
-		filter = [](PkbStatementEntity* statement) {
-			return statement->isCallStatement();
-		};
-	}
-
-
-	// go through statements in table and filter by type
-	vector<PQLEntity> output;
-	for (shared_ptr<PkbEntity> statement : statements) {
-		// cast to statement entity
-		shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
-
-		if (cast != nullptr && filter(cast.get())) { // use filter
-			// create pql entity
-			PQLEntity entity = PQLEntity::generateStatement(cast->getLineNumber());
-			output.push_back(entity);
-		}
-	}
-	return output;
+vector<PQLRelationship> PKB::retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) {
+	return this->queryManager.retrieveRelationshipsByType(relationshipType, this->repository);
 }
+
+// -------------------- by identifier --------------------
+optional<PQLEntity> PKB::retrieveProcedureEntityByName(string procedureName) {
+	return this->queryManager.retrieveProcedureEntityByName(procedureName, this->repository);
+}
+
+
+optional<PQLEntity> PKB::retrieveStatementByLineNumberAndType(int lineNumber, PKBTrackedStatementType pkbTrackedStatementType) {
+	return this->queryManager.retrieveStatementByLineNumberAndType(lineNumber, pkbTrackedStatementType, this->repository);
+}
+
+optional<PQLEntity> PKB::retrieveVariableByName(string name) {
+	return this->queryManager.retrieveVariableByName(name, this->repository);
+}
+
+
+optional<PQLEntity> PKB::retrieveConstantByValue(int value) {
+	return this->queryManager.retrieveConstantByValue(value, this->repository);
+}
+
+// -------------------- specifics --------------------
+
+
 
 PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue) {
 
@@ -690,20 +485,7 @@ vector<PQLRelationship> PKB::retrieveRelationshipsFromTablesByTypeAndLhsRhs(PKBT
 }
 
 
-vector<PQLRelationship> PKB::retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType) {
-	// 1. get table based on type
-	shared_ptr<PkbRelationshipTable> table = this->getTableByRelationshipType(relationshipType);
 
-	// 2. convert all to PQLRelationship
-	vector<PQLRelationship> out;
-	for (shared_ptr<PkbRelationship> r : table->getAll()) {
-		
-		PQLEntity lhs = this->pkbEntityToQpsPqlEntity(r->getLhs());
-		PQLEntity rhs = this->pkbEntityToQpsPqlEntity(r->getRhs());
-		out.push_back(PQLRelationship(lhs, rhs));
-	}
-	return out;
-}
 
 shared_ptr<PKBQueryHandler> PKB::getQueryHandler() {
 	return shared_ptr<PKBQueryHandler>(this);
@@ -845,28 +627,6 @@ vector<PQLPattern> PKB::retrieveWhilePatterns(ClauseArgument lhs) {
 }
 
 
-PQLPattern PKB::pkbPatternToPqlPattern(shared_ptr<PkbPattern> p) {
-	string variableIdentifier = p->getVariableIdentifier();
-	// we store as space + variable + space, need to trim
-	// left trim
-	bool leftIsSpace = isspace(variableIdentifier[0]);
-	while (leftIsSpace && variableIdentifier.size() > 1) {
-		
-		variableIdentifier.erase(0, 1);
-		leftIsSpace = isspace(variableIdentifier[0]);
-		
-	}
-
-	// right trim
-	bool rightIsSpace = isspace(variableIdentifier[variableIdentifier.size()-1]);
-	while (rightIsSpace && variableIdentifier.size() > 1) {
-		variableIdentifier.erase(variableIdentifier.size() - 1, 1);
-		rightIsSpace = isspace(variableIdentifier[variableIdentifier.size() - 1]);
-		
-		
-	}
-	return PQLPattern::generateAssignPattern(p->getStatementLineNumber(), variableIdentifier);
-}
 
 bool PKB::containsEntity(Entity entity) {
 	shared_ptr<PkbEntity> entitytoPkbEntity = externalEntityToPkbEntity(entity);
