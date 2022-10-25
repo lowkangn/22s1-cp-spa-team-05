@@ -14,7 +14,7 @@
 class PkbIfPattern : public PkbPattern {
 protected:
 
-	PkbIfPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings) { };
+	PkbIfPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings, PkbPatternType::IF) { };
 
 public:
 

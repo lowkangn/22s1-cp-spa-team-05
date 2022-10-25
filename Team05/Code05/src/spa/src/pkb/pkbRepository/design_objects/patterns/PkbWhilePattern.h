@@ -12,7 +12,7 @@
 class PkbWhilePattern : public PkbPattern {
 protected:
 
-	PkbWhilePattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings) { };
+	PkbWhilePattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings, PkbPatternType::WHILE) { };
 
 public:
 

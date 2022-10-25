@@ -1,8 +1,7 @@
 #pragma once
 
 #include <pkb/pkbRepository/design_objects/patterns/PkbPattern.h>
-#include <pkb/pkbRepository/design_objects/patterns/PkbAssignPattern.h>
-#include <pkb/pkbRepository/design_objects/patterns/PkbIfPattern.h>
+
 
 #include <unordered_map>
 #include <vector>

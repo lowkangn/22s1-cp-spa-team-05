@@ -24,71 +24,6 @@
 
 using namespace std;
 
-shared_ptr<PkbEntity> PKB::externalEntityToPkbEntity(Entity entity) {
-	if (entity.isVariableEntity()) {
-
-		// create pkb entity object
-		string identifier = entity.getString();
-		shared_ptr<PkbEntity> object = shared_ptr<PkbEntity>(new PkbVariableEntity(identifier));
-		return object;
-	}
-	else if (entity.isStmtEntity()) {
-		// read line number, since that's the statement identifier
-		int lineNumber = entity.getLine();
-
-		// depending on type, we call factory method
-		// and case to pointer
-		if (entity.isPrintEntity()) {
-			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createPrintStatementEntity(lineNumber);
-			shared_ptr<PkbEntity> object = shared_ptr<PkbEntity>(statement);
-			return object;
-		}
-		else if (entity.isAssignEntity()) {
-			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createAssignStatementEntity(lineNumber);
-			shared_ptr<PkbEntity> object = shared_ptr<PkbEntity>(statement);
-			return object;
-		}
-		else if (entity.isIf()) {
-			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createIfStatementEntity(lineNumber);
-			shared_ptr<PkbEntity> object = shared_ptr<PkbEntity>(statement);
-			return object;
-		}
-		else if (entity.isReadEntity()) {
-			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createReadStatementEntity(lineNumber);
-			shared_ptr<PkbEntity> object = shared_ptr<PkbEntity>(statement);
-			return object;
-		}
-		else if (entity.isWhile()) {
-			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createWhileStatementEntity(lineNumber);
-			shared_ptr<PkbEntity> object = shared_ptr<PkbEntity>(statement);
-			return object;
-		}
-		else if (entity.isCallEntity()) {
-			shared_ptr<PkbStatementEntity> statement = PkbStatementEntity::createCallStatementEntity(lineNumber);
-			shared_ptr<PkbEntity> object = shared_ptr<PkbEntity>(statement);
-			return object;
-		}
-		else {
-			throw PkbException("Unknown statement type being passed to PKB!");
-		}
-		
-	}
-	else if (entity.isProcedureEntity()) {
-		// create pkb entity object
-		string identifier = entity.getString();
-		shared_ptr<PkbEntity> object = shared_ptr<PkbEntity>(new PkbProcedureEntity(identifier));
-		return object;
-	}
-	else if (entity.isConstantEntity()) {
-		int value = entity.getValue();
-		shared_ptr<PkbEntity> object = shared_ptr<PkbEntity>(new PkbConstantEntity(value));
-		return object;
-	}
-	else {
-		throw PkbException("Unknown entity type being passed to PKB!");
-	}
-	
-}
 
 PQLEntity PKB::pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity) {
 	// based on entity type, use pqlentity api
@@ -105,86 +40,9 @@ PQLEntity PKB::pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity) {
 	}
 }
 
-shared_ptr<PkbRelationship> PKB::externalRelationshipToPkbRelationship(Relationship relationship) {
-	Entity lhs = relationship.getLhs();
-	Entity rhs = relationship.getRhs();
-
-	shared_ptr<PkbEntity> lhsToPkbEntity = this->externalEntityToPkbEntity(lhs);
-	shared_ptr<PkbEntity> rhsToPkbEntity = this->externalEntityToPkbEntity(rhs);
-
-	if (relationship.isFollows()) {
-		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbFollowsRelationship(lhsToPkbEntity, rhsToPkbEntity));
-		return pkbRelationship;
-	}
-	else if (relationship.isFollowsStar()) {
-		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
-		return pkbRelationship;
-	}
-	else if (relationship.isModifies()) {
-		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhsToPkbEntity, rhsToPkbEntity));
-		return pkbRelationship;
-	}
-	else if (relationship.isParent()) {
-		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbParentRelationship(lhsToPkbEntity, rhsToPkbEntity));
-		return pkbRelationship;
-	}
-	else if (relationship.isParentStar()) {
-		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
-		return pkbRelationship;
-	}
-	else if (relationship.isUses()) {
-		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhsToPkbEntity, rhsToPkbEntity));
-		return pkbRelationship;
-	}
-	else if (relationship.isCallsStmtAttribute()) {
-		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbCallStmtAttributeRelationship(lhsToPkbEntity, rhsToPkbEntity));
-		return pkbRelationship;
-	}
-	else if (relationship.isCalls()) {
-		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbCallsRelationship(lhsToPkbEntity, rhsToPkbEntity));
-		return pkbRelationship;
-	}
-	else if (relationship.isCallsStar()) {
-		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(lhsToPkbEntity, rhsToPkbEntity));
-		return pkbRelationship;
-
-	}  else if (relationship.isNext()) {
-		shared_ptr<PkbRelationship> pkbRelationship = shared_ptr<PkbRelationship>(new PkbNextRelationship(lhsToPkbEntity, rhsToPkbEntity));
-		return pkbRelationship;
-	} else {
-		throw PkbException("Unknown relationship being converted!");
-	}
-}
-
 void PKB::addEntities(vector<Entity> entities) {
 	
-	for (Entity entity : entities) {
-		// depending on entity type, we create the appropriate pkb entity
-		// and add to the appropriate table
-
-		//skip opeartor entities
-		if (entity.isOperator()) {
-			continue;
-		}
-		shared_ptr<PkbEntity> object = this->externalEntityToPkbEntity(entity);
-
-		if (entity.isStmtEntity()) {
-			this->statementTable.add(object);
-		}
-		else if (entity.isVariableEntity()) {
-			this->variableTable.add(object);
-		}
-		else if (entity.isProcedureEntity()) {
-			this->proceduresTable.add(object);
-		}
-		else if (entity.isConstantEntity()) {
-			this->constantsTable.add(object);
-		}
-		else {
-			// do nothing for now
-			// possible exception handling if needed
-		}
-	}
+	this->updateManager.addEntities(entities, this->repository);
 	
 }
 
@@ -196,49 +54,7 @@ void PKB::addRelationships(vector<Relationship> relationships) {
 		// depending on relationship type, we choose the table 
 		// and create the object as a casted shared pointer
 		
-		if (r.isFollows()) {
-			shared_ptr<PkbRelationshipTable> table = this->getFollowsTable();
-			table->add(pkbRelationship);
-		}
-		else if (r.isFollowsStar()) {
-			shared_ptr<PkbRelationshipTable> table = this->getFollowsStarTable();
-			table->add(pkbRelationship);
-		}
-		else if (r.isParent()) {
-			shared_ptr<PkbRelationshipTable> table = this->getParentTable();
-			table->add(pkbRelationship);
-		}
-		else if (r.isParentStar()) {
-			shared_ptr<PkbRelationshipTable> table = this->getParentStarTable();
-			table->add(pkbRelationship);
-		}
-		else if (r.isUses()) {
-			shared_ptr<PkbRelationshipTable> table = this->getUsesTable();
-			table->add(pkbRelationship);
-		}
-		else if (r.isModifies()) {
-			shared_ptr<PkbRelationshipTable> table = this->getModifiesTable();
-			table->add(pkbRelationship);
-		}
-		else if (r.isCallsStmtAttribute()) {
-			shared_ptr<PkbRelationshipTable> table = this->getCallsAttributeTable();
-			table->add(pkbRelationship);
-		}
-		else if (r.isCalls()) {
-			shared_ptr<PkbRelationshipTable> table = this->getCallsTable();
-			table->add(pkbRelationship);
-		}
-		else if (r.isCallsStar()) {
-			shared_ptr<PkbRelationshipTable> table = this->getCallsStarTable();
-			table->add(pkbRelationship);
-		}
-		else if (r.isNext()) {
-			shared_ptr<PkbRelationshipTable> table = this->getNextTable();
-			table->add(pkbRelationship);
-		}
-		else {
-			throw PkbException("Unknown relationship being added to PKB!");
-		}
+		
 
 	}
 }
@@ -293,97 +109,12 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 }
 
 
-/*
-	Hash function for an edge, which we represent as a pair of strings.
-*/
-struct EdgeKeyHash {
-	size_t operator()(const pair<string, string>& p) const {
-		// we choose 31 as it's a prime number typically used for hashing strings
-		return hash<string>()(p.first) * 31 + hash<string>()(p.second);
 
-	}
-};
 
 
 void PKB::addCfg(shared_ptr<CFGNode> rootNode) {
 
-	// 1. traverse cfg to convert to pkb graph
-	// 1.1 pointer to new root node
-	shared_ptr<PkbGraphNode> node = NULL;
-
-	// 1.2 initialize edge visited list and queue
-	unordered_set<pair<string, string>, EdgeKeyHash> visitedEdges;
-	queue<shared_ptr<CFGNode>> q;
-	q.push(rootNode);
-
-	// 1.3 initialize node set
-	unordered_map<string, shared_ptr<PkbGraphNode>> keyToNodeMap;
-
-	// 2 bfs with visited edges
-	while (!q.empty()) {
-
-		// 1. pop
-		shared_ptr<CFGNode> n = q.front();
-		q.pop();
-
-		// 2. convert to pkb graph node. if already inside, use that.
-		shared_ptr<PkbStatementEntity> castedParent = static_pointer_cast<PkbStatementEntity>(this->externalEntityToPkbEntity(n->getEntity()));
-		if (castedParent == NULL) { // conversion failed
-			throw PkbException("Tried to convert cfg node to statement entity, but couldn't!");
-		}
-		shared_ptr<PkbGraphNode> parentNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(castedParent);
-		string parentKey = parentNode->getKey();
-		if (keyToNodeMap.count(parentKey)) {
-			parentNode = keyToNodeMap.at(parentKey);
-		}
-		else {
-			keyToNodeMap.insert({ parentKey, parentNode });
-		}
-
-
-
-		// 2.1 if root node not initialized, put it
-		if (node == NULL) {
-			node = parentNode;
-		}
-
-		// 3. traverse neighbours
-		for (shared_ptr<CFGNode> child : n->getChildren()) {
-
-			// 3.1 convert to pkbgraph node
-			shared_ptr<PkbStatementEntity> castedChild = static_pointer_cast<PkbStatementEntity>(this->externalEntityToPkbEntity(child->getEntity()));
-			if (castedChild == NULL) { // conversion failed
-				throw PkbException("Tried to convert cfg node to statement entity, but couldn't!");
-			}	
-			shared_ptr<PkbGraphNode> childNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(castedChild);
-
-			// 3.2 if already seen before, use that node instead. else, insert
-			string childKey = childNode->getKey();
-			if (keyToNodeMap.count(childKey)) {
-				childNode = keyToNodeMap.at(childKey);
-			}
-			else {
-				keyToNodeMap.insert({ childKey, childNode });
-			}
-
-			// 3.3 if edge visited, continue
-			pair<string, string> edgeKey = pair<string, string>(parentNode->getKey(), childNode->getKey());
-			if (visitedEdges.count(edgeKey)) {
-				continue;
-			}
-
-			// 3.4 else, add as neighbour of parent and to visited set
-			parentNode->addNeighbour(childNode); // add as neighbour of parent
-			visitedEdges.insert(edgeKey); // add edge to visited set 
-
-			// 3.4 add to queue and key map
-			q.push(child);
-		}
-	}
-
-
-	// 2. pass the pkb graph into the graph manager 
-	this->cfgManager = PkbGraphManager(node);
+	
 
 
 }

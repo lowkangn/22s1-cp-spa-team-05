@@ -15,7 +15,7 @@
 class PkbAssignPattern : public PkbPattern {
 protected:
 
-	PkbAssignPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings) { };
+	PkbAssignPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) : PkbPattern(statement, strings, PkbPatternType::ASSIGN) { };
 
 public :
 

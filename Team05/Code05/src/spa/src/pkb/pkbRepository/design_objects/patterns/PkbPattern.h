@@ -10,10 +10,15 @@
 
 using namespace std;
 
+enum class PkbPatternType {
+	ASSIGN, 
+	IF, 
+	WHILE
+};
+
 /*
 	Parent class for all PKB patterns
 */
-
 class PkbPattern {
 protected:
 	shared_ptr<PkbStatementEntity> statement;
@@ -23,11 +28,16 @@ protected:
 	*/
 	vector<string> strings;
 
-public:
-	PkbPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings) {
+	PkbPatternType type;
+
+	PkbPattern(shared_ptr<PkbStatementEntity> statement, vector<string> strings, PkbPatternType type) {
 		this->strings = strings;
 		this->statement = statement;
+		this->type = type;
 	}
+
+public:
+	
 
 	virtual bool isRegexMatch(vector<string> regexStrings) = 0;
 
