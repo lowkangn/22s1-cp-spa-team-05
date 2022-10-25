@@ -208,7 +208,7 @@ optional<PQLEntity> PkbQueryManager::retrieveStatementByLineNumberAndType(int li
 	}
 
 	// cast and filter
-	assert(result->isStatement());
+	assert(result == NULL || result->isStatement());
 	shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(result);
 	if (result == NULL || (cast != nullptr && !filter(cast.get()))) {
 		return optional<PQLEntity>();
