@@ -1,0 +1,155 @@
+#include <pkb/pkbQueryManager/PkbRelationshipQueryHelper.h>
+
+vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelationshipsFromTablesByTypeAndLhsRhs(PkbRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository)
+{
+	// 0. get table based on type
+	shared_ptr<PkbRelationshipTable> table = repository->getRelationshipTableByRelationshipType(relationshipType);
+
+	// 1. short circuiting
+	if (this->canShortCircuitRetrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs)) {
+		return vector<shared_ptr<PkbRelationship>>();
+	}
+
+	// 2a. if both side are exact, we can search by hash
+	// we create the key we are looking for based on lhs and rhs 
+	if (lhs.isExactReference() && rhs.isExactReference()) {
+
+		// 2.1 create relationship
+		shared_ptr<PkbEntity> left = this->convertClauseArgumentToPkbEntity(lhs);
+		shared_ptr<PkbEntity> right = this->convertClauseArgumentToPkbEntity(rhs);
+		shared_ptr<PkbRelationship> toFind; // TODO: refactor to use factory methods
+		switch (relationshipType) {
+		case PkbRelationshipType::FOLLOWS:
+			toFind = shared_ptr<PkbRelationship>(new PkbFollowsRelationship(left, right));
+			break;
+		case PkbRelationshipType::FOLLOWSSTAR:
+			toFind = shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(left, right));
+			break;
+		case PkbRelationshipType::PARENT:
+			toFind = shared_ptr<PkbRelationship>(new PkbParentRelationship(left, right));
+			break;
+		case PkbRelationshipType::PARENTSTAR:
+			toFind = shared_ptr<PkbRelationship>(new PkbParentStarRelationship(left, right));
+			break;
+		case PkbRelationshipType::USES:
+			toFind = shared_ptr<PkbRelationship>(new PkbUsesRelationship(left, right));
+			break;
+		case PkbRelationshipType::MODIFIES:
+			toFind = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(left, right));
+			break;
+		case  PkbRelationshipType::NEXT:
+			toFind = shared_ptr<PkbRelationship>(new PkbNextRelationship(left, right));
+			break;
+		case PkbRelationshipType::CALLSTMTATTRIBUTE:
+			toFind = shared_ptr<PkbRelationship>(new PkbCallStmtAttributeRelationship(left, right));
+			break;
+		case PkbRelationshipType::CALLS:
+			toFind = shared_ptr<PkbRelationship>(new PkbCallsRelationship(left, right));
+			break;
+		case PkbRelationshipType::CALLSSTAR:
+			toFind = shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(left, right));
+			break;
+		default:
+			throw PkbException("Unknown relationship type to be retrieved!");
+		}
+
+		// 2.2 get by key
+		string key = toFind->getKey();
+		shared_ptr<PkbRelationship> found = table->get(key);
+
+
+		// 2.3 if null, return empty. else, return
+		vector<shared_ptr<PkbRelationship>> retrievedRelationships;
+		if (found == NULL) {
+			return retrievedRelationships;
+		}
+		retrievedRelationships.push_back(found);
+		return retrievedRelationships;
+	}
+
+
+	// 2b. if not, we have to manually filter
+	PkbEntityFilter lhsFilter = getFilterFromClauseArgument(lhs);
+	PkbEntityFilter rhsFilter = getFilterFromClauseArgument(rhs);
+	vector<shared_ptr<PkbRelationship>> out;
+	for (shared_ptr<PkbRelationship> r : table->getAll()) {
+		shared_ptr<PkbEntity> lhsEntity = r->getLhs();
+		shared_ptr<PkbEntity> rhsEntity = r->getRhs();
+
+
+		if (lhsFilter(lhsEntity, lhs) && rhsFilter(rhsEntity, rhs)) {
+			out.push_back(r);
+		}
+	}
+	return out;
+}
+
+vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PkbRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository)
+{
+	if (relationshipType == PkbRelationshipType::NEXTSTAR) {
+		// 1. validation - must be a statement
+		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
+			throw PkbException("NEXTSTAR relationship expects lhs and rhs to both be statements!");
+		}
+
+		// 2. there are four cases. 
+		// if lhs and rhs are exact, we can do a direct check.
+		// if exact and _, we need to do dfs from the specified node.
+		// if _ and exact, we do dfs starting from the root node.
+		// if _ and _, we do dfs from the root node and accumulate.
+		vector<shared_ptr<PkbRelationship>> out;
+
+		// case 1: both exact
+		if (lhs.isExactReference() && rhs.isExactReference()) {
+			// construct key from lhs and rhs
+			shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
+			shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
+			shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(lhsEntity);
+			shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(rhsEntity);
+
+			// create graph nodes and get their keys 
+			string leftKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left)->getKey();
+			string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
+
+			// check they are both inside
+
+			shared_ptr<PkbGraphManager> cfgManager = repository->getCfg();
+			// if they are connected, return. else, return empty list
+			if (cfgManager->isInside(leftKey)
+				&& cfgManager->isInside(rightKey)
+				&& cfgManager->canReachNodeBFromNodeA(leftKey, rightKey)) {
+				out.push_back(shared_ptr<PkbRelationship>(new PkbNextStarRelationship(lhsEntity, rhsEntity)));
+			}
+			return out;
+		}
+
+
+		// case 2: exact and wildcard
+		PkbGraphNextStarRelationshipExtractor extractor;
+		vector<shared_ptr<PkbRelationship>> extractedRelationships;
+		if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
+			// TODO
+
+		}
+		// case 3: wildcard and exact
+		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isExactReference())) {
+			// TODO
+		}
+		else { // case 4: all wild card
+			// starting at root node, dfs all the way
+			// TODO
+		}
+
+		return out;
+
+	}
+	else if (relationshipType == PkbRelationshipType::AFFECTS) {
+		throw PkbException("Not implemented yet!");
+	}
+	else if (relationshipType == PkbRelationshipType::AFFECTSSTAR) {
+		throw PkbException("Not implemented yet!");
+	}
+	else {
+		throw PkbException("Unknown graph type relationship trying to be retrieved.");
+	}
+}

@@ -1,21 +1,8 @@
 #include <pkb/pkbQueryManager/PkbQueryManager.h>
 
-// ==================== Private methods ====================
-PQLEntity PkbQueryManager::pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity) {
-	// based on entity type, use pqlentity api
-	if (entity->isProcedure()) {
-		return PQLEntity::generateProcedure(entity->getIdentifier());
-	}
-	else if (entity->isVariable()) {
-		return PQLEntity::generateVariable(entity->getIdentifier());
-	}
-	else if (entity->isStatement()) {
-		return PQLEntity::generateStatement(entity->getLineNumber());
-	}
-	else {
-		throw PkbException("Unknown PkbEntity type being passed to QPS!");
-	}
-}
+
+
+
 
 /*
 	Converts an internal pkb pattern to a pql pattern used in the qps.
@@ -54,8 +41,11 @@ PQLPattern PkbQueryManager::pkbPatternToPqlPattern(shared_ptr<PkbPattern> patter
 	Retrieves all procedure entities.
 */
 vector<PQLEntity> PkbQueryManager::retrieveAllProcedureEntities(shared_ptr<PkbRepository> repository) {
+	// get
+	vector<shared_ptr<PkbEntity>> all = this->entityHelper.retrieveAllProcedureEntities(repository);
+
+	// do conversion	
 	vector<PQLEntity> out;
-	vector<shared_ptr<PkbEntity>> all = repository->getEntityTableByType(PkbEntityType::PROCEDURE)->getAll();
 	for (shared_ptr<PkbEntity> procedure : all) {
 
 		// append to list
@@ -69,7 +59,7 @@ vector<PQLEntity> PkbQueryManager::retrieveAllProcedureEntities(shared_ptr<PkbRe
 */
 vector<PQLEntity> PkbQueryManager::retrieveAllStatementEntities(shared_ptr<PkbRepository> repository) {
 	vector<PQLEntity> out;
-	vector<shared_ptr<PkbEntity>> all = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+	vector<shared_ptr<PkbEntity>> all = this->entityHelper.retrieveAllStatementEntities(repository);
 	for (shared_ptr<PkbEntity> e : all) {
 
 		// append to list
@@ -83,7 +73,7 @@ vector<PQLEntity> PkbQueryManager::retrieveAllStatementEntities(shared_ptr<PkbRe
 */
 vector<PQLEntity> PkbQueryManager::retrieveAllVariables(shared_ptr<PkbRepository> repository) {
 	vector<PQLEntity> out;
-	vector<shared_ptr<PkbEntity>> all = repository->getEntityTableByType(PkbEntityType::VARIABLE)->getAll();
+	vector<shared_ptr<PkbEntity>> all = this->entityHelper.retrieveAllVariables(repository);
 	for (shared_ptr<PkbEntity> e : all) {
 
 		// append to list
@@ -97,7 +87,7 @@ vector<PQLEntity> PkbQueryManager::retrieveAllVariables(shared_ptr<PkbRepository
 */
 vector<PQLEntity> PkbQueryManager::retrieveAllConstants(shared_ptr<PkbRepository> repository) {
 	vector<PQLEntity> out;
-	vector<shared_ptr<PkbEntity>> all = repository->getEntityTableByType(PkbEntityType::CONSTANT)->getAll();
+	vector<shared_ptr<PkbEntity>> all = this->entityHelper.retrieveAllConstants(repository);
 	for (shared_ptr<PkbEntity> e : all) {
 
 		// append to list
@@ -113,7 +103,7 @@ vector<PQLEntity> PkbQueryManager::retrieveAllConstants(shared_ptr<PkbRepository
 vector<PQLEntity> PkbQueryManager::retrieveStatementEntitiesByType(PKBTrackedStatementType pkbTrackedStatementType, shared_ptr<PkbRepository> repository) {
 
 	// 0. get all statements
-	vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+	vector<shared_ptr<PkbEntity>> statements = this->entityHelper.retrieveAllStatementEntities(repository);
 
 	// 1. create a filter by type
 	// we define it locally to keep it to the scope of this function
@@ -182,7 +172,7 @@ vector<PQLEntity> PkbQueryManager::retrieveStatementEntitiesByType(PKBTrackedSta
 vector<PQLRelationship> PkbQueryManager::retrieveRelationshipsByType(PKBTrackedRelationshipType relationshipType, shared_ptr<PkbRepository> repository) {
 	// 1. see if need to get from table or not
 	// also, map type to internal type
-	PkbRelationshipType toGetType = PkbRelationshipType::USES; // just a random default, will throw if not valid
+	PkbRelationshipType toGetType = this->pkbTrackedRelationshipTypeToInternalType(relationshipType);
 	bool getFromTable = true;
 	switch (relationshipType) {
 
@@ -191,42 +181,23 @@ vector<PQLRelationship> PkbQueryManager::retrieveRelationshipsByType(PKBTrackedR
 	case PKBTrackedRelationshipType::AFFECTSSTAR:
 		throw PkbException("Not implemented!");
 	case PKBTrackedRelationshipType::NEXTSTAR:
-		toGetType = PkbRelationshipType::NEXTSTAR;
 		getFromTable = false;
 		break;
 	// table types 
 	case PKBTrackedRelationshipType::CALLS:
-		toGetType = PkbRelationshipType::CALLS;
-		break;
 	case PKBTrackedRelationshipType::CALLSSTAR:
-		toGetType = PkbRelationshipType::CALLSSTAR;
-		break;
 	case PKBTrackedRelationshipType::CALLSTMTATTRIBUTE:
-		toGetType = PkbRelationshipType::CALLSTMTATTRIBUTE;
-		break;
 	case PKBTrackedRelationshipType::PARENT:
-		toGetType = PkbRelationshipType::PARENT;
-		break;
 	case PKBTrackedRelationshipType::PARENTSTAR:
-		toGetType = PkbRelationshipType::PARENTSTAR;
-		break;
 	case PKBTrackedRelationshipType::USES:
-		toGetType = PkbRelationshipType::USES;
-		break;
 	case PKBTrackedRelationshipType::MODIFIES:
-		toGetType = PkbRelationshipType::MODIFIES;
-		break;
 	case PKBTrackedRelationshipType::NEXT:
-		toGetType = PkbRelationshipType::NEXT;
-		break;
 	case PKBTrackedRelationshipType::FOLLOWS:
-		toGetType = PkbRelationshipType::FOLLOWS;
-		break;
 	case PKBTrackedRelationshipType::FOLLOWSSTAR:
-		toGetType = PkbRelationshipType::FOLLOWSSTAR;
+		getFromTable = true;
 		break;
-
 	}
+
 	// 2a. get from table
 	vector<shared_ptr<PkbRelationship>> all;
 	if (getFromTable) {
@@ -259,7 +230,7 @@ optional<PQLEntity> PkbQueryManager::retrieveStatementByLineNumberAndType(int li
 	// the same line number, and that serves as a good primary key.
 	// by default, we just use a read statement as the entity to key on
 	string key = PkbStatementEntity::createReadStatementEntity(lineNumber)->getKey();
-	shared_ptr<PkbEntity> result = repository->getEntityTableByType(PkbEntityType::STATEMENT).get(key);
+	shared_ptr<PkbEntity> result = this->entityHelper.retrieveEntityByTypeAndKey(key);
 
 	if (result == NULL) {
 		return optional<PQLEntity>();
@@ -277,7 +248,7 @@ optional<PQLEntity> PkbQueryManager::retrieveProcedureEntityByName(string proced
 	string key = PkbProcedureEntity(procedureName).getKey();
 
 	// get
-	shared_ptr<PkbEntity> result = repository->getEntityTableByType(PkbEntityType::PROCEDURE).get(key);
+	shared_ptr<PkbEntity> result = this->entityHelper.retrieveEntityByTypeAndKey(key);
 	// if null, we return empty vector
 	if (result == NULL) {
 		return optional<PQLEntity>();
@@ -292,11 +263,11 @@ optional<PQLEntity> PkbQueryManager::retrieveProcedureEntityByName(string proced
 	Retrieves all variables by a name.
 */
 optional<PQLEntity> PkbQueryManager::retrieveVariableByName(string name, shared_ptr<PkbRepository> repository) {
-	// create a procedure object out of it and use it to get a key
+	// create an object out of it and use it to get a key
 	string key = PkbVariableEntity(name).getKey();
 
 	// get
-	shared_ptr<PkbEntity> result = repository->getEntityTableByType(PkbEntityType::VARIABLE).get(key);
+	shared_ptr<PkbEntity> result = this->entityHelper.retrieveEntityByTypeAndKey(key);
 	// if null, we return empty vector
 	if (result == NULL) {
 		return optional<PQLEntity>();
@@ -310,11 +281,11 @@ optional<PQLEntity> PkbQueryManager::retrieveVariableByName(string name, shared_
 	Retrieves all constants by a value.
 */
 optional<PQLEntity> PkbQueryManager::retrieveConstantByValue(int value, shared_ptr<PkbRepository> repository) {
-	// create a procedure object out of it and use it to get a key
+	// create an object out of it and use it to get a key
 	string key = PkbConstantEntity(value).getKey();
 
 	// get
-	shared_ptr<PkbEntity> result = repository->getEntityTableByType(PkbEntityType::CONSTANT).get(key);
+	repository->getEntityTableByType(PkbEntityType::CONSTANT).get(key);
 	// if null, we return empty vector
 	if (result == NULL) {
 		return optional<PQLEntity>();
@@ -325,3 +296,39 @@ optional<PQLEntity> PkbQueryManager::retrieveConstantByValue(int value, shared_p
 }
 
 // -------------------- specifics --------------------
+
+vector<PQLRelationship> PkbQueryManager::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository) {
+
+	// 1. translate the type
+	PkbRelationshipType convertedRelationshipType = this->pkbTrackedRelationshipTypeToInternalType(relationshipType);
+
+	// 2. depending on type, we pass to the correct handler
+	vector<shared_ptr<PkbRelationship>> found;
+	switch (convertedRelationshipType) {
+
+		// graph types
+	case PkbRelationshipType::NEXTSTAR:
+	case PkbRelationshipType::AFFECTS:
+	case PkbRelationshipType::AFFECTSSTAR:
+		found = this->relationshipHelper.retrieveRelationshipsFromGraphsByTypeAndLhsRhs(convertedRelationshipType, lhs, rhs);
+		break;
+
+		// table types
+	case PkbRelationshipType::NEXT:
+	case PkbRelationshipType::FOLLOWS:
+	case PkbRelationshipType::FOLLOWSSTAR:
+	case PkbRelationshipType::MODIFIES:
+	case PkbRelationshipType::PARENT:
+	case PkbRelationshipType::PARENTSTAR:
+	case PkbRelationshipType::USES:
+	default:
+		found = this->relationshipHelper.retrieveRelationshipsFromTablesByTypeAndLhsRhs(convertedRelationshipType, lhs, rhs);
+	}
+
+	// 3. then we convert to pql relationship
+	vector<PQLRelationship> out;
+	for (shared_ptr<PkbRelationship> r : found) {
+		out.push_back(PQLRelationship(this->pkbEntityToQpsPqlEntity(r->getLhs()), this->pkbEntityToQpsPqlEntity(r->getRhs()));
+	}
+	return out;
+}

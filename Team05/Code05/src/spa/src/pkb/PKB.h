@@ -37,47 +37,7 @@ private:
 
 	
 
-	/*
-		Retrieves assign statements by lhs and rhs.
-	*/
-	vector<PQLPattern> retrieveAssignPatterns(ClauseArgument lhs, ClauseArgument rhs);
-
-	/*
-		Retrieves if patterns by lhs.
-	*/
-	vector<PQLPattern> retrieveIfPatterns(ClauseArgument lhs);
-
-	/*
-		Retrieves while patterns by lhs.
-	*/
-	vector<PQLPattern> retrieveWhilePatterns(ClauseArgument lhs);
-
-	/*
-		Helper function to check if retrieving the relationship, while semantically and syntacticall correct, is even 
-		possible. e.g. Follows(s,s) is not possible
-	*/
-	bool canShortCircuitRetrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
-
-
-	/*
-		Helper function to convert a clause argument into a pkb entity it's trying to specify.
-	*/
-	shared_ptr<PkbEntity> convertClauseArgumentToPkbEntity(ClauseArgument clause);
-
-	/*
-		Retrieves all relationships by a lhs, rhs for relationships of a specified type, from tables.
-	*/
-	vector<PQLRelationship> retrieveRelationshipsFromTablesByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
-
-	/*
-		Retrieves all relationships by a lhs, rhs for relationships of a specified type, from graphs.
-	*/
-	vector<PQLRelationship> retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs);
-
-	/* 
-		Helper function to filter pkb statement entities by their type and convert them to PQLEntities.
-	*/
-	vector<PQLEntity> filterAndConvertStatementEntities(vector<shared_ptr<PkbEntity>> statements, PKBTrackedStatementType pkbTrackedStatementType);
+	
 
 public: 
 	PKB() {}
@@ -177,18 +137,6 @@ public:
     */
 	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
 
-	
-	// ******************** CONTAINS ********************
-
-	/*
-	*	Checks if SP entity exists in PKB
-	*/
-	bool containsEntity(Entity entity);
-
-	/*
-	*	Checks if SP Relationship exists in PKB
-	*/
-	bool containsRelationship(Relationship relationship);
 
 };
 

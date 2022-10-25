@@ -12,23 +12,78 @@
 #include <pkb/pkbRepository/design_objects/entities/PkbStatementEntity.h>
 
 #include <pkb/interfaces/PKBQueryHandler.h>
+#include <pkb/pkbQueryManager/PkbEntityQueryHelper.h>
+#include <pkb/pkbQueryManager/PkbRelationshipQueryHelper.h>
+
 
 using namespace std;
 
 class PkbQueryManager {
+
 private: 
+	// ==================== attributes ====================
+	PkbEntityQueryHelper entityHelper;
+	PkbRelationshipQueryHelper relationshipHelper;
+
+
 	// ==================== helper functions ====================
 
 	// ******************** conversion ********************
 	/*
 		Converts an internal Pkb entity to a pql entity used in the qps.
 	*/
-	PQLEntity pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity);
+	PQLEntity pkbEntityToQpsPqlEntity(shared_ptr<PkbEntity> entity) {
+		// based on entity type, use pqlentity api
+		if (entity->isProcedure()) {
+			return PQLEntity::generateProcedure(entity->getIdentifier());
+		}
+		else if (entity->isVariable()) {
+			return PQLEntity::generateVariable(entity->getIdentifier());
+		}
+		else if (entity->isStatement()) {
+			return PQLEntity::generateStatement(entity->getLineNumber());
+		}
+		else {
+			throw PkbException("Unknown PkbEntity type being passed to QPS!");
+		}
+	}
+
+	/*
+		Maps the external facing type to an internal corresponding type.
+	*/
+	PkbRelationshipType pkbTrackedRelationshipTypeToInternalType(PKBTrackedRelationshipType t) {
+			
+		switch (t) {
+		case PKBTrackedRelationshipType::NEXTSTAR:
+			return PkbRelationshipType::NEXTSTAR;
+		case PKBTrackedRelationshipType::AFFECTS:
+			return PkbRelationshipType::AFFECTS;
+		case PKBTrackedRelationshipType::AFFECTSSTAR:
+			return PkbRelationshipType::AFFECTSSTAR;
+		case PKBTrackedRelationshipType::NEXT:
+			return PkbRelationshipType::NEXT;
+		case PKBTrackedRelationshipType::FOLLOWS:
+			return PkbRelationshipType::FOLLOWS;
+		case PKBTrackedRelationshipType::FOLLOWSSTAR:
+			return PkbRelationshipType::FOLLOWSSTAR;
+		case PKBTrackedRelationshipType::MODIFIES:
+			return PkbRelationshipType::MODIFIES;
+		case PKBTrackedRelationshipType::PARENT:
+			return PkbRelationshipType::PARENT;
+		case PKBTrackedRelationshipType::PARENTSTAR:
+			return PkbRelationshipType::PARENTSTAR;
+		case PKBTrackedRelationshipType::USES:
+			return PkbRelationshipType::USES;
+		default:
+			throw PkbException("Type cannot be mapped! e.g. ALL");
+		}
+	}
 
 	/*
 		Converts an internal pkb pattern to a pql pattern used in the qps.
 	*/
 	PQLPattern pkbPatternToPqlPattern(shared_ptr<PkbPattern> pattern);
+	
 
 
 public: 
@@ -90,4 +145,10 @@ public:
 	optional<PQLEntity> retrieveConstantByValue(int value, shared_ptr<PkbRepository> repository);
 
 	// -------------------- specifics --------------------
+	/*
+		Retrieves all relationships by a lhs, rhs for relationships of a specified type.
+	*/
+	vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
+
+
 };
