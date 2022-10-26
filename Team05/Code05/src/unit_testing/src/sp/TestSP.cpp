@@ -30,8 +30,7 @@
 #include <sp/parser/SimpleSyntaxParserManager.h>
 #include <sp/design_extractor/EntityExtractor.h>
 #include <sp/design_extractor/PatternExtractor.h>
-#include <sp/design_extractor/FollowsExtractor.h>
-#include <sp/design_extractor/FollowsTExtractor.h>
+#include <sp/design_extractor/FollowsAndFollowsTExtractor.h>
 #include <sp/design_extractor/CallsAndCallsTExtractor.h>
 #include <sp/SPException.h>
 #include <string>
@@ -57,11 +56,10 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		shared_ptr<Extractor<Relationship>> parentExtractor = shared_ptr<Extractor<Relationship>>(new ParentExtractor());
 		shared_ptr<Extractor<Relationship>> parentTExtractor = shared_ptr<Extractor<Relationship>>(new ParentTExtractor());
 		shared_ptr<Extractor<Relationship>> usesExtractor = shared_ptr<Extractor<Relationship>>(new UsesExtractor());
-		shared_ptr<Extractor<Relationship>> followsExtractor = shared_ptr<Extractor<Relationship>>(new FollowsExtractor());
-		shared_ptr<Extractor<Relationship>> followsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsTExtractor());
+		shared_ptr<Extractor<Relationship>> followsAndFollowsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsAndFollowsTExtractor());
 		shared_ptr<Extractor<Relationship>> callsAndCallsTExtractor = shared_ptr<Extractor<Relationship>>(new CallsAndCallsTExtractor());
 		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, 
-				parentExtractor, parentTExtractor, usesExtractor, followsExtractor, followsTExtractor, callsAndCallsTExtractor };
+				parentExtractor, parentTExtractor, usesExtractor, followsAndFollowsTExtractor, callsAndCallsTExtractor };
 		
 		// create manager
 		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, *nextExtractor, relationExtractors);
