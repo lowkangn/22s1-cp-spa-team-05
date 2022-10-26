@@ -18,9 +18,11 @@ enum PkbRelationshipType {
 	CALLSTMTATTRIBUTE,
 	NEXT,
 	NEXTSTAR,
+	NOT_NEXTSTAR,
 	AFFECTS,
 	AFFECTSSTAR,
-	
+	NOT_AFFECTS,
+	NOT_AFFECTSSTAR,
 };
 
 class PkbRelationship {
@@ -85,6 +87,19 @@ public:
 
 	bool isAffectsStar() {
 		return this->relationshipType == PkbRelationshipType::AFFECTSSTAR;
+	}
+
+
+	bool isAffectsNot() {
+		return this->relationshipType == PkbRelationshipType::NOT_AFFECTS;
+	}
+
+	bool isAffectsStarNot() {
+		return this->relationshipType == PkbRelationshipType::NOT_AFFECTSSTAR;
+	}
+
+	bool isNextStarNot() {
+		return this->relationshipType == PkbRelationshipType::NOT_NEXTSTAR;
 	}
 
 	string getKey() {

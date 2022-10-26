@@ -19,6 +19,11 @@
 #include <pkb/pkbRepository/design_objects/relationships/PkbNextRelationship.h>
 #include <pkb/pkbRepository/design_objects/relationships/PkbNextStarRelationship.h>
 #include <pkb/pkbRepository/design_objects/relationships/PkbCallStmtAttributeRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbAffectsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbAffectsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbNotAffectsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbNotAffectsRelationship.h>
+
 
 #include <pkb/pkbRepository/design_objects/graphs/PkbControlFlowGraphNode.h>
 #include <pkb/pkbRepository/design_objects/graphs/PkbGraphNode.h>
@@ -83,6 +88,17 @@ private:
 			throw PkbException("clause argument is of unknown type!");
 		}
 	}
+
+	// ******************** relationship query handlers ********************
+	/*
+		Handles the (complicated) logic of retrieval for next* relationships.
+	*/
+	vector<shared_ptr<PkbRelationship>> retrieveNextStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
+
+	/*
+		Handles the (complicated) logic of retrieval for affects relationships.
+	*/
+	vector<shared_ptr<PkbRelationship>> retrieveAffectsByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
 
 
 public:
