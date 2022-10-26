@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include <sp/design_extractor/FollowsExtractor.h>
+#include <sp/design_extractor/FollowsAndFollowsTExtractor.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/ast/AST.h>
@@ -20,10 +20,10 @@
 
 using namespace std;
 
-TEST_CASE("FollowsExtractor: test extract") {
+TEST_CASE("FollowsAndFollowsTExtractor: test extract") {
 	auto test = [](shared_ptr<ASTNode> astNode, vector<Relationship> expectedResult) {
 		// Given
-		FollowsExtractor extractor = FollowsExtractor();
+		FollowsAndFollowsTExtractor extractor = FollowsAndFollowsTExtractor();
 
 		// When
 		vector<Relationship> extractedRelationships = extractor.extract(astNode);
@@ -38,7 +38,7 @@ TEST_CASE("FollowsExtractor: test extract") {
 	};
 
 	SECTION("Test nested - empty results") {
-		/*
+		/*j
 			procedure main {
 			1.	while (x > 0) {
 			2.		if (x > 0) then {
@@ -119,10 +119,9 @@ TEST_CASE("FollowsExtractor: test extract") {
 			4.			x = x + 2;
 			5.			read y;
 					}
-				} else {
-			6.		y = 5;
-				}
-			7.	x = y;
+			6.		if () then {} else {}
+			7.		print y;
+				} else {}
 			}
 		*/
 
@@ -176,15 +175,22 @@ TEST_CASE("FollowsExtractor: test extract") {
 
 		whileStmtListNode->addChild(readYNode);
 
-		shared_ptr<ASTNode> assign6Node = AssignASTNode::createAssignNode();
-		assign6Node->setLineNumber(6);
+		shared_ptr<ASTNode> nestedIfNode = IfASTNode::createIfNode();
+		nestedIfNode->setLineNumber(6);
 
-		elseStmtListNode->addChild(assign6Node);
+		thenStmtListNode->addChild(nestedIfNode);
 
-		shared_ptr<ASTNode> assign7Node = AssignASTNode::createAssignNode();
-		assign7Node->setLineNumber(7);
+		shared_ptr<ASTNode> emptyIfCond = ExpressionASTNode::createExpressionNode(lessThanToken);
+		shared_ptr<ASTNode> emptyThenStmtListNode = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> emptyElseStmtListNode = StatementListASTNode::createStatementListNode();
+		nestedIfNode->addChild(emptyIfCond);
+		nestedIfNode->addChild(emptyThenStmtListNode);
+		nestedIfNode->addChild(emptyElseStmtListNode);
 
-		mainStmtListNode->addChild(assign7Node);
+		shared_ptr<ASTNode> printNode = PrintASTNode::createPrintNode();
+		printNode->setLineNumber(7);
+
+		thenStmtListNode->addChild(printNode);
 
 		// Create entities
 		Entity ifEntity = Entity::createIfEntity(1);
@@ -192,17 +198,27 @@ TEST_CASE("FollowsExtractor: test extract") {
 		Entity whileEntity = Entity::createWhileEntity(3);
 		Entity assign4Entity = Entity::createAssignEntity(4);
 		Entity readYEntity = Entity::createReadEntity(5);
-		Entity assign6Entity = Entity::createAssignEntity(6);
-		Entity assign7Entity = Entity::createAssignEntity(7);
+		Entity nestedIfEntity = Entity::createIfEntity(6);
+		Entity printEntity = Entity::createPrintEntity(7);
 
 		// Create relationships
-		Relationship followsIfA7 = Relationship::createFollowsRelationship(ifEntity, assign7Entity);
 		Relationship followsA2While = Relationship::createFollowsRelationship(assign2Entity, whileEntity);
 		Relationship followsA4ReadY = Relationship::createFollowsRelationship(assign4Entity, readYEntity);
+		Relationship followsWhileNestedIf = Relationship::createFollowsRelationship(whileEntity, nestedIfEntity);
+		Relationship followsNestedIfPrint = Relationship::createFollowsRelationship(nestedIfEntity, printEntity);
 
-		vector<Relationship> expectedFollowsRelationships{ followsIfA7, followsA2While, followsA4ReadY };
+		Relationship followsTA2While = Relationship::createFollowsTRelationship(assign2Entity, whileEntity);
+		Relationship followsTA2NestedIf = Relationship::createFollowsTRelationship(assign2Entity, nestedIfEntity);
+		Relationship followsTA2Print = Relationship::createFollowsTRelationship(assign2Entity, printEntity);
+		Relationship followsTWhileNestedIf = Relationship::createFollowsTRelationship(whileEntity, nestedIfEntity);
+		Relationship followsTWhilePrint = Relationship::createFollowsTRelationship(whileEntity, printEntity);
+		Relationship followsTA4ReadY = Relationship::createFollowsTRelationship(assign4Entity, readYEntity);
+		Relationship followsTNestedIfPrint = Relationship::createFollowsTRelationship(nestedIfEntity, printEntity);
 
-		test(procedureNode, expectedFollowsRelationships);
+		vector<Relationship> expectedRelationships{ followsA2While, followsTA2While, followsTA2NestedIf, followsTA2Print, followsWhileNestedIf, 
+			followsTWhileNestedIf, followsTWhilePrint, followsA4ReadY, followsTA4ReadY, followsNestedIfPrint, followsTNestedIfPrint };
+
+		test(procedureNode, expectedRelationships);
 	}
 
 	SECTION("Full test") {
@@ -381,13 +397,21 @@ TEST_CASE("FollowsExtractor: test extract") {
 		Entity ifEntity = Entity::createIfEntity(ifNode->getLineNumber());
 
 		// Creating Relationships
-		Relationship followsAssign1Read = Relationship::createFollowsRelationship(assign1Entity, readEntity);
+		Relationship followsA1Read = Relationship::createFollowsRelationship(assign1Entity, readEntity);
 		Relationship followsReadWhile = Relationship::createFollowsRelationship(readEntity, whileEntity);
-		Relationship followsAssign4Print = Relationship::createFollowsRelationship(assign4Entity, printEntity);
+		Relationship followsA4Print = Relationship::createFollowsRelationship(assign4Entity, printEntity);
 		Relationship followsWhileIf = Relationship::createFollowsRelationship(whileEntity, ifEntity);
+		Relationship followsTA1Read = Relationship::createFollowsTRelationship(assign1Entity, readEntity);
+		Relationship followsTA1While = Relationship::createFollowsTRelationship(assign1Entity, whileEntity);
+		Relationship followsTA1If = Relationship::createFollowsTRelationship(assign1Entity, ifEntity);
+		Relationship followsTReadWhile = Relationship::createFollowsTRelationship(readEntity, whileEntity);
+		Relationship followsTReadIf = Relationship::createFollowsTRelationship(readEntity, ifEntity);
+		Relationship followsTWhileIf = Relationship::createFollowsTRelationship(whileEntity, ifEntity);
+		Relationship followsTA4Print = Relationship::createFollowsTRelationship(assign4Entity, printEntity);
 
-		vector<Relationship> expectedParentRelationships{ followsAssign1Read, followsReadWhile, followsWhileIf, followsAssign4Print };
+		vector<Relationship> expectedRelationships{ followsA1Read, followsTA1Read, followsTA1While, followsTA1If, followsReadWhile, 
+			followsTReadWhile, followsTReadIf, followsWhileIf,  followsTWhileIf, followsA4Print, followsTA4Print };
 
-		test(procedureNode, expectedParentRelationships);
+		test(procedureNode, expectedRelationships);
 	}
 }
