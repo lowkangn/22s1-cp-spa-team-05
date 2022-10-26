@@ -1,8 +1,11 @@
 #include <catch.hpp>
 
-#include <pkb/design_objects/entities/PkbStatementEntity.h>
-#include <pkb/table_managers/PkbPatternTable.h>
-#include <pkb/design_objects/patterns/PkbAssignPattern.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/pkbRepository/table_managers/PkbPatternTable.h>
+#include <pkb/pkbRepository/design_objects/patterns/PkbAssignPattern.h>
+#include <pkb/pkbRepository/design_objects/patterns/PkbIfPattern.h>
+#include <pkb/pkbRepository/design_objects/patterns/PkbWhilePattern.h>
+
 
 #include <vector>
 #include <string>

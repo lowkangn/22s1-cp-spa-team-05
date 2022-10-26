@@ -1,8 +1,8 @@
 #include <catch.hpp>
 
-#include <pkb/design_objects/graphs/PkbControlFlowGraphNode.h>
-#include <pkb/design_objects/graphs/PkbGraphNode.h>
-#include <pkb/graph_managers/PkbGraphManager.h>
+#include <pkb/pkbRepository/design_objects/graphs/PkbControlFlowGraphNode.h>
+#include <pkb/pkbRepository/design_objects/graphs/PkbGraphNode.h>
+#include <pkb/pkbRepository/graph_managers/PkbGraphManager.h>
 #include <pkb/PkbException.h>
 #include <iostream>
 

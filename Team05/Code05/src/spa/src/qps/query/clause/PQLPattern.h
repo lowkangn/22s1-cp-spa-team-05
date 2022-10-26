@@ -21,7 +21,7 @@ private:
 
 public: 
 	/*
-		Creates an assign pattern.
+		Creates a  pattern.
 	*/
 	static PQLPattern generateAssignPattern(int statementLineNumber, string variableName) {
 		PQLEntity stmtEntity = PQLEntity::generateStatement(statementLineNumber);
