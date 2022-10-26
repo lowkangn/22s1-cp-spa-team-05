@@ -75,6 +75,11 @@ shared_ptr<CFGNode> ControlFlowParser::handleWhile(shared_ptr<ASTNode> whileNode
 
 	// Add whileCFGNode to the end of the statement list
 	this->addChildToEndOfNode(stmtListCFG, whileCFGNode);
+
+	// Ensure that the while node does not have next (Prevent case of If the while as children)
+	if (whileCFGNode->hasNext()) {
+		whileCFGNode->removeNext();
+	}
 	
 	return whileCFGNode;
 }
