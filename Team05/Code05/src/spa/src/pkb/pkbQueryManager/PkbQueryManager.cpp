@@ -119,7 +119,7 @@ vector<PQLEntity> PkbQueryManager::retrieveStatementEntitiesByType(PKBTrackedSta
 		assert(statement->isStatement());
 		shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
 
-		if (cast != nullptr && filter(cast.get())) { // use filter
+		if (cast != nullptr && filter(cast)) { // use filter
 			// create pql entity
 			PQLEntity entity = this->pkbEntityToQpsPqlEntity(cast);
 			out.push_back(entity);
@@ -210,7 +210,7 @@ optional<PQLEntity> PkbQueryManager::retrieveStatementByLineNumberAndType(int li
 	// cast and filter
 	assert(result == NULL || result->isStatement());
 	shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(result);
-	if (result == NULL || (cast != nullptr && !filter(cast.get()))) {
+	if (result == NULL || (cast != nullptr && !filter(cast))) {
 		return optional<PQLEntity>();
 	}
 	optional<PQLEntity> entity = this->pkbEntityToQpsPqlEntity(result);

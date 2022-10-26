@@ -3,13 +3,20 @@
 
 #include <assert.h>
 #include <optional>
+#include <memory>
 #include <pkb/pkbRepository/PkbRepository.h>
 #include <pkb/pkbRepository/design_objects/entities/PkbProcedureEntity.h>
 #include <pkb/pkbRepository/design_objects/entities/PkbStatementEntity.h>
 
 using namespace std;
 
-typedef bool (*PkbStatementEntityFilter)(PkbStatementEntity* statement);
+/*
+	Statement entity filter type. Note that the return type is a raw pointer because of 
+	how typdefs work in C++11. 
+
+	See https://stackoverflow.com/questions/26151/template-typedefs-whats-your-work-around
+*/
+typedef bool (*PkbStatementEntityFilter)(shared_ptr<PkbStatementEntity> statement);
 
 class PkbEntityQueryHelper {
 
@@ -44,8 +51,8 @@ public:
 	/*
 		Creates a filter from tracked statement types.
 	*/
-	PkbStatementEntityFilter getFilterToCheckForStatementType(PkbStatementType t, bool defaultTrue = false) {
-		PkbStatementEntityFilter filter = [](PkbStatementEntity* statement) {
+	PkbStatementEntityFilter getFilterToCheckForStatementType(PkbStatementType statementType, bool defaultTrue = false) {
+		PkbStatementEntityFilter filter = [](shared_ptr<PkbStatementEntity> statement) {
 			return true;
 		};
 
@@ -54,34 +61,34 @@ public:
 		}
 
 		// go through switch case to get specific filter by type
-		if (t == PkbStatementType::READ) {
-			filter = [](PkbStatementEntity* statement) {
+		if (statementType == PkbStatementType::READ) {
+			filter = [](shared_ptr<PkbStatementEntity> statement) {
 				return statement->isReadStatement();
 			};
 		}
-		else if (t == PkbStatementType::PRINT) {
+		else if (statementType == PkbStatementType::PRINT) {
 
-			filter = [](PkbStatementEntity* statement) {
+			filter = [](shared_ptr<PkbStatementEntity> statement) {
 				return statement->isPrintStatement();
 			};
 		}
-		else if (t == PkbStatementType::WHILE) {
-			filter = [](PkbStatementEntity* statement) {
+		else if (statementType == PkbStatementType::WHILE) {
+			filter = [](shared_ptr<PkbStatementEntity> statement) {
 				return statement->isWhileStatement();
 			};
 		}
-		else if (t == PkbStatementType::IF) {
-			filter = [](PkbStatementEntity* statement) {
+		else if (statementType == PkbStatementType::IF) {
+			filter = [](shared_ptr<PkbStatementEntity> statement) {
 				return statement->isIfStatement();
 			};
 		}
-		else if (t == PkbStatementType::ASSIGN) {
-			filter = [](PkbStatementEntity* statement) {
+		else if (statementType == PkbStatementType::ASSIGN) {
+			filter = [](shared_ptr<PkbStatementEntity> statement) {
 				return statement->isAssignStatement();
 			};
 		}
-		else if (t == PkbStatementType::CALL) {
-			filter = [](PkbStatementEntity* statement) {
+		else if (statementType == PkbStatementType::CALL) {
+			filter = [](shared_ptr<PkbStatementEntity> statement) {
 				return statement->isCallStatement();
 			};
 		}

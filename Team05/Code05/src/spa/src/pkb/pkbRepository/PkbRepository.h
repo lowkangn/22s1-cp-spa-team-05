@@ -61,81 +61,81 @@ private:
 
 public: 
 	// ==================== Setters ====================
-	void addPkbEntity(shared_ptr<PkbEntity> e) {
+	void addPkbEntity(shared_ptr<PkbEntity> entity) {
 		// depending on type, we add to the correct table
-		if (e->isConstant()) {
-			this->constantsTable->add(e);
+		if (entity->isConstant()) {
+			this->constantsTable->add(entity);
 		}
-		else if (e->isProcedure()) {
-			this->proceduresTable->add(e);
+		else if (entity->isProcedure()) {
+			this->proceduresTable->add(entity);
 		}
-		else if (e->isVariable()) {
-			this->variableTable->add(e);
+		else if (entity->isVariable()) {
+			this->variableTable->add(entity);
 		}
-		else if (e->isStatement()) {
-			this->statementTable->add(e);
+		else if (entity->isStatement()) {
+			this->statementTable->add(entity);
 		}
 		else {
 			throw PkbException("Unknown pkb pattern being added to repository.");
 		}
 	}
 
-	void addPkbRelationship(shared_ptr<PkbRelationship> r) {
-		if (r->isFollows()) {
+	void addPkbRelationship(shared_ptr<PkbRelationship> relationship) {
+		if (relationship->isFollows()) {
 			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::FOLLOWS);
-			table->add(r);
+			table->add(relationship);
 		}
-		else if (r->isFollowsStar()) {
+		else if (relationship->isFollowsStar()) {
 			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::FOLLOWSSTAR);
-			table->add(r);
+			table->add(relationship);
 		}
-		else if (r->isParent()) {
+		else if (relationship->isParent()) {
 			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::PARENT);
-			table->add(r);
+			table->add(relationship);
 		}
-		else if (r->isParentStar()) {
+		else if (relationship->isParentStar()) {
 			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::PARENTSTAR);
-			table->add(r);
+			table->add(relationship);
 		}
-		else if (r->isUses()) {
+		else if (relationship->isUses()) {
 			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::USES);
-			table->add(r);
+			table->add(relationship);
 		}
-		else if (r->isModifies()) {
+		else if (relationship->isModifies()) {
 			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::MODIFIES);
-			table->add(r);
+			table->add(relationship);
 		}
-		else if (r->isCallStmtAttribute()) {
+		else if (relationship->isCallStmtAttribute()) {
 			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::CALLSTMTATTRIBUTE);
-			table->add(r);
+			table->add(relationship);
 		}
-		else if (r->isCalls()) {
+		else if (relationship->isCalls()) {
 			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::CALLS);
-			table->add(r);
+			table->add(relationship);
 		}
-		else if (r->isCallsStar()) {
+		else if (relationship->isCallsStar()) {
 			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::CALLSSTAR);
-			table->add(r);
+			table->add(relationship);
 		}
-		else if (r->isNext()) {
+		else if (relationship->isNext()) {
 			shared_ptr<PkbRelationshipTable> table = this->getRelationshipTableByRelationshipType(PkbRelationshipType::NEXT);
-			table->add(r);
+			table->add(relationship);
 		}
 		else {
 			throw PkbException("Unknown relationship being added to repository!");
 		}
 	}
 
-	void addPkbPattern(shared_ptr<PkbPattern> p) {
+	void addPkbPattern(shared_ptr<PkbPattern> pattern) {
 		// depending on type, we add to the correct table
-		if (p->isAssignPattern()) {
-			this->assignPatterns->add(p);
+		if (pattern->isAssignPattern()) {
+			this->assignPatterns->add(pattern);
 		}
-		else if (p->isWhilePattern()) {
-			this->whilePatterns->add(p);
+		else if (pattern->isWhilePattern()) {
+			this->whilePatterns->add(pattern);
 		}
-		else if (p->isIfPattern()) {
-			this->ifPatterns->add(p);
+		else if (pattern->isIfPattern()) {
+			this->ifPatterns->add(pattern);
 		}
 		else {
 			throw PkbException("Unknown pkb pattern being added to repository.");

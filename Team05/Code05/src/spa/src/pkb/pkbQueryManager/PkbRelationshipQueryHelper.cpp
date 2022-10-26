@@ -37,7 +37,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 				return false;
 			}
 			// else, cast and check if assign
-			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(entity);
 			return cast->getLineNumber() == arg.getLineNumber();
 		};
 	}
@@ -46,12 +46,12 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 		filter = [](shared_ptr<PkbEntity> entity, ClauseArgument arg) {
 			if (entity->isVariable()) {
 				// castand check 
-				PkbVariableEntity* cast = dynamic_cast<PkbVariableEntity*>(&(*entity));
+				shared_ptr<PkbVariableEntity> cast = dynamic_pointer_cast<PkbVariableEntity>(entity);
 				return cast->getIdentifier() == arg.getIdentifier();
 			}
 			else if (entity->isProcedure()) {
 				// castand check 
-				PkbProcedureEntity* cast = dynamic_cast<PkbProcedureEntity*>(&(*entity));
+				shared_ptr<PkbProcedureEntity> cast = dynamic_pointer_cast<PkbProcedureEntity>(entity);
 				return cast->getIdentifier() == arg.getIdentifier();
 			}
 			return false;
@@ -65,7 +65,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 				return false;
 			}
 			// else, cast and check if assign
-			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(entity);
 			return cast->isAssignStatement();
 		};
 	}
@@ -76,7 +76,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 				return false;
 			}
 			// else, cast and check if print
-			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(entity);
 			return cast->isPrintStatement();
 		};
 	}
@@ -87,7 +87,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 				return false;
 			}
 			// else, cast and check if read
-			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(entity);
 			return cast->isReadStatement();
 		};
 	}
@@ -98,7 +98,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 				return false;
 			}
 			// else, cast and check if call
-			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(entity);
 			return cast->isCallStatement();
 		};
 	}
@@ -109,7 +109,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 				return false;
 			}
 			// else, cast and check if while
-			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(entity);
 			return cast->isWhileStatement();
 		};
 	}
@@ -120,7 +120,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 				return false;
 			}
 			// else, cast and check if if
-			PkbStatementEntity* cast = dynamic_cast<PkbStatementEntity*>(&(*entity));
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(entity);
 			return cast->isIfStatement();
 		};
 	}
@@ -201,13 +201,13 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 	PkbEntityFilter lhsFilter = getFilterFromClauseArgument(lhs);
 	PkbEntityFilter rhsFilter = getFilterFromClauseArgument(rhs);
 	vector<shared_ptr<PkbRelationship>> out;
-	for (shared_ptr<PkbRelationship> r : table->getAll()) {
-		shared_ptr<PkbEntity> lhsEntity = r->getLhs();
-		shared_ptr<PkbEntity> rhsEntity = r->getRhs();
+	for (shared_ptr<PkbRelationship> relationship : table->getAll()) {
+		shared_ptr<PkbEntity> lhsEntity = relationship->getLhs();
+		shared_ptr<PkbEntity> rhsEntity = relationship->getRhs();
 
 
 		if (lhsFilter(lhsEntity, lhs) && rhsFilter(rhsEntity, rhs)) {
-			out.push_back(r);
+			out.push_back(relationship);
 		}
 	}
 	return out;
@@ -285,7 +285,6 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 			extractedRelationships = extractor.getExtractedRelationships();
 		}
 		else { // case 4: all wild card
-			// starting at root node, dfs all the way
 			// starting at root node, dfs all the way
 			shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getRootNode());
 			extractor.extractAllFromStart(startNode);
