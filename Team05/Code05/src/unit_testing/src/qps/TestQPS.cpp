@@ -674,7 +674,7 @@ TEST_CASE("QPS: test working correctly") {
 					 pattern a(v1, _\"1000 -   0\"_ ) with i.stmt# = i.stmt#  \
 					 with r.varName = pro.procName such that Uses(p, v) \
 			";
-		expectedResult = set<string>{ "z"};
+		expectedResult = set<string>{"z"};
 		testQPS(queryString, expectedResult, pkb);
 
 		// 2 groups, both non-empty

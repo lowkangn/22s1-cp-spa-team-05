@@ -4,31 +4,21 @@
 // ==================== PROTECTED METHODS ==================== //
 // =========================================================== //
 
-vector<ClauseArgument> ClauseResult::findConnectingArgs(ClauseResult otherResult) {
-	unordered_set<ClauseArgument> argSet;
-	for (ClauseArgument arg : this->args) {
-		argSet.insert(arg);
-	}
-
+vector<ClauseArgument> ClauseResult::findConnectingArgs(const ClauseResult& otherResult) {
 	vector<ClauseArgument> connectingArgs;
 	for (ClauseArgument arg : otherResult.args) {
-		if (!arg.isWildcard() && argSet.find(arg) != argSet.end()) {
+		if (!arg.isWildcard() && this->argumentToIndexMap.find(arg) != this->argumentToIndexMap.end()) {
 			connectingArgs.push_back(arg);
 		}
 	}
 	return connectingArgs;
 }
 
-vector<int> ClauseResult::getColumnIndices(vector<ClauseArgument> searchArgs) {
-	unordered_map<ClauseArgument, int> argMap;
-	for (int i = 0; i < this->args.size(); i++) {
-		argMap.insert({this->args[i], i});
-	}
-
+vector<int> ClauseResult::getColumnIndices(const vector<ClauseArgument>& searchArgs) {
 	vector<int> indices;
-	for (ClauseArgument arg : searchArgs) {
-		unordered_map<ClauseArgument, int>::iterator mapIter = argMap.find(arg);
-		if (mapIter != argMap.end()) {
+	for (const ClauseArgument& arg : searchArgs) {
+		unordered_multimap<ClauseArgument, int>::iterator mapIter = this->argumentToIndexMap.find(arg);
+		if (mapIter != this->argumentToIndexMap.end()) {
 			indices.push_back(mapIter->second);
 		} else {
 			indices.push_back(-1);
@@ -37,7 +27,7 @@ vector<int> ClauseResult::getColumnIndices(vector<ClauseArgument> searchArgs) {
 	return indices;
 }
 
-ClauseResult ClauseResult::performInnerJoin(ClauseResult otherResult, vector<ClauseArgument> connectingArgs) {
+ClauseResult ClauseResult::performInnerJoin(ClauseResult otherResult, const vector<ClauseArgument>& connectingArgs) {
 	// Get indices of connecting args from each table
 	vector<int> thisTableKeyColumnIndices = this->getColumnIndices(connectingArgs);
 	vector<int> otherTableKeyColumnIndices = otherResult.getColumnIndices(connectingArgs);
@@ -59,6 +49,7 @@ ClauseResult ClauseResult::performInnerJoin(ClauseResult otherResult, vector<Cla
 	// Create new table and set up arguments (columns)
 	ClauseResult newResult = ClauseResult();
 	newResult.args = this->args;
+	newResult.argumentToIndexMap = this->argumentToIndexMap;
 	for (int i = 0; i < otherResult.args.size(); i++) {
 		if (otherTableKeyColumnIndicesSet.find(i) == otherTableKeyColumnIndicesSet.end()) {
 			newResult.addArgumentToTable(otherResult.args[i]);
@@ -88,18 +79,18 @@ ClauseResult ClauseResult::performInnerJoin(ClauseResult otherResult, vector<Cla
 	return newResult;
 }
 
-ClauseResult ClauseResult::performCrossProduct(ClauseResult otherResult) {
+ClauseResult ClauseResult::performCrossProduct(const ClauseResult& otherResult) {
 	// Create new table and set up arguments (columns)
 	ClauseResult newResult = ClauseResult();
-	for (ClauseArgument arg : this->args) {
+	for (const ClauseArgument& arg : this->args) {
 		newResult.addArgumentToTable(arg);
 	}
-	for (ClauseArgument arg : otherResult.args) {
+	for (const ClauseArgument& arg : otherResult.args) {
 		newResult.addArgumentToTable(arg);
 	}
 
 	// Create new rows and add to new table
-	for (Row thisTableRow : this->table) {
+	for (const Row& thisTableRow : this->table) {
 		for (Row otherTableRow : otherResult.table) {
 			Row newRow = thisTableRow;
 			newRow.insert(newRow.end(), otherTableRow.begin(), otherTableRow.end());
@@ -110,11 +101,12 @@ ClauseResult ClauseResult::performCrossProduct(ClauseResult otherResult) {
 	return newResult;
 }
 
-void ClauseResult::addColumn(ClauseResult resultToAdd) {
-	if (this->canAddColumn(resultToAdd)) {
+void ClauseResult::addColumnToTable(ClauseResult resultToAdd) {
+	if (this->canAddColumnToTable(resultToAdd)) {
 		// Add new args
-		vector<ClauseArgument> newArgs = resultToAdd.args;
-		this->args.insert(this->args.end(), newArgs.begin(), newArgs.end());
+		for (const ClauseArgument& newArg : resultToAdd.args) {
+			this->addArgumentToTable(newArg);
+		}
 
 		// Add columns
 		for (int i = 0; i < this->table.size(); i++) {
@@ -126,25 +118,34 @@ void ClauseResult::addColumn(ClauseResult resultToAdd) {
 	}
 }
 
-ClauseResult ClauseResult::getColumn(int columnIndex) {
+ClauseResult ClauseResult::getColumnFromTable(int columnIndex) {
 	Column column;
-	for (int rowIndex = 0; rowIndex < this->table.size(); rowIndex++) {
-		column.push_back({this->table[rowIndex][columnIndex]});
+	for (vector<PQLEntity> rowIndex : this->table) {
+		column.push_back({rowIndex[columnIndex]});
 	}
 	return ClauseResult({this->args[columnIndex]}, column);
 }
 
-void ClauseResult::duplicateExistingColumnAs(ClauseArgument headerOfColumnToDuplicate, ClauseArgument newColumnHeader) {
+void ClauseResult::duplicateExistingColumnAs(const ClauseArgument& headerOfColumnToDuplicate, const ClauseArgument& newColumnHeader) {
 	vector<int> indices = this->getColumnIndices(vector<ClauseArgument>{ headerOfColumnToDuplicate });
 	assert(indices.size() == 1 && indices.front() != -1); //column must be an existing column
 
-	ClauseResult columnToDuplicate = this->getColumn(indices.front());
+	ClauseResult columnToDuplicate = this->getColumnFromTable(indices.front());
 	columnToDuplicate.renameColumns(headerOfColumnToDuplicate, newColumnHeader);
-	this->addColumn(columnToDuplicate);
+	this->addColumnToTable(columnToDuplicate);
 }
 
-void ClauseResult::renameColumns(ClauseArgument oldName, ClauseArgument newName) {
+void ClauseResult::renameColumns(const ClauseArgument& oldName, const ClauseArgument& newName) {
 	replace(this->args.begin(), this->args.end(), oldName, newName);
+	pair<unordered_multimap<ClauseArgument, int>::iterator, unordered_multimap<ClauseArgument, int>::iterator> range = this->argumentToIndexMap.equal_range(oldName);
+	unordered_multimap<ClauseArgument, int> tempMap;
+	for (unordered_multimap<ClauseArgument, int>::iterator mapIter = range.first; mapIter != range.second; mapIter++) {
+		tempMap.insert({newName, mapIter->second});
+	}
+	this->argumentToIndexMap.erase(oldName);
+	for (pair<ClauseArgument, int> tempEntry : tempMap) {
+		this->argumentToIndexMap.insert(tempEntry);
+	}
 }
 
 ClauseResult ClauseResult::convertSynonymsColumnToAttributesColumn(ClauseResult selectResult) {
@@ -169,7 +170,7 @@ ClauseResult ClauseResult::convertSynonymsColumnToAttributesColumn(ClauseResult 
 // ==================== PUBLIC METHODS ==================== //
 // ======================================================== //
 
-ClauseResult ClauseResult::mergeResult(ClauseResult resultToMerge) {
+ClauseResult ClauseResult::mergeResult(const ClauseResult& resultToMerge) {
 	// Find common synonyms between results
 	vector<ClauseArgument> connectingArgs = this->findConnectingArgs(resultToMerge);
 
@@ -181,7 +182,7 @@ ClauseResult ClauseResult::mergeResult(ClauseResult resultToMerge) {
 	}
 }
 
-ClauseResult ClauseResult::mergeByForceInnerJoin(ClauseResult resultToMerge, ClauseArgument leftOn, ClauseArgument rightOn) {
+ClauseResult ClauseResult::mergeByForceInnerJoin(ClauseResult resultToMerge, const ClauseArgument& leftOn, const ClauseArgument& rightOn) {
 	bool leftHasArg = *find(this->args.begin(), this->args.end(), leftOn) == leftOn;
 	bool rightHasArg = *find(resultToMerge.args.begin(), resultToMerge.args.end(), rightOn) == rightOn;
 	if (!leftHasArg || !rightHasArg) {
@@ -194,7 +195,7 @@ ClauseResult ClauseResult::mergeByForceInnerJoin(ClauseResult resultToMerge, Cla
 	// temporarily rename any possible natural join synonyms 
 	vector<ClauseArgument> connectingArgs = this->findConnectingArgs(resultToMerge);
 	int i = 0;
-	for (ClauseArgument arg : connectingArgs) {
+	for (const ClauseArgument& arg : connectingArgs) {
 		if (arg != leftOn) {
 			this->renameColumns(arg, ClauseArgument::createStmtArg(to_string(i) + leftPlaceholderSuffix));
 		}
@@ -208,7 +209,7 @@ ClauseResult ClauseResult::mergeByForceInnerJoin(ClauseResult resultToMerge, Cla
 	ClauseResult merged = this->performInnerJoin(resultToMerge, vector<ClauseArgument>{ leftOn });
 	// undo temporary renaming
 	i = 0;
-	for (ClauseArgument arg : connectingArgs) {
+	for (const ClauseArgument& arg : connectingArgs) {
 		merged.renameColumns(ClauseArgument::createStmtArg(to_string(i) + leftPlaceholderSuffix), arg);
 		merged.renameColumns(ClauseArgument::createStmtArg(to_string(i) + rightPlaceholderSuffix), arg);
 		i++;
@@ -216,21 +217,16 @@ ClauseResult ClauseResult::mergeByForceInnerJoin(ClauseResult resultToMerge, Cla
 	return merged;
 }
 
-bool ClauseResult::checkSelectArgsInTable(vector<ClauseResult> selectResults) {
+bool ClauseResult::checkSelectArgsInTable(const vector<ClauseResult>& selectResults) {
 	// Get list of args from select results
 	vector<ClauseArgument> selectArgs;
-	for (ClauseResult selectResult : selectResults) {
+	for (const ClauseResult& selectResult : selectResults) {
 		vector<ClauseArgument> currentArgs = selectResult.args;
 		selectArgs.insert(selectArgs.end(), currentArgs.begin(), currentArgs.end());
 	}
 
-	unordered_set<ClauseArgument> resultArgsSet;
-	for (ClauseArgument arg : this->args) {
-		resultArgsSet.insert(arg);
-	}
-
-	for (ClauseArgument selectArg : selectArgs) {
-		if (resultArgsSet.find(selectArg) != resultArgsSet.end()) {
+	for (const ClauseArgument& selectArg : selectArgs) {
+		if (this->argumentToIndexMap.find(selectArg) != this->argumentToIndexMap.end()) {
 			return true;
 		}
 	}
@@ -238,11 +234,11 @@ bool ClauseResult::checkSelectArgsInTable(vector<ClauseResult> selectResults) {
 	return false;
 }
 
-ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(vector<ClauseResult> selectResults) {
+ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(const vector<ClauseResult>& selectResults) {
 	// Vector to keep track of which columns contain desired results
 	vector<int> desiredSynonymIndices;
 
-	for (ClauseResult currentResult : selectResults) {
+	for (const ClauseResult& currentResult : selectResults) {
 		vector<int> currentDesiredSynonymIndices = this->getColumnIndices(currentResult.args);
 		assert(currentDesiredSynonymIndices.size() == 1 || currentDesiredSynonymIndices.size() == 2);
 
@@ -256,6 +252,7 @@ ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(vector<ClauseResul
 			else {
 				ClauseResult newResult = this->performCrossProduct(currentResult);
 				this->args = newResult.args;
+				this->argumentToIndexMap = newResult.argumentToIndexMap;
 				this->table = newResult.table;
 				int indexOfNewColumn = int(this->args.size()) - 1;
 				desiredSynonymIndices.push_back(indexOfNewColumn);
@@ -273,11 +270,12 @@ ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(vector<ClauseResul
 				if (currentDesiredSynonymIndices[0] == -1) {
 					ClauseResult newResult = this->performCrossProduct(currentResult);
 					this->args = newResult.args;
+					this->argumentToIndexMap = newResult.argumentToIndexMap;
 					this->table = newResult.table;
 				} else {
-					ClauseResult synonymColumn = this->getColumn(currentDesiredSynonymIndices[0]);
+					ClauseResult synonymColumn = this->getColumnFromTable(currentDesiredSynonymIndices[0]);
 					ClauseResult attributeColumn = synonymColumn.convertSynonymsColumnToAttributesColumn(currentResult);
-					this->addColumn(attributeColumn);
+					this->addColumnToTable(attributeColumn);
 				}
 				int indexOfNewColumn = int(this->args.size()) - 1;
 				desiredSynonymIndices.push_back(indexOfNewColumn);
@@ -306,7 +304,7 @@ ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(vector<ClauseResul
 		desiredSynonymsTable.push_back(newRow);
 	}
 
-	return ClauseResult(selectArgs, desiredSynonymsTable);
+	return {selectArgs, desiredSynonymsTable};
 }
 
 void ClauseResult::duplicateColumn(ClauseResult column) {
@@ -314,8 +312,8 @@ void ClauseResult::duplicateColumn(ClauseResult column) {
 	ClauseArgument arg = column.args[0];
 	int countIndex = this->getColumnIndices({arg})[0];
 	assert(countIndex != -1); // Method is only called if column is known to already exist in table
-	ClauseResult duplicatedColumn = this->getColumn(countIndex);
-	this->addColumn(duplicatedColumn);
+	ClauseResult duplicatedColumn = this->getColumnFromTable(countIndex);
+	this->addColumnToTable(duplicatedColumn);
 }
 
 set<string> ClauseResult::convertTableToString(bool isBooleanReturnType) {

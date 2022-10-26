@@ -12,6 +12,7 @@ ClauseResult QueryResultsCombiner::combineResults(vector<ClauseResult> results) 
 		}
 	}
 
+	// TODO: Find solution to this "local variable may escape the function" warning
 	return combinedResult;
 }
 
