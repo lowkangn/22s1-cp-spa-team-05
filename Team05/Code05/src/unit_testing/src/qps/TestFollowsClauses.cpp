@@ -1,8 +1,8 @@
 #include "catch.hpp"
 #include <qps/query/clause/FollowsClause.h>
 #include <qps/query/clause/FollowsTClause.h>
-#include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
-#include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsStarRelationship.h>
 
 #include <list>
 

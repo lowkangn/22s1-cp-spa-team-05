@@ -4,9 +4,9 @@
 #include <sstream>
 #include <pkb/interfaces/PKBUpdateHandler.h>
 #include <pkb/PKB.h>
-#include <pkb/table_managers/PkbEntityTable.h>
-#include <pkb/table_managers/PkbRelationshipTable.h>
-#include <pkb/table_managers/PkbPatternTable.h>
+#include <pkb/pkbRepository/table_managers/PkbEntityTable.h>
+#include <pkb/pkbRepository/table_managers/PkbRelationshipTable.h>
+#include <pkb/pkbRepository/table_managers/PkbPatternTable.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/lexer/Lexer.h>
@@ -1250,7 +1250,6 @@ TEST_CASE("Test Source Processor : extractRelations") {
 	}
 }
 
-/*
 TEST_CASE("Test extractCFGRelations") {
 	auto test = [](string sourceProgram, vector<Relationship> expectedRelations) {
 		stringstream ss(sourceProgram);
@@ -1300,6 +1299,7 @@ TEST_CASE("Test extractCFGRelations") {
 				}
 			13.	call main2;
 			}
+			*/
 		string program = "procedure main1 {\n\twhile (1>= 1%((1))) {\n\t\tread x;\n\t}\n\tx = x + 1;\n\t}\n\n\tprocedure main2 {\n\t\tif (x >= (y - 10)) then {\n\t\t\tread x;\n\t\t} else {\n\t\t\tread y;\n\t\t}\n\t\tprint z;\n\t}\n\n\tprocedure main3 {\n\t\tx = 10;\n\t\tif (x == 5) then {\n\t\t\twhile (x != 0) {\n\t\t\t\tprint z;\n\t\t\t}\n\t\t} else {\n\t\t\tread z;\n\t\t}\n\t\tcall main2;\n\t}\n";
 
 		vector<Relationship> expectedRelations = {
@@ -1326,5 +1326,34 @@ TEST_CASE("Test extractCFGRelations") {
 
 		test(program, expectedRelations);
 	}
+
+	SECTION("Test nested while") {
+		string program = "procedure Main { \
+								while (iter <= 5) { \
+									if (iter != 1) then { \
+										iter = iter; \
+									} else { \
+										x = x; \
+									} while (iter < 1) { \
+										iter = iter; \
+									} \
+								} \
+								x = x + center; \
+						  }";
+
+		vector<Relationship> expectedRelations = {
+			// main 1
+			Relationship::createNextRelationship(Entity::createWhileEntity(1),Entity::createIfEntity(2)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(1),Entity::createAssignEntity(7)),
+			Relationship::createNextRelationship(Entity::createIfEntity(2),Entity::createAssignEntity(3)),
+			Relationship::createNextRelationship(Entity::createIfEntity(2),Entity::createAssignEntity(4)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(3),Entity::createWhileEntity(5)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(4),Entity::createWhileEntity(5)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(5),Entity::createAssignEntity(6)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(5),Entity::createWhileEntity(1)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(6),Entity::createWhileEntity(5)),
+		};
+
+		test(program, expectedRelations);
+	}
 }
-*/

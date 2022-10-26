@@ -1,23 +1,23 @@
 #include "catch.hpp"
 
-#include <pkb/design_objects/entities/PkbProcedureEntity.h>
-#include <pkb/design_objects/entities/PkbVariableEntity.h>
-#include <pkb/design_objects/entities/PkbStatementEntity.h>
-#include <pkb/design_objects/relationships/PkbCallsRelationship.h>
-#include <pkb/design_objects/relationships/PkbCallsStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
-#include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
-#include <pkb/design_objects/relationships/PkbParentRelationship.h>
-#include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbUsesRelationship.h>
-#include <pkb/design_objects/relationships/PkbNextStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbNextRelationship.h>
-#include <pkb/table_managers/PkbPatternTable.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbProcedureEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbVariableEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbModifiesRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbUsesRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbNextStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbNextRelationship.h>
+#include <pkb/pkbRepository/table_managers/PkbPatternTable.h>
 #include <pkb/PkbException.h>
 #include <pkb/PKB.h>
-#include <pkb/design_objects/graphs/PkbGraphNode.h>
-#include <pkb/design_objects/graphs/PkbControlFlowGraphNode.h>
+#include <pkb/pkbRepository/design_objects/graphs/PkbGraphNode.h>
+#include <pkb/pkbRepository/design_objects/graphs/PkbControlFlowGraphNode.h>
 #include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Entity.h>
@@ -26,6 +26,7 @@
 #include <memory>
 #include <string>
 using namespace std;
+
 
 TEST_CASE("Test add and get procedure") {
 	auto test = [](vector<PQLEntity> expectedEntities, vector<Entity> toAdd) {
@@ -58,6 +59,7 @@ TEST_CASE("Test add and get procedure") {
 		test(expectedEntities, toAdd);
 	}
 }
+
 
 TEST_CASE("Test add and get variables") {
 	auto test = [](vector<PQLEntity> expectedEntities, vector<Entity> toAdd) {
@@ -161,6 +163,8 @@ TEST_CASE("Test add and get statements") {
 	}
 }
 
+
+
 TEST_CASE("Test retrieve statements by type") {
 	auto test = [](vector<PQLEntity> expectedEntities, vector<Entity> toAdd, PKBTrackedStatementType pkbTrackedStatementType) {
 		// given
@@ -244,6 +248,7 @@ TEST_CASE("Test retrieve statements by type") {
 	};
 }
 
+
 TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, vector<Relationship> toAdd) {
 		// given
@@ -260,7 +265,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 			REQUIRE(find(all.begin(), all.end(), expectedRelationships[i]) != all.end());
 		}
 	};
-	
+
 	SECTION("Follows") {
 		// shared, as if 4 statements in a block
 		Entity statement1 = Entity::createReadEntity(1);
@@ -305,7 +310,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 
 		// test 3: one a specific line
 		lhs = ClauseArgument::createLineNumberArg("1");
-		 rhs = ClauseArgument::createStmtArg("s");
+		rhs = ClauseArgument::createStmtArg("s");
 		expectedRelationships = {
 			PQLRelationship(statementResult1, statementResult2),
 		};
@@ -387,7 +392,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 			PQLRelationship(statementResult3, statementResult4),
 		};
 		test(PKBTrackedRelationshipType::FOLLOWSSTAR, lhs, rhs, expectedRelationships, toAdd);
-		
+
 	};
 	SECTION("Parent") {
 		// shared, as if 4 statements in a block
@@ -491,7 +496,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 			PQLRelationship(statementResult3, statementResult4),
 		};
 		test(PKBTrackedRelationshipType::PARENTSTAR, lhs, rhs, expectedRelationships, toAdd);
-		
+
 	};
 	SECTION("Uses") {
 		/*
@@ -554,7 +559,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 		lhs = ClauseArgument::createWhileArg("w");
 		rhs = ClauseArgument::createVariableArg("v");
 		expectedRelationships = {
-			
+
 		};
 		test(PKBTrackedRelationshipType::USES, lhs, rhs, expectedRelationships, toAdd);
 
@@ -594,7 +599,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 			1.	x = 1;
 			2.	read x;
 			3.	if (x == 1) then {
-			4.		x = 2;	
+			4.		x = 2;
 			5.		call p; // recursive call
 				}
 
@@ -863,7 +868,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 			Relationship::createModifiesRelationship(statement2, x),
 			Relationship::createModifiesRelationship(statement3, x),
 			Relationship::createModifiesRelationship(procedure, x),
-			 
+
 		};
 		// shared, as PQLEntities
 		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
@@ -880,12 +885,12 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 		vector<PQLRelationship> expectedRelationships = {
 			PQLRelationship(statementResult1, xResult),
 		};
-		
+
 		// test 2: none, but returns empty
 		lhs = ClauseArgument::createLineNumberArg("4");
 		rhs = ClauseArgument::createStringLiteralArg("x");
 		expectedRelationships = {
-			
+
 		};
 		test(PKBTrackedRelationshipType::MODIFIES, lhs, rhs, expectedRelationships, toAdd);
 	};
@@ -942,7 +947,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 		PQLEntity statementResult6 = PQLEntity::generateStatement(6);
 		PQLEntity statementResult7 = PQLEntity::generateStatement(7);
 		PQLEntity statementResult8 = PQLEntity::generateStatement(8);
-		
+
 		// test 1a: both exact, both inside -> one result
 		ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
 		ClauseArgument rhs = ClauseArgument::createLineNumberArg("2");
@@ -978,7 +983,7 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 
 		// test 3: exact, wildcard
 		lhs = ClauseArgument::createLineNumberArg("3"); // start at 3
-		rhs = ClauseArgument::createWildcardArg(); 
+		rhs = ClauseArgument::createWildcardArg();
 		expectedRelationships = { // expect all relationships
 			PQLRelationship(statementResult3, statementResult4),
 			PQLRelationship(statementResult3, statementResult6),
@@ -987,8 +992,8 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 
 
 		// test 4: wildcard, exact
-		lhs = ClauseArgument::createWildcardArg(); 
-		rhs = ClauseArgument::createLineNumberArg("7"); 
+		lhs = ClauseArgument::createWildcardArg();
+		rhs = ClauseArgument::createLineNumberArg("7");
 		expectedRelationships = { // those that end at 7
 			PQLRelationship(statementResult6, statementResult7),
 			PQLRelationship(statementResult5, statementResult7),
@@ -996,191 +1001,11 @@ TEST_CASE("Test add and retrieve table relationships by type and lhs rhs") {
 		};
 		test(PKBTrackedRelationshipType::NEXT, lhs, rhs, expectedRelationships, toAdd);
 
-		
+
 
 	}
 }
 
-TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
-
-	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, shared_ptr<CFGNode> graphToAdd) {
-		// given pkb 
-		PKB pkb;
-
-		// when add and retrieve relationships 
-		pkb.addCfg(graphToAdd);
-		vector<PQLRelationship> all = pkb.retrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs);
-
-		// then should be inside
-		REQUIRE(expectedRelationships.size() == all.size());
-		for (int i = 0; i < expectedRelationships.size(); i++) {
-			// retrieval all have been added
-			REQUIRE(find(all.begin(), all.end(), expectedRelationships[i]) != all.end());
-		}
-	};
-
-	SECTION("NextStar") { // TODO: consider refactor to cfgnode
-	
-
-		/*
-		procedure p {
-		1	x = 1; // assign
-		2	call a; // call
-		3	if (x == 1) then { // if
-		4		read b; // read
-			} else {
-		5		print x; // print
-			}
-		6	while (x == 1) { // while
-		7		x = 0; // assign
-			}
-		8	x = 1;
-		}
-		*/
-
-		// graph 
-		unordered_map<int, vector<int>> adjList = {
-			{1, {2}},
-			{2, {3}},
-			{3, {4,5}},
-			{4, {6}},
-			{5, {6}},
-			{6, {7,8}},
-			{7, {6,8}},
-			{8, {}},
-				
-		};
-		unordered_map<int, shared_ptr<CFGNode>> nodeIdToNode = {
-			{1, CFGNode::createCFGNode(Entity::createAssignEntity(1))},
-			{2, CFGNode::createCFGNode(Entity::createCallEntity(2))},
-			{3, CFGNode::createCFGNode(Entity::createIfEntity(3))},
-			{4, CFGNode::createCFGNode(Entity::createReadEntity(4))},
-			{5, CFGNode::createCFGNode(Entity::createPrintEntity(5))},
-			{6, CFGNode::createCFGNode(Entity::createWhileEntity(6))},
-			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
-			{8, CFGNode::createCFGNode(Entity::createAssignEntity(8))},
-		};
-
-		shared_ptr<CFGNode> graph = CFGNode::createCFGFromAdjacencyList(nodeIdToNode, adjList, 1);
-
-		// shared, as PQLEntities
-		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
-		PQLEntity xResult = PQLEntity::generateVariable("x");
-
-		PQLEntity statementResult1 = PQLEntity::generateStatement(1);
-		PQLEntity statementResult2 = PQLEntity::generateStatement(2);
-		PQLEntity statementResult3 = PQLEntity::generateStatement(3);
-		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
-		PQLEntity statementResult5 = PQLEntity::generateStatement(5);
-		PQLEntity statementResult6 = PQLEntity::generateStatement(6);
-		PQLEntity statementResult7 = PQLEntity::generateStatement(7);
-		PQLEntity statementResult8 = PQLEntity::generateStatement(8);
-
-		// test 1a: both exact but inside
-		ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
-		ClauseArgument rhs = ClauseArgument::createLineNumberArg("2");
-		vector<PQLRelationship> expectedRelationships = {
-			PQLRelationship(statementResult1, statementResult2),
-		};
-		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
-
-		// test 1b: both exact but one not inside
-		lhs = ClauseArgument::createLineNumberArg("4");
-		rhs = ClauseArgument::createLineNumberArg("3");
-		expectedRelationships = {
-		};
-		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
-
-		// test 2: both wild card
-		lhs = ClauseArgument::createWildcardArg();
-		rhs = ClauseArgument::createStmtArg("s");
-		expectedRelationships = {
-			// 1 onwards
-			PQLRelationship(statementResult1, statementResult2),
-			PQLRelationship(statementResult1, statementResult3),
-			PQLRelationship(statementResult1, statementResult4),
-			PQLRelationship(statementResult1, statementResult5),
-			PQLRelationship(statementResult1, statementResult6),
-			PQLRelationship(statementResult1, statementResult7),
-			PQLRelationship(statementResult1, statementResult8),
-
-			// 2 onwards
-			PQLRelationship(statementResult2, statementResult3),
-			PQLRelationship(statementResult2, statementResult4),
-			PQLRelationship(statementResult2, statementResult5),
-			PQLRelationship(statementResult2, statementResult6),
-			PQLRelationship(statementResult2, statementResult7),
-			PQLRelationship(statementResult2, statementResult8),
-
-			// 3 onwards
-			PQLRelationship(statementResult3, statementResult4),
-			PQLRelationship(statementResult3, statementResult5),
-			PQLRelationship(statementResult3, statementResult6),
-			PQLRelationship(statementResult3, statementResult7),
-			PQLRelationship(statementResult3, statementResult8),
-
-			// 4 onwards
-			PQLRelationship(statementResult4, statementResult6),
-			PQLRelationship(statementResult4, statementResult7),
-			PQLRelationship(statementResult4, statementResult8),
-
-			// 5 onwards
-			PQLRelationship(statementResult5, statementResult6),
-			PQLRelationship(statementResult5, statementResult7),
-			PQLRelationship(statementResult5, statementResult8),
-
-			// 6 onwards
-			PQLRelationship(statementResult6, statementResult6), // while loop self loop
-			PQLRelationship(statementResult6, statementResult7),
-			PQLRelationship(statementResult6, statementResult8),
-
-			// 7 onwards
-			PQLRelationship(statementResult7, statementResult6), // while loop self loop
-			PQLRelationship(statementResult7, statementResult7), // while loop self loop
-			PQLRelationship(statementResult7, statementResult8),
-
-		};
-		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
-
-		// test 3: exact then wildcard
-		lhs = ClauseArgument::createLineNumberArg("1");
-		rhs = ClauseArgument::createStmtArg("s");
-		expectedRelationships = {
-			// 1 onwards
-			PQLRelationship(statementResult1, statementResult2),
-			PQLRelationship(statementResult1, statementResult3),
-			PQLRelationship(statementResult1, statementResult4),
-			PQLRelationship(statementResult1, statementResult5),
-			PQLRelationship(statementResult1, statementResult6),
-			PQLRelationship(statementResult1, statementResult7),
-			PQLRelationship(statementResult1, statementResult8),
-		};
-		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
-
-
-		// test 4a: wildcard then exact, but exact not inside
-		lhs = ClauseArgument::createWildcardArg();
-		rhs = ClauseArgument::createLineNumberArg("1");
-		expectedRelationships = {};
-		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
-
-		// test 4b: wildcard then exact, but exact is inside
-		lhs = ClauseArgument::createStmtArg("s");
-		rhs = ClauseArgument::createLineNumberArg("7");
-		expectedRelationships = {
-			// 1 onwards
-			PQLRelationship(statementResult1, statementResult7),
-			PQLRelationship(statementResult2, statementResult7),
-			PQLRelationship(statementResult3, statementResult7),
-			PQLRelationship(statementResult4, statementResult7),
-			PQLRelationship(statementResult5, statementResult7),
-			PQLRelationship(statementResult6, statementResult7),
-			PQLRelationship(statementResult7, statementResult7), 
-
-		};
-		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
-	}
-}
 
 TEST_CASE("Test retrieve relationship short circuits to empty result") {
 	auto test = [](vector<Relationship> relationshipsToAdd, PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
@@ -1300,68 +1125,226 @@ TEST_CASE("Test retrieve relationship short circuits to empty result") {
 		ClauseArgument rhs = ClauseArgument::createLineNumberArg("1");
 		test(toAdd, PKBTrackedRelationshipType::NEXT, lhs, rhs);
 	}
-	
+
 }
 
-TEST_CASE("Test containsEntity") {
-	auto test = [](vector<Entity> entitiesToAdd, Entity entityToTest, bool expected) {
-		// given
+
+TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
+
+	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, shared_ptr<CFGNode> graphToAdd) {
+		// given pkb 
 		PKB pkb;
 
-		// when 
-		pkb.addEntities(entitiesToAdd);
-		bool extractedBool = pkb.containsEntity(entityToTest);
+		// when add and retrieve relationships 
+		pkb.addCfg(graphToAdd);
+		vector<PQLRelationship> all = pkb.retrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs);
 
-		// then 
-		REQUIRE(extractedBool == expected);
-	};
-	/*
-		procedure main {
-			x = 1
+		// then should be inside
+		REQUIRE(expectedRelationships.size() == all.size());
+		for (int i = 0; i < expectedRelationships.size(); i++) {
+			// retrieval all have been added
+			REQUIRE(find(all.begin(), all.end(), expectedRelationships[i]) != all.end());
 		}
-	*/
-	const int LINENUMBER = 1;
+	};
 
-	Token leftToken = Token::createNameOrKeywordToken("x");
-	Entity LHS = Entity::createVariableEntity(LINENUMBER, leftToken);
+	SECTION("NextStar") { // TODO: consider refactor to cfgnode
 
-	// Create tokens
-	Token mainToken = Token::createNameOrKeywordToken("main");
-	Token xToken = Token::createNameOrKeywordToken("x");
-	Token constToken = Token::createIntegerToken("1");
-	Token assignToken = Token::createEqualsToken();
 
-	// Create entities
-	Entity procedureMainEntity = Entity::createProcedureEntity(mainToken);
-	Entity xEntity = Entity::createVariableEntity(1, xToken);
-	Entity assignEntity = Entity::createAssignEntity(1);
-	Entity constEntity = Entity::createConstantEntity(1, constToken);
+		/*
+		procedure p {
+		1	x = 1; // assign
+		2	call a; // call
+		3	if (x == 1) then { // if
+		4		read b; // read
+			} else {
+		5		print x; // print
+			}
+		6	while (x == 1) { // while
+		7		x = 0; // assign
+			}
+		8	x = 1;
+		}
+		*/
 
-	vector<Entity> entitiesToAdd = vector<Entity>{ procedureMainEntity, xEntity, assignEntity, constEntity };
+		// graph 
+		unordered_map<int, vector<int>> adjList = {
+			{1, {2}},
+			{2, {3}},
+			{3, {4,5}},
+			{4, {6}},
+			{5, {6}},
+			{6, {7,8}},
+			{7, {6,8}},
+			{8, {}},
 
-	// Test entities not in PKB
-	// create tokens
-	Token yToken = Token::createNameOrKeywordToken("y");
-	Token constTokenTest = Token::createIntegerToken("2");
-	Token testToken = Token::createNameOrKeywordToken("testprocedure");
+		};
+		unordered_map<int, shared_ptr<CFGNode>> nodeIdToNode = {
+			{1, CFGNode::createCFGNode(Entity::createAssignEntity(1))},
+			{2, CFGNode::createCFGNode(Entity::createCallEntity(2))},
+			{3, CFGNode::createCFGNode(Entity::createIfEntity(3))},
+			{4, CFGNode::createCFGNode(Entity::createReadEntity(4))},
+			{5, CFGNode::createCFGNode(Entity::createPrintEntity(5))},
+			{6, CFGNode::createCFGNode(Entity::createWhileEntity(6))},
+			{7, CFGNode::createCFGNode(Entity::createAssignEntity(7))},
+			{8, CFGNode::createCFGNode(Entity::createAssignEntity(8))},
+		};
 
-	Entity procedureTestEntity = Entity::createProcedureEntity(testToken);
-	Entity yEntity = Entity::createVariableEntity(1, yToken);
-	Entity constEntityTest = Entity::createConstantEntity(1, constTokenTest);
+		shared_ptr<CFGNode> graph = CFGNode::createCFGFromAdjacencyList(nodeIdToNode, adjList, 1);
+		
+		// shared, as PQLEntities
+		PQLEntity procedureResult = PQLEntity::generateProcedure("p");
+		PQLEntity xResult = PQLEntity::generateVariable("x");
 
-	SECTION("Test for entities inside PKB") {
-		test(entitiesToAdd, procedureMainEntity, true);
-		test(entitiesToAdd, xEntity, true);
-		test(entitiesToAdd, assignEntity, true);
-		test(entitiesToAdd, constEntity, true);
-	}
+		PQLEntity statementResult1 = PQLEntity::generateStatement(1);
+		PQLEntity statementResult2 = PQLEntity::generateStatement(2);
+		PQLEntity statementResult3 = PQLEntity::generateStatement(3);
+		PQLEntity statementResult4 = PQLEntity::generateStatement(4);
+		PQLEntity statementResult5 = PQLEntity::generateStatement(5);
+		PQLEntity statementResult6 = PQLEntity::generateStatement(6);
+		PQLEntity statementResult7 = PQLEntity::generateStatement(7);
+		PQLEntity statementResult8 = PQLEntity::generateStatement(8);
 
-	SECTION("Test for entities not in PKB") {
-		test(entitiesToAdd, procedureTestEntity, false);
-		test(entitiesToAdd, yEntity, false);
-		test(entitiesToAdd, constEntityTest, false);
+		// test 1a: both exact but inside
+		ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+		ClauseArgument rhs = ClauseArgument::createLineNumberArg("2");
+		vector<PQLRelationship> expectedRelationships = {
+			PQLRelationship(statementResult1, statementResult2),
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
+
+		// test 1b: both exact but one not inside
+		lhs = ClauseArgument::createLineNumberArg("4");
+		rhs = ClauseArgument::createLineNumberArg("3");
+		expectedRelationships = {
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
+
+		// test 2: both wild card
+		lhs = ClauseArgument::createWildcardArg();
+		rhs = ClauseArgument::createStmtArg("s");
+		expectedRelationships = {
+			// 1 onwards
+			PQLRelationship(statementResult1, statementResult2),
+			PQLRelationship(statementResult1, statementResult3),
+			PQLRelationship(statementResult1, statementResult4),
+			PQLRelationship(statementResult1, statementResult5),
+			PQLRelationship(statementResult1, statementResult6),
+			PQLRelationship(statementResult1, statementResult7),
+			PQLRelationship(statementResult1, statementResult8),
+
+			// 2 onwards
+			PQLRelationship(statementResult2, statementResult3),
+			PQLRelationship(statementResult2, statementResult4),
+			PQLRelationship(statementResult2, statementResult5),
+			PQLRelationship(statementResult2, statementResult6),
+			PQLRelationship(statementResult2, statementResult7),
+			PQLRelationship(statementResult2, statementResult8),
+
+			// 3 onwards
+			PQLRelationship(statementResult3, statementResult4),
+			PQLRelationship(statementResult3, statementResult5),
+			PQLRelationship(statementResult3, statementResult6),
+			PQLRelationship(statementResult3, statementResult7),
+			PQLRelationship(statementResult3, statementResult8),
+
+			// 4 onwards
+			PQLRelationship(statementResult4, statementResult6),
+			PQLRelationship(statementResult4, statementResult7),
+			PQLRelationship(statementResult4, statementResult8),
+
+			// 5 onwards
+			PQLRelationship(statementResult5, statementResult6),
+			PQLRelationship(statementResult5, statementResult7),
+			PQLRelationship(statementResult5, statementResult8),
+
+			// 6 onwards
+			PQLRelationship(statementResult6, statementResult6), // while loop self loop
+			PQLRelationship(statementResult6, statementResult7),
+			PQLRelationship(statementResult6, statementResult8),
+
+			// 7 onwards
+			PQLRelationship(statementResult7, statementResult6), // while loop self loop
+			PQLRelationship(statementResult7, statementResult7), // while loop self loop
+			PQLRelationship(statementResult7, statementResult8),
+
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
+
+		// test 3: exact then wildcard
+		lhs = ClauseArgument::createLineNumberArg("1");
+		rhs = ClauseArgument::createStmtArg("s");
+		expectedRelationships = {
+			// 1 onwards
+			PQLRelationship(statementResult1, statementResult2),
+			PQLRelationship(statementResult1, statementResult3),
+			PQLRelationship(statementResult1, statementResult4),
+			PQLRelationship(statementResult1, statementResult5),
+			PQLRelationship(statementResult1, statementResult6),
+			PQLRelationship(statementResult1, statementResult7),
+			PQLRelationship(statementResult1, statementResult8),
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
+
+
+		// test 4a: wildcard then exact, but exact not inside
+		lhs = ClauseArgument::createWildcardArg();
+		rhs = ClauseArgument::createLineNumberArg("1");
+		expectedRelationships = {};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
+
+		// test 4b: wildcard then exact, but exact is inside
+		lhs = ClauseArgument::createStmtArg("s");
+		rhs = ClauseArgument::createLineNumberArg("7");
+		expectedRelationships = {
+			// 1 onwards
+			PQLRelationship(statementResult1, statementResult7),
+			PQLRelationship(statementResult2, statementResult7),
+			PQLRelationship(statementResult3, statementResult7),
+			PQLRelationship(statementResult4, statementResult7),
+			PQLRelationship(statementResult5, statementResult7),
+			PQLRelationship(statementResult6, statementResult7),
+			PQLRelationship(statementResult7, statementResult7),
+
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
+
+		// test 4c: wildcard then typed
+		lhs = ClauseArgument::createStmtArg("s");
+		rhs = ClauseArgument::createAssignArg("a");
+		expectedRelationships = {
+			PQLRelationship(statementResult1, statementResult7),
+			PQLRelationship(statementResult1, statementResult8),
+			PQLRelationship(statementResult2, statementResult7),
+			PQLRelationship(statementResult2, statementResult8),
+			PQLRelationship(statementResult3, statementResult7),
+			PQLRelationship(statementResult3, statementResult8),
+			PQLRelationship(statementResult4, statementResult7),
+			PQLRelationship(statementResult4, statementResult8),
+			PQLRelationship(statementResult5, statementResult7),
+			PQLRelationship(statementResult5, statementResult8),
+			PQLRelationship(statementResult6, statementResult7),
+			PQLRelationship(statementResult6, statementResult8),
+			PQLRelationship(statementResult7, statementResult7), // while loop self loop
+			PQLRelationship(statementResult7, statementResult8),
+
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
+
+		// test 4d: typed then typed
+		lhs = ClauseArgument::createCallArg("c");
+		rhs = ClauseArgument::createAssignArg("a");
+		expectedRelationships = {
+			PQLRelationship(statementResult2, statementResult7),
+			PQLRelationship(statementResult2, statementResult8),
+
+		};
+		test(PKBTrackedRelationshipType::NEXTSTAR, lhs, rhs, expectedRelationships, graph);
 	}
 }
+
+
+
+
 
 
 TEST_CASE("Test add and get patterns") {
@@ -1603,86 +1586,6 @@ TEST_CASE("Test add and get patterns") {
 		vector<PQLPattern> expectedPatterns = {
 		};
 		test(PKBTrackedStatementType::ASSIGN, lhs, rhs, expectedPatterns, toAdd);
-	}
-
-}
-
-TEST_CASE("Test containsRelationship") {
-	auto test = [](vector<Relationship> relationshipsToAdd, Relationship relationshipToTest, bool expected) {
-		// given
-		PKB pkb;
-
-		// when
-		pkb.addRelationships(relationshipsToAdd);
-		bool extractedBool = pkb.containsRelationship(relationshipToTest);
-
-		// then 
-		REQUIRE(extractedBool == expected);
-	};
-
-	/*
-			procedure main {
-				1. x = 1
-			}
-
-			procedure readY {
-				2. read y
-			}
-		*/
-
-	// Create tokens
-	// main
-
-	Token mainToken = Token::createNameOrKeywordToken("main");
-	Token xTokenMain = Token::createNameOrKeywordToken("x");
-	Token assignToken = Token::createEqualsToken();
-	Token constToken = Token::createIntegerToken("1");
-
-	// readY
-	Token readYToken = Token::createNameOrKeywordToken("readY");
-	Token readToken = Token::createReadToken();
-	Token yToken = Token::createNameOrKeywordToken("y");
-
-	// tokens for full program
-	Token stmtLstToken = Token::getPlaceHolderToken();
-	Token rootNodeToken = Token::getPlaceHolderToken();
-
-
-	// Create entities and relationships
-	Entity programEntity = Entity::createProgramEntity();
-	Entity procedureMainEntity = Entity::createProcedureEntity(mainToken);
-	Entity procedureReadYEntity = Entity::createProcedureEntity(readYToken);
-
-	Entity xEntity = Entity::createVariableEntity(1, xTokenMain);
-	Entity assignEntity = Entity::createAssignEntity(1);
-
-	Entity yEntity = Entity::createVariableEntity(2, yToken);
-	Entity readEntity = Entity::createReadEntity(2);
-
-	Relationship procedureXRelationship = Relationship::createModifiesRelationship(procedureMainEntity, xEntity);
-	Relationship procedureYRelationship = Relationship::createModifiesRelationship(procedureReadYEntity, yEntity);
-	Relationship assignRelation = Relationship::createModifiesRelationship(assignEntity, xEntity);
-	Relationship readRelation = Relationship::createModifiesRelationship(readEntity, yEntity);
-
-	vector <Relationship> relationshipsToAdd = vector<Relationship>{ procedureXRelationship, procedureYRelationship, assignRelation, readRelation };
-
-	SECTION("Test for relationships inside PKB") {
-		test(relationshipsToAdd, procedureXRelationship, true);
-		test(relationshipsToAdd, procedureYRelationship, true);
-		test(relationshipsToAdd, assignRelation, true);
-		test(relationshipsToAdd, readRelation, true);
-	}
-
-	SECTION("Test for relationships not in PKB") {
-		// test relationships not in PKB
-		Token zToken = Token::createNameOrKeywordToken("z");
-		Token testToken = Token::createNameOrKeywordToken("testprocedure");
-
-		Entity zEntity = Entity::createVariableEntity(3, zToken);
-		Entity procedureTestEntity = Entity::createProcedureEntity(testToken);
-
-		Relationship procedureZRelationship = Relationship::createModifiesRelationship(procedureTestEntity, zEntity);
-		test(relationshipsToAdd, procedureZRelationship, false);
 	}
 
 }

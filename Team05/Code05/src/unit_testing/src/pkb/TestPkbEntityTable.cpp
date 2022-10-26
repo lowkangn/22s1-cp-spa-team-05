@@ -1,9 +1,9 @@
 #include <catch.hpp>
-#include <pkb/design_objects/entities/PkbConstantEntity.h>
-#include <pkb/design_objects/entities/PkbProcedureEntity.h>
-#include <pkb/design_objects/entities/PkbVariableEntity.h>
-#include <pkb/design_objects/entities/PkbStatementEntity.h>
-#include <pkb/table_managers/PkbEntityTable.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbConstantEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbProcedureEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbVariableEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/pkbRepository/table_managers/PkbEntityTable.h>
 
 #include <vector>
 #include <string>

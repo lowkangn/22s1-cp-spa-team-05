@@ -18,7 +18,7 @@ TEST_CASE("DeclarationParser: test parseOneDeclarationNoError") {
         DeclarationParser parser = DeclarationParser(tokens);
 
         // when
-        parser.parseOneDeclaration();
+        parser.parse();
         unordered_map<string, ArgumentType> actual = parser.getDeclarations();
 
         // then
@@ -30,7 +30,8 @@ TEST_CASE("DeclarationParser: test parseOneDeclarationNoError") {
         list<PQLToken> tokensList = list<PQLToken>{
             PQLToken::createNameToken("variable"),
             PQLToken::createNameToken("v1"),
-            PQLToken::createDelimiterToken(";")
+            PQLToken::createDelimiterToken(";"),
+            PQLToken::createNameToken("Select"),
         };
 
         testParseOneDeclarationNoError(tokensList,
@@ -47,13 +48,14 @@ TEST_CASE("DeclarationParser: test parseOneDeclarationWithSyntaxError") {
         DeclarationParser parser = DeclarationParser(tokens);
 
         // then
-        REQUIRE_THROWS_AS(parser.parseOneDeclaration(), PQLSyntaxError);
+        REQUIRE_THROWS_AS(parser.parse(), PQLSyntaxError);
     };
 
     SECTION("Missing semicolon") {
         list<PQLToken> tokensList = list<PQLToken>{
             PQLToken::createNameToken("variable"),
-            PQLToken::createNameToken("v1")
+            PQLToken::createNameToken("v1"),
+            PQLToken::createNameToken("Select"),
         };
 
         testParseOneDeclarationWithError(tokensList);
@@ -232,14 +234,14 @@ TEST_CASE("DeclarationParser: test parseWithSemanticError") {
     }
 }
 
-TEST_CASE("DeclarationParser: test getRemainingTokens (after parsing)") {
+TEST_CASE("DeclarationParser: test correct remaining tokens after parsing") {
     auto testGetRemainingTokens = [](list<PQLToken> tokens, list<PQLToken> expected) {
         // given
         DeclarationParser parser = DeclarationParser(tokens);
 
         // when
         parser.parse();
-        list<PQLToken> actual = parser.getRemainingTokens();
+        list<PQLToken> actual = tokens;
         bool isEqual = actual.size() == expected.size();
         if (isEqual) {
             while (!actual.empty()) {

@@ -15,7 +15,7 @@
 */
 class SuchThatClauseParser : public ClauseParser {
 public:
-	SuchThatClauseParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
+	SuchThatClauseParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) :
 		ClauseParser(tokens, declarations) {};
 
 	/* Parses this parser's tokens into a Clause. (Template method:
