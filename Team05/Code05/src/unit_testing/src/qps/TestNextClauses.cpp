@@ -155,7 +155,7 @@ namespace {
 		{6, {7, 8}},
 	};
 
-	shared_ptr<CFGNode> cfg = CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1);
+	vector<shared_ptr<CFGNode>> cfgs = { CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1) };
 
 	// Initialise corresponding PQLEntities and PQLRelationships
 	PQLEntity pqlR1 = PQLEntity::generateStatement(1);
@@ -255,7 +255,7 @@ TEST_CASE("NextClause: test execute") {
 			nextIfA7, nextIfA8 };
 	pkb->addEntities(entities);
 	pkb->addRelationships(relationships);
-	pkb->addCfg(cfg);
+	pkb->addCfgs(cfgs);
 
 
 	// ------ QPS ------ 
@@ -370,7 +370,7 @@ TEST_CASE("NextTClause: test execute") {
 			nextIfA7, nextIfA8 };
 	pkb->addEntities(entities);
 	pkb->addRelationships(relationships);
-	pkb->addCfg(cfg);
+	pkb->addCfgs(cfgs);
 
 	// ------ QPS ------ 
 	NextTClause clause = NextTClause(firstStmtArg, secondStmtArg);

@@ -289,8 +289,8 @@ namespace {
 	Relationship nextP12I13 = Relationship::createNextRelationship(p12, i13);
 	Relationship nextI13P14 = Relationship::createNextRelationship(i13, p14);
 
-	// Initialise CFG
-	unordered_map<int, shared_ptr<CFGNode>> CFGNodes = {
+	// Initialise CFGs
+	unordered_map<int, shared_ptr<CFGNode>> mainCFGNodes = {
 			{1, WhileCFGNode::createWhileCFGNode(1)},
 			{2, CFGNode::createCFGNode(a2)},
 			{3, IfCFGNode::createIfCFGNode(3)},
@@ -300,14 +300,20 @@ namespace {
 			{7, CFGNode::createCFGNode(a7)},
 			{8, CFGNode::createCFGNode(p8)},
 			{9, CFGNode::createCFGNode(call9)},
+	};
+
+	unordered_map<int, shared_ptr<CFGNode>> xCFGNodes = {
 			{10, CFGNode::createCFGNode(a10)},
 			{11, CFGNode::createCFGNode(call11)},
+	};
+
+	unordered_map<int, shared_ptr<CFGNode>> yCFGNodes = {
 			{12, CFGNode::createCFGNode(p12)},
 			{13, IfCFGNode::createIfCFGNode(13)},
 			{14, CFGNode::createCFGNode(p14)},
 	};
 
-	unordered_map<int, vector<int>> adjList = {
+	unordered_map<int, vector<int>> mainAdjList = {
 		{1, {2, 8}},
 		{2, {3}},
 		{3, {4, 5}},
@@ -316,12 +322,21 @@ namespace {
 		{6, {7}},
 		{7, {1}},
 		{8, {9}},
+	};
+
+	unordered_map<int, vector<int>> xAdjList = {
 		{10, {11}},
+	};
+
+	unordered_map<int, vector<int>> yAdjList = {
 		{12, {13}},
 		{13, {14}},
 	};
 
-	shared_ptr<CFGNode> cfg = CFGNode::createCFGFromAdjacencyList(CFGNodes, adjList, 1);
+	vector<shared_ptr<CFGNode>> cfgs = {
+			CFGNode::createCFGFromAdjacencyList(mainCFGNodes, mainAdjList, 1),
+			CFGNode::createCFGFromAdjacencyList(xCFGNodes, xAdjList, 1),
+			CFGNode::createCFGFromAdjacencyList(yCFGNodes, yAdjList, 1), };
 
 	// Initialise Calls Attribute relationships
 	Relationship callsAttributeC9YProc = Relationship::createCallStmtAttributeRelationship(call9, yProc);
@@ -427,7 +442,7 @@ TEST_CASE("QPS: test working correctly") {
 	pkb->addRelationships(allUsesP);
 	pkb->addRelationships(allCallStatementAttribute);
 	pkb->addPatterns(allPatterns);
-	pkb->addCfg(cfg);
+	pkb->addCfgs(cfgs);
 
 	string queryString = "stmt s; Select s";
 	set<string> expectedResult{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14" };

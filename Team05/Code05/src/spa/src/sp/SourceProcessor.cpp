@@ -71,8 +71,5 @@ void SourceProcessor::extractAllAndAddToPkb(shared_ptr<PKBUpdateHandler> pkb) {
 	pkb->addRelationships(relationships);
 	pkb->addPatterns(patterns);
 	pkb->addRelationships(cfgRelationships);
-	
-	for (shared_ptr<CFGNode> cfg : controlFlowGraphs) {
-		pkb->addCfg(cfg);
-	}
+	pkb->addCfgs(this->controlFlowGraphs);
 }
