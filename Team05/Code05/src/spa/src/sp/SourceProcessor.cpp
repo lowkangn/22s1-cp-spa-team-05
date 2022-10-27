@@ -58,3 +58,21 @@ vector<Entity> SourceProcessor::extractEntities() {
 	vector<Entity> entities = this->designManager.extractEntities(this->astRoot);
 	return entities;
 }
+
+void SourceProcessor::extractAllAndAddToPkb(shared_ptr<PKBUpdateHandler> pkb) {
+	//extract
+	vector<Entity> entities = this->extractEntities();
+	vector<Relationship> relationships = this->extractRelations();
+	vector<Pattern> patterns = this->extractPatterns();
+	vector<Relationship> cfgRelationships = this->extractCFGRelations();
+
+	//add to pkb
+	pkb->addEntities(entities);
+	pkb->addRelationships(relationships);
+	pkb->addPatterns(patterns);
+	pkb->addRelationships(cfgRelationships);
+	
+	for (shared_ptr<CFGNode> cfg : controlFlowGraphs) {
+		pkb->addCfg(cfg);
+	}
+}

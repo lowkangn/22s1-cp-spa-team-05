@@ -1,0 +1,10 @@
+1 - Next - select statement after 1 (non-container line number)
+stmt s;
+Select s such that Next(1, s)
+2
+5000
+2 - Next - select statment after 3 (container line number)
+stmt s;
+Select s such that Next(3, s)
+13
+5000
