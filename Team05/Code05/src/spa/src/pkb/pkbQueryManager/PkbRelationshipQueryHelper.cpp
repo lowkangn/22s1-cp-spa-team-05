@@ -227,80 +227,82 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 		// if _ and exact, we do dfs starting from the root node.
 		// if _ and _, we do dfs from the root node and accumulate.
 		vector<shared_ptr<PkbRelationship>> out;
+		for (shared_ptr<PkbGraphManager> cfgManager : repository->getCfgs()) {
 
-		// case 1: both exact
-		if (lhs.isExactReference() && rhs.isExactReference()) {
-			// construct key from lhs and rhs
-			shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
-			shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
-			shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(lhsEntity);
-			shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(rhsEntity);
+			// case 1: both exact
+			if (lhs.isExactReference() && rhs.isExactReference()) {
+				// construct key from lhs and rhs
+				shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
+				shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
+				shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(lhsEntity);
+				shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(rhsEntity);
 
-			// create graph nodes and get their keys 
-			string leftKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left)->getKey();
-			string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
+				// create graph nodes and get their keys 
+				string leftKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left)->getKey();
+				string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
 
-			// check they are both inside
-
-			shared_ptr<PkbGraphManager> cfgManager = repository->getCfg();
-			// if they are connected, return. else, return empty list
-			if (cfgManager->isInside(leftKey)
-				&& cfgManager->isInside(rightKey)
-				&& cfgManager->canReachNodeBFromNodeA(leftKey, rightKey)) {
-				out.push_back(shared_ptr<PkbRelationship>(new PkbNextStarRelationship(lhsEntity, rhsEntity)));
+				// check they are both inside
+				// if they are connected, return. else, return empty list
+				if (cfgManager->isInside(leftKey)
+					&& cfgManager->isInside(rightKey)
+					&& cfgManager->canReachNodeBFromNodeA(leftKey, rightKey)) {
+					out.push_back(shared_ptr<PkbRelationship>(new PkbNextStarRelationship(lhsEntity, rhsEntity)));
+				}
+				return out;
 			}
-			return out;
-		}
 
-		// otherwise, we will need to extract and filter
-		PkbEntityFilter lhsFilter = getFilterFromClauseArgument(lhs);
-		PkbEntityFilter rhsFilter = getFilterFromClauseArgument(rhs);
+			// otherwise, we will need to extract and filter
+			PkbEntityFilter lhsFilter = getFilterFromClauseArgument(lhs);
+			PkbEntityFilter rhsFilter = getFilterFromClauseArgument(rhs);
 
-		// extractors
-		PkbGraphNextStarRelationshipExtractor extractor;
-		vector<shared_ptr<PkbRelationship>> extractedRelationships;
-		
-		// case 2: exact and wildcard
-		if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
-			// convert lhs to entity, graph node, then get node 
-			shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
-			shared_ptr<PkbGraphNode> leftAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
-			shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getNode(leftAsNode->getKey()));
+			// extractors
+			PkbGraphNextStarRelationshipExtractor extractor;
+			vector<shared_ptr<PkbRelationship>> extractedRelationships;
 
-			// starting from node, run dfs 
-			extractor.extractAllFromStart(startNode, true);
-			extractedRelationships = extractor.getExtractedRelationships();
+			// case 2: exact and wildcard
+			if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
+				// convert lhs to entity, graph node, then get node 
+				shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
+				shared_ptr<PkbGraphNode> leftAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
+				shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(leftAsNode->getKey()));
 
-		}
-		// case 3: wildcard and exact
-		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isExactReference())) {
-			// convert rhs to entity, graph node, then get target node 
-			shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
-			shared_ptr<PkbGraphNode> rightAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
-			shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getNode(rightAsNode->getKey()));
-			shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getRootNode());
+				// starting from node, run dfs 
+				extractor.extractAllFromStart(startNode, true);
+				extractedRelationships = extractor.getExtractedRelationships();
 
-			// starting from node, run dfs 
-			extractor.extractAllThatReachEnd(startNode, endNode, true);
-			extractedRelationships = extractor.getExtractedRelationships();
-		}
-		else { // case 4: all wild card
-			// starting at root node, dfs all the way
-			shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getRootNode());
-			extractor.extractAllFromStart(startNode);
-			extractedRelationships = extractor.getExtractedRelationships();
-		}
-
-		// filter by lhs and rhs type
-		for (shared_ptr<PkbRelationship> r : extractedRelationships) {
-			shared_ptr<PkbEntity> lhsEntity = r->getLhs();
-			shared_ptr<PkbEntity> rhsEntity = r->getRhs();
-			if (lhsFilter(lhsEntity, lhs) && rhsFilter(rhsEntity, rhs)) {
-				out.push_back(r);
 			}
-		}
+			// case 3: wildcard and exact
+			else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isExactReference())) {
+				// convert rhs to entity, graph node, then get target node 
+				shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
+				shared_ptr<PkbGraphNode> rightAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
+				shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(rightAsNode->getKey()));
+				shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getRootNode());
 
+				// starting from node, run dfs 
+				extractor.extractAllThatReachEnd(startNode, endNode, true);
+				extractedRelationships = extractor.getExtractedRelationships();
+			}
+			else { // case 4: all wild card
+				// starting at root node, dfs all the way
+				shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getRootNode());
+				extractor.extractAllFromStart(startNode);
+				extractedRelationships = extractor.getExtractedRelationships();
+			}
+
+			// filter by lhs and rhs type
+			for (shared_ptr<PkbRelationship> r : extractedRelationships) {
+				shared_ptr<PkbEntity> lhsEntity = r->getLhs();
+				shared_ptr<PkbEntity> rhsEntity = r->getRhs();
+				if (lhsFilter(lhsEntity, lhs) && rhsFilter(rhsEntity, rhs)) {
+					out.push_back(r);
+				}
+			}
+
+			
+		}
 		return out;
+
 
 	}
 	else if (relationshipType == PkbRelationshipType::AFFECTS) {

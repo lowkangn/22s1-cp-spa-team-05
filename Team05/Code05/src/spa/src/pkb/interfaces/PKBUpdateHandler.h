@@ -19,6 +19,6 @@ public:
     
     virtual void addEntities(vector<Entity> entities) = 0;
 
-    virtual void addCfg(shared_ptr<CFGNode> rootNode) = 0;
+    virtual void addCfgs(vector<shared_ptr<CFGNode>> rootNodes) = 0;
 };
 
