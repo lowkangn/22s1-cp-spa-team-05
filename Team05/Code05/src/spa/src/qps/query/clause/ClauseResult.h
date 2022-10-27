@@ -127,11 +127,11 @@ public:
 		return this->table.empty();
 	}
 
-	bool isResultWithAttribute() {
-		if (this->args.size() != 2) {
-			return false;
-		}
-		return this->args[1].isAttributeName();
+	vector<ClauseArgument> getSynonymArgs() {
+		vector<ClauseArgument> result;
+		copy_if(this->args.begin(), this->args.end(), back_inserter(result),
+				[](ClauseArgument arg) {return arg.isSynonym();});
+		return result;
 	}
 
 	virtual bool equals(shared_ptr<ClauseResult> other);

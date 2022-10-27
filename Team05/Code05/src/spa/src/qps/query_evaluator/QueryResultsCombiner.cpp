@@ -57,7 +57,7 @@ ClauseResult QueryResultsCombiner::combine() {
 		if (combinedResult.isEmpty()) {
 			combinedResult = groupCombinedResult;
 		} else {
-			combinedResult.mergeResult(groupCombinedResult);
+			combinedResult = combinedResult.mergeResult(groupCombinedResult);
 			if (combinedResult.isEmpty()) {
 				return combinedResult;
 			}

@@ -396,35 +396,35 @@ TEST_CASE("QPS: test working correctly") {
 
 	SECTION("Select and such that") {
 		queryString = "stmt child;\n Select child such that Parent(_, child)";
-		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "14"};
+		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "14" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt stmt, child;\n Select child such that Parent(stmt, child)";
-		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "14"};
+		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "14" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt s;\n Select s such that Parent(1, s)";
-		expectedResult = set<string>{ "2", "3", "7"};
+		expectedResult = set<string>{ "2", "3", "7" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt Parent;\n Select Parent such that Parent* (Parent, _)";
-		expectedResult = set<string>{ "1", "3", "13"};
+		expectedResult = set<string>{ "1", "3", "13" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable Select;\n Select Select such that Modifies(6, Select)";
-		expectedResult = set<string>{ "stmt", };
+		expectedResult = set<string>{ "stmt" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable Modifies; stmt s; \n Select Modifies such that Modifies(s, Modifies)";
-		expectedResult = set<string>{ "y", "x", "stmt", "z"};
+		expectedResult = set<string>{ "y", "x", "stmt", "z" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt s; \n Select s such that Uses(s, _)";
-		expectedResult = set<string>{ "1", "2", "3", "7", "8", "9", "10", "11", "12", "13", "14"};
+		expectedResult = set<string>{ "1", "2", "3", "7", "8", "9", "10", "11", "12", "13", "14" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable variable; stmt s; \n Select variable such that Uses(s, variable)";
-		expectedResult = set<string>{ "v", "t", "x", "b", "main", "c", "d", "e", "f"};
+		expectedResult = set<string>{ "v", "t", "x", "b", "main", "c", "d", "e", "f" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable variable; \n Select variable such that Follows(1, 8)";

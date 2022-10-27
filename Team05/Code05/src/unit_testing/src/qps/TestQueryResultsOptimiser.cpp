@@ -7,15 +7,18 @@ using namespace std;
 
 TEST_CASE("QueryResultsOptimiser: test optimise") {
 	auto testCombine = [](vector<ClauseResult> selectResults,
-			vector<ClauseResult> relationshipResults, vector<ClauseResult> withResults, vector<vector<ClauseResult>> expected) {
+			vector<ClauseResult> relationshipResults, vector<ClauseResult> withResults,
+			vector<vector<ClauseResult>> expectedGroups, bool expectedIsEmptyResultFound) {
 		// given
 		QueryResultsOptimiser optimiser = QueryResultsOptimiser(selectResults, relationshipResults, withResults);
+		bool actualIsEmptyResultFound;
 
 		// when
-		vector<vector<ClauseResult>> actual = optimiser.optimise();
+		vector<vector<ClauseResult>> actualGroups = optimiser.optimise(actualIsEmptyResultFound);
 
 		// then
-		REQUIRE(actual == expected);
+		REQUIRE(actualGroups == expectedGroups);
+		REQUIRE(actualIsEmptyResultFound == expectedIsEmptyResultFound);
 	};
 
 	// TODO: Write tests for optimise
