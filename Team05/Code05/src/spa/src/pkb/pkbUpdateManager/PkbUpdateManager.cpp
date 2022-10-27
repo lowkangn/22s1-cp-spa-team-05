@@ -274,12 +274,12 @@ void PkbUpdateManager::addCfgs(vector<shared_ptr<CFGNode>> rootNodes, shared_ptr
 		// 1.3 initialize node set
 		unordered_map<string, shared_ptr<PkbGraphNode>> keyToNodeMap;
 
-	// 2 bfs with visited edges
-	while (!q.empty()) {
+		// 2 bfs with visited edges
+		while (!q.empty()) {
 
-		// 1. pop
-		shared_ptr<CFGNode> n = q.front();
-		q.pop();
+			// 1. pop
+			shared_ptr<CFGNode> n = q.front();
+			q.pop();
 
 			// 2. convert to pkb graph node. if already inside, use that.
 			shared_ptr<PkbStatementEntity> castedParent = static_pointer_cast<PkbStatementEntity>(this->externalEntityToPkbEntity(n->getEntity()));
@@ -296,10 +296,10 @@ void PkbUpdateManager::addCfgs(vector<shared_ptr<CFGNode>> rootNodes, shared_ptr
 			}
 
 
-		// 2.1 if root node not initialized, put it
-		if (node == NULL) {
-			node = parentNode;
-		}
+			// 2.1 if root node not initialized, put it
+			if (node == NULL) {
+				node = parentNode;
+			}
 
 			// 3. traverse neighbours
 			for (shared_ptr<CFGNode> child : n->getChildren()) {
@@ -335,7 +335,8 @@ void PkbUpdateManager::addCfgs(vector<shared_ptr<CFGNode>> rootNodes, shared_ptr
 			}
 		}
 
-	// 2. pass the pkb graph into the repository for storage
-	repository->addPkbGraph(node);
+		// 2. pass the pkb graph into the repository for storage
+		repository->addPkbGraph(node);
 
+	}
 }
