@@ -1,22 +1,22 @@
 #include "catch.hpp"
 
-#include <pkb/design_objects/entities/PkbProcedureEntity.h>
-#include <pkb/design_objects/entities/PkbVariableEntity.h>
-#include <pkb/design_objects/entities/PkbStatementEntity.h>
-#include <pkb/design_objects/relationships/PkbCallsRelationship.h>
-#include <pkb/design_objects/relationships/PkbCallsStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbCallStmtAttributeRelationship.h>
-#include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
-#include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
-#include <pkb/design_objects/relationships/PkbParentRelationship.h>
-#include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbUsesRelationship.h>
-#include <pkb/design_objects/patterns/PkbAssignPattern.h>
-#include <pkb/design_objects/patterns/PkbIfPattern.h>
-#include <pkb/design_objects/patterns/PkbWhilePattern.h>
-#include <pkb/design_objects/graphs/PkbGraphNode.h>
-#include <pkb/design_objects/graphs/PkbControlFlowGraphNode.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbProcedureEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbVariableEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallStmtAttributeRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbModifiesRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbUsesRelationship.h>
+#include <pkb/pkbRepository/design_objects/patterns/PkbAssignPattern.h>
+#include <pkb/pkbRepository/design_objects/patterns/PkbIfPattern.h>
+#include <pkb/pkbRepository/design_objects/patterns/PkbWhilePattern.h>
+#include <pkb/pkbRepository/design_objects/graphs/PkbGraphNode.h>
+#include <pkb/pkbRepository/design_objects/graphs/PkbControlFlowGraphNode.h>
 
 #include <pkb/PkbException.h>
 

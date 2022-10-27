@@ -14,10 +14,12 @@ protected:
 	ClauseArgument lhs;
 	ClauseArgument rhs;
 
+	virtual PKBTrackedStatementType getStatementType() = 0;
+
 public:
 	PatternClause(ClauseArgument patternArg, ClauseArgument lhs, ClauseArgument rhs) : patternArg(patternArg), lhs(lhs), rhs(rhs) {};
 
-	virtual shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) = 0;
+	shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKBQueryHandler> pkb);
 
 	virtual bool equals(shared_ptr<PatternClause> other) = 0;
 };

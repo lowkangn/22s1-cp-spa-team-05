@@ -13,7 +13,7 @@ class ParentParser : public SuchThatClauseParser {
 private:
 	bool isStar;
 public:
-	ParentParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
+	ParentParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) :
 		SuchThatClauseParser(tokens, declarations) {
 		this->isStar = false;
 	};

@@ -99,8 +99,3 @@ void ClauseParser::consumeCloseBracket() {
 	}
 	this->tokens.pop_front();
 }
-
-list<PQLToken> ClauseParser::getRemainingTokens() {
-	assert(this->isParseCompleted);
-	return this->tokens;
-}
