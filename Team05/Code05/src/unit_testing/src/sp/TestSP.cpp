@@ -1354,4 +1354,65 @@ TEST_CASE("Test extractCFGRelations") {
 
 		test(program, expectedRelations);
 	}
+
+	SECTION("Test multiple procedures") {
+		string program = "procedure main { \
+							x = 1; \
+							read z; \
+							if (x == 1) then { \
+								z = 2; \
+								while (y >= 0) { \
+									x = x + 10; \
+									y = y + 10; \
+									b = 1; \
+								} \
+								a = 3; \
+							} \
+							else { \
+								read x; \
+								print z; \
+								call test; \
+							} \
+							print x; \
+							x = (x + 1) - 1; \
+						} \
+						procedure test { \
+						  read y; \
+						  while (y > 0) { \
+							print y; \
+							y = y - 1; \
+						  } \
+						}";
+
+		vector<Relationship> expectedRelations = {
+			// main
+			Relationship::createNextRelationship(Entity::createAssignEntity(1),Entity::createReadEntity(2)),
+			Relationship::createNextRelationship(Entity::createReadEntity(2),Entity::createIfEntity(3)),
+			Relationship::createNextRelationship(Entity::createIfEntity(3),Entity::createAssignEntity(4)),
+			Relationship::createNextRelationship(Entity::createIfEntity(3),Entity::createReadEntity(10)),
+
+			Relationship::createNextRelationship(Entity::createAssignEntity(4),Entity::createWhileEntity(5)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(5),Entity::createAssignEntity(6)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(6),Entity::createAssignEntity(7)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(7),Entity::createAssignEntity(8)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(8),Entity::createWhileEntity(5)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(5),Entity::createAssignEntity(9)),
+
+			Relationship::createNextRelationship(Entity::createReadEntity(10),Entity::createPrintEntity(11)),
+			Relationship::createNextRelationship(Entity::createPrintEntity(11),Entity::createCallEntity(12)),
+
+			Relationship::createNextRelationship(Entity::createAssignEntity(9),Entity::createPrintEntity(13)),
+			Relationship::createNextRelationship(Entity::createCallEntity(12),Entity::createPrintEntity(13)),
+
+			Relationship::createNextRelationship(Entity::createPrintEntity(13),Entity::createAssignEntity(14)),
+
+			// test
+			Relationship::createNextRelationship(Entity::createReadEntity(15),Entity::createWhileEntity(16)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(16),Entity::createPrintEntity(17)),
+			Relationship::createNextRelationship(Entity::createPrintEntity(17),Entity::createAssignEntity(18)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(18),Entity::createWhileEntity(16)),
+		};
+
+		test(program, expectedRelations);
+	}
 }
