@@ -227,8 +227,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 		// if _ and exact, we do dfs starting from the root node.
 		// if _ and _, we do dfs from the root node and accumulate.
 		vector<shared_ptr<PkbRelationship>> out;
-
-		for (shared_ptr<PkbGraphManager> cfgManager : repository->getCfgs()) {	
+		for (shared_ptr<PkbGraphManager> cfgManager : repository->getCfgs()) {
 
 			// case 1: both exact
 			if (lhs.isExactReference() && rhs.isExactReference()) {
@@ -270,6 +269,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 				// starting from node, run dfs 
 				extractor.extractAllFromStart(startNode, true);
 				extractedRelationships = extractor.getExtractedRelationships();
+
 			}
 			// case 3: wildcard and exact
 			else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isExactReference())) {
@@ -299,7 +299,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 				}
 			}
 
-
+			
 		}
 		return out;
 

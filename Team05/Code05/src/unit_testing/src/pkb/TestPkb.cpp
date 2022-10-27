@@ -1131,12 +1131,12 @@ TEST_CASE("Test retrieve relationship short circuits to empty result") {
 
 TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 
-	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, vector<shared_ptr<CFGNode>> graphsToAdd) {
+	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, vector<shared_ptr<CFGNode>> graphToAdd) {
 		// given pkb 
 		PKB pkb;
 
 		// when add and retrieve relationships 
-		pkb.addCfgs(graphsToAdd);
+		pkb.addCfgs(graphToAdd);
 		vector<PQLRelationship> all = pkb.retrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs);
 
 		// then should be inside
