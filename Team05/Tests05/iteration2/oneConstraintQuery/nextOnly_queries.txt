@@ -6,5 +6,20 @@ Select s such that Next(1, s)
 2 - Next - select statment after 3 (container line number)
 stmt s;
 Select s such that Next(3, s)
-13
+4, 10
+5000
+3 - Next - select statements that come after any statement (synonym)
+stmt s, s1;
+Select s such that Next(s1, s)
+2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18
+5000
+4 - Next - select statements that come after any statement (wildcard)
+stmt s;
+Select s such that Next(_, s)
+2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18
+5000
+5 - Next - select statements that have any statements that come after it (synonym)
+stmt s, s1;
+Select s such that Next(s, s1)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18
 5000

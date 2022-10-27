@@ -91,6 +91,10 @@ public:
 		return this->entity;
 	}
 
+	bool hasChildren() {
+		return this->nextNodes.size() > 0;
+	}
+
 	static shared_ptr<CFGNode> createCFGFromAdjacencyList(unordered_map<int, shared_ptr<CFGNode>>& cfgNodes, unordered_map<int, vector<int>> adjList, int rootIndex) {
 		// Add all the nodes
 		for (pair<int, vector<int>> i : adjList) {
