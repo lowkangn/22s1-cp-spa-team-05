@@ -3,23 +3,138 @@ stmt s;
 Select s such that Next(1, s)
 2
 5000
-2 - Next - select statment after 3 (container line number)
+2 - Next - select statement after 3 (container line number)
 stmt s;
 Select s such that Next(3, s)
 4, 10
 5000
-3 - Next - select statements that come after any statement (synonym)
+3 - Next - select statements next after a statement (synonym)
 stmt s, s1;
 Select s such that Next(s1, s)
 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18
 5000
-4 - Next - select statements that come after any statement (wildcard)
+4 - Next - select statements next after a statement (wildcard)
 stmt s;
 Select s such that Next(_, s)
 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18
 5000
-5 - Next - select statements that have any statements that come after it (synonym)
+5 - Next - select statements with a next statement (synonym)
 stmt s, s1;
 Select s such that Next(s, s1)
 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18
+5000
+6 - Next - select statements with a next statement (wildcard)
+stmt s;
+Select s such that Next(s, _)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18
+5000
+7 - Next - select assigns with a next statement
+assign a;
+Select a such that Next(a, _)
+1, 4, 6, 7, 8, 9, 18
+5000
+8 - Next - select statements next after an assign
+assign a; stmt s;
+Select s such that Next(a, s)
+2, 5, 7, 8, 13, 16
+5000
+9 - Next - select assigns with a next print
+print printer; assign a;
+Select a such that Next(a, printer)
+9
+5000
+10 - Next - select prints with a next assign
+print printer; assign a;
+Select printer such that Next(printer, a)
+13, 17
+5000
+11 - Next - select assigns with a next read
+read r; assign a;
+Select a such that Next(a, r)
+1
+5000
+12 - Next - select reads with a next assign
+read r; assign a;
+Select r such that Next(r, a)
+none
+5000
+13 - Next - select assigns with a next if
+if i; assign a;
+Select a such that Next(a, i)
+none
+5000
+14 - Next - select ifs with a next assign
+if i; assign a;
+Select i such that Next(i, a)
+3
+5000
+15 - Next - select assigns with a next while
+while w; assign a;
+Select a such that Next(a, w)
+4, 8, 18
+5000
+16 -  Next - select whiles with a next assign
+while w; assign a;
+Select w such that Next(w, a)
+5
+5000
+17 - Next - select assigns with a next assign
+assign a, aAfter;
+Select a such that Next(a, aAfter)
+6, 7
+5000
+18 - Next - select whiles with a next if
+while w; if i;
+Select w such that Next(w, i)
+none
+5000
+19 - Next - select prints with a next while
+while w; print pr;
+Select pr such that Next(pr, w)
+none
+5000
+20 - Next - select reads with a next while
+while w; read r;
+Select r such that Next(r, w)
+15
+5000
+21 - Next - select whiles with a next while
+while w, w1;
+Select w such that Next(w, w1)
+none
+5000
+22 - Next - select ifs with a next if
+if i, i1;
+Select i such that Next(i, i1)
+none
+5000
+23 - Next - select ifs with a next print
+if i; print p;
+Select i such that Next(i, p)
+none
+5000
+24 - Next - select prints with a next if
+if i; print p;
+Select p such that Next(p, i)
+none
+5000
+25 - Next - select ifs with a next read
+if i; read r;
+Select i such that Next(i, r)
+3
+5000
+26 - Next - select reads with a next if
+if i; read r;
+Select r such that Next(r, i)
+2
+5000
+27 - Next - select prints with a next read
+print p; read r;
+Select p such that Next(p, r)
+none
+5000
+28 - Next - select reads with a next read
+read r, r1;
+Select r such that Next(r, r1)
+none
 5000
