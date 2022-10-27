@@ -29,6 +29,8 @@
 #include <pkb/pkbRepository/design_objects/graphs/PkbGraphNode.h>
 
 #include <pkb/pkbQueryManager/graph_extractors/PkbGraphNextStarRelationshipExtractor.h>
+#include <pkb/pkbQueryManager/graph_extractors/PkbGraphAffectsRelationshipExtractor.h>
+
 
 #include <qps/query/clause/ClauseArgument.h>
 
@@ -100,6 +102,10 @@ private:
 	*/
 	vector<shared_ptr<PkbRelationship>> retrieveAffectsByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
 
+	/*
+		Handles the (complicated) logic of retrieval for affects* relationships.
+	*/
+	vector<shared_ptr<PkbRelationship>> retrieveAffectsStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
 
 public:
 	

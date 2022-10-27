@@ -284,21 +284,40 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 
 		// 3. short circuit 2: check that lhs and rhs are reachable using next*
 		// 3.1 check not cache
-		// 3.2 check is cache
-		// 3.3 not in either, brute force check
+		if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NEXTSTAR)->get(positiveMatch->getKey()) != NULL) {
+			// do nothing
+		}
+		else {
+			// 3.2 check for negative match
+			shared_ptr<PkbNotAffectsRelationship> negativeMatch = shared_ptr<PkbNotAffectsRelationship>(new PkbNotAffectsRelationship(lhsEntity, rhsEntity));
+			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_NEXTSTAR)->get(negativeMatch->getKey()) != NULL) {
+				return out;
+			}
+		}
 
+		// 4. not in either, brute force check
+		// 4.1 get start node (lhs)
+		shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
+		shared_ptr<PkbGraphNode> leftAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
+		shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getNode(leftAsNode->getKey()));
 
-		// 4. brute force
-		// 4.1 get statement number of lhs, rhs
-		// 4.2 for all statements between lhs, rhs, if next*(lhs, s), next*(s, rhs),
-		// for any that modify v in intersection, knock out from intersection 
-		// if intersection empty, return
-		// if reach rhs, true, return itself
+		// 4.2 get end node (rhs)
+		shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
+		shared_ptr<PkbGraphNode> rightAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
+		shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getNode(rightAsNode->getKey()));
 
+		// 4.3 use graph extractor to check 
+		// then cache and return
+		PkbGraphAffectsRelationshipExtractor extractor;
+		if (extractor.hasAffectsRelationship(startNode, endNode, repository)) {
+			out.push_back(positiveMatch);
+			repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTS)->add(positiveMatch);
+		}
+		else {
+			repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTS)->add(negativeMatch);
+		}
+		return out;
 
-	// cache 
-
-	// return
 	}
 	else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) { // case 2: exact, non exact
 		// 1. find all assign after lhs
@@ -321,6 +340,27 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 	}
 	
 }
+
+vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository) {
+	// 0. validity check - both assign/exact/wildcard
+
+	vector<shared_ptr<PkbRelationship>> out;
+	// case 1: exact, exact
+	// check if affects(lhs, rhs)
+	// if not, O(n) enumeration of affects(lhs, s), affects*(s, rhs)
+
+	// case 2: exact, non
+	// O(n2) enumeration of affects(lhs, s1), affects*(s1, s2)
+
+	// case 3: non, exact
+	// O(n2) enumeration of affects(s1, s2), affects(s2, rhs)
+
+	// case 4: wildcard, wildcard
+	// O(n3) enumeration of affects(s1, s2), affects(s2, s3)
+	return out;
+	
+}
+
 
 
 // ==================== public ====================
