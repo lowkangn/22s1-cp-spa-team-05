@@ -34,9 +34,9 @@ using namespace std;
 class QueryEvaluator {
 private:
 	template<class T>
-	vector<ClauseResult> dereferenceResults(list<shared_ptr<T>> resultPointers) {
+	list<ClauseResult> dereferenceResults(list<shared_ptr<T>> resultPointers) {
 		static_assert(is_base_of<ClauseResult, T>::value, "T must be a subclass of ClauseResult");
-		vector<ClauseResult> results;
+		list<ClauseResult> results;
 		for (const shared_ptr<ClauseResult>& resultPointer : resultPointers) {
 			results.push_back(*resultPointer);
 		}

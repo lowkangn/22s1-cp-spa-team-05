@@ -9,7 +9,8 @@ using namespace std;
 class QueryResultsCombiner {
 private:
 	vector<ClauseResult> selectResults;
-	vector<vector<ClauseResult>> optimisedConstraintResults;
+	vector<vector<ClauseResult>> resultsWithSelectedArgs;
+	vector<vector<ClauseResult>> resultsWithoutSelectedArgs;
 
 	ClauseResult mergeIntoCombinedIfNotInTable(ClauseResult combinedResult, ClauseResult resultToMerge) {
 		if (combinedResult.isEmpty()) {
@@ -30,9 +31,12 @@ private:
 	ClauseResult getSelectSynonymsCrossProductResult();
 
 public:
-	QueryResultsCombiner(vector<ClauseResult> selectResults, vector<vector<ClauseResult>> optimisedConstraintResults) {
-		this->selectResults = selectResults;
-		this->optimisedConstraintResults = optimisedConstraintResults;
+	QueryResultsCombiner(list<ClauseResult> selectResults, vector<vector<vector<ClauseResult>>> optimisedConstraintResults) {
+		copy(selectResults.begin(), selectResults.end(), back_inserter(this->selectResults));
+		if (!optimisedConstraintResults.empty()) {
+			this->resultsWithSelectedArgs = optimisedConstraintResults.front();
+			this->resultsWithoutSelectedArgs = optimisedConstraintResults.back();
+		}
 	}
 
 	ClauseResult combine();

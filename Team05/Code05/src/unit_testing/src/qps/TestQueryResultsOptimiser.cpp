@@ -6,15 +6,15 @@ using namespace std;
 // ==================== UNIT TESTS ====================
 
 TEST_CASE("QueryResultsOptimiser: test optimise") {
-	auto testCombine = [](vector<ClauseResult> selectResults,
-			vector<ClauseResult> relationshipResults, vector<ClauseResult> withResults,
-			vector<vector<ClauseResult>> expectedGroups, bool expectedIsEmptyResultFound) {
+	auto testCombine = [](list<ClauseResult> selectResults,
+			list<ClauseResult> relationshipResults, list<ClauseResult> withResults,
+			vector<vector<vector<ClauseResult>>> expectedGroups, bool expectedIsEmptyResultFound) {
 		// given
 		QueryResultsOptimiser optimiser = QueryResultsOptimiser(selectResults, relationshipResults, withResults);
 		bool actualIsEmptyResultFound;
 
 		// when
-		vector<vector<ClauseResult>> actualGroups = optimiser.optimise(actualIsEmptyResultFound);
+		vector<vector<vector<ClauseResult>>> actualGroups = optimiser.optimise(actualIsEmptyResultFound);
 
 		// then
 		REQUIRE(actualGroups == expectedGroups);

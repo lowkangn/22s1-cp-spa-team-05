@@ -6,8 +6,8 @@ using namespace std;
 // ==================== UNIT TESTS ====================
 
 TEST_CASE("QueryResultsCombiner: test combine") {
-	auto testCombine = [](vector<ClauseResult> selectResults,
-			vector<vector<ClauseResult>> optimisedConstraintResults, ClauseResult expected) {
+	auto testCombine = [](list<ClauseResult> selectResults,
+			vector<vector<vector<ClauseResult>>> optimisedConstraintResults, ClauseResult expected) {
 		// given
 		QueryResultsCombiner combiner = QueryResultsCombiner(selectResults, optimisedConstraintResults);
 

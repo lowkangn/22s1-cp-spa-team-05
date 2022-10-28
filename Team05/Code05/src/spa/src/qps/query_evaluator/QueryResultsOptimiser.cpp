@@ -1,25 +1,23 @@
 #include <qps/query_evaluator/QueryResultsOptimiser.h>
 
-vector<vector<ClauseResult>> QueryResultsOptimiser::optimise(bool& isEmptyResultFound) {
-
-	if (this->relationshipsResults.empty() && this->withResults.empty()) {
+vector<vector<vector<ClauseResult>>> QueryResultsOptimiser::optimise(bool& isEmptyResultFound) {
+	if (this->constraintResultsList.empty()) {
 		return {};
 	}
 
-	vector<vector<ClauseResult>> groups = this->group(isEmptyResultFound);
+	vector<vector<vector<ClauseResult>>> groups = this->group(isEmptyResultFound);
 	if (!isEmptyResultFound) {
-		this->sort(groups);
+		this->sort(groups.front());
+		this->sort(groups.back());
 	}
 	return groups;
 }
 
-vector<vector<ClauseResult>> QueryResultsOptimiser::group(bool& isEmptyResultFound) {
-	vector<ClauseResult> constraintResults;
-	constraintResults.insert(constraintResults.end(), this->relationshipsResults.begin(), this->relationshipsResults.end());
-	constraintResults.insert(constraintResults.end(), this->withResults.begin(), this->withResults.end());
+vector<vector<vector<ClauseResult>>> QueryResultsOptimiser::group(bool& isEmptyResultFound) {
 
 	// We do a bit of graph DFSing: https://stackoverflow.com/questions/71359065/group-pairs-of-elements-based-on-connecting-element-in-c
-	for (ClauseResult result : constraintResults) {
+	// Populate adjacency map
+	for (ClauseResult result : this->constraintResultsList) {
 		if (result.isEmpty()) {
 			isEmptyResultFound = true;
 			return {};
@@ -31,9 +29,10 @@ vector<vector<ClauseResult>> QueryResultsOptimiser::group(bool& isEmptyResultFou
 		}
 	}
 
+	// For each arg not yet visited, traverse graph for all connected args and assign the same group index to all of them
 	unordered_map<ClauseArgument, int> argToGroupIndexMap;
 	int groupIndex = 0;
-	for (ClauseResult result : constraintResults) {
+	for (ClauseResult result : this->constraintResultsList) {
 		vector<ClauseArgument> args = result.getSynonymArgs();
 		if (args.empty()) {
 			continue;
@@ -48,17 +47,31 @@ vector<vector<ClauseResult>> QueryResultsOptimiser::group(bool& isEmptyResultFou
 		}
 	}
 
+	// divide results into groups based on group index of each result's first arg
 	vector<vector<ClauseResult>> groupedResults(groupIndex);
-	for (ClauseResult result : constraintResults) {
+	vector<bool> doesGroupHaveArgsBeingSelected(groupIndex);
+	for (ClauseResult result : this->constraintResultsList) {
 		vector<ClauseArgument> args = result.getSynonymArgs();
 		if (args.empty()) {
 			continue;
 		}
-		groupedResults[argToGroupIndexMap[args.front()]].push_back(result);
+		int currentGroupIndex = argToGroupIndexMap[args.front()];
+		groupedResults[currentGroupIndex].push_back(result);
+		if (this->selectArgs.count(args.front()) || (args.size() == 2 && this->selectArgs.count(args.back()))) {
+			doesGroupHaveArgsBeingSelected[currentGroupIndex] = true;
+		}
 	}
 
-	return groupedResults;
-
+	vector<vector<ClauseResult>> resultsWithSelectedArgs;
+	vector<vector<ClauseResult>> resultsWithoutSelectedArgs;
+	for (int i = 0; i < groupedResults.size(); i++) {
+		if (doesGroupHaveArgsBeingSelected[i]) {
+			resultsWithSelectedArgs.push_back(groupedResults[i]);
+		} else {
+			resultsWithoutSelectedArgs.push_back(groupedResults[i]);
+		}
+	}
+	return {resultsWithSelectedArgs, resultsWithoutSelectedArgs};
 }
 
 void QueryResultsOptimiser::findAllConnectedArgs(const ClauseArgument& arg, vector<ClauseArgument>& currGroup) {

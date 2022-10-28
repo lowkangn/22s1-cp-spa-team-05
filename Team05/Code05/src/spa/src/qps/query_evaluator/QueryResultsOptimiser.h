@@ -1,28 +1,31 @@
 #pragma once
 
+#include <list>
 #include <qps/query/clause/ClauseResult.h>
 
 using namespace std;
 
 class QueryResultsOptimiser {
 private:
-	vector<ClauseResult> selectResults;
-	vector<ClauseResult> relationshipsResults;
-	vector<ClauseResult> withResults;
+	unordered_set<ClauseArgument> selectArgs;
+	list<ClauseResult> constraintResultsList;
 
 	unordered_map<ClauseArgument, vector<ClauseArgument>> adjacencyMap;
 	unordered_set<ClauseArgument> visitedArgs;
 
-	vector<vector<ClauseResult>> group(bool& isEmptyResultFound);
+	vector<vector<vector<ClauseResult>>> group(bool& isEmptyResultFound);
 	void findAllConnectedArgs(const ClauseArgument& arg, vector<ClauseArgument>& currGroup);
 	void sort(vector<vector<ClauseResult>>& groups);
 
 public:
-	QueryResultsOptimiser(vector<ClauseResult> selectResults, vector<ClauseResult> relationshipsResults, vector<ClauseResult> withResults) {
-		this->selectResults = selectResults;
-		this->relationshipsResults = relationshipsResults;
-		this->withResults = withResults;
+	QueryResultsOptimiser(const list<ClauseResult>& selectResults, list<ClauseResult> relationshipsResults, list<ClauseResult> withResults) {
+		for (ClauseResult result : selectResults) {
+			vector<ClauseArgument> args = result.getSynonymArgs();
+			selectArgs.insert(args.begin(), args.end());
+		}
+		this->constraintResultsList.splice(this->constraintResultsList.end(), relationshipsResults);
+		this->constraintResultsList.splice(this->constraintResultsList.end(), withResults);
 	};
 
-	vector<vector<ClauseResult>> optimise(bool& isEmptyResultFound);
+	vector<vector<vector<ClauseResult>>> optimise(bool& isEmptyResultFound);
 };

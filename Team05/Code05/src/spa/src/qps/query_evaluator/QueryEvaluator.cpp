@@ -1,9 +1,9 @@
 #include <qps/query_evaluator/QueryEvaluator.h>
 
 set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pkb) {
-	vector<ClauseResult> selectResults = dereferenceResults<ClauseResult>(query.executeSelect(pkb));
-	vector<ClauseResult> relationshipsResults = dereferenceResults<RelationshipClauseResult>(query.executeSuchThatAndPattern(pkb));
-	vector<ClauseResult> withResults = dereferenceResults<ClauseResult>(query.executeWith(pkb));
+	list<ClauseResult> selectResults = dereferenceResults<ClauseResult>(query.executeSelect(pkb));
+	list<ClauseResult> relationshipsResults = dereferenceResults<RelationshipClauseResult>(query.executeSuchThatAndPattern(pkb));
+	list<ClauseResult> withResults = dereferenceResults<ClauseResult>(query.executeWith(pkb));
 
 	// TODO: evaluate shouldn't be handling conversion to string
 	// No results mean the query is `Select BOOLEAN`, so short circuit and return true
@@ -14,7 +14,7 @@ set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pk
 	// Optimise
 	bool isEmptyResultFound;
 	QueryResultsOptimiser optimiser(selectResults, relationshipsResults, withResults);
-	vector<vector<ClauseResult>> optimisedConstraintResults = optimiser.optimise(isEmptyResultFound);
+	vector<vector<vector<ClauseResult>>> optimisedConstraintResults = optimiser.optimise(isEmptyResultFound);
 
 	// If optimiser has found empty result, short circuit and return empty result
 	if (isEmptyResultFound) {
