@@ -66,7 +66,22 @@ vector<Relationship> UsesExtractor::extract(shared_ptr<ASTNode> ast) {
 
 				// We look ahead from root program node and add all procedures to extract on demand
 				allProcedures.emplace(child->extractEntity().getString(), child);
+
+				/*
+					Initialise directed call graph (as an adjacency list)
+					Each vertex represents a procedure
+					Each edge represents a call between two procedures
+				*/
+				this->callGraph.emplace(child, vector<shared_ptr<ASTNode>> {});
 			}
+		}
+
+		// fill up adjacency list for graph of call statements
+		constructCallGraph(this->allProcedures);
+
+		// validate call graph to check for no cycles
+		if (hasCallCycle(this->callGraph)) {
+			throw ASTException("Cannot handle programs with cyclical procedure calls!");
 		}
 
 		for (int i = 0; i < children.size(); i++) {
