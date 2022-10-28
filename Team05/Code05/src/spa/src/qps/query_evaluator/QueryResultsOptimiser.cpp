@@ -2,7 +2,7 @@
 
 vector<vector<vector<ClauseResult>>> QueryResultsOptimiser::optimise(bool& isEmptyResultFound) {
 	if (this->constraintResultsList.empty()) {
-		return {};
+		return {{}, {}};
 	}
 
 	vector<vector<vector<ClauseResult>>> groups = this->group(isEmptyResultFound);

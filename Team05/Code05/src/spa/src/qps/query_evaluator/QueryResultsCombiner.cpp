@@ -49,20 +49,17 @@ ClauseResult QueryResultsCombiner::combine() {
 	}
 
 	// For the groups that have no args being selected (i.e. treat as boolean), check if empty
-	vector<ClauseResult> groupCombinedResults;
 	for (const vector<ClauseResult>& resultsGroup : this->resultsWithoutSelectedArgs) {
 		ClauseResult groupCombinedResult = this->combineResults(resultsGroup);
 		if (groupCombinedResult.isEmpty()) {
-			return groupCombinedResult;
+			return {};
 		}
-		groupCombinedResults.push_back(groupCombinedResult);
 	}
 
 	// If 1) no select results, 2) no results with args being selected, 3) all group combined results with args not being selected have entries:
-	// We have `Select BOOLEAN ...` with constraint clauses that can be treated as boolean and evaluate to true, so just return a table with entries.
-	// Note: groupCombinedResults.front() exists since resultsWithoutSelectedArgs cannot be empty: scenario where there are no results is already dealt with in QueryEvaluator::evaluate
-	if (this->selectResults.empty() && this->resultsWithSelectedArgs.empty()) {
-		return groupCombinedResults.front();
+	// We have `Select BOOLEAN ...` with constraint clauses that can be treated as boolean and evaluate to true, so just return placeholder result.
+	if (this->selectResults.empty()) {
+		return this->selectBooleanPlaceholderResult;
 	}
 
 	// Combine clauses in groups with args being selected, then combine those groups - if any returns empty, then no query matches

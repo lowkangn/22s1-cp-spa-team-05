@@ -3,6 +3,7 @@
 #include <list>
 
 #include <qps/query/clause/ClauseResult.h>
+#include <qps/query/clause/EntityClauseResult.h>
 
 using namespace std;
 
@@ -11,6 +12,8 @@ private:
 	vector<ClauseResult> selectResults;
 	vector<vector<ClauseResult>> resultsWithSelectedArgs;
 	vector<vector<ClauseResult>> resultsWithoutSelectedArgs;
+
+	ClauseResult selectBooleanPlaceholderResult = EntityClauseResult::createNonEmptyNoSynonymResult();
 
 	ClauseResult mergeIntoCombinedIfNotInTable(ClauseResult combinedResult, ClauseResult resultToMerge) {
 		if (combinedResult.isEmpty()) {
@@ -33,10 +36,9 @@ private:
 public:
 	QueryResultsCombiner(list<ClauseResult> selectResults, vector<vector<vector<ClauseResult>>> optimisedConstraintResults) {
 		copy(selectResults.begin(), selectResults.end(), back_inserter(this->selectResults));
-		if (!optimisedConstraintResults.empty()) {
-			this->resultsWithSelectedArgs = optimisedConstraintResults.front();
-			this->resultsWithoutSelectedArgs = optimisedConstraintResults.back();
-		}
+		assert(optimisedConstraintResults.size() == 2);
+		this->resultsWithSelectedArgs = optimisedConstraintResults.front();
+		this->resultsWithoutSelectedArgs = optimisedConstraintResults.back();
 	}
 
 	ClauseResult combine();
