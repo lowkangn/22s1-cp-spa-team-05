@@ -73,7 +73,6 @@ vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtracto
 	// 1. get neighbours
 	vector<shared_ptr<PkbGraphNode>> neighbours = startNode->getNeighbours();
 	// 2. for each neighbour, we visit
-	// if neighbour statement number increasing, is cycle. we include but don't recurse on it	
 	vector<shared_ptr<PkbControlFlowGraphNode>> allDownstream = { startNode };
 	for (shared_ptr<PkbGraphNode> neighbour : neighbours) {
 
@@ -83,7 +82,7 @@ vector<shared_ptr<PkbControlFlowGraphNode>> PkbGraphNextStarRelationshipExtracto
 			throw PkbException("Tried to cast pkb graph node to cfg node, but couldn't.");
 		}
 
-		// if cycle (decreasing statement number), we don't recurse, but do add to downstream
+		// if cycle (decreasing statement number)
 		vector<shared_ptr<PkbControlFlowGraphNode>> downstream;
 		if (castedNeighbour->getStatementLineNumber() <= startNode->getStatementLineNumber()) { // is cycle
 			// if not here before, give second chance

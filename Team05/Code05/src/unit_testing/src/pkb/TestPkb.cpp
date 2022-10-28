@@ -21,6 +21,7 @@
 #include <sp/dataclasses/design_objects/Pattern.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/design_objects/Entity.h>
+#include <sp/SourceProcessor.h>
 
 #include <algorithm>
 #include <memory>
@@ -1342,6 +1343,28 @@ TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 	}
 }
 
+TEST_CASE("Test (full integration with SP)") {
+	auto test = [](PKBTrackedStatementType statementType, string sourceCode, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships) {
+
+		// given
+		// sp parse and extract from source code
+		stringstream ss(sourceCode);
+		SourceProcessor sp = SourceProcessor(ss);
+		
+		// sp update pkb
+
+		
+		// when
+		// query pkb
+
+		// expected relationships are found
+		
+	};
+
+	SECTION("Affects") {
+		
+	}
+}
 
 
 

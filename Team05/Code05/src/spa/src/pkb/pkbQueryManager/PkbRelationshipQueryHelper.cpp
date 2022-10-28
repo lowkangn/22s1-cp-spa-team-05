@@ -309,7 +309,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 		// 4.3 use graph extractor to check 
 		// then cache and return
 		PkbGraphAffectsRelationshipExtractor extractor;
-		if (extractor.hasAffectsRelationship(startNode, endNode, repository)) {
+		if (extractor.hasAffectsRelationship(startNode, endNode, repository, intersectingVariableMap)) {
 			out.push_back(positiveMatch);
 			repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTS)->add(positiveMatch);
 		}
@@ -321,18 +321,76 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 	}
 	else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) { // case 2: exact, non exact
 		// 1. find all assign after lhs
+		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 
 		// 2. for all these, check and append
+		// O(n) enumeration
+		for (shared_ptr<PkbEntity> statement : statements) {
+			// cast
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
+			assert(cast != nullptr);
+			
+			// check
+			if (cast->isAssignStatement()) {
+				// convert rhs to exact clause argument 
+				ClauseArgument castAsRhs = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
+
+				// do self query for exact
+				vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(lhs, castAsRhs, repository);
+				out.insert(out.end(), found.begin(), found.end());
+			}
+		}
 
 	}
 	else if (rhs.isExactReference() && (lhs.isWildcard() || lhs.isSynonym())) { // case 3: non exact, exact 
 		// 1. find all assign before rhs
+		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 
 		// 2. for all these, check and append
+		// O(n) enumeration
+		for (shared_ptr<PkbEntity> statement : statements) {
+			// cast
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
+			assert(cast != nullptr);
+
+			// check
+			if (cast->isAssignStatement()) {
+				// convert lhs to exact clause argument 
+				ClauseArgument castAsLhs = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
+
+				// do self query for exact
+				vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, rhs, repository);
+				out.insert(out.end(), found.begin(), found.end());
+			}
+		}
+
 	}
 	else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) { // case 4: non exact, non exact
 		// 1. find all assign
+		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+
 		// 2. for all pairs (diagonal matrix), check and append
+		// O(n2) enumeration
+		for (shared_ptr<PkbEntity> statement1 : statements) {
+			// cast
+			shared_ptr<PkbStatementEntity> cast1 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
+			assert(cast1 != nullptr);
+			for (shared_ptr<PkbEntity> statement2 : statements) {
+				shared_ptr<PkbStatementEntity> cast2 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
+				assert(cast2 != nullptr);
+
+				// check
+				if (cast1->isAssignStatement() && cast2->isAssignStatement()) {
+					// convert to exact clause argument 
+					ClauseArgument castAsLhs = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
+					ClauseArgument castAsRhs = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
+
+					// do self query for exact
+					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, castAsRhs, repository);
+					out.insert(out.end(), found.begin(), found.end());
+				}
+			}
+		}
 
 	}
 	else {
