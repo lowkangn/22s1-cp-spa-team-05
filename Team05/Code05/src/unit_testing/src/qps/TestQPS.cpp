@@ -525,7 +525,7 @@ TEST_CASE("QPS: test working correctly") {
 
 		queryString = "assign a; \n Select a such that Next*(a, 3)";
 		expectedResult = set<string>{ "2", "7" };
-		//testQPS(queryString, expectedResult, pkb);
+		testQPS(queryString, expectedResult, pkb);
 	}
 
 	SECTION("Select and Pattern") {

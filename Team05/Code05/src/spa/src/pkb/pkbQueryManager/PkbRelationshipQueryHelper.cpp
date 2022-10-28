@@ -228,7 +228,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 		// if _ and _, we do dfs from the root node and accumulate.
 		vector<shared_ptr<PkbRelationship>> out;
 		for (shared_ptr<PkbGraphManager> cfgManager : repository->getCfgs()) {
-
+			
 			// case 1: both exact
 			if (lhs.isExactReference() && rhs.isExactReference()) {
 				// construct key from lhs and rhs
@@ -263,6 +263,12 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 			if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
 				// convert lhs to entity, graph node, then get node 
 				shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
+				string leftKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left)->getKey();
+
+				if (!cfgManager->isInside(leftKey)) {
+					continue;
+				}
+
 				shared_ptr<PkbGraphNode> leftAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
 				shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(leftAsNode->getKey()));
 
@@ -275,6 +281,12 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 			else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isExactReference())) {
 				// convert rhs to entity, graph node, then get target node 
 				shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
+				string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
+
+				if (!cfgManager->isInside(rightKey)) {
+					continue;
+				}
+
 				shared_ptr<PkbGraphNode> rightAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
 				shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(rightAsNode->getKey()));
 				shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getRootNode());

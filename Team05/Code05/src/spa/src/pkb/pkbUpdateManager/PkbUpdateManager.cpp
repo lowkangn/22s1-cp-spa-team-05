@@ -263,7 +263,7 @@ void PkbUpdateManager::addCfgs(vector<shared_ptr<CFGNode>> rootNodes, shared_ptr
 
 	for (shared_ptr<CFGNode> rootNode : rootNodes) {
 		// 1. traverse cfg to convert to pkb graph
-	// 1.1 pointer to new root node
+		// 1.1 pointer to new root node
 		shared_ptr<PkbGraphNode> node = NULL;
 
 		// 1.2 initialize edge visited list and queue

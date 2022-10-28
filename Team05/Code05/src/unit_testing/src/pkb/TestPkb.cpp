@@ -1174,8 +1174,7 @@ TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 			{4, {6}},
 			{5, {6}},
 			{6, {7,8}},
-			{7, {6,8}},
-			{8, {}},
+			{7, {6}},
 
 		};
 		unordered_map<int, shared_ptr<CFGNode>> nodeIdToNode = {
