@@ -293,22 +293,47 @@ stmt s;
 Select s such that Next*(s, s)
 5, 6, 7, 8, 16, 17, 18
 5000
-60 - Next - as a boolean (true)
+60 - NextT - select assigns that repeat themselves some time after
+assign a;
+Select a such that Next*(a, a)
+6, 7, 8, 18
+5000
+61 - NextT - select reads that repeat themselves some time after
+read r;
+Select r such that Next*(r, r)
+none
+5000
+62 - NextT - select prints that repeat themselves some time after
+print printer;
+Select printer such that Next*(printer, printer)
+17
+5000
+63 - NextT - select whiles that repeat themselves some time after
+while w;
+Select w such that Next*(w, w)
+5, 16
+5000
+64 - NextT - select ifs that repeat themselves some time after
+if i;
+Select i such that Next*(i, i)
+none
+5000
+65 - Next - as a boolean (true)
 variable v;
 Select v such that Next(3, 10)
 x, z, y, b, a
 5000
-61 - Next - as a boolean (false)
+66 - Next - as a boolean (false)
 variable v;
 Select v such that Next(9, 10)
 none
 5000
-62 - Next* - as a boolean (true)
+67 - Next* - as a boolean (true)
 constant c;
 Select c such that Next*(1, 14)
 1, 2, 0, 10, 3
 5000
-63 - Next* - as a boolean (false)
+68 - Next* - as a boolean (false)
 constant c;
 Select c such that Next*(8, 10)
 none

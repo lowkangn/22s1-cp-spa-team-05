@@ -301,12 +301,13 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 			for (shared_ptr<PkbRelationship> r : extractedRelationships) {
 				shared_ptr<PkbEntity> lhsEntity = r->getLhs();
 				shared_ptr<PkbEntity> rhsEntity = r->getRhs();
-				if (lhsFilter(lhsEntity, lhs) && rhsFilter(rhsEntity, rhs)) {
+
+				bool hasMatch = lhsFilter(lhsEntity, lhs) && rhsFilter(rhsEntity, rhs);
+
+				if (hasMatch && (lhs != rhs || (lhs == rhs && lhsEntity->equals(rhsEntity)))) {
 					out.push_back(r);
 				}
 			}
-
-			
 		}
 		return out;
 
