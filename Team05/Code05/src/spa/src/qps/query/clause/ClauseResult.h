@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <assert.h>
 #include <algorithm>
+#include <iterator>
 #include <qps/query/clause/ClauseArgument.h>
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/PQLRelationship.h>

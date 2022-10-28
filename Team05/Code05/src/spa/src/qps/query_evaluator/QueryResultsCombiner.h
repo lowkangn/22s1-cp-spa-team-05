@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <iterator>
 
 #include <qps/query/clause/ClauseResult.h>
 #include <qps/query/clause/EntityClauseResult.h>
