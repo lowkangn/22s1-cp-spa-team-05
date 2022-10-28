@@ -148,3 +148,168 @@ stmt s;
 Select s such that Next*(5, s)
 5, 6, 7, 8, 9, 13, 14
 5000
+31 - NextT - select statements next after a statement (synonym)
+stmt s, s1;
+Select s such that Next*(s1, s)
+2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18
+5000
+32 - NextT - select statements next after a statement (wildcard)
+stmt s;
+Select s such that Next*(_, s)
+2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18
+5000
+33 - NextT - select statements with a next statement (synonym)
+stmt s, s1;
+Select s such that Next*(s, s1)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18
+5000
+34 - NextT - select statements with a next statement (wildcard)
+stmt s;
+Select s such that Next*(s, _)
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18
+5000
+35 - NextT - select any statements with an assign some time before
+assign a; stmt s;
+Select s such that Next*(a, s)
+2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18
+5000
+36 - NextT - select assigns with a print some time after
+print printer; assign a;
+Select a such that Next*(a, printer)
+1, 4, 6, 7, 8, 9, 18
+5000
+37 - NextT - select prints with an assign some time after
+print printer; assign a;
+Select printer such that Next*(printer, a)
+11, 13, 17
+5000
+38 - NextT - select assigns with a read some time after
+read r; assign a;
+Select a such that Next*(a, r)
+1
+5000
+39 - NextT - select reads with an assign some time after
+read r; assign a;
+Select r such that Next*(r, a)
+2, 10, 15
+5000
+40 - NextT - select assigns with an if some time after
+if i; assign a;
+Select a such that Next*(a, i)
+1
+5000
+41 - NextT - select ifs with an assign some time after 
+if i; assign a;
+Select i such that Next*(i, a)
+3
+5000
+42 - NextT - select assigns with a while some time after
+while w; assign a;
+Select a such that Next*(a, w)
+1, 4, 6, 7, 8, 18
+5000
+43 - NextT - select whiles with an assign some time after 
+while w; assign a;
+Select w such that Next*(w, a)
+5, 16
+5000
+44 - NextT - select assigns with an assign some time after
+assign a, aAfter;
+Select a such that Next*(a, aAfter)
+1, 4, 6, 7, 8, 9, 18
+5000
+45 - NextT - select whiles wtih an if some time after
+while w; if i;
+Select w such that Next*(w, i)
+none
+5000
+46 - NextT - select whiles with an if some time before
+while w; if i;
+Select w such that Next*(i, w)
+5
+5000
+47 - NextT - select whiles with a print some time after
+while w; print pr;
+Select w such that Next*(w, pr)
+5, 16
+5000
+48 - NextT - select prints with a while some time after
+while w; print pr;
+Select pr such that Next*(pr, w)
+17
+5000
+49 - NextT - select reads with a while some time after
+while w; read r;
+Select r such that Next*(r, w)
+2, 15
+5000
+50 - NextT - select whiles with a while some time after
+while w, w1;
+Select w such that Next*(w, w1)
+5, 16
+5000
+51 - NextT - select ifs with a print some time after
+if i; print p;
+Select i such that Next*(i, p)
+3
+5000
+52 - NextT - select prints with an if some time after
+if i; print p;
+Select p such that Next*(p, i)
+none
+5000
+53 - NextT - select ifs with a read some time after
+if i; read r;
+Select i such that Next*(i, r)
+3
+5000
+54 - NextT - select reads with an if some time after
+if i; read r;
+Select r such that Next*(r, i)
+2
+5000
+55 - NextT - select prints with a read some time after
+print p; read r;
+Select p such that Next*(p, r)
+none
+5000
+56 - NextT - select reads with a print some time after
+print p; read r;
+Select r such that Next*(r, p)
+2, 10, 15
+5000
+57 - NextT - select reads with a read some time after
+read r, r1;
+Select r such that Next*(r, r1)
+2
+5000
+58 - Next - select statements that repeat themselves some time after
+stmt s;
+Select s such that Next(s, s)
+none
+5000
+59 - NextT - select statements that repeat themselves some time after
+stmt s;
+Select s such that Next*(s, s)
+5, 6, 7, 8, 16, 17, 18
+5000
+60 - Next - as a boolean (true)
+variable v;
+Select v such that Next(3, 10)
+x, z, y, b, a
+5000
+61 - Next - as a boolean (false)
+variable v;
+Select v such that Next(9, 10)
+none
+5000
+62 - Next* - as a boolean (true)
+constant c;
+Select c such that Next*(1, 14)
+1, 2, 0, 10, 3
+5000
+63 - Next* - as a boolean (false)
+constant c;
+Select c such that Next*(8, 10)
+none
+5000
