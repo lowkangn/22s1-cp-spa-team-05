@@ -37,6 +37,15 @@ public:
 		return this->nextNodes[0];
 	}
 
+	void removeNext() {
+		if (this->hasNext()) {
+			this->nextNodes.pop_back();
+		}
+		else {
+			throw CFGException("While node does not have next");
+		}
+	}
+
 	bool isWhileNode() override {
 		return true;
 	}

@@ -8,8 +8,7 @@
 #include <sp/design_extractor/UsesExtractor.h>
 #include <sp/design_extractor/ParentExtractor.h>
 #include <sp/design_extractor/ParentTExtractor.h>
-#include <sp/design_extractor/FollowsExtractor.h>
-#include <sp/design_extractor/FollowsTExtractor.h>
+#include <sp/design_extractor/FollowsAndFollowsTExtractor.h>
 
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/dataclasses/ast/AST.h>
@@ -28,7 +27,7 @@ vector<Relationship> SourceProcessor::extractRelations() {
 		throw SPException("SP has not been initialized with the source program");
 	}
 	vector<Relationship> relations = this->designManager.extractRelationships(this->astRoot);
-	//vector<Relationship> cfgRelations = this->designManager.extractCFGRelationships(this->controlFlowGraphs);
+	vector<Relationship> cfgRelations = this->designManager.extractCFGRelationships(this->controlFlowGraphs);
 
 	return relations;
 }

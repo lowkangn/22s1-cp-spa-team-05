@@ -1,8 +1,8 @@
 #include "catch.hpp"
 #include <qps/query/clause/ParentClause.h>
 #include <qps/query/clause/ParentTClause.h>
-#include <pkb/design_objects/relationships/PkbParentRelationship.h>
-#include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentStarRelationship.h>
 
 #include <list>
 

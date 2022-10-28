@@ -13,7 +13,7 @@ class CallsParser : public SuchThatClauseParser {
 private:
 	bool isStar;
 public:
-	CallsParser(list<PQLToken> tokens, unordered_map<string, ArgumentType> declarations) :
+	CallsParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) :
 		SuchThatClauseParser(tokens, declarations) {
 		this->isStar = false;
 	};

@@ -39,10 +39,6 @@ public:
 		return this->nextNodes[0];
 	}
 
-	
-
-	
-
 	virtual void addChild(shared_ptr<CFGNode> node) {
 		this->nextNodes.push_back(node);
 	}
@@ -89,6 +85,10 @@ public:
 
 	Entity getEntity() {
 		return this->entity;
+	}
+
+	bool hasChildren() {
+		return this->nextNodes.size() > 0;
 	}
 
 	static shared_ptr<CFGNode> createCFGFromAdjacencyList(unordered_map<int, shared_ptr<CFGNode>>& cfgNodes, unordered_map<int, vector<int>> adjList, int rootIndex) {
