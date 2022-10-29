@@ -10,6 +10,8 @@
 #include <qps/query/clause/EntityClauseResult.h>
 #include <qps/query/clause/RelationshipClauseResult.h>
 #include <qps/query/clause/RelationshipClause.h>
+#include <qps/query/clause/CallsClause.h>
+#include <qps/query/clause/CallsTClause.h>
 #include <qps/query/clause/FollowsClause.h>
 #include <qps/query/clause/FollowsTClause.h>
 #include <qps/query/clause/ParentClause.h>
