@@ -72,14 +72,14 @@ ClauseResult QueryResultsCombiner::combine() {
 	for (const vector<ClauseResult>& resultsGroup : this->resultsWithSelectedArgs) {
 		ClauseResult groupCombinedResult = this->combineResults(resultsGroup);
 		if (groupCombinedResult.isEmpty()) {
-			return groupCombinedResult;
+			return {};
 		}
 		if (combinedResult.isEmpty()) {
 			combinedResult = groupCombinedResult;
 		} else {
 			combinedResult = combinedResult.mergeResult(groupCombinedResult);
 			if (combinedResult.isEmpty()) {
-				return combinedResult;
+				return {};
 			}
 		}
 	}

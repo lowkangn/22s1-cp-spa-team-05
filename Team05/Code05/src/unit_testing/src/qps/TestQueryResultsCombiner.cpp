@@ -262,6 +262,12 @@ TEST_CASE("QueryResultsCombiner: test combine") {
 		optimisedConstraintResults = {{}, {{followsReadAssignResult, modifiesAssignZResult}}};
 		expected = {};
 		testCombine(selectResults, optimisedConstraintResults, expected);
+
+		// Select a such that Follows(r, a) such that Modifies(a, "z") such that Parent*(w, a2) pattern a2("x", _"x"_)
+		selectResults = {selectAssignResult};
+		optimisedConstraintResults = {{{followsReadAssignResult, modifiesAssignZResult}}, {{parentStarWhileAssign2Result, patternAssign2XResult}}};
+		expected = {};
+		testCombine(selectResults, optimisedConstraintResults, expected);
 	}
 
 	SECTION("Have both groups with and without selected args") {
