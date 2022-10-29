@@ -78,6 +78,8 @@ public:
 
 	ClauseResult() {};
 
+	ClauseResult(const ClauseResult& result) : args(result.args), table(result.table), argumentToIndexMap(result.argumentToIndexMap) {};
+
 	ClauseResult(vector<ClauseArgument> args, vector<vector<PQLEntity>> table) : args(args), table(table) {
 		for (int i = 0; i < args.size(); i++) {
 			this->argumentToIndexMap.insert({args[i], i});

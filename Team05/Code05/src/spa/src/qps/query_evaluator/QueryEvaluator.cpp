@@ -12,7 +12,7 @@ set<string> QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> pk
 	}
 
 	// Optimise
-	bool isEmptyResultFound;
+	bool isEmptyResultFound = false;
 	QueryResultsOptimiser optimiser(selectResults, relationshipsResults, withResults);
 	vector<vector<vector<ClauseResult>>> optimisedConstraintResults = optimiser.optimise(isEmptyResultFound);
 

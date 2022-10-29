@@ -12,8 +12,7 @@ ClauseResult QueryResultsCombiner::combineResults(vector<ClauseResult> results) 
 		}
 	}
 
-	// TODO: Find solution to this "local variable may escape the function" warning
-	return combinedResult;
+	return {combinedResult};
 }
 
 ClauseResult QueryResultsCombiner::getDesiredSynonymsResult(ClauseResult combinedResult) {
@@ -43,7 +42,13 @@ ClauseResult QueryResultsCombiner::getSelectSynonymsCrossProductResult() {
 }
 
 ClauseResult QueryResultsCombiner::combine() {
-	// If not constraint results, just get cross product of select results
+	// If no select results and no results without selected args, can treat as `Select BOOLEAN` so just return true
+	if (this->selectResults.empty() && this->resultsWithoutSelectedArgs.empty()) {
+		assert(this->resultsWithSelectedArgs.empty()); // If no select results, there can be no results with selected args
+		return this->selectBooleanPlaceholderResult;
+	}
+
+	// If no constraint results, just get cross product of select results
 	if (this->resultsWithSelectedArgs.empty() && this->resultsWithoutSelectedArgs.empty()) {
 		return this->getSelectSynonymsCrossProductResult();
 	}

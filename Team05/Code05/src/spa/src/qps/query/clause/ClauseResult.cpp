@@ -249,7 +249,7 @@ ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(const vector<Claus
 				this->args = newResult.args;
 				this->argumentToIndexMap = newResult.argumentToIndexMap;
 				this->table = newResult.table;
-				int indexOfNewColumn = int(this->args.size()) - 1;
+				int indexOfNewColumn = static_cast<int>(this->args.size()) - 1;
 				desiredSynonymIndices.push_back(indexOfNewColumn);
 			}
 		}
@@ -272,7 +272,7 @@ ClauseResult ClauseResult::rearrangeTableToMatchSelectResults(const vector<Claus
 					ClauseResult attributeColumn = synonymColumn.convertSynonymsColumnToAttributesColumn(currentResult);
 					this->addColumnToTable(attributeColumn);
 				}
-				int indexOfNewColumn = int(this->args.size()) - 1;
+				int indexOfNewColumn = static_cast<int>(this->args.size()) - 1;
 				desiredSynonymIndices.push_back(indexOfNewColumn);
 			}
 		}

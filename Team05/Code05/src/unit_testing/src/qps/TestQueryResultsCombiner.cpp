@@ -123,6 +123,7 @@ namespace {
 	ClauseArgument constArg = ClauseArgument::createConstantArg("c");
 	ClauseArgument wildcardArg = ClauseArgument::createWildcardArg();
 	ClauseArgument XStringLiteralArg = ClauseArgument::createStringLiteralArg("x");
+	ClauseArgument ZStringLiteralArg = ClauseArgument::createStringLiteralArg("z");
 	ClauseArgument callProcNameAttributeArg = ClauseArgument::createProcNameAttributeArg(callArg);
 	ClauseArgument variableVarNameAttributeArg = ClauseArgument::createVarNameAttributeArg(varArg);
 	ClauseArgument lineNumber1Arg = ClauseArgument::createLineNumberArg("1");
@@ -154,6 +155,7 @@ namespace {
 
 	ClauseResult followsReadAssignResult = ClauseResult({readArg, assignArg}, {pqlFollowsR1A2});
 	ClauseResult modifiesAssignVarResult = ClauseResult({assignArg, varArg},{pqlModifiesSA2X, pqlModifiesSA6X, pqlModifiesSA8Y, pqlModifiesSA9Y});
+	ClauseResult modifiesAssignZResult = ClauseResult({assignArg, ZStringLiteralArg},Table{});
 	ClauseResult parentStarWhileAssign2Result = ClauseResult({whileArg, assign2Arg}, {pqlParentStarW3A6});
 	ClauseResult patternAssign2XResult = ClauseResult({assign2Arg, XStringLiteralArg}, {pqlPatternA2X, pqlPatternA6X});
 	ClauseResult withCallProcNameVar2VarNameResult = ClauseResult({callArg, callProcNameAttributeArg, var2Arg, variableVarNameAttributeArg}, callProcNameVarVarNameResultTable);
@@ -253,6 +255,12 @@ TEST_CASE("QueryResultsCombiner: test combine") {
 		selectResults = {};
 		optimisedConstraintResults = {{}, {{followsReadAssignResult, modifiesAssignVarResult}}};
 		expected = selectBooleanPlaceholderResult;
+		testCombine(selectResults, optimisedConstraintResults, expected);
+
+		// Select BOOLEAN such that Follows(r, a) such that Modifies(a, "z")
+		selectResults = {};
+		optimisedConstraintResults = {{}, {{followsReadAssignResult, modifiesAssignZResult}}};
+		expected = {};
 		testCombine(selectResults, optimisedConstraintResults, expected);
 	}
 

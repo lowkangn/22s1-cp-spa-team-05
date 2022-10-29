@@ -1401,6 +1401,18 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		expectedSet = set<string>{"TRUE"};
 		testEvaluate(query, expectedSet, pkb);
 
+		// Select BOOLEAN such that Follows(1, 2)
+		relationshipClause = shared_ptr<RelationshipClause>(new FollowsClause(lineNumber1Arg, lineNumber2Arg));
+		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
+		expectedSet = set<string>{"TRUE"};
+		testEvaluate(query, expectedSet, pkb);
+
+		// Select BOOLEAN such that Follows(1, 2)
+		relationshipClause = shared_ptr<RelationshipClause>(new FollowsTClause(lineNumber1Arg, lineNumber2Arg));
+		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
+		expectedSet = set<string>{"TRUE"};
+		testEvaluate(query, expectedSet, pkb);
+
 		// Select BOOLEAN such that Follows(i, s)
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsClause(ifArg, stmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
