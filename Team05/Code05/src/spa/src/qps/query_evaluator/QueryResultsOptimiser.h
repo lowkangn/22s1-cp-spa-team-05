@@ -15,7 +15,7 @@ private:
 
 	vector<vector<vector<ClauseResult>>> group(bool& isEmptyResultFound);
 	void findAllConnectedArgs(const ClauseArgument& arg, vector<ClauseArgument>& currGroup);
-	void sort(vector<vector<ClauseResult>>& groups);
+	void sort(vector<ClauseResult>& group);
 
 public:
 	QueryResultsOptimiser(const list<ClauseResult>& selectResults, list<ClauseResult> relationshipsResults, list<ClauseResult> withResults) {

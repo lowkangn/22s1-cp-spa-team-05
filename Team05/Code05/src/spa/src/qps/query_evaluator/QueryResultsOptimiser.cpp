@@ -7,8 +7,12 @@ vector<vector<vector<ClauseResult>>> QueryResultsOptimiser::optimise(bool& isEmp
 
 	vector<vector<vector<ClauseResult>>> groups = this->group(isEmptyResultFound);
 	if (!isEmptyResultFound) {
-		this->sort(groups.front());
-		this->sort(groups.back());
+		for (vector<ClauseResult> group : groups.front()) {
+			this->sort(group);
+		}
+		for (vector<ClauseResult> group : groups.back()) {
+			this->sort(group);
+		}
 	}
 	return groups;
 }
@@ -85,6 +89,6 @@ void QueryResultsOptimiser::findAllConnectedArgs(const ClauseArgument& arg, vect
 	}
 }
 
-void QueryResultsOptimiser::sort(vector<vector<ClauseResult>>& groups) {
+void QueryResultsOptimiser::sort(vector<ClauseResult>& groups) {
 
 }
