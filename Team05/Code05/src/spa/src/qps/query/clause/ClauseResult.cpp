@@ -137,15 +137,10 @@ void ClauseResult::duplicateExistingColumnAs(const ClauseArgument& headerOfColum
 
 void ClauseResult::renameColumns(const ClauseArgument& oldName, const ClauseArgument& newName) {
 	replace(this->args.begin(), this->args.end(), oldName, newName);
-	pair<unordered_multimap<ClauseArgument, int>::iterator, unordered_multimap<ClauseArgument, int>::iterator> range = this->argumentToIndexMap.equal_range(oldName);
-	unordered_multimap<ClauseArgument, int> tempMap;
-	for (unordered_multimap<ClauseArgument, int>::iterator mapIter = range.first; mapIter != range.second; mapIter++) {
-		tempMap.insert({newName, mapIter->second});
+	if (this->argumentToIndexMap.count(oldName)) {
+		this->argumentToIndexMap.insert({newName, this->argumentToIndexMap.find(oldName)->second});
 	}
 	this->argumentToIndexMap.erase(oldName);
-	for (pair<ClauseArgument, int> tempEntry : tempMap) {
-		this->argumentToIndexMap.insert(tempEntry);
-	}
 }
 
 ClauseResult ClauseResult::convertSynonymsColumnToAttributesColumn(ClauseResult selectResult) {

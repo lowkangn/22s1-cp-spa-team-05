@@ -25,7 +25,7 @@ protected:
 	/* ================ Protected fields ================ */
 
 	vector<ClauseArgument> args;
-	unordered_multimap<ClauseArgument, int> argumentToIndexMap;
+	unordered_map<ClauseArgument, int> argumentToIndexMap;
 	Table table;
 
 	/* ================ Protected methods ================ */
