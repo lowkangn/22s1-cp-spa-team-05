@@ -1,16 +1,16 @@
 #include <catch.hpp>
-#include <pkb/design_objects/entities/PkbProcedureEntity.h>
-#include <pkb/design_objects/entities/PkbVariableEntity.h>
-#include <pkb/design_objects/entities/PkbStatementEntity.h>
-#include <pkb/design_objects/relationships/PkbCallsRelationship.h>
-#include <pkb/design_objects/relationships/PkbCallsStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
-#include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
-#include <pkb/design_objects/relationships/PkbParentRelationship.h>
-#include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbUsesRelationship.h>
-#include <pkb/table_managers/PkbRelationshipTable.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbProcedureEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbVariableEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbModifiesRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbUsesRelationship.h>
+#include <pkb/pkbRepository/table_managers/PkbRelationshipTable.h>
 
 
 #include <vector>
