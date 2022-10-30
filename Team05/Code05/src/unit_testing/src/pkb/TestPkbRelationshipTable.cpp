@@ -57,14 +57,14 @@ TEST_CASE("PkbRelationshipTable::add and ::get works correctly") {
 			
 		};
 		vector<string> expectedKeys = {
-			lhsKey + rhsKey + string("0"),
-			lhsKey + rhsKey + string("1"),
-			lhsKey + rhsKey + string("2"),
-			lhsKey + rhsKey + string("3"),
-			lhsKey + rhsKey + string("4"),
-			lhsKey + rhsKey + string("5"),
-			lhsKey + rhsKey + string("6"),
-			lhsKey + rhsKey + string("7"),
+			lhsKey + " " + rhsKey + " " + string("0"),
+			lhsKey + " " + rhsKey + " " + string("1"),
+			lhsKey + " " + rhsKey + " " + string("2"),
+			lhsKey + " " + rhsKey + " " + string("3"),
+			lhsKey + " " + rhsKey + " " + string("4"),
+			lhsKey + " " + rhsKey + " " + string("5"),
+			lhsKey + " " + rhsKey + " " + string("6"),
+			lhsKey + " " + rhsKey + " " + string("7"),
 		};
 		test(relationships, expectedKeys);
 	};

@@ -112,7 +112,7 @@ public:
 		string rhsKey = this->rhs->getKey();
 
 		// create key from concatenating all 
-		string key = lhsKey + rhsKey + typeValue;
+		string key = lhsKey + " " + rhsKey + " " + typeValue; // avoid key collision with spacing
 		return key;
 	}
 

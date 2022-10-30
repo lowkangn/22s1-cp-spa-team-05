@@ -581,6 +581,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 
 					// do self query for exact affects(lhs->stmt)
 					vector<shared_ptr<PkbRelationship>> foundWithLhs = this->retrieveAffectsByTypeAndLhsRhs(lhs, arg, repository);
+					
 					if (foundWithLhs.size() == 0) {
 						// not found, continue
 						// failure, cache it
@@ -588,9 +589,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 						continue;
 					}
 					else {
-						// mark as visited
-						pair<string, string> exploringEdge = pair<string, string>(lhsEntity->getKey(), statement->getKey());
-						this->visitedAffectsEdges.insert(exploringEdge);
+						
 
 						// try to search recursively affects*(stmt->rhs)
 						vector<shared_ptr<PkbRelationship>> foundWithRhs = this->retrieveAffectsStarByTypeAndLhsRhs(arg, rhs, repository);
@@ -609,7 +608,10 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 							continue;
 						}
 						
-					}					
+					}
+					// mark as visited
+					pair<string, string> exploringEdge = pair<string, string>(lhsEntity->getKey(), statement->getKey());
+					this->visitedAffectsEdges.insert(exploringEdge);
 				}
 			}
 			if (success) {
@@ -618,7 +620,27 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 }
 		else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
 			// case 2: exact, non
-			// O(n2) enumeration of affects(lhs, s1), affects*(s1, s2)
+			// 0. check that exact exists and synonym is not invalid (e.g. while)
+			if (!lhs.isWildcard() && !lhs.isStmtSynonym() && !lhs.isAssignSynonym()) {
+				continue;
+			}
+
+			// 1. get all statements 
+			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+			
+			// 2. for all assign, check if affects*(lhs, s) 
+			for (shared_ptr<PkbEntity> statement : statements) {
+				// cast
+				shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
+				assert(cast != nullptr);
+
+				// check
+				if (cast->isAssignStatement()) {
+					ClauseArgument sArg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
+					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(lhs, sArg, repository);
+					out.insert(out.end(), found.begin(), found.end());
+				}
+			}
 		}
 		else if (rhs.isExactReference() && (lhs.isWildcard() || lhs.isSynonym())) {
 			// case 3: non, exact
@@ -626,7 +648,34 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 		}
 		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) {
 			// case 4: wildcard, wildcard
-			// O(n3) enumeration of affects(s1, s2), affects(s2, s3)
+			// O(n2) enumeration of affects*(s1, s2)
+			// 1. check if valid synonym 
+			if (!lhs.isWildcard() && !lhs.isStmtSynonym() && !lhs.isAssignSynonym()
+				|| !lhs.isWildcard() && !lhs.isStmtSynonym() && !lhs.isAssignSynonym()) {
+				continue;
+			}
+
+			// 2. enumerate
+			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+			for (shared_ptr<PkbEntity> statement1 : statements) {
+				// cast
+				shared_ptr<PkbStatementEntity> cast1 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
+				assert(cast1 != nullptr);
+
+				// check
+				for (shared_ptr<PkbEntity> statement2 : statements) {
+					shared_ptr<PkbStatementEntity> cast2 = dynamic_pointer_cast<PkbStatementEntity>(statement2);
+					assert(cast2 != nullptr);
+					if (cast1->isAssignStatement() && cast2->isAssignStatement()) {
+						ClauseArgument leftArg = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
+						ClauseArgument rightArg = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
+						vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(leftArg, rightArg, repository);
+						out.insert(out.end(), found.begin(), found.end());
+					}
+				}
+				
+			}
+
 
 		}
 		else {

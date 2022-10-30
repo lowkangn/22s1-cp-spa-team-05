@@ -1193,7 +1193,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 		Entity zVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("z"));
 
 		vector<Entity> entitiesToAdd = {
-			line1, line2, line3, line4, line5, line6, line7, line8, line9, line10, line12,
+			line1, line2, line3, line4, line5, line6, line7, line8, line9, line10, line11, line12,
 			xVariable, iVariable, yVariable, zVariable
 		};
 
@@ -1223,6 +1223,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 			Relationship::createModifiesRelationship(line10, zVariable),
 			Relationship::createModifiesRelationship(line11, yVariable),
 			Relationship::createModifiesRelationship(line12, xVariable),
+
 			// next
 			Relationship::createNextRelationship(line1, line2),
 			Relationship::createNextRelationship(line2, line3),
@@ -1301,7 +1302,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 
 			}
 
-			SECTION("Exact statements are in the program, and do affects, 4") {
+			SECTION("Exact statements are in the program, and do affects, 2") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
 				vector<PQLRelationship> expectedRelationships = {
@@ -1312,7 +1313,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 			}
 
 
-			SECTION("Exact statements are in the program, and do affects, 2") {
+			SECTION("Exact statements are in the program, and do affects, 3") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
 				vector<PQLRelationship> expectedRelationships = {
@@ -1322,7 +1323,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 
 			}
 
-			SECTION("Exact statements are in the program, but do affects, 3") {
+			SECTION("Exact statements are in the program, but do affects, 4") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("6");
 				vector<PQLRelationship> expectedRelationships = {
@@ -1330,8 +1331,16 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 				};
 				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
+			SECTION("Exact statements are in the program, but do affects, 5") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("11");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(11), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
 
-			SECTION("Exact statements are in the program, but no affects") {
+			SECTION("Exact statements are in the program, but no affects, 1") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("2");
 				vector<PQLRelationship> expectedRelationships = {
@@ -1340,12 +1349,18 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
 
-			SECTION("Exact statements are in the program, but no affects") {
+			SECTION("Exact statements are in the program, but no affects, 2") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("9");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
 				vector<PQLRelationship> expectedRelationships = {
 
 				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("Exact statements are in the program, but no affects, 3") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("11");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("2");
+				vector<PQLRelationship> expectedRelationships = {};
 				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
 			
@@ -1381,8 +1396,9 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(10)),
 					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
 					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(10)),
-					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12))
-
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(11), PQLEntity::generateStatement(12))
 				};
 				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
@@ -1403,11 +1419,12 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(12)),
 					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
 					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(10)),
-					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(10)),
 					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
 					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(10)),
-					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12))
-
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(11), PQLEntity::generateStatement(12))
 				};
 				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
@@ -1485,7 +1502,8 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
 					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(12)),
 					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
-					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12))
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(11), PQLEntity::generateStatement(12))
 				};
 				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
@@ -1638,7 +1656,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 			CFGNode::createCFGFromAdjacencyList(procedure2NodeIdToNode, procedure2AdjList, 1)
 		};
 
-		SECTION("Affects: both exact") {
+		SECTION("Affects*: both exact") {
 
 			SECTION("Referenced statement is not assign, empty result") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
@@ -1744,6 +1762,76 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 
 		}
 
+		SECTION("Affects*: synonym, synonym") {
+			SECTION("Two wildcards") {
+				ClauseArgument lhs = ClauseArgument::createWildcardArg();
+				ClauseArgument rhs = ClauseArgument::createWildcardArg();
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
+
+					// 2 onwards
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(12)),
+
+					// 4 onwards
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(12)),
+
+					// 6 onwards
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(12)),
+
+					// 8 onwards
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+
+					// 9 onwards
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(12)),
+
+					// 10 onwards
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12)),
+
+					// 11 onwards
+					PQLRelationship(PQLEntity::generateStatement(11), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Two assign, same") {
+
+			}
+
+			SECTION("Two assign, different") {
+
+			}
+
+			SECTION("An illegal synonym (while)") {
+
+			}
+		}
+
+		SECTION("Affects*: synonym, exact") {
+
+		}
+
+		SECTION("Affects*: exact, synonym") {
+
+		}
 	}
 }
 
