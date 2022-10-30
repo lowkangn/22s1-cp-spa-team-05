@@ -1557,7 +1557,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 		Entity zVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("z"));
 
 		vector<Entity> entitiesToAdd = {
-			line1, line2, line3, line4, line5, line6, line7, line8, line9, line10, line12,
+			line1, line2, line3, line4, line5, line6, line7, line8, line9, line10, line11, line12,
 			xVariable, iVariable, yVariable, zVariable
 		};
 
@@ -1665,7 +1665,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 
 			}
 
-			SECTION("Exact statements are in the program, and do affects*, 4") {
+			SECTION("Exact statements are in the program, and do affects*, 2") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
 				vector<PQLRelationship> expectedRelationships = {
@@ -1676,7 +1676,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 			}
 
 
-			SECTION("Exact statements are in the program, and do affects*, 2") {
+			SECTION("Exact statements are in the program, and do affects*, 3") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
 				vector<PQLRelationship> expectedRelationships = {
@@ -1686,7 +1686,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 
 			}
 
-			SECTION("Exact statements are in the program, but do affects*, 3") {
+			SECTION("Exact statements are in the program, but do affects*, 4") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("6");
 				vector<PQLRelationship> expectedRelationships = {
@@ -1695,7 +1695,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
 
-			SECTION("Exact statements are in the program, but do affects*, 3") {
+			SECTION("Exact statements are in the program, but do affects*, 5") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("6");
 				vector<PQLRelationship> expectedRelationships = {
@@ -1704,7 +1704,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
 
-			SECTION("Exact statements are in the program, but do affects*, 3") {
+			SECTION("Exact statements are in the program, but do affects*, 6") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("4");
 				vector<PQLRelationship> expectedRelationships = {
@@ -1713,7 +1713,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
 
-			SECTION("Exact statements are in the program, but do affects*, 3") {
+			SECTION("Exact statements are in the program, but do affects*, 7") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("11");
 				vector<PQLRelationship> expectedRelationships = {
@@ -1722,7 +1722,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
 
-			SECTION("Exact statements are in the program, but do affects*, 3") {
+			SECTION("Exact statements are in the program, but do affects*, 8") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
 				vector<PQLRelationship> expectedRelationships = {
@@ -1731,7 +1731,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
 
-			SECTION("Exact statements are in the program, but do affects*, 3") {
+			SECTION("Exact statements are in the program, but do affects*, 9") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
 				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
 				vector<PQLRelationship> expectedRelationships = {

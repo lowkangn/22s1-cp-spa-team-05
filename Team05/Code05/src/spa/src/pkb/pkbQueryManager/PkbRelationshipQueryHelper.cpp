@@ -496,6 +496,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
 			throw PkbException("AFFECTS* relationship expects lhs and rhs to both be statements!");
 		}
+
 		// case 1: exact, exact
 		// check if affects(lhs, rhs)
 		// if not, O(n) enumeration of affects(lhs, s), affects*(s, rhs)
@@ -540,12 +541,6 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTSSTAR)->get(negativeMatch->getKey()) != NULL) {
 				continue;
 			}
-			// 1.3 check if visited before, if visited, skip
-			pair<string, string> affectsGraphEdge = pair<string, string>(lhsEntity->getKey(), rhsEntity->getKey());
-			if (this->visitedAffectsEdges.count(affectsGraphEdge)) {
-				continue;
-			}
-			
 
 			// 2. check if affects(lhs, rhs)
 			vector<shared_ptr<PkbRelationship>> foundAffects = this->retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PkbRelationshipType::AFFECTS, lhs, rhs, repository);
@@ -561,6 +556,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 			// update cache as you go
 			// O(n) enumeration
 			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+			bool success = false;
 			for (shared_ptr<PkbEntity> statement : statements) {
 				// if is the same as either, skip
 				if (statement->equals(lhsEntity) || statement->equals(rhsEntity)) {
@@ -574,12 +570,18 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 				// check
 				if (cast->isAssignStatement()) {
 
+					// check if left->statement visited before, if visited, skip
+					pair<string, string> affectsGraphEdge = pair<string, string>(lhsEntity->getKey(), statement->getKey());
+					if (this->visitedAffectsEdges.count(affectsGraphEdge)) {
+						continue;
+					}
+
 					// convert lhs to exact clause argument 
 					ClauseArgument arg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
 
-					// do self query for exact
+					// do self query for exact affects(lhs->stmt)
 					vector<shared_ptr<PkbRelationship>> foundWithLhs = this->retrieveAffectsByTypeAndLhsRhs(lhs, arg, repository);
-					if (foundWithLhs.size() != 1) {
+					if (foundWithLhs.size() == 0) {
 						// not found, continue
 						// failure, cache it
 						repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTSSTAR)->add(negativeMatch);
@@ -590,15 +592,16 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 						pair<string, string> exploringEdge = pair<string, string>(lhsEntity->getKey(), statement->getKey());
 						this->visitedAffectsEdges.insert(exploringEdge);
 
-						// try to search recursively 
+						// try to search recursively affects*(stmt->rhs)
 						vector<shared_ptr<PkbRelationship>> foundWithRhs = this->retrieveAffectsStarByTypeAndLhsRhs(arg, rhs, repository);
-						if (foundWithRhs.size() == 1) {
+						if (foundWithRhs.size() >= 1) {
 							// success, cache it
 							repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTSSTAR)->add(positiveMatch);
 
 							// insert
 							out.push_back(positiveMatch);
-							continue;
+							success = true;
+							break;
 						}
 						else {
 							// failure, also cache it
@@ -609,7 +612,10 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 					}					
 				}
 			}
-		}
+			if (success) {
+				continue;
+			}
+}
 		else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
 			// case 2: exact, non
 			// O(n2) enumeration of affects(lhs, s1), affects*(s1, s2)
