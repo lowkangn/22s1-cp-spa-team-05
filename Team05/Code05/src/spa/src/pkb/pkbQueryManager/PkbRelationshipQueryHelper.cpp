@@ -396,7 +396,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 		}
 		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) { // case 4: non exact, non exact
 			// 0. check that they don't refer to the same thing
-			if (lhs.isSynonym() && rhs.isSynonym() && lhs == rhs) {
+			if (lhs.isStmtRefNoWildcard() && rhs.isSynonym() && lhs == rhs) {
 				continue;
 			}
 

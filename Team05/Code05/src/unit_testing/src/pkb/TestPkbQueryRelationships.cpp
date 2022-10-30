@@ -1207,6 +1207,7 @@ procedure Second {
 			Relationship::createUsesRelationship(line8, xVariable),
 			Relationship::createUsesRelationship(line10, zVariable),
 			Relationship::createUsesRelationship(line10, xVariable),
+			Relationship::createUsesRelationship(line10, iVariable),
 			Relationship::createUsesRelationship(line11, zVariable),
 			Relationship::createUsesRelationship(line12, xVariable),
 			Relationship::createUsesRelationship(line12, yVariable),
@@ -1300,6 +1301,16 @@ procedure Second {
 
 			}
 
+			SECTION("Exact statements are in the program, and do affects, 4") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(10))
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
 
 			SECTION("Exact statements are in the program, and do affects, 2") {
 				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
@@ -1361,12 +1372,16 @@ procedure Second {
 					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
 					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6)),
 					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(4)),
 					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(8)),
 					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(12)),
 					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
-					
-					
-					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(10))
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12))
 
 				};
 				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
@@ -1376,6 +1391,23 @@ procedure Second {
 				ClauseArgument lhs = ClauseArgument::createAssignArg("a1");
 				ClauseArgument rhs = ClauseArgument::createAssignArg("a2");
 				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12))
+
 				};
 				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
