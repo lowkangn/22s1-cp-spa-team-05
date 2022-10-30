@@ -1378,7 +1378,7 @@ procedure Second {
 					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(12)),
 					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
 					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(10)),
-					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(10)),
 					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
 					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(10)),
 					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12))
@@ -1463,7 +1463,55 @@ procedure Second {
 		}
 
 		SECTION("Affects: assign, exact") {
+			SECTION("exact not inside") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("13");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
 
+			SECTION("exact not assign statement") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("3");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("assign, exact") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("wildcard, exact") {
+				ClauseArgument lhs = ClauseArgument::createWildcardArg();
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+					
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(10)),
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("lhs is not assign or statement or wildcard") {
+				ClauseArgument lhs = ClauseArgument::createWhileArg("w");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+					
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
 		}
 	}
 
