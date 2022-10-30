@@ -46,8 +46,8 @@ void PKB::addPatterns(vector<Pattern> patterns) {
 }
 
 
-void PKB::addCfg(shared_ptr<CFGNode> rootNode) {
-	this->updateManager.addCfg(rootNode, this->repository);
+void PKB::addCfgs(vector<shared_ptr<CFGNode>> rootNodes) {
+	this->updateManager.addCfgs(rootNodes, this->repository);
 }
 
 

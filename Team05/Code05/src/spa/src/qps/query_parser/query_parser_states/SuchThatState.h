@@ -6,6 +6,7 @@
 #include <qps/query_parser/parsers/ModifiesParser.h>
 #include <qps/query_parser/parsers/ParentParser.h>
 #include <qps/query_parser/parsers/UsesParser.h>
+#include <qps/query_parser/parsers/NextParser.h>
 
 class SuchThatState : public QueryParserState {
 public:
