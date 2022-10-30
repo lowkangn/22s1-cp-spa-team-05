@@ -1142,6 +1142,9 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 		vector<PQLRelationship> all = pkb.retrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs);
 
 		// then should be inside
+		if (expectedRelationships.size() != all.size()) {
+			int x = 2;
+		}
 		REQUIRE(expectedRelationships.size() == all.size());
 		for (int i = 0; i < expectedRelationships.size(); i++) {
 			// retrieval all have been added
@@ -1149,10 +1152,9 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 		}
 	};
 
-	SECTION("Affects: both exact") {
-
+	SECTION("affects") {
 		/*
-		procedure Second {
+procedure Second {
 01			x = 0;
 02			i = 5;
 03			while (i!=0) {
@@ -1165,7 +1167,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 09				  z = 1; }
 10			z = z + x + i;
 11			y = z + 2;
-12			x = x * y + z; 
+12			x = x * y + z;
 		}
 		*/
 
@@ -1224,6 +1226,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 			Relationship::createNextRelationship(line1, line2),
 			Relationship::createNextRelationship(line2, line3),
 			Relationship::createNextRelationship(line3, line4),
+			Relationship::createNextRelationship(line3, line7),
 			Relationship::createNextRelationship(line4, line5),
 			Relationship::createNextRelationship(line5, line6),
 			Relationship::createNextRelationship(line6, line3),
@@ -1235,12 +1238,12 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 			Relationship::createNextRelationship(line10, line11),
 			Relationship::createNextRelationship(line11, line12),
 		};
-		
+
 		// create graphs
 		unordered_map<int, vector<int>> procedure2AdjList = {
 			{1, {2}},
 			{2, {3}},
-			{3, {4}},
+			{3, {4, 7}},
 			{4, {5}},
 			{5, {6}},
 			{6, {3, 7}},
@@ -1267,69 +1270,137 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 			{12, CFGNode::createCFGNode(line12)},
 		};
 		vector<shared_ptr<CFGNode>> graphsToAdd = {
-			CFGNode::createCFGFromAdjacencyList(procedure2NodeIdToNode, procedure2AdjList, 1) 
+			CFGNode::createCFGFromAdjacencyList(procedure2NodeIdToNode, procedure2AdjList, 1)
 		};
 
+		SECTION("Affects: both exact") {
 
-		SECTION("Referenced statement is not assign, empty result") {
-			ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
-			ClauseArgument rhs = ClauseArgument::createLineNumberArg("3");
-			vector<PQLRelationship> expectedRelationships = {};
-			test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			SECTION("Referenced statement is not assign, empty result") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("3");
+				vector<PQLRelationship> expectedRelationships = {};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are not inside the program") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("13");
+				vector<PQLRelationship> expectedRelationships = {};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
+			SECTION("Exact statements are in the program, and do affects, 1") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("4");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(10))
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
+
+			SECTION("Exact statements are in the program, and do affects, 2") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
+			SECTION("Exact statements are in the program, but do affects, 3") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("6");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6))
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but no affects") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("2");
+				vector<PQLRelationship> expectedRelationships = {
+
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but no affects") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("9");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			
+
+			SECTION("Exact statements are in the program, but no affects") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("8");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("4");
+				vector<PQLRelationship> expectedRelationships = {
+
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+		}
+		SECTION("Affects: both wildcard") {
+
+			SECTION("both wildcard") {
+				ClauseArgument lhs = ClauseArgument::createWildcardArg();
+				ClauseArgument rhs = ClauseArgument::createWildcardArg();
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
+					
+					
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(10))
+
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("both different assign") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a1");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a2");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("both same assign") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
 		}
 
-		SECTION("Exact statements are not inside the program") {
-			ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
-			ClauseArgument rhs = ClauseArgument::createLineNumberArg("13");
-			vector<PQLRelationship> expectedRelationships = {};
-			test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+
+		SECTION("Affects: one exact, one assign") {
 
 		}
 
-		SECTION("Exact statemetns are in the program, and do affects, 1") {
-			ClauseArgument lhs = ClauseArgument::createLineNumberArg("4");
-			ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
-			vector<PQLRelationship> expectedRelationships = {
-				PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(10))
-			};
-			test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+		SECTION("Affects: assign, exact") {
 
 		}
-
-
-		SECTION("Exact statemetns are in the program, and do affects, 2") {
-			ClauseArgument lhs = ClauseArgument::createLineNumberArg("4");
-			ClauseArgument rhs = ClauseArgument::createLineNumberArg("8");
-			vector<PQLRelationship> expectedRelationships = {
-				PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(8)) 
-			};
-			test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
-
-		}
-
-		SECTION("Exact statements are in the program, but do affects, 3") {
-			ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
-			ClauseArgument rhs = ClauseArgument::createLineNumberArg("6");
-			vector<PQLRelationship> expectedRelationships = {
-				PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6))
-			};
-			test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
-		}
-
-		SECTION("Exact statements are in the program, but no affects") {
-			ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
-			ClauseArgument rhs = ClauseArgument::createLineNumberArg("2");
-			vector<PQLRelationship> expectedRelationships = {
-				
-			};
-			test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
-		}
-
-		
-
-		
 	}
 
+	
 }
 
 

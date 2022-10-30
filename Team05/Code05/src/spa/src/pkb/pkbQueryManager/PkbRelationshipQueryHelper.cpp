@@ -395,6 +395,11 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 
 		}
 		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) { // case 4: non exact, non exact
+			// 0. check that they don't refer to the same thing
+			if (lhs.isSynonym() && rhs.isSynonym() && lhs == rhs) {
+				continue;
+			}
+
 			// 1. find all assign
 			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 
@@ -405,7 +410,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 				shared_ptr<PkbStatementEntity> cast1 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
 				assert(cast1 != nullptr);
 				for (shared_ptr<PkbEntity> statement2 : statements) {
-					shared_ptr<PkbStatementEntity> cast2 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
+					shared_ptr<PkbStatementEntity> cast2 = dynamic_pointer_cast<PkbStatementEntity>(statement2);
 					assert(cast2 != nullptr);
 
 					// check

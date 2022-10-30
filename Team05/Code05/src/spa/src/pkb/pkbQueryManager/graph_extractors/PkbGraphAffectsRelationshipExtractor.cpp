@@ -45,41 +45,60 @@ bool PkbGraphAffectsRelationshipExtractor::hasAffectsRelationship(shared_ptr<Pkb
 			unordered_map<string, shared_ptr<PkbRelationship>> lhsModifiesMap;
 			
 			// check and erase
+			bool next = false;
 			for (shared_ptr<PkbRelationship> relationship : lhsModifies) {
+				
 				string key = relationship->getRhs()->getKey();
 				if (candidateVariableKeyValueMap.find(key) != candidateVariableKeyValueMap.end()) {
+					
 					erased.insert({ key, candidateVariableKeyValueMap.at(key) }); // insert for back tracking
 					candidateVariableKeyValueMap.erase(key);
-					
 				}
 				if (candidateVariableKeyValueMap.size() == 0) {
-					return false; // early terminate on this path
+					// backtrack
+					for (auto keyValue = erased.begin(); keyValue != erased.end(); keyValue++) {
+						string key = keyValue->first;
+						shared_ptr<PkbEntity> variable = keyValue->second;
+						candidateVariableKeyValueMap.insert({ key, variable });
+					}
+					erased = {};
+					next = true;
+					break; // going through this neighbour is not viable
 				}
+				
+			}
+			if (next) {
+				continue;
 			}
 		}
 
 		// 4. cycle detection. if cycle, we give second chance
 		if (castedNeighbour->getStatementLineNumber() <= startNode->getStatementLineNumber()) { // cycle
 			// if been here for the second time, terminate
-			if (this->cycleVisited.count(startNode->getKey())) {
+			if (this->cycleVisited.count(castedNeighbour->getKey())) {
 				return false;
 			}
 			else { // else, mark, and continue
-				this->cycleVisited.insert(startNode->getKey());
+				this->cycleVisited.insert(castedNeighbour->getKey());
 			}
 			
 		}
 
 		// 5. recurse and return 
 		bool valueFromDownstream = this->hasAffectsRelationship(castedNeighbour, endNode, repository, candidateVariableKeyValueMap);
-		if (!valueFromDownstream) {
-			// backtrack 
+		if (valueFromDownstream) {
+			return valueFromDownstream;
+		}
+		else {
+			// backtrack
 			for (auto keyValue = erased.begin(); keyValue != erased.end(); keyValue++) {
 				string key = keyValue->first;
 				shared_ptr<PkbEntity> variable = keyValue->second;
 				candidateVariableKeyValueMap.insert({ key, variable });
 			}
+			erased = {};
 		}
 
 	}
+	return false;
 }
