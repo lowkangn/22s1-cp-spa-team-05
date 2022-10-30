@@ -1,0 +1,13 @@
+procedure main {
+	while (v > 1) {
+		read y;
+		if (b > 0) then {
+			read x;
+		} else {
+			read b;
+		}
+		b = 1000 - 0 + b;
+		y = x;
+	}
+	print x;
+}

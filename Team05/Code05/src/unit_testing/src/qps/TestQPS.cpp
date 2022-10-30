@@ -372,8 +372,6 @@ TEST_CASE("QPS: test working correctly") {
 		qps.projectResults(autoTesterResults);
 
         // ----- then -----
-		REQUIRE(qps.getResults() == expectedResult);
-
 		set<string> autoTesterSet{};
 		for (string s : autoTesterResults) {
 			autoTesterSet.insert(s);
@@ -484,7 +482,7 @@ TEST_CASE("QPS: test working correctly") {
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt Parent;\n Select Parent such that Parent* (Parent, _)";
-		expectedResult = set<string>{ "1", "3", "13"};
+		expectedResult = set<string>{ "1", "3", "13" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable Select;\n Select Select such that Modifies(6, Select)";
@@ -500,7 +498,7 @@ TEST_CASE("QPS: test working correctly") {
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable variable; stmt s; \n Select variable such that Uses(s, variable)";
-		expectedResult = set<string>{ "v", "t", "x", "b", "main", "c", "d", "e", "f"};
+		expectedResult = set<string>{ "v", "t", "x", "b", "main", "c", "d", "e", "f" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable variable; \n Select variable such that Follows(1, 8)";
@@ -758,7 +756,7 @@ TEST_CASE("QPS: test working correctly") {
 					 pattern a(v1, _\"1000 -   0\"_ ) with i.stmt# = i.stmt#  \
 					 with r.varName = pro.procName such that Uses(p, v) \
 			";
-		expectedResult = set<string>{ "z"};
+		expectedResult = set<string>{"z"};
 		testQPS(queryString, expectedResult, pkb);
 
 		// 2 groups, both non-empty
@@ -810,8 +808,6 @@ TEST_CASE("QPS: test correct errors") {
 			qps.projectResults(autoTesterResults);
 
 			// ----- then -----
-			REQUIRE(qps.getResults() == expectedResult);
-
 			set<string> autoTesterSet{};
 			for (string s : autoTesterResults) {
 				autoTesterSet.insert(s);
