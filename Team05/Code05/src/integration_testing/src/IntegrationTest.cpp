@@ -24,14 +24,7 @@ TEST_CASE("Integration") {
 
 	// when
 	//extract
-	vector<Entity> entities = sp.extractEntities();
-	vector<Relationship> relationships = sp.extractRelations();
-	vector<Pattern> patterns = sp.extractPatterns();
-
-	//add to pkb
-	pkbPointer->addEntities(entities);
-	pkbPointer->addRelationships(relationships);
-	pkbPointer->addPatterns(patterns);
+	sp.extractAllAndAddToPkb(pkbPointer);
 
 	// qps parse query
 	qps.evaluate(query, shared_ptr<PKBQueryHandler>(pkbPointer));

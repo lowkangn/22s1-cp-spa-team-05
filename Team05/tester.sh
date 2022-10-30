@@ -87,12 +87,12 @@ ${path_to_autotester} ${iteration2}${no_constr_path}noConstraints_source.txt ${i
 echo "Starting one constraint query test cases"
 for i in follows modifies parent pattern uses
 do
-    ${path_to_autotester} ${iteration1}${one_constr_path}${i}Only_source.txt ${iteration1}${one_constr_path}${i}Only_queries.txt ${iteration1_output_folder}${i}onlyOut.xml
+    ${path_to_autotester} ${iteration1}${one_constr_path}${i}Only_source.txt ${iteration1}${one_constr_path}${i}Only_queries.txt ${iteration1_output_folder}${i}OnlyOut.xml
 done
 
-for i in calls modifies uses with
+for i in calls modifies uses next with
 do
-    ${path_to_autotester} ${iteration2}${one_constr_path}${i}Only_source.txt ${iteration2}${one_constr_path}${i}Only_queries.txt ${iteration2_output_folder}${i}onlyOut.xml
+    ${path_to_autotester} ${iteration2}${one_constr_path}${i}Only_source.txt ${iteration2}${one_constr_path}${i}Only_queries.txt ${iteration2_output_folder}${i}OnlyOut.xml
 done
 
 echo "Starting two constraint query test cases"
