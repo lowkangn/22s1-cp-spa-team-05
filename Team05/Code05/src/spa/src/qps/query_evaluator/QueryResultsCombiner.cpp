@@ -35,7 +35,7 @@ ClauseResult QueryResultsCombiner::getSelectSynonymsCrossProductResult() {
 	vector<ClauseResult> selectResultsWithoutAttribute;
 
 	for (const ClauseResult& selectResult : this->selectResults) {
-		combinedResult = mergeIntoCombinedIfNotInTable(combinedResult, selectResult);
+		combinedResult = this->mergeIntoCombinedIfNotInTable(combinedResult, selectResult);
 	}
 
 	return this->getDesiredSynonymsResult(combinedResult);
@@ -44,7 +44,7 @@ ClauseResult QueryResultsCombiner::getSelectSynonymsCrossProductResult() {
 ClauseResult QueryResultsCombiner::combine() {
 	// If no select results and no results without selected args, can treat as `Select BOOLEAN` so just return true
 	if (this->selectResults.empty() && this->resultsWithoutSelectedArgs.empty()) {
-		assert(this->resultsWithSelectedArgs.empty()); // If no select results, there can be no results with selected args
+		assert(this->resultsWithSelectedArgs.empty()); // For select BOOLEAN, no args are being selected
 		return this->selectBooleanPlaceholderResult;
 	}
 
@@ -61,13 +61,14 @@ ClauseResult QueryResultsCombiner::combine() {
 		}
 	}
 
-	// If 1) no select results, 2) no results with args being selected, 3) all group combined results with args not being selected have entries:
-	// We have `Select BOOLEAN ...` with constraint clauses that can be treated as boolean and evaluate to true, so just return placeholder result.
+	// Since constraint groups with no select args are non-empty, they all evaluate to true.
+	// So if there are no select results, we have `Select BOOLEAN ...(true)` --> return true.
 	if (this->selectResults.empty()) {
 		return this->selectBooleanPlaceholderResult;
 	}
 
-	// Combine clauses in groups with args being selected, then combine those groups - if any returns empty, then no query matches
+	// Combine clauses in groups with args being selected, then combine those groups
+	// - if any returns empty, then no query matches
 	ClauseResult combinedResult;
 	for (const vector<ClauseResult>& resultsGroup : this->resultsWithSelectedArgs) {
 		ClauseResult groupCombinedResult = this->combineResults(resultsGroup);

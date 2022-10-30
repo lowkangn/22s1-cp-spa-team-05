@@ -311,20 +311,19 @@ namespace {
 }
 
 TEST_CASE("QueryEvaluator: test evaluate") {
-	auto testEvaluate = [](Query query,
-						  set<string> expectedSet,
-						  shared_ptr<PKB> pkb) {
-		// given
-		QueryEvaluator evaluator = QueryEvaluator();
-		shared_ptr<PKBQueryHandler> pkbInterface = shared_ptr<PKBQueryHandler>(pkb);
+    auto testEvaluate = [](Query query, set<string> expectedSet,
+        shared_ptr<PKB> pkb, bool isBool = false) {
+        // given
+        QueryEvaluator evaluator = QueryEvaluator();
+        shared_ptr<PKBQueryHandler> pkbInterface = shared_ptr<PKBQueryHandler>(pkb);
 
-		// when
-		set<string> actualSet = evaluator.evaluate(query, pkbInterface);
+        // when
+        ClauseResult actualResult = evaluator.evaluate(query, pkbInterface);
+        set<string> actualSet = actualResult.convertTableToString(isBool);
 
-		// then
-		REQUIRE(actualSet == expectedSet);
-
-	};
+        // then
+        REQUIRE(actualSet == expectedSet);
+    };
 
 	// ------ PKB ------
 	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
@@ -441,7 +440,7 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		selectClause = make_shared<SelectClause>(SelectClause::createBooleanSelectClause());
 		query = Query(selectClause, emptyRelationships, emptyPatterns, emptyWiths);
 		expectedSet = set<string>{"TRUE"};
-		testEvaluate(query, expectedSet, pkb);
+		testEvaluate(query, expectedSet, pkb, true);
 	}
 
 	SECTION("Select + Follows") {
@@ -1402,61 +1401,61 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 		shared_ptr<RelationshipClause> relationshipClause = shared_ptr<RelationshipClause>(new FollowsClause(stmtArg, secondStmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
 		expectedSet = set<string>{"TRUE"};
-		testEvaluate(query, expectedSet, pkb);
+		testEvaluate(query, expectedSet, pkb, true);
 
 		// Select BOOLEAN such that Follows*(s1, s2)
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsTClause(stmtArg, secondStmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
 		expectedSet = set<string>{"TRUE"};
-		testEvaluate(query, expectedSet, pkb);
+		testEvaluate(query, expectedSet, pkb, true);
 
 		// Select BOOLEAN such that Follows(1, 2)
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsClause(lineNumber1Arg, lineNumber2Arg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
 		expectedSet = set<string>{"TRUE"};
-		testEvaluate(query, expectedSet, pkb);
+		testEvaluate(query, expectedSet, pkb, true);
 
 		// Select BOOLEAN such that Follows(1, 2)
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsTClause(lineNumber1Arg, lineNumber2Arg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
 		expectedSet = set<string>{"TRUE"};
-		testEvaluate(query, expectedSet, pkb);
+		testEvaluate(query, expectedSet, pkb, true);
 
 		// Select BOOLEAN such that Follows(i, s)
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsClause(ifArg, stmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
 		expectedSet = set<string>{"FALSE"};
-		testEvaluate(query, expectedSet, pkb);
+		testEvaluate(query, expectedSet, pkb, true);
 
 		// Select BOOLEAN such that Follows*(i, s)
 		relationshipClause = shared_ptr<RelationshipClause>(new FollowsTClause(ifArg, stmtArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
 		expectedSet = set<string>{"FALSE"};
-		testEvaluate(query, expectedSet, pkb);
+		testEvaluate(query, expectedSet, pkb, true);
 
 		// Select BOOLEAN such that Calls("x", "main")
 		relationshipClause = shared_ptr<RelationshipClause>(new CallsClause(XStringLiteralArg, mainStringLiteralArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
 		expectedSet = set<string>{"TRUE"};
-		testEvaluate(query, expectedSet, pkb);
+		testEvaluate(query, expectedSet, pkb, true);
 
 		// Select BOOLEAN such that Calls*("x", "main")
 		relationshipClause = shared_ptr<RelationshipClause>(new CallsTClause(XStringLiteralArg, mainStringLiteralArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
 		expectedSet = set<string>{"TRUE"};
-		testEvaluate(query, expectedSet, pkb);
+		testEvaluate(query, expectedSet, pkb, true);
 
 		// Select BOOLEAN such that Calls("x", "charlie")
 		relationshipClause = shared_ptr<RelationshipClause>(new CallsClause(XStringLiteralArg, charlieStringLiteralArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
 		expectedSet = set<string>{"FALSE"};
-		testEvaluate(query, expectedSet, pkb);
+		testEvaluate(query, expectedSet, pkb, true);
 
 		// Select BOOLEAN such that Calls*("x", "charlie")
 		relationshipClause = shared_ptr<RelationshipClause>(new CallsTClause(XStringLiteralArg, charlieStringLiteralArg));
 		query = Query(selectClause, list<shared_ptr<RelationshipClause>>{relationshipClause}, emptyPatterns, emptyWiths);
 		expectedSet = set<string>{"FALSE"};
-		testEvaluate(query, expectedSet, pkb);
+		testEvaluate(query, expectedSet, pkb, true);
 	}
 }
 

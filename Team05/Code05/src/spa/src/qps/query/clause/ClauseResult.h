@@ -45,7 +45,7 @@ protected:
 	/* Method for adding argument to table */
 	void addArgumentToTable(const ClauseArgument& argumentToAdd) {
 		this->args.push_back(argumentToAdd);
-		this->argumentToIndexMap.insert({argumentToAdd, this->args.size() - 1});
+		this->argumentToIndexMap.insert({argumentToAdd, static_cast<int>(this->args.size()) - 1});
 	}
 
 	/* Method for adding row to table */

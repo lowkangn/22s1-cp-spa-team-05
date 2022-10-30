@@ -13,7 +13,8 @@ void QPS::evaluate(string queryString, shared_ptr<PKBQueryHandler> pkb) {
 		Query query = parser.parse();
 
 		// evaluate
-		this->evaluatorResults = QueryEvaluator().evaluate(query, pkb);
+        this->isReturningBoolean = query.checkIfBooleanReturnType();
+		this->evaluatorResult = QueryEvaluator().evaluate(query, pkb);
 	}
 	catch (const PQLSemanticError& e) {
 		this->handleSemanticError(e);
@@ -28,6 +29,6 @@ void QPS::evaluate(string queryString, shared_ptr<PKBQueryHandler> pkb) {
 
 void QPS::projectResults(list<std::string>& results) {
 	// project
-	QueryResultsProjector projector(evaluatorResults);
-	projector.populateResultsList(results);
+	QueryResultsProjector projector(this->evaluatorResult);
+	projector.populateResultsList(results, this->isReturningBoolean, this->errorString);
 };

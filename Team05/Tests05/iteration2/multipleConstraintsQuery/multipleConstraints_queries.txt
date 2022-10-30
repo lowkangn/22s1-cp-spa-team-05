@@ -75,6 +75,6 @@ pattern i1(_,_,_) with r.varName="z" with s.stmt#=46 such that Calls*("z","z2") 
 5000
 16 - 10 groups none empty (this query with this source takes about 75s which would waste our time when rerunning, so I am temporarily making it invalid)
 while w, w1; if i, i1; read r; variable v, v1; assign a, a1; stmt s; constant const; Select <const> such that Uses(w, v) with 12345 = 12345 such that Modifies(i, v1) 
-pattern i1(_,_,_) with r.varName="z" with s.stmt#=w1.stmt# such that Calls*("z","z2") pattern a("x", "x") pattern a1 (_, _"1000"_
-SyntaxError
+pattern i1(_,_,_) with r.varName="z" with s.stmt#=w1.stmt# such that Calls*("z","z2") pattern a("x", "x") pattern a1 (_, _"1000"_)
+0, 1, 2, 5, 9, 10, 20, 1000
 80000

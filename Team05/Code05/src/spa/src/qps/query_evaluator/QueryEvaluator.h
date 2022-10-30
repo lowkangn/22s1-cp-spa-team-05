@@ -48,5 +48,5 @@ private:
 public:
 	QueryEvaluator() {};
 
-	set<string> evaluate(Query query, shared_ptr<PKBQueryHandler> pkb);
+    ClauseResult evaluate(Query query, shared_ptr<PKBQueryHandler> pkb);
 };

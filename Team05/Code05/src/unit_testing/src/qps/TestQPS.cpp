@@ -301,8 +301,6 @@ TEST_CASE("QPS: test working correctly") {
 		qps.projectResults(autoTesterResults);
 
         // ----- then -----
-		REQUIRE(qps.getResults() == expectedResult);
-
 		set<string> autoTesterSet{};
 		for (string s : autoTesterResults) {
 			autoTesterSet.insert(s);
@@ -726,8 +724,6 @@ TEST_CASE("QPS: test correct errors") {
 			qps.projectResults(autoTesterResults);
 
 			// ----- then -----
-			REQUIRE(qps.getResults() == expectedResult);
-
 			set<string> autoTesterSet{};
 			for (string s : autoTesterResults) {
 				autoTesterSet.insert(s);
