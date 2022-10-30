@@ -494,7 +494,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 	for (shared_ptr<PkbGraphManager> cfgManager : repository->getCfgs()) {
 		// 0. validation - must be a statement
 		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
-			throw PkbException("AFFECTS relationship expects lhs and rhs to both be statements!");
+			throw PkbException("AFFECTS* relationship expects lhs and rhs to both be statements!");
 		}
 		// case 1: exact, exact
 		// check if affects(lhs, rhs)
@@ -540,10 +540,16 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTSSTAR)->get(negativeMatch->getKey()) != NULL) {
 				continue;
 			}
+			// 1.3 check if visited before, if visited, skip
+			pair<string, string> affectsGraphEdge = pair<string, string>(lhsEntity->getKey(), rhsEntity->getKey());
+			if (this->visitedAffectsEdges.count(affectsGraphEdge)) {
+				continue;
+			}
+			
 
 			// 2. check if affects(lhs, rhs)
-			shared_ptr<PkbAffectsRelationship> affectsMatch = shared_ptr<PkbAffectsRelationship>(new PkbAffectsRelationship(lhsEntity, rhsEntity));
-			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTS)->get(affectsMatch->getKey()) != NULL) {
+			vector<shared_ptr<PkbRelationship>> foundAffects = this->retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PkbRelationshipType::AFFECTS, lhs, rhs, repository);
+			if (foundAffects.size() == 1) {
 				out.push_back(positiveMatch);
 
 				// cache
@@ -573,17 +579,21 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 
 					// do self query for exact
 					vector<shared_ptr<PkbRelationship>> foundWithLhs = this->retrieveAffectsByTypeAndLhsRhs(lhs, arg, repository);
-					if (!foundWithLhs.size() == 1) {
+					if (foundWithLhs.size() != 1) {
 						// not found, continue
 						// failure, cache it
 						repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTSSTAR)->add(negativeMatch);
 						continue;
 					}
 					else {
+						// mark as visited
+						pair<string, string> exploringEdge = pair<string, string>(lhsEntity->getKey(), statement->getKey());
+						this->visitedAffectsEdges.insert(exploringEdge);
+
 						// try to search recursively 
 						vector<shared_ptr<PkbRelationship>> foundWithRhs = this->retrieveAffectsStarByTypeAndLhsRhs(arg, rhs, repository);
 						if (foundWithRhs.size() == 1) {
-							// success cache it
+							// success, cache it
 							repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTSSTAR)->add(positiveMatch);
 
 							// insert
@@ -595,13 +605,10 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 							repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTSSTAR)->add(negativeMatch);
 							continue;
 						}
+						
 					}					
 				}
 			}
-
-			
-
-			
 		}
 		else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
 			// case 2: exact, non
@@ -619,11 +626,8 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 		else {
 			throw PkbException("Unknown case for affects!");
 		}
-
-
 	}
 
-	
 	return out;
 	
 }
@@ -724,7 +728,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 		return this->retrieveAffectsByTypeAndLhsRhs(lhs, rhs, repository);
 	}
 	else if (relationshipType == PkbRelationshipType::AFFECTSSTAR) {
-		throw PkbException("Not implemented yet!");
+		return this->retrieveAffectsStarByTypeAndLhsRhs(lhs, rhs, repository);
 	}
 	else {
 		throw PkbException("Unknown graph type relationship trying to be retrieved.");

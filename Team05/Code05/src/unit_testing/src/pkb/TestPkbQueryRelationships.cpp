@@ -1154,7 +1154,7 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 
 	SECTION("affects") {
 		/*
-procedure Second {
+		procedure Second {
 01			x = 0;
 02			i = 5;
 03			while (i!=0) {
@@ -1515,8 +1515,239 @@ procedure Second {
 		}
 	}
 
-	
+
+	SECTION("affects star") {
+		/*
+		procedure Second {
+01			x = 0;
+02			i = 5;
+03			while (i!=0) {
+04				x = x + 2*y;
+05				call Third;
+06				i = i - 1; }
+07			if (x==1) then {
+08			   x = x+1; }
+			else {
+09				  z = 1; }
+10			z = z + x + i;
+11			y = z + 2;
+12			x = x * y + z;
+		}
+		*/
+
+		// create entities
+		// statements
+		Entity line1 = Entity::createAssignEntity(1);
+		Entity line2 = Entity::createAssignEntity(2);
+		Entity line3 = Entity::createWhileEntity(3);
+		Entity line4 = Entity::createAssignEntity(4);
+		Entity line5 = Entity::createCallEntity(5);
+		Entity line6 = Entity::createAssignEntity(6);
+		Entity line7 = Entity::createIfEntity(7);
+		Entity line8 = Entity::createAssignEntity(8);
+		Entity line9 = Entity::createAssignEntity(9);
+		Entity line10 = Entity::createAssignEntity(10);
+		Entity line11 = Entity::createAssignEntity(11);
+		Entity line12 = Entity::createAssignEntity(12);
+
+		// variables
+		Entity xVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("x"));
+		Entity iVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("i"));
+		Entity yVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("y"));
+		Entity zVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("z"));
+
+		vector<Entity> entitiesToAdd = {
+			line1, line2, line3, line4, line5, line6, line7, line8, line9, line10, line12,
+			xVariable, iVariable, yVariable, zVariable
+		};
+
+
+		// create relationships
+		vector<Relationship> relationshipsToAdd = {
+			// uses (only assign, variable)
+			Relationship::createUsesRelationship(line4, xVariable),
+			Relationship::createUsesRelationship(line4, yVariable),
+			Relationship::createUsesRelationship(line6, iVariable),
+			Relationship::createUsesRelationship(line8, xVariable),
+			Relationship::createUsesRelationship(line10, zVariable),
+			Relationship::createUsesRelationship(line10, xVariable),
+			Relationship::createUsesRelationship(line10, iVariable),
+			Relationship::createUsesRelationship(line11, zVariable),
+			Relationship::createUsesRelationship(line12, xVariable),
+			Relationship::createUsesRelationship(line12, yVariable),
+			Relationship::createUsesRelationship(line12, zVariable),
+
+			// modifies (only assign, variables)
+			Relationship::createModifiesRelationship(line1, xVariable),
+			Relationship::createModifiesRelationship(line2, iVariable),
+			Relationship::createModifiesRelationship(line4, xVariable),
+			Relationship::createModifiesRelationship(line6, iVariable),
+			Relationship::createModifiesRelationship(line8, xVariable),
+			Relationship::createModifiesRelationship(line9, zVariable),
+			Relationship::createModifiesRelationship(line10, zVariable),
+			Relationship::createModifiesRelationship(line11, yVariable),
+			Relationship::createModifiesRelationship(line12, xVariable),
+			// next
+			Relationship::createNextRelationship(line1, line2),
+			Relationship::createNextRelationship(line2, line3),
+			Relationship::createNextRelationship(line3, line4),
+			Relationship::createNextRelationship(line3, line7),
+			Relationship::createNextRelationship(line4, line5),
+			Relationship::createNextRelationship(line5, line6),
+			Relationship::createNextRelationship(line6, line3),
+			Relationship::createNextRelationship(line6, line7),
+			Relationship::createNextRelationship(line7, line8),
+			Relationship::createNextRelationship(line7, line9),
+			Relationship::createNextRelationship(line8, line10),
+			Relationship::createNextRelationship(line9, line10),
+			Relationship::createNextRelationship(line10, line11),
+			Relationship::createNextRelationship(line11, line12),
+		};
+
+		// create graphs
+		unordered_map<int, vector<int>> procedure2AdjList = {
+			{1, {2}},
+			{2, {3}},
+			{3, {4, 7}},
+			{4, {5}},
+			{5, {6}},
+			{6, {3, 7}},
+			{7, {8,9}},
+			{8, {10}},
+			{9, {10}},
+			{10, {11}},
+			{11, {12}},
+			{12, {}},
+
+		};
+		unordered_map<int, shared_ptr<CFGNode>> procedure2NodeIdToNode = {
+			{1, CFGNode::createCFGNode(line1)},
+			{2, CFGNode::createCFGNode(line2)},
+			{3, CFGNode::createCFGNode(line3)},
+			{4, CFGNode::createCFGNode(line4)},
+			{5, CFGNode::createCFGNode(line5)},
+			{6, CFGNode::createCFGNode(line6)},
+			{7, CFGNode::createCFGNode(line7)},
+			{8, CFGNode::createCFGNode(line8)},
+			{9, CFGNode::createCFGNode(line9)},
+			{10, CFGNode::createCFGNode(line10)},
+			{11, CFGNode::createCFGNode(line11)},
+			{12, CFGNode::createCFGNode(line12)},
+		};
+		vector<shared_ptr<CFGNode>> graphsToAdd = {
+			CFGNode::createCFGFromAdjacencyList(procedure2NodeIdToNode, procedure2AdjList, 1)
+		};
+
+		SECTION("Affects: both exact") {
+
+			SECTION("Referenced statement is not assign, empty result") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("3");
+				vector<PQLRelationship> expectedRelationships = {};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are not inside the program") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("13");
+				vector<PQLRelationship> expectedRelationships = {};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
+			SECTION("Exact statements are in the program, and do affects*, 1") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("4");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(10))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
+			SECTION("Exact statements are in the program, and do affects*, 4") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(10))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
+
+			SECTION("Exact statements are in the program, and do affects*, 2") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 3") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("6");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 3") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("6");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 3") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("4");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 3") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("11");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(11))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 3") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 3") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+
+
+		}
+
+	}
 }
+
+
 
 
 

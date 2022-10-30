@@ -43,6 +43,20 @@ using namespace std;
 
 class PkbRelationshipQueryHelper {
 private:
+	// ******************** states ********************
+	/*
+		Maintains a set of edges explored for the affects* helper method, which 
+		needs to traverse an affects graph.
+	*/
+	struct EdgeKeyHash {
+		size_t operator()(const pair<string, string>& p) const {
+			// we choose 31 as it's a prime number typically used for hashing strings
+			return hash<string>()(p.first) * 31 + hash<string>()(p.second);
+
+		}
+	};
+	unordered_set<pair<string, string>, EdgeKeyHash> visitedAffectsEdges;
+
 	// ******************** helper methods ********************
 	/*
 		Helper function to check if retrieving the relationship, while semantically and syntacticall correct, is even
