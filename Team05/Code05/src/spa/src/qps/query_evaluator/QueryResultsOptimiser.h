@@ -35,8 +35,8 @@ public:
 			vector<ClauseArgument> args = result.getSynonymArgs();
 			selectArgs.insert(args.begin(), args.end());
 		}
+        this->constraintResultsList.splice(this->constraintResultsList.end(), withResults);
 		this->constraintResultsList.splice(this->constraintResultsList.end(), relationshipsResults);
-		this->constraintResultsList.splice(this->constraintResultsList.end(), withResults);
 	};
 
 	vector<vector<vector<ClauseResult>>> optimise(bool& isEmptyResultFound);
