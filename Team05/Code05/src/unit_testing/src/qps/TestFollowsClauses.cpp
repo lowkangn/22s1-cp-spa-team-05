@@ -163,7 +163,6 @@ namespace {
 	ClauseArgument secondStmtArg = ClauseArgument::createStmtArg("s2");
 	ClauseArgument readArg = ClauseArgument::createReadArg("rr");
 	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
-	ClauseArgument variableArg = ClauseArgument::createVariableArg("v");
 	ClauseArgument printArg = ClauseArgument::createPrintArg("pp");
 	ClauseArgument ifArg = ClauseArgument::createIfArg("if");
 	ClauseArgument whileArg = ClauseArgument::createWhileArg("while");

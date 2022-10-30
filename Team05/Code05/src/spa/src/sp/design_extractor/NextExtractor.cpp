@@ -4,7 +4,7 @@ vector<Relationship> NextExtractor::extract(shared_ptr<CFGNode> cfg)
 {
 	vector<Relationship> nextRelationships;
 
-	if (cfg->hasNext()) {
+	if (cfg->hasChildren()) {
 		vector<shared_ptr<CFGNode>> nextChildren = cfg->getChildren();
 		Entity lhs = cfg->getEntity();
 

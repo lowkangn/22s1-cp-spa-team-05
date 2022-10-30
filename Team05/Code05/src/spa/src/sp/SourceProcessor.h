@@ -70,4 +70,6 @@ public:
 	vector<Relationship> extractCFGRelations();
 	vector<Pattern> extractPatterns();
 	vector<Entity> extractEntities();
+
+	void extractAllAndAddToPkb(shared_ptr<PKBUpdateHandler> pkb);
 };

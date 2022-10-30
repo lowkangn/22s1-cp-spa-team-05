@@ -134,268 +134,283 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 // ******************** relationship query handlers ********************
 vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveNextStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository) {
 	// 1. validation - must be a statement
-	if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
-		throw PkbException("NEXTSTAR relationship expects lhs and rhs to both be statements!");
-	}
-
-	// 2. there are four cases. 
-	// if lhs and rhs are exact, we can do a direct check.
-	// if exact and _, we need to do dfs from the specified node.
-	// if _ and exact, we do dfs starting from the root node.
-	// if _ and _, we do dfs from the root node and accumulate.
-	vector<shared_ptr<PkbRelationship>> out;
-
-	// case 1: both exact
-	if (lhs.isExactReference() && rhs.isExactReference()) {
-		// construct key from lhs and rhs
-		shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
-		shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
-		shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(lhsEntity);
-		shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(rhsEntity);
-
-		// create graph nodes and get their keys 
-		string leftKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left)->getKey();
-		string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
-
-		// check they are both inside
-
-		shared_ptr<PkbGraphManager> cfgManager = repository->getCfg();
-		// if they are connected, return. else, return empty list
-		if (cfgManager->isInside(leftKey)
-			&& cfgManager->isInside(rightKey)
-			&& cfgManager->canReachNodeBFromNodeA(leftKey, rightKey)) {
-			out.push_back(shared_ptr<PkbRelationship>(new PkbNextStarRelationship(lhsEntity, rhsEntity)));
-		}
-		return out;
-	}
-
-	// otherwise, we will need to extract and filter
-	PkbEntityFilter lhsFilter = getFilterFromClauseArgument(lhs);
-	PkbEntityFilter rhsFilter = getFilterFromClauseArgument(rhs);
-
-	// extractors
-	PkbGraphNextStarRelationshipExtractor extractor;
-	vector<shared_ptr<PkbRelationship>> extractedRelationships;
-
-	// case 2: exact and wildcard
-	if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
-		// convert lhs to entity, graph node, then get node 
-		shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
-		shared_ptr<PkbGraphNode> leftAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
-		shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getNode(leftAsNode->getKey()));
-
-		// starting from node, run dfs 
-		extractor.extractAllFromStart(startNode, true);
-		extractedRelationships = extractor.getExtractedRelationships();
-
-	}
-	// case 3: wildcard and exact
-	else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isExactReference())) {
-		// convert rhs to entity, graph node, then get target node 
-		shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
-		shared_ptr<PkbGraphNode> rightAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
-		shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getNode(rightAsNode->getKey()));
-		shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getRootNode());
-
-		// starting from node, run dfs 
-		extractor.extractAllThatReachEnd(startNode, endNode, true);
-		extractedRelationships = extractor.getExtractedRelationships();
-	}
-	else { // case 4: all wild card
-		// starting at root node, dfs all the way
-		shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getRootNode());
-		extractor.extractAllFromStart(startNode);
-		extractedRelationships = extractor.getExtractedRelationships();
-	}
-
-	// filter by lhs and rhs type
-	for (shared_ptr<PkbRelationship> r : extractedRelationships) {
-		shared_ptr<PkbEntity> lhsEntity = r->getLhs();
-		shared_ptr<PkbEntity> rhsEntity = r->getRhs();
-		if (lhsFilter(lhsEntity, lhs) && rhsFilter(rhsEntity, rhs)) {
-			out.push_back(r);
-		}
-	}
-
-	return out;
-}
-
-vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository) {
-	
-	// 0. validation - must be a statement
-	if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
-		throw PkbException("AFFECTS relationship expects lhs and rhs to both be statements!");
-	}
-	vector<shared_ptr<PkbRelationship>> out;
-
-	// 1. check if lhs,rhs are assign. If not, trivially false
-	if ((!lhs.isAssignSynonym() && !lhs.isExactReference() && !lhs.isWildcard()) 
-		|| (!rhs.isAssignSynonym() && !rhs.isExactReference() && !rhs.isWildcard())) {
-		return out;
-	}
-
-	// case 1: exact, exact
-	if (lhs.isExactReference() && rhs.isExactReference()) {
-		
-		// 1. check cache
-		shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
-		shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
-
-		// 1.1 check for positive match
-		shared_ptr<PkbAffectsRelationship> positiveMatch = shared_ptr<PkbAffectsRelationship>(new PkbAffectsRelationship(lhsEntity, rhsEntity));
-		if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTS)->get(positiveMatch->getKey()) != NULL) {
-			out.push_back(positiveMatch);
-			return out;
-		}
-		// 1.2 check for negative match
-		shared_ptr<PkbNotAffectsRelationship> negativeMatch = shared_ptr<PkbNotAffectsRelationship>(new PkbNotAffectsRelationship(lhsEntity, rhsEntity));
-		if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTS)->get(negativeMatch->getKey()) != NULL) {
-			return out;
+		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
+			throw PkbException("NEXTSTAR relationship expects lhs and rhs to both be statements!");
 		}
 
-		// 2. short circuit 1
-		// 2.1 find all v lhs modifies and convert to set
-		ClauseArgument variable = ClauseArgument::createVariableArg("v");
-		vector<shared_ptr<PkbRelationship>> lhsModifies = this->retrieveRelationshipsFromTablesByTypeAndLhsRhs(PkbRelationshipType::MODIFIES, lhs, variable, repository);
-		unordered_map<string, shared_ptr<PkbRelationship>> lhsModifiesMap;
-		for (shared_ptr<PkbRelationship> relationship : lhsModifies) {
-			lhsModifiesMap.insert({ relationship->getKey(), relationship });
-		}
+		// 2. there are four cases. 
+		// if lhs and rhs are exact, we can do a direct check.
+		// if exact and _, we need to do dfs from the specified node.
+		// if _ and exact, we do dfs starting from the root node.
+		// if _ and _, we do dfs from the root node and accumulate.
+		vector<shared_ptr<PkbRelationship>> out;
+		for (shared_ptr<PkbGraphManager> cfgManager : repository->getCfgs()) {
+			
+			// case 1: both exact
+			if (lhs.isExactReference() && rhs.isExactReference()) {
+				// construct key from lhs and rhs
+				shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
+				shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
+				shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(lhsEntity);
+				shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(rhsEntity);
 
-		// 2.2 find all v rhs uses and convert to set
-		vector<shared_ptr<PkbRelationship>> rhsUses = this->retrieveRelationshipsFromTablesByTypeAndLhsRhs(PkbRelationshipType::USES, rhs, variable, repository);
-		unordered_map<string, shared_ptr<PkbRelationship>> rhsUsesMap;
-		for (shared_ptr<PkbRelationship> relationship : rhsUses) {
-			rhsUsesMap.insert({ relationship->getKey(), relationship });
-		}
+				// create graph nodes and get their keys 
+				string leftKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left)->getKey();
+				string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
 
-		// 2.3 get intersection and see if size is 0
-		unordered_map<string, shared_ptr<PkbEntity>> intersectingVariableMap;
-		for (auto keyValue = rhsUsesMap.begin(); keyValue != rhsUsesMap.end(); keyValue++) {
-			string key = keyValue->first;
-			shared_ptr<PkbEntity> variable = keyValue->second->getRhs();
-			if (lhsModifiesMap.find(key) != lhsModifiesMap.end()) {
-				intersectingVariableMap.insert({ variable->getKey(), variable });
-			}
-		}
-		if (intersectingVariableMap.size() == 0) {
-			return out;
-		}
-
-		// 3. short circuit 2: check that lhs and rhs are reachable using next*
-		// 3.1 check not cache
-		if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NEXTSTAR)->get(positiveMatch->getKey()) != NULL) {
-			// do nothing
-		}
-		else {
-			// 3.2 check for negative match
-			shared_ptr<PkbNotAffectsRelationship> negativeMatch = shared_ptr<PkbNotAffectsRelationship>(new PkbNotAffectsRelationship(lhsEntity, rhsEntity));
-			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_NEXTSTAR)->get(negativeMatch->getKey()) != NULL) {
+				// check they are both inside
+				// if they are connected, return. else, return empty list
+				if (cfgManager->isInside(leftKey)
+					&& cfgManager->isInside(rightKey)
+					&& cfgManager->canReachNodeBFromNodeA(leftKey, rightKey)) {
+					out.push_back(shared_ptr<PkbRelationship>(new PkbNextStarRelationship(lhsEntity, rhsEntity)));
+				}
 				return out;
 			}
-		}
 
-		// 4. not in either, brute force check
-		// 4.1 get start node (lhs)
-		shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
-		shared_ptr<PkbGraphNode> leftAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
-		shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getNode(leftAsNode->getKey()));
+			// otherwise, we will need to extract and filter
+			PkbEntityFilter lhsFilter = getFilterFromClauseArgument(lhs);
+			PkbEntityFilter rhsFilter = getFilterFromClauseArgument(rhs);
 
-		// 4.2 get end node (rhs)
-		shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
-		shared_ptr<PkbGraphNode> rightAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
-		shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(repository->getCfg()->getNode(rightAsNode->getKey()));
+			// extractors
+			PkbGraphNextStarRelationshipExtractor extractor;
+			vector<shared_ptr<PkbRelationship>> extractedRelationships;
 
-		// 4.3 use graph extractor to check 
-		// then cache and return
-		PkbGraphAffectsRelationshipExtractor extractor;
-		if (extractor.hasAffectsRelationship(startNode, endNode, repository, intersectingVariableMap)) {
-			out.push_back(positiveMatch);
-			repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTS)->add(positiveMatch);
-		}
-		else {
-			repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTS)->add(negativeMatch);
-		}
-		return out;
+			// case 2: exact and wildcard
+			if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
+				// convert lhs to entity, graph node, then get node 
+				shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
+				string leftKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left)->getKey();
 
-	}
-	else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) { // case 2: exact, non exact
-		// 1. find all assign after lhs
-		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+				if (cfgManager->isInside(leftKey)) {
+					shared_ptr<PkbGraphNode> leftAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
+					shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(leftAsNode->getKey()));
 
-		// 2. for all these, check and append
-		// O(n) enumeration
-		for (shared_ptr<PkbEntity> statement : statements) {
-			// cast
-			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
-			assert(cast != nullptr);
-			
-			// check
-			if (cast->isAssignStatement()) {
-				// convert rhs to exact clause argument 
-				ClauseArgument castAsRhs = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
-
-				// do self query for exact
-				vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(lhs, castAsRhs, repository);
-				out.insert(out.end(), found.begin(), found.end());
+					// starting from node, run dfs 
+					extractor.extractAllFromStart(startNode, true);
+					extractedRelationships = extractor.getExtractedRelationships();
+				}
 			}
-		}
+			// case 3: wildcard and exact
+			else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isExactReference())) {
+				// convert rhs to entity, graph node, then get target node 
+				shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
+				string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
 
-	}
-	else if (rhs.isExactReference() && (lhs.isWildcard() || lhs.isSynonym())) { // case 3: non exact, exact 
-		// 1. find all assign before rhs
-		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+				if (cfgManager->isInside(rightKey)) {
+					shared_ptr<PkbGraphNode> rightAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
+					shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(rightAsNode->getKey()));
+					shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getRootNode());
 
-		// 2. for all these, check and append
-		// O(n) enumeration
-		for (shared_ptr<PkbEntity> statement : statements) {
-			// cast
-			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
-			assert(cast != nullptr);
-
-			// check
-			if (cast->isAssignStatement()) {
-				// convert lhs to exact clause argument 
-				ClauseArgument castAsLhs = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
-
-				// do self query for exact
-				vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, rhs, repository);
-				out.insert(out.end(), found.begin(), found.end());
+					// starting from node, run dfs 
+					extractor.extractAllThatReachEnd(startNode, endNode, true);
+					extractedRelationships = extractor.getExtractedRelationships();
+				}
 			}
-		}
+			else { // case 4: all wild card
+				// starting at root node, dfs all the way
+				shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getRootNode());
+				extractor.extractAllFromStart(startNode);
+				extractedRelationships = extractor.getExtractedRelationships();
+			}
 
-	}
-	else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) { // case 4: non exact, non exact
-		// 1. find all assign
-		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+			// filter by lhs and rhs type
+			for (shared_ptr<PkbRelationship> r : extractedRelationships) {
+				shared_ptr<PkbEntity> lhsEntity = r->getLhs();
+				shared_ptr<PkbEntity> rhsEntity = r->getRhs();
 
-		// 2. for all pairs (diagonal matrix), check and append
-		// O(n2) enumeration
-		for (shared_ptr<PkbEntity> statement1 : statements) {
-			// cast
-			shared_ptr<PkbStatementEntity> cast1 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
-			assert(cast1 != nullptr);
-			for (shared_ptr<PkbEntity> statement2 : statements) {
-				shared_ptr<PkbStatementEntity> cast2 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
-				assert(cast2 != nullptr);
+				bool hasMatch = lhsFilter(lhsEntity, lhs) && rhsFilter(rhsEntity, rhs);
 
-				// check
-				if (cast1->isAssignStatement() && cast2->isAssignStatement()) {
-					// convert to exact clause argument 
-					ClauseArgument castAsLhs = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
-					ClauseArgument castAsRhs = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
-
-					// do self query for exact
-					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, castAsRhs, repository);
-					out.insert(out.end(), found.begin(), found.end());
+				if (hasMatch && (lhs != rhs || (lhs == rhs && lhsEntity->equals(rhsEntity)))) {
+					out.push_back(r);
 				}
 			}
 		}
+		return out;
+}
 
+vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository) {
+
+	vector<shared_ptr<PkbRelationship>> out;
+	for (shared_ptr<PkbGraphManager> cfgManager : repository->getCfgs()) {
+		// 0. validation - must be a statement
+		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
+			throw PkbException("AFFECTS relationship expects lhs and rhs to both be statements!");
+		}
+
+
+		// 1. check if lhs,rhs are assign. If not, trivially false
+		if ((!lhs.isAssignSynonym() && !lhs.isExactReference() && !lhs.isWildcard())
+			|| (!rhs.isAssignSynonym() && !rhs.isExactReference() && !rhs.isWildcard())) {
+			return out;
+		}
+
+		// case 1: exact, exact
+		if (lhs.isExactReference() && rhs.isExactReference()) {
+
+			// 1. check cache
+			shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
+			shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
+
+			// 1.1 check for positive match
+			shared_ptr<PkbAffectsRelationship> positiveMatch = shared_ptr<PkbAffectsRelationship>(new PkbAffectsRelationship(lhsEntity, rhsEntity));
+			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTS)->get(positiveMatch->getKey()) != NULL) {
+				out.push_back(positiveMatch);
+				return out;
+			}
+			// 1.2 check for negative match
+			shared_ptr<PkbNotAffectsRelationship> negativeMatch = shared_ptr<PkbNotAffectsRelationship>(new PkbNotAffectsRelationship(lhsEntity, rhsEntity));
+			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTS)->get(negativeMatch->getKey()) != NULL) {
+				return out;
+			}
+
+			// 2. short circuit 1
+			// 2.1 find all v lhs modifies and convert to set
+			ClauseArgument variable = ClauseArgument::createVariableArg("v");
+			vector<shared_ptr<PkbRelationship>> lhsModifies = this->retrieveRelationshipsFromTablesByTypeAndLhsRhs(PkbRelationshipType::MODIFIES, lhs, variable, repository);
+			unordered_map<string, shared_ptr<PkbRelationship>> lhsModifiesMap;
+			for (shared_ptr<PkbRelationship> relationship : lhsModifies) {
+				lhsModifiesMap.insert({ relationship->getKey(), relationship });
+			}
+
+			// 2.2 find all v rhs uses and convert to set
+			vector<shared_ptr<PkbRelationship>> rhsUses = this->retrieveRelationshipsFromTablesByTypeAndLhsRhs(PkbRelationshipType::USES, rhs, variable, repository);
+			unordered_map<string, shared_ptr<PkbRelationship>> rhsUsesMap;
+			for (shared_ptr<PkbRelationship> relationship : rhsUses) {
+				rhsUsesMap.insert({ relationship->getKey(), relationship });
+			}
+
+			// 2.3 get intersection and see if size is 0
+			unordered_map<string, shared_ptr<PkbEntity>> intersectingVariableMap;
+			for (auto keyValue = rhsUsesMap.begin(); keyValue != rhsUsesMap.end(); keyValue++) {
+				string key = keyValue->first;
+				shared_ptr<PkbEntity> variable = keyValue->second->getRhs();
+				if (lhsModifiesMap.find(key) != lhsModifiesMap.end()) {
+					intersectingVariableMap.insert({ variable->getKey(), variable });
+				}
+			}
+			if (intersectingVariableMap.size() == 0) {
+				return out;
+			}
+
+			// 3. short circuit 2: check that lhs and rhs are reachable using next*
+			// 3.1 check not cache
+			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NEXTSTAR)->get(positiveMatch->getKey()) != NULL) {
+				// do nothing
+			}
+			else {
+				// 3.2 check for negative match
+				shared_ptr<PkbNotAffectsRelationship> negativeMatch = shared_ptr<PkbNotAffectsRelationship>(new PkbNotAffectsRelationship(lhsEntity, rhsEntity));
+				if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_NEXTSTAR)->get(negativeMatch->getKey()) != NULL) {
+					return out;
+				}
+			}
+
+			// 4. not in either, brute force check
+			// 4.1 get start node (lhs)
+			shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
+			shared_ptr<PkbGraphNode> leftAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
+			shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(leftAsNode->getKey()));
+
+			// 4.2 get end node (rhs)
+			shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
+			shared_ptr<PkbGraphNode> rightAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
+			shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(rightAsNode->getKey()));
+
+			// 4.3 use graph extractor to check 
+			// then cache and return
+			PkbGraphAffectsRelationshipExtractor extractor;
+			if (extractor.hasAffectsRelationship(startNode, endNode, repository, intersectingVariableMap)) {
+				out.push_back(positiveMatch);
+				repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTS)->add(positiveMatch);
+			}
+			else {
+				repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTS)->add(negativeMatch);
+			}
+			return out;
+
+		}
+		else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) { // case 2: exact, non exact
+			// 1. find all assign after lhs
+			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+
+			// 2. for all these, check and append
+			// O(n) enumeration
+			for (shared_ptr<PkbEntity> statement : statements) {
+				// cast
+				shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
+				assert(cast != nullptr);
+
+				// check
+				if (cast->isAssignStatement()) {
+					// convert rhs to exact clause argument 
+					ClauseArgument castAsRhs = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
+
+					// do self query for exact
+					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(lhs, castAsRhs, repository);
+					out.insert(out.end(), found.begin(), found.end());
+				}
+			}
+
+		}
+		else if (rhs.isExactReference() && (lhs.isWildcard() || lhs.isSynonym())) { // case 3: non exact, exact 
+			// 1. find all assign before rhs
+			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+
+			// 2. for all these, check and append
+			// O(n) enumeration
+			for (shared_ptr<PkbEntity> statement : statements) {
+				// cast
+				shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
+				assert(cast != nullptr);
+
+				// check
+				if (cast->isAssignStatement()) {
+					// convert lhs to exact clause argument 
+					ClauseArgument castAsLhs = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
+
+					// do self query for exact
+					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, rhs, repository);
+					out.insert(out.end(), found.begin(), found.end());
+				}
+			}
+
+		}
+		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) { // case 4: non exact, non exact
+			// 1. find all assign
+			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+
+			// 2. for all pairs (diagonal matrix), check and append
+			// O(n2) enumeration
+			for (shared_ptr<PkbEntity> statement1 : statements) {
+				// cast
+				shared_ptr<PkbStatementEntity> cast1 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
+				assert(cast1 != nullptr);
+				for (shared_ptr<PkbEntity> statement2 : statements) {
+					shared_ptr<PkbStatementEntity> cast2 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
+					assert(cast2 != nullptr);
+
+					// check
+					if (cast1->isAssignStatement() && cast2->isAssignStatement()) {
+						// convert to exact clause argument 
+						ClauseArgument castAsLhs = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
+						ClauseArgument castAsRhs = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
+
+						// do self query for exact
+						vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, castAsRhs, repository);
+						out.insert(out.end(), found.begin(), found.end());
+					}
+				}
+			}
+
+		}
+		else {
+			throw PkbException("Unknown case for affects!");
+		}
+	
 	}
-	else {
-		throw PkbException("Unknown case for affects!");
-	}
+	
+	
 	
 }
 

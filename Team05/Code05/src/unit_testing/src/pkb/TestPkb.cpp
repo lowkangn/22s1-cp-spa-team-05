@@ -1132,12 +1132,12 @@ TEST_CASE("Test retrieve relationship short circuits to empty result") {
 
 TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 
-	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, shared_ptr<CFGNode> graphToAdd) {
+	auto test = [](PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, vector<PQLRelationship> expectedRelationships, vector<shared_ptr<CFGNode>> graphToAdd) {
 		// given pkb 
 		PKB pkb;
 
 		// when add and retrieve relationships 
-		pkb.addCfg(graphToAdd);
+		pkb.addCfgs(graphToAdd);
 		vector<PQLRelationship> all = pkb.retrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs);
 
 		// then should be inside
@@ -1175,8 +1175,7 @@ TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 			{4, {6}},
 			{5, {6}},
 			{6, {7,8}},
-			{7, {6,8}},
-			{8, {}},
+			{7, {6}},
 
 		};
 		unordered_map<int, shared_ptr<CFGNode>> nodeIdToNode = {
@@ -1190,7 +1189,7 @@ TEST_CASE("Add and get graph relationshpis by type and lhs and rhs") {
 			{8, CFGNode::createCFGNode(Entity::createAssignEntity(8))},
 		};
 
-		shared_ptr<CFGNode> graph = CFGNode::createCFGFromAdjacencyList(nodeIdToNode, adjList, 1);
+		vector<shared_ptr<CFGNode>> graph = { CFGNode::createCFGFromAdjacencyList(nodeIdToNode, adjList, 1) };
 		
 		// shared, as PQLEntities
 		PQLEntity procedureResult = PQLEntity::generateProcedure("p");

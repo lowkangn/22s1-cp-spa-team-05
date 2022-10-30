@@ -67,7 +67,7 @@ private:
 	shared_ptr<PkbPatternTable> whilePatterns = shared_ptr<PkbPatternTable>(new PkbPatternTable());;
 
 	// graphs
-	shared_ptr<PkbGraphManager> cfgManager = shared_ptr<PkbGraphManager>();
+	vector<shared_ptr<PkbGraphManager>> cfgManagers;
 
 	// ======================== Helper methods ==============================
 	
@@ -180,7 +180,7 @@ public:
 	}
 
 	void addPkbGraph(shared_ptr<PkbGraphNode> cfg) {
-		this->cfgManager = shared_ptr<PkbGraphManager>(new PkbGraphManager(cfg));
+		this->cfgManagers.push_back(shared_ptr<PkbGraphManager>(new PkbGraphManager(cfg)));
 	}
 
 
@@ -262,8 +262,8 @@ public:
 		}
 	}
 
-	shared_ptr<PkbGraphManager> getCfg() {
-		return this->cfgManager;
+	vector<shared_ptr<PkbGraphManager>> getCfgs() {
+		return this->cfgManagers;
 	}
 
 };
