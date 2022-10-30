@@ -8,7 +8,7 @@
 bool PkbGraphAffectsRelationshipExtractor::hasAffectsRelationship(shared_ptr<PkbControlFlowGraphNode> startNode, shared_ptr<PkbControlFlowGraphNode> endNode, shared_ptr<PkbRepository> repository, unordered_map<string, shared_ptr<PkbEntity>> candidateVariableKeyValueMap)
 {
 	// sanity check
-	assert(startNode->isAssignStatementNode() && endNode->isAssignStatementNode());
+	assert(endNode->isAssignStatementNode());
 
 	/*
 		NOTE: in this implementation we assume that the sanity checks have passed, and that
@@ -22,7 +22,6 @@ bool PkbGraphAffectsRelationshipExtractor::hasAffectsRelationship(shared_ptr<Pkb
 	vector<shared_ptr<PkbGraphNode>> neighbours = startNode->getNeighbours();
 
 	// 1. for each neighbour, we visit
-	vector<shared_ptr<PkbControlFlowGraphNode>> allDownstream = { startNode };
 	for (shared_ptr<PkbGraphNode> neighbour : neighbours) {
 
 		// 2. cast
@@ -32,20 +31,26 @@ bool PkbGraphAffectsRelationshipExtractor::hasAffectsRelationship(shared_ptr<Pkb
 		}
 
 		// 3a. if is target node, return true
+		unordered_map<string, shared_ptr<PkbEntity>> erased;
 		if (castedNeighbour->getAsEntity() == endNode->getAsEntity()) {
 			return true;
 		}
 		else { // 3b. if not target, check and remove all candidates it modifies
 			// early terminate if possible
+			// search modifies
 			ClauseArgument nodeAsLhs = ClauseArgument::createLineNumberArg(to_string(castedNeighbour->getStatementLineNumber()));
 			ClauseArgument variable = ClauseArgument::createVariableArg("v");
 			PkbRelationshipQueryHelper helper;
 			vector<shared_ptr<PkbRelationship>> lhsModifies = helper.retrieveRelationshipsFromTablesByTypeAndLhsRhs(PkbRelationshipType::MODIFIES, nodeAsLhs, variable, repository);
 			unordered_map<string, shared_ptr<PkbRelationship>> lhsModifiesMap;
+			
+			// check and erase
 			for (shared_ptr<PkbRelationship> relationship : lhsModifies) {
-				string key = relationship->getLhs()->getKey();
+				string key = relationship->getRhs()->getKey();
 				if (candidateVariableKeyValueMap.find(key) != candidateVariableKeyValueMap.end()) {
+					erased.insert({ key, candidateVariableKeyValueMap.at(key) }); // insert for back tracking
 					candidateVariableKeyValueMap.erase(key);
+					
 				}
 				if (candidateVariableKeyValueMap.size() == 0) {
 					return false; // early terminate on this path
@@ -66,8 +71,15 @@ bool PkbGraphAffectsRelationshipExtractor::hasAffectsRelationship(shared_ptr<Pkb
 		}
 
 		// 5. recurse and return 
-		return this->hasAffectsRelationship(castedNeighbour, endNode, repository, candidateVariableKeyValueMap);
-
+		bool valueFromDownstream = this->hasAffectsRelationship(castedNeighbour, endNode, repository, candidateVariableKeyValueMap);
+		if (!valueFromDownstream) {
+			// backtrack 
+			for (auto keyValue = erased.begin(); keyValue != erased.end(); keyValue++) {
+				string key = keyValue->first;
+				shared_ptr<PkbEntity> variable = keyValue->second;
+				candidateVariableKeyValueMap.insert({ key, variable });
+			}
+		}
 
 	}
 }

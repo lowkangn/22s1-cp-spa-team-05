@@ -238,59 +238,77 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 			throw PkbException("AFFECTS relationship expects lhs and rhs to both be statements!");
 		}
 
-
-		// 1. check if lhs,rhs are assign. If not, trivially false
-		if ((!lhs.isAssignSynonym() && !lhs.isExactReference() && !lhs.isWildcard())
-			|| (!rhs.isAssignSynonym() && !rhs.isExactReference() && !rhs.isWildcard())) {
-			return out;
-		}
-
 		// case 1: exact, exact
 		if (lhs.isExactReference() && rhs.isExactReference()) {
 
-			// 1. check cache
+			// 0. check if lhs and rhs are both assign and exist
+			// convert 
 			shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
 			shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
 
+			// check entity tables
+			shared_ptr<PkbEntity> lhsFound = repository->getEntityTableByType(PkbEntityType::STATEMENT)->get(lhsEntity->getKey());
+			shared_ptr<PkbEntity> rhsFound = repository->getEntityTableByType(PkbEntityType::STATEMENT)->get(rhsEntity->getKey());
+			if (rhsFound == NULL || lhsFound == NULL) {
+				continue;
+			}
+			if (lhsFound != NULL) {
+				// cast and check 
+				shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(lhsFound);
+				assert(cast != nullptr);
+				if (!cast->isAssignStatement()) {
+					continue;
+				}
+			}
+			if (rhsFound != NULL) {
+				// cast and check 
+				shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(rhsFound);
+				assert(cast != nullptr);
+				if (!cast->isAssignStatement()) {
+					continue;
+				}
+			}
+			
+
+			// 1. check cache
 			// 1.1 check for positive match
 			shared_ptr<PkbAffectsRelationship> positiveMatch = shared_ptr<PkbAffectsRelationship>(new PkbAffectsRelationship(lhsEntity, rhsEntity));
 			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTS)->get(positiveMatch->getKey()) != NULL) {
 				out.push_back(positiveMatch);
-				return out;
 			}
 			// 1.2 check for negative match
 			shared_ptr<PkbNotAffectsRelationship> negativeMatch = shared_ptr<PkbNotAffectsRelationship>(new PkbNotAffectsRelationship(lhsEntity, rhsEntity));
 			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTS)->get(negativeMatch->getKey()) != NULL) {
-				return out;
+				continue;
 			}
 
 			// 2. short circuit 1
 			// 2.1 find all v lhs modifies and convert to set
 			ClauseArgument variable = ClauseArgument::createVariableArg("v");
 			vector<shared_ptr<PkbRelationship>> lhsModifies = this->retrieveRelationshipsFromTablesByTypeAndLhsRhs(PkbRelationshipType::MODIFIES, lhs, variable, repository);
-			unordered_map<string, shared_ptr<PkbRelationship>> lhsModifiesMap;
+			unordered_map<string, shared_ptr<PkbEntity>> lhsModifiesMap;
 			for (shared_ptr<PkbRelationship> relationship : lhsModifies) {
-				lhsModifiesMap.insert({ relationship->getKey(), relationship });
+				lhsModifiesMap.insert({ relationship->getRhs()->getKey(), relationship->getRhs() });
 			}
 
 			// 2.2 find all v rhs uses and convert to set
 			vector<shared_ptr<PkbRelationship>> rhsUses = this->retrieveRelationshipsFromTablesByTypeAndLhsRhs(PkbRelationshipType::USES, rhs, variable, repository);
-			unordered_map<string, shared_ptr<PkbRelationship>> rhsUsesMap;
+			unordered_map<string, shared_ptr<PkbEntity>> rhsUsesMap;
 			for (shared_ptr<PkbRelationship> relationship : rhsUses) {
-				rhsUsesMap.insert({ relationship->getKey(), relationship });
+				rhsUsesMap.insert({ relationship->getRhs()->getKey(), relationship->getRhs() });
 			}
 
 			// 2.3 get intersection and see if size is 0
 			unordered_map<string, shared_ptr<PkbEntity>> intersectingVariableMap;
 			for (auto keyValue = rhsUsesMap.begin(); keyValue != rhsUsesMap.end(); keyValue++) {
 				string key = keyValue->first;
-				shared_ptr<PkbEntity> variable = keyValue->second->getRhs();
+				shared_ptr<PkbEntity> variable = keyValue->second;
 				if (lhsModifiesMap.find(key) != lhsModifiesMap.end()) {
 					intersectingVariableMap.insert({ variable->getKey(), variable });
 				}
 			}
 			if (intersectingVariableMap.size() == 0) {
-				return out;
+				continue;
 			}
 
 			// 3. short circuit 2: check that lhs and rhs are reachable using next*
@@ -302,18 +320,18 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 				// 3.2 check for negative match
 				shared_ptr<PkbNotAffectsRelationship> negativeMatch = shared_ptr<PkbNotAffectsRelationship>(new PkbNotAffectsRelationship(lhsEntity, rhsEntity));
 				if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_NEXTSTAR)->get(negativeMatch->getKey()) != NULL) {
-					return out;
+					continue;
 				}
 			}
 
 			// 4. not in either, brute force check
 			// 4.1 get start node (lhs)
-			shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(lhs));
+			shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(lhsEntity);
 			shared_ptr<PkbGraphNode> leftAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
 			shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(leftAsNode->getKey()));
 
 			// 4.2 get end node (rhs)
-			shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(this->convertClauseArgumentToPkbEntity(rhs));
+			shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(rhsEntity);
 			shared_ptr<PkbGraphNode> rightAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
 			shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(rightAsNode->getKey()));
 
@@ -327,7 +345,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 			else {
 				repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTS)->add(negativeMatch);
 			}
-			return out;
+			continue;
 
 		}
 		else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) { // case 2: exact, non exact
@@ -407,8 +425,10 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 		else {
 			throw PkbException("Unknown case for affects!");
 		}
+		
 	
 	}
+	return out;
 	
 	
 	
