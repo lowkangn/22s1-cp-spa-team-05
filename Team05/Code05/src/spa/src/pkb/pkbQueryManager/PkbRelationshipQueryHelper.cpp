@@ -275,6 +275,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 			shared_ptr<PkbAffectsRelationship> positiveMatch = shared_ptr<PkbAffectsRelationship>(new PkbAffectsRelationship(lhsEntity, rhsEntity));
 			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTS)->get(positiveMatch->getKey()) != NULL) {
 				out.push_back(positiveMatch);
+				continue;
 			}
 			// 1.2 check for negative match
 			shared_ptr<PkbNotAffectsRelationship> negativeMatch = shared_ptr<PkbNotAffectsRelationship>(new PkbNotAffectsRelationship(lhsEntity, rhsEntity));
@@ -490,18 +491,139 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 	// 0. validity check - both assign/exact/wildcard
 
 	vector<shared_ptr<PkbRelationship>> out;
-	// case 1: exact, exact
-	// check if affects(lhs, rhs)
-	// if not, O(n) enumeration of affects(lhs, s), affects*(s, rhs)
+	for (shared_ptr<PkbGraphManager> cfgManager : repository->getCfgs()) {
+		// 0. validation - must be a statement
+		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
+			throw PkbException("AFFECTS relationship expects lhs and rhs to both be statements!");
+		}
+		// case 1: exact, exact
+		// check if affects(lhs, rhs)
+		// if not, O(n) enumeration of affects(lhs, s), affects*(s, rhs)
+		if (lhs.isExactReference() && rhs.isExactReference()) {
+			// 0. check if lhs and rhs are both assign and exist
+			// convert 
+			shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
+			shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
 
-	// case 2: exact, non
-	// O(n2) enumeration of affects(lhs, s1), affects*(s1, s2)
+			// check entity tables
+			shared_ptr<PkbEntity> lhsFound = repository->getEntityTableByType(PkbEntityType::STATEMENT)->get(lhsEntity->getKey());
+			shared_ptr<PkbEntity> rhsFound = repository->getEntityTableByType(PkbEntityType::STATEMENT)->get(rhsEntity->getKey());
+			if (rhsFound == NULL || lhsFound == NULL) {
+				continue;
+			}
+			if (lhsFound != NULL) {
+				// cast and check 
+				shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(lhsFound);
+				assert(cast != nullptr);
+				if (!cast->isAssignStatement()) {
+					continue;
+				}
+			}
+			if (rhsFound != NULL) {
+				// cast and check 
+				shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(rhsFound);
+				assert(cast != nullptr);
+				if (!cast->isAssignStatement()) {
+					continue;
+				}
+			}
 
-	// case 3: non, exact
-	// O(n2) enumeration of affects(s1, s2), affects(s2, rhs)
+			// 1. check cache
+			// 1.1 check for positive match
+			shared_ptr<PkbAffectsStarRelationship> positiveMatch = shared_ptr<PkbAffectsStarRelationship>(new PkbAffectsStarRelationship(lhsEntity, rhsEntity));
+			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTSSTAR)->get(positiveMatch->getKey()) != NULL) {
+				out.push_back(positiveMatch);
+				continue;
+			}
+			// 1.2 check for negative match
+			shared_ptr<PkbAffectsStarRelationship> negativeMatch = shared_ptr<PkbAffectsStarRelationship>(new PkbAffectsStarRelationship(lhsEntity, rhsEntity));
+			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTSSTAR)->get(negativeMatch->getKey()) != NULL) {
+				continue;
+			}
 
-	// case 4: wildcard, wildcard
-	// O(n3) enumeration of affects(s1, s2), affects(s2, s3)
+			// 2. check if affects(lhs, rhs)
+			shared_ptr<PkbAffectsRelationship> affectsMatch = shared_ptr<PkbAffectsRelationship>(new PkbAffectsRelationship(lhsEntity, rhsEntity));
+			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTS)->get(affectsMatch->getKey()) != NULL) {
+				out.push_back(positiveMatch);
+
+				// cache
+				repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTSSTAR)->add(positiveMatch);
+				continue;
+			}
+
+			// 3. else, for all assign, find a middle assign recursively
+			// update cache as you go
+			// O(n) enumeration
+			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+			for (shared_ptr<PkbEntity> statement : statements) {
+				// if is the same as either, skip
+				if (statement->equals(lhsEntity) || statement->equals(rhsEntity)) {
+					continue;
+				}
+				
+				// cast
+				shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
+				assert(cast != nullptr);
+
+				// check
+				if (cast->isAssignStatement()) {
+
+					// convert lhs to exact clause argument 
+					ClauseArgument arg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
+
+					// do self query for exact
+					vector<shared_ptr<PkbRelationship>> foundWithLhs = this->retrieveAffectsByTypeAndLhsRhs(lhs, arg, repository);
+					if (!foundWithLhs.size() == 1) {
+						// not found, continue
+						// failure, cache it
+						repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTSSTAR)->add(negativeMatch);
+						continue;
+					}
+					else {
+						// try to search recursively 
+						vector<shared_ptr<PkbRelationship>> foundWithRhs = this->retrieveAffectsStarByTypeAndLhsRhs(arg, rhs, repository);
+						if (foundWithRhs.size() == 1) {
+							// success cache it
+							repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTSSTAR)->add(positiveMatch);
+
+							// insert
+							out.push_back(positiveMatch);
+							continue;
+						}
+						else {
+							// failure, also cache it
+							repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTSSTAR)->add(negativeMatch);
+							continue;
+						}
+					}					
+				}
+			}
+
+			
+
+			
+		}
+		else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
+			// case 2: exact, non
+			// O(n2) enumeration of affects(lhs, s1), affects*(s1, s2)
+		}
+		else if (rhs.isExactReference() && (lhs.isWildcard() || lhs.isSynonym())) {
+			// case 3: non, exact
+			// O(n2) enumeration of affects(s1, s2), affects(s2, rhs)
+		}
+		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) {
+			// case 4: wildcard, wildcard
+			// O(n3) enumeration of affects(s1, s2), affects(s2, s3)
+
+		}
+		else {
+			throw PkbException("Unknown case for affects!");
+		}
+
+
+	}
+
+	
 	return out;
 	
 }
