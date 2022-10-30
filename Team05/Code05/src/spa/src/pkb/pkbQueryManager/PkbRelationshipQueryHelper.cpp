@@ -349,6 +349,30 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 
 		}
 		else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) { // case 2: exact, non exact
+			
+			// 0.1 check if lhs and rhs is assign and exist
+			// convert 
+			shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
+
+			// check entity tables
+			shared_ptr<PkbEntity> lhsFound = repository->getEntityTableByType(PkbEntityType::STATEMENT)->get(lhsEntity->getKey());
+			if (lhsFound == NULL) {
+				continue;
+			}
+			else if (lhsFound != NULL) {
+				// cast and check 
+				shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(lhsFound);
+				assert(cast != nullptr);
+				if (!cast->isAssignStatement()) {
+					continue;
+				}
+			}
+			
+			// 0.2 if synonym is not assign, empty	
+			if (!rhs.isWildcard() && !rhs.isAssignSynonym()) {
+				continue;
+			}
+																		
 			// 1. find all assign after lhs
 			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 

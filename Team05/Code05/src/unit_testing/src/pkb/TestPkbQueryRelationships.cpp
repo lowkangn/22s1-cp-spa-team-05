@@ -1422,9 +1422,44 @@ procedure Second {
 		}
 
 
-
 		SECTION("Affects: one exact, one assign") {
+			SECTION("exact not inside") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("13");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a2");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
 
+			SECTION("exact not assign statement") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("3");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a2");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("exact, assign") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("exact, wildcard") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createWildcardArg();
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
 		}
 
 		SECTION("Affects: assign, exact") {
