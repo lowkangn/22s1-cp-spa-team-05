@@ -362,10 +362,13 @@ TEST_CASE("QueryEvaluator: test evaluate") {
 	list<shared_ptr<PatternClause>> emptyPatterns{};
 	list<shared_ptr<WithClause>> emptyWiths{};
 	shared_ptr<SelectClause> selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({ stmtArg }));
-	Query query = Query(selectClause, emptyRelationships, emptyPatterns, emptyWiths);
+    Query query = Query(selectClause, emptyRelationships, emptyPatterns, emptyWiths);
 	set<string> expectedSet = set<string>{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"};
 
 	SECTION("Select single return value only") {
+        selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({stmtArg}));
+        query = Query(selectClause, emptyRelationships, emptyPatterns, emptyWiths);
+        expectedSet = set<string>{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11" };
 		testEvaluate(query, expectedSet, pkb);
 
 		selectClause = make_shared<SelectClause>(SelectClause::createSynonymSelectClause({readArg}));

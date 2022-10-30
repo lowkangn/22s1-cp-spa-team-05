@@ -7,11 +7,12 @@ vector<vector<vector<ClauseResult>>> QueryResultsOptimiser::optimise(bool& isEmp
 
 	vector<vector<vector<ClauseResult>>> groups = this->group(isEmptyResultFound);
 	if (!isEmptyResultFound) {
-		for (vector<ClauseResult> group : groups.front()) {
-			this->sort(group);
+        this->visitedArgs.clear();
+		for (vector<ClauseResult>& group : groups.front()) {
+		    this->sort(group);
 		}
-		for (vector<ClauseResult> group : groups.back()) {
-			this->sort(group);
+		for (vector<ClauseResult>& group : groups.back()) {
+            this->sort(group);
 		}
 	}
 	return groups;
@@ -24,7 +25,7 @@ vector<vector<vector<ClauseResult>>> QueryResultsOptimiser::group(bool& isEmptyR
 	for (ClauseResult result : this->constraintResultsList) {
 		if (result.isEmpty()) {
 			isEmptyResultFound = true;
-			return {};
+			return { {}, {} };
 		}
 		vector<ClauseArgument> args = result.getSynonymArgs();
 		if (args.size() == 2) {
@@ -89,6 +90,39 @@ void QueryResultsOptimiser::findAllConnectedArgs(const ClauseArgument& arg, vect
 	}
 }
 
-void QueryResultsOptimiser::sort(vector<ClauseResult>& groups) {
+void QueryResultsOptimiser::sort(vector<ClauseResult>& group) {
+    // if a group has 2 or fewer results, it already has no cross joins, so return
+    // note after this step, all groups will have at least 1 synonym
+    if (group.size() <= 2) {
+        return;
+    }
 
+    // Construct map to retrieve results corresponding to an argument
+    unordered_map<ClauseArgument, vector<ClauseResult>> argToResultMap;
+    for (ClauseResult& result : group) {
+        vector<ClauseArgument> args = result.getSynonymArgs();
+        for (const ClauseArgument& arg : args) {
+            argToResultMap[arg].emplace_back(result);
+        }
+    }
+
+    // Traverse the argument map to find a DFS preordering of ClauseArgs
+    // Note: we use the first synonym arg of the first ClauseResult as the starting node
+    // It may be possible to further optimise by using a 'better' starting node
+    vector<ClauseArgument> orderingInGroup;
+    const ClauseArgument arg = group.front().getSynonymArgs().front();
+    this->findAllConnectedArgs(arg, orderingInGroup);
+
+    // Retrieve ClauseResults corresponding to the order obtained
+    set<ClauseResult> addedResult;
+    group.clear();
+    for (ClauseArgument& arg : orderingInGroup) {
+        for (ClauseResult& result: argToResultMap[arg]) {
+            if (addedResult.count(result)) {
+                continue;
+            }
+            addedResult.insert(result);
+            group.emplace_back(result);
+        }
+    }
 }
