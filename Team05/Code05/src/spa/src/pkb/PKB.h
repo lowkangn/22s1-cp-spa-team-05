@@ -133,7 +133,10 @@ public:
     */
 	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
 
-
+	// ============================== State management ==============================
+	void resetCache() {
+		this->repository->resetCache();
+	}
 };
 
 

@@ -18,9 +18,11 @@ enum PkbRelationshipType {
 	CALLSTMTATTRIBUTE,
 	NEXT,
 	NEXTSTAR,
+	NOT_NEXTSTAR,
 	AFFECTS,
 	AFFECTSSTAR,
-	
+	NOT_AFFECTS,
+	NOT_AFFECTSSTAR,
 };
 
 class PkbRelationship {
@@ -87,6 +89,23 @@ public:
 		return this->relationshipType == PkbRelationshipType::AFFECTSSTAR;
 	}
 
+
+	bool isAffectsNot() {
+		return this->relationshipType == PkbRelationshipType::NOT_AFFECTS;
+	}
+
+	bool isAffectsStarNot() {
+		return this->relationshipType == PkbRelationshipType::NOT_AFFECTSSTAR;
+	}
+
+	bool isNextStarNot() {
+		return this->relationshipType == PkbRelationshipType::NOT_NEXTSTAR;
+	}
+
+	PkbRelationshipType getType() {
+		return this->relationshipType;
+	}
+
 	string getKey() {
 		// get string of relationship type
 
@@ -97,7 +116,7 @@ public:
 		string rhsKey = this->rhs->getKey();
 
 		// create key from concatenating all 
-		string key = lhsKey + rhsKey + typeValue;
+		string key = lhsKey + " " + rhsKey + " " + typeValue; // avoid key collision with spacing
 		return key;
 	}
 
