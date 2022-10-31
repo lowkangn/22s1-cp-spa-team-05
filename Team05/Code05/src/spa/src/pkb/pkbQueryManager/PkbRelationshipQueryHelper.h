@@ -131,6 +131,13 @@ private:
 		return found;
 	}
 
+	/*
+		Given a relationship, adds it to the repository.
+	*/
+	void addPkbRelationship(shared_ptr<PkbRelationship> relationship, shared_ptr<PkbRepository> repository) {
+		repository->getRelationshipTableByRelationshipType(relationship->getType())->add(relationship);
+	}
+
 	// ******************** relationship query handlers ********************
 	/*
 		Handles the (complicated) logic of retrieval for next* relationships.
@@ -146,6 +153,61 @@ private:
 		Handles the (complicated) logic of retrieval for affects* relationships.
 	*/
 	vector<shared_ptr<PkbRelationship>> retrieveAffectsStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
+
+	// ******************** relationship query helpers ********************
+	// -------------------- affects & affects* --------------------
+	/*
+		Checks that an entity is assign entity and exists. This is necessary because 
+		affects and affects* are defined by assign on both sides.
+	*/
+	bool entityExistAndIsAssign(shared_ptr<PkbEntity> entity, shared_ptr<PkbRepository> repository) {
+		shared_ptr<PkbEntity> found = this->findEntityFromRepository(entity, repository);
+		// if both don't exist, false
+		if (found == NULL) {
+			return false;
+		}
+		else {
+			// cast and check if assign
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(found);
+			assert(cast != nullptr);
+			if (!cast->isAssignStatement()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/*
+		Gets the intersecting string key -> variable entity map between a lhs that modifies v
+		and a rhs that uses v. Is intended for assign(exact, exact).
+	*/
+	unordered_map<string, shared_ptr<PkbEntity>> getLhsModifiesRhsUsesIntersectingVariableMap(ClauseArgument lhs, ClauseArgument rhs, shared_ptr <PkbRepository> repository) {
+		// 2.1 find all v lhs modifies and convert to set
+		ClauseArgument variable = ClauseArgument::createVariableArg("v");
+		vector<shared_ptr<PkbRelationship>> lhsModifies = this->retrieveRelationshipsFromTablesByTypeAndLhsRhs(PkbRelationshipType::MODIFIES, lhs, variable, repository);
+		unordered_map<string, shared_ptr<PkbEntity>> lhsModifiesMap;
+		for (shared_ptr<PkbRelationship> relationship : lhsModifies) {
+			lhsModifiesMap.insert({ relationship->getRhs()->getKey(), relationship->getRhs() });
+		}
+
+		// 2.2 find all v rhs uses and convert to set
+		vector<shared_ptr<PkbRelationship>> rhsUses = this->retrieveRelationshipsFromTablesByTypeAndLhsRhs(PkbRelationshipType::USES, rhs, variable, repository);
+		unordered_map<string, shared_ptr<PkbEntity>> rhsUsesMap;
+		for (shared_ptr<PkbRelationship> relationship : rhsUses) {
+			rhsUsesMap.insert({ relationship->getRhs()->getKey(), relationship->getRhs() });
+		}
+
+		// 2.3 get intersection and see if size is 0
+		unordered_map<string, shared_ptr<PkbEntity>> intersectingVariableMap;
+		for (auto keyValue = rhsUsesMap.begin(); keyValue != rhsUsesMap.end(); keyValue++) {
+			string key = keyValue->first;
+			shared_ptr<PkbEntity> variable = keyValue->second;
+			if (lhsModifiesMap.find(key) != lhsModifiesMap.end()) {
+				intersectingVariableMap.insert({ variable->getKey(), variable });
+			}
+		}
+		return intersectingVariableMap;
+	}
 
 public:
 	
