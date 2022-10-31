@@ -266,4 +266,17 @@ public:
 		return this->cfgManagers;
 	}
 
+	// ==================== State managers ====================
+	/*
+		Resets cached queries.
+	*/
+	void resetCache() {
+		this->relationshipTables[NEXTSTAR_TABLE] = make_shared<PkbRelationshipTable>();
+		this->relationshipTables[NOT_NEXTSTAR_TABLE] = make_shared<PkbRelationshipTable>();
+		this->relationshipTables[AFFECTSSTAR_TABLE] = make_shared<PkbRelationshipTable>();
+		this->relationshipTables[NOT_AFFECTSSTAR_TABLE] = make_shared<PkbRelationshipTable>();
+		this->relationshipTables[AFFECTS_TABLE] = make_shared<PkbRelationshipTable>();
+		this->relationshipTables[NOT_AFFECTS_TABLE] = make_shared<PkbRelationshipTable>();
+	}
+
 };
