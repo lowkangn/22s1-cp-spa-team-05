@@ -247,9 +247,9 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 			shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
 
 			// check entity tables
-			shared_ptr<PkbEntity> lhsFound = repository->getEntityTableByType(PkbEntityType::STATEMENT)->get(lhsEntity->getKey());
-			shared_ptr<PkbEntity> rhsFound = repository->getEntityTableByType(PkbEntityType::STATEMENT)->get(rhsEntity->getKey());
-			if (rhsFound == NULL || lhsFound == NULL) {
+			shared_ptr<PkbEntity> lhsFound = this->findEntityFromRepository(lhsEntity, repository);
+			shared_ptr<PkbEntity> rhsFound = this->findEntityFromRepository(rhsEntity, repository);
+			if (rhsFound == NULL && lhsFound == NULL) {
 				continue;
 			}
 			if (lhsFound != NULL) {
@@ -272,14 +272,14 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 
 			// 1. check cache
 			// 1.1 check for positive match
-			shared_ptr<PkbAffectsRelationship> positiveMatch = shared_ptr<PkbAffectsRelationship>(new PkbAffectsRelationship(lhsEntity, rhsEntity));
-			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::AFFECTS)->get(positiveMatch->getKey()) != NULL) {
+			shared_ptr<PkbAffectsRelationship> positiveMatch = make_shared<PkbAffectsRelationship>(lhsEntity, rhsEntity);
+			if (this->findPkbRelationshipFromRepository(positiveMatch, repository) != NULL) {
 				out.push_back(positiveMatch);
 				continue;
 			}
 			// 1.2 check for negative match
-			shared_ptr<PkbNotAffectsRelationship> negativeMatch = shared_ptr<PkbNotAffectsRelationship>(new PkbNotAffectsRelationship(lhsEntity, rhsEntity));
-			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTS)->get(negativeMatch->getKey()) != NULL) {
+			shared_ptr<PkbNotAffectsRelationship> negativeMatch = make_shared<PkbNotAffectsRelationship>(lhsEntity, rhsEntity);
+			if (this->findPkbRelationshipFromRepository(negativeMatch, repository) != NULL) {
 				continue;
 			}
 
@@ -314,13 +314,14 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 
 			// 3. short circuit 2: check that lhs and rhs are reachable using next*
 			// 3.1 check not cache
-			if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NEXTSTAR)->get(positiveMatch->getKey()) != NULL) {
+			shared_ptr<PkbNextStarRelationship> positiveNextStar = make_shared<PkbNextStarRelationship>(lhsEntity, rhsEntity);
+			if (this->findPkbRelationshipFromRepository(positiveNextStar, repository) != NULL) {
 				// do nothing
 			}
 			else {
 				// 3.2 check for negative match
-				shared_ptr<PkbNotAffectsRelationship> negativeMatch = shared_ptr<PkbNotAffectsRelationship>(new PkbNotAffectsRelationship(lhsEntity, rhsEntity));
-				if (repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_NEXTSTAR)->get(negativeMatch->getKey()) != NULL) {
+				shared_ptr<PkbNotNextStarRelationship> negativeNextStar = make_shared<PkbNotNextStarRelationship>(lhsEntity, rhsEntity);
+				if (this->findPkbRelationshipFromRepository(negativeNextStar, repository) != NULL) {
 					continue;
 				}
 			}
@@ -346,7 +347,6 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 			else {
 				repository->getRelationshipTableByRelationshipType(PkbRelationshipType::NOT_AFFECTS)->add(negativeMatch);
 			}
-			continue;
 
 		}
 		else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) { // case 2: exact, non exact
@@ -443,11 +443,12 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 
 		}
 		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) { // case 4: non exact, non exact
-			// 0. check that they don't refer to the same thing
-			if (lhs.isStmtRefNoWildcard() && rhs.isSynonym() && lhs == rhs) {
-				continue;
+			// 0. check if lhs and rhs should refer to the same
+			bool lhsRhsSame = false;
+			if (lhs.isAssignSynonym() && rhs.isAssignSynonym()) {
+				lhsRhsSame = (lhs == rhs);
 			}
-
+			
 			// 1. find all assign
 			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 
@@ -462,7 +463,8 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 					assert(cast2 != nullptr);
 
 					// check
-					if (cast1->isAssignStatement() && cast2->isAssignStatement()) {
+					if (cast1->isAssignStatement() && cast2->isAssignStatement() // both assign
+						&& ((lhsRhsSame && cast1->equals(cast2)) || !lhsRhsSame)) { // if both same, lhs and rhs must be same
 						// convert to exact clause argument 
 						ClauseArgument castAsLhs = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
 						ClauseArgument castAsRhs = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
@@ -702,12 +704,16 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) {
 			// case 4: wildcard, wildcard
 			// O(n2) enumeration of affects*(s1, s2)
-			// 1. check if valid synonym 
-			if (!lhs.isWildcard() && !lhs.isStmtSynonym() && !lhs.isAssignSynonym()
-				|| !lhs.isWildcard() && !lhs.isStmtSynonym() && !lhs.isAssignSynonym()) {
-				continue;
+			
+			// 0. check if lhs and rhs should refer to the same
+			bool lhsRhsSame = false;
+			if (lhs.isAssignSynonym() && rhs.isAssignSynonym()) {
+				lhsRhsSame = (lhs == rhs);
 			}
-			if (lhs.isAssignSynonym() && rhs.isAssignSynonym() && lhs == rhs) {
+
+			// 1. check if valid synonym 
+			if ((!lhs.isWildcard() && !lhs.isStmtSynonym() && !lhs.isAssignSynonym())
+				|| (!rhs.isWildcard() && !rhs.isStmtSynonym() && !rhs.isAssignSynonym())) {
 				continue;
 			}
 
@@ -723,7 +729,8 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 				for (shared_ptr<PkbEntity> statement2 : statements) {
 					shared_ptr<PkbStatementEntity> cast2 = dynamic_pointer_cast<PkbStatementEntity>(statement2);
 					assert(cast2 != nullptr);
-					if (cast1->isAssignStatement() && cast2->isAssignStatement()) {
+					if (cast1->isAssignStatement() && cast2->isAssignStatement() 
+						&& ((lhsRhsSame && cast1->equals(cast2)) || !lhsRhsSame)) {
 						ClauseArgument leftArg = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
 						ClauseArgument rightArg = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
 						vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(leftArg, rightArg, repository);

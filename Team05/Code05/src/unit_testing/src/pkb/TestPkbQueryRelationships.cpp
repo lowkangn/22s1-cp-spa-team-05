@@ -1433,6 +1433,8 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
 				ClauseArgument rhs = ClauseArgument::createAssignArg("a");
 				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
 				};
 				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}
@@ -1816,6 +1818,8 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
 				ClauseArgument rhs = ClauseArgument::createAssignArg("a");
 				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
 				};
 				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
 			}

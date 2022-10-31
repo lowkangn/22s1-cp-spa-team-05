@@ -102,6 +102,10 @@ public:
 		return this->relationshipType == PkbRelationshipType::NOT_NEXTSTAR;
 	}
 
+	PkbRelationshipType getType() {
+		return this->relationshipType;
+	}
+
 	string getKey() {
 		// get string of relationship type
 

@@ -18,6 +18,7 @@
 #include <pkb/pkbRepository/design_objects/relationships/PkbModifiesRelationship.h>
 #include <pkb/pkbRepository/design_objects/relationships/PkbNextRelationship.h>
 #include <pkb/pkbRepository/design_objects/relationships/PkbNextStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbNotNextStarRelationship.h>
 #include <pkb/pkbRepository/design_objects/relationships/PkbCallStmtAttributeRelationship.h>
 #include <pkb/pkbRepository/design_objects/relationships/PkbAffectsRelationship.h>
 #include <pkb/pkbRepository/design_objects/relationships/PkbAffectsStarRelationship.h>
@@ -34,6 +35,7 @@
 
 #include <qps/query/clause/ClauseArgument.h>
 
+#include <optional>
 #include <vector>
 
 
@@ -103,6 +105,30 @@ private:
 		else {
 			throw PkbException("clause argument is of unknown type!");
 		}
+	}
+
+	/*
+		Given a relationship, checks if there is a match.
+	*/
+	shared_ptr<PkbRelationship> findPkbRelationshipFromRepository(shared_ptr<PkbRelationship> relationship, shared_ptr<PkbRepository> repository) {
+		// 1. key 
+		string key = relationship->getKey();
+
+		// 2. query the table
+		shared_ptr<PkbRelationship> found = repository->getRelationshipTableByRelationshipType(relationship->getType())->get(key);
+		return found;
+	}
+
+	/*
+		Given an entity, checks if there is a match.
+	*/
+	shared_ptr<PkbEntity> findEntityFromRepository(shared_ptr<PkbEntity> entity, shared_ptr<PkbRepository> repository) {
+		// 1. key 
+		string key = entity->getKey();
+
+		// 2. query the table
+		shared_ptr<PkbEntity> found = repository->getEntityTableByType(entity->getType())->get(key);
+		return found;
 	}
 
 	// ******************** relationship query handlers ********************
