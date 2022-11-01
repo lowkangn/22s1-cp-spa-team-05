@@ -90,7 +90,7 @@ do
     ${path_to_autotester} ${iteration1}${one_constr_path}${i}Only_source.txt ${iteration1}${one_constr_path}${i}Only_queries.txt ${iteration1_output_folder}${i}OnlyOut.xml
 done
 
-for i in calls modifies uses next with
+for i in calls modifies uses next with affects
 do
     ${path_to_autotester} ${iteration2}${one_constr_path}${i}Only_source.txt ${iteration2}${one_constr_path}${i}Only_queries.txt ${iteration2_output_folder}${i}OnlyOut.xml
 done

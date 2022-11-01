@@ -23,7 +23,7 @@ void AffectsParser::checkArguments(list<ClauseArgument>& args) {
 			throw PQLSyntaxError("Both args for Affects/Affects* must be assign statements, which cannot be a string");
 		}
 
-		if (!arg.isWildcard() && !arg.isStmtSynonym() && !arg.isAssignSynonym()) {
+		if (!arg.isWildcard() && !arg.isStmtSynonym() && !arg.isAssignSynonym() && !arg.isLineNumber()) {
 			this->semanticErrorMessage = "Both args for Affects/Affects* must be assign statements";
 		}
 	}
