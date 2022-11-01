@@ -26,8 +26,11 @@ void SuchThatState::parseOneClause(list<PQLToken>& tokens, const unordered_map<s
     else if (token.isNext()) {
         parserPointer = make_shared<NextParser>(tokens, declarations);
     }
+    else if (token.isAffects()) {
+        parserPointer = make_shared<AffectsParser>(tokens, declarations);
+    }
     else {
-        throw PQLSyntaxError("Only Modifies, Uses, Parent/Parent*, Follows/Follows*, Calls/Calls*, Next/Next* are supported as such that clauses.");
+        throw PQLSyntaxError("Only Modifies, Uses, Parent/Parent*, Follows/Follows*, Calls/Calls*, Next/Next*, Affects/Affects* are supported as such that clauses.");
     }
     shared_ptr<RelationshipClause> clause = parserPointer->parse();
     this->context->addRelationshipClause(clause);
