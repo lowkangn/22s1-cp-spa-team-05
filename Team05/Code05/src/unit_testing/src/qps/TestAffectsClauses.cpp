@@ -5,8 +5,6 @@
 
 #include <sp/SourceProcessor.h>
 
-#include <list>
-
 using namespace std;
 
 // =============== UNIT TESTS ====================
@@ -123,8 +121,13 @@ namespace {
 				} else {
 			18.		x = y;
 				}
+			19. x = x + y;
+			20. v = y + 2;
+			21. y = v + x;
 		}
 	*/
+
+	string programString = "procedure main {\n   x = 0;\n   i = 5;\n   while (i != 0) {\n   \tx = x + 2 * y;\n   \tcall test;\n   \ti = i - 1;\n   }\n   if (x == 1) then {\n   \tx = x + 1;\n   } else {\n   \tz = 1;\n   }\n   z = z + x + i;\n   read z;\n   x = x * y + z;\n   }\n\nprocedure test {\n   y = x / 2;\n   if (y < 5) then {\n   \twhile (y < 5) {\n   \t\tx = x - y;\n    \t\ty = y + 1;\n   \t}\n   } else {\n   \tx = y;\n   }\n   x = x + y;\n   v = y + 2;\n   y = v + x;\n   }\n";
 
 	// Initialise corresponding PQLEntities and PQLRelationships
 	PQLEntity pqlA1 = PQLEntity::generateStatement(1);
@@ -140,6 +143,9 @@ namespace {
 	PQLEntity pqlA16 = PQLEntity::generateStatement(16);
 	PQLEntity pqlA17 = PQLEntity::generateStatement(17);
 	PQLEntity pqlA18 = PQLEntity::generateStatement(18);
+	PQLEntity pqlA19 = PQLEntity::generateStatement(19);
+	PQLEntity pqlA20 = PQLEntity::generateStatement(20);
+	PQLEntity pqlA21 = PQLEntity::generateStatement(21);
 
 	PQLRelationship pqlAffectsA1A4 = PQLRelationship(pqlA1, pqlA4);
 	PQLRelationship pqlAffectsA1A8 = PQLRelationship(pqlA1, pqlA8);
@@ -156,9 +162,22 @@ namespace {
 	PQLRelationship pqlAffectsA13A16 = PQLRelationship(pqlA13, pqlA16);
 	PQLRelationship pqlAffectsA13A17 = PQLRelationship(pqlA13, pqlA17);
 	PQLRelationship pqlAffectsA13A18 = PQLRelationship(pqlA13, pqlA18);
+	PQLRelationship pqlAffectsA13A19 = PQLRelationship(pqlA13, pqlA19);
+	PQLRelationship pqlAffectsA13A20 = PQLRelationship(pqlA13, pqlA20);
 	PQLRelationship pqlAffectsA16A16 = PQLRelationship(pqlA16, pqlA16);
+	PQLRelationship pqlAffectsA16A19 = PQLRelationship(pqlA16, pqlA19);
 	PQLRelationship pqlAffectsA17A16 = PQLRelationship(pqlA17, pqlA16);
 	PQLRelationship pqlAffectsA17A17 = PQLRelationship(pqlA17, pqlA17);
+	PQLRelationship pqlAffectsA17A19 = PQLRelationship(pqlA17, pqlA19);
+	PQLRelationship pqlAffectsA17A20 = PQLRelationship(pqlA17, pqlA20);
+	PQLRelationship pqlAffectsA18A19 = PQLRelationship(pqlA18, pqlA19);
+	PQLRelationship pqlAffectsA19A21 = PQLRelationship(pqlA19, pqlA21);
+	PQLRelationship pqlAffectsA20A21 = PQLRelationship(pqlA20, pqlA21);
+
+	PQLRelationship pqlAffectsTA13A21 = PQLRelationship(pqlA13, pqlA21);
+	PQLRelationship pqlAffectsTA16A21 = PQLRelationship(pqlA16, pqlA21);
+	PQLRelationship pqlAffectsTA17A21 = PQLRelationship(pqlA17, pqlA21);
+	PQLRelationship pqlAffectsTA18A21 = PQLRelationship(pqlA18, pqlA21);
 
 	// Clause Arguments
 	ClauseArgument firstStmtArg = ClauseArgument::createStmtArg("s1");
@@ -175,6 +194,8 @@ namespace {
 	ClauseArgument lineThirteenArg = ClauseArgument::createLineNumberArg("13");
 	ClauseArgument lineSixteenArg = ClauseArgument::createLineNumberArg("16");
 	ClauseArgument lineEighteenArg = ClauseArgument::createLineNumberArg("18");
+	ClauseArgument lineTwentyArg = ClauseArgument::createLineNumberArg("20");
+	ClauseArgument lineTwentyOneArg = ClauseArgument::createLineNumberArg("21");
 };
 
 TEST_CASE("AffectsClause: test execute") {
@@ -194,7 +215,6 @@ TEST_CASE("AffectsClause: test execute") {
 	};
 
 	// ------ SP ------ 
-	string programString = "procedure main {\n   x = 0;\n   i = 5;\n   while (i != 0) {\n   \tx = x + 2 * y;\n   \tcall test;\n   \ti = i - 1;\n   }\n   if (x == 1) then {\n   \tx = x + 1;\n   } else {\n   \tz = 1;\n   }\n   z = z + x + i;\n   read z;\n   x = x * y + z;\n   }\n\nprocedure test {\n   y = x / 2;\n   if (y < 5) then {\n   \twhile (y < 5) {\n   \t\tx = x - y;\n    \t\ty = y + 1;\n   \t}\n   } else {\n   \tx = y;\n   }\n   }\n";
 	stringstream stream(programString);
 	SourceProcessor sp(stream);
 
@@ -209,7 +229,9 @@ TEST_CASE("AffectsClause: test execute") {
 	vector<PQLRelationship> expectedRetrievedFromPkb = {
 			pqlAffectsA1A4, pqlAffectsA1A8, pqlAffectsA1A10, pqlAffectsA1A12, pqlAffectsA2A6, pqlAffectsA2A10, 
 			pqlAffectsA6A6, pqlAffectsA6A10, pqlAffectsA8A10, pqlAffectsA8A12, pqlAffectsA9A10, pqlAffectsA13A16, 
-			pqlAffectsA13A17, pqlAffectsA13A18, pqlAffectsA16A16, pqlAffectsA17A16, pqlAffectsA17A17 
+			pqlAffectsA13A17, pqlAffectsA13A18, pqlAffectsA13A19, pqlAffectsA13A20, pqlAffectsA16A16, pqlAffectsA16A19, 
+			pqlAffectsA17A16, pqlAffectsA17A17, pqlAffectsA17A19, pqlAffectsA17A20, pqlAffectsA18A19, pqlAffectsA19A21, 
+			pqlAffectsA20A21
 	};
 	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(firstStmtArg, secondStmtArg,
 		expectedRetrievedFromPkb);
@@ -220,9 +242,13 @@ TEST_CASE("AffectsClause: test execute") {
 
 	SECTION("Other stmtRef synonyms - non empty results") {
 		clause = AffectsClause(assignArg, secondAssignArg);
-		expectedRetrievedFromPkb = { pqlAffectsA1A4, pqlAffectsA1A8, pqlAffectsA1A10, pqlAffectsA1A12, pqlAffectsA2A6, 
-			pqlAffectsA2A10, pqlAffectsA6A6, pqlAffectsA6A10, pqlAffectsA8A10, pqlAffectsA8A12, pqlAffectsA9A10, 
-			pqlAffectsA13A16, pqlAffectsA13A17, pqlAffectsA13A18, pqlAffectsA16A16, pqlAffectsA17A16, pqlAffectsA17A17 };
+		expectedRetrievedFromPkb = {
+				pqlAffectsA1A4, pqlAffectsA1A8, pqlAffectsA1A10, pqlAffectsA1A12, pqlAffectsA2A6, pqlAffectsA2A10,
+				pqlAffectsA6A6, pqlAffectsA6A10, pqlAffectsA8A10, pqlAffectsA8A12, pqlAffectsA9A10, pqlAffectsA13A16,
+				pqlAffectsA13A17, pqlAffectsA13A18, pqlAffectsA13A19, pqlAffectsA13A20, pqlAffectsA16A16, pqlAffectsA16A19,
+				pqlAffectsA17A16, pqlAffectsA17A17, pqlAffectsA17A19, pqlAffectsA17A20, pqlAffectsA18A19, pqlAffectsA19A21,
+				pqlAffectsA20A21
+		};
 		expectedClauseResult = RelationshipClauseResult(assignArg, secondAssignArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
@@ -251,8 +277,8 @@ TEST_CASE("AffectsClause: test execute") {
 		expectedClauseResult = RelationshipClauseResult(firstStmtArg, lineNineArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 
-		clause = AffectsClause(lineEighteenArg, assignArg);
-		expectedClauseResult = RelationshipClauseResult(lineEighteenArg, assignArg, expectedRetrievedFromPkb);
+		clause = AffectsClause(lineTwentyOneArg, assignArg);
+		expectedClauseResult = RelationshipClauseResult(lineTwentyOneArg, assignArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
@@ -280,6 +306,116 @@ TEST_CASE("AffectsClause: test execute") {
 		testExecute(clause, expectedClauseResult, pkb);
 
 		clause = AffectsClause(lineTwelveArg, lineThirteenArg);
+		expectedClauseResult = RelationshipClauseResult(lineTwelveArg, lineThirteenArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+};
+
+TEST_CASE("AffectsTClause: test execute") {
+	auto testExecute = [](AffectsTClause affectsTClause,
+		RelationshipClauseResult expectedClauseResult,
+		shared_ptr<PKB> pkb) {
+			// given
+			shared_ptr<PKBQueryHandler> pkbInterface = shared_ptr<PKBQueryHandler>(pkb);
+
+			// when
+			shared_ptr<RelationshipClauseResult> resPtr = affectsTClause.execute(pkbInterface);
+			RelationshipClauseResult actualClauseResult = *resPtr;
+
+			// then
+			REQUIRE(actualClauseResult == expectedClauseResult);
+
+	};
+
+	// ------ SP ------ 
+	stringstream stream(programString);
+	SourceProcessor sp(stream);
+
+
+	// ------ PKB ------ 
+	shared_ptr<PKB> pkb = shared_ptr<PKB>(new PKB());
+	sp.extractAllAndAddToPkb(pkb);
+
+
+	// ------ QPS ------ 
+	AffectsTClause clause = AffectsTClause(firstStmtArg, secondStmtArg);
+	vector<PQLRelationship> expectedRetrievedFromPkb = {
+			pqlAffectsA1A4, pqlAffectsA1A8, pqlAffectsA1A10, pqlAffectsA1A12, pqlAffectsA2A6, pqlAffectsA2A10,
+			pqlAffectsA6A6, pqlAffectsA6A10, pqlAffectsA8A10, pqlAffectsA8A12, pqlAffectsA9A10, pqlAffectsA13A16,
+			pqlAffectsA13A17, pqlAffectsA13A18, pqlAffectsA13A19, pqlAffectsA13A20, pqlAffectsA16A16, pqlAffectsA16A19,
+			pqlAffectsA17A16, pqlAffectsA17A17, pqlAffectsA17A19, pqlAffectsA17A20, pqlAffectsA18A19, pqlAffectsA19A21,
+			pqlAffectsA20A21, pqlAffectsTA13A21, pqlAffectsTA16A21, pqlAffectsTA17A21, pqlAffectsTA18A21
+	};
+	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(firstStmtArg, secondStmtArg,
+		expectedRetrievedFromPkb);
+
+	SECTION("Two stmt synoynms - all affectsStar results") {
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Other stmtRef synonyms - non empty results") {
+		clause = AffectsTClause(assignArg, secondAssignArg);
+		expectedRetrievedFromPkb = {
+				pqlAffectsA1A4, pqlAffectsA1A8, pqlAffectsA1A10, pqlAffectsA1A12, pqlAffectsA2A6, pqlAffectsA2A10,
+				pqlAffectsA6A6, pqlAffectsA6A10, pqlAffectsA8A10, pqlAffectsA8A12, pqlAffectsA9A10, pqlAffectsA13A16,
+				pqlAffectsA13A17, pqlAffectsA13A18, pqlAffectsA13A19, pqlAffectsA13A20, pqlAffectsA16A16, pqlAffectsA16A19,
+				pqlAffectsA17A16, pqlAffectsA17A17, pqlAffectsA17A19, pqlAffectsA17A20, pqlAffectsA18A19, pqlAffectsA19A21,
+				pqlAffectsA20A21, pqlAffectsTA13A21, pqlAffectsTA16A21, pqlAffectsTA17A21, pqlAffectsTA18A21
+		};
+		expectedClauseResult = RelationshipClauseResult(assignArg, secondAssignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsTClause(assignArg, assignArg);
+		expectedRetrievedFromPkb = { pqlAffectsA6A6, pqlAffectsA16A16, pqlAffectsA17A17 };
+		expectedClauseResult = RelationshipClauseResult(assignArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("One line number and one stmtRef - non empty results") {
+		clause = AffectsTClause(lineEighteenArg, assignArg);
+		expectedRetrievedFromPkb = { pqlAffectsA18A19, pqlAffectsTA18A21 };
+		expectedClauseResult = RelationshipClauseResult(lineEighteenArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsTClause(firstStmtArg, lineTwentyOneArg);
+		expectedRetrievedFromPkb = { pqlAffectsA19A21, pqlAffectsA20A21, pqlAffectsTA13A21, pqlAffectsTA16A21, 
+				pqlAffectsTA17A21, pqlAffectsTA18A21 };
+		expectedClauseResult = RelationshipClauseResult(firstStmtArg, lineTwentyOneArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("One line number and one stmtRef - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = AffectsTClause(lineSixteenArg, lineEighteenArg);
+		expectedClauseResult = RelationshipClauseResult(lineSixteenArg, lineEighteenArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsTClause(lineTwentyOneArg, assignArg);
+		expectedClauseResult = RelationshipClauseResult(lineTwentyOneArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Two line numbers - non empty results") {
+		clause = AffectsTClause(lineEighteenArg, lineTwentyOneArg);
+		expectedRetrievedFromPkb = { pqlAffectsTA18A21 };
+		expectedClauseResult = RelationshipClauseResult(lineEighteenArg, lineTwentyOneArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsTClause(lineSixteenArg, lineSixteenArg);
+		expectedRetrievedFromPkb = { pqlAffectsA16A16 };
+		expectedClauseResult = RelationshipClauseResult(lineSixteenArg, lineSixteenArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Two line numbers - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = AffectsTClause(lineSixteenArg, lineEighteenArg);
+		expectedClauseResult = RelationshipClauseResult(lineSixteenArg, lineEighteenArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsTClause(lineTwelveArg, lineThirteenArg);
 		expectedClauseResult = RelationshipClauseResult(lineTwelveArg, lineThirteenArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
