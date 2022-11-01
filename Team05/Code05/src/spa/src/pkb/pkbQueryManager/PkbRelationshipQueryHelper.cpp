@@ -405,7 +405,8 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) { // case 4: non exact, non exact
 			// 0. check if lhs and rhs should refer to the same
 			bool lhsRhsSame = false;
-			if (lhs.isAssignSynonym() && rhs.isAssignSynonym()) {
+			if ((lhs.isAssignSynonym() || lhs.isStmtSynonym()) 
+				&& (rhs.isAssignSynonym() || rhs.isStmtSynonym())) {
 				lhsRhsSame = (lhs == rhs);
 			}
 			
@@ -624,7 +625,8 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 			
 			// 0. check if lhs and rhs should refer to the same
 			bool lhsRhsSame = false;
-			if (lhs.isAssignSynonym() && rhs.isAssignSynonym()) {
+			if ((lhs.isAssignSynonym() || lhs.isStmtSynonym())
+				&& (rhs.isAssignSynonym() || rhs.isStmtSynonym())) {
 				lhsRhsSame = (lhs == rhs);
 			}
 

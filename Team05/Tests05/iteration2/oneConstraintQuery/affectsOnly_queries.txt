@@ -1,0 +1,5 @@
+1 - Affects - select statements that directly affect 3
+stmt s;
+Select s such that Affects(s, 3)
+none
+5000

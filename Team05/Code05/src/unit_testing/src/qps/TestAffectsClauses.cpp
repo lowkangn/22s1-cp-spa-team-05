@@ -186,6 +186,7 @@ namespace {
 	ClauseArgument secondAssignArg = ClauseArgument::createAssignArg("a1");
 
 	ClauseArgument lineOneArg = ClauseArgument::createLineNumberArg("1");
+	ClauseArgument lineThreeArg = ClauseArgument::createLineNumberArg("1");
 	ClauseArgument lineTwoArg = ClauseArgument::createLineNumberArg("2");
 	ClauseArgument lineSixArg = ClauseArgument::createLineNumberArg("6");
 	ClauseArgument lineNineArg = ClauseArgument::createLineNumberArg("9");
@@ -255,6 +256,11 @@ TEST_CASE("AffectsClause: test execute") {
 		clause = AffectsClause(assignArg, assignArg);
 		expectedRetrievedFromPkb = { pqlAffectsA6A6, pqlAffectsA16A16, pqlAffectsA17A17 };
 		expectedClauseResult = RelationshipClauseResult(assignArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsClause(firstStmtArg, firstStmtArg);
+		expectedRetrievedFromPkb = { pqlAffectsA6A6, pqlAffectsA16A16, pqlAffectsA17A17 };
+		expectedClauseResult = RelationshipClauseResult(firstStmtArg, firstStmtArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
@@ -368,6 +374,11 @@ TEST_CASE("AffectsTClause: test execute") {
 		clause = AffectsTClause(assignArg, assignArg);
 		expectedRetrievedFromPkb = { pqlAffectsA6A6, pqlAffectsA16A16, pqlAffectsA17A17 };
 		expectedClauseResult = RelationshipClauseResult(assignArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsTClause(firstStmtArg, firstStmtArg);
+		expectedRetrievedFromPkb = { pqlAffectsA6A6, pqlAffectsA16A16, pqlAffectsA17A17 };
+		expectedClauseResult = RelationshipClauseResult(firstStmtArg, firstStmtArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
