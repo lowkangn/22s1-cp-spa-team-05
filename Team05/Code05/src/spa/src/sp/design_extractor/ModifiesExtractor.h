@@ -45,6 +45,12 @@ private:
 	*/
 	unordered_map<shared_ptr<ASTNode>, vector<shared_ptr<ASTNode>>> callGraph;
 
+	/*
+		Used to toggle whether call cycles will be checked during extraction.
+		Set to true by default, but can be set to false in the constructor to speed up testing if needed
+	*/
+	bool checkCallCycleFlag;
+
 	// HELPER FUNCTIONS
 	
 	/*
@@ -171,6 +177,13 @@ private:
 	}
 
 public:
+
+	/*
+		Constructor that sets call cycle checking to true by default
+		Can set to false to speed up testing, but only for valid non-cyclical programs
+	*/
+	ModifiesExtractor(bool willCheckCallCycles = 1) : checkCallCycleFlag(willCheckCallCycles) { }
+
 	/*
 		This method is used to extract relationships from a provided abstract syntax tree. It is meant to be
 		overriden for each specific relationship type.

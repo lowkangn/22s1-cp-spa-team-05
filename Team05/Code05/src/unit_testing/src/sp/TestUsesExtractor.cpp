@@ -431,7 +431,7 @@ TEST_CASE("UsesExtractor: test handleIf") {
 TEST_CASE("UsesExtractor: test extract") {
 	auto testExtract = [](shared_ptr<ASTNode> rootNode, vector<Relationship> expectedResult) {
 		// Given
-		UsesExtractor extractor = UsesExtractor();
+		UsesExtractor extractor = UsesExtractor(0);
 
 		// When
 		vector<Relationship> extractedResult = extractor.extract(rootNode);

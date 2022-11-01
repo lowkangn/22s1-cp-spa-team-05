@@ -76,12 +76,15 @@ vector<Relationship> UsesExtractor::extract(shared_ptr<ASTNode> ast) {
 			}
 		}
 
-		// fill up adjacency list for graph of call statements
-		constructCallGraph(this->allProcedures);
+		// check if we defined this extractor to check for call cycles
+		if (this->checkCallCycleFlag) {
+			// fill up adjacency list for graph of call statements
+			constructCallGraph(this->allProcedures);
 
-		// validate call graph to check for no cycles
-		if (hasCallCycle(this->callGraph)) {
-			throw ASTException("Cannot handle programs with cyclical procedure calls!");
+			// validate call graph to check for no cycles
+			if (hasCallCycle(this->callGraph)) {
+				throw ASTException("Cannot handle programs with cyclical procedure calls!");
+			}
 		}
 
 		for (int i = 0; i < children.size(); i++) {
