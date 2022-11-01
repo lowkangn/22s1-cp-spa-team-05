@@ -106,7 +106,7 @@ namespace {
 			7.	if (x == 1) then {
 			8.	    x = x + 1;
 				} else {
-			9.	    z = 1;
+			9.		z = 1;
 				}
 			10.	z = z + x + i;
 			11. read z;
@@ -114,9 +114,15 @@ namespace {
 		}
 
 		procedure test {
-			13. y = x;
-			14. x = 5;
-			15. print y;
+			13. y = x / 2;
+			14. if (y < 5) then {
+			15.		while (y < 5) {
+			16.			x = x - y;
+			17.			y = y + 1;
+					}
+				} else {
+			18.		x = y;
+				}
 		}
 	*/
 
@@ -131,9 +137,28 @@ namespace {
 	PQLEntity pqlA12 = PQLEntity::generateStatement(12);
 	PQLEntity pqlA13 = PQLEntity::generateStatement(13);
 	PQLEntity pqlA14 = PQLEntity::generateStatement(14);
+	PQLEntity pqlA16 = PQLEntity::generateStatement(16);
+	PQLEntity pqlA17 = PQLEntity::generateStatement(17);
+	PQLEntity pqlA18 = PQLEntity::generateStatement(18);
 
 	PQLRelationship pqlAffectsA1A4 = PQLRelationship(pqlA1, pqlA4);
-	PQLRelationship pqlAffectsA2A6 = PQLRelationship(pqlA4, pqlA6);
+	PQLRelationship pqlAffectsA1A8 = PQLRelationship(pqlA1, pqlA8);
+	PQLRelationship pqlAffectsA1A10 = PQLRelationship(pqlA1, pqlA10);
+	PQLRelationship pqlAffectsA1A12 = PQLRelationship(pqlA1, pqlA12);
+	PQLRelationship pqlAffectsA2A6 = PQLRelationship(pqlA2, pqlA6);
+	PQLRelationship pqlAffectsA2A10 = PQLRelationship(pqlA2, pqlA10);
+	PQLRelationship pqlAffectsA6A6 = PQLRelationship(pqlA6, pqlA6);
+	PQLRelationship pqlAffectsA6A10 = PQLRelationship(pqlA6, pqlA10);
+	PQLRelationship pqlAffectsA8A10 = PQLRelationship(pqlA8, pqlA10);
+	PQLRelationship pqlAffectsA8A12 = PQLRelationship(pqlA8, pqlA12);
+	PQLRelationship pqlAffectsA9A10 = PQLRelationship(pqlA9, pqlA10);
+
+	PQLRelationship pqlAffectsA13A16 = PQLRelationship(pqlA13, pqlA16);
+	PQLRelationship pqlAffectsA13A17 = PQLRelationship(pqlA13, pqlA17);
+	PQLRelationship pqlAffectsA13A18 = PQLRelationship(pqlA13, pqlA18);
+	PQLRelationship pqlAffectsA16A16 = PQLRelationship(pqlA16, pqlA16);
+	PQLRelationship pqlAffectsA17A16 = PQLRelationship(pqlA17, pqlA16);
+	PQLRelationship pqlAffectsA17A17 = PQLRelationship(pqlA17, pqlA17);
 
 	// Clause Arguments
 	ClauseArgument firstStmtArg = ClauseArgument::createStmtArg("s1");
@@ -157,8 +182,7 @@ TEST_CASE("AffectsClause: test execute") {
 	};
 
 	// ------ SP ------ 
-	string programString = "procedure main {\n   x = 0;\n   i = 5;\n   while (i != 0) {\n   \tx = x + 2 * y;\n   \tcall test;\n   \ti = i - 1;\n   }\n   if (x == 1) then {\n   \tx = x + 1;\n   } else {\n   \tz = 1;\n   }\n   z = z + x + i;\n   read z;\n   x = x * y + z;\n   }\n\nprocedure test {\n   y = x;\n   x = 5;\n   print y;\n   }\n";
-	// string programString = "procedure main {\n read x;\n y = x;\n y = y / 3;\n }\n\n procedure test {\n y = 1;\n z = y;\n }\n"; 
+	string programString = "procedure main {\n   x = 0;\n   i = 5;\n   while (i != 0) {\n   \tx = x + 2 * y;\n   \tcall test;\n   \ti = i - 1;\n   }\n   if (x == 1) then {\n   \tx = x + 1;\n   } else {\n   \tz = 1;\n   }\n   z = z + x + i;\n   read z;\n   x = x * y + z;\n   }\n\nprocedure test {\n   y = x / 2;\n   if (y < 5) then {\n   \twhile (y < 5) {\n   \t\tx = x - y;\n    \t\ty = y + 1;\n   \t}\n   } else {\n   \tx = y;\n   }\n   }\n";
 	stringstream stream(programString);
 	SourceProcessor sp(stream);
 
@@ -170,7 +194,11 @@ TEST_CASE("AffectsClause: test execute") {
 
 	// ------ QPS ------ 
 	AffectsClause clause = AffectsClause(firstStmtArg, secondStmtArg);
-	vector<PQLRelationship> expectedRetrievedFromPkb = { pqlAffectsA1A4 };
+	vector<PQLRelationship> expectedRetrievedFromPkb = {
+			pqlAffectsA1A4, pqlAffectsA1A8, pqlAffectsA1A10, pqlAffectsA1A12, pqlAffectsA2A6, pqlAffectsA2A10, 
+			pqlAffectsA6A6, pqlAffectsA6A10, pqlAffectsA8A10, pqlAffectsA8A12, pqlAffectsA9A10, pqlAffectsA13A16, 
+			pqlAffectsA13A17, pqlAffectsA13A18, pqlAffectsA16A16, pqlAffectsA17A16, pqlAffectsA17A17 
+	};
 	RelationshipClauseResult expectedClauseResult = RelationshipClauseResult(firstStmtArg, secondStmtArg,
 		expectedRetrievedFromPkb);
 
