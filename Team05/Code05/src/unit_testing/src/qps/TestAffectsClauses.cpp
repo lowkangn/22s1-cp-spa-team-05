@@ -163,6 +163,18 @@ namespace {
 	// Clause Arguments
 	ClauseArgument firstStmtArg = ClauseArgument::createStmtArg("s1");
 	ClauseArgument secondStmtArg = ClauseArgument::createStmtArg("s2");
+	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
+	ClauseArgument secondAssignArg = ClauseArgument::createAssignArg("a1");
+
+	ClauseArgument lineOneArg = ClauseArgument::createLineNumberArg("1");
+	ClauseArgument lineTwoArg = ClauseArgument::createLineNumberArg("2");
+	ClauseArgument lineSixArg = ClauseArgument::createLineNumberArg("6");
+	ClauseArgument lineNineArg = ClauseArgument::createLineNumberArg("9");
+	ClauseArgument lineTenArg = ClauseArgument::createLineNumberArg("10");
+	ClauseArgument lineTwelveArg = ClauseArgument::createLineNumberArg("12");
+	ClauseArgument lineThirteenArg = ClauseArgument::createLineNumberArg("13");
+	ClauseArgument lineSixteenArg = ClauseArgument::createLineNumberArg("16");
+	ClauseArgument lineEighteenArg = ClauseArgument::createLineNumberArg("18");
 };
 
 TEST_CASE("AffectsClause: test execute") {
@@ -203,6 +215,72 @@ TEST_CASE("AffectsClause: test execute") {
 		expectedRetrievedFromPkb);
 
 	SECTION("Two stmt synoynms - all affects results") {
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Other stmtRef synonyms - non empty results") {
+		clause = AffectsClause(assignArg, secondAssignArg);
+		expectedRetrievedFromPkb = { pqlAffectsA1A4, pqlAffectsA1A8, pqlAffectsA1A10, pqlAffectsA1A12, pqlAffectsA2A6, 
+			pqlAffectsA2A10, pqlAffectsA6A6, pqlAffectsA6A10, pqlAffectsA8A10, pqlAffectsA8A12, pqlAffectsA9A10, 
+			pqlAffectsA13A16, pqlAffectsA13A17, pqlAffectsA13A18, pqlAffectsA16A16, pqlAffectsA17A16, pqlAffectsA17A17 };
+		expectedClauseResult = RelationshipClauseResult(assignArg, secondAssignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsClause(assignArg, assignArg);
+		expectedRetrievedFromPkb = { pqlAffectsA6A6, pqlAffectsA16A16, pqlAffectsA17A17 };
+		expectedClauseResult = RelationshipClauseResult(assignArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("One line number and one stmtRef - non empty results") {
+		clause = AffectsClause(lineTwoArg, assignArg);
+		expectedRetrievedFromPkb = { pqlAffectsA2A6, pqlAffectsA2A10 };
+		expectedClauseResult = RelationshipClauseResult(lineTwoArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsClause(firstStmtArg, lineSixteenArg);
+		expectedRetrievedFromPkb = { pqlAffectsA13A16, pqlAffectsA16A16, pqlAffectsA17A16 };
+		expectedClauseResult = RelationshipClauseResult(firstStmtArg, lineSixteenArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("One line number and one stmtRef - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = AffectsClause(firstStmtArg, lineNineArg);
+		expectedClauseResult = RelationshipClauseResult(firstStmtArg, lineNineArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsClause(lineEighteenArg, assignArg);
+		expectedClauseResult = RelationshipClauseResult(lineEighteenArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Two line numbers - non empty results") {
+		clause = AffectsClause(lineOneArg, lineTenArg);
+		expectedRetrievedFromPkb = { pqlAffectsA1A10 };
+		expectedClauseResult = RelationshipClauseResult(lineOneArg, lineTenArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsClause(lineSixArg, lineSixArg);
+		expectedRetrievedFromPkb = { pqlAffectsA6A6 };
+		expectedClauseResult = RelationshipClauseResult(lineSixArg, lineSixArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Two line numbers - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = AffectsClause(lineOneArg, lineTwoArg);
+		expectedClauseResult = RelationshipClauseResult(lineOneArg, lineTwoArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsClause(lineTenArg, lineTwelveArg);
+		expectedClauseResult = RelationshipClauseResult(lineTenArg, lineTwelveArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsClause(lineTwelveArg, lineThirteenArg);
+		expectedClauseResult = RelationshipClauseResult(lineTwelveArg, lineThirteenArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 };
