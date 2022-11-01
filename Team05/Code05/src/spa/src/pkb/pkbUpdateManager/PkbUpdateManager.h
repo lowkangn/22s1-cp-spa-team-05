@@ -73,6 +73,6 @@ public:
 	/*
 		Updates the repository by reference.
 	*/
-	void addCfg(shared_ptr<CFGNode> rootNode, shared_ptr<PkbRepository> repository);
+	void addCfgs(vector<shared_ptr<CFGNode>> rootNodes, shared_ptr<PkbRepository> repository);
 
 };

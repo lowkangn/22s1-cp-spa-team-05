@@ -38,6 +38,10 @@ public:
 		return this->entityType == PkbEntityType::CONSTANT;
 	}
 
+	PkbEntityType getType() {
+		return this->entityType;
+	}
+
 	virtual string getKey() = 0;
 
 	virtual string getIdentifier() = 0;

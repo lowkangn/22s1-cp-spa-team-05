@@ -1,5 +1,7 @@
 #pragma once
 
+#include <qps/query/clause/EntityClauseResult.h>
+
 #include <list>
 #include <string>
 #include <set>
@@ -11,14 +13,11 @@ using namespace std;
 	the autotester. */
 class QueryResultsProjector {
 private:
-	set<string> evaluatorResults;
+	ClauseResult& evaluatorResult;
 public:
-	QueryResultsProjector(set<string>& evaluatorResults)
-		: evaluatorResults(evaluatorResults) {};
+	QueryResultsProjector(ClauseResult& evaluatorResult)
+		: evaluatorResult(evaluatorResult) {}
 
-	void populateResultsList(list<string>& autotesterResults) {
-		for (string result : this->evaluatorResults) {
-			autotesterResults.emplace_back(result);
-		}
-	}
+    void populateResultsList(list<string>& autotesterResults, bool isReturningBoolean,
+        string errorString);
 };

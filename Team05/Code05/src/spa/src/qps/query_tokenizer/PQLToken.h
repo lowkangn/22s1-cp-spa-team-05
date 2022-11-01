@@ -29,6 +29,7 @@ const string PQL_MODIFIES = "Modifies";
 const string PQL_FOLLOWS = "Follows";
 const string PQL_USES = "Uses";
 const string PQL_PARENT = "Parent";
+const string PQL_NEXT = "Next";
 const string PQL_STAR_MODIFIER = "*";
 
 // keywords for identifying attrName
@@ -231,6 +232,10 @@ public:
 
     bool isCalls() {
         return isName() && tokenString == PQL_CALLS;
+    }
+
+    bool isNext() {
+        return isName() && tokenString == PQL_NEXT;
     }
 
     bool isStarModifier() {

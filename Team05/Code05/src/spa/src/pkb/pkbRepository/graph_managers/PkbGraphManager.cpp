@@ -45,7 +45,10 @@ bool PkbGraphManager::canReachNodeBFromNodeA(string nodeAKey, string nodeBKey) {
 	// initialize for bfs
 	unordered_set<string> visited;
 	queue<shared_ptr<PkbGraphNode>> q;
-	q.push(nodeA);
+
+	for (shared_ptr<PkbGraphNode> neighbour : nodeA->getNeighbours()) {
+		q.push(neighbour);
+	}
 
 	// do bfs
 	while (!q.empty()) {

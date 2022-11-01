@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <assert.h>
 #include <algorithm>
+#include <iterator>
 #include <qps/query/clause/ClauseArgument.h>
 #include <qps/query/clause/PQLEntity.h>
 #include <qps/query/clause/PQLRelationship.h>
@@ -24,48 +25,50 @@ protected:
 	/* ================ Protected fields ================ */
 
 	vector<ClauseArgument> args;
+	unordered_map<ClauseArgument, int> argumentToIndexMap;
 	Table table;
 
 	/* ================ Protected methods ================ */
 
 	/* Method for finding common synonyms */
-	vector<ClauseArgument> findConnectingArgs(ClauseResult otherResult);
+	vector<ClauseArgument> findConnectingArgs(const ClauseResult& otherResult);
 
 	/* Gets the indices in the table corresponding to the given args - returns empty if an arg is not found in table */
-	vector<int> getColumnIndices(vector<ClauseArgument> args);
+	vector<int> getColumnIndices(const vector<ClauseArgument>& args);
 
 	/* Method for performing inner join (have common synonyms) */
-	ClauseResult performInnerJoin(ClauseResult otherResult, vector<ClauseArgument> connectingArgs);
+	ClauseResult performInnerJoin(ClauseResult otherResult, const vector<ClauseArgument>& connectingArgs);
 
 	/* Method for performing cross product (no common synonyms) */
-	ClauseResult performCrossProduct(ClauseResult otherResult);
+	ClauseResult performCrossProduct(const ClauseResult& otherResult);
 
 	/* Method for adding argument to table */
-	void addArgumentToTable(ClauseArgument argumentToAdd) {
+	void addArgumentToTable(const ClauseArgument& argumentToAdd) {
 		this->args.push_back(argumentToAdd);
+		this->argumentToIndexMap.insert({argumentToAdd, static_cast<int>(this->args.size()) - 1});
 	}
 
 	/* Method for adding row to table */
-	void addRowToTable(Row rowToAdd) {
+	void addRowToTable(const Row& rowToAdd) {
 		this->table.push_back(rowToAdd);
 	}
 
 	/* Method for checking if column can be added */
-	bool canAddColumn(ClauseResult result) {
+	bool canAddColumnToTable(const ClauseResult& result) {
 		return this->table.size() == result.table.size();
 	}
 
 	/* Adds a column to the table */
-	void addColumn(ClauseResult resultToAdd);
+	void addColumnToTable(ClauseResult resultToAdd);
 
 	/* Get column from table by index */
-	ClauseResult getColumn(int index);
+	ClauseResult getColumnFromTable(int index);
 
 	/* Duplicates an existing column of this ClauseResult with the header changed to newColumnHeader. */
-	void duplicateExistingColumnAs(ClauseArgument headerOfColumnToDuplicate, ClauseArgument newColumnHeader);
+	void duplicateExistingColumnAs(const ClauseArgument& headerOfColumnToDuplicate, const ClauseArgument& newColumnHeader);
 
 	/* Renames columns currently named oldName to newName */
-	void renameColumns(ClauseArgument oldName, ClauseArgument newName);
+	void renameColumns(const ClauseArgument& oldName, const ClauseArgument& newName);
 
 	/* Converts a column of synonyms to their corresponding attributes given a select result */
 	ClauseResult convertSynonymsColumnToAttributesColumn(ClauseResult selectResult);
@@ -75,34 +78,46 @@ public:
 
 	ClauseResult() {};
 
-	ClauseResult(vector<ClauseArgument> args, vector<vector<PQLEntity>> table) : args(args), table(table) {};
+	ClauseResult(const ClauseResult& result) : args(result.args), table(result.table), argumentToIndexMap(result.argumentToIndexMap) {};
 
-	ClauseResult(vector<ClauseArgument> args, vector<PQLEntity> entities) : args(args) {
-		for (PQLEntity entity : entities) {
-			table.push_back(Row{entity});
+	ClauseResult(vector<ClauseArgument> args, vector<vector<PQLEntity>> table) : args(args), table(table) {
+		for (int i = 0; i < args.size(); i++) {
+			this->argumentToIndexMap.insert({args[i], i});
 		}
 	};
 
-	ClauseResult(vector<ClauseArgument> args, vector<PQLRelationship> relationships) : args(args) {
+	ClauseResult(vector<ClauseArgument> args, const vector<PQLEntity>& entities) : args(args) {
+		for (const PQLEntity& entity : entities) {
+			table.push_back(Row{entity});
+		}
+		for (int i = 0; i < args.size(); i++) {
+			this->argumentToIndexMap.insert({args[i], i});
+		}
+	};
+
+	ClauseResult(vector<ClauseArgument> args, const vector<PQLRelationship>& relationships) : args(args) {
 		for (PQLRelationship relationship : relationships) {
 			table.push_back(Row{relationship.getFirstEntity(), relationship.getSecondEntity()});
+		}
+		for (int i = 0; i < args.size(); i++) {
+			this->argumentToIndexMap.insert({args[i], i});
 		}
 	};
 
 	/* ================ Public methods ================ */
 
 	/* Merges another ClauseResult */
-	ClauseResult mergeResult(ClauseResult resultToMerge);
+	ClauseResult mergeResult(const ClauseResult& resultToMerge);
 
 	/* Merges this ClauseResult with another ClauseResult by performing an inner join on the given join columns.
 		Keeps both join columns. */
-	ClauseResult mergeByForceInnerJoin(ClauseResult resultToMerge, ClauseArgument leftOn, ClauseArgument rightOn);
+	ClauseResult mergeByForceInnerJoin(ClauseResult resultToMerge, const ClauseArgument& leftOn, const ClauseArgument& rightOn);
 
 	/* Checks if any of the given args are in the table */
-	bool checkSelectArgsInTable(vector<ClauseResult> selectResults);
+	bool checkSelectArgsInTable(const vector<ClauseResult>& selectResults);
 
 	/* Gets table rearranged based on args from select results */
-	ClauseResult rearrangeTableToMatchSelectResults(vector<ClauseResult> selectResults);
+	ClauseResult rearrangeTableToMatchSelectResults(const vector<ClauseResult>& selectResults);
 
 	/* Duplicates an existing column and adds it to the table */
 	void duplicateColumn(ClauseResult column);
@@ -115,11 +130,11 @@ public:
 		return this->table.empty();
 	}
 
-	bool isResultWithAttribute() {
-		if (this->args.size() != 2) {
-			return false;
-		}
-		return this->args[1].isAttributeName();
+	vector<ClauseArgument> getSynonymArgs() {
+		vector<ClauseArgument> result;
+		copy_if(this->args.begin(), this->args.end(), back_inserter(result),
+				[](ClauseArgument arg) {return arg.isSynonym();});
+		return result;
 	}
 
 	virtual bool equals(shared_ptr<ClauseResult> other);

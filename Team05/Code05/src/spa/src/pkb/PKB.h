@@ -56,9 +56,9 @@ public:
 	void addEntities(vector<Entity> entities) override;
 
 	/*
-		Add the control flow graph from the SP.
+		Add the control flow graphs from the SP.
 	*/
-	void addCfg(shared_ptr<CFGNode> rootNode) override;
+	void addCfgs(vector<shared_ptr<CFGNode>> rootNodes) override;
 
 	// ============================== Retrieve handler API ==============================
 
@@ -133,7 +133,10 @@ public:
     */
 	vector<PQLPattern> retrievePatterns(PKBTrackedStatementType statementType, ClauseArgument lhs, ClauseArgument rhs) override;
 
-
+	// ============================== State management ==============================
+	void resetCache() {
+		this->repository->resetCache();
+	}
 };
 
 

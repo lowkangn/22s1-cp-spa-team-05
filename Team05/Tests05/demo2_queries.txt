@@ -1,0 +1,20 @@
+1 - Fixed bug from milestone 1
+assign a;
+Select a such that Follows(a,a)
+none
+5000
+2 - 1 non-empty group
+if i; while w; assign a; variable v; read r;
+Select r such that Follows(i, a) pattern a(v, _"0"_ )  such that Parent(i, r) such that Modifies("main", v)
+4, 5
+5000
+3 - 2 non-empty groups
+if i; while w; assign a, a1; variable v, v1;
+Select v1  such that Uses("main", v1) pattern a1(v1, _"0+b"_ ) such that Parent(w, a) pattern a("y", "x")
+none
+5000
+4 - 1 non-empty group, 1 empty group
+if i, i1; assign a, a1; variable v, v1;
+Select v1 pattern a1(v1, _"1000 - 0"_ )  such that Parent(i1, a) pattern a("y", "x") such that Uses(i, v1)
+none
+5000

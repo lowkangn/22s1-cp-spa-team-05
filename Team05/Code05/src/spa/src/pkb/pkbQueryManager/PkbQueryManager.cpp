@@ -1,5 +1,6 @@
 #include <pkb/pkbQueryManager/PkbQueryManager.h>
 
+// ==================== Private methods ====================
 
 /*
 	Converts an internal pkb pattern to a pql pattern used in the qps.
@@ -142,7 +143,6 @@ vector<PQLRelationship> PkbQueryManager::retrieveRelationshipsByType(PKBTrackedR
 	// graph types
 	case PKBTrackedRelationshipType::AFFECTS:
 	case PKBTrackedRelationshipType::AFFECTSSTAR:
-		throw PkbException("Not implemented!");
 	case PKBTrackedRelationshipType::NEXTSTAR:
 		getFromTable = false;
 		break;
