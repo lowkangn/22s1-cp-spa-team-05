@@ -158,7 +158,7 @@ TEST_CASE("AffectsClause: test execute") {
 
 	// ------ SP ------ 
 	string programString = "procedure main {\n   x = 0;\n   i = 5;\n   while (i != 0) {\n   \tx = x + 2 * y;\n   \tcall test;\n   \ti = i - 1;\n   }\n   if (x == 1) then {\n   \tx = x + 1;\n   } else {\n   \tz = 1;\n   }\n   z = z + x + i;\n   read z;\n   x = x * y + z;\n   }\n\nprocedure test {\n   y = x;\n   x = 5;\n   print y;\n   }\n";
-	//string programString = "procedure main {\n read x;\n y = x;\n y = y / 3;\n }\n\n procedure test {\n y = 1;\n }\n"; 
+	// string programString = "procedure main {\n read x;\n y = x;\n y = y / 3;\n }\n\n procedure test {\n y = 1;\n z = y;\n }\n"; 
 	stringstream stream(programString);
 	SourceProcessor sp(stream);
 

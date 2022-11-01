@@ -330,7 +330,7 @@ none
 5000
 67 - Next* - as a boolean (true)
 constant c;
-Select c such that Next*(1, 14)
+Select c such that Next*(17, 16)
 1, 2, 0, 10, 3
 5000
 68 - Next* - as a boolean (false)
