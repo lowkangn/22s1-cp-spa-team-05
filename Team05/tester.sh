@@ -58,7 +58,7 @@ do
     ${path_to_autotester} ${iteration1}${invalid_q_path}invalid$i\_source.txt ${iteration1}${invalid_q_path}invalid$i\_queries.txt ${iteration1_output_folder}invalidQueryOut$i.xml
 done
 
-for i in Calls With
+for i in Calls With Affects
 do	
     ${path_to_autotester} ${iteration2}${invalid_q_path}invalid$i\_source.txt ${iteration2}${invalid_q_path}invalid$i\_queries.txt ${iteration2_output_folder}invalidQueryOut$i.xml
 done
