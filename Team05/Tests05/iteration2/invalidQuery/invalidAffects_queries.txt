@@ -20,7 +20,7 @@ SemanticError
 5000
 5 - variable as second arg (synonym)
 assign a; variable v;
-Select a such that Affects(a, v)
+Select a such that Affects*(a, v)
 SemanticError
 5000
 6 - string literal as second arg
@@ -28,82 +28,32 @@ assign a;
 Select a such that Affects(a, "x")
 SyntaxError
 5000
-7 - read as second arg (synonym)
-assign a; read r;
-Select a such that Affects*(a, r)
-SemanticError
-5000
-8 - if as second arg (synonym)
-assign a; if i;
-Select a such that Affects*(a, i)
-SemanticError
-5000
-9 - while as second arg (synonym)
-assign a; while w;
-Select a such that Affects*(a, w)
-SemanticError
-5000
-10 - print as second arg (synonym)
-assign a; print p;
-Select a such that Affects*(a, p)
-SemanticError
-5000
-11 - call as second arg (synonym)
-assign a; call c;
-Select a such that Affects*(a, c)
-SemanticError
-5000
-12 - constant as first arg
+7 - constant as first arg
 assign a; constant c;
 Select a such that Affects(c, a)
 SemanticError
 5000
-13 - variable as first arg (synonym)
+8 - variable as first arg (synonym)
 assign a; variable v;
-Select a such that Affects(v, a)
+Select a such that Affects*(v, a)
 SemanticError
 5000
-14 - string literal as first arg
+9 - string literal as first arg
 assign a;
 Select a such that Affects("x", a)
 SyntaxError
 5000
-15 - read as first arg (synonym)
-assign a; read r;
-Select a such that Affects*(r, a)
-SemanticError
-5000
-16 - if as first arg (synonym)
-assign a; if i;
-Select a such that Affects*(i, a)
-SemanticError
-5000
-17 - while as first arg (synonym)
-assign a; while w;
-Select a such that Affects*(w, a)
-SemanticError
-5000
-18 - print as first arg (synonym)
-assign a; print p;
-Select a such that Affects*(p, a)
-SemanticError
-5000
-19 - call as first arg (synonym)
-assign a; call c;
-Select a such that Affects*(c, a)
-SemanticError
-5000
-20 - unmatched bracket
+10 - unmatched bracket
 assign a, q;
 Select a such that Affects(a, q
 SyntaxError
 5000
-21 - missing brackets
+11 - missing brackets
 assign a, q;
 Select a such that Affects a, q
 SyntaxError
 5000
-22 - extra semicolon
+12 - extra semicolon
 assign a, q;
 Select a such that Affects(a, q);
 SyntaxError
