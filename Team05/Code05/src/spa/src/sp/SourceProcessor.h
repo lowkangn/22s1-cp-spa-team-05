@@ -38,8 +38,8 @@ private:
 			shared_ptr<Extractor<Relationship>>(new FollowsAndFollowsTExtractor()),
 			shared_ptr<Extractor<Relationship>>(new ParentExtractor()),
 			shared_ptr<Extractor<Relationship>>(new ParentTExtractor()),
-			shared_ptr<Extractor<Relationship>>(new ModifiesExtractor()),
-			shared_ptr<Extractor<Relationship>>(new UsesExtractor()),
+			shared_ptr<Extractor<Relationship>>(new ModifiesExtractor(false)),
+			shared_ptr<Extractor<Relationship>>(new UsesExtractor(false)),
 			shared_ptr<Extractor<Relationship>>(new CallsAndCallsTExtractor())
 		}
 	};
