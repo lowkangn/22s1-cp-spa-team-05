@@ -182,7 +182,7 @@ public:
 		Constructor that sets call cycle checking to true by default
 		Can set to false to speed up testing, but only for valid non-cyclical programs
 	*/
-	ModifiesExtractor(bool willCheckCallCycles = 1) : checkCallCycleFlag(willCheckCallCycles) { }
+	ModifiesExtractor(bool willCheckCallCycles = true) : checkCallCycleFlag(willCheckCallCycles) { }
 
 	/*
 		This method is used to extract relationships from a provided abstract syntax tree. It is meant to be
