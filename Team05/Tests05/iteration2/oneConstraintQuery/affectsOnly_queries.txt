@@ -1,5 +1,15 @@
 1 - Affects - select statements that directly affect 3 (non-assign statement)
 stmt s;
-Select s such that Affects(1, 2)
+Select s such that Affects(s, 3)
 none
+5000
+2 - Affects - select statements directly affected by 2
+stmt s;
+Select s such that Affects(2, s)
+10, 14
+5000
+3 - Affects - select statements directly affected by other statements
+stmt s, s1;
+Select s such that Affects(s1, s)
+4, 9, 10, 12, 14, 16, 19, 22, 23, 24, 25, 26, 27, 28, 29
 5000

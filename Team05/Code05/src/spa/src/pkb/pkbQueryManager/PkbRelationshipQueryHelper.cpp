@@ -342,7 +342,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 			}
 			
 			// 0.2 if synonym is not assign, empty	
-			if (!rhs.isWildcard() && !rhs.isAssignSynonym() &&!rhs.isStmtSynonym()) {
+			if (!rhs.isWildcard() && !rhs.isAssignSynonym() && !rhs.isStmtSynonym()) {
 				return out;
 			}
 																		
@@ -403,17 +403,24 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 
 		}
 		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) { // case 4: non exact, non exact
-			// 0. check if lhs and rhs should refer to the same
+			// 0.check if lhs and rhs are not wildcards, assigns or stmts
+			if (!lhs.isWildcard() && !lhs.isAssignSynonym() && !lhs.isStmtSynonym()
+				|| !rhs.isWildcard() && !rhs.isAssignSynonym() && !rhs.isStmtSynonym()) {
+				return out;
+			}
+
+			// 1. check if lhs and rhs should refer to the same
 			bool lhsRhsSame = false;
-			if ((lhs.isAssignSynonym() || lhs.isStmtSynonym()) 
-				&& (rhs.isAssignSynonym() || rhs.isStmtSynonym())) {
+			if (!lhs.isWildcard() && !rhs.isWildcard()) {
 				lhsRhsSame = (lhs == rhs);
 			}
+
 			
-			// 1. find all assign
+			
+			// 2. find all assign
 			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 
-			// 2. for all pairs (diagonal matrix), check and append
+			// 3. for all pairs (diagonal matrix), check and append
 			// O(n2) enumeration
 			for (shared_ptr<PkbEntity> statement1 : statements) {
 				// cast

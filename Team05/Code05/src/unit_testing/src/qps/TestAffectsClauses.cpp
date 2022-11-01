@@ -184,6 +184,9 @@ namespace {
 	ClauseArgument secondStmtArg = ClauseArgument::createStmtArg("s2");
 	ClauseArgument assignArg = ClauseArgument::createAssignArg("a");
 	ClauseArgument secondAssignArg = ClauseArgument::createAssignArg("a1");
+	ClauseArgument readArg = ClauseArgument::createReadArg("r");
+	ClauseArgument ifArg = ClauseArgument::createIfArg("i");
+	ClauseArgument printArg = ClauseArgument::createPrintArg("pp");
 
 	ClauseArgument lineOneArg = ClauseArgument::createLineNumberArg("1");
 	ClauseArgument lineThreeArg = ClauseArgument::createLineNumberArg("1");
@@ -261,6 +264,22 @@ TEST_CASE("AffectsClause: test execute") {
 		clause = AffectsClause(firstStmtArg, firstStmtArg);
 		expectedRetrievedFromPkb = { pqlAffectsA6A6, pqlAffectsA16A16, pqlAffectsA17A17 };
 		expectedClauseResult = RelationshipClauseResult(firstStmtArg, firstStmtArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Other stmtRef synonyms - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = AffectsClause(assignArg, readArg);
+		expectedClauseResult = RelationshipClauseResult(assignArg, readArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsClause(ifArg, assignArg);
+		expectedClauseResult = RelationshipClauseResult(ifArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsClause(firstStmtArg, printArg);
+		expectedClauseResult = RelationshipClauseResult(firstStmtArg, printArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
@@ -379,6 +398,22 @@ TEST_CASE("AffectsTClause: test execute") {
 		clause = AffectsTClause(firstStmtArg, firstStmtArg);
 		expectedRetrievedFromPkb = { pqlAffectsA6A6, pqlAffectsA16A16, pqlAffectsA17A17 };
 		expectedClauseResult = RelationshipClauseResult(firstStmtArg, firstStmtArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+	}
+
+	SECTION("Other stmtRef synonyms - empty results") {
+		expectedRetrievedFromPkb = {};
+
+		clause = AffectsTClause(assignArg, readArg);
+		expectedClauseResult = RelationshipClauseResult(assignArg, readArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsTClause(ifArg, assignArg);
+		expectedClauseResult = RelationshipClauseResult(ifArg, assignArg, expectedRetrievedFromPkb);
+		testExecute(clause, expectedClauseResult, pkb);
+
+		clause = AffectsTClause(firstStmtArg, printArg);
+		expectedClauseResult = RelationshipClauseResult(firstStmtArg, printArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
 	}
 
