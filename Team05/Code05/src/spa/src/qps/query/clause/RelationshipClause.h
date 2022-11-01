@@ -18,4 +18,9 @@ public:
 	virtual shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) = 0;
 
 	virtual bool equals(shared_ptr<RelationshipClause> other) = 0;
+
+    virtual bool requiresCfg() {
+        return false;
+    }
+
 };

@@ -16,15 +16,19 @@ private:
     list<shared_ptr<RelationshipClause>> suchThatClauses;
 	list<shared_ptr<PatternClause>> patternClauses;
 	list<shared_ptr<WithClause>> withClauses;
+
+    bool hasStartedExecution;
+    bool emptyResultFound;
+
     
-    template <class T>
-	bool areClausesAllEqual(list<shared_ptr<T>> firstClauseList, list<shared_ptr<T>> secondClauseList) {
+    template <class ClauseType>
+	bool areClausesAllEqual(list<shared_ptr<ClauseType>> firstClauseList, list<shared_ptr<ClauseType>> secondClauseList) {
 		if (firstClauseList.size() != secondClauseList.size()) {
 			return false;
 		}
 
-		typename list<shared_ptr<T>>::iterator firstIter = firstClauseList.begin();
-		typename list<shared_ptr<T>>::iterator secondIter = secondClauseList.begin();
+		typename list<shared_ptr<ClauseType>>::iterator firstIter = firstClauseList.begin();
+		typename list<shared_ptr<ClauseType>>::iterator secondIter = secondClauseList.begin();
 
 		bool isClauseEqual;
 		while (firstIter != firstClauseList.end()) {
@@ -38,6 +42,13 @@ private:
 		return true;
 	}
 
+    template <class ClauseType, class ResultType>
+    void executeClauses(list<shared_ptr<ClauseType>>& clauses, list<shared_ptr<ResultType>>& results, shared_ptr<PKBQueryHandler> pkb);
+
+    bool canEarlyStop(shared_ptr<ClauseResult> clauseResult) {
+        return clauseResult->isEmpty();
+    }
+
 public:
 
     /* Instantiates a Query object containing the clauses. */
@@ -49,6 +60,8 @@ public:
         suchThatClauses = relationships;
 		patternClauses = patterns;
 		withClauses = withs;
+        hasStartedExecution = false;
+        emptyResultFound = false;
     }
 
     /* Returns the results obtained from the query's SelectClause. */
@@ -63,6 +76,10 @@ public:
 	/* Checks if the requested return type is BOOLEAN */
 	bool checkIfBooleanReturnType() {
 		return selectClause->checkIfBooleanReturnType();
+	}
+
+    bool hasFoundEmptyResult() {
+        return this->hasStartedExecution && this->emptyResultFound;
 	}
 
 	friend bool operator==(Query first, Query second);

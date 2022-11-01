@@ -6,25 +6,30 @@ list<shared_ptr<ClauseResult>> Query::executeSelect(shared_ptr<PKBQueryHandler> 
 
 list<shared_ptr<RelationshipClauseResult>> Query::executeSuchThatAndPattern(shared_ptr<PKBQueryHandler> pkb) {
 	list<shared_ptr<RelationshipClauseResult>> relationships;
-	list<shared_ptr<RelationshipClause>>::iterator suchThatIter = suchThatClauses.begin();
-	for (; suchThatIter != suchThatClauses.end(); suchThatIter++) {
-		relationships.push_back((*suchThatIter)->execute(pkb));
-	}
-	list<shared_ptr<PatternClause>>::iterator patternIter = patternClauses.begin();
-	for (; patternIter != patternClauses.end(); patternIter++) {
-		relationships.push_back((*patternIter)->execute(pkb));
-	}
+    this->executeClauses<PatternClause, RelationshipClauseResult>(this->patternClauses, relationships, pkb);
+    this->executeClauses<RelationshipClause, RelationshipClauseResult>(this->suchThatClauses, relationships, pkb);
 	return relationships;
 }
 
 list<shared_ptr<ClauseResult>> Query::executeWith(shared_ptr<PKBQueryHandler> pkb) {
 	list<shared_ptr<ClauseResult>> withResults;
-	list<shared_ptr<WithClause>>::iterator withIter = withClauses.begin();
-	for (; withIter != withClauses.end(); withIter++) {
-		withResults.push_back((*withIter)->execute(pkb));
-	}
+    this->executeClauses<WithClause, ClauseResult>(this->withClauses, withResults, pkb);
 	return withResults;
 }
+
+template <class ClauseType, class ResultType>
+void Query::executeClauses(list<shared_ptr<ClauseType>>& clauses, list<shared_ptr<ResultType>>& results, shared_ptr<PKBQueryHandler> pkb) {
+    list<shared_ptr<ClauseType>>::iterator clauseIter = clauses.begin();
+
+    for (; clauseIter != clauses.end(); clauseIter++) {
+        shared_ptr<ResultType> result = (*clauseIter)->execute(pkb);
+        results.push_back(result);
+        //if (canEarlyStop(result)) {
+          //  return;
+        //}
+    }
+}
+
 
 bool operator==(Query first, Query second) {
 	shared_ptr<SelectClause> firstClause = first.selectClause;
