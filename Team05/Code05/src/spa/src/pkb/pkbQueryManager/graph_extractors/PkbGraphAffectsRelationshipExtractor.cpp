@@ -35,7 +35,8 @@ bool PkbGraphAffectsRelationshipExtractor::hasAffectsRelationship(shared_ptr<Pkb
 		if (castedNeighbour->getAsEntity() == endNode->getAsEntity()) {
 			return true;
 		}
-		else { // 3b. if not target, check and remove all candidates it modifies
+		else if (!castedNeighbour->isWhileStatementNode() && !castedNeighbour->isIfStatementNode())
+		{ // 3b. if not target, check and remove all candidates it modifies
 			// early terminate if possible
 			// search modifies
 			ClauseArgument nodeAsLhs = ClauseArgument::createLineNumberArg(to_string(castedNeighbour->getStatementLineNumber()));

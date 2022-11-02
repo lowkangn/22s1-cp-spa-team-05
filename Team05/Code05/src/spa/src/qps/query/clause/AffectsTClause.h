@@ -2,9 +2,9 @@
 
 #include <qps/query/clause/RelationshipClause.h>
 
-class NextTClause : public RelationshipClause {
+class AffectsTClause : public RelationshipClause {
 public:
-    NextTClause(ClauseArgument lhs, ClauseArgument rhs)
+    AffectsTClause(ClauseArgument lhs, ClauseArgument rhs)
         : RelationshipClause(lhs, rhs) {};
 
     shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) override;
