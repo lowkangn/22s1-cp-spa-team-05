@@ -1,10 +1,13 @@
 #include <qps/query/clause/AffectsClause.h>
 
-shared_ptr<RelationshipClauseResult> AffectsClause::execute(shared_ptr<PKBQueryHandler> pkb) {
-	vector<PQLRelationship> relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(
-		PKBTrackedRelationshipType::AFFECTS, this->lhs, this->rhs);
-	return shared_ptr<RelationshipClauseResult>(
-		new RelationshipClauseResult(this->lhs, this->rhs, relationships));
+#include <query_evaluator/CfgClauseOptimiser.h>
+
+PKBTrackedRelationshipType AffectsClause::getPkbTrackedRelationshipType() {
+    return PKBTrackedRelationshipType::AFFECTS;
+}
+
+void AffectsClause::acceptClauseOptimiser(CfgClauseOptimiser* optimiser) {
+    optimiser->visitAffectsClause(this->lhs, this->rhs, shared_ptr<AffectsClause>(this));
 }
 
 bool AffectsClause::equals(shared_ptr<RelationshipClause> other) {

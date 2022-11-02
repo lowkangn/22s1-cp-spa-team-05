@@ -311,6 +311,15 @@ void ClauseResult::duplicateColumn(ClauseResult column) {
 	this->addColumnToTable(duplicatedColumn);
 }
 
+unordered_set<PQLEntity> ClauseResult::getEntitySet(const ClauseArgument& arg) {
+    unordered_set<PQLEntity> column;
+    int columnIndex = this->argumentToIndexMap.at(arg);
+    for (vector<PQLEntity> row : this->table) {
+        column.insert(row[columnIndex]);
+    }
+    return column;
+}
+
 set<string> ClauseResult::convertTableToString(bool isBooleanReturnType) {
 	set<string> entityStringsToReturn;
 

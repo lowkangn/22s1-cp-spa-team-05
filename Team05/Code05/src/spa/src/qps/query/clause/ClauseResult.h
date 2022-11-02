@@ -122,6 +122,9 @@ public:
 	/* Duplicates an existing column and adds it to the table */
 	void duplicateColumn(ClauseResult column);
 
+    /* Returns the entities tied to a column */
+    unordered_set<PQLEntity> getEntitySet(const ClauseArgument& arg);
+
 	/* Convert table to set of strings (output) */
 	set<string> convertTableToString(bool isBooleanReturnType);
 

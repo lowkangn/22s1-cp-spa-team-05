@@ -1,10 +1,12 @@
 #include <qps/query/clause/NextTClause.h>
+#include <qps/query_evaluator/CfgClauseOptimiser.h>
 
-shared_ptr<RelationshipClauseResult> NextTClause::execute(shared_ptr<PKBQueryHandler> pkb) {
-	vector<PQLRelationship> relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(
-		PKBTrackedRelationshipType::NEXTSTAR, this->lhs, this->rhs);
-	return shared_ptr<RelationshipClauseResult>(
-		new RelationshipClauseResult(this->lhs, this->rhs, relationships));
+PKBTrackedRelationshipType NextTClause::getPkbTrackedRelationshipType() {
+    return PKBTrackedRelationshipType::NEXTSTAR;
+}
+
+void NextTClause::acceptClauseOptimiser(CfgClauseOptimiser* optimiser) {
+    optimiser->visitNextTClause(this->lhs, this->rhs, shared_ptr<NextTClause>(this));
 }
 
 bool NextTClause::equals(shared_ptr <RelationshipClause> other) {

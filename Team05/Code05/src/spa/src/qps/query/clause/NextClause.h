@@ -4,11 +4,12 @@
 
 class NextClause : public CfgRelationshipClause {
 protected:
-    PKBTrackedRelationshipType NextClause::getPkbTrackedRelationshipType() override;
+    PKBTrackedRelationshipType getPkbTrackedRelationshipType() override;
 public:
     NextClause(ClauseArgument lhs, ClauseArgument rhs)
         : CfgRelationshipClause(lhs, rhs) {}
 
+    void acceptClauseOptimiser(CfgClauseOptimiser* optimiser) override;
+
     bool equals(shared_ptr<RelationshipClause> other) override;
-    
 };

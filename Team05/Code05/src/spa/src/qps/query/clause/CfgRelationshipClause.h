@@ -9,6 +9,8 @@
 
 using namespace std;
 
+class CfgClauseOptimiser;
+
 class CfgRelationshipClause : public RelationshipClause {
 protected:
     unordered_set<PQLEntity> lhsEntities;
@@ -48,4 +50,6 @@ public:
     bool requiresCfg() override {
         return true;
     }
+
+    virtual void acceptClauseOptimiser(CfgClauseOptimiser* optimiser) = 0;
 };

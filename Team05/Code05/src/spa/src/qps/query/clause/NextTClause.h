@@ -1,17 +1,15 @@
 #pragma once
 
-#include <qps/query/clause/RelationshipClause.h>
+#include <qps/query/clause/CfgRelationshipClause.h>
 
-class NextTClause : public RelationshipClause {
+class NextTClause : public CfgRelationshipClause {
+protected:
+    PKBTrackedRelationshipType getPkbTrackedRelationshipType() override;
 public:
     NextTClause(ClauseArgument lhs, ClauseArgument rhs)
-        : RelationshipClause(lhs, rhs) {};
+        : CfgRelationshipClause(lhs, rhs) {};
 
-    shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) override;
+    void acceptClauseOptimiser(CfgClauseOptimiser* optimiser) override;
 
     bool equals(shared_ptr<RelationshipClause> other) override;
-
-    bool requiresCfg() override {
-        return true;
-    }
 };

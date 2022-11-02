@@ -1,4 +1,5 @@
 #include <qps/query/Query.h>
+#include <qps/query_evaluator/CfgClauseOptimiser.h>
 
 list<shared_ptr<ClauseResult>> Query::executeSelect(shared_ptr<PKBQueryHandler> pkb) {
     if (this->hasFoundEmptyResult()) {
@@ -27,7 +28,7 @@ list<shared_ptr<RelationshipClauseResult>> Query::executeLateClauses(shared_ptr<
         //empty result was found earlier, there is no need to execute the rest
         return {};
     }
-    list<shared_ptr<RelationshipClause>>::iterator clauseIter = this->lateClauses.begin();
+    vector<shared_ptr<CfgRelationshipClause>>::iterator clauseIter = this->lateClauses.begin();
     for (; clauseIter != this->lateClauses.end(); clauseIter++) {
         shared_ptr<RelationshipClauseResult>& result = (*clauseIter)->execute(pkb);
         lateRelationships.push_back(result);
@@ -38,6 +39,13 @@ list<shared_ptr<RelationshipClauseResult>> Query::executeLateClauses(shared_ptr<
     }
     return lateRelationships;
 }
+
+void Query::enableClauseOptimiserVisit(CfgClauseOptimiser* optimiser) {
+    for (shared_ptr<CfgRelationshipClause>& clause : this->lateClauses) {
+        clause->acceptClauseOptimiser(optimiser);
+    }
+}
+
 
 template <class ClauseType, class ResultType>
 void Query::executeClauses(list<shared_ptr<ClauseType>>& clauses, list<shared_ptr<ResultType>>& results, shared_ptr<PKBQueryHandler> pkb) {
@@ -58,6 +66,9 @@ void Query::executeClauses(list<shared_ptr<ClauseType>>& clauses, list<shared_pt
     }
 }
 
+void Query::sortOptimisableClauses(ClauseWeightComparator& compare){
+    sort(this->lateClauses.begin(), this->lateClauses.end(), compare);
+}
 
 bool operator==(Query first, Query second) {
 	shared_ptr<SelectClause> firstClause = first.selectClause;

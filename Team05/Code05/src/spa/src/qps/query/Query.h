@@ -6,9 +6,13 @@
 #include <qps/query/clause/RelationshipClause.h>
 #include <qps/query/clause/PatternClause.h>
 #include <qps/query/clause/WithClause.h>
+#include <qps/query/clause/CfgRelationshipClause.h>
 #include <pkb/PKB.h>
 
 using namespace std;
+
+class CfgClauseOptimiser;
+struct ClauseWeightComparator;
 
 class Query {
 private:
@@ -16,7 +20,7 @@ private:
     list<shared_ptr<RelationshipClause>> earlySuchThatClauses;
 	list<shared_ptr<PatternClause>> patternClauses;
 	list<shared_ptr<WithClause>> withClauses;
-    list<shared_ptr<RelationshipClause>> lateClauses;
+    vector<shared_ptr<CfgRelationshipClause>> lateClauses;
 
     /* True iff a constraint clause has been executed */
     bool hasStartedConstraintExecution;
@@ -72,7 +76,8 @@ public:
                 break;
             } else {
                 //requires cfg and is possibly non-empty
-                this->lateClauses.emplace_back(suchThatClause);
+                this->lateClauses.emplace_back(
+                    static_pointer_cast<CfgRelationshipClause>(suchThatClause));
             }
         }
     }
@@ -88,6 +93,10 @@ public:
 
 	/* Returns the results obtained from the query's With clauses. */
 	list<shared_ptr<ClauseResult>> executeWith(shared_ptr<PKBQueryHandler> pkb);
+
+    void sortOptimisableClauses(ClauseWeightComparator& compare);
+
+    void enableClauseOptimiserVisit(CfgClauseOptimiser* optimiser);
 
 	/* Checks if the requested return type is BOOLEAN */
 	bool checkIfBooleanReturnType() {

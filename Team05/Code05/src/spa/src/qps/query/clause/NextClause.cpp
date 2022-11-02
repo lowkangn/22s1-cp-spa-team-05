@@ -1,7 +1,12 @@
 #include <qps/query/clause/NextClause.h>
+#include <qps/query_evaluator/CfgClauseOptimiser.h>
 
 PKBTrackedRelationshipType NextClause::getPkbTrackedRelationshipType() {
     return PKBTrackedRelationshipType::NEXT;
+}
+
+void NextClause::acceptClauseOptimiser(CfgClauseOptimiser* optimiser) {
+    optimiser->visitNextClause(this->lhs, this->rhs, shared_ptr<NextClause>(this));
 }
 
 bool NextClause::equals(shared_ptr<RelationshipClause> other) {
