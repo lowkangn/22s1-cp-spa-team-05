@@ -126,11 +126,11 @@ public:
 	set<string> convertTableToString(bool isBooleanReturnType);
 
 	/* Checks if result table is empty */
-	bool isEmpty() {
+	[[nodiscard]] bool isEmpty() const {
 		return this->table.empty();
 	}
 
-	vector<ClauseArgument> getSynonymArgs() {
+	[[nodiscard]] vector<ClauseArgument> getSynonymArgs()  const {
 		vector<ClauseArgument> result;
 		copy_if(this->args.begin(), this->args.end(), back_inserter(result),
 				[](ClauseArgument arg) {return arg.isSynonym();});

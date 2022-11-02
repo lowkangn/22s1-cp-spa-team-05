@@ -19,7 +19,13 @@ public:
 
 	virtual bool equals(shared_ptr<RelationshipClause> other) = 0;
 
+    /* Returns true iff execution requires information on the control flow */
     virtual bool requiresCfg() {
+        return false;
+    }
+
+    /* Returns true iff execution always returns an empty ClauseResult */
+    virtual bool isAlwaysEmpty() {
         return false;
     }
 

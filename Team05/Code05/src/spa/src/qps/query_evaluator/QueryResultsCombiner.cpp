@@ -1,9 +1,9 @@
 #include <qps/query_evaluator/QueryResultsCombiner.h>
 
-ClauseResult QueryResultsCombiner::combineResults(vector<ClauseResult> results) {
+ClauseResult QueryResultsCombiner::combineResults(const vector<ClauseResult>& results) {
 	// Iterate and combine results
 	ClauseResult combinedResult;
-	for (vector<ClauseResult>::iterator resultIter = results.begin(); resultIter != results.end(); resultIter++) {
+	for (vector<ClauseResult>::const_iterator resultIter = results.begin(); resultIter != results.end(); ++resultIter) {
 		if (resultIter == results.begin()) {
 			combinedResult = *resultIter;
 		} else {
@@ -12,7 +12,7 @@ ClauseResult QueryResultsCombiner::combineResults(vector<ClauseResult> results) 
 		}
 	}
 
-	return {combinedResult};
+	return combinedResult;
 }
 
 ClauseResult QueryResultsCombiner::getDesiredSynonymsResult(ClauseResult combinedResult) {
@@ -41,7 +41,18 @@ ClauseResult QueryResultsCombiner::getSelectSynonymsCrossProductResult() {
 	return this->getDesiredSynonymsResult(combinedResult);
 }
 
-ClauseResult QueryResultsCombiner::combine() {
+vector<vector<ClauseResult>> QueryResultsCombiner::combineWithinGroupsOnly() {
+    vector<vector<ClauseResult>> out = { {}, {} };
+    for (const vector<ClauseResult>& resultsGroup : this->resultsWithoutSelectedArgs) {
+        out.front().emplace_back(this->combineResults(resultsGroup));
+    }
+    for (const vector<ClauseResult>& resultsGroup : this->resultsWithSelectedArgs) {
+        out.back().emplace_back(this->combineResults(resultsGroup));
+    }
+    return out;
+}
+
+ClauseResult QueryResultsCombiner::combineAll() {
 	// If no select results and no results without selected args, can treat as `Select BOOLEAN` so just return true
 	if (this->selectResults.empty() && this->resultsWithoutSelectedArgs.empty()) {
 		assert(this->resultsWithSelectedArgs.empty()); // For select BOOLEAN, no args are being selected

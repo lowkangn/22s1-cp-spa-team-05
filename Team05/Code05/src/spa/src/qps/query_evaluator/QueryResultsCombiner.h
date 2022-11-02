@@ -28,7 +28,7 @@ private:
 		return combinedResult;
 	}
 
-	ClauseResult combineResults(vector<ClauseResult> results);
+	ClauseResult combineResults(const vector<ClauseResult>& results);
 
 	ClauseResult getDesiredSynonymsResult(ClauseResult result);
 
@@ -42,5 +42,7 @@ public:
 		this->resultsWithoutSelectedArgs = optimisedConstraintResults.back();
 	}
 
-	ClauseResult combine();
+    vector<vector<ClauseResult>> combineWithinGroupsOnly();
+
+	ClauseResult combineAll();
 };

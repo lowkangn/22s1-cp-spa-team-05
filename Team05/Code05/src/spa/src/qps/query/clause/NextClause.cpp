@@ -1,10 +1,7 @@
 #include <qps/query/clause/NextClause.h>
 
-shared_ptr<RelationshipClauseResult> NextClause::execute(shared_ptr<PKBQueryHandler> pkb) {
-	vector<PQLRelationship> relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(
-		PKBTrackedRelationshipType::NEXT, this->lhs, this->rhs);
-	return shared_ptr<RelationshipClauseResult>(
-		new RelationshipClauseResult(this->lhs, this->rhs, relationships));
+PKBTrackedRelationshipType NextClause::getPkbTrackedRelationshipType() {
+    return PKBTrackedRelationshipType::NEXT;
 }
 
 bool NextClause::equals(shared_ptr<RelationshipClause> other) {

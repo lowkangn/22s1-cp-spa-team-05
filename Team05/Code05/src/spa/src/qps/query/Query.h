@@ -13,14 +13,17 @@ using namespace std;
 class Query {
 private:
     shared_ptr<SelectClause> selectClause;
-    list<shared_ptr<RelationshipClause>> suchThatClauses;
+    list<shared_ptr<RelationshipClause>> earlySuchThatClauses;
 	list<shared_ptr<PatternClause>> patternClauses;
 	list<shared_ptr<WithClause>> withClauses;
+    list<shared_ptr<RelationshipClause>> lateClauses;
 
-    bool hasStartedExecution;
+    /* True iff a constraint clause has been executed */
+    bool hasStartedConstraintExecution;
+
+    /* True iff an empty result has been found at some point in execution */
     bool emptyResultFound;
 
-    
     template <class ClauseType>
 	bool areClausesAllEqual(list<shared_ptr<ClauseType>> firstClauseList, list<shared_ptr<ClauseType>> secondClauseList) {
 		if (firstClauseList.size() != secondClauseList.size()) {
@@ -42,33 +45,46 @@ private:
 		return true;
 	}
 
+    /* Executes a list of clauses of type ClauseType that returns results of type ResultType */
     template <class ClauseType, class ResultType>
     void executeClauses(list<shared_ptr<ClauseType>>& clauses, list<shared_ptr<ResultType>>& results, shared_ptr<PKBQueryHandler> pkb);
-
-    bool canEarlyStop(shared_ptr<ClauseResult> clauseResult) {
-        return clauseResult->isEmpty();
-    }
 
 public:
 
     /* Instantiates a Query object containing the clauses. */
-    Query(shared_ptr<SelectClause> select, 
+    Query(shared_ptr<SelectClause> select,
         list<shared_ptr<RelationshipClause>> relationships,
-        list<shared_ptr<PatternClause>> patterns, 
-		list<shared_ptr<WithClause>> withs) {
+        list<shared_ptr<PatternClause>> patterns,
+        list<shared_ptr<WithClause>> withs) {
         selectClause = select;
-        suchThatClauses = relationships;
-		patternClauses = patterns;
-		withClauses = withs;
-        hasStartedExecution = false;
+        patternClauses = patterns;
+        withClauses = withs;
+        hasStartedConstraintExecution = false;
         emptyResultFound = false;
+
+        for (shared_ptr<RelationshipClause> suchThatClause : relationships) {
+            if (!suchThatClause->requiresCfg()) {
+                // does not require cfg
+                this->earlySuchThatClauses.emplace_back(suchThatClause);
+            } else if (suchThatClause->isAlwaysEmpty()) {
+                this->hasStartedConstraintExecution = true;
+                this->emptyResultFound = true;
+                break;
+            } else {
+                //requires cfg and is possibly non-empty
+                this->lateClauses.emplace_back(suchThatClause);
+            }
+        }
     }
 
     /* Returns the results obtained from the query's SelectClause. */
     list<shared_ptr<ClauseResult>> executeSelect(shared_ptr<PKBQueryHandler> pkb);
 
 	/* Returns the results obtained from the query's SuchThat and Pattern clauses. */
-	list<shared_ptr<RelationshipClauseResult>> executeSuchThatAndPattern(shared_ptr<PKBQueryHandler> pkb);
+	list<shared_ptr<RelationshipClauseResult>> executeEarlySuchThatAndPattern(shared_ptr<PKBQueryHandler> pkb);
+
+    /* Returns the results obtained from the clauses that are executed late. */
+    list<shared_ptr<RelationshipClauseResult>> executeLateClauses(shared_ptr<PKBQueryHandler> pkb);
 
 	/* Returns the results obtained from the query's With clauses. */
 	list<shared_ptr<ClauseResult>> executeWith(shared_ptr<PKBQueryHandler> pkb);
@@ -78,8 +94,12 @@ public:
 		return selectClause->checkIfBooleanReturnType();
 	}
 
+    bool hasLateExecutionClauses() {
+        return !this->lateClauses.empty();
+	}
+
     bool hasFoundEmptyResult() {
-        return this->hasStartedExecution && this->emptyResultFound;
+        return this->hasStartedConstraintExecution && this->emptyResultFound;
 	}
 
 	friend bool operator==(Query first, Query second);
