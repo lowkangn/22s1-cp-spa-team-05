@@ -218,7 +218,7 @@ assign a, aAfter;
 Select a such that Next*(a, aAfter)
 1, 4, 6, 7, 8, 9, 18
 5000
-45 - NextT - select whiles wtih an if some time after
+45 - NextT - select whiles with an if some time after
 while w; if i;
 Select w such that Next*(w, i)
 none
@@ -330,7 +330,7 @@ none
 5000
 67 - Next* - as a boolean (true)
 constant c;
-Select c such that Next*(1, 14)
+Select c such that Next*(17, 16)
 1, 2, 0, 10, 3
 5000
 68 - Next* - as a boolean (false)

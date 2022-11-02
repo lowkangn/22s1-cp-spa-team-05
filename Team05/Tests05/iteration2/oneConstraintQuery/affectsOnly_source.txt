@@ -1,0 +1,42 @@
+procedure main {
+	x = 0;
+	i = 5;
+	while (i != 0) {
+		x = x + 2 * y;
+		call test;
+		if (x > 100) then {
+			y = x;
+		} else {
+			x = z * 3 - 5;
+			y = x;
+		}
+		i = i - 1;
+	}
+	if (x == 1) then {
+		x = x + 1;
+	} else {
+		z = 1;
+	}
+	z = z + x + i;
+	read z;
+	x = x * y + z;
+}
+
+procedure test {
+	y = x / 2;
+	if (y < 5) then {
+		z = y;
+		print z;
+		while (y < 5) {
+			x = x - y;
+			y = y + 1;
+			z = x;
+		}
+		y = x + z;
+	} else {
+		x = y;
+	}
+	x = x + y;
+	v = y + 2;
+	y = v + x;
+}

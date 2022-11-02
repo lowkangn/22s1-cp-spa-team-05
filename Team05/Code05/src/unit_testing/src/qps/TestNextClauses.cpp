@@ -3,7 +3,6 @@
 #include <qps/query/clause/NextClause.h>
 #include <qps/query/clause/NextTClause.h>
 #include <pkb/pkbRepository/design_objects/relationships/PkbNextRelationship.h>
-#include <pkb/pkbRepository/design_objects/relationships/PkbNextStarRelationship.h>
 
 #include <sp/dataclasses/cfg/CFGNode.h>
 #include <sp/dataclasses/cfg/IfCFGNode.h>
