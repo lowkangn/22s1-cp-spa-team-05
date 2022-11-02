@@ -17,7 +17,7 @@ void CfgClauseOptimiser::doCommonVisitation(const ClauseArgument& lhs, const Cla
         weight += this->populateRestrictionMap(lhs);
         weight += this->populateRestrictionMap(rhs);
     }
-    this->clauseToWeightMap.insert({ make_shared<CfgRelationshipClause>(clause), weight });
+    this->clauseToWeightMap.insert({ shared_ptr<CfgRelationshipClause>(clause), weight });
 }
 
 int CfgClauseOptimiser::populateRestrictionMap(const ClauseArgument& arg) {

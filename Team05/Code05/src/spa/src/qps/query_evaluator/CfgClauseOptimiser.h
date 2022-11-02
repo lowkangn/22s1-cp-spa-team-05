@@ -35,7 +35,7 @@ public:
     CfgClauseOptimiser(Query& query, vector<vector<ClauseResult>>& nonCfgCombinedResults,
         unordered_map<ClauseArgument, pair<int, int>>& argToGroupIndexMap)
             : query(query), nonCfgCombinedResults(nonCfgCombinedResults),
-            argToGroupIndexMap(argToGroupIndexMap), restrictionMap({}) {}
+            argToGroupIndexMap(argToGroupIndexMap), restrictionMap(unordered_map<ClauseArgument, unordered_set<PQLEntity>>()) {}
 
     /* Optimises the execution of CfgClauses in query.
      * Returns the restrictions on each ClauseArgument present in CfgClauses.
