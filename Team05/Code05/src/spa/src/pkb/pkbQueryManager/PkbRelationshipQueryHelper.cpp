@@ -144,8 +144,13 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveNextStar
 		// if _ and exact, we do dfs starting from the root node.
 		// if _ and _, we do dfs from the root node and accumulate.
 		vector<shared_ptr<PkbRelationship>> out;
-		for (shared_ptr<PkbGraphManager> cfgManager : repository->getCfgs()) {
+
+		vector<shared_ptr<PkbGraphManager>> cfgs = repository->getCfgs();
+
+		for (int i = 0; i < cfgs.size(); i++) {
 			
+			shared_ptr<PkbGraphManager> cfgManager = cfgs[i];
+
 			// case 1: both exact
 			if (lhs.isExactReference() && rhs.isExactReference()) {
 				// convert to entity
@@ -171,7 +176,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveNextStar
 				string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
 
 				// check they are both inside
-				// if they are connected, return. else, return empty list
+				// if they are connected, return. else continue looking in other CFGs.
 				if (cfgManager->isInside(leftKey)
 					&& cfgManager->isInside(rightKey)
 					&& cfgManager->canReachNodeBFromNodeA(leftKey, rightKey)) {
@@ -180,14 +185,15 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveNextStar
 
 					// cache
 					this->addPkbRelationship(positiveNextStar, repository);
+					break;
 					
 				}
-				else {
-					// cache
+				// if a path cannot be found between the nodes in any of the CFGs, cache the negative result.
+				else if (i == cfgs.size() - 1) {
+					//cache
 					this->addPkbRelationship(negativeNextStar, repository);
 				}
 				continue;
-				
 			}
 
 			// otherwise, we will need to extract and filter
@@ -269,7 +275,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 				shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
 				if (!this->entityExistAndIsAssign(lhsEntity, repository)
 					|| !this->entityExistAndIsAssign(rhsEntity, repository)) {
-					continue;
+					return out;
 				}
 
 				// 1. check cache
@@ -277,45 +283,49 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 				shared_ptr<PkbAffectsRelationship> positiveMatch = make_shared<PkbAffectsRelationship>(lhsEntity, rhsEntity);
 				if (this->findPkbRelationshipFromRepository(positiveMatch, repository) != NULL) {
 					out.push_back(positiveMatch);
-					continue;
+					return out;
 				}
 				// 1.2 check for negative match
 				shared_ptr<PkbNotAffectsRelationship> negativeMatch = make_shared<PkbNotAffectsRelationship>(lhsEntity, rhsEntity);
 				if (this->findPkbRelationshipFromRepository(negativeMatch, repository) != NULL) {
-					continue;
+					return out;
 				}
 
 				// 2. short circuit 1: check that there are variables lhs modifies and rhs uses
 				unordered_map<string, shared_ptr<PkbEntity>> intersectingVariableMap = this->getLhsModifiesRhsUsesIntersectingVariableMap(lhs, rhs, repository);
 				if (intersectingVariableMap.size() == 0) {
-					continue;
+					return out;
 				}
 
 				// 3. short circuit 2: check that lhs and rhs are reachable using next*
-				if (this->retrieveNextStarByTypeAndLhsRhs(lhs, rhs, repository).size() > 0) {
-					// do nothing
-				}
-				else {
-					continue;
+				if (this->retrieveNextStarByTypeAndLhsRhs(lhs, rhs, repository).size() == 0) {
+					return out;
 				}
 
 				// 4. not in either, brute force check
 				// 4.1 get start node (lhs)
 				shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(lhsEntity);
-				shared_ptr<PkbGraphNode> leftAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left);
-				shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(leftAsNode->getKey()));
+				string leftKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(left)->getKey();
 
 				// 4.2 get end node (rhs)
 				shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(rhsEntity);
-				shared_ptr<PkbGraphNode> rightAsNode = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right);
-				shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(rightAsNode->getKey()));
+				string rightKey = PkbControlFlowGraphNode::createPkbControlFlowGraphNode(right)->getKey();
 
-				// 4.3 use graph extractor to check 
+				// 4.3 check that lhs and rhs are in the current CFG
+				if (!cfgManager->isInside(leftKey) || !cfgManager->isInside(rightKey)) {
+					continue;
+				}
+
+				shared_ptr<PkbControlFlowGraphNode> startNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(leftKey));
+				shared_ptr<PkbControlFlowGraphNode> endNode = static_pointer_cast<PkbControlFlowGraphNode>(cfgManager->getNode(rightKey));
+
+				// 4.4 use graph extractor to check 
 				// then cache and return
 				PkbGraphAffectsRelationshipExtractor extractor;
 				if (extractor.hasAffectsRelationship(startNode, endNode, repository, intersectingVariableMap)) {
 					out.push_back(positiveMatch);
 					this->addPkbRelationship(positiveMatch, repository);
+					break;
 				}
 				else {
 					this->addPkbRelationship(negativeMatch, repository);
@@ -332,7 +342,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 			}
 			
 			// 0.2 if synonym is not assign, empty	
-			if (!rhs.isWildcard() && !rhs.isAssignSynonym() &&!rhs.isStmtSynonym()) {
+			if (!rhs.isWildcard() && !rhs.isAssignSynonym() && !rhs.isStmtSynonym()) {
 				return out;
 			}
 																		
@@ -393,27 +403,39 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 
 		}
 		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) { // case 4: non exact, non exact
-			// 0. check if lhs and rhs should refer to the same
+			// 0.check if lhs and rhs are not wildcards, assigns or stmts
+			if (!lhs.isWildcard() && !lhs.isAssignSynonym() && !lhs.isStmtSynonym()
+				|| !rhs.isWildcard() && !rhs.isAssignSynonym() && !rhs.isStmtSynonym()) {
+				return out;
+			}
+
+			// 1. check if lhs and rhs should refer to the same
 			bool lhsRhsSame = false;
-			if (lhs.isAssignSynonym() && rhs.isAssignSynonym()) {
+			if (!lhs.isWildcard() && !rhs.isWildcard()) {
 				lhsRhsSame = (lhs == rhs);
 			}
 			
-			// 1. find all assign
+			// 2. find all assign
 			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 
-			// 2. for all pairs (diagonal matrix), check and append
+			// 3. for all pairs (diagonal matrix), check and append
 			// O(n2) enumeration
 			for (shared_ptr<PkbEntity> statement1 : statements) {
 				// cast
 				shared_ptr<PkbStatementEntity> cast1 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
 				assert(cast1 != nullptr);
+
+				// If first statement is not assign, then we skip over it.
+				if (!cast1->isAssignStatement()) {
+					continue;
+				}
+
 				for (shared_ptr<PkbEntity> statement2 : statements) {
 					shared_ptr<PkbStatementEntity> cast2 = dynamic_pointer_cast<PkbStatementEntity>(statement2);
 					assert(cast2 != nullptr);
 
 					// check
-					if (cast1->isAssignStatement() && cast2->isAssignStatement() // both assign
+					if (cast2->isAssignStatement() // second statement must also be assign
 						&& ((lhsRhsSame && cast1->equals(cast2)) || !lhsRhsSame)) { // if both same, lhs and rhs must be same
 						// convert to exact clause argument 
 						ClauseArgument castAsLhs = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
@@ -606,18 +628,17 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 			// case 4: wildcard, wildcard
 			// O(n2) enumeration of affects*(s1, s2)
 			
-			// 0. check if lhs and rhs should refer to the same
-			bool lhsRhsSame = false;
-			if (lhs.isAssignSynonym() && rhs.isAssignSynonym()) {
-				lhsRhsSame = (lhs == rhs);
-			}
-
-			// 1. check if valid synonym 
-			if ((!lhs.isWildcard() && !lhs.isStmtSynonym() && !lhs.isAssignSynonym())
-				|| (!rhs.isWildcard() && !rhs.isStmtSynonym() && !rhs.isAssignSynonym())) {
+			// 0.check if lhs and rhs are not wildcards, assigns or stmts
+			if (!lhs.isWildcard() && !lhs.isAssignSynonym() && !lhs.isStmtSynonym()
+				|| !rhs.isWildcard() && !rhs.isAssignSynonym() && !rhs.isStmtSynonym()) {
 				return out;
 			}
 
+			// 1. check if lhs and rhs should refer to the same
+			bool lhsRhsSame = false;
+			if (!lhs.isWildcard() && !rhs.isWildcard()) {
+				lhsRhsSame = (lhs == rhs);
+			}
 
 			// 2. enumerate
 			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
