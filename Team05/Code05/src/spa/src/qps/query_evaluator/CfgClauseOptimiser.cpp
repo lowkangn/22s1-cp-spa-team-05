@@ -9,15 +9,15 @@ unordered_map<ClauseArgument, unordered_set<PQLEntity>>& CfgClauseOptimiser::opt
 }
 
 void CfgClauseOptimiser::doCommonVisitation(const ClauseArgument& lhs, const ClauseArgument& rhs,
-        int clauseTypeWeight, CfgRelationshipClause* clause) {
-    int weight = clauseTypeWeight + this->getArgsWeight(lhs, rhs);
+        int clauseTypeScore, CfgRelationshipClause* clause) {
+    int score = clauseTypeScore + this->getArgsScore(lhs, rhs);
     if (lhs == rhs) {
-        weight += 2 * RESTRICTION_BONUS * this->populateRestrictionMap(lhs);
+        score += 2 * RESTRICTION_BONUS * this->populateRestrictionMap(lhs);
     } else {
-        weight += RESTRICTION_BONUS * this->populateRestrictionMap(lhs);
-        weight += RESTRICTION_BONUS * this->populateRestrictionMap(rhs);
+        score += RESTRICTION_BONUS * this->populateRestrictionMap(lhs);
+        score += RESTRICTION_BONUS * this->populateRestrictionMap(rhs);
     }
-    clause->assignWeight(weight);
+    clause->assignWeight(score);
 }
 
 int CfgClauseOptimiser::populateRestrictionMap(const ClauseArgument& arg) {
@@ -56,6 +56,6 @@ void CfgClauseOptimiser::visitAffectsTClause(const ClauseArgument& lhs, const Cl
     this->doCommonVisitation(lhs, rhs, STAR_PENALTY + AFFECTS_PENALTY, clause);
 }
 
-int CfgClauseOptimiser::getArgsWeight(const ClauseArgument& lhs, const ClauseArgument& rhs) {
+int CfgClauseOptimiser::getArgsScore(const ClauseArgument& lhs, const ClauseArgument& rhs) {
     return (lhs.isSynonym() ? SYNONYM_PENALTY : 0) + (rhs.isSynonym() ? SYNONYM_PENALTY : 0);
 }

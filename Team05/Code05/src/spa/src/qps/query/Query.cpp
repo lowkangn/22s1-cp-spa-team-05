@@ -30,7 +30,7 @@ list<shared_ptr<RelationshipClauseResult>> Query::executeLateClauses(shared_ptr<
         return {};
     }
     vector<shared_ptr<CfgRelationshipClause>>::iterator clauseIter = this->lateClauses.begin();
-    for (; clauseIter != this->lateClauses.end(); clauseIter++) {
+    for (; clauseIter != this->lateClauses.end(); ++clauseIter) {
         shared_ptr<RelationshipClauseResult>& result = (*clauseIter)->executeWithRestriction(pkb, restrictionMap);
         lateRelationships.push_back(result);
         if (result->isEmpty()) {
@@ -57,7 +57,7 @@ void Query::executeClauses(list<shared_ptr<ClauseType>>& clauses, list<shared_pt
     }
 
     list<shared_ptr<ClauseType>>::iterator clauseIter = clauses.begin();
-    for (; clauseIter != clauses.end(); clauseIter++) {
+    for (; clauseIter != clauses.end(); ++clauseIter) {
         shared_ptr<ResultType>& result = (*clauseIter)->execute(pkb);
         results.push_back(result);
         if (result->isEmpty()) {

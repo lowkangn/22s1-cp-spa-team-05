@@ -39,7 +39,7 @@ shared_ptr<RelationshipClauseResult> CfgRelationshipClause::executeWithRestricti
     }
 
     //Update entities for updating restriction map
-    // update entities is expensive, we only update if it is worth it
+    // updateEntities may get expensive, we only update if it is worth it
     if (this->isWorthUpdating(restrictionMap, relationships)) {
         this->updateEntities(relationships);
     }
@@ -78,7 +78,7 @@ void CfgRelationshipClause::replaceSynonymByExactArg(vector<ClauseArgument>& one
         return;
     }
 
-    // Replace with exact args
+    // Replace with exact arg
     oneSideArgs.pop_back();
     for (const PQLEntity& entity : mapIter->second) {
         assert(entity.isStatement());
@@ -138,4 +138,9 @@ bool CfgRelationshipClause::isWorthUpdating(unordered_map<ClauseArgument, unorde
     this->updateRestriction = maxNumRelationships > retrievedRelationships.size();
     return this->updateRestriction;
 
+}
+
+bool operator<(shared_ptr<CfgRelationshipClause> first,
+    shared_ptr<CfgRelationshipClause> second) {
+    return second->clauseWeight < first->clauseWeight;
 }

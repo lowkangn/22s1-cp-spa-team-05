@@ -53,6 +53,10 @@ private:
     template <class ClauseType, class ResultType>
     void executeClauses(list<shared_ptr<ClauseType>>& clauses, list<shared_ptr<ResultType>>& results, shared_ptr<PKBQueryHandler> pkb);
 
+protected:
+    vector<shared_ptr<CfgRelationshipClause>> getCfgClauses() {
+        return this->lateClauses;
+    }
 public:
 
     /* Instantiates a Query object containing the clauses. */
@@ -66,7 +70,7 @@ public:
         hasStartedConstraintExecution = false;
         emptyResultFound = false;
 
-        for (shared_ptr<RelationshipClause> suchThatClause : relationships) {
+        for (const shared_ptr<RelationshipClause>& suchThatClause : relationships) {
             if (!suchThatClause->requiresCfg()) {
                 // does not require cfg
                 this->earlySuchThatClauses.emplace_back(suchThatClause);

@@ -9,6 +9,17 @@ void AffectsTClause ::acceptClauseOptimiser(CfgClauseOptimiser* optimiser) {
     optimiser->visitAffectsTClause(this->lhs, this->rhs, this);
 }
 
+bool AffectsTClause::isAlwaysEmpty() {
+    for (const ClauseArgument& arg : { this->lhs, this->rhs }) {
+        bool argCanAffect = arg.isStmtSynonym() || arg.isAssignSynonym()
+            || arg.isWildcard() || arg.isLineNumber();
+        if (!argCanAffect) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool AffectsTClause::equals(shared_ptr <RelationshipClause> other) {
 	if (dynamic_pointer_cast<AffectsTClause>(other) == nullptr) {
 		return false;

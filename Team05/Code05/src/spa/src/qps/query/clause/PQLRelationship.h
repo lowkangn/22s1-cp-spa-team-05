@@ -13,7 +13,7 @@ private:
 
 public:
 
-    PQLRelationship(PQLEntity &firstEntity, PQLEntity &secondEntity)
+    explicit PQLRelationship(PQLEntity &firstEntity, PQLEntity &secondEntity)
         : firstEntity(firstEntity), secondEntity(secondEntity) {}
 
 

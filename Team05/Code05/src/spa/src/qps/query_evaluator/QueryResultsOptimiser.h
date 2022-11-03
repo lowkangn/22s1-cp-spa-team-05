@@ -40,8 +40,8 @@ private:
 
 public:
 	QueryResultsOptimiser(const list<ClauseResult>& selectResults, list<ClauseResult> relationshipsResults, list<ClauseResult> withResults)
-        : argToGroupIndexMap(unordered_map<ClauseArgument, pair<int,int>>{}), hasOptimised(false) {
-		for (ClauseResult result : selectResults) {
+        : hasOptimised(false), argToGroupIndexMap(unordered_map<ClauseArgument, pair<int, int>>{}) {
+		for (const ClauseResult& result : selectResults) {
 			vector<ClauseArgument> args = result.getSynonymArgs();
 			selectArgs.insert(args.begin(), args.end());
 		}

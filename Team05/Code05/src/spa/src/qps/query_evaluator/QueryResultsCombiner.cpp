@@ -43,10 +43,10 @@ ClauseResult QueryResultsCombiner::getSelectSynonymsCrossProductResult() {
 
 vector<vector<ClauseResult>> QueryResultsCombiner::combineWithinGroupsOnly() {
     vector<vector<ClauseResult>> out = { {}, {} };
-    for (const vector<ClauseResult>& resultsGroup : this->resultsWithoutSelectedArgs) {
+    for (const vector<ClauseResult>& resultsGroup : this->resultsWithSelectedArgs) {
         out.front().emplace_back(this->combineResults(resultsGroup));
     }
-    for (const vector<ClauseResult>& resultsGroup : this->resultsWithSelectedArgs) {
+    for (const vector<ClauseResult>& resultsGroup : this->resultsWithoutSelectedArgs) {
         out.back().emplace_back(this->combineResults(resultsGroup));
     }
     return out;

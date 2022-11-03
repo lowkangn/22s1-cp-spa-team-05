@@ -103,7 +103,7 @@ public:
 	}
 
 	ClauseResult(vector<ClauseArgument> args, const vector<PQLRelationship>& relationships) : args(args) {
-		for (PQLRelationship relationship : relationships) {
+		for (const PQLRelationship& relationship : relationships) {
 			table.push_back(Row{relationship.getFirstEntity(), relationship.getSecondEntity()});
 		}
 		for (int i = 0; i < args.size(); i++) {

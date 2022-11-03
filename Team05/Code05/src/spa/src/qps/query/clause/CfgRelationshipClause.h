@@ -59,7 +59,6 @@ public:
         this->clauseWeight = weight;
     }
 
-    bool operator<(shared_ptr<CfgRelationshipClause> other) {
-        return other->clauseWeight < this->clauseWeight;
-    }
+    friend bool operator<(shared_ptr<CfgRelationshipClause> first,
+        shared_ptr<CfgRelationshipClause> second);
 };
