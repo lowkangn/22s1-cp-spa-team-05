@@ -22,7 +22,8 @@ list<shared_ptr<ClauseResult>> Query::executeWith(shared_ptr<PKBQueryHandler> pk
 	return withResults;
 }
 
-list<shared_ptr<RelationshipClauseResult>> Query::executeLateClauses(shared_ptr<PKBQueryHandler> pkb) {
+list<shared_ptr<RelationshipClauseResult>> Query::executeLateClauses(shared_ptr<PKBQueryHandler> pkb,
+    unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap) {
     list<shared_ptr<RelationshipClauseResult>> lateRelationships;
     if (this->hasFoundEmptyResult()) {
         //empty result was found earlier, there is no need to execute the rest
@@ -30,7 +31,7 @@ list<shared_ptr<RelationshipClauseResult>> Query::executeLateClauses(shared_ptr<
     }
     vector<shared_ptr<CfgRelationshipClause>>::iterator clauseIter = this->lateClauses.begin();
     for (; clauseIter != this->lateClauses.end(); clauseIter++) {
-        shared_ptr<RelationshipClauseResult>& result = (*clauseIter)->execute(pkb);
+        shared_ptr<RelationshipClauseResult>& result = (*clauseIter)->executeWithRestriction(pkb, restrictionMap);
         lateRelationships.push_back(result);
         if (result->isEmpty()) {
             this->emptyResultFound = true;
@@ -66,8 +67,8 @@ void Query::executeClauses(list<shared_ptr<ClauseType>>& clauses, list<shared_pt
     }
 }
 
-void Query::sortOptimisableClauses(ClauseWeightComparator& compare){
-    sort(this->lateClauses.begin(), this->lateClauses.end(), compare);
+void Query::sortOptimisableClauses(){
+    sort(this->lateClauses.begin(), this->lateClauses.end());
 }
 
 bool operator==(Query first, Query second) {

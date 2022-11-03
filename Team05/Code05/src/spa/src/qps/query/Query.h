@@ -89,12 +89,13 @@ public:
 	list<shared_ptr<RelationshipClauseResult>> executeEarlySuchThatAndPattern(shared_ptr<PKBQueryHandler> pkb);
 
     /* Returns the results obtained from the clauses that are executed late. */
-    list<shared_ptr<RelationshipClauseResult>> executeLateClauses(shared_ptr<PKBQueryHandler> pkb);
+    list<shared_ptr<RelationshipClauseResult>> executeLateClauses(shared_ptr<PKBQueryHandler> pkb,
+        unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap);
 
 	/* Returns the results obtained from the query's With clauses. */
 	list<shared_ptr<ClauseResult>> executeWith(shared_ptr<PKBQueryHandler> pkb);
 
-    void sortOptimisableClauses(ClauseWeightComparator& compare);
+    void sortOptimisableClauses();
 
     void enableClauseOptimiserVisit(CfgClauseOptimiser* optimiser);
 

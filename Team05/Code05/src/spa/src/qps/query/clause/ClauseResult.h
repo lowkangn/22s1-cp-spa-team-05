@@ -76,15 +76,22 @@ protected:
 public:
 	/* ============= Public constructors ============= */
 
-	ClauseResult() {};
+    ClauseResult() = default;
 
-	ClauseResult(const ClauseResult& result) : args(result.args), table(result.table), argumentToIndexMap(result.argumentToIndexMap) {};
+    ClauseResult(const ClauseResult& result) = default;
 
-	ClauseResult(vector<ClauseArgument> args, vector<vector<PQLEntity>> table) : args(args), table(table) {
+    ClauseResult(ClauseResult&& result) noexcept : args(move(result.args)),
+        argumentToIndexMap(move(result.argumentToIndexMap)), table(move(result.table))  {}
+
+    ClauseResult& operator=(const ClauseResult& result) = default;
+
+    ClauseResult& operator=(ClauseResult&& result) = default;
+
+	ClauseResult(vector<ClauseArgument> args, vector<vector<PQLEntity>> table) : args(args), table(move(table)) {
 		for (int i = 0; i < args.size(); i++) {
 			this->argumentToIndexMap.insert({args[i], i});
 		}
-	};
+	}
 
 	ClauseResult(vector<ClauseArgument> args, const vector<PQLEntity>& entities) : args(args) {
 		for (const PQLEntity& entity : entities) {
@@ -93,7 +100,7 @@ public:
 		for (int i = 0; i < args.size(); i++) {
 			this->argumentToIndexMap.insert({args[i], i});
 		}
-	};
+	}
 
 	ClauseResult(vector<ClauseArgument> args, const vector<PQLRelationship>& relationships) : args(args) {
 		for (PQLRelationship relationship : relationships) {
@@ -102,7 +109,7 @@ public:
 		for (int i = 0; i < args.size(); i++) {
 			this->argumentToIndexMap.insert({args[i], i});
 		}
-	};
+	}
 
 	/* ================ Public methods ================ */
 

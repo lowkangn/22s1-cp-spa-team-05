@@ -7,7 +7,7 @@ PKBTrackedRelationshipType AffectsClause::getPkbTrackedRelationshipType() {
 }
 
 void AffectsClause::acceptClauseOptimiser(CfgClauseOptimiser* optimiser) {
-    optimiser->visitAffectsClause(this->lhs, this->rhs, shared_ptr<AffectsClause>(this));
+    optimiser->visitAffectsClause(this->lhs, this->rhs, this);
 }
 
 bool AffectsClause::equals(shared_ptr<RelationshipClause> other) {

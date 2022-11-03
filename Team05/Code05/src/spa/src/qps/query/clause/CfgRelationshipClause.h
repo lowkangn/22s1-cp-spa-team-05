@@ -16,6 +16,8 @@ protected:
     unordered_set<PQLEntity> lhsEntities;
     unordered_set<PQLEntity> rhsEntities;
 
+    int clauseWeight;
+
     bool hasExecuted;
     bool updateRestriction;
 
@@ -39,7 +41,7 @@ protected:
 
 public:
     CfgRelationshipClause(ClauseArgument lhs, ClauseArgument rhs)
-        : RelationshipClause(lhs, rhs), hasExecuted(false), updateRestriction(false) {}
+        : RelationshipClause(lhs, rhs), hasExecuted(false), updateRestriction(false), clauseWeight(0) {}
 
     shared_ptr<RelationshipClauseResult> executeWithRestriction(shared_ptr<PKBQueryHandler> pkb,
         unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap);
@@ -52,4 +54,12 @@ public:
     }
 
     virtual void acceptClauseOptimiser(CfgClauseOptimiser* optimiser) = 0;
+
+    void assignWeight(int weight) {
+        this->clauseWeight = weight;
+    }
+
+    bool operator<(shared_ptr<CfgRelationshipClause> other) {
+        return other->clauseWeight < this->clauseWeight;
+    }
 };

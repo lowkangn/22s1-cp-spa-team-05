@@ -97,9 +97,7 @@ void CfgRelationshipClause::updateEntities(vector<PQLRelationship>& retrievedRel
     }
 }
 
-void CfgRelationshipClause::updateRestrictionMap(unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap) {
-    assert(this->lhs.isStmtSynonym() || this->lhs.isAssignSynonym()
-        || this->rhs.isStmtSynonym() || this->rhs.isAssignSynonym());
+void CfgRelationshipClause::updateRestrictionMap(unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap) {\
     assert(this->hasExecuted);
     if (this->lhs.isSynonym() && this->updateRestriction) {
         restrictionMap.insert_or_assign(this->lhs, this->lhsEntities);

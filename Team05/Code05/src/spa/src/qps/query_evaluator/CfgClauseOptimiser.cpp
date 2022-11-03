@@ -4,20 +4,20 @@ unordered_map<ClauseArgument, unordered_set<PQLEntity>>& CfgClauseOptimiser::opt
     // Visit clauses to populate restriction map and calculate weight for sorting
     this->query.enableClauseOptimiserVisit(this);
     // Sort based on weights
-    this->query.sortOptimisableClauses(ClauseWeightComparator(this->clauseToWeightMap));
+    this->query.sortOptimisableClauses();
     return this->restrictionMap;
 }
 
 void CfgClauseOptimiser::doCommonVisitation(const ClauseArgument& lhs, const ClauseArgument& rhs,
-        int clauseTypeWeight, shared_ptr<CfgRelationshipClause> clause) {
+        int clauseTypeWeight, CfgRelationshipClause* clause) {
     int weight = clauseTypeWeight + this->getArgsWeight(lhs, rhs);
     if (lhs == rhs) {
-        weight += 2 * this->populateRestrictionMap(lhs);
+        weight += 2 * RESTRICTION_BONUS * this->populateRestrictionMap(lhs);
     } else {
-        weight += this->populateRestrictionMap(lhs);
-        weight += this->populateRestrictionMap(rhs);
+        weight += RESTRICTION_BONUS * this->populateRestrictionMap(lhs);
+        weight += RESTRICTION_BONUS * this->populateRestrictionMap(rhs);
     }
-    this->clauseToWeightMap.insert({ shared_ptr<CfgRelationshipClause>(clause), weight });
+    clause->assignWeight(weight);
 }
 
 int CfgClauseOptimiser::populateRestrictionMap(const ClauseArgument& arg) {
@@ -26,33 +26,33 @@ int CfgClauseOptimiser::populateRestrictionMap(const ClauseArgument& arg) {
         return 1;
     }
     // if not an existing synonym in nonCfgResults, cannot restrict so return 0
-    if (this->argToGroupIndexMap.find(arg) == this->argToGroupIndexMap.end()) {
+    if (!this->resultsOptimiser.getArgGroupIndex(arg).has_value()) {
         return 0;
     }
     // populate the restriction map
-    pair<int, int> groupIndices = this->argToGroupIndexMap.at(arg);
+    pair<int, int> groupIndices = this->resultsOptimiser.getArgGroupIndex(arg).value();
     ClauseResult groupResult = this->nonCfgCombinedResults[groupIndices.first][groupIndices.second];
     this->restrictionMap.insert({ arg, groupResult.getEntitySet(arg) });
     return 1;
 }
 
 void CfgClauseOptimiser::visitNextClause(const ClauseArgument& lhs, const ClauseArgument& rhs,
-        shared_ptr<NextClause> clause) {
+        NextClause* clause) {
     this->doCommonVisitation(lhs, rhs, 0, clause);
 }
 
 void CfgClauseOptimiser::visitNextTClause(const ClauseArgument& lhs, const ClauseArgument& rhs,
-        shared_ptr<NextTClause> clause) {
+        NextTClause* clause) {
     this->doCommonVisitation(lhs, rhs, STAR_PENALTY, clause);
 }
 
 void CfgClauseOptimiser::visitAffectsClause(const ClauseArgument& lhs, const ClauseArgument& rhs,
-        shared_ptr<AffectsClause> clause) {
+        AffectsClause* clause) {
     this->doCommonVisitation(lhs, rhs, AFFECTS_PENALTY, clause);
 }
 
 void CfgClauseOptimiser::visitAffectsTClause(const ClauseArgument& lhs, const ClauseArgument& rhs,
-        shared_ptr<AffectsTClause> clause) {
+        AffectsTClause* clause) {
     this->doCommonVisitation(lhs, rhs, STAR_PENALTY + AFFECTS_PENALTY, clause);
 }
 

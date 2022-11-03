@@ -12,4 +12,9 @@ public:
     void acceptClauseOptimiser(CfgClauseOptimiser* optimiser) override;
 
     bool equals(shared_ptr<RelationshipClause> other) override;
+
+    bool isAlwaysEmpty() override {
+        return (!this->lhs.isStmtSynonym() && !this->lhs.isAssignSynonym())
+            || (!this->rhs.isStmtSynonym() && !this->rhs.isAssignSynonym());
+    }
 };

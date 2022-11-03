@@ -23,22 +23,6 @@ private:
 
 public:
 
-    /* Copy constructor */
-    PQLEntity(const PQLEntity& other) = default;
-
-    /* Move constructor */
-    PQLEntity(PQLEntity&& other) noexcept : type(other.type), str(move(other.str)),
-        lineNum(other.lineNum), value(other.value) {
-        // other will be destroyed
-        other.type = PQLEntityType::PROCEDURE;
-        other.lineNum = 0;
-        other.value = 0;
-    }
-
-    PQLEntity& operator=(const PQLEntity&) = default;
-
-    PQLEntity& operator=(PQLEntity&&) = default;
-
     static PQLEntity generateProcedure(string name) {
         return PQLEntity(PQLEntityType::PROCEDURE, name, 0, 0);
     }

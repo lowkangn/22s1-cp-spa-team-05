@@ -14,6 +14,7 @@
 #include <qps/query/Query.h>
 #include <qps/query_evaluator/QueryResultsCombiner.h>
 #include <qps/query_evaluator/QueryResultsOptimiser.h>
+#include <qps/query_evaluator/CfgClauseOptimiser.h>
 #include <pkb/PKB.h>
 
 using namespace std;

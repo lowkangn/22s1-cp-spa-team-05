@@ -1,6 +1,8 @@
 #pragma once
 
 #include <list>
+#include <optional>
+
 #include <qps/query/clause/ClauseResult.h>
 
 using namespace std;
@@ -51,11 +53,14 @@ public:
 
 	vector<vector<vector<ClauseResult>>> optimise(bool& isEmptyResultFound, list<ClauseResult>& constraintResults);
 
-    unordered_map<ClauseArgument, pair<int, int>>& getArgToGroupIndexMap() {
+    optional<pair<int,int>> getArgGroupIndex(ClauseArgument arg) {
         if (!hasOptimised) {
-            bool placeholder = false;
-            this->optimise(placeholder, this->constraintResultsList);
+            throw PQLLogicError("Optimisation must be done before querying for arg group");
         }
-        return this->argToGroupIndexMap;
+        if (this->argToGroupIndexMap.count(arg) <= 0) {
+            return optional<pair<int,int>>();
+        }
+
+        return optional<pair<int,int>>(this->argToGroupIndexMap.at(arg));
     }
 };

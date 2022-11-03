@@ -44,5 +44,7 @@ public:
 
     vector<vector<ClauseResult>> combineWithinGroupsOnly();
 
-	ClauseResult combineAll();
+	ClauseResult combineAllInternal();
+
+    ClauseResult combineAllWithExternal(vector<vector<vector<ClauseResult>>>& externalOptimisedResults);
 };

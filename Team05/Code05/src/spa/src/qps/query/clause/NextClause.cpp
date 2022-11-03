@@ -6,7 +6,7 @@ PKBTrackedRelationshipType NextClause::getPkbTrackedRelationshipType() {
 }
 
 void NextClause::acceptClauseOptimiser(CfgClauseOptimiser* optimiser) {
-    optimiser->visitNextClause(this->lhs, this->rhs, shared_ptr<NextClause>(this));
+    optimiser->visitNextClause(this->lhs, this->rhs, this);
 }
 
 bool NextClause::equals(shared_ptr<RelationshipClause> other) {
