@@ -20,7 +20,7 @@ void CfgClauseOptimiser::doCommonVisitation(const ClauseArgument& lhs, const Cla
     clause->assignWeight(score);
 }
 
-int CfgClauseOptimiser::populateRestrictionMap(const ClauseArgument& arg) {
+int CfgClauseOptimiser::populateRestrictionMap(ClauseArgument arg) {
     // if already restricted in previous clause, short circuit and return 1
     if (this->restrictionMap.find(arg) != this->restrictionMap.end()) {
         return 1;

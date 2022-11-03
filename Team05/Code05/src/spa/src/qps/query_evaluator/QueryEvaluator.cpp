@@ -38,8 +38,23 @@ ClauseResult QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> p
     unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap = clauseOptimiser.optimise();
     list<ClauseResult> lateResults = dereferenceResults<RelationshipClauseResult>(query.executeLateClauses(pkb, restrictionMap));
 
-    // Optimise lateResults
+    if (query.hasFoundEmptyResult()) {
+        return EntityClauseResult::createEmptyNoSynonymResult();
+    }
+
+    // Collate results to be combined - O(n) where n = number of groups in early execution
+    for (const vector<ClauseResult>& partition : combinedGroupedResults) {
+        for (const ClauseResult& groupResult : partition) {
+            lateResults.emplace_back(groupResult);
+        }
+    }
+
+    // Optimise
     optimisedConstraintResults = resultsOptimiser.optimise(isEmptyResultFound, lateResults);
+
+    if (isEmptyResultFound) {
+        return EntityClauseResult::createEmptyNoSynonymResult();
+    }
 
     // Combine
     ClauseResult result = combiner.combineAllWithExternal(optimisedConstraintResults);

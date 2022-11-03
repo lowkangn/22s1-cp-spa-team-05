@@ -23,9 +23,9 @@ private:
 	ClauseArgument(string identifier, ArgumentType type) {
 		this->identifier = identifier;
 		this->type = type;
-	};
+	}
 public:
-	// Factory methods
+    // Factory methods
 	// TODO: Remove all uses of this factory method.
 	static ClauseArgument createArgument(string identifier, ArgumentType type) {
 		return ClauseArgument(identifier, type);
@@ -271,9 +271,9 @@ template<> struct hash<ClauseArgument> {
 	size_t operator()(ClauseArgument arg) const noexcept {
 		// Can just use identifier since two different arguments won't have the same identifier
 		if (arg.isLineNumber()) {
-			return hash<string>{}(to_string(arg.getLineNumber()));
+			return std::hash<string>()(to_string(arg.getLineNumber()));
 		} else {
-			return hash<string>{}(arg.getIdentifier());
+			return std::hash<string>()(arg.getIdentifier());
 		}
 	}
 };

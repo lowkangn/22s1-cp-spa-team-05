@@ -44,6 +44,7 @@ vector<vector<vector<ClauseResult>>> QueryResultsOptimiser::group(bool& isEmptyR
 	// For each arg not yet visited, traverse graph for all connected args and assign the same group index to all of them
     int selectedArgGroupIndex = 0;
     int nonSelectedArgGroupIndex = 0;
+    this->visitedArgs.clear();
 
 	for (const ClauseResult& result : constraintResults) {
 		vector<ClauseArgument> args = result.getSynonymArgs();

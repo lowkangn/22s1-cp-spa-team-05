@@ -13,7 +13,7 @@ private:
 	vector<ClauseResult> selectResults;
 	vector<vector<ClauseResult>> resultsWithSelectedArgs;
 	vector<vector<ClauseResult>> resultsWithoutSelectedArgs;
-
+    
 	ClauseResult selectBooleanPlaceholderResult = EntityClauseResult::createNonEmptyNoSynonymResult();
 
 	ClauseResult mergeIntoCombinedIfNotInTable(ClauseResult combinedResult, ClauseResult resultToMerge) {
