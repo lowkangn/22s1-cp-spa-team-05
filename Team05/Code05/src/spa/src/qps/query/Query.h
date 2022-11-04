@@ -70,7 +70,7 @@ public:
         patternClauses = patterns;
         withClauses = withs;
         emptyResultFound = false;
-        this->initiliaseRelationshipClauses(relationships, 
+        this->initialiaseRelationshipClauses(relationships, 
             patterns.empty() && withs.empty());
     }
 
