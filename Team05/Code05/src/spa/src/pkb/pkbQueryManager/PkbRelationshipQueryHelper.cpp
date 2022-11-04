@@ -132,7 +132,7 @@ PkbEntityFilter getFilterFromClauseArgument(ClauseArgument arg, bool alwaysTrue)
 
 // ==================== private ====================
 // ******************** relationship query handlers ********************
-vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveNextStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository) {
+vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveNextStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository, bool optimized) {
 		// 1. validation - must be a statement
 		if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
 			throw PkbException("NEXTSTAR relationship expects lhs and rhs to both be statements!");
@@ -257,7 +257,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveNextStar
 		return out;
 }
 
-vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository) {
+vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository, bool optimized) {
 
 	vector<shared_ptr<PkbRelationship>> out;
 	
@@ -298,7 +298,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 				}
 
 				// 3. short circuit 2: check that lhs and rhs are reachable using next*
-				if (this->retrieveNextStarByTypeAndLhsRhs(lhs, rhs, repository).size() == 0) {
+				if (this->retrieveNextStarByTypeAndLhsRhs(lhs, rhs, repository, optimized).size() == 0) {
 					return out;
 				}
 
@@ -362,7 +362,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 					ClauseArgument castAsRhs = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
 
 					// do self query for exact
-					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(lhs, castAsRhs, repository);
+					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(lhs, castAsRhs, repository, optimized);
 					out.insert(out.end(), found.begin(), found.end());
 				}
 			}
@@ -396,7 +396,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 					ClauseArgument castAsLhs = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
 
 					// do self query for exact
-					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, rhs, repository);
+					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, rhs, repository, optimized);
 					out.insert(out.end(), found.begin(), found.end());
 				}
 			}
@@ -442,7 +442,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 						ClauseArgument castAsRhs = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
 
 						// do self query for exact
-						vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, castAsRhs, repository);
+						vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, castAsRhs, repository, optimized);
 						out.insert(out.end(), found.begin(), found.end());
 					}
 				}
@@ -461,7 +461,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 	
 }
 
-vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository) {
+vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository, bool optimized) {
 	// 0. validity check - both assign/exact/wildcard
 	if (!lhs.isStmtRefNoWildcard() && !lhs.isWildcard()) {
 			throw PkbException("AFFECTS* relationship expects lhs and rhs to both be statements!");
@@ -496,7 +496,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 		}
 
 		// 2. check if affects(lhs, rhs)
-		vector<shared_ptr<PkbRelationship>> foundAffects = this->retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PkbRelationshipType::AFFECTS, lhs, rhs, repository);
+		vector<shared_ptr<PkbRelationship>> foundAffects = this->retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PkbRelationshipType::AFFECTS, lhs, rhs, repository, optimized);
 		if (foundAffects.size() == 1) {
 			out.push_back(positiveMatch);
 
@@ -533,7 +533,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 				ClauseArgument arg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
 
 				// do self query for exact affects(lhs->stmt)
-				vector<shared_ptr<PkbRelationship>> foundWithLhs = this->retrieveAffectsByTypeAndLhsRhs(lhs, arg, repository);
+				vector<shared_ptr<PkbRelationship>> foundWithLhs = this->retrieveAffectsByTypeAndLhsRhs(lhs, arg, repository, optimized);
 
 				if (foundWithLhs.size() == 0) {
 					// not found, continue
@@ -542,7 +542,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 				else {
 
 					// try to search recursively affects*(stmt->rhs)
-					vector<shared_ptr<PkbRelationship>> foundWithRhs = this->retrieveAffectsStarByTypeAndLhsRhs(arg, rhs, repository);
+					vector<shared_ptr<PkbRelationship>> foundWithRhs = this->retrieveAffectsStarByTypeAndLhsRhs(arg, rhs, repository, optimized);
 					if (foundWithRhs.size() >= 1) {
 						// success, cache it
 						this->addPkbRelationship(positiveMatch, repository);
@@ -589,7 +589,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 				// check
 				if (cast->isAssignStatement()) {
 					ClauseArgument sArg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
-					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(lhs, sArg, repository);
+					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(lhs, sArg, repository, optimized);
 					out.insert(out.end(), found.begin(), found.end());
 				}
 			}
@@ -619,7 +619,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 				// check
 				if (cast->isAssignStatement()) {
 					ClauseArgument sArg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
-					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(sArg, rhs, repository);
+					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(sArg, rhs, repository, optimized);
 					out.insert(out.end(), found.begin(), found.end());
 				}
 			}
@@ -655,7 +655,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 						&& ((lhsRhsSame && cast1->equals(cast2)) || !lhsRhsSame)) {
 						ClauseArgument leftArg = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
 						ClauseArgument rightArg = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
-						vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(leftArg, rightArg, repository);
+						vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(leftArg, rightArg, repository, optimized);
 						out.insert(out.end(), found.begin(), found.end());
 					}
 				}
@@ -760,16 +760,16 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelation
 	return out;
 }
 
-vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PkbRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository)
+vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PkbRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository, bool optimized)
 {
 	if (relationshipType == PkbRelationshipType::NEXTSTAR) {
-		return this->retrieveNextStarByTypeAndLhsRhs(lhs, rhs, repository);
+		return this->retrieveNextStarByTypeAndLhsRhs(lhs, rhs, repository, optimized);
 	}
 	else if (relationshipType == PkbRelationshipType::AFFECTS) {
-		return this->retrieveAffectsByTypeAndLhsRhs(lhs, rhs, repository);
+		return this->retrieveAffectsByTypeAndLhsRhs(lhs, rhs, repository, optimized);
 	}
 	else if (relationshipType == PkbRelationshipType::AFFECTSSTAR) {
-		return this->retrieveAffectsStarByTypeAndLhsRhs(lhs, rhs, repository);
+		return this->retrieveAffectsStarByTypeAndLhsRhs(lhs, rhs, repository, optimized);
 	}
 	else {
 		throw PkbException("Unknown graph type relationship trying to be retrieved.");
