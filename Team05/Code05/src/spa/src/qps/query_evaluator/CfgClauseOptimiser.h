@@ -47,7 +47,7 @@ private:
      *
      * Returns 1 if arg has been restricted, 0 otherwise
      */
-    int populateRestrictionMap(ClauseArgument arg);
+    int populateRestrictionMap(const ClauseArgument& arg);
 
 public:
     CfgClauseOptimiser(Query& query, vector<vector<ClauseResult>>& nonCfgCombinedResults,

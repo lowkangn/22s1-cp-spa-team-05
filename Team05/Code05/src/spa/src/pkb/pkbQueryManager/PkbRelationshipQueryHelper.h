@@ -70,14 +70,19 @@ private:
 			|| relationshipType == PkbRelationshipType::PARENTSTAR
 			|| relationshipType == PkbRelationshipType::FOLLOWS
 			|| relationshipType == PkbRelationshipType::FOLLOWSSTAR
-			|| relationshipType == PkbRelationshipType::CALLS
-			|| relationshipType == PkbRelationshipType::CALLSSTAR 
 			|| relationshipType == PkbRelationshipType::NEXT) {
 			if (lhs.isStmtRefNoWildcard() && rhs.isStmtRefNoWildcard() && lhs == rhs) {
 				// is identical. e.g Follows(s,s)
 				// no possible solution, return empty
 				return true;
 			}
+		} else if (relationshipType == PkbRelationshipType::CALLS
+			|| relationshipType == PkbRelationshipType::CALLSSTAR) {
+            if (lhs.isProcedureSynonym() && rhs.isProcedureSynonym() && lhs == rhs) {
+                // is identical. e.g Calls(p,p)
+                // no possible solution, return empty
+                return true;
+            }
 		}
 
 		return false;
