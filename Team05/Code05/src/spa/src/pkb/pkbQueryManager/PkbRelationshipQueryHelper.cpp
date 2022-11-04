@@ -364,6 +364,9 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 					// do self query for exact
 					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(lhs, castAsRhs, repository, optimized);
 					out.insert(out.end(), found.begin(), found.end());
+					if (found.size() > 0 && optimized) {
+						break; // if found 1 with lhs, done.
+					}
 				}
 			}
 
@@ -398,6 +401,9 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 					// do self query for exact
 					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, rhs, repository, optimized);
 					out.insert(out.end(), found.begin(), found.end());
+					if (found.size() > 0 && optimized) {
+						break; // if found 1 with rhs, done.
+					}
 				}
 			}
 
@@ -420,6 +426,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 
 			// 3. for all pairs (diagonal matrix), check and append
 			// O(n2) enumeration
+			bool foundOne = false;
 			for (shared_ptr<PkbEntity> statement1 : statements) {
 				// cast
 				shared_ptr<PkbStatementEntity> cast1 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
@@ -444,7 +451,14 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 						// do self query for exact
 						vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, castAsRhs, repository, optimized);
 						out.insert(out.end(), found.begin(), found.end());
+						if (found.size() > 0 && optimized) {
+							foundOne = true;
+							break; // if found 1 with lhs, done.
+						}
 					}
+				}
+				if (foundOne && optimized) {
+					break;
 				}
 			}
 
@@ -566,107 +580,122 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 				continue;
 			}
 		}
+
 	} else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
-			// case 2: exact, non
-			// 0. check that exact exists and synonym is not invalid (e.g. while)
-			if (!rhs.isWildcard() && !rhs.isStmtSynonym() && !rhs.isAssignSynonym()) {
-				return out;
-			}
-			shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
-			if (!this->entityExistAndIsAssign(lhsEntity, repository)) {
-				return out;
-			}
+		// case 2: exact, non
+		// 0. check that exact exists and synonym is not invalid (e.g. while)
+		if (!rhs.isWildcard() && !rhs.isStmtSynonym() && !rhs.isAssignSynonym()) {
+			return out;
+		}
+		shared_ptr<PkbEntity> lhsEntity = this->convertClauseArgumentToPkbEntity(lhs);
+		if (!this->entityExistAndIsAssign(lhsEntity, repository)) {
+			return out;
+		}
 
-			// 1. get all statements 
-			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+		// 1. get all statements 
+		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 			
-			// 2. for all assign, check if affects*(lhs, s) 
-			for (shared_ptr<PkbEntity> statement : statements) {
-				// cast
-				shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
-				assert(cast != nullptr);
+		// 2. for all assign, check if affects*(lhs, s) 
+		for (shared_ptr<PkbEntity> statement : statements) {
+			// cast
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
+			assert(cast != nullptr);
 
-				// check
-				if (cast->isAssignStatement()) {
-					ClauseArgument sArg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
-					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(lhs, sArg, repository, optimized);
-					out.insert(out.end(), found.begin(), found.end());
+			// check
+			if (cast->isAssignStatement()) {
+				ClauseArgument sArg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
+				vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(lhs, sArg, repository, optimized);
+				out.insert(out.end(), found.begin(), found.end());
+				if (found.size() > 0 && optimized) {
+					break; // if found 1 with lhs, done.
 				}
 			}
 		}
-		else if (rhs.isExactReference() && (lhs.isWildcard() || lhs.isSynonym())) {
-			// case 3: non, exact
-			// O(n) enumeration of affects*(s, rhs)
-			// 0. check that exact exists and synonym is not invalid (e.g. while)
-			if (!lhs.isWildcard() && !lhs.isStmtSynonym() && !lhs.isAssignSynonym()) {
-				return out;
-			}
-			shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
-			if (!this->entityExistAndIsAssign(rhsEntity, repository)) {
-				return out;
-			}
+	} else if (rhs.isExactReference() && (lhs.isWildcard() || lhs.isSynonym())) {
+		// case 3: non, exact
+		// O(n) enumeration of affects*(s, rhs)
+		// 0. check that exact exists and synonym is not invalid (e.g. while)
+		if (!lhs.isWildcard() && !lhs.isStmtSynonym() && !lhs.isAssignSynonym()) {
+			return out;
+		}
+		shared_ptr<PkbEntity> rhsEntity = this->convertClauseArgumentToPkbEntity(rhs);
+		if (!this->entityExistAndIsAssign(rhsEntity, repository)) {
+			return out;
+		}
 
 
-			// 1. get all statements 
-			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+		// 1. get all statements 
+		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 
-			// 2. for all assign, check if affects*(lhs, s) 
-			for (shared_ptr<PkbEntity> statement : statements) {
-				// cast
-				shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
-				assert(cast != nullptr);
+		// 2. for all assign, check if affects*(lhs, s) 
+		for (shared_ptr<PkbEntity> statement : statements) {
+			// cast
+			shared_ptr<PkbStatementEntity> cast = dynamic_pointer_cast<PkbStatementEntity>(statement);
+			assert(cast != nullptr);
 
-				// check
-				if (cast->isAssignStatement()) {
-					ClauseArgument sArg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
-					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(sArg, rhs, repository, optimized);
-					out.insert(out.end(), found.begin(), found.end());
+			// check
+			if (cast->isAssignStatement()) {
+				ClauseArgument sArg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
+				vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(sArg, rhs, repository, optimized);
+				out.insert(out.end(), found.begin(), found.end());
+				if (found.size() > 0 && optimized) {
+					break; // if found 1 with rhs, done.
 				}
 			}
 		}
-		else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) {
-			// case 4: wildcard, wildcard
-			// O(n2) enumeration of affects*(s1, s2)
+	}
+	else if ((lhs.isWildcard() || lhs.isSynonym()) && (rhs.isWildcard() || rhs.isSynonym())) {
+		// case 4: wildcard, wildcard
+		// O(n2) enumeration of affects*(s1, s2)
 			
-			// 0.check if lhs and rhs are not wildcards, assigns or stmts
-			if (!lhs.isWildcard() && !lhs.isAssignSynonym() && !lhs.isStmtSynonym()
-				|| !rhs.isWildcard() && !rhs.isAssignSynonym() && !rhs.isStmtSynonym()) {
-				return out;
-			}
+		// 0.check if lhs and rhs are not wildcards, assigns or stmts
+		if (!lhs.isWildcard() && !lhs.isAssignSynonym() && !lhs.isStmtSynonym()
+			|| !rhs.isWildcard() && !rhs.isAssignSynonym() && !rhs.isStmtSynonym()) {
+			return out;
+		}
 
-			// 1. check if lhs and rhs should refer to the same
-			bool lhsRhsSame = false;
-			if (!lhs.isWildcard() && !rhs.isWildcard()) {
-				lhsRhsSame = (lhs == rhs);
-			}
+		// 1. check if lhs and rhs should refer to the same
+		bool lhsRhsSame = false;
+		if (!lhs.isWildcard() && !rhs.isWildcard()) {
+			lhsRhsSame = (lhs == rhs);
+		}
 
-			// 2. enumerate
-			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
-			for (shared_ptr<PkbEntity> statement1 : statements) {
-				// cast
-				shared_ptr<PkbStatementEntity> cast1 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
-				assert(cast1 != nullptr);
+		// 2. enumerate
+		bool foundOne = false;
+		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
+		for (shared_ptr<PkbEntity> statement1 : statements) {
+			// cast
+			shared_ptr<PkbStatementEntity> cast1 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
+			assert(cast1 != nullptr);
 
-				// check
-				for (shared_ptr<PkbEntity> statement2 : statements) {
-					shared_ptr<PkbStatementEntity> cast2 = dynamic_pointer_cast<PkbStatementEntity>(statement2);
-					assert(cast2 != nullptr);
-					if (cast1->isAssignStatement() && cast2->isAssignStatement() 
-						&& ((lhsRhsSame && cast1->equals(cast2)) || !lhsRhsSame)) {
-						ClauseArgument leftArg = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
-						ClauseArgument rightArg = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
-						vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(leftArg, rightArg, repository, optimized);
-						out.insert(out.end(), found.begin(), found.end());
+			// check
+			for (shared_ptr<PkbEntity> statement2 : statements) {
+				shared_ptr<PkbStatementEntity> cast2 = dynamic_pointer_cast<PkbStatementEntity>(statement2);
+				assert(cast2 != nullptr);
+				if (cast1->isAssignStatement() && cast2->isAssignStatement() 
+					&& ((lhsRhsSame && cast1->equals(cast2)) || !lhsRhsSame)) {
+					ClauseArgument leftArg = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
+					ClauseArgument rightArg = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
+					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(leftArg, rightArg, repository, optimized);
+					out.insert(out.end(), found.begin(), found.end());
+					if (found.size() > 0 && optimized) {
+						foundOne = true;
+						break; // if found 1 with lhs, done.
 					}
 				}
 				
 			}
+			if (foundOne && optimized) {
+				break;
+			}
+				
+		}
 
 
-		}
-		else {
-			throw PkbException("Unknown case for affects!");
-		}
+	}
+	else {
+		throw PkbException("Unknown case for affects!");
+	}
 	
 
 	return out;
