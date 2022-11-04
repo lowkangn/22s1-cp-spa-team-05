@@ -46,7 +46,7 @@ private:
 	}
 
     // Initialises all fields related to RelationshipClauses.
-    void initialiaseRelationshipClauses(const
+    void initialiseRelationshipClauses(const
         list<shared_ptr<RelationshipClause>>& relationships,
         bool areOthersEmpty);
 
@@ -70,7 +70,7 @@ public:
         patternClauses = patterns;
         withClauses = withs;
         emptyResultFound = false;
-        this->initialiaseRelationshipClauses(relationships, 
+        this->initialiseRelationshipClauses(relationships, 
             patterns.empty() && withs.empty());
     }
 
