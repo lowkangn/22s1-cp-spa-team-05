@@ -81,7 +81,7 @@ TEST_CASE("CfgClauseOptimiser: test working correctly") {
 
     /* assign a1, a2 a3; stmt s1, s2; variable v; while w; Select <a1, v>
        such that Affects*(a1,a2) and Affects*(a1, a3) and Affects*(a1, 5) and Next(s2, _) and Affects(s1, s2)
-       and Next*(_,5) and Affects(_,_)
+       and Next*(_,5) and Affects(_,_) and Affects(_,5)
        and Follows(s1, _) and Parent(w1,a1) with s2.stmt# = 5 pattern a2("x",_);
        
        --> among the cfg clauses' arguments, only a3 is unrestricted
@@ -95,6 +95,7 @@ TEST_CASE("CfgClauseOptimiser: test working correctly") {
     shared_ptr<AffectsTClause> affectsStarA1A3 = make_shared<AffectsTClause>(assign1Arg, assign3Arg);
     shared_ptr<AffectsTClause> affectsStarA15 = make_shared<AffectsTClause>(assign1Arg, fiveArg);
     shared_ptr<AffectsClause> affectsS1S2 = make_shared<AffectsClause>(stmt1Arg, stmt2Arg);
+    shared_ptr<AffectsClause> affectsWildcard5 = make_shared<AffectsClause>(wildcardArg, fiveArg);
     shared_ptr<AffectsClause> affectsWildcards = make_shared<AffectsClause>(wildcardArg, wildcardArg);
     shared_ptr<NextTClause> nextStarWildcard5 = make_shared<NextTClause>(wildcardArg, fiveArg);
     shared_ptr<NextClause> nextStmt2Wildcard = make_shared<NextClause>(stmt2Arg, wildcardArg);
@@ -130,14 +131,15 @@ TEST_CASE("CfgClauseOptimiser: test working correctly") {
 
     //Expected order (see CfgClauseOptimiser)
     vector<shared_ptr<CfgRelationshipClause>> expectedClauseOrder({
-        nextStmt2Wildcard, nextStarWildcard5, affectsWildcards, affectsS1S2,
+        nextStmt2Wildcard, nextStarWildcard5, affectsWildcard5, affectsWildcards, affectsS1S2,
         affectsStarA15, affectsStarA1A2, affectsStarA1A3
     });
 
     Query query(
         { select }, 
         { affectsStarA1A2, affectsStarA1A3, followsS1Wildcard, affectsStarA15,
-            nextStmt2Wildcard, affectsS1S2, nextStarWildcard5, parentW1A1, affectsWildcards},
+            nextStmt2Wildcard, affectsS1S2, nextStarWildcard5, affectsWildcard5, parentW1A1,
+            affectsWildcards},
         { patternA2X },
         {withS25});
 

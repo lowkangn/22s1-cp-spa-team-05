@@ -17,12 +17,15 @@
  * Currently, scores are set so that the order of execution is:
  *  Next --> Next* --> Affects --> Affects*
  * and within each clause type the order is:
- *  both exact/wildcard --> one exact/wildcard --> both synonyms
+ *  both exact --> one exact, one wildcard --> both wildcard
+ *  --> one exact, one synonym --> one wildcard, one synoynm
+ *  --> both synonyms
  */
-constexpr int AFFECTS_PENALTY = -100;
-constexpr int STAR_PENALTY = -50;
-constexpr int SYNONYM_PENALTY = -20;
-constexpr int RESTRICTION_BONUS = 5;
+constexpr int AFFECTS_PENALTY = -200;
+constexpr int STAR_PENALTY = -100;
+constexpr int SYNONYM_PENALTY = -40;
+constexpr int WILDCARD_PENALTY = -10;
+constexpr int RESTRICTION_BONUS = 10;
 
 class CfgClauseOptimiser {
 private:
@@ -32,8 +35,8 @@ private:
     QueryResultsOptimiser& resultsOptimiser;
     unordered_map<ClauseArgument, unordered_set<PQLEntity>> restrictionMap;
 
-    /* Gets the contribution to a clause's weight from its arguments */
-    int getArgsScore(const ClauseArgument& lhs, const ClauseArgument& rhs);
+    /* Gets the contribution to a clause's weight from its argument */
+    int getArgScore(const ClauseArgument& arg);
 
     /* Visits a CfgRelationshipClause to perform weight calculation and restriction */
     void doCommonVisitation(const ClauseArgument& lhs, const ClauseArgument& rhs,

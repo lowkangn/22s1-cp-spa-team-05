@@ -10,7 +10,8 @@ unordered_map<ClauseArgument, unordered_set<PQLEntity>>& CfgClauseOptimiser::opt
 
 void CfgClauseOptimiser::doCommonVisitation(const ClauseArgument& lhs, const ClauseArgument& rhs,
         int clauseTypeScore, CfgRelationshipClause* clause) {
-    int score = clauseTypeScore + this->getArgsScore(lhs, rhs);
+    int score = clauseTypeScore + this->getArgScore(lhs);
+    score += this->getArgScore(rhs);
     if (lhs == rhs) {
         score += 2 * RESTRICTION_BONUS * this->populateRestrictionMap(lhs);
     } else {
@@ -56,6 +57,13 @@ void CfgClauseOptimiser::visitAffectsTClause(const ClauseArgument& lhs, const Cl
     this->doCommonVisitation(lhs, rhs, STAR_PENALTY + AFFECTS_PENALTY, clause);
 }
 
-int CfgClauseOptimiser::getArgsScore(const ClauseArgument& lhs, const ClauseArgument& rhs) {
-    return (lhs.isSynonym() ? SYNONYM_PENALTY : 0) + (rhs.isSynonym() ? SYNONYM_PENALTY : 0);
+int CfgClauseOptimiser::getArgScore(const ClauseArgument& arg) {
+    if (arg.isSynonym()) {
+        return SYNONYM_PENALTY;
+    }
+    if (arg.isWildcard()) {
+        return WILDCARD_PENALTY;
+    }
+    //exact
+    return 0;
 }
