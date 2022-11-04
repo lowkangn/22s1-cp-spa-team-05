@@ -54,4 +54,5 @@ void TestWrapper::evaluate(std::string query, std::list<std::string>& results){
 	// push into results list by reference
 	this->qps.projectResults(results);
 
+    pkbPointer->resetCache();
 }

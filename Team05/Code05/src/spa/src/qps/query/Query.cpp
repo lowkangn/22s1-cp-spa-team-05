@@ -1,6 +1,31 @@
 #include <qps/query/Query.h>
 #include <qps/query_evaluator/CfgClauseOptimiser.h>
 
+void Query::initiliaseRelationshipClauses(const
+        list<shared_ptr<RelationshipClause>>& relationships,
+        bool areOthersEmpty) {
+    //if the query has only 1 constraint; no point executing it late
+    if (relationships.size() == 1 && areOthersEmpty) {
+        this->earlySuchThatClauses = relationships;
+        return;
+    }
+    //else, mark cfgClauses for late execution
+    for (const shared_ptr<RelationshipClause>& suchThatClause : relationships) {
+        if (!suchThatClause->requiresCfg()) {
+            // does not require cfg
+            this->earlySuchThatClauses.emplace_back(suchThatClause);
+        } else if (suchThatClause->isAlwaysEmpty()) {
+            this->hasStartedConstraintExecution = true;
+            this->emptyResultFound = true;
+            break;
+        } else {
+            //requires cfg and is possibly non-empty
+            this->lateClauses.emplace_back(
+                static_pointer_cast<CfgRelationshipClause>(suchThatClause));
+        }
+    }
+}
+
 list<shared_ptr<ClauseResult>> Query::executeSelect(shared_ptr<PKBQueryHandler> pkb) {
     if (this->hasFoundEmptyResult()) {
         // empty result has been found earlier, final result will be empty
