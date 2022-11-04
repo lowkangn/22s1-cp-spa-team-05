@@ -26,7 +26,6 @@ private:
 	}
 public:
     // Factory methods
-	// TODO: Remove all uses of this factory method.
 	static ClauseArgument createArgument(string identifier, ArgumentType type) {
 		return ClauseArgument(identifier, type);
 	}

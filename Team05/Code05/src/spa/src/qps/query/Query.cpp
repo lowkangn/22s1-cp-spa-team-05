@@ -15,7 +15,6 @@ void Query::initiliaseRelationshipClauses(const
             // does not require cfg
             this->earlySuchThatClauses.emplace_back(suchThatClause);
         } else if (suchThatClause->isAlwaysEmpty()) {
-            this->hasStartedConstraintExecution = true;
             this->emptyResultFound = true;
             break;
         } else {
@@ -75,7 +74,6 @@ void Query::enableClauseOptimiserVisit(CfgClauseOptimiser* optimiser) {
 
 template <class ClauseType, class ResultType>
 void Query::executeClauses(list<shared_ptr<ClauseType>>& clauses, list<shared_ptr<ResultType>>& results, shared_ptr<PKBQueryHandler> pkb) {
-    this->hasStartedConstraintExecution = true;
     if (this->hasFoundEmptyResult()) {
         //empty result was found earlier, there is no need to execute the rest
         return;

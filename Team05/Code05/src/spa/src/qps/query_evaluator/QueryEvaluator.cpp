@@ -42,14 +42,14 @@ ClauseResult QueryEvaluator::evaluate(Query query, shared_ptr<PKBQueryHandler> p
         return EntityClauseResult::createEmptyNoSynonymResult();
     }
 
-    // Collate results to be combined - O(n) where n = number of groups in early execution
+    // Collate all results to be combined (ie. lateResults + previously combined results)
     for (const vector<ClauseResult>& partition : combinedGroupedResults) {
         for (const ClauseResult& groupResult : partition) {
             lateResults.emplace_back(groupResult);
         }
     }
 
-    // Optimise
+    // Optimise the collated results
     optimisedConstraintResults = resultsOptimiser.optimise(isEmptyResultFound, lateResults);
 
     if (isEmptyResultFound) {

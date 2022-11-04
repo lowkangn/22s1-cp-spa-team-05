@@ -9,8 +9,9 @@
 #include <qps/query/clause/WithOneExactClause.h>
 #include <qps/query/clause/PatternAssignClause.h>
 
-/* Helper class to check order of clauses in query */
+
 namespace {
+    /* Helper class to check order of clauses in query */
     class TestQueryWrapper : public Query {
     public:
         TestQueryWrapper(Query query) : Query(query) {

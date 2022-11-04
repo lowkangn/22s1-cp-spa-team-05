@@ -22,9 +22,6 @@ private:
 	list<shared_ptr<WithClause>> withClauses;
     vector<shared_ptr<CfgRelationshipClause>> lateClauses;
 
-    /* True iff a constraint clause has been executed */
-    bool hasStartedConstraintExecution;
-
     /* True iff an empty result has been found at some point in execution */
     bool emptyResultFound;
 
@@ -59,6 +56,7 @@ private:
     void executeClauses(list<shared_ptr<ClauseType>>& clauses, list<shared_ptr<ResultType>>& results, shared_ptr<PKBQueryHandler> pkb);
 
 protected:
+    //for testing purposes
     vector<shared_ptr<CfgRelationshipClause>> getCfgClauses() {
         return this->lateClauses;
     }
@@ -72,7 +70,6 @@ public:
         selectClause = select;
         patternClauses = patterns;
         withClauses = withs;
-        hasStartedConstraintExecution = false;
         emptyResultFound = false;
         this->initiliaseRelationshipClauses(relationships, 
             patterns.empty() && withs.empty());
@@ -105,7 +102,7 @@ public:
 	}
 
     bool hasFoundEmptyResult() {
-        return this->hasStartedConstraintExecution && this->emptyResultFound;
+        return this->emptyResultFound;
 	}
 
 	friend bool operator==(Query first, Query second);
