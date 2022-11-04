@@ -4,10 +4,8 @@ shared_ptr<RelationshipClauseResult> CfgRelationshipClause::executeWithRestricti
         unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap) {
     shared_ptr<RelationshipClauseResult> out;
     if (this->hasRestriction(restrictionMap, this->lhs) || this->hasRestriction(restrictionMap, this->rhs)) {
-        //to be implemented by child class
         out = this->executeWithRestrictionHelper(pkb, restrictionMap);
     } else {
-        //to be implemented by child class
         out = this->execute(pkb);
     }
     this->hasExecuted = true;
@@ -97,7 +95,8 @@ void CfgRelationshipClause::updateEntities(vector<PQLRelationship>& retrievedRel
     }
 }
 
-void CfgRelationshipClause::updateRestrictionMap(unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap) {\
+void CfgRelationshipClause::updateRestrictionMap(
+    unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap) {
     assert(this->hasExecuted);
     if (this->lhs.isSynonym() && this->updateRestriction) {
         restrictionMap.insert_or_assign(this->lhs, this->lhsEntities);
@@ -107,8 +106,9 @@ void CfgRelationshipClause::updateRestrictionMap(unordered_map<ClauseArgument, u
     }
 }
 
-bool CfgRelationshipClause::isWorthUpdating(unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap,
-        vector<PQLRelationship> retrievedRelationships) {
+bool CfgRelationshipClause::isWorthUpdating(
+    unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap,
+    vector<PQLRelationship> retrievedRelationships) {
     assert(this->lhs.isSynonym() || this->rhs.isSynonym());
     // In general, the restriction is worth updating when the new number of
     // possible values for the synonym is strictly smaller

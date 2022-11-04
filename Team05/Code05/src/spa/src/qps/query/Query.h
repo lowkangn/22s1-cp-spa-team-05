@@ -12,7 +12,6 @@
 using namespace std;
 
 class CfgClauseOptimiser;
-struct ClauseWeightComparator;
 
 class Query {
 private:
@@ -47,7 +46,7 @@ private:
 	}
 
     // Initialises all fields related to RelationshipClauses.
-    void initiliaseRelationshipClauses(const
+    void initialiaseRelationshipClauses(const
         list<shared_ptr<RelationshipClause>>& relationships,
         bool areOthersEmpty);
 

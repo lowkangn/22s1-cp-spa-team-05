@@ -1,7 +1,7 @@
 #include <qps/query/Query.h>
 #include <qps/query_evaluator/CfgClauseOptimiser.h>
 
-void Query::initiliaseRelationshipClauses(const
+void Query::initialiaseRelationshipClauses(const
         list<shared_ptr<RelationshipClause>>& relationships,
         bool areOthersEmpty) {
     //if the query has only 1 constraint; no point executing it late
