@@ -102,7 +102,7 @@ optional<PQLEntity> PKB::retrieveConstantByValue(int value) {
 
 // -------------------- specifics --------------------
 vector<PQLRelationship> PKB::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs) {
-	return this->queryManager.retrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs, this->repository);
+	return this->queryManager.retrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs, this->repository, this->optimized);
 }
 
 

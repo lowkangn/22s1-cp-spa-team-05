@@ -47,8 +47,8 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		Lexer lexer = Lexer();
 		list<Token> tokens = lexer.tokenize(stream);
 
-		ParserManager parser = ParserManager(tokens);
-		shared_ptr<ASTNode> programTree = parser.parse();
+		ParserManager parser = ParserManager();
+		shared_ptr<ASTNode> programTree = parser.parse(tokens);
 		shared_ptr<EntityExtractor> entityExtractor(new EntityExtractor());
 		shared_ptr<PatternExtractor> patternExtractor(new PatternExtractor());
 		shared_ptr<NextExtractor> nextExtractor(new NextExtractor());
@@ -762,7 +762,8 @@ TEST_CASE("Test Source Processor : extractEntity") {
 	auto test = [](string sourceProgram, vector<Entity> expectedEntites) {
 		stringstream ss(sourceProgram);
 
-		SourceProcessor sp = SourceProcessor(ss);
+		SourceProcessor sp = SourceProcessor();
+		sp.initialize(ss);
 
 		vector<Entity> entities = sp.extractEntities();
 
@@ -944,7 +945,8 @@ TEST_CASE("Test Source Processor : extractPattern") {
 	auto test = [](string sourceProgram, vector<Pattern> expectedPatterns) {
 		stringstream ss(sourceProgram);
 
-		SourceProcessor sp = SourceProcessor(ss);
+		SourceProcessor sp = SourceProcessor();
+		sp.initialize(ss);
 
 		vector<Pattern> patterns = sp.extractPatterns();
 
@@ -1068,7 +1070,8 @@ TEST_CASE("Test Source Processor : extractRelations") {
 	auto test = [](string sourceProgram, vector<Relationship> expectedRelations) {
 		stringstream ss(sourceProgram);
 
-		SourceProcessor sp = SourceProcessor(ss);
+		SourceProcessor sp = SourceProcessor();
+		sp.initialize(ss);
 
 		vector<Relationship> relations = sp.extractRelations();
 
@@ -1252,7 +1255,8 @@ TEST_CASE("Test extractCFGRelations") {
 	auto test = [](string sourceProgram, vector<Relationship> expectedRelations) {
 		stringstream ss(sourceProgram);
 
-		SourceProcessor sp = SourceProcessor(ss);
+		SourceProcessor sp = SourceProcessor();
+		sp.initialize(ss);
 
 		vector<Relationship> relations = sp.extractCFGRelations();
 

@@ -34,9 +34,12 @@ private:
 	shared_ptr<PkbRepository> repository = shared_ptr<PkbRepository>(new PkbRepository());
 	PkbUpdateManager updateManager;
 	PkbQueryManager queryManager;
+	bool optimized = false;
 
 public: 
-	PKB() {}
+	PKB(bool optimized = false) {
+		this->optimized = optimized;
+	}
 
 	// ============================== Update handler API ==============================
 

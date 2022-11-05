@@ -275,7 +275,7 @@ optional<PQLEntity> PkbQueryManager::retrieveConstantByValue(int value, shared_p
 
 // -------------------- specifics --------------------
 
-vector<PQLRelationship> PkbQueryManager::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository) {
+vector<PQLRelationship> PkbQueryManager::retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository, bool optimized) {
 
 	// 1. translate the type
 	PkbRelationshipType convertedRelationshipType = this->pkbTrackedRelationshipTypeToInternalType(relationshipType);
@@ -288,7 +288,7 @@ vector<PQLRelationship> PkbQueryManager::retrieveRelationshipByTypeAndLhsRhs(PKB
 	case PkbRelationshipType::NEXTSTAR:
 	case PkbRelationshipType::AFFECTS:
 	case PkbRelationshipType::AFFECTSSTAR:
-		found = this->relationshipHelper.retrieveRelationshipsFromGraphsByTypeAndLhsRhs(convertedRelationshipType, lhs, rhs, repository);
+		found = this->relationshipHelper.retrieveRelationshipsFromGraphsByTypeAndLhsRhs(convertedRelationshipType, lhs, rhs, repository, optimized);
 		break;
 
 		// table types

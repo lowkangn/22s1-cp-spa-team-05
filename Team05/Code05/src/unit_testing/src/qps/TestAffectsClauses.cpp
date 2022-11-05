@@ -220,7 +220,8 @@ TEST_CASE("AffectsClause: test execute") {
 
 	// ------ SP ------ 
 	stringstream stream(programString);
-	SourceProcessor sp(stream);
+    SourceProcessor sp = SourceProcessor();
+	sp.initialize(stream);
 
 
 	// ------ PKB ------ 
@@ -354,7 +355,8 @@ TEST_CASE("AffectsTClause: test execute") {
 
 	// ------ SP ------ 
 	stringstream stream(programString);
-	SourceProcessor sp(stream);
+	SourceProcessor sp = SourceProcessor();
+	sp.initialize(stream);
 
 
 	// ------ PKB ------ 
