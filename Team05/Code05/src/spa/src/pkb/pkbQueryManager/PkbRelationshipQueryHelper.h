@@ -142,17 +142,17 @@ private:
 	/*
 		Handles the (complicated) logic of retrieval for next* relationships.
 	*/
-	vector<shared_ptr<PkbRelationship>> retrieveNextStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
+	vector<shared_ptr<PkbRelationship>> retrieveNextStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository, bool optimized);
 
 	/*
 		Handles the (complicated) logic of retrieval for affects relationships.
 	*/
-	vector<shared_ptr<PkbRelationship>> retrieveAffectsByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
+	vector<shared_ptr<PkbRelationship>> retrieveAffectsByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository, bool optimized);
 
 	/*
 		Handles the (complicated) logic of retrieval for affects* relationships.
 	*/
-	vector<shared_ptr<PkbRelationship>> retrieveAffectsStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
+	vector<shared_ptr<PkbRelationship>> retrieveAffectsStarByTypeAndLhsRhs(ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository, bool optimized);
 
 	// ******************** relationship query helpers ********************
 	// -------------------- affects & affects* --------------------
@@ -218,8 +218,10 @@ public:
 
 	/*
 		Retrieves all relationships by a lhs, rhs for relationships of a specified type, from graphs.
+
+		If optimized is true, returns the minimum number. E.g. if Affects(s1, _), will only return relationships where s1 is unique. With (1,2), (1,3), -> return only 1 of them.
 	*/
-	vector<shared_ptr<PkbRelationship>> retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PkbRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
+	vector<shared_ptr<PkbRelationship>> retrieveRelationshipsFromGraphsByTypeAndLhsRhs(PkbRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository, bool optimized);
 };
 
 

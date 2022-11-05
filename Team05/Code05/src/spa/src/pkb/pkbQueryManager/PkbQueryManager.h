@@ -181,7 +181,7 @@ public:
 	/*
 		Retrieves all relationships by a lhs, rhs for relationships of a specified type.
 	*/
-	vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository);
+	vector<PQLRelationship> retrieveRelationshipByTypeAndLhsRhs(PKBTrackedRelationshipType relationshipType, ClauseArgument lhs, ClauseArgument rhs, shared_ptr<PkbRepository> repository, bool optimized);
 
 	/*
 		Retrieves statements by lhs and rhs for Assign Patterns
