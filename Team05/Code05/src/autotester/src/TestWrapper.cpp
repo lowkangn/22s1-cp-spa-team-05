@@ -15,7 +15,7 @@ volatile bool AbstractWrapper::GlobalStop = false;
 // a default constructor
 TestWrapper::TestWrapper() {
 	this->shouldAnswerQuery = true;
-	this->pkbPointer = shared_ptr<PKB>(new PKB(false));
+	this->pkbPointer = shared_ptr<PKB>(new PKB(true));
 	this->qps = QPS();
 }
 
