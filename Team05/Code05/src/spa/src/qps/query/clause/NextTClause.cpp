@@ -10,9 +10,9 @@ void NextTClause::acceptClauseOptimiser(CfgClauseOptimiser* optimiser) {
 }
 
 bool NextTClause::equals(shared_ptr <RelationshipClause> other) {
-	if (dynamic_pointer_cast<NextTClause>(other) == nullptr) {
-		return false;
-	}
-	shared_ptr<NextTClause> otherNextT = dynamic_pointer_cast<NextTClause>(other);
-	return (this->lhs == otherNextT->lhs) && (this->rhs == otherNextT->rhs);
+    if (dynamic_pointer_cast<NextTClause>(other) == nullptr) {
+        return false;
+    }
+    shared_ptr<NextTClause> otherNextT = dynamic_pointer_cast<NextTClause>(other);
+    return (this->lhs == otherNextT->lhs) && (this->rhs == otherNextT->rhs);
 }

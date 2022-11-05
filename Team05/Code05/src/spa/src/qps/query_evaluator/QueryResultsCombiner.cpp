@@ -1,44 +1,46 @@
 #include <qps/query_evaluator/QueryResultsCombiner.h>
 
 ClauseResult QueryResultsCombiner::combineResults(const vector<ClauseResult>& results) {
-	// Iterate and combine results
-	ClauseResult combinedResult;
-	for (vector<ClauseResult>::const_iterator resultIter = results.begin(); resultIter != results.end(); ++resultIter) {
-		if (resultIter == results.begin()) {
-			combinedResult = *resultIter;
-		} else {
-			ClauseResult newCombinedResult = combinedResult.mergeResult(*resultIter);
-			combinedResult = newCombinedResult;
-		}
-	}
+    // Iterate and combine results
+    ClauseResult combinedResult;
+    for (vector<ClauseResult>::const_iterator resultIter = results.begin();
+        resultIter != results.end();
+        ++resultIter) {
+        if (resultIter == results.begin()) {
+            combinedResult = *resultIter;
+        } else {
+            ClauseResult newCombinedResult = combinedResult.mergeResult(*resultIter);
+            combinedResult = newCombinedResult;
+        }
+    }
 
-	return combinedResult;
+    return combinedResult;
 }
 
 ClauseResult QueryResultsCombiner::getDesiredSynonymsResult(ClauseResult combinedResult) {
-	// If no select results, we are returning boolean, so just return table
-	if (this->selectResults.empty()) {
-		return combinedResult;
-	}
+    // If no select results, we are returning boolean, so just return table
+    if (this->selectResults.empty()) {
+        return combinedResult;
+    }
 
-	// Check if any select args in combined table - if not, do cross product with select results
-	bool areSelectArgsInCombinedTable = combinedResult.checkSelectArgsInTable(this->selectResults);
-	if (!areSelectArgsInCombinedTable) {
-		return this->getSelectSynonymsCrossProductResult();
-	} else {
-		return combinedResult.rearrangeTableToMatchSelectResults(this->selectResults);
-	}
+    // Check if any select args in combined table - if not, do cross product with select results
+    bool areSelectArgsInCombinedTable = combinedResult.checkSelectArgsInTable(this->selectResults);
+    if (!areSelectArgsInCombinedTable) {
+        return this->getSelectSynonymsCrossProductResult();
+    } else {
+        return combinedResult.rearrangeTableToMatchSelectResults(this->selectResults);
+    }
 }
 
 ClauseResult QueryResultsCombiner::getSelectSynonymsCrossProductResult() {
-	ClauseResult combinedResult;
-	vector<ClauseResult> selectResultsWithoutAttribute;
+    ClauseResult combinedResult;
+    vector<ClauseResult> selectResultsWithoutAttribute;
 
-	for (const ClauseResult& selectResult : this->selectResults) {
-		combinedResult = this->mergeIntoCombinedIfNotInTable(combinedResult, selectResult);
-	}
+    for (const ClauseResult& selectResult : this->selectResults) {
+        combinedResult = this->mergeIntoCombinedIfNotInTable(combinedResult, selectResult);
+    }
 
-	return this->getDesiredSynonymsResult(combinedResult);
+    return this->getDesiredSynonymsResult(combinedResult);
 }
 
 vector<vector<ClauseResult>> QueryResultsCombiner::combineWithinGroupsOnly() {
@@ -54,14 +56,17 @@ vector<vector<ClauseResult>> QueryResultsCombiner::combineWithinGroupsOnly() {
 
 
 
-ClauseResult QueryResultsCombiner::combineAllWithExternal(vector<vector<vector<ClauseResult>>>& externalOptimisedResults) {
+ClauseResult QueryResultsCombiner::combineAllWithExternal(
+    vector<vector<vector<ClauseResult>>>& externalOptimisedResults) {
+
     if (externalOptimisedResults.size() != 2) {
         throw PQLLogicError("Combiner expects vector of length 2");
     }
     vector<vector<ClauseResult>> selectedArgResults = externalOptimisedResults.front();
     vector<vector<ClauseResult>> nonSelectedArgResults = externalOptimisedResults.back();
 
-    // If no select results and no results without selected args, can treat as `Select BOOLEAN` so just return true
+    // If no select results and no results without selected args,
+    // can treat as `Select BOOLEAN` so just return true
     if (this->selectResults.empty() && nonSelectedArgResults.empty()) {
         assert(selectedArgResults.empty()); // For select BOOLEAN, no args are being selected
         return this->selectBooleanPlaceholderResult;
@@ -109,6 +114,6 @@ ClauseResult QueryResultsCombiner::combineAllWithExternal(vector<vector<vector<C
 }
 
 ClauseResult QueryResultsCombiner::combineAllInternal() {
-    return this->combineAllWithExternal(vector<vector<vector<ClauseResult>>>{ 
+    return this->combineAllWithExternal(vector<vector<vector<ClauseResult>>>{
         this->resultsWithSelectedArgs, this->resultsWithoutSelectedArgs });
 }

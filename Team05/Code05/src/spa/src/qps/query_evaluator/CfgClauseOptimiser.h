@@ -10,6 +10,7 @@
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 /* Scores (tweak to experiment)
@@ -39,8 +40,9 @@ private:
     int getArgScore(const ClauseArgument& arg);
 
     /* Visits a CfgRelationshipClause to perform weight calculation and restriction */
-    void doCommonVisitation(const ClauseArgument& lhs, const ClauseArgument& rhs,
-            int clauseTypeScore, CfgRelationshipClause* clause);
+    void doCommonVisitation(
+        const ClauseArgument& lhs, const ClauseArgument& rhs, int clauseTypeScore,
+        CfgRelationshipClause* clause);
 
     /* Populates the restriction map by checking whether the arg is present in
      * nonCfgCombinedResults.
@@ -50,23 +52,23 @@ private:
     int populateRestrictionMap(const ClauseArgument& arg);
 
 public:
-    CfgClauseOptimiser(Query& query, vector<vector<ClauseResult>>& nonCfgCombinedResults,
-        QueryResultsOptimiser& resultsOptimiser)
-            : query(query), nonCfgCombinedResults(nonCfgCombinedResults),
-            resultsOptimiser(resultsOptimiser) {}
+    CfgClauseOptimiser(
+        Query& query, vector<vector<ClauseResult>>& nonCfgCombinedResults,
+        QueryResultsOptimiser& resultsOptimiser) : query(query),
+                                                   nonCfgCombinedResults(nonCfgCombinedResults),
+                                                   resultsOptimiser(resultsOptimiser) {
+    }
 
     /* Optimises the execution of CfgClauses in query.
      * Returns the restrictions on each ClauseArgument present in CfgClauses.
      */
     unordered_map<ClauseArgument, unordered_set<PQLEntity>>& optimise();
 
-    void visitNextClause(const ClauseArgument& lhs, const ClauseArgument& rhs, 
-        NextClause* clause);
-    void visitNextTClause(const ClauseArgument& lhs, const ClauseArgument& rhs, 
-        NextTClause* clause);
-    void visitAffectsClause(const ClauseArgument& lhs, const ClauseArgument& rhs,
-        AffectsClause* clause);
-    void visitAffectsTClause(const ClauseArgument& lhs, const ClauseArgument& rhs,
-        AffectsTClause* clause);
-
+    void visitNextClause(const ClauseArgument& lhs, const ClauseArgument& rhs, NextClause* clause);
+    void visitNextTClause(
+        const ClauseArgument& lhs, const ClauseArgument& rhs, NextTClause* clause);
+    void visitAffectsClause(
+        const ClauseArgument& lhs, const ClauseArgument& rhs, AffectsClause* clause);
+    void visitAffectsTClause(
+        const ClauseArgument& lhs, const ClauseArgument& rhs, AffectsTClause* clause);
 };

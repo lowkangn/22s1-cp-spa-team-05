@@ -21,11 +21,10 @@ bool AffectsClause::isAlwaysEmpty() {
     return false;
 }
 
-
 bool AffectsClause::equals(shared_ptr<RelationshipClause> other) {
-	if (dynamic_pointer_cast<AffectsClause>(other) == nullptr) {
-		return false;
-	}
-	shared_ptr<AffectsClause> otherAffects = dynamic_pointer_cast<AffectsClause>(other);
-	return (this->lhs == otherAffects->lhs) && (this->rhs == otherAffects->rhs);
+    if (dynamic_pointer_cast<AffectsClause>(other) == nullptr) {
+        return false;
+    }
+    shared_ptr<AffectsClause> otherAffects = dynamic_pointer_cast<AffectsClause>(other);
+    return (this->lhs == otherAffects->lhs) && (this->rhs == otherAffects->rhs);
 }

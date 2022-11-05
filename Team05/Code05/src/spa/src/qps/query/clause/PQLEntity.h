@@ -3,12 +3,15 @@
 
 using namespace std;
 
-enum class PQLEntityType { PROCEDURE, STATEMENT, VARIABLE, CONSTANT };
+enum class PQLEntityType {
+    PROCEDURE,
+    STATEMENT,
+    VARIABLE,
+    CONSTANT
+};
 
 class PQLEntity {
-
 private:
-
     PQLEntityType type;
     string str;
     int lineNum;
@@ -22,7 +25,6 @@ private:
     }
 
 public:
-
     static PQLEntity generateProcedure(string name) {
         return PQLEntity(PQLEntityType::PROCEDURE, name, 0, 0);
     }
@@ -70,8 +72,9 @@ public:
     friend bool operator<(PQLEntity first, PQLEntity second);
 };
 
-template<> struct hash<PQLEntity> {
-	size_t operator()(PQLEntity entity) const noexcept {
-		return hash<string>{}(entity.toString());
-	}
+template <>
+struct hash<PQLEntity> {
+    size_t operator()(PQLEntity entity) const noexcept {
+        return hash<string>{}(entity.toString());
+    }
 };
