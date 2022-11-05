@@ -436,9 +436,9 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 
 			// 3. for all pairs (diagonal matrix), check and append
 			// 3.1 determine case. last case is synonym synonym (default)
-			bool isSynonymWildcard = lhs.isStmtSynonym() && rhs.isWildcard();
+			bool isSynonymWildcard = lhs.isSynonym() && rhs.isWildcard();
 			bool isWildcardWildcard = lhs.isWildcard() && rhs.isWildcard();
-			bool isWildcardSynonym = lhs.isStmtSynonym() && rhs.isStmtSynonym();
+			bool isWildcardSynonym = lhs.isWildcard() && rhs.isSynonym();
 
 			// 3.2  O(n2) enumeration
 			for (shared_ptr<PkbEntity> statement1 : statements) {
@@ -684,9 +684,9 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 
 		// 2. enumerate
 		// 2.1 determine case. last case is synonym synonym (default)
-		bool isSynonymWildcard = lhs.isStmtSynonym() && rhs.isWildcard();
+		bool isSynonymWildcard = lhs.isSynonym() && rhs.isWildcard();
 		bool isWildcardWildcard = lhs.isWildcard() && rhs.isWildcard();
-		bool isWildcardSynonym = lhs.isStmtSynonym() && rhs.isStmtSynonym();
+		bool isWildcardSynonym = lhs.isWildcard() && rhs.isSynonym();
 		
 		// 2.2 O(n2) enumerate
 		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
