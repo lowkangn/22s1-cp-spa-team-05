@@ -1,10 +1,23 @@
 #include <qps/query/clause/AffectsTClause.h>
+#include <query_evaluator/CfgClauseOptimiser.h>
 
-shared_ptr<RelationshipClauseResult> AffectsTClause::execute(shared_ptr<PKBQueryHandler> pkb) {
-	vector<PQLRelationship> relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(
-		PKBTrackedRelationshipType::AFFECTSSTAR, this->lhs, this->rhs);
-	return shared_ptr<RelationshipClauseResult>(
-		new RelationshipClauseResult(this->lhs, this->rhs, relationships));
+PKBTrackedRelationshipType AffectsTClause::getPkbTrackedRelationshipType() {
+    return PKBTrackedRelationshipType::AFFECTSSTAR;
+}
+
+void AffectsTClause ::acceptClauseOptimiser(CfgClauseOptimiser* optimiser) {
+    optimiser->visitAffectsTClause(this->lhs, this->rhs, this);
+}
+
+bool AffectsTClause::isAlwaysEmpty() {
+    for (const ClauseArgument& arg : { this->lhs, this->rhs }) {
+        bool argCanAffect = arg.isStmtSynonym() || arg.isAssignSynonym()
+            || arg.isWildcard() || arg.isLineNumber();
+        if (!argCanAffect) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool AffectsTClause::equals(shared_ptr <RelationshipClause> other) {

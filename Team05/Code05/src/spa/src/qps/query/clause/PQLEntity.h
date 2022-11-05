@@ -39,23 +39,23 @@ public:
         return PQLEntity(PQLEntityType::CONSTANT, "", 0, value);
     }
 
-    bool isProcedure() {
+    bool isProcedure() const {
         return this->type == PQLEntityType::PROCEDURE;
     }
 
-    bool isStatement() {
+    bool isStatement() const {
         return this->type == PQLEntityType::STATEMENT;
     }
 
-    bool isVariable() {
+    bool isVariable() const {
         return this->type == PQLEntityType::VARIABLE;
     }
 
-    bool isConstant() {
+    bool isConstant() const {
         return this->type == PQLEntityType::CONSTANT;
     }
 
-    string toString() {
+    string toString() const {
         if (type == PQLEntityType::VARIABLE || type == PQLEntityType::PROCEDURE) {
             return this->str;
         } else if (type == PQLEntityType::STATEMENT) {

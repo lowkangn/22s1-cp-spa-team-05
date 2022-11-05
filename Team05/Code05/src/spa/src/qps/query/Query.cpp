@@ -1,29 +1,97 @@
 #include <qps/query/Query.h>
+#include <qps/query_evaluator/CfgClauseOptimiser.h>
+
+void Query::initialiseRelationshipClauses(const
+        list<shared_ptr<RelationshipClause>>& relationships,
+        bool areOthersEmpty) {
+    //if the query has only 1 constraint; no point executing it late
+    if (relationships.size() == 1 && areOthersEmpty) {
+        this->earlySuchThatClauses = relationships;
+        return;
+    }
+    //else, mark cfgClauses for late execution
+    for (const shared_ptr<RelationshipClause>& suchThatClause : relationships) {
+        if (!suchThatClause->requiresCfg()) {
+            // does not require cfg
+            this->earlySuchThatClauses.emplace_back(suchThatClause);
+        } else if (suchThatClause->isAlwaysEmpty()) {
+            this->emptyResultFound = true;
+            break;
+        } else {
+            //requires cfg and is possibly non-empty
+            this->lateClauses.emplace_back(
+                static_pointer_cast<CfgRelationshipClause>(suchThatClause));
+        }
+    }
+}
 
 list<shared_ptr<ClauseResult>> Query::executeSelect(shared_ptr<PKBQueryHandler> pkb) {
+    if (this->hasFoundEmptyResult()) {
+        // empty result has been found earlier, final result will be empty
+        return {};
+    }
     return selectClause->execute(pkb);
 }
 
-list<shared_ptr<RelationshipClauseResult>> Query::executeSuchThatAndPattern(shared_ptr<PKBQueryHandler> pkb) {
+list<shared_ptr<RelationshipClauseResult>> Query::executeEarlySuchThatAndPattern(shared_ptr<PKBQueryHandler> pkb) {
 	list<shared_ptr<RelationshipClauseResult>> relationships;
-	list<shared_ptr<RelationshipClause>>::iterator suchThatIter = suchThatClauses.begin();
-	for (; suchThatIter != suchThatClauses.end(); suchThatIter++) {
-		relationships.push_back((*suchThatIter)->execute(pkb));
-	}
-	list<shared_ptr<PatternClause>>::iterator patternIter = patternClauses.begin();
-	for (; patternIter != patternClauses.end(); patternIter++) {
-		relationships.push_back((*patternIter)->execute(pkb));
-	}
+    this->executeClauses<PatternClause, RelationshipClauseResult>(this->patternClauses, relationships, pkb);
+    this->executeClauses<RelationshipClause, RelationshipClauseResult>(this->earlySuchThatClauses, relationships, pkb);
 	return relationships;
 }
 
 list<shared_ptr<ClauseResult>> Query::executeWith(shared_ptr<PKBQueryHandler> pkb) {
 	list<shared_ptr<ClauseResult>> withResults;
-	list<shared_ptr<WithClause>>::iterator withIter = withClauses.begin();
-	for (; withIter != withClauses.end(); withIter++) {
-		withResults.push_back((*withIter)->execute(pkb));
-	}
+    this->executeClauses<WithClause, ClauseResult>(this->withClauses, withResults, pkb);
 	return withResults;
+}
+
+list<shared_ptr<RelationshipClauseResult>> Query::executeLateClauses(shared_ptr<PKBQueryHandler> pkb,
+    unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap) {
+    list<shared_ptr<RelationshipClauseResult>> lateRelationships;
+    if (this->hasFoundEmptyResult()) {
+        //empty result was found earlier, there is no need to execute the rest
+        return {};
+    }
+    vector<shared_ptr<CfgRelationshipClause>>::iterator clauseIter = this->lateClauses.begin();
+    for (; clauseIter != this->lateClauses.end(); ++clauseIter) {
+        shared_ptr<RelationshipClauseResult>& result = (*clauseIter)->executeWithRestriction(pkb, restrictionMap);
+        lateRelationships.push_back(result);
+        if (result->isEmpty()) {
+            this->emptyResultFound = true;
+            return {};
+        }
+    }
+    return lateRelationships;
+}
+
+void Query::enableClauseOptimiserVisit(CfgClauseOptimiser* optimiser) {
+    for (shared_ptr<CfgRelationshipClause>& clause : this->lateClauses) {
+        clause->acceptClauseOptimiser(optimiser);
+    }
+}
+
+
+template <class ClauseType, class ResultType>
+void Query::executeClauses(list<shared_ptr<ClauseType>>& clauses, list<shared_ptr<ResultType>>& results, shared_ptr<PKBQueryHandler> pkb) {
+    if (this->hasFoundEmptyResult()) {
+        //empty result was found earlier, there is no need to execute the rest
+        return;
+    }
+
+    list<shared_ptr<ClauseType>>::iterator clauseIter = clauses.begin();
+    for (; clauseIter != clauses.end(); ++clauseIter) {
+        shared_ptr<ResultType>& result = (*clauseIter)->execute(pkb);
+        results.push_back(result);
+        if (result->isEmpty()) {
+            this->emptyResultFound = true;
+            return;
+        }
+    }
+}
+
+void Query::sortOptimisableClauses(){
+    sort(this->lateClauses.begin(), this->lateClauses.end());
 }
 
 bool operator==(Query first, Query second) {
@@ -34,7 +102,7 @@ bool operator==(Query first, Query second) {
 	if (!isSelectClauseEqual) {
 		// different select clauses
 		return false;
-	} else if (!first.areClausesAllEqual<RelationshipClause>(first.suchThatClauses, second.suchThatClauses)) {
+	} else if (!first.areClausesAllEqual<RelationshipClause>(first.earlySuchThatClauses, second.earlySuchThatClauses)) {
 		// different such that clauses
 		return false;
 	} else if (!first.areClausesAllEqual<PatternClause>(first.patternClauses, second.patternClauses)) {

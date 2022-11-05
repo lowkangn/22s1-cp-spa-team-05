@@ -23,10 +23,9 @@ private:
 	ClauseArgument(string identifier, ArgumentType type) {
 		this->identifier = identifier;
 		this->type = type;
-	};
+	}
 public:
-	// Factory methods
-	// TODO: Remove all uses of this factory method.
+    // Factory methods
 	static ClauseArgument createArgument(string identifier, ArgumentType type) {
 		return ClauseArgument(identifier, type);
 	}
@@ -115,94 +114,94 @@ public:
 		return ClauseArgument(identifier, ArgumentType::UNDECLARED_SYNONYM);
 	}
 
-	bool isStmtSynonym() {
+	bool isStmtSynonym() const {
 		return this->type == ArgumentType::STMT;
 	}
 
-	bool isAssignSynonym() {
+	bool isAssignSynonym() const {
 		return this->type == ArgumentType::ASSIGN;
 	}
 
-	bool isPrintSynonym() {
+	bool isPrintSynonym() const {
 		return this->type == ArgumentType::PRINT;
 	}
 
-	bool isReadSynonym() {
+	bool isReadSynonym() const {
 		return this->type == ArgumentType::READ;
 	}
 
-	bool isCallSynonym() {
+	bool isCallSynonym() const {
 		return this->type == ArgumentType::CALL;
 	}
 
-	bool isWhileSynonym() {
+	bool isWhileSynonym() const {
 		return this->type == ArgumentType::WHILE;
 	}
 
-	bool isIfSynonym() {
+	bool isIfSynonym() const {
 		return this->type == ArgumentType::IF;
 	}
 
-	bool isProcedureSynonym() {
+	bool isProcedureSynonym() const {
 		return this->type == ArgumentType::PROCEDURE;
 	}
 
-	bool isVariableSynonym() {
+	bool isVariableSynonym() const {
 		return this->type == ArgumentType::VARIABLE;
 	}
 
-	bool isConstantSynonym() {
+	bool isConstantSynonym() const {
 		return this->type == ArgumentType::CONSTANT;
 	}
 
-	bool isLineNumber() {
+	bool isLineNumber() const {
 		return this->type == ArgumentType::LINE_NUMBER;
 	}
 
-	bool isStringLiteral() {
+	bool isStringLiteral() const {
 		return this->type == ArgumentType::STRING_LITERAL;
 	}
 
-	bool isPatternString() {
+	bool isPatternString() const {
 		return this->type == ArgumentType::PATTERN_STRING;
 	}
 
-	bool isWildcard() {
+	bool isWildcard() const {
 		return this->type == ArgumentType::WILDCARD;
 	}
 
-	bool isPatternStringWithWildcards() {
+	bool isPatternStringWithWildcards() const {
 		return this->type == ArgumentType::PATTERN_STRING_WITH_WILDCARDS;
 	}
 
-	bool isValueAttribute() {
+	bool isValueAttribute() const {
 		return this->type == ArgumentType::VALUE;
 	}
 
-	bool isProcNameAttribute() {
+	bool isProcNameAttribute() const {
 		return this->type == ArgumentType::PROCNAME;
 	}
 
-	bool isStmtNumAttribute() {
+	bool isStmtNumAttribute() const {
 		return this->type == ArgumentType::STMTNUM;
 	}
 
-	bool isVarNameAttribute() {
+	bool isVarNameAttribute() const {
 		return this->type == ArgumentType::VARNAME;
 	}
 
-	bool isAttributeName() {
+	bool isAttributeName() const {
 		return isValueAttribute()
 			|| isProcNameAttribute()
 			|| isStmtNumAttribute()
 			|| isVarNameAttribute();
 	}
 
-	bool isUndeclaredSynonym() {
+	bool isUndeclaredSynonym() const {
 		return this->type == ArgumentType::UNDECLARED_SYNONYM;
 	}
 
-	bool isSynonym() {
+	bool isSynonym() const {
 		return isStmtSynonym()
 			|| isReadSynonym()
 			|| isPrintSynonym()
@@ -216,7 +215,7 @@ public:
 			|| isUndeclaredSynonym();
 	}
 
-	bool isStmtRefNoWildcard() {
+	bool isStmtRefNoWildcard() const {
 		return isStmtSynonym()
 			|| isReadSynonym()
 			|| isPrintSynonym()
@@ -227,7 +226,7 @@ public:
 			|| isLineNumber();
 	}
 
-	bool isEntRefNoWildcard() {
+	bool isEntRefNoWildcard() const {
 		return isProcedureSynonym()
 			|| isVariableSynonym()
 			|| isConstantSynonym()
@@ -251,11 +250,11 @@ public:
 	/*
 		Indicates if the clause argument is exact (e.g. "x", 1)
 	*/
-	bool isExactReference() {
+	bool isExactReference() const {
 		return (this->isLineNumber() || this->isStringLiteral());	
 	}
 
-	bool isSameType(ClauseArgument other) {
+	bool isSameType(ClauseArgument other) const {
 		return this->type == other.type;
 	}
 
@@ -271,9 +270,9 @@ template<> struct hash<ClauseArgument> {
 	size_t operator()(ClauseArgument arg) const noexcept {
 		// Can just use identifier since two different arguments won't have the same identifier
 		if (arg.isLineNumber()) {
-			return hash<string>{}(to_string(arg.getLineNumber()));
+			return std::hash<string>()(to_string(arg.getLineNumber()));
 		} else {
-			return hash<string>{}(arg.getIdentifier());
+			return std::hash<string>()(arg.getIdentifier());
 		}
 	}
 };

@@ -13,7 +13,7 @@ private:
 	vector<ClauseResult> selectResults;
 	vector<vector<ClauseResult>> resultsWithSelectedArgs;
 	vector<vector<ClauseResult>> resultsWithoutSelectedArgs;
-
+    
 	ClauseResult selectBooleanPlaceholderResult = EntityClauseResult::createNonEmptyNoSynonymResult();
 
 	ClauseResult mergeIntoCombinedIfNotInTable(ClauseResult combinedResult, ClauseResult resultToMerge) {
@@ -28,7 +28,7 @@ private:
 		return combinedResult;
 	}
 
-	ClauseResult combineResults(vector<ClauseResult> results);
+	ClauseResult combineResults(const vector<ClauseResult>& results);
 
 	ClauseResult getDesiredSynonymsResult(ClauseResult result);
 
@@ -42,5 +42,9 @@ public:
 		this->resultsWithoutSelectedArgs = optimisedConstraintResults.back();
 	}
 
-	ClauseResult combine();
+    vector<vector<ClauseResult>> combineWithinGroupsOnly();
+
+	ClauseResult combineAllInternal();
+
+    ClauseResult combineAllWithExternal(vector<vector<vector<ClauseResult>>>& externalOptimisedResults);
 };

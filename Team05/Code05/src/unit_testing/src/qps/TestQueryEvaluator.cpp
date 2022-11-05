@@ -1,6 +1,22 @@
 #include "catch.hpp"
 #include <qps/query_evaluator/QueryEvaluator.h>
 
+#include <qps/query/clause/WithNoExactClause.h>
+#include <qps/query/clause/WithOneExactClause.h>
+#include <qps/query/clause/WithBothExactClause.h>
+#include <qps/query/clause/CallsClause.h>
+#include <qps/query/clause/CallsTClause.h>
+#include <qps/query/clause/FollowsClause.h>
+#include <qps/query/clause/FollowsTClause.h>
+#include <qps/query/clause/ParentClause.h>
+#include <qps/query/clause/ParentTClause.h>
+#include <qps/query/clause/ModifiesSClause.h>
+#include <qps/query/clause/ModifiesPClause.h>
+#include <qps/query/clause/UsesSClause.h>
+#include <qps/query/clause/UsesPClause.h>
+#include <qps/query/clause/PatternClause.h>
+#include <qps/query/clause/PatternAssignClause.h>
+
 #include <memory>
 
 using namespace std;

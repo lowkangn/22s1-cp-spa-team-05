@@ -76,15 +76,22 @@ protected:
 public:
 	/* ============= Public constructors ============= */
 
-	ClauseResult() {};
+    ClauseResult() = default;
 
-	ClauseResult(const ClauseResult& result) : args(result.args), table(result.table), argumentToIndexMap(result.argumentToIndexMap) {};
+    ClauseResult(const ClauseResult& result) = default;
 
-	ClauseResult(vector<ClauseArgument> args, vector<vector<PQLEntity>> table) : args(args), table(table) {
+    ClauseResult(ClauseResult&& result) noexcept : args(move(result.args)),
+        argumentToIndexMap(move(result.argumentToIndexMap)), table(move(result.table))  {}
+
+    ClauseResult& operator=(const ClauseResult& result) = default;
+
+    ClauseResult& operator=(ClauseResult&& result) = default;
+
+	ClauseResult(vector<ClauseArgument> args, vector<vector<PQLEntity>> table) : args(args), table(move(table)) {
 		for (int i = 0; i < args.size(); i++) {
 			this->argumentToIndexMap.insert({args[i], i});
 		}
-	};
+	}
 
 	ClauseResult(vector<ClauseArgument> args, const vector<PQLEntity>& entities) : args(args) {
 		for (const PQLEntity& entity : entities) {
@@ -93,16 +100,16 @@ public:
 		for (int i = 0; i < args.size(); i++) {
 			this->argumentToIndexMap.insert({args[i], i});
 		}
-	};
+	}
 
 	ClauseResult(vector<ClauseArgument> args, const vector<PQLRelationship>& relationships) : args(args) {
-		for (PQLRelationship relationship : relationships) {
+		for (const PQLRelationship& relationship : relationships) {
 			table.push_back(Row{relationship.getFirstEntity(), relationship.getSecondEntity()});
 		}
 		for (int i = 0; i < args.size(); i++) {
 			this->argumentToIndexMap.insert({args[i], i});
 		}
-	};
+	}
 
 	/* ================ Public methods ================ */
 
@@ -122,15 +129,18 @@ public:
 	/* Duplicates an existing column and adds it to the table */
 	void duplicateColumn(ClauseResult column);
 
+    /* Returns the entities tied to a column */
+    unordered_set<PQLEntity> getEntitySet(const ClauseArgument& arg);
+
 	/* Convert table to set of strings (output) */
 	set<string> convertTableToString(bool isBooleanReturnType);
 
 	/* Checks if result table is empty */
-	bool isEmpty() {
+	[[nodiscard]] bool isEmpty() const {
 		return this->table.empty();
 	}
 
-	vector<ClauseArgument> getSynonymArgs() {
+	[[nodiscard]] vector<ClauseArgument> getSynonymArgs()  const {
 		vector<ClauseArgument> result;
 		copy_if(this->args.begin(), this->args.end(), back_inserter(result),
 				[](ClauseArgument arg) {return arg.isSynonym();});
