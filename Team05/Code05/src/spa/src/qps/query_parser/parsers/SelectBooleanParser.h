@@ -2,18 +2,27 @@
 
 #include <qps/query_parser/parsers/SelectParser.h>
 
+#include <list>
+#include <memory>
+#include <string>
+#include <unordered_map>
+
 class SelectBooleanParser : public SelectParser {
 private:
-	/* Extracts the arguments of the clause. Consumes all tokens in the clause after 'Select' */
-	list<ClauseArgument> extractArguments() override;
+    /* Extracts the arguments of the clause. Consumes all tokens in the clause after 'Select' */
+    list<ClauseArgument> extractArguments() override;
 
-	/* Creates the clause given the clause type and arguments */
-	shared_ptr<SelectClause> createClause(list<ClauseArgument>& args) override;
+    /* Creates the clause given the clause type and arguments */
+    shared_ptr<SelectClause> createClause(list<ClauseArgument>& args) override;
 
-	/* Returns true if the clauseTypeToken matches the clause that the Parser parses */
-	bool isCorrectClauseType(PQLToken clauseTypeToken) override;
+    /* Returns true if the clauseTypeToken matches the clause that the Parser parses */
+    bool isCorrectClauseType(PQLToken clauseTypeToken) override;
 
 public:
-	SelectBooleanParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations) :
-		SelectParser(tokens, declarations) {};
+    SelectBooleanParser(
+        list<PQLToken>& tokens,
+        const unordered_map<string, ArgumentType>& declarations) : SelectParser(
+        tokens,
+        declarations) {
+    }
 };
