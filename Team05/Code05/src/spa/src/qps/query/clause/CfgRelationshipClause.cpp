@@ -101,6 +101,9 @@ void CfgRelationshipClause::updateEntities(vector<PQLRelationship>& retrievedRel
         if (this->lhs.isSynonym() && this->updateRestriction) {
             this->lhsEntities.insert(relationship.getFirstEntity());
         }
+        if (this->lhs == this->rhs) {
+            continue;
+        }
         if (this->rhs.isSynonym() && this->updateRestriction) {
             this->rhsEntities.insert(relationship.getSecondEntity());
         }
@@ -113,7 +116,10 @@ void CfgRelationshipClause::updateRestrictionMap(
     if (this->lhs.isSynonym() && this->updateRestriction) {
         restrictionMap.insert_or_assign(this->lhs, this->lhsEntities);
     }
-    if (this->lhs.isSynonym() && this->updateRestriction) {
+    if (this->lhs == this->rhs) {
+        return;
+    }
+    if (this->rhs.isSynonym() && this->updateRestriction) {
         restrictionMap.insert_or_assign(this->rhs, this->rhsEntities);
     }
 }

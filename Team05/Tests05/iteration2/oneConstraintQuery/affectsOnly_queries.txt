@@ -358,3 +358,8 @@ stmt s, s1; if i; while w;
 Select s such that Affects*(s1, s) and Follows*(s1, w) and Follows(i, s)
 10, 14, 27
 5000
+73 - AffectsT - faster than 60
+stmt s, s1; if i; while w;
+Select s such that Affects*(s, s) and Follows*(s1,s)
+10, 23
+5000
