@@ -17,22 +17,34 @@ shared_ptr<RelationshipClauseResult> CfgRelationshipClause::executeWithRestricti
     unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap) {
     // Apply restrictions
     vector<ClauseArgument> asLhs = { this->lhs };
-    vector<ClauseArgument> asRhs = { this->rhs };
     this->replaceSynonymByExactArg(asLhs, this->lhs, restrictionMap);
-    this->replaceSynonymByExactArg(asRhs, this->rhs, restrictionMap);
 
-    // Query pkb
-    PKBTrackedRelationshipType type = this->getPkbTrackedRelationshipType();
     vector<PQLRelationship> relationships;
-    for (ClauseArgument& lhsArg : asLhs) {
-        for (ClauseArgument& rhsArg: asRhs) {
+    PKBTrackedRelationshipType type = this->getPkbTrackedRelationshipType();
+    if (this->lhs == this->rhs) {
+        // no need to replace rhs explicitly, just use lhs as rhs
+        for (ClauseArgument& lhsArg : asLhs) {
             vector<PQLRelationship> retrieved = pkb->retrieveRelationshipByTypeAndLhsRhs(
-                type, lhsArg, rhsArg);
+                type, lhsArg, lhsArg);
             relationships.insert(
                 relationships.end(),
                 std::make_move_iterator(retrieved.begin()),
                 std::make_move_iterator(retrieved.end())
             );
+        }
+    } else {
+        vector<ClauseArgument> asRhs = { this->rhs };
+        this->replaceSynonymByExactArg(asRhs, this->rhs, restrictionMap);
+        for (ClauseArgument& lhsArg : asLhs) {
+            for (ClauseArgument& rhsArg : asRhs) {
+                vector<PQLRelationship> retrieved = pkb->retrieveRelationshipByTypeAndLhsRhs(
+                    type, lhsArg, rhsArg);
+                relationships.insert(
+                    relationships.end(),
+                    std::make_move_iterator(retrieved.begin()),
+                    std::make_move_iterator(retrieved.end())
+                );
+            }
         }
     }
 
@@ -108,7 +120,7 @@ void CfgRelationshipClause::updateRestrictionMap(
 
 bool CfgRelationshipClause::isWorthUpdating(
     unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap,
-    vector<PQLRelationship> retrievedRelationships) {
+    vector<PQLRelationship>& retrievedRelationships) {
     assert(this->lhs.isSynonym() || this->rhs.isSynonym());
     // In general, the restriction is worth updating when the new number of
     // possible values for the synonym is strictly smaller

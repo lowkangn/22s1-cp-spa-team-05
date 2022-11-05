@@ -32,7 +32,7 @@ protected:
 
     /* Decides if it is worth updating the restrictionMap using the retrieved relationships */
     bool isWorthUpdating(unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap,
-        vector<PQLRelationship> retrievedRelationships);
+        vector<PQLRelationship>& retrievedRelationships);
 
     shared_ptr<RelationshipClauseResult> executeWithRestrictionHelper(shared_ptr<PKBQueryHandler>& pkb,
         unordered_map<ClauseArgument, unordered_set<PQLEntity>>& restrictionMap);

@@ -10,8 +10,11 @@ unordered_map<ClauseArgument, unordered_set<PQLEntity>>& CfgClauseOptimiser::opt
 
 void CfgClauseOptimiser::doCommonVisitation(const ClauseArgument& lhs, const ClauseArgument& rhs,
         int clauseTypeScore, CfgRelationshipClause* clause) {
+    // Add scores contributed by the arguments' types
     int score = clauseTypeScore + this->getArgScore(lhs);
     score += this->getArgScore(rhs);
+
+    // Add restriction bonus per arg if restriction occurs for the arg
     if (lhs == rhs) {
         score += 2 * RESTRICTION_BONUS * this->populateRestrictionMap(lhs);
     } else {
