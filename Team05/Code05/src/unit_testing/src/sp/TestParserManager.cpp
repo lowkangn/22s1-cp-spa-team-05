@@ -24,10 +24,10 @@ TEST_CASE("ParserManager::parse works correctly") {
 	auto test = [](list<Token> tokens, shared_ptr<ASTNode> expected) {
 
 		// ===== given =====
-		ParserManager parser = ParserManager(tokens);
+		ParserManager parser = ParserManager();
 
 		// ===== when =====
-		shared_ptr<ASTNode> root = parser.parse();
+		shared_ptr<ASTNode> root = parser.parse(tokens);
 
 		// ===== then =====
 		REQUIRE(root->equals(expected));
@@ -36,10 +36,10 @@ TEST_CASE("ParserManager::parse works correctly") {
 	auto testThrows = [](list<Token> tokens, shared_ptr<ASTNode> expected) {
 
 		// ===== given =====
-		ParserManager parser = ParserManager(tokens);
+		ParserManager parser = ParserManager();
 
 		// ===== when && then =====
-		REQUIRE_THROWS(parser.parse());
+		REQUIRE_THROWS(parser.parse(tokens));
 	};
 
 	SECTION("Parsing a simple program") {

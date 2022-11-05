@@ -20,7 +20,8 @@ TEST_CASE("Integration") {
 	shared_ptr<PKB> pkbPointer = shared_ptr<PKB>(new PKB());
 	QPS qps = QPS();
 	stringstream ss(program);
-	SourceProcessor sp = SourceProcessor(ss);
+	SourceProcessor sp = SourceProcessor();
+	sp.initialize(ss);
 
 	// when
 	//extract

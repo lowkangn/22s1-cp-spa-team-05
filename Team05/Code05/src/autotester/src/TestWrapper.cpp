@@ -27,7 +27,8 @@ void TestWrapper::parse(std::string filename) {
 	
 	try{
 		//parse
-		SourceProcessor sp = SourceProcessor(stream);
+		SourceProcessor sp = SourceProcessor();
+		sp.initialize(stream);
 		sp.extractAllAndAddToPkb(pkbPointer);
 	}
 	catch (SPException e) {
