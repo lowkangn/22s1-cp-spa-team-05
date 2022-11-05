@@ -49,9 +49,7 @@ private:
     ControlFlowParser cfgParser = ControlFlowParser();
 
 public:
-	SourceProcessor() {
-		this->isInitialized = false;
-	};
+	SourceProcessor() {};
 
 	void initialize(istream& sourceProgram);
 	void extractAllAndAddToPkb(shared_ptr<PKBUpdateHandler> pkb);
