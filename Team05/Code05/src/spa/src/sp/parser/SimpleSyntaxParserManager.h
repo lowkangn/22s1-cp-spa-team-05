@@ -20,17 +20,13 @@ class ParserManager {
 	
 private: 
 	shared_ptr<ASTNode> root; // root node of constructed AST
-	list<Token> tokens; // tokens to parse
-
 public:
 
 	/*
 		Constructs a parser manager. Expects the tokens to be parsed to be instantiated 
 		with it at run time.
 	*/
-	ParserManager(list<Token> tokens) : tokens(tokens) {
-		this->tokens = tokens;
-
+	ParserManager() {
 		// AST node expects a token
 		// convert linkedlist to vector
 		this->root = ProgramASTNode::createProgramNode();	
@@ -39,5 +35,5 @@ public:
 	/*
 		Parses the tokens into an abstract syntax tree.
 	*/
-	shared_ptr<ASTNode> parse();
+	shared_ptr<ASTNode> parse(list<Token> tokens);
 };

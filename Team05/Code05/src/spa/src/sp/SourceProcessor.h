@@ -30,10 +30,13 @@ private:
 	bool isInitialized = false;
 	shared_ptr<ASTNode> astRoot;
 	vector<shared_ptr<CFGNode>> controlFlowGraphs;
+	Lexer lexer = Lexer();
+	ParserManager parser = ParserManager();
 	DesignExtractorManager designManager{
 		EntityExtractor(),
 		PatternExtractor(),
 		NextExtractor(),
+       
 		{
 			shared_ptr<Extractor<Relationship>>(new FollowsAndFollowsTExtractor()),
 			shared_ptr<Extractor<Relationship>>(new ParentExtractor()),
@@ -43,33 +46,17 @@ private:
 			shared_ptr<Extractor<Relationship>>(new CallsAndCallsTExtractor())
 		}
 	};
+    ControlFlowParser cfgParser = ControlFlowParser();
 
 public:
-	SourceProcessor(istream& stream) {
-		// First tokenize using Lexer
-		Lexer lexer = Lexer();
+	SourceProcessor() {};
 
-		list<Token> tokens = lexer.tokenize(stream);
-
-		// Get a AST tree using ParserManager
-		ParserManager parser = ParserManager(tokens);
-
-		shared_ptr<ASTNode> root = parser.parse();
-
-		// Get a control flow graph using ControlFlowGraphParser
-		ControlFlowParser cfgParser = ControlFlowParser();
-
-		vector<shared_ptr<CFGNode>> controlFlowGraphs = cfgParser.parse(root);
-
-		this->astRoot = root;
-		this->controlFlowGraphs = controlFlowGraphs;
-		this->isInitialized = true;
-	};
+	void initialize(istream& sourceProgram);
+	void extractAllAndAddToPkb(shared_ptr<PKBUpdateHandler> pkb);
 
 	vector<Relationship> extractRelations();
 	vector<Relationship> extractCFGRelations();
 	vector<Pattern> extractPatterns();
 	vector<Entity> extractEntities();
 
-	void extractAllAndAddToPkb(shared_ptr<PKBUpdateHandler> pkb);
 };
