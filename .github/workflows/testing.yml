@@ -1,12 +1,12 @@
-name: CI for Cmake Project - Windows
+name: CI for Cmake Project (Tests) - Windows
 
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 env:
     BUILD_TYPE: Release
@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Unit & integration tests
+      - name: Build Unit & integration tests
         shell: bash
         run: |
           cd Team05/Code05
@@ -30,3 +30,8 @@ jobs:
           cmake --build . --target unit_testing --config Release
           cmake --build . --target integration_testing --config Release
           cd ../..
+      - name: Run Unit & Integration tests
+        shell: bash
+        run: |
+          Team05/Code05/build/src/unit_testing/Release/unit_testing.exe
+          Team05/Code05/build/src/integration_testing/Release/integration_testing.exe

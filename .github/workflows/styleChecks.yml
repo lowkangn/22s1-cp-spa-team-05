@@ -1,0 +1,42 @@
+name: CI for Cmake Project (Style Checks) - Windows
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  CheckStyle:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: true
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Set up cpplint
+        shell: bash
+        run: |
+          pip install --upgrade pip
+          pip install cpplint
+      - name: Run cpplint
+        shell: bash
+        run: |
+          cd Team05/Code05/src
+          #disable whitespace/indent as we are using no indent before access modifiers and 4-space indent for code blocks, as opposed to google style guide's default
+          #disable runtime/references as google's style guide has been updated to allow references as function parameters, but this is not reflected in cpplint yet
+          #disable runtime/string as using global std::strings is sufficient for our case and more convenient in terms of memory management compared to C-style strings
+          #disable build/c++11 because we only need to build for the C++17 :D
+          cpplint --filter=-legal/copyright,-build/namespaces,-whitespace/comments,-whitespace/indent,-build/c++11,+runtime,-runtime/string,-runtime/references --linelength=100 --counting=detailed --recursive spa
+          cpplint --recursive unit_testing
+          cpplint --recursive integration_testing
+          cpplint --recursive autotester
