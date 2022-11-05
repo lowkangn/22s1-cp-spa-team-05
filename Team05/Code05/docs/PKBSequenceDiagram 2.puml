@@ -1,0 +1,51 @@
+@startuml
+!include style.puml
+
+participant QPS as QPS QPS_COLOR
+
+box "Problem Knowledge Base" PKB_COLOR_T1
+participant ":PKB" as PKB PKB_COLOR
+participant ":PkbQueryManager" as QueryManager PKB_COLOR
+participant ":PkbRelationshipQueryHelper" as QueryHelper PKB_COLOR
+participant ":PkbRepository" as Repo PKB_COLOR
+participant "table:PkbRelationshipTable" as Table PKB_COLOR
+end box
+
+QPS -> PKB: retrieveRelationshipsByTypeAndLhsRhs(type, lhs, rhs)
+activate PKB
+
+PKB -> QueryManager: retrieveRelationshipByTypeAndLhsRhs(type, lhs, rhs, repository)
+activate QueryManager
+
+QueryManager -> QueryManager: pkbTrackedRelationshipTypeToInternalType(type)
+activate QueryManager
+
+QueryManager --> QueryManager: PkbRelationshipType pkbType
+deactivate QueryManager
+
+QueryManager -> QueryHelper: retrieveRelationshipsFromTablesByTypeAndLhsRhs(pkbType, lhs, rhs, repository)
+activate QueryHelper
+
+QueryHelper -> Repo: getRelationshipTableByRelationshipType(pkbType)
+activate Repo
+
+Repo --> QueryHelper: PkbRelationshipTable table
+deactivate Repo
+
+QueryHelper -> Table
+activate Table
+
+Table --> QueryHelper: PkbRelationship relationship
+deactivate Table
+
+QueryHelper --> QueryManager: vector<Relationship> relationships
+deactivate QueryHelper
+
+QueryManager --> PKB: vector<PQLRelationship> relationships
+deactivate QueryManager
+
+PKB --> QPS: vector<PQLRelationship> relationships
+deactivate PKB
+
+
+@enduml

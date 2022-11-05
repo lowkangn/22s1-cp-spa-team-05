@@ -7,26 +7,26 @@ skinparam classBackgroundColor PKB_COLOR
 Package "Program Knowledge Base" <<Rectangle>>{
     
 Interface PKBUpdateHandler <<Interface>> {
-    + addRelationships(list<Relationship>)
-    + addEntities(list<Entity)
-    + addPatterns(list<Pattern)
-    + addCfg(CFGNode)
+    + addRelationships(vector<Relationship>)
+    + addEntities(vector<Entity>)
+    + addPatterns(vector<Pattern>)
+    + addCfgs(vector<CFGNode>)
 }
 
-Interface PKBQueryHandler <<Interface>> {
-    + retrieveRelationshipsByTypeLhsAndRhs(RelationshipType, 
-        ClauseArg, ClauseArg) : list<PQLRelationship>
-    + retrieveAllStatementEntities() : list<PQLEntity>
-    + retrieveAllVariables() : list<PQLEntity>
-    + retrieveAllConstants() : list<PQLEntity>
-    + retrieveAllProcedureEntities() : list<PQLEntity>
+Interface PKBQueryHandler <<Interface>> { 
+    + retrieveAllStatementEntities() : vector<PQLEntity>
+    + retrieveAllVariables() : vector<PQLEntity>
+    + retrieveAllConstants() : vector<PQLEntity>
+    + retrieveAllProcedureEntities() : vector<PQLEntity>
     + retrieveProcedureEntityByName(string) : PQLEntity
+    + retrieveStatementByLineNumberAndType(int, StatementType) : PQLEntity
+    + retrieveStatementEntitiesByType(StatementType) : vector<PQLEntity>
     + retrieveVariableByName(string): PQLEntity
-    + retrieveStatementByLineNumber(int, StatementType) : PQLEntity
-    + retrieveStatementEntitiesByType(StatementType) : list<PQLEntity>
-    + retrieveRelationshipsByType(RelationshipType) : list<PQLEntity>
-    + retrievePatterns(StatementType, ClauseArg, ClauseArg) : list<PQLPattern>
-    + retrieveAssignPatterns(ClauseArg, ClauseArg) : list<PQLPattern>
+    + retrieveConstantByValue(int) : PQLEntity
+    + retrieveRelationshipsByTypeLhsAndRhs(RelationshipType, 
+        ClauseArg, ClauseArg) : vector<PQLRelationship>
+    + retrieveRelationshipsByType(RelationshipType) : vector<PQLRelationship>
+    + retrievePatterns(StatementType, ClauseArg, ClauseArg) : vector<PQLPattern>
 }
 
 Class PKB 
@@ -45,11 +45,19 @@ Class PkbRepository {
 }
 
 Class PkbQueryManager  {
-    + retrieveRelationshipsByType(type)
+    + retrieveRelationshipsByType(RelationshipType) : vector<PQLRelationship>
+    + retrieveRelationshipByTypeAndLhsRhs(RelationshipType,
+     ClauseArg, ClauseArg, PkbRepository): vector<PQLRelationship>
 } 
 
+Class PkbEntityQueryHelper
+Class PkbPatternQueryHelper
+Class PkbRelationshipQueryHelper
+
+Class PkbGraphExtractor
+
 Class PkbUpdateManager {
-    + addRelationships(relationships)
+    + addRelationships(vector<Relationship>)
 }
 }
 Class HiddenOutside #FFFFFF
@@ -57,13 +65,21 @@ HiddenOutside ..> PKB
 
 PKB .left.|> PKBQueryHandler
 PKB .right.|> PKBUpdateHandler
-PKB -down-> "1" PkbQueryManager
+PKB -down--> "1" PkbQueryManager
 PKB -down--> "1" PkbRepository
 PKB -down-> "1" PkbUpdateManager
-PkbUpdateManager -right-> PkbRepository
+
+PkbUpdateManager -left-> PkbRepository
+
 PkbRepository -down-> "1..*" PkbEntityTable
 PkbRepository -down-> "1..*" PkbPatternTable
 PkbRepository -down-> "1..*" PkbRelationshipTable
 PkbRepository -down-> "1" PkbGraphManager
+
+PkbQueryManager -down-> "1" PkbEntityQueryHelper
+PkbQueryManager -down-> "1" PkbPatternQueryHelper
+PkbQueryManager -down-> "1" PkbRelationshipQueryHelper
+
+PkbRelationshipQueryHelper --> "*" PkbGraphExtractor
 
 @enduml

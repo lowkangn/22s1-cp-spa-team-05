@@ -10,10 +10,10 @@ participant ":PkbUpdateManager" as UpdateManager PKB_COLOR
 participant ":PkbRepository" as Repo PKB_COLOR
 end box
 
-User -> PKB: addRelationships(relationships)
+User -> PKB: addRelationships(vector<Relationship>)
 activate PKB
 
-PKB -> UpdateManager: addRelationships(relationships)
+PKB -> UpdateManager: addRelationships(vector<Relationship>)
 activate UpdateManager
 
 loop "relationships.size()"
@@ -48,10 +48,10 @@ activate QueryManager
 QueryManager --> QueryManager
 deactivate QueryManager
 
-QueryManager --> PKB: relationships
+QueryManager --> PKB: vector<PQLRelationship> relationships
 deactivate QueryManager
 
-PKB --> User: relationships
+PKB --> User: vector<PQLRelationship> relationships
 deactivate PKB
 
 @enduml
