@@ -183,7 +183,7 @@ public:
 	}
 
 	void addPkbGraph(shared_ptr<PkbGraphNode> cfg) {
-		shared_ptr<PkbGraphManager> graphManager = shared_ptr<PkbGraphManager>(new PkbGraphManager(cfg));
+		shared_ptr<PkbGraphManager> graphManager = make_shared<PkbGraphManager>(cfg);
 		this->cfgManagers.push_back(graphManager);
 		this->procedureRootStatementNos.push_back(graphManager->getRootNode()->getAsEntity()->getLineNumber());
 

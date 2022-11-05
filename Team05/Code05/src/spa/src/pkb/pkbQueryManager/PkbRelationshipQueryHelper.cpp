@@ -159,6 +159,11 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveNextStar
 				shared_ptr<PkbStatementEntity> left = dynamic_pointer_cast<PkbStatementEntity>(lhsEntity);
 				shared_ptr<PkbStatementEntity> right = dynamic_pointer_cast<PkbStatementEntity>(rhsEntity);
 
+				// check for impossible match
+				if (!repository->statementsAreInTheSameProcedure(lhs.getLineNumber(), rhs.getLineNumber())) {
+					return out;
+				}
+
 				// check cache
 				shared_ptr<PkbNextStarRelationship> positiveNextStar = make_shared<PkbNextStarRelationship>(lhsEntity, rhsEntity);
 				shared_ptr<PkbNotNextStarRelationship> negativeNextStar = make_shared<PkbNotNextStarRelationship>(lhsEntity, rhsEntity);
@@ -430,8 +435,12 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 			vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 
 			// 3. for all pairs (diagonal matrix), check and append
-			// O(n2) enumeration
-			
+			// 3.1 determine case. last case is synonym synonym (default)
+			bool isSynonymWildcard = lhs.isStmtSynonym() && rhs.isWildcard();
+			bool isWildcardWildcard = lhs.isWildcard() && rhs.isWildcard();
+			bool isWildcardSynonym = lhs.isStmtSynonym() && rhs.isStmtSynonym();
+
+			// 3.2  O(n2) enumeration
 			for (shared_ptr<PkbEntity> statement1 : statements) {
 				bool foundOne = false;
 				// cast
@@ -454,18 +463,28 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 						ClauseArgument castAsLhs = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
 						ClauseArgument castAsRhs = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
 
+						if (isWildcardSynonym) {
+							// flip the order because we want rhs to be outer loop and lhs to be inner loop
+							castAsLhs = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
+							castAsRhs = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
+						}
+
 						// do self query for exact
 						vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, castAsRhs, repository, optimized);
 						out.insert(out.end(), found.begin(), found.end());
-						if (found.size() > 0 && optimized && rhs.isWildcard()) {
+						if (found.size() > 0 && optimized) {
 							foundOne = true;
-							break; // if found 1 with lhs, done.
+							
+							if (isSynonymWildcard  || isWildcardWildcard || isWildcardSynonym) {
+								break; // found that satisfies rhs (or lhs), can break to outer loop
+							}
+							
 						}
 					}
 				}
-				if (foundOne && optimized && lhs.isWildcard()) {
-					break;
-				}
+				if (foundOne && optimized && isWildcardWildcard) {
+					break;  // found one, can just stop
+				} 
 			}
 
 		}
@@ -574,9 +593,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 					}
 
 				}
-				// mark as visited
-				pair<string, string> exploringEdge = pair<string, string>(lhsEntity->getKey(), statement->getKey());
-				this->visitedAffectsEdges.insert(exploringEdge);
+				
 			}
 
 			if (success) {
@@ -615,7 +632,8 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 				}
 			}
 		}
-	} else if (rhs.isExactReference() && (lhs.isWildcard() || lhs.isSynonym())) {
+	} 
+	else if (rhs.isExactReference() && (lhs.isWildcard() || lhs.isSynonym())) {
 		// case 3: non, exact
 		// O(n) enumeration of affects*(s, rhs)
 		// 0. check that exact exists and synonym is not invalid (e.g. while)
@@ -665,7 +683,12 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 		}
 
 		// 2. enumerate
+		// 2.1 determine case. last case is synonym synonym (default)
+		bool isSynonymWildcard = lhs.isStmtSynonym() && rhs.isWildcard();
+		bool isWildcardWildcard = lhs.isWildcard() && rhs.isWildcard();
+		bool isWildcardSynonym = lhs.isStmtSynonym() && rhs.isStmtSynonym();
 		
+		// 2.2 O(n2) enumerate
 		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 		for (shared_ptr<PkbEntity> statement1 : statements) {
 			bool foundOne = false;
@@ -682,28 +705,34 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 					&& ((lhsRhsSame && cast1->equals(cast2)) || !lhsRhsSame)) {
 					ClauseArgument leftArg = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
 					ClauseArgument rightArg = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
+					if (isWildcardSynonym) {
+						// flip the order because we want rhs to be outer loop and lhs to be inner loop
+						leftArg = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
+						rightArg = ClauseArgument::createLineNumberArg(to_string(cast1->getLineNumber()));
+					}
+
+					// do self query for exact
 					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(leftArg, rightArg, repository, optimized);
 					out.insert(out.end(), found.begin(), found.end());
-					if (found.size() > 0 && optimized && rhs.isWildcard()) {
+					if (found.size() > 0 && optimized) {
 						foundOne = true;
-						break; // if found 1 with lhs, done.
+						if (isSynonymWildcard || isWildcardWildcard || isWildcardSynonym) {
+							break; // found that satisfies rhs (or lhs), can break to outer loop
+						}
+
 					}
 				}
 				
 			}
-			if (foundOne && optimized && lhs.isWildcard()) {
+			if (foundOne && optimized && isWildcardWildcard) {
 				break;
-			}
-				
+			}		
 		}
-
-
 	}
 	else {
 		throw PkbException("Unknown case for affects!");
 	}
 	
-
 	return out;
 	
 }
