@@ -297,7 +297,12 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 					return out;
 				}
 
-				// 3. short circuit 2: check that lhs and rhs are reachable using next*
+				// 3.1 short circuit 1: check that they belong in the same procedure
+				if (!repository->statementsAreInTheSameProcedure(lhs.getLineNumber(), rhs.getLineNumber())) {
+					return out;
+				}
+
+				// 3.2 short circuit 2: check that lhs and rhs are reachable using next*
 				if (this->retrieveNextStarByTypeAndLhsRhs(lhs, rhs, repository, optimized).size() == 0) {
 					return out;
 				}
@@ -364,7 +369,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 					// do self query for exact
 					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(lhs, castAsRhs, repository, optimized);
 					out.insert(out.end(), found.begin(), found.end());
-					if (found.size() > 0 && optimized) {
+					if (found.size() > 0 && optimized && rhs.isWildcard()) {
 						break; // if found 1 with lhs, done.
 					}
 				}
@@ -401,7 +406,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 					// do self query for exact
 					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, rhs, repository, optimized);
 					out.insert(out.end(), found.begin(), found.end());
-					if (found.size() > 0 && optimized) {
+					if (found.size() > 0 && optimized && lhs.isWildcard()) {
 						break; // if found 1 with rhs, done.
 					}
 				}
@@ -426,8 +431,9 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 
 			// 3. for all pairs (diagonal matrix), check and append
 			// O(n2) enumeration
-			bool foundOne = false;
+			
 			for (shared_ptr<PkbEntity> statement1 : statements) {
+				bool foundOne = false;
 				// cast
 				shared_ptr<PkbStatementEntity> cast1 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
 				assert(cast1 != nullptr);
@@ -451,13 +457,13 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 						// do self query for exact
 						vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsByTypeAndLhsRhs(castAsLhs, castAsRhs, repository, optimized);
 						out.insert(out.end(), found.begin(), found.end());
-						if (found.size() > 0 && optimized) {
+						if (found.size() > 0 && optimized && rhs.isWildcard()) {
 							foundOne = true;
 							break; // if found 1 with lhs, done.
 						}
 					}
 				}
-				if (foundOne && optimized) {
+				if (foundOne && optimized && lhs.isWildcard()) {
 					break;
 				}
 			}
@@ -465,10 +471,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsB
 		}
 		else {
 			throw PkbException("Unknown case for affects!");
-		}
-		
-	
-	
+		}	
 	return out;
 	
 	
@@ -581,7 +584,8 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 			}
 		}
 
-	} else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
+	} 
+	else if (lhs.isExactReference() && (rhs.isWildcard() || rhs.isSynonym())) {
 		// case 2: exact, non
 		// 0. check that exact exists and synonym is not invalid (e.g. while)
 		if (!rhs.isWildcard() && !rhs.isStmtSynonym() && !rhs.isAssignSynonym()) {
@@ -606,7 +610,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 				ClauseArgument sArg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
 				vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(lhs, sArg, repository, optimized);
 				out.insert(out.end(), found.begin(), found.end());
-				if (found.size() > 0 && optimized) {
+				if (found.size() > 0 && optimized && rhs.isWildcard()) {
 					break; // if found 1 with lhs, done.
 				}
 			}
@@ -638,7 +642,7 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 				ClauseArgument sArg = ClauseArgument::createLineNumberArg(to_string(cast->getLineNumber()));
 				vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(sArg, rhs, repository, optimized);
 				out.insert(out.end(), found.begin(), found.end());
-				if (found.size() > 0 && optimized) {
+				if (found.size() > 0 && optimized && lhs.isWildcard()) {
 					break; // if found 1 with rhs, done.
 				}
 			}
@@ -661,9 +665,11 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 		}
 
 		// 2. enumerate
-		bool foundOne = false;
+		
 		vector<shared_ptr<PkbEntity>> statements = repository->getEntityTableByType(PkbEntityType::STATEMENT)->getAll();
 		for (shared_ptr<PkbEntity> statement1 : statements) {
+			bool foundOne = false;
+			
 			// cast
 			shared_ptr<PkbStatementEntity> cast1 = dynamic_pointer_cast<PkbStatementEntity>(statement1);
 			assert(cast1 != nullptr);
@@ -678,14 +684,14 @@ vector<shared_ptr<PkbRelationship>> PkbRelationshipQueryHelper::retrieveAffectsS
 					ClauseArgument rightArg = ClauseArgument::createLineNumberArg(to_string(cast2->getLineNumber()));
 					vector<shared_ptr<PkbRelationship>> found = this->retrieveAffectsStarByTypeAndLhsRhs(leftArg, rightArg, repository, optimized);
 					out.insert(out.end(), found.begin(), found.end());
-					if (found.size() > 0 && optimized) {
+					if (found.size() > 0 && optimized && rhs.isWildcard()) {
 						foundOne = true;
 						break; // if found 1 with lhs, done.
 					}
 				}
 				
 			}
-			if (foundOne && optimized) {
+			if (foundOne && optimized && lhs.isWildcard()) {
 				break;
 			}
 				

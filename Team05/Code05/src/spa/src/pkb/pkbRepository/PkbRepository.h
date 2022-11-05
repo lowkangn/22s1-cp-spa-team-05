@@ -69,6 +69,9 @@ private:
 	// graphs
 	vector<shared_ptr<PkbGraphManager>> cfgManagers;
 
+	// other data
+	vector<int> procedureRootStatementNos;
+
 	// ======================== Helper methods ==============================
 	
 
@@ -180,7 +183,10 @@ public:
 	}
 
 	void addPkbGraph(shared_ptr<PkbGraphNode> cfg) {
-		this->cfgManagers.push_back(shared_ptr<PkbGraphManager>(new PkbGraphManager(cfg)));
+		shared_ptr<PkbGraphManager> graphManager = shared_ptr<PkbGraphManager>(new PkbGraphManager(cfg));
+		this->cfgManagers.push_back(graphManager);
+		this->procedureRootStatementNos.push_back(graphManager->getRootNode()->getAsEntity()->getLineNumber());
+
 	}
 
 
@@ -261,9 +267,31 @@ public:
 			throw PkbException("Unknown pattern table to be retrieved!");
 		}
 	}
-
+	
+	/*
+		Gets all stored cfgs.
+	*/
 	vector<shared_ptr<PkbGraphManager>> getCfgs() {
 		return this->cfgManagers;
+	}
+
+	/*
+		Checks whether statements are in the same procedure.
+		NOTE: this is a bit hacky, but for now, we keep it here.
+	*/
+	bool statementsAreInTheSameProcedure(int lineNumber1, int lineNumber2) {
+		int oneBelongsToProcedure;
+		int twoBelongsToProcedure;
+		for (int rootLineNumber : this->procedureRootStatementNos) {
+			// check line number 1
+			if (lineNumber1 >= rootLineNumber) {
+				oneBelongsToProcedure = rootLineNumber;
+			}
+			if (lineNumber2 >= rootLineNumber) {
+				twoBelongsToProcedure = rootLineNumber;
+			}
+		}
+		return oneBelongsToProcedure == twoBelongsToProcedure;
 	}
 
 	// ==================== State managers ====================
