@@ -13,6 +13,7 @@
 #include <sp/dataclasses/ast/ProcedureASTNode.h>
 #include <sp/dataclasses/ast/ProgramASTNode.h>
 #include <sp/dataclasses/ast/ReadASTNode.h>
+#include <sp/dataclasses/ast/VariableASTNode.h>
 #include <sp/dataclasses/ast/StatementListASTNode.h>
 #include <sp/dataclasses/ast/WhileASTNode.h>
 
@@ -29,13 +30,14 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		// Then
 		REQUIRE(extractedRelationships.size() == expectedResult.size());
 
+		sort(extractedRelationships.begin(), extractedRelationships.end(), Relationship::compareRelationship);
+		sort(expectedResult.begin(), expectedResult.end(), Relationship::compareRelationship);
+
 		for (int i = 0; i < extractedRelationships.size(); i++)
 		{
-			if (extractedRelationships[i].isCalls()) {
-
-			}
-
-			REQUIRE(extractedRelationships[i].equals(expectedResult[i]));
+			bool check = extractedRelationships[i].equals(expectedResult[i]);
+			
+			REQUIRE(check);
 		}
 	};
 

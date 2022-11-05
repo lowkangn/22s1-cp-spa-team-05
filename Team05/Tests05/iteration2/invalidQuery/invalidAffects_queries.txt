@@ -1,0 +1,60 @@
+1 - Undeclared synonym
+assign a;
+Select a such that Affects(a, a1)
+SemanticError
+5000
+2 - Different case Affects
+assign a;
+Select a such that AffectS(a, _)
+SyntaxError
+5000
+3 - Missing such that
+assign a;
+Select a Affects(a, _)
+SyntaxError
+5000
+4 - constant as second arg
+assign a; constant c;
+Select a such that Affects(a, c)
+SemanticError
+5000
+5 - variable as second arg (synonym)
+assign a; variable v;
+Select a such that Affects*(a, v)
+SemanticError
+5000
+6 - string literal as second arg
+assign a;
+Select a such that Affects(a, "x")
+SyntaxError
+5000
+7 - constant as first arg
+assign a; constant c;
+Select a such that Affects(c, a)
+SemanticError
+5000
+8 - variable as first arg (synonym)
+assign a; variable v;
+Select a such that Affects*(v, a)
+SemanticError
+5000
+9 - string literal as first arg
+assign a;
+Select a such that Affects("x", a)
+SyntaxError
+5000
+10 - unmatched bracket
+assign a, q;
+Select a such that Affects(a, q
+SyntaxError
+5000
+11 - missing brackets
+assign a, q;
+Select a such that Affects a, q
+SyntaxError
+5000
+12 - extra semicolon
+assign a, q;
+Select a such that Affects(a, q);
+SyntaxError
+5000

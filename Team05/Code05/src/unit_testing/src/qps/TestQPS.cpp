@@ -2,6 +2,9 @@
 
 #include <qps/QPS.h>
 
+#include <sp/dataclasses/cfg/IfCFGNode.h>
+#include <sp/dataclasses/cfg/WhileCFGNode.h>
+
 namespace {
 	/* Corresponds to the following SIMPLE source (with line numbers)
 		procedure main {
@@ -39,6 +42,11 @@ namespace {
 	ModifiesP: (main, rhsM), (x,rhsM), where rhsM is an rhs of ModifiesS
 	UsesS: (1,v), (1,x), (1,b), (2,x), (3,b), (7,b) (8,x), (9, y), (11, all of the previous RHS), (10, x), (12, main)
 	UsesP: (main,v), (main,x), (main,b), (main, main), (y,main) (x, all of the previous RHS)
+	Next: (1,2), (1,8), (2,3), (3,4), (3,5), (4,7), (5,6), (6,7), (7,1), (8,9), (10,11), (12,13), (13,14)
+	Next*: (1,1), (1,2), (1,3), (1,4), (1,5), (1,6), (1,7), (1,8), (1,9), (2,1), (2,2), (2,3), (2,4), (2,5), (2,6), (2,7), (2,8), (2,9),
+			(3,1), (3,2), (3,3), (3,4), (3,5), (3,6), (3,7), (3,8), (3,9), (4,1), (4,2), (4,3), (4,4), (4,5), (4,6), (4,7), (4,8), (4,9),
+			(5,1), (5,2), (5,3), (5,4), (5,5), (5,6), (5,7), (5,8), (5,9), (6,1), (6,2), (6,3), (6,4), (6,5), (6,6), (6,7), (6,8), (6,9),
+			(7,1), (7,2), (7,3), (7,4), (7,5), (7,6), (7,7), (7,8), (7,9), (8,9), (10,11), (12,13), (12,14), (13,14)
 	PatternAssign: 2(y, _"x"_), 2(y, _"1"_), 2(y, _"0"_), 2(y, _"1*0"_), 2(y, _"x+1*0"_), 2(y, "x+1*0"),
 				   7(z, _"0"_), 7(z, _"1000"_), 7(z, _"1000-0"_), 7(z, _"1000-0+b"_), 7(z, "1000-0+b") 
 				   10(x, _"x"_), 10(x, _"1"_), 10(x, _"2"_), 10(x, _"x/1"_), 10(x, _"x/1+2"_), 10(x, "x/1+2")
@@ -266,6 +274,69 @@ namespace {
 	Relationship followsStarA2A7 = Relationship::createFollowsTRelationship(a2, a7);
 	Relationship followsStarW1I9 = Relationship::createFollowsTRelationship(w1, i13);
 
+	// Initialise Next relationships
+	Relationship nextW1A2 = Relationship::createNextRelationship(w1, a2);
+	Relationship nextW1P8 = Relationship::createNextRelationship(w1, p8);
+	Relationship nextA2I3 = Relationship::createNextRelationship(a2, i3);
+	Relationship nextI3R4 = Relationship::createNextRelationship(i3, r4);
+	Relationship nextI3R5 = Relationship::createNextRelationship(i3, r5);
+	Relationship nextR4A7 = Relationship::createNextRelationship(r4, a7);
+	Relationship nextR5R6 = Relationship::createNextRelationship(r5, r6);
+	Relationship nextR6A7 = Relationship::createNextRelationship(r6, a7);
+	Relationship nextA7W1 = Relationship::createNextRelationship(a7, w1);
+	Relationship nextP8C9 = Relationship::createNextRelationship(p8, call9);
+	Relationship nextA10C11 = Relationship::createNextRelationship(a10, call11);
+	Relationship nextP12I13 = Relationship::createNextRelationship(p12, i13);
+	Relationship nextI13P14 = Relationship::createNextRelationship(i13, p14);
+
+	// Initialise CFGs
+	unordered_map<int, shared_ptr<CFGNode>> mainCFGNodes = {
+			{1, WhileCFGNode::createWhileCFGNode(1)},
+			{2, CFGNode::createCFGNode(a2)},
+			{3, IfCFGNode::createIfCFGNode(3)},
+			{4, CFGNode::createCFGNode(r4)},
+			{5, CFGNode::createCFGNode(r5)},
+			{6, CFGNode::createCFGNode(r6)},
+			{7, CFGNode::createCFGNode(a7)},
+			{8, CFGNode::createCFGNode(p8)},
+			{9, CFGNode::createCFGNode(call9)},
+	};
+
+	unordered_map<int, shared_ptr<CFGNode>> xCFGNodes = {
+			{10, CFGNode::createCFGNode(a10)},
+			{11, CFGNode::createCFGNode(call11)},
+	};
+
+	unordered_map<int, shared_ptr<CFGNode>> yCFGNodes = {
+			{12, CFGNode::createCFGNode(p12)},
+			{13, IfCFGNode::createIfCFGNode(13)},
+			{14, CFGNode::createCFGNode(p14)},
+	};
+
+	unordered_map<int, vector<int>> mainAdjList = {
+		{1, {2, 8}},
+		{2, {3}},
+		{3, {4, 5}},
+		{4, {7}},
+		{5, {6}},
+		{6, {7}},
+		{7, {1}},
+		{8, {9}},
+	};
+
+	unordered_map<int, vector<int>> xAdjList = {
+		{10, {11}},
+	};
+
+	unordered_map<int, vector<int>> yAdjList = {
+		{12, {13}},
+		{13, {14}},
+	};
+
+	vector<shared_ptr<CFGNode>> cfgs = {
+			CFGNode::createCFGFromAdjacencyList(mainCFGNodes, mainAdjList, 1),
+			CFGNode::createCFGFromAdjacencyList(xCFGNodes, xAdjList, 10),
+			CFGNode::createCFGFromAdjacencyList(yCFGNodes, yAdjList, 12), };
 
 	// Initialise Calls Attribute relationships
 	Relationship callsAttributeC9YProc = Relationship::createCallStmtAttributeRelationship(call9, yProc);
@@ -301,8 +372,6 @@ TEST_CASE("QPS: test working correctly") {
 		qps.projectResults(autoTesterResults);
 
         // ----- then -----
-		REQUIRE(qps.getResults() == expectedResult);
-
 		set<string> autoTesterSet{};
 		for (string s : autoTesterResults) {
 			autoTesterSet.insert(s);
@@ -341,6 +410,9 @@ TEST_CASE("QPS: test working correctly") {
 		modifiesMainZ7,
 		modifiesXProcY2, modifiesXProcX4, modifiesXProcY5, modifiesXProcStmt6, modifiesXProcZ7, modifiesXProcX10, };
 
+	vector<Relationship> allNext{ nextW1A2, nextW1P8, nextA2I3, nextI3R4, nextI3R5, nextR4A7, nextR5R6, nextR6A7, 
+		nextA7W1, nextP8C9, nextA10C11, nextP12I13, nextI13P14 };
+
 	vector<Relationship> allUsesS{ 
 		usesW1V1, usesW1T1, usesW1X2, usesW1B3, usesA2X2, usesI3B3, usesA7B7, usesP8X8, usesA10X10, usesP12Main12, 
 		usesC9Main12, usesC9C13, usesC9D13, usesC9E13, usesC9F14, usesC11V1, usesC11T1, usesC11X2, usesC11B3, 
@@ -363,30 +435,32 @@ TEST_CASE("QPS: test working correctly") {
 	pkb->addRelationships(allFollowsAndFollowsStar);
 	pkb->addRelationships(allModifiesS);
 	pkb->addRelationships(allModifiesP);
+	pkb->addRelationships(allNext);
 	pkb->addRelationships(allUsesS);
 	pkb->addRelationships(allUsesP);
 	pkb->addRelationships(allCallStatementAttribute);
 	pkb->addPatterns(allPatterns);
+	pkb->addCfgs(cfgs);
 
 	string queryString = "stmt s; Select s";
-	set<string> expectedResult{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"};
+	set<string> expectedResult{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14" };
 	SECTION("Select only") {
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "constant c;\n Select c";
-		expectedResult = set<string>{ "1", "0", "1000", "2"};
+		expectedResult = set<string>{ "1", "0", "1000", "2" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "procedure p;\t Select p";
-		expectedResult = set<string>{ "main", "y", "x", };
+		expectedResult = set<string>{ "main", "y", "x" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable \n syn; Select syn";
-		expectedResult = set<string>{ "v", "main", "x", "b", "y", "z", "stmt", "c", "d", "e", "f", "t"};
+		expectedResult = set<string>{ "v", "main", "x", "b", "y", "z", "stmt", "c", "d", "e", "f", "t" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "assign syn; Select \n syn";
-		expectedResult = set<string>{ "2", "7", "10"};
+		expectedResult = set<string>{ "2", "7", "10" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "read r01; Select r01";
@@ -396,35 +470,35 @@ TEST_CASE("QPS: test working correctly") {
 
 	SECTION("Select and such that") {
 		queryString = "stmt child;\n Select child such that Parent(_, child)";
-		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "14"};
+		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "14" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt stmt, child;\n Select child such that Parent(stmt, child)";
-		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "14"};
+		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "14" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt s;\n Select s such that Parent(1, s)";
-		expectedResult = set<string>{ "2", "3", "7"};
+		expectedResult = set<string>{ "2", "3", "7" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt Parent;\n Select Parent such that Parent* (Parent, _)";
-		expectedResult = set<string>{ "1", "3", "13"};
+		expectedResult = set<string>{ "1", "3", "13" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable Select;\n Select Select such that Modifies(6, Select)";
-		expectedResult = set<string>{ "stmt", };
+		expectedResult = set<string>{ "stmt" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable Modifies; stmt s; \n Select Modifies such that Modifies(s, Modifies)";
-		expectedResult = set<string>{ "y", "x", "stmt", "z"};
+		expectedResult = set<string>{ "y", "x", "stmt", "z" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt s; \n Select s such that Uses(s, _)";
-		expectedResult = set<string>{ "1", "2", "3", "7", "8", "9", "10", "11", "12", "13", "14"};
+		expectedResult = set<string>{ "1", "2", "3", "7", "8", "9", "10", "11", "12", "13", "14" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable variable; stmt s; \n Select variable such that Uses(s, variable)";
-		expectedResult = set<string>{ "v", "t", "x", "b", "main", "c", "d", "e", "f"};
+		expectedResult = set<string>{ "v", "t", "x", "b", "main", "c", "d", "e", "f" };
 		testQPS(queryString, expectedResult, pkb);
 
 		queryString = "variable variable; \n Select variable such that Follows(1, 8)";
@@ -441,6 +515,14 @@ TEST_CASE("QPS: test working correctly") {
 
 		queryString = "assign a; \n Select a such that Follows*(2, a)";
 		expectedResult = set<string>{ "7" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "read r; \n Select r such that Next(3, r)";
+		expectedResult = set<string>{ "4", "5" };
+		testQPS(queryString, expectedResult, pkb);
+
+		queryString = "assign a; \n Select a such that Next*(a, 3)";
+		expectedResult = set<string>{ "2", "7" };
 		testQPS(queryString, expectedResult, pkb);
 	}
 
@@ -674,7 +756,7 @@ TEST_CASE("QPS: test working correctly") {
 					 pattern a(v1, _\"1000 -   0\"_ ) with i.stmt# = i.stmt#  \
 					 with r.varName = pro.procName such that Uses(p, v) \
 			";
-		expectedResult = set<string>{ "z"};
+		expectedResult = set<string>{"z"};
 		testQPS(queryString, expectedResult, pkb);
 
 		// 2 groups, both non-empty
@@ -726,8 +808,6 @@ TEST_CASE("QPS: test correct errors") {
 			qps.projectResults(autoTesterResults);
 
 			// ----- then -----
-			REQUIRE(qps.getResults() == expectedResult);
-
 			set<string> autoTesterSet{};
 			for (string s : autoTesterResults) {
 				autoTesterSet.insert(s);
@@ -767,13 +847,13 @@ TEST_CASE("QPS: test correct errors") {
 		queryString = "stmt s;\n Select s such that Parent*(\"main\", s)";
 		testQPS(queryString, expectedResult);
 
-		queryString = "stmt s;\n Select s such that Follows*(\"x\", s)";
-		testQPS(queryString, expectedResult);
-
 		queryString = "stmt s;\n Select s such that Uses(s, \"x)";
 		testQPS(queryString, expectedResult);
 
 		queryString = "stmt s; \n Select s such that Uses(s, 1)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "stmt s;\n Select s such that Next(\"x\", s)";
 		testQPS(queryString, expectedResult);
 	}
 
@@ -814,6 +894,9 @@ TEST_CASE("QPS: test correct errors") {
 		testQPS(queryString, expectedResult);
 
 		queryString = "assign a1, a; \n Select s pattern a1(a, _)";
+		testQPS(queryString, expectedResult);
+
+		queryString = "procedure p;\n Select s such that Next*(p, 1)";
 		testQPS(queryString, expectedResult);
 	}
 }

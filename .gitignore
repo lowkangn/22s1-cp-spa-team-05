@@ -55,6 +55,7 @@ Team05/Code05/testOutputs/*
 
 # Generated files
 .idea/**/contentModel.xml
+.vscode/
 
 # Sensitive or high-churn files
 .idea/**/dataSources/

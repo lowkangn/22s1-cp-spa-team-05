@@ -9,7 +9,7 @@
 using namespace std;
 
 
-shared_ptr<ASTNode> ParserManager::parse() {
+shared_ptr<ASTNode> ParserManager::parse(list<Token> tokens) {
 	/*
 		Main logic of this method: 
 		1. We wrap all tokens into the program rule.
@@ -21,7 +21,7 @@ shared_ptr<ASTNode> ParserManager::parse() {
 
 	// create program rule
 	ProgramSimpleSyntaxRule programRule = ProgramSimpleSyntaxRule();
-	programRule.consumeTokens(this->tokens);
+	programRule.consumeTokens(tokens);
 
 	// recursively call validation
 	programRule.validate();

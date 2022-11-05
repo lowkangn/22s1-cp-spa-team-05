@@ -1,34 +1,25 @@
 #include <sp/SourceProcessor.h>
-#include <sp/lexer/Lexer.h>
-#include <sp/parser/SimpleSyntaxParserManager.h>
-#include <sp/design_extractor/DesignExtractorManager.h>
-#include <sp/design_extractor/EntityExtractor.h>
-#include <sp/design_extractor/PatternExtractor.h>
-#include <sp/design_extractor/ModifiesExtractor.h>
-#include <sp/design_extractor/UsesExtractor.h>
-#include <sp/design_extractor/ParentExtractor.h>
-#include <sp/design_extractor/ParentTExtractor.h>
-#include <sp/design_extractor/FollowsExtractor.h>
-#include <sp/design_extractor/FollowsTExtractor.h>
-
-#include <sp/dataclasses/tokens/Token.h>
-#include <sp/dataclasses/ast/AST.h>
-#include <sp/SPException.h>
-
-#include <string>
-#include <list>
-#include <vector>
-#include <sstream>
-#include <memory>
 
 using namespace std;
+
+void SourceProcessor::initialize(istream& sourceProgram) {
+    if (this->isInitialized) {
+        throw SPException("SourceProcessor has already been initialized.");
+    }
+
+    this->isInitialized = true;
+    
+	list<Token> tokens = this->lexer.tokenize(sourceProgram);
+	this->astRoot = this->parser.parse(tokens);
+	this->controlFlowGraphs = this->cfgParser.parse(this->astRoot);
+}
 
 vector<Relationship> SourceProcessor::extractRelations() {
 	if (!this->isInitialized) {
 		throw SPException("SP has not been initialized with the source program");
 	}
 	vector<Relationship> relations = this->designManager.extractRelationships(this->astRoot);
-	//vector<Relationship> cfgRelations = this->designManager.extractCFGRelationships(this->controlFlowGraphs);
+	vector<Relationship> cfgRelations = this->designManager.extractCFGRelationships(this->controlFlowGraphs);
 
 	return relations;
 }
@@ -58,4 +49,19 @@ vector<Entity> SourceProcessor::extractEntities() {
 
 	vector<Entity> entities = this->designManager.extractEntities(this->astRoot);
 	return entities;
+}
+
+void SourceProcessor::extractAllAndAddToPkb(shared_ptr<PKBUpdateHandler> pkb) {
+	//extract
+	vector<Entity> entities = this->extractEntities();
+	vector<Relationship> relationships = this->extractRelations();
+	vector<Pattern> patterns = this->extractPatterns();
+	vector<Relationship> cfgRelationships = this->extractCFGRelations();
+
+	//add to pkb
+	pkb->addEntities(entities);
+	pkb->addRelationships(relationships);
+	pkb->addPatterns(patterns);
+	pkb->addRelationships(cfgRelationships);
+	pkb->addCfgs(this->controlFlowGraphs);
 }

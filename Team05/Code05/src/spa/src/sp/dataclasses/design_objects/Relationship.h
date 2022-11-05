@@ -81,6 +81,13 @@ public:
         return this->type;
     }
 
+    static bool compareRelationship(Relationship relationshipOne, Relationship relationshipTwo) {
+        if (relationshipOne.getType() == relationshipTwo.getType()) {
+            return relationshipOne.getRhs().getLine() > relationshipTwo.getRhs().getLine();
+        }
+        return relationshipOne.getType() > relationshipTwo.getType();
+    }
+
     bool equals(Relationship other) {
         return (this->type == other.type) && (this->entity1.equals(other.entity1)) && (this->entity2.equals(other.entity2));
     }

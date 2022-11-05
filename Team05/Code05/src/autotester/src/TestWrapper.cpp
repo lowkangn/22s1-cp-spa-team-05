@@ -15,7 +15,7 @@ volatile bool AbstractWrapper::GlobalStop = false;
 // a default constructor
 TestWrapper::TestWrapper() {
 	this->shouldAnswerQuery = true;
-	this->pkbPointer = shared_ptr<PKB>(new PKB());
+	this->pkbPointer = shared_ptr<PKB>(new PKB(true));
 	this->qps = QPS();
 }
 
@@ -27,16 +27,9 @@ void TestWrapper::parse(std::string filename) {
 	
 	try{
 		//parse
-		SourceProcessor sp = SourceProcessor(stream);
-		//extract
-		vector<Entity> entities = sp.extractEntities();
-		vector<Relationship> relationships = sp.extractRelations();
-		vector<Pattern> patterns = sp.extractPatterns();
-
-		//add to pkb
-		pkbPointer->addEntities(entities);
-		pkbPointer->addRelationships(relationships);
-		pkbPointer->addPatterns(patterns);
+		SourceProcessor sp = SourceProcessor();
+		sp.initialize(stream);
+		sp.extractAllAndAddToPkb(pkbPointer);
 	}
 	catch (SPException e) {
 		stream.close();

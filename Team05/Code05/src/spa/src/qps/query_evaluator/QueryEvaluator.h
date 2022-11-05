@@ -10,6 +10,8 @@
 #include <qps/query/clause/EntityClauseResult.h>
 #include <qps/query/clause/RelationshipClauseResult.h>
 #include <qps/query/clause/RelationshipClause.h>
+#include <qps/query/clause/CallsClause.h>
+#include <qps/query/clause/CallsTClause.h>
 #include <qps/query/clause/FollowsClause.h>
 #include <qps/query/clause/FollowsTClause.h>
 #include <qps/query/clause/ParentClause.h>
@@ -25,6 +27,8 @@
 #include <qps/query/clause/WithOneExactClause.h>
 #include <qps/query/clause/WithBothExactClause.h>
 #include <qps/query/Query.h>
+#include <qps/query_evaluator/QueryResultsCombiner.h>
+#include <qps/query_evaluator/QueryResultsOptimiser.h>
 #include <pkb/PKB.h>
 
 using namespace std;
@@ -35,32 +39,14 @@ private:
 	list<ClauseResult> dereferenceResults(list<shared_ptr<T>> resultPointers) {
 		static_assert(is_base_of<ClauseResult, T>::value, "T must be a subclass of ClauseResult");
 		list<ClauseResult> results;
-		for (shared_ptr<ClauseResult> resultPointer : resultPointers) {
+		for (const shared_ptr<ClauseResult>& resultPointer : resultPointers) {
 			results.push_back(*resultPointer);
 		}
 		return results;
 	}
 
-	ClauseResult mergeIntoCombinedIfNotInTable(ClauseResult combinedResult, ClauseResult resultToMerge) {
-		if (combinedResult.isEmpty()) {
-			combinedResult = resultToMerge;
-		} else {
-			bool isSelectArgInCombinedResult = combinedResult.checkSelectArgsInTable({resultToMerge});
-			if (!isSelectArgInCombinedResult) {
-				combinedResult = combinedResult.mergeResult(resultToMerge);
-			}
-		}
-		return combinedResult;
-	}
-
-	ClauseResult combineResults(list<ClauseResult> results);
-
-	ClauseResult getDesiredSynonymsResult(list<ClauseResult> selectResultsList, ClauseResult result);
-
-	ClauseResult getSelectSynonymsCrossProductResult(list<ClauseResult> selectResultsList);
-
 public:
 	QueryEvaluator() {};
 
-	set<string> evaluate(Query query, shared_ptr<PKBQueryHandler> pkb);
+    ClauseResult evaluate(Query query, shared_ptr<PKBQueryHandler> pkb);
 };

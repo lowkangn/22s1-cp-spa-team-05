@@ -58,7 +58,7 @@ do
     ${path_to_autotester} ${iteration1}${invalid_q_path}invalid$i\_source.txt ${iteration1}${invalid_q_path}invalid$i\_queries.txt ${iteration1_output_folder}invalidQueryOut$i.xml
 done
 
-for i in Calls With
+for i in Calls With Affects
 do	
     ${path_to_autotester} ${iteration2}${invalid_q_path}invalid$i\_source.txt ${iteration2}${invalid_q_path}invalid$i\_queries.txt ${iteration2_output_folder}invalidQueryOut$i.xml
 done
@@ -87,12 +87,12 @@ ${path_to_autotester} ${iteration2}${no_constr_path}noConstraints_source.txt ${i
 echo "Starting one constraint query test cases"
 for i in follows modifies parent pattern uses
 do
-    ${path_to_autotester} ${iteration1}${one_constr_path}${i}Only_source.txt ${iteration1}${one_constr_path}${i}Only_queries.txt ${iteration1_output_folder}${i}onlyOut.xml
+    ${path_to_autotester} ${iteration1}${one_constr_path}${i}Only_source.txt ${iteration1}${one_constr_path}${i}Only_queries.txt ${iteration1_output_folder}${i}OnlyOut.xml
 done
 
-for i in calls modifies uses with
+for i in calls modifies uses next with affects
 do
-    ${path_to_autotester} ${iteration2}${one_constr_path}${i}Only_source.txt ${iteration2}${one_constr_path}${i}Only_queries.txt ${iteration2_output_folder}${i}onlyOut.xml
+    ${path_to_autotester} ${iteration2}${one_constr_path}${i}Only_source.txt ${iteration2}${one_constr_path}${i}Only_queries.txt ${iteration2_output_folder}${i}OnlyOut.xml
 done
 
 echo "Starting two constraint query test cases"

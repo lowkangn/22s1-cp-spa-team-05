@@ -12,34 +12,31 @@
 
 class QPS {
 private:
-	set<string> evaluatorResults;
+    ClauseResult evaluatorResult;
+    string errorString;
+    bool isReturningBoolean;
 
 	void handleSemanticError(const PQLSemanticError& e) {
 		cout << e.what();
 		cout << "\n";
-		evaluatorResults.clear();
-		evaluatorResults.insert("SemanticError");
+		errorString = "SemanticError";
 	}
 
 	void handleSyntaxError(const PQLSyntaxError& e) {
 		cout << e.what();
 		cout << "\n";
-		evaluatorResults.clear();
-		evaluatorResults.insert("SyntaxError");
+        errorString = "SyntaxError";
 	}
 
 	void handleLogicError(const PQLLogicError& e) {
 		cout << e.what();
 		cout << "\n";
-		evaluatorResults.clear();
 	}
 
 public:
-	void evaluate(string queryStream, shared_ptr<PKBQueryHandler> pkb);
-	
-	set<string> getResults() {
-		return this->evaluatorResults;
-	}
+    QPS() : errorString(""), isReturningBoolean(false) {}
+
+    void evaluate(string queryStream, shared_ptr<PKBQueryHandler> pkb);
 
 	void projectResults(list<std::string>& results);
 };

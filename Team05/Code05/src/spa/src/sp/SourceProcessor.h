@@ -9,8 +9,7 @@
 #include <sp/design_extractor/UsesExtractor.h>
 #include <sp/design_extractor/ParentExtractor.h>
 #include <sp/design_extractor/ParentTExtractor.h>
-#include <sp/design_extractor/FollowsExtractor.h>
-#include <sp/design_extractor/FollowsTExtractor.h>
+#include <sp/design_extractor/FollowsAndFollowsTExtractor.h>
 #include <sp/design_extractor/CallsAndCallsTExtractor.h>
 
 #include <sp/dataclasses/tokens/Token.h>
@@ -31,45 +30,33 @@ private:
 	bool isInitialized = false;
 	shared_ptr<ASTNode> astRoot;
 	vector<shared_ptr<CFGNode>> controlFlowGraphs;
+	Lexer lexer = Lexer();
+	ParserManager parser = ParserManager();
 	DesignExtractorManager designManager{
 		EntityExtractor(),
 		PatternExtractor(),
 		NextExtractor(),
+       
 		{
-			shared_ptr<Extractor<Relationship>>(new FollowsExtractor()),
-			shared_ptr<Extractor<Relationship>>(new FollowsTExtractor()),
+			shared_ptr<Extractor<Relationship>>(new FollowsAndFollowsTExtractor()),
 			shared_ptr<Extractor<Relationship>>(new ParentExtractor()),
 			shared_ptr<Extractor<Relationship>>(new ParentTExtractor()),
-			shared_ptr<Extractor<Relationship>>(new ModifiesExtractor()),
-			shared_ptr<Extractor<Relationship>>(new UsesExtractor()),
+			shared_ptr<Extractor<Relationship>>(new ModifiesExtractor(false)),
+			shared_ptr<Extractor<Relationship>>(new UsesExtractor(false)),
 			shared_ptr<Extractor<Relationship>>(new CallsAndCallsTExtractor())
 		}
 	};
+    ControlFlowParser cfgParser = ControlFlowParser();
 
 public:
-	SourceProcessor(istream& stream) {
-		// First tokenize using Lexer
-		Lexer lexer = Lexer();
+	SourceProcessor() {};
 
-		list<Token> tokens = lexer.tokenize(stream);
-
-		// Get a AST tree using ParserManager
-		ParserManager parser = ParserManager(tokens);
-
-		shared_ptr<ASTNode> root = parser.parse();
-
-		// Get a control flow graph using ControlFlowGraphParser
-		ControlFlowParser cfgParser = ControlFlowParser();
-
-		//vector<shared_ptr<CFGNode>> controlFlowGraphs = cfgParser.parse(root);
-
-		this->astRoot = root;
-		//this->controlFlowGraphs = controlFlowGraphs;
-		this->isInitialized = true;
-	};
+	void initialize(istream& sourceProgram);
+	void extractAllAndAddToPkb(shared_ptr<PKBUpdateHandler> pkb);
 
 	vector<Relationship> extractRelations();
 	vector<Relationship> extractCFGRelations();
 	vector<Pattern> extractPatterns();
 	vector<Entity> extractEntities();
+
 };

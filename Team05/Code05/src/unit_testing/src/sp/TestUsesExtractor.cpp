@@ -431,7 +431,7 @@ TEST_CASE("UsesExtractor: test handleIf") {
 TEST_CASE("UsesExtractor: test extract") {
 	auto testExtract = [](shared_ptr<ASTNode> rootNode, vector<Relationship> expectedResult) {
 		// Given
-		UsesExtractor extractor = UsesExtractor();
+		UsesExtractor extractor = UsesExtractor(0);
 
 		// When
 		vector<Relationship> extractedResult = extractor.extract(rootNode);
@@ -1081,4 +1081,237 @@ TEST_CASE("UsesExtractor: test extract") {
 
 		testExtract(rootProgramNode, expectedResult);
 	}
+}
+
+
+TEST_CASE("Test extract throws on cyclical procedure calls on UsesExtractor") {
+	auto test = [](shared_ptr<ASTNode> rootNode) {
+		UsesExtractor extractor = UsesExtractor();
+		REQUIRE_THROWS_AS(extractor.extract(rootNode), ASTException);
+	};
+
+	SECTION("2 procedures calling one another") {
+		/*
+			procedure alpha {
+			1.	call beta;
+			}
+
+			procedure beta {
+			2.	call alpha;
+			}
+		*/
+
+
+		// creating tokens
+		Token alphaToken = Token::createNameOrKeywordToken("alpha");
+		Token betaToken = Token::createNameOrKeywordToken("beta");
+		Token callToken = Token::createCallToken();
+
+
+		// Root level
+		shared_ptr<ASTNode> rootProgramNode = ProgramASTNode::createProgramNode();
+
+		shared_ptr<ASTNode> procedureAlphaNode = ProcedureASTNode::createProcedureNode(alphaToken);
+		shared_ptr<ASTNode> procedureBetaNode = ProcedureASTNode::createProcedureNode(betaToken);
+
+		rootProgramNode->addChild(procedureAlphaNode);
+		rootProgramNode->addChild(procedureBetaNode);
+
+		// alpha
+		shared_ptr<ASTNode> alphaStmtList = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> callBetaFromAlpha = CallASTNode::createCallNode();
+		shared_ptr<ASTNode> calledBetaProcNode = ProcedureASTNode::createProcedureNode(betaToken);
+		shared_ptr<ASTNode> calledBetaStmtList = StatementListASTNode::createStatementListNode();
+
+		callBetaFromAlpha->setLineNumber(1);
+
+		procedureAlphaNode->addChild(alphaStmtList);
+		alphaStmtList->addChild(callBetaFromAlpha);
+		callBetaFromAlpha->addChild(calledBetaProcNode);
+		calledBetaProcNode->addChild(calledBetaStmtList);
+
+		// beta
+		shared_ptr<ASTNode> betaStmtList = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> callAlphaFromBeta = CallASTNode::createCallNode();
+		shared_ptr<ASTNode> calledAlphaProcNode = ProcedureASTNode::createProcedureNode(alphaToken);
+		shared_ptr<ASTNode> calledAlphaStmtList = StatementListASTNode::createStatementListNode();
+
+		callAlphaFromBeta->setLineNumber(2);
+
+		procedureBetaNode->addChild(betaStmtList);
+		betaStmtList->addChild(callAlphaFromBeta);
+		callAlphaFromBeta->addChild(calledAlphaProcNode);
+		calledAlphaProcNode->addChild(calledAlphaStmtList);
+
+		test(rootProgramNode);
+	}
+
+	SECTION("Procedure calling itself") {
+		/*
+			procedure alpha {
+			1.	call alpha;
+			}
+		*/
+
+		// creating tokens
+		Token alphaToken = Token::createNameOrKeywordToken("alpha");
+		Token callToken = Token::createCallToken();
+
+		// Root level
+		shared_ptr<ASTNode> rootProgramNode = ProgramASTNode::createProgramNode();
+		shared_ptr<ASTNode> procedureAlphaNode = ProcedureASTNode::createProcedureNode(alphaToken);
+		rootProgramNode->addChild(procedureAlphaNode);
+
+		// alpha
+		shared_ptr<ASTNode> alphaStmtList = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> callAlpha = CallASTNode::createCallNode();
+		shared_ptr<ASTNode> calledAlphaProcNode = ProcedureASTNode::createProcedureNode(alphaToken);
+		shared_ptr<ASTNode> calledAlphaStmtList = StatementListASTNode::createStatementListNode();
+
+		callAlpha->setLineNumber(1);
+
+		procedureAlphaNode->addChild(alphaStmtList);
+		alphaStmtList->addChild(callAlpha);
+		callAlpha->addChild(calledAlphaProcNode);
+		calledAlphaProcNode->addChild(calledAlphaStmtList);
+
+		test(rootProgramNode);
+	}
+
+	SECTION("More complicated call cycles") {
+		/*
+			procedure alpha {
+			1.	call beta;
+			}
+
+			procedure beta {
+			2.	call charlie;
+			}
+
+			procedure charlie {
+			3. call delta;
+			4. call echo;
+			}
+
+			procedure delta {
+			5. call beta;
+			6. call echo;
+			}
+
+			procedure echo {
+			7. read x;
+			}
+
+			a -> b ->  c
+				 ^    / \
+				 |   /   \
+				 ---d --> e
+		*/
+
+		// creating tokens
+		Token alphaToken = Token::createNameOrKeywordToken("alpha");
+		Token betaToken = Token::createNameOrKeywordToken("beta");
+		Token charlieToken = Token::createNameOrKeywordToken("charlie");
+		Token deltaToken = Token::createNameOrKeywordToken("delta");
+		Token echoToken = Token::createNameOrKeywordToken("echo");
+		Token callToken = Token::createCallToken();
+		Token xToken = Token::createNameOrKeywordToken("x");
+
+		// Root level
+		shared_ptr<ASTNode> rootProgramNode = ProgramASTNode::createProgramNode();
+		shared_ptr<ASTNode> procedureAlphaNode = ProcedureASTNode::createProcedureNode(alphaToken);
+		shared_ptr<ASTNode> procedureBetaNode = ProcedureASTNode::createProcedureNode(betaToken);
+		shared_ptr<ASTNode> procedureCharlieNode = ProcedureASTNode::createProcedureNode(charlieToken);
+		shared_ptr<ASTNode> procedureDeltaNode = ProcedureASTNode::createProcedureNode(deltaToken);
+		shared_ptr<ASTNode> procedureEchoNode = ProcedureASTNode::createProcedureNode(echoToken);
+
+		rootProgramNode->addChild(procedureAlphaNode);
+		rootProgramNode->addChild(procedureBetaNode);
+		rootProgramNode->addChild(procedureCharlieNode);
+		rootProgramNode->addChild(procedureDeltaNode);
+		rootProgramNode->addChild(procedureEchoNode);
+
+		// alpha
+		shared_ptr<ASTNode> alphaStmtList = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> callBetaFromAlpha = CallASTNode::createCallNode();
+		shared_ptr<ASTNode> calledBetaProcNode = ProcedureASTNode::createProcedureNode(betaToken);
+		shared_ptr<ASTNode> calledBetaStmtList = StatementListASTNode::createStatementListNode();
+
+		callBetaFromAlpha->setLineNumber(1);
+
+		procedureAlphaNode->addChild(alphaStmtList);
+		alphaStmtList->addChild(callBetaFromAlpha);
+		callBetaFromAlpha->addChild(calledBetaProcNode);
+		calledBetaProcNode->addChild(calledBetaStmtList);
+
+		// beta
+		shared_ptr<ASTNode> betaStmtList = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> callCharlieFromBeta = CallASTNode::createCallNode();
+		shared_ptr<ASTNode> calledCharlieProcNode = ProcedureASTNode::createProcedureNode(charlieToken);
+		shared_ptr<ASTNode> calledCharlieStmtList = StatementListASTNode::createStatementListNode();
+
+		callCharlieFromBeta->setLineNumber(2);
+
+		procedureBetaNode->addChild(betaStmtList);
+		betaStmtList->addChild(callCharlieFromBeta);
+		callCharlieFromBeta->addChild(calledCharlieProcNode);
+		calledCharlieProcNode->addChild(calledCharlieStmtList);
+
+		// charlie
+		shared_ptr<ASTNode> charlieStmtList = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> callDeltaFromCharlie = CallASTNode::createCallNode();
+		shared_ptr<ASTNode> calledDeltaProcNode = ProcedureASTNode::createProcedureNode(deltaToken);
+		shared_ptr<ASTNode> calledDeltaStmtList = StatementListASTNode::createStatementListNode();
+
+		shared_ptr<ASTNode> callEchoFromCharlie = CallASTNode::createCallNode();
+		shared_ptr<ASTNode> calledEchoFromCharlieNode = ProcedureASTNode::createProcedureNode(echoToken);
+		shared_ptr<ASTNode> calledEchoStmtListFromCharlie = StatementListASTNode::createStatementListNode();
+
+		callDeltaFromCharlie->setLineNumber(3);
+		callEchoFromCharlie->setLineNumber(4);
+
+		procedureCharlieNode->addChild(charlieStmtList);
+		charlieStmtList->addChild(callDeltaFromCharlie);
+		charlieStmtList->addChild(callEchoFromCharlie);
+		callDeltaFromCharlie->addChild(calledDeltaProcNode);
+		calledDeltaProcNode->addChild(calledDeltaStmtList);
+		callEchoFromCharlie->addChild(calledEchoFromCharlieNode);
+		calledEchoFromCharlieNode->addChild(calledEchoStmtListFromCharlie);
+
+		// delta
+		shared_ptr<ASTNode> deltaStmtList = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> callBetaFromDelta = CallASTNode::createCallNode();
+		shared_ptr<ASTNode> calledBetaFromDeltaNode = ProcedureASTNode::createProcedureNode(betaToken);
+		shared_ptr<ASTNode> calledBetaStmtListFromDelta = StatementListASTNode::createStatementListNode();
+
+		shared_ptr<ASTNode> callEchoFromDelta = CallASTNode::createCallNode();
+		shared_ptr<ASTNode> calledEchoFromDeltaNode = ProcedureASTNode::createProcedureNode(echoToken);
+		shared_ptr<ASTNode> calledEchoStmtListFromDelta = StatementListASTNode::createStatementListNode();
+
+		callBetaFromDelta->setLineNumber(5);
+		callEchoFromDelta->setLineNumber(6);
+
+		procedureDeltaNode->addChild(deltaStmtList);
+		deltaStmtList->addChild(callBetaFromDelta);
+		deltaStmtList->addChild(callEchoFromDelta);
+		callBetaFromDelta->addChild(calledBetaFromDeltaNode);
+		calledBetaFromDeltaNode->addChild(calledBetaStmtListFromDelta);
+		callEchoFromDelta->addChild(calledEchoFromDeltaNode);
+		calledEchoFromDeltaNode->addChild(calledEchoStmtListFromDelta);
+
+		// echo
+		shared_ptr<ASTNode> echoStmtList = StatementListASTNode::createStatementListNode();
+		shared_ptr<ASTNode> readNode = ReadASTNode::createReadNode();
+		shared_ptr<ASTNode> xNode = VariableASTNode::createVariableNode(xToken);
+
+		readNode->setLineNumber(7);
+
+		procedureEchoNode->addChild(echoStmtList);
+		echoStmtList->addChild(readNode);
+		readNode->addChild(xNode);
+
+		test(rootProgramNode);
+	}
+
+
 }

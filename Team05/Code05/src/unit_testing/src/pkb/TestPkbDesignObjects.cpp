@@ -1,22 +1,22 @@
 #include "catch.hpp"
 
-#include <pkb/design_objects/entities/PkbProcedureEntity.h>
-#include <pkb/design_objects/entities/PkbVariableEntity.h>
-#include <pkb/design_objects/entities/PkbStatementEntity.h>
-#include <pkb/design_objects/relationships/PkbCallsRelationship.h>
-#include <pkb/design_objects/relationships/PkbCallsStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbCallStmtAttributeRelationship.h>
-#include <pkb/design_objects/relationships/PkbFollowsRelationship.h>
-#include <pkb/design_objects/relationships/PkbFollowsStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbModifiesRelationship.h>
-#include <pkb/design_objects/relationships/PkbParentRelationship.h>
-#include <pkb/design_objects/relationships/PkbParentStarRelationship.h>
-#include <pkb/design_objects/relationships/PkbUsesRelationship.h>
-#include <pkb/design_objects/patterns/PkbAssignPattern.h>
-#include <pkb/design_objects/patterns/PkbIfPattern.h>
-#include <pkb/design_objects/patterns/PkbWhilePattern.h>
-#include <pkb/design_objects/graphs/PkbGraphNode.h>
-#include <pkb/design_objects/graphs/PkbControlFlowGraphNode.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbProcedureEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbVariableEntity.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbStatementEntity.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbCallStmtAttributeRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbFollowsStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbModifiesRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbParentStarRelationship.h>
+#include <pkb/pkbRepository/design_objects/relationships/PkbUsesRelationship.h>
+#include <pkb/pkbRepository/design_objects/patterns/PkbAssignPattern.h>
+#include <pkb/pkbRepository/design_objects/patterns/PkbIfPattern.h>
+#include <pkb/pkbRepository/design_objects/patterns/PkbWhilePattern.h>
+#include <pkb/pkbRepository/design_objects/graphs/PkbGraphNode.h>
+#include <pkb/pkbRepository/design_objects/graphs/PkbControlFlowGraphNode.h>
 
 #include <pkb/PkbException.h>
 
@@ -133,47 +133,47 @@ TEST_CASE("PkbRelationship: test ::getKey") {
 	// tests
 	SECTION("Follows") {
 		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbFollowsRelationship(lhs, rhs));
-		string expectedKey = lhsKey + rhsKey + string("0");
+		string expectedKey = lhsKey + " " + rhsKey + " " + string("0");
 		test(r, expectedKey);
 	};
 	SECTION("FollowsStar") {
 		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbFollowsStarRelationship(lhs, rhs));
-		string expectedKey = lhsKey + rhsKey + string("1");
+		string expectedKey = lhsKey + " " + rhsKey + " " + string("1");
 		test(r, expectedKey);
 	};
 	SECTION("Parent") {
 		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbParentRelationship(lhs, rhs));
-		string expectedKey = lhsKey + rhsKey + string("2");
+		string expectedKey = lhsKey + " " + rhsKey + " " + string("2");
 		test(r, expectedKey);
 	};
 	SECTION("ParentStar") {
 		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbParentStarRelationship(lhs, rhs));
-		string expectedKey = lhsKey + rhsKey + string("3");
+		string expectedKey = lhsKey + " " + rhsKey + " " + string("3");
 		test(r, expectedKey);
 	};
 	SECTION("Uses") {
 		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbUsesRelationship(lhs, rhs));
-		string expectedKey = lhsKey + rhsKey + string("4");
+		string expectedKey = lhsKey + " " + rhsKey + " " + string("4");
 		test(r, expectedKey);
 	};
 	SECTION("Modifies") {
 		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbModifiesRelationship(lhs, rhs));
-		string expectedKey = lhsKey + rhsKey + string("5");
+		string expectedKey = lhsKey + " " + rhsKey + " " + string("5");
 		test(r, expectedKey);
 	};
 	SECTION("Calls") {
 		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbCallsRelationship(lhs, rhs));
-		string expectedKey = lhsKey + rhsKey + string("6");
+		string expectedKey = lhsKey + " " + rhsKey + " " + string("6");
 		test(r, expectedKey);
 	};
 	SECTION("CallsStar") {
 		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbCallsStarRelationship(lhs, rhs));
-		string expectedKey = lhsKey + rhsKey + string("7");
+		string expectedKey = lhsKey + " " + rhsKey + " " + string("7");
 		test(r, expectedKey);
 	};
 	SECTION("CallsStmtAttribute") {
 		shared_ptr<PkbRelationship> r = shared_ptr<PkbRelationship>(new PkbCallStmtAttributeRelationship(lhs, rhs));
-		string expectedKey = lhsKey + rhsKey + string("8");
+		string expectedKey = lhsKey + " " + rhsKey + " " + string("8");
 		test(r, expectedKey);
 	};
 }

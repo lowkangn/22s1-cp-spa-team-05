@@ -21,6 +21,7 @@ const string SUCH = "such";
 const string THAT = "that";
 const string PATTERN = "pattern";
 const string WITH = "with";
+const string PQL_AND = "and";
 
 // keywords for identifying Clause type
 const string PQL_CALLS = "Calls";
@@ -28,6 +29,8 @@ const string PQL_MODIFIES = "Modifies";
 const string PQL_FOLLOWS = "Follows";
 const string PQL_USES = "Uses";
 const string PQL_PARENT = "Parent";
+const string PQL_NEXT = "Next";
+const string PQL_AFFECTS = "Affects";
 const string PQL_STAR_MODIFIER = "*";
 
 // keywords for identifying attrName
@@ -207,6 +210,9 @@ public:
     bool isWith() {
         return isName() && tokenString == WITH;
     }
+    bool isAnd() {
+        return isName() && tokenString == PQL_AND;
+    }
 
     // Clause Type indicators
     bool isModifies() {
@@ -227,6 +233,14 @@ public:
 
     bool isCalls() {
         return isName() && tokenString == PQL_CALLS;
+    }
+
+    bool isNext() {
+        return isName() && tokenString == PQL_NEXT;
+    }
+
+    bool isAffects() {
+        return isName() && tokenString == PQL_AFFECTS;
     }
 
     bool isStarModifier() {

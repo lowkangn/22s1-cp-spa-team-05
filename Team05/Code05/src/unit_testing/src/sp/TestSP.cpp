@@ -4,9 +4,9 @@
 #include <sstream>
 #include <pkb/interfaces/PKBUpdateHandler.h>
 #include <pkb/PKB.h>
-#include <pkb/table_managers/PkbEntityTable.h>
-#include <pkb/table_managers/PkbRelationshipTable.h>
-#include <pkb/table_managers/PkbPatternTable.h>
+#include <pkb/pkbRepository/table_managers/PkbEntityTable.h>
+#include <pkb/pkbRepository/table_managers/PkbRelationshipTable.h>
+#include <pkb/pkbRepository/table_managers/PkbPatternTable.h>
 #include <sp/dataclasses/design_objects/Relationship.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/lexer/Lexer.h>
@@ -30,8 +30,7 @@
 #include <sp/parser/SimpleSyntaxParserManager.h>
 #include <sp/design_extractor/EntityExtractor.h>
 #include <sp/design_extractor/PatternExtractor.h>
-#include <sp/design_extractor/FollowsExtractor.h>
-#include <sp/design_extractor/FollowsTExtractor.h>
+#include <sp/design_extractor/FollowsAndFollowsTExtractor.h>
 #include <sp/design_extractor/CallsAndCallsTExtractor.h>
 #include <sp/SPException.h>
 #include <string>
@@ -48,8 +47,8 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		Lexer lexer = Lexer();
 		list<Token> tokens = lexer.tokenize(stream);
 
-		ParserManager parser = ParserManager(tokens);
-		shared_ptr<ASTNode> programTree = parser.parse();
+		ParserManager parser = ParserManager();
+		shared_ptr<ASTNode> programTree = parser.parse(tokens);
 		shared_ptr<EntityExtractor> entityExtractor(new EntityExtractor());
 		shared_ptr<PatternExtractor> patternExtractor(new PatternExtractor());
 		shared_ptr<NextExtractor> nextExtractor(new NextExtractor());
@@ -57,11 +56,10 @@ TEST_CASE("Test SP extraction of Entities and Relationships") {
 		shared_ptr<Extractor<Relationship>> parentExtractor = shared_ptr<Extractor<Relationship>>(new ParentExtractor());
 		shared_ptr<Extractor<Relationship>> parentTExtractor = shared_ptr<Extractor<Relationship>>(new ParentTExtractor());
 		shared_ptr<Extractor<Relationship>> usesExtractor = shared_ptr<Extractor<Relationship>>(new UsesExtractor());
-		shared_ptr<Extractor<Relationship>> followsExtractor = shared_ptr<Extractor<Relationship>>(new FollowsExtractor());
-		shared_ptr<Extractor<Relationship>> followsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsTExtractor());
+		shared_ptr<Extractor<Relationship>> followsAndFollowsTExtractor = shared_ptr<Extractor<Relationship>>(new FollowsAndFollowsTExtractor());
 		shared_ptr<Extractor<Relationship>> callsAndCallsTExtractor = shared_ptr<Extractor<Relationship>>(new CallsAndCallsTExtractor());
 		vector<shared_ptr<Extractor<Relationship>>> relationExtractors = vector<shared_ptr<Extractor<Relationship>>>{ modifiesExtractor, 
-				parentExtractor, parentTExtractor, usesExtractor, followsExtractor, followsTExtractor, callsAndCallsTExtractor };
+				parentExtractor, parentTExtractor, usesExtractor, followsAndFollowsTExtractor, callsAndCallsTExtractor };
 		
 		// create manager
 		DesignExtractorManager extractor = DesignExtractorManager(*entityExtractor, *patternExtractor, *nextExtractor, relationExtractors);
@@ -764,7 +762,8 @@ TEST_CASE("Test Source Processor : extractEntity") {
 	auto test = [](string sourceProgram, vector<Entity> expectedEntites) {
 		stringstream ss(sourceProgram);
 
-		SourceProcessor sp = SourceProcessor(ss);
+		SourceProcessor sp = SourceProcessor();
+		sp.initialize(ss);
 
 		vector<Entity> entities = sp.extractEntities();
 
@@ -946,7 +945,8 @@ TEST_CASE("Test Source Processor : extractPattern") {
 	auto test = [](string sourceProgram, vector<Pattern> expectedPatterns) {
 		stringstream ss(sourceProgram);
 
-		SourceProcessor sp = SourceProcessor(ss);
+		SourceProcessor sp = SourceProcessor();
+		sp.initialize(ss);
 
 		vector<Pattern> patterns = sp.extractPatterns();
 
@@ -1070,7 +1070,8 @@ TEST_CASE("Test Source Processor : extractRelations") {
 	auto test = [](string sourceProgram, vector<Relationship> expectedRelations) {
 		stringstream ss(sourceProgram);
 
-		SourceProcessor sp = SourceProcessor(ss);
+		SourceProcessor sp = SourceProcessor();
+		sp.initialize(ss);
 
 		vector<Relationship> relations = sp.extractRelations();
 
@@ -1250,12 +1251,12 @@ TEST_CASE("Test Source Processor : extractRelations") {
 	}
 }
 
-/*
 TEST_CASE("Test extractCFGRelations") {
 	auto test = [](string sourceProgram, vector<Relationship> expectedRelations) {
 		stringstream ss(sourceProgram);
 
-		SourceProcessor sp = SourceProcessor(ss);
+		SourceProcessor sp = SourceProcessor();
+		sp.initialize(ss);
 
 		vector<Relationship> relations = sp.extractCFGRelations();
 
@@ -1300,6 +1301,7 @@ TEST_CASE("Test extractCFGRelations") {
 				}
 			13.	call main2;
 			}
+			*/
 		string program = "procedure main1 {\n\twhile (1>= 1%((1))) {\n\t\tread x;\n\t}\n\tx = x + 1;\n\t}\n\n\tprocedure main2 {\n\t\tif (x >= (y - 10)) then {\n\t\t\tread x;\n\t\t} else {\n\t\t\tread y;\n\t\t}\n\t\tprint z;\n\t}\n\n\tprocedure main3 {\n\t\tx = 10;\n\t\tif (x == 5) then {\n\t\t\twhile (x != 0) {\n\t\t\t\tprint z;\n\t\t\t}\n\t\t} else {\n\t\t\tread z;\n\t\t}\n\t\tcall main2;\n\t}\n";
 
 		vector<Relationship> expectedRelations = {
@@ -1326,5 +1328,95 @@ TEST_CASE("Test extractCFGRelations") {
 
 		test(program, expectedRelations);
 	}
+
+	SECTION("Test nested while") {
+		string program = "procedure Main { \
+								while (iter <= 5) { \
+									if (iter != 1) then { \
+										iter = iter; \
+									} else { \
+										x = x; \
+									} while (iter < 1) { \
+										iter = iter; \
+									} \
+								} \
+								x = x + center; \
+						  }";
+
+		vector<Relationship> expectedRelations = {
+			// main 1
+			Relationship::createNextRelationship(Entity::createWhileEntity(1),Entity::createIfEntity(2)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(1),Entity::createAssignEntity(7)),
+			Relationship::createNextRelationship(Entity::createIfEntity(2),Entity::createAssignEntity(3)),
+			Relationship::createNextRelationship(Entity::createIfEntity(2),Entity::createAssignEntity(4)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(3),Entity::createWhileEntity(5)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(4),Entity::createWhileEntity(5)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(5),Entity::createAssignEntity(6)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(5),Entity::createWhileEntity(1)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(6),Entity::createWhileEntity(5)),
+		};
+
+		test(program, expectedRelations);
+	}
+
+	SECTION("Test multiple procedures") {
+		string program = "procedure main { \
+							x = 1; \
+							read z; \
+							if (x == 1) then { \
+								z = 2; \
+								while (y >= 0) { \
+									x = x + 10; \
+									y = y + 10; \
+									b = 1; \
+								} \
+								a = 3; \
+							} \
+							else { \
+								read x; \
+								print z; \
+								call test; \
+							} \
+							print x; \
+							x = (x + 1) - 1; \
+						} \
+						procedure test { \
+						  read y; \
+						  while (y > 0) { \
+							print y; \
+							y = y - 1; \
+						  } \
+						}";
+
+		vector<Relationship> expectedRelations = {
+			// main
+			Relationship::createNextRelationship(Entity::createAssignEntity(1),Entity::createReadEntity(2)),
+			Relationship::createNextRelationship(Entity::createReadEntity(2),Entity::createIfEntity(3)),
+			Relationship::createNextRelationship(Entity::createIfEntity(3),Entity::createAssignEntity(4)),
+			Relationship::createNextRelationship(Entity::createIfEntity(3),Entity::createReadEntity(10)),
+
+			Relationship::createNextRelationship(Entity::createAssignEntity(4),Entity::createWhileEntity(5)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(5),Entity::createAssignEntity(6)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(6),Entity::createAssignEntity(7)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(7),Entity::createAssignEntity(8)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(8),Entity::createWhileEntity(5)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(5),Entity::createAssignEntity(9)),
+
+			Relationship::createNextRelationship(Entity::createReadEntity(10),Entity::createPrintEntity(11)),
+			Relationship::createNextRelationship(Entity::createPrintEntity(11),Entity::createCallEntity(12)),
+
+			Relationship::createNextRelationship(Entity::createAssignEntity(9),Entity::createPrintEntity(13)),
+			Relationship::createNextRelationship(Entity::createCallEntity(12),Entity::createPrintEntity(13)),
+
+			Relationship::createNextRelationship(Entity::createPrintEntity(13),Entity::createAssignEntity(14)),
+
+			// test
+			Relationship::createNextRelationship(Entity::createReadEntity(15),Entity::createWhileEntity(16)),
+			Relationship::createNextRelationship(Entity::createWhileEntity(16),Entity::createPrintEntity(17)),
+			Relationship::createNextRelationship(Entity::createPrintEntity(17),Entity::createAssignEntity(18)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(18),Entity::createWhileEntity(16)),
+		};
+
+		test(program, expectedRelations);
+	}
 }
-*/
