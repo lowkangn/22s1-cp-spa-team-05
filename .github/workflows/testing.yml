@@ -3,10 +3,10 @@ name: CI for Cmake Project (Tests) - Windows
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 env:
     BUILD_TYPE: Release
