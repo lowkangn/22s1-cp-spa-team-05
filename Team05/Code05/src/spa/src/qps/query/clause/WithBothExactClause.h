@@ -1,7 +1,10 @@
 #pragma once
 
-#include <qps/query/clause/WithClause.h>
 #include <qps/query/clause/EntityClauseResult.h>
+#include <qps/query/clause/WithClause.h>
+
+#include <memory>
+#include <vector>
 
 /* WithBothExactClause encapsulates a with clause
 	whose lhs and rhs are both exact references.
@@ -9,12 +12,13 @@
 */
 class WithBothExactClause : public WithClause {
 private:
-	ClauseArgument lhs;
-	ClauseArgument rhs;
+    ClauseArgument lhs;
+    ClauseArgument rhs;
 public:
-	WithBothExactClause(ClauseArgument lhs, ClauseArgument rhs) : lhs(lhs), rhs(rhs) {}
+    WithBothExactClause(ClauseArgument lhs, ClauseArgument rhs) : lhs(lhs), rhs(rhs) {
+    }
 
-	shared_ptr<ClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) override;
+    shared_ptr<ClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) override;
 
-	bool equals(shared_ptr<WithClause> other) override;
+    bool equals(shared_ptr<WithClause> other) override;
 };

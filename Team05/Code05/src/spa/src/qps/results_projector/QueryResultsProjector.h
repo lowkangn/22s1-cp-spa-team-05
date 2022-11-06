@@ -3,8 +3,8 @@
 #include <qps/query/clause/EntityClauseResult.h>
 
 #include <list>
-#include <string>
 #include <set>
+#include <string>
 
 using namespace std;
 
@@ -13,11 +13,11 @@ using namespace std;
 	the autotester. */
 class QueryResultsProjector {
 private:
-	ClauseResult& evaluatorResult;
+    ClauseResult& evaluatorResult;
 public:
-	QueryResultsProjector(ClauseResult& evaluatorResult)
-		: evaluatorResult(evaluatorResult) {}
+    explicit QueryResultsProjector(ClauseResult& evaluatorResult)
+        : evaluatorResult(evaluatorResult) {}
 
-    void populateResultsList(list<string>& autotesterResults, bool isReturningBoolean,
-        string errorString);
+    void populateResultsList(
+        list<string>& autotesterResults, bool isReturningBoolean, string errorString);
 };

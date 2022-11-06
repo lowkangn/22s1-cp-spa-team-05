@@ -1,9 +1,11 @@
 #pragma once
 
-#include <qps/query_tokenizer/PQLToken.h>
 #include <qps/exceptions/PQLSyntaxError.h>
-#include <list>
+#include <qps/query_tokenizer/PQLToken.h>
+
 #include <fstream>
+#include <list>
+#include <string>
 
 using namespace std;
 
@@ -12,9 +14,7 @@ using namespace std;
  * Query object.
  */
 class QPSTokenizer {
-
 public:
-
     /**
      * Tokenizes the given query string into a list of PQLTokens.
      *
@@ -101,5 +101,4 @@ public:
      * @param stream to remove whitespace or newlines from.
      */
     void skipWhitespaceOrNewlineInStream(istream& stream);
-
 };

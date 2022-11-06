@@ -15,6 +15,7 @@
 
 #include <list>
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 using namespace std;
@@ -34,25 +35,24 @@ private:
     bool isSemanticallyValid = true;
     string semanticErrorMessage;
 
-	shared_ptr<SelectClause> parseSelect(const unordered_map<string, ArgumentType>& declarations);
+    shared_ptr<SelectClause> parseSelect(const unordered_map<string, ArgumentType>& declarations);
 
-	void parseConstraints(const unordered_map<string, ArgumentType>& declarations);
+    void parseConstraints(const unordered_map<string, ArgumentType>& declarations);
 
 public:
-
     /**
      * Instantiates a QueryParser that will parse the given tokens.
      *
      * @param tokens to be parsed into a Query object.
      */
-    QueryParser(list<PQLToken> tokens) {
+    explicit QueryParser(list<PQLToken> tokens) {
         this->tokens = tokens;
         this->suchThatClauses = list<shared_ptr<RelationshipClause>>{};
         this->patternClauses = list<shared_ptr<PatternClause>>{};
         this->withClauses = list<shared_ptr<WithClause>>{};
         this->isSemanticallyValid = true;
         this->semanticErrorMessage = "";
-    };
+    }
 
     /**
      * Parses list of PQLTokens into a Query object.

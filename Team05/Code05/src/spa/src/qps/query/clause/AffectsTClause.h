@@ -2,12 +2,14 @@
 
 #include <qps/query/clause/CfgRelationshipClause.h>
 
+#include <memory>
+
 class AffectsTClause : public CfgRelationshipClause {
 protected:
     PKBTrackedRelationshipType getPkbTrackedRelationshipType() override;
 public:
-    AffectsTClause(ClauseArgument lhs, ClauseArgument rhs)
-        : CfgRelationshipClause(lhs, rhs) {}
+    AffectsTClause(ClauseArgument lhs, ClauseArgument rhs) : CfgRelationshipClause(lhs, rhs) {
+    }
 
     void acceptClauseOptimiser(CfgClauseOptimiser* optimiser) override;
 

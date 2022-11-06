@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
-#include <stdexcept>
-#include <unordered_map>
-
 #include <qps/exceptions/PQLSyntaxError.h>
+
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
 
 using namespace std;
 
@@ -21,9 +21,9 @@ enum class ArgumentType {
     CONSTANT,
     LINE_NUMBER,
     STRING_LITERAL,
-	PATTERN_STRING,
+    PATTERN_STRING,
     WILDCARD,
-	PATTERN_STRING_WITH_WILDCARDS,
+    PATTERN_STRING_WITH_WILDCARDS,
     PROCNAME,
     VARNAME,
     STMTNUM,

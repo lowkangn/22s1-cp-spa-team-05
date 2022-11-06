@@ -2,19 +2,25 @@
 
 #include <qps/query_parser/parsers/ClauseParser.h>
 
+#include <list>
+#include <string>
+#include <unordered_map>
+
 class AttributeClauseParser : public ClauseParser {
 protected:
+    /* Parses the attrName portion of an attrRef of the form synonym.attrName */
+    ClauseArgument parseAttribute(ClauseArgument synonym);
 
-	/* Parses the attrName portion of an attrRef of the form synonym.attrName */
-	ClauseArgument parseAttribute(ClauseArgument synonym);
+    /* Checks for a dot and consumes it */
+    void consumeDot();
 
-	/* Checks for a dot and consumes it */
-	void consumeDot();
+    /* Checks the semantic compatibility of the synonym and the attribute */
+    void checkSynonymAttributeCompatible(ClauseArgument& synonym, ClauseArgument& attribute);
 
-	/* Checks the semantic compatibility of the synonym and the attribute */
-	void checkSynonymAttributeCompatible(ClauseArgument& synonym, ClauseArgument& attribute);
-
-	AttributeClauseParser(list<PQLToken>& tokens, const unordered_map<string, ArgumentType>& declarations)
-		: ClauseParser(tokens, declarations) {}
-
+    AttributeClauseParser(
+        list<PQLToken>& tokens,
+        const unordered_map<string, ArgumentType>& declarations) : ClauseParser(
+        tokens,
+        declarations) {
+    }
 };
