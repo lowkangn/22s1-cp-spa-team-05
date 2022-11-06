@@ -30,6 +30,7 @@ private:
         this->type = type;
     }
 public:
+
     static Relationship createModifiesRelationship(Entity& lhs, Entity& rhs) {
         return Relationship(lhs, rhs, RelationshipType::MODIFIES);
     }
@@ -81,6 +82,10 @@ public:
         return this->type;
     }
 
+    bool operator==(const Relationship& other) {
+        return this->entity1.equals(other.entity1) && this->entity2.equals(other.entity2) && this->type == other.type;
+    }
+
     static bool compareRelationship(Relationship relationshipOne, Relationship relationshipTwo) {
         if (relationshipOne.getType() == relationshipTwo.getType()) {
             return relationshipOne.getRhs().getLine() > relationshipTwo.getRhs().getLine();
@@ -89,10 +94,6 @@ public:
     }
 
     bool equals(Relationship other) {
-        return (this->type == other.type) && (this->entity1.equals(other.entity1)) && (this->entity2.equals(other.entity2));
-    }
-
-    bool operator==(Relationship other) {
         return (this->type == other.type) && (this->entity1.equals(other.entity1)) && (this->entity2.equals(other.entity2));
     }
 
