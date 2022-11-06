@@ -8,6 +8,6 @@ bool operator==(RelationshipClauseResult first, RelationshipClauseResult second)
     sort(firstTable.begin(), firstTable.end());
     sort(secondTable.begin(), secondTable.end());
 
-    return first.getFirstArg() == second.getFirstArg() && first.getSecondArg() == second.
-        getSecondArg() && firstTable == secondTable;
+    return first.getFirstArg() == second.getFirstArg()
+        && first.getSecondArg() == second.getSecondArg() && firstTable == secondTable;
 }

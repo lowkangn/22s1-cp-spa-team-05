@@ -12,6 +12,6 @@ bool operator==(EntityClauseResult first, EntityClauseResult second) {
 }
 
 bool operator<(EntityClauseResult first, EntityClauseResult second) {
-    return first.getArg() < second.getArg() || (first.getArg() == second.getArg() && first.table <
-        second.table);
+    return first.getArg() < second.getArg()
+        || (first.getArg() == second.getArg() && first.table <second.table);
 }

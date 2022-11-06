@@ -68,6 +68,6 @@ bool WithOneExactClause::equals(shared_ptr<WithClause> other) {
     }
     shared_ptr<WithOneExactClause> otherWithEntity = dynamic_pointer_cast<WithOneExactClause>(
         other);
-    return (this->exactArg == otherWithEntity->exactArg) && (this->nonExactArgs == otherWithEntity
-        ->nonExactArgs);
+    return (this->exactArg == otherWithEntity->exactArg)
+        && (this->nonExactArgs == otherWithEntity->nonExactArgs);
 }

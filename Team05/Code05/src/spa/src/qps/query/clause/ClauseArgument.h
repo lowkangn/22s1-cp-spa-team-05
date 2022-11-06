@@ -201,19 +201,35 @@ public:
     }
 
     bool isSynonym() const {
-        return isStmtSynonym() || isReadSynonym() || isPrintSynonym() || isAssignSynonym() ||
-            isCallSynonym() || isWhileSynonym() || isIfSynonym() || isProcedureSynonym() ||
-            isVariableSynonym() || isConstantSynonym() || isUndeclaredSynonym();
+        return isStmtSynonym()
+        || isReadSynonym()
+        || isPrintSynonym()
+        || isAssignSynonym()
+        || isCallSynonym()
+        || isWhileSynonym()
+        || isIfSynonym()
+        || isProcedureSynonym()
+        || isVariableSynonym()
+        || isConstantSynonym()
+        || isUndeclaredSynonym();
     }
 
     bool isStmtRefNoWildcard() const {
-        return isStmtSynonym() || isReadSynonym() || isPrintSynonym() || isAssignSynonym() ||
-            isCallSynonym() || isWhileSynonym() || isIfSynonym() || isLineNumber();
+        return isStmtSynonym()
+        || isReadSynonym()
+        || isPrintSynonym()
+        || isAssignSynonym()
+        || isCallSynonym()
+        || isWhileSynonym()
+        || isIfSynonym()
+        || isLineNumber();
     }
 
     bool isEntRefNoWildcard() const {
-        return isProcedureSynonym() || isVariableSynonym() || isConstantSynonym() ||
-            isStringLiteral();
+        return isProcedureSynonym()
+        || isVariableSynonym()
+        || isConstantSynonym()
+        || isStringLiteral();
     }
 
     int getLineNumber() {

@@ -10,6 +10,6 @@ bool PatternWhileClause::equals(shared_ptr<PatternClause> other) {
     }
     shared_ptr<PatternWhileClause> otherPatternWhile = dynamic_pointer_cast<PatternWhileClause>(
         other);
-    return (this->patternArg == otherPatternWhile->patternArg) && (this->lhs == otherPatternWhile->
-        lhs) && (this->rhs == otherPatternWhile->rhs);
+    return (this->patternArg == otherPatternWhile->patternArg)
+        && (this->lhs == otherPatternWhile->lhs) && (this->rhs == otherPatternWhile->rhs);
 }

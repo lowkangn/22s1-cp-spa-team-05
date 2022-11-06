@@ -53,6 +53,6 @@ bool SelectClause::equals(shared_ptr<SelectClause> other) {
     if (other == nullptr) {
         return false;
     }
-    return this->isBooleanReturnType == other->isBooleanReturnType && this->selectArgs == other->
-        selectArgs;
+    return this->isBooleanReturnType == other->isBooleanReturnType
+        && this->selectArgs == other->selectArgs;
 }

@@ -9,6 +9,6 @@ bool PatternIfClause::equals(shared_ptr<PatternClause> other) {
         return false;
     }
     shared_ptr<PatternIfClause> otherPatternAssign = dynamic_pointer_cast<PatternIfClause>(other);
-    return (this->patternArg == otherPatternAssign->patternArg) && (this->lhs == otherPatternAssign
-        ->lhs) && (this->rhs == otherPatternAssign->rhs);
+    return (this->patternArg == otherPatternAssign->patternArg)
+        && (this->lhs == otherPatternAssign->lhs) && (this->rhs == otherPatternAssign->rhs);
 }

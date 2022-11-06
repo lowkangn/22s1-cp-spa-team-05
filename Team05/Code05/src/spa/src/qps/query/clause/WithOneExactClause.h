@@ -22,10 +22,8 @@ private:
 
 
 public:
-    WithOneExactClause(
-        ClauseArgument exactArg, vector<ClauseArgument> nonExactArgs) : exactArg(exactArg),
-                                                                        nonExactArgs(
-                                                                            nonExactArgs) {
+    WithOneExactClause(ClauseArgument exactArg,
+        vector<ClauseArgument> nonExactArgs) : exactArg(exactArg), nonExactArgs(nonExactArgs) {
     }
 
     shared_ptr<ClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) override;
