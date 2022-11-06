@@ -366,9 +366,12 @@ public:
     }
 
     bool isRelationalOperator() {
-        return (this->isGreaterToken() || this->isGreaterThanEqualToken() || this->isLesserToken()
-            || this->isLesserThanEqualToken() || this->isEqualityToken() || this->
-            isNotEqualToken());
+        return (this->isGreaterToken()
+            || this->isGreaterThanEqualToken()
+            || this->isLesserToken()
+            || this->isLesserThanEqualToken()
+            || this->isEqualityToken()
+            || this->isNotEqualToken());
     }
 
     bool isNotOperator() {

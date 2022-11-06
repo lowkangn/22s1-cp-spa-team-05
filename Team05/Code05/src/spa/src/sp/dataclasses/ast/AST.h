@@ -144,13 +144,20 @@ public:
     }
 
     bool hasContainer() {
-        return this->isProgramNode() || this->isProcedureNode() || this->isWhileNode() || this->
-            isIfNode() || this->isStmtLstNode();
+        return this->isProgramNode()
+        || this->isProcedureNode()
+        || this->isWhileNode()
+        || this->isIfNode()
+        || this->isStmtLstNode();
     }
 
     bool isStatement() {
-        return this->isReadNode() || this->isAssignNode() || this->isIfNode() || this->
-            isWhileNode() || this->isPrintNode() || this->isCallNode();
+        return this->isReadNode()
+        || this->isAssignNode()
+        || this->isIfNode()
+        || this->isWhileNode()
+        || this->isPrintNode()
+        || this->isCallNode();
     }
 
     bool isVariable() {
