@@ -114,8 +114,8 @@ public:
         Overriding the equals operator.
     */
     const bool operator==(const PkbStatementEntity& other) const {
-        return (other.lineNumber == this->lineNumber) && (other.statementType == this->
-            statementType);
+        return (other.lineNumber == this->lineNumber)
+            && (other.statementType == this->statementType);
     }
 
     bool equals(shared_ptr<PkbEntity> other) override {

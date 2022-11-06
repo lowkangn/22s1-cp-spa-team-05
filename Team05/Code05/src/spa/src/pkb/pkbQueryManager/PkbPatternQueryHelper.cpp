@@ -13,8 +13,8 @@ vector<shared_ptr<PkbPattern>> PkbPatternQueryHelper::retrieveAssignPatterns(
         lhsIsSynonym = lhs.isVariableSynonym();
         // in either case, we match lhs with a wildcard
         lhsStringPattern = WILDCARD_CHAR;
-    } else if (lhs.isStringLiteral() || lhs.isPatternString() || lhs.
-        isPatternStringWithWildcards()) {
+    } else if (lhs.isStringLiteral() || lhs.isPatternString()
+            || lhs.isPatternStringWithWildcards()) {
         // string literal, we match exactly
         lhsStringPattern = lhs.getIdentifier();
     } else {
