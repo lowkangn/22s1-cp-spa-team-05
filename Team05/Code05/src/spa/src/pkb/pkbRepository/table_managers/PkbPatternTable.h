@@ -2,12 +2,12 @@
 
 #include <pkb/pkbRepository/design_objects/patterns/PkbPattern.h>
 
-
+#include <iostream>
+#include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
-#include <string>
-#include <memory>
-#include <iostream>
+
 using namespace std;
 
 const string WILDCARD_CHAR = "_";
@@ -21,96 +21,93 @@ const string SPACE_DELIMITER = " ";
 
 class PkbPatternTable {
 private:
-	unordered_map<string, shared_ptr<PkbPattern>> table;
+    unordered_map<string, shared_ptr<PkbPattern>> table;
 
 public:
+    PkbPatternTable() {
+    }
 
-	PkbPatternTable() {};
+    /*
+        Adds the pattern and returns the key used to store it.
+        Throws an error if a duplicate object is attempted to be stored.
+    */
+    string add(shared_ptr<PkbPattern> pattern);
 
-	/*
-		Adds the pattern and returns the key used to store it.
-		Throws an error if a duplicate object is attempted to be stored.
-	*/
-	string add(shared_ptr<PkbPattern> pattern);
+    /*
+        Gets an item by a specific key. If the item is not present,
+        we return NULL.
+    */
+    shared_ptr<PkbPattern> get(string& key);
 
-	/*
-		Gets an item by a specific key. If the item is not present,
-		we return NULL.
-	*/
-	shared_ptr<PkbPattern> get(string& key);
+    /*
+        Returns all items.
+    */
+    vector<shared_ptr<PkbPattern>> getAll();
 
-	/*
-		Returns all items.
-	*/
-	vector<shared_ptr<PkbPattern>> getAll();
+    /*
+        Given all a vector of strings to match for assignments, returns the results.
+    */
+    vector<shared_ptr<PkbPattern>> getAllThatMatchPostFixStrings(vector<string> postFixStrings);
 
-	/*
-		Given all a vector of strings to match for assignments, returns the results.
-	*/
-	vector<shared_ptr<PkbPattern>> getAllThatMatchPostFixStrings(vector<string> postFixStrings);
+    /*
+        Given all a vector of strings to match for assignments, returns the results.
+    */
+    vector<shared_ptr<PkbPattern>> getVariableMatch(string postFixStrings);
 
-	/*
-		Given all a vector of strings to match for assignments, returns the results.
-	*/
-	vector<shared_ptr<PkbPattern>> getVariableMatch(string postFixStrings);
+    /*
+        Creates a regex string from a string.
 
-	/*
-		Creates a regex string from a string.
+        The expected patterns are:
+        _something_, something, _
+    */
+    static string createRegexStringFromString(string s) {
+        // replace all special characters with escaped characters
+        PkbPatternTable::replaceAll(s, PLUS_CHAR, string("\\") + PLUS_CHAR);
+        PkbPatternTable::replaceAll(s, MULT_CHAR, string("\\") + MULT_CHAR);
+        PkbPatternTable::replaceAll(s, OR_CHAR, string("\\") + OR_CHAR);
+        PkbPatternTable::replaceAll(s, OPEN_BRACKET_CHAR, string("\\") + OPEN_BRACKET_CHAR);
+        PkbPatternTable::replaceAll(s, CLOSED_BRACKET_CHAR, string("\\") + CLOSED_BRACKET_CHAR);
 
-		The expected patterns are:
-		_something_, something, _
-	*/
-	static string createRegexStringFromString(string s) {
-		
+        // replace WILDCARD CHAR with .* regex pattern by reference
+        int initialLength = s.size();
+        PkbPatternTable::replaceAll(s, WILDCARD_CHAR, REGEX_MATCH_ANY);
 
-		// replace all special characters with escaped characters
-		PkbPatternTable::replaceAll(s, PLUS_CHAR, string("\\") + PLUS_CHAR);
-		PkbPatternTable::replaceAll(s, MULT_CHAR, string("\\") + MULT_CHAR);
-		PkbPatternTable::replaceAll(s, OR_CHAR, string("\\") + OR_CHAR);
-		PkbPatternTable::replaceAll(s, OPEN_BRACKET_CHAR, string("\\") + OPEN_BRACKET_CHAR);
-		PkbPatternTable::replaceAll(s, CLOSED_BRACKET_CHAR, string("\\") + CLOSED_BRACKET_CHAR);
+        // we validate the input by checking the change in length
+        // we expect exactly 1 (+1 char) or 2 (+2 char) wildcards e.g.:
+        // _x_ -> x, _ -> '', x -> x
+        int afterLength = s.size();
+        if (afterLength - initialLength == 1) {
+            // one wildcard replaced
+            // do nothing
+        } else if (afterLength - initialLength == 2) {
+            // two wildcards replaced
+            // insert space before the wildcards
+            s.insert(2, SPACE_DELIMITER);
+            s.insert(s.size() - 2, SPACE_DELIMITER);
 
-		// replace WILDCARD CHAR with .* regex pattern by reference
-		int initialLength = s.size();
-		PkbPatternTable::replaceAll(s, WILDCARD_CHAR, REGEX_MATCH_ANY);
+        } else if (afterLength == initialLength) {
+            // no wildcards, prepend and append space
+            s = SPACE_DELIMITER + s + SPACE_DELIMITER;
+        } else {
+            // more than two characters added
+            throw PkbException(
+                string(
+                    "Tried to construct regex string but too many wildards replaced! Got ") + s);
+        }
+        return s;
+    }
 
-		// we validate the input by checking the change in length
-		// we expect exactly 1 (+1 char) or 2 (+2 char) wildcards e.g.:
-		// _x_ -> x, _ -> '', x -> x
-		int afterLength = s.size();
-		if (afterLength - initialLength == 1) {
-			// one wildcard replaced
-			// do nothing
-		}
-		else if (afterLength - initialLength == 2) {
-			// two wildcards replaced
-			// insert space before the wildcards
-			s.insert(2, SPACE_DELIMITER);
-			s.insert(s.size() - 2, SPACE_DELIMITER);
-
-		} else if (afterLength == initialLength) {
-			// no wildcards, prepend and append space
-			s = SPACE_DELIMITER + s + SPACE_DELIMITER;
-		}
-		else {
-			// more than two characters added
-			throw PkbException(string("Tried to construct regex string but too many wildards replaced! Got ") + s);
-		}
-
-		return s;
-	}
-
-	/*
-		Replaces all instances of a substring to a new string by reference.
-	*/
-	static void replaceAll(string& str, const std::string& from, const std::string& to) {
-		if (from.empty())
-			return;
-		size_t start_pos = 0;
-		while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
-			str.replace(start_pos, from.length(), to);
-			start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
-		}
-	}
-
+    /*
+        Replaces all instances of a substring to a new string by reference.
+    */
+    static void replaceAll(string& str, const std::string& from, const std::string& to) {
+        if (from.empty()) {
+            return;
+        }
+        size_t start_pos = 0;
+        while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+            str.replace(start_pos, from.length(), to);
+            start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+        }
+    }
 };

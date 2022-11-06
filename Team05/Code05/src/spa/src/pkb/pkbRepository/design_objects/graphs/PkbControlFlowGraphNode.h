@@ -1,45 +1,48 @@
 #pragma once
 
-#include <pkb/pkbRepository/design_objects/graphs/PkbGraphNode.h>
 #include <pkb/pkbRepository/design_objects/entities/PkbStatementEntity.h>
-
+#include <pkb/pkbRepository/design_objects/graphs/PkbGraphNode.h>
 
 #include <memory>
-#include <vector>
 #include <string>
+
 using namespace std;
 
 class PkbControlFlowGraphNode : public PkbGraphNode {
-
-private: 
-	shared_ptr<PkbStatementEntity> statementEntity; // explicit statement entity being wrapped
-	
+private:
+    shared_ptr<PkbStatementEntity> statementEntity; // explicit statement entity being wrapped
 
 public:
-    PkbControlFlowGraphNode(shared_ptr<PkbStatementEntity> statementEntity) : PkbGraphNode(shared_ptr<PkbEntity>(statementEntity)) {
+    explicit PkbControlFlowGraphNode(shared_ptr<PkbStatementEntity> statementEntity)
+        : PkbGraphNode(shared_ptr<PkbEntity>(statementEntity)) {
         this->statementEntity = statementEntity;
     }
 
     // =========== Factories ====================
 
-    static shared_ptr<PkbGraphNode> createPkbControlFlowGraphNode(shared_ptr<PkbStatementEntity> statementEntity) {
-        return shared_ptr<PkbGraphNode>(new PkbControlFlowGraphNode(statementEntity));
+    static shared_ptr<PkbGraphNode> createPkbControlFlowGraphNode(
+        shared_ptr<PkbStatementEntity> statementEntity) {
+        return make_shared<PkbControlFlowGraphNode>(statementEntity);
     }
 
-	// ========== identifier methods ============
+    // ========== identifier methods ============
 
     bool isReadStatementNode() {
         return this->statementEntity->isReadStatement();
     }
+
     bool isPrintStatementNode() {
         return this->statementEntity->isPrintStatement();
     }
+
     bool isWhileStatementNode() {
         return this->statementEntity->isWhileStatement();
     }
+
     bool isAssignStatementNode() {
         return this->statementEntity->isAssignStatement();
     }
+
     bool isIfStatementNode() {
         return this->statementEntity->isIfStatement();
     }
@@ -52,9 +55,7 @@ public:
         return this->entity->getLineNumber();
     }
 
-    
     string getKey() override {
         return this->statementEntity->getKey();
     }
-	
 };

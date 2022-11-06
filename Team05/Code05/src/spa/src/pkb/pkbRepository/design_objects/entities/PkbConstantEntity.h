@@ -1,28 +1,26 @@
 #pragma once
-#include <pkb/pkbRepository/design_objects/entities/PkbEntity.h>
 #include <pkb/PkbException.h>
-#include <string>
+#include <pkb/pkbRepository/design_objects/entities/PkbEntity.h>
+
 #include <memory>
+#include <string>
 
 using namespace std;
 
 class PkbConstantEntity : public PkbEntity {
 private:
-
     int value;
-    
 
 public:
-
-    PkbConstantEntity(int value) : PkbEntity(PkbEntityType::CONSTANT) {
+    explicit PkbConstantEntity(int value) : PkbEntity(PkbEntityType::CONSTANT) {
         this->value = value;
     }
-    
+
     /*
         Returns a unique key.
     */
     string getKey() override {
-        return string("constant") + to_string(this->value) ;
+        return string("constant") + to_string(this->value);
     }
 
     /*
@@ -56,5 +54,4 @@ public:
         }
         return this->getValue() == other->getValue();
     }
-
 };
