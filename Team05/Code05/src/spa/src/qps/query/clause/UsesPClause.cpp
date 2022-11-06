@@ -4,6 +4,7 @@ shared_ptr<RelationshipClauseResult> UsesPClause::execute(shared_ptr<PKBQueryHan
     vector<PQLRelationship> relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(
         PKBTrackedRelationshipType::USES,
         this->lhs,
+        this->rhs);
     return make_shared<RelationshipClauseResult>(this->lhs, this->rhs, relationships);
 }
 
