@@ -3,10 +3,10 @@ name: CI for Cmake Project (Style Checks) - Windows
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   CheckStyle:
@@ -26,7 +26,7 @@ jobs:
       - name: Set up cpplint
         shell: bash
         run: |
-          pip install --upgrade pip
+          python.exe -m pip install --upgrade pip
           pip install cpplint
       - name: Run cpplint
         shell: bash
@@ -36,7 +36,4 @@ jobs:
           #disable runtime/references as google's style guide has been updated to allow references as function parameters, but this is not reflected in cpplint yet
           #disable runtime/string as using global std::strings is sufficient for our case and more convenient in terms of memory management compared to C-style strings
           #disable build/c++11 because we only need to build for the C++17 :D
-          cpplint --filter=-legal/copyright,-build/namespaces,-whitespace/comments,-whitespace/indent,-build/c++11,+runtime,-runtime/string,-runtime/references --linelength=100 --counting=detailed --recursive spa
-          cpplint --recursive unit_testing
-          cpplint --recursive integration_testing
-          cpplint --recursive autotester
+          cpplint --filter=-legal/copyright,-whitespace/comments,-whitespace/indent,-build/c++11,+runtime,-runtime/string,-runtime/references,-build/namespaces, --linelength=100 --counting=detailed --recursive spa
