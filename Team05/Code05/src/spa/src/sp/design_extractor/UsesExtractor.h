@@ -95,7 +95,7 @@ private:
 					shared_ptr<CallASTNode> callNode = dynamic_pointer_cast<CallASTNode>(currNode);
 
 					// get child procedure node of callNode, which is a procedure node and get its name
-					shared_ptr<ASTNode> callNodeChild = callNode->getProcedureName();
+					shared_ptr<ASTNode> callNodeChild = callNode->getProcedure();
 					string procedureCalledName = callNodeChild->extractEntity().getString();
 
 					// get the top-level procedure referenced by the procedure name found above

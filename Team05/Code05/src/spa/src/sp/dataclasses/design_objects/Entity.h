@@ -68,8 +68,8 @@ class Entity {
 			return this->type == other.getType() && this->line == other.line && (this->token == other.token);
 		}
 
-		bool operator==(Entity other) {
-			return this->type == other.getType() && this->line == other.line && (this->token == other.token);
+		bool operator==(const Entity& other) const {
+			return this->type == other.type && this->line == other.line && (this->token == other.token);
 		}
 
 		bool isOperator() {

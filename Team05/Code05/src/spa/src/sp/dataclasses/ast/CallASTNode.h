@@ -13,7 +13,7 @@ public:
 		return shared_ptr<ASTNode>(new CallASTNode(Token::createCallToken()));
 	}
 
-	shared_ptr<ASTNode> getProcedureName() {
+	shared_ptr<ASTNode> getProcedure() {
 		// Should only have on child which is the procedure name ASTNode
 		assert(this->getChildren().size() == 1);
 		return this->children[0];
