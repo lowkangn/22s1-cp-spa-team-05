@@ -2,7 +2,7 @@ name: CD for Cmake Project (Autotester) - Windows
 
 on:
   push:
-    branches: ["master", "main"]
+    branches: ["master", "staging", "wm/ci-scripts"]
 env:
     BUILD_TYPE: Release
 
