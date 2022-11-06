@@ -28,21 +28,15 @@ TEST_CASE("CallsAndCallsTExtractor: test extract") {
 		vector<Relationship> extractedRelationships = extractor.extract(astNode);
 
 		// Then
-		// REQUIRE(extractedRelationships.size() == expectedResult.size());
+		REQUIRE(extractedRelationships.size() == expectedResult.size());
 
 		sort(extractedRelationships.begin(), extractedRelationships.end(), Relationship::compareRelationship);
 		sort(expectedResult.begin(), expectedResult.end(), Relationship::compareRelationship);
 
-		if (extractedRelationships.size() != expectedResult.size()) {
-			int x = 1;
-		}
 
 		for (int i = 0; i < extractedRelationships.size(); i++)
 		{
 			bool check = extractedRelationships[i].equals(expectedResult[i]);
-            if (!check) {
-                int x = 1;
-            }
 			REQUIRE(check);
 		}
 	};

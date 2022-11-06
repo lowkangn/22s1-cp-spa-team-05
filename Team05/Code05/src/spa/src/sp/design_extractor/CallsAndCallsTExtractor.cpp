@@ -28,9 +28,6 @@ vector<Relationship> CallsAndCallsTExtractor::extract(shared_ptr<ASTNode> ast) {
         if (find(extractedRelationships.begin(), extractedRelationships.end(), relationship) == extractedRelationships.end()) {
             extractedRelationships.push_back(relationship);
         }
-        else {
-            int x = 1;
-        }
     }
 
     for (Relationship extractedRelation : extractedCallsT) {
@@ -85,13 +82,13 @@ void CallsAndCallsTExtractor::handleStatementList(shared_ptr<ProcedureASTNode> c
     string procedureName = calle->extractEntity().toString();
     for (shared_ptr<ASTNode> child : children) {
         if (child->isCallNode()) {
-            shared_ptr<CallASTNode> called = static_pointer_cast<CallASTNode>(child);
-            shared_ptr<ASTNode> calledProc = called->getProcedure();
+            shared_ptr<CallASTNode> caller = static_pointer_cast<CallASTNode>(child);
+            shared_ptr<ASTNode> calledProc = caller->getProcedure();
             string calledProcName = calledProc->extractEntity().toString();
 			this->callsGraph[procedureName].push_back(calledProc);
 
             // Add Call(Call stmt, proc) statement relationship if not added
-            Relationship callRelationship = Relationship::createCallStmtAttributeRelationship(called->extractEntity(), calledProc->extractEntity());
+            Relationship callRelationship = Relationship::createCallStmtAttributeRelationship(caller->extractEntity(), calledProc->extractEntity());
             this->relationships.push_back(callRelationship);
 			
 			// Add Call(proc, proc) Relationship
@@ -128,7 +125,6 @@ vector<Relationship> CallsAndCallsTExtractor::depthFirstExtract() {
     }
 
     for (auto it = this->callsGraph.begin(); it != this->callsGraph.end(); it++) {
-        vector<Entity> visted;
         string procedureName = it->first;
         vector<shared_ptr<ASTNode>> calledProcedures = it->second;
 
