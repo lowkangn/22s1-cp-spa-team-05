@@ -1,11 +1,12 @@
 #pragma once
 #include <sp/dataclasses/ast/AST.h>
-#include <vector>
+
 #include <memory>
+#include <vector>
 
-template <typename T> class Extractor {
+template <typename T>
+class Extractor {
 private:
-
 public:
-	virtual vector<T> extract(shared_ptr<ASTNode> rootnode) = 0;
+    virtual vector<T> extract(shared_ptr<ASTNode> rootnode) = 0;
 };

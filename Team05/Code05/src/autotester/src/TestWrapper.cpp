@@ -15,7 +15,7 @@ volatile bool AbstractWrapper::GlobalStop = false;
 // a default constructor
 TestWrapper::TestWrapper() {
 	this->shouldAnswerQuery = true;
-	this->pkbPointer = shared_ptr<PKB>(new PKB());
+	this->pkbPointer = shared_ptr<PKB>(new PKB(true));
 	this->qps = QPS();
 }
 
@@ -27,7 +27,8 @@ void TestWrapper::parse(std::string filename) {
 	
 	try{
 		//parse
-		SourceProcessor sp = SourceProcessor(stream);
+		SourceProcessor sp = SourceProcessor();
+		sp.initialize(stream);
 		sp.extractAllAndAddToPkb(pkbPointer);
 	}
 	catch (SPException e) {
@@ -54,4 +55,5 @@ void TestWrapper::evaluate(std::string query, std::list<std::string>& results){
 	// push into results list by reference
 	this->qps.projectResults(results);
 
+    pkbPointer->resetCache();
 }

@@ -2,5 +2,5 @@
 #include <sp/dataclasses/design_objects/Entity.h>
 
 Entity BracketsASTNode::extractEntity() {
-	return Entity::createBracketEntity();
+    return Entity::createBracketEntity();
 }

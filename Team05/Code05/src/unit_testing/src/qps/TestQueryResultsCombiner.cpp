@@ -165,14 +165,14 @@ namespace {
 	ClauseResult selectBooleanPlaceholderResult = ClauseResult({ClauseArgument::createWildcardArg()}, Table{{PQLEntity::generateConstant(0)}});
 }
 
-TEST_CASE("QueryResultsCombiner: test combine") {
+TEST_CASE("QueryResultsCombiner: test combineAllInternal") {
 	auto testCombine = [](list<ClauseResult> selectResults,
 			vector<vector<vector<ClauseResult>>> optimisedConstraintResults, ClauseResult expected) {
 		// given
 		QueryResultsCombiner combiner = QueryResultsCombiner(selectResults, optimisedConstraintResults);
 
 		// when
-		ClauseResult actual = combiner.combine();
+		ClauseResult actual = combiner.combineAllInternal();
 
 		// then
 

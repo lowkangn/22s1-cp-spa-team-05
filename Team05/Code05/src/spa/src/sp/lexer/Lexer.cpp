@@ -1,49 +1,46 @@
-// imported libraries
-#include <string>
-#include <list>
-#include <fstream>
-using namespace std;
-
-// imported local files
+#include <sp/SPException.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/lexer/Lexer.h>
-#include <sp/SPException.h>
+
+#include <fstream>
+#include <list>
+#include <string>
+
+using namespace std;
 
 const char NEWLINE_CHARACTER = '\n';
 
-list<Token> Lexer::tokenize(istream &stream) {
-	
-    // we use linkedlist (since we appending)
+list<Token> Lexer::tokenize(istream& stream) {
+    // we use linkedlist (since we are appending)
     list<Token> linkedListOfTokens;
     int trueline = 1;
-    while (stream.peek() != EOF) { // see https://cplusplus.com/reference/cstdio/EOF/
+    while (stream.peek() != EOF) {
+        // see https://cplusplus.com/reference/cstdio/EOF/
 
         // ===== tokenize =====
-        char peeked = char(stream.peek());
-        if (this->charIsAlphabetical(peeked)) { // starts with alphabet, is probably a name
-            linkedListOfTokens.emplace_back(this->createKeywordOrNameTokenFromTraversingStream(stream));
-        } 
-        else if (this->charIsDigit(peeked)) { // starts with a digit, is a number
+        char peeked = static_cast<char>(stream.peek());
+        if (this->charIsAlphabetical(peeked)) {
+            // starts with alphabet, is probably a name
+            linkedListOfTokens.emplace_back(
+                this->createKeywordOrNameTokenFromTraversingStream(stream));
+        } else if (this->charIsDigit(peeked)) {
+            // starts with a digit, is a number
             linkedListOfTokens.emplace_back(this->createIntegerTokenFromTraversingStream(stream));
-        }
-        else if (this->charIsOperator(peeked)) { // is punctuation, we're looking out only for specific ones
+        } else if (this->charIsOperator(peeked)) {
+            // is punctuation, we're looking out only for specific ones
             linkedListOfTokens.emplace_back(this->createOperatorTokenFromTraversingStream(stream));
-        }
-        else if (this->charIsDelimiter(peeked)) { // is punctuation, we're looking out only for specific ones
-            linkedListOfTokens.emplace_back(this->createDelimiterTokenFromTraversingStream(stream));
-        }
-        else if (peeked == NEWLINE_CHARACTER) {
+        } else if (this->charIsDelimiter(peeked)) {
+            // is punctuation, we're looking out only for specific ones
+            linkedListOfTokens.emplace_back(
+                this->createDelimiterTokenFromTraversingStream(stream));
+        } else if (peeked == NEWLINE_CHARACTER) {
             stream.get(); // take the character out
             trueline += 1; // count true line thing was on
-        }
-        else if (this->charIsWhiteSpace(peeked)) {
+        } else if (this->charIsWhiteSpace(peeked)) {
             this->traverseStreamUntilNoWhiteSpace(stream);
-        }
-        
-        else if (peeked == EOF) {
+        } else if (peeked == EOF) {
             break;
-        }
-        else {
+        } else {
             throw SPException(string("Unknown character ") + peeked + string(" encountered!"));
         }
     }
@@ -51,10 +48,9 @@ list<Token> Lexer::tokenize(istream &stream) {
 }
 
 void Lexer::traverseStreamUntilNoWhiteSpace(istream& stream) {
-    while (this->charIsWhiteSpace(char(stream.peek()))) {
+    while (this->charIsWhiteSpace(static_cast<char>(stream.peek()))) {
         stream.get(); // just traverse
-    }   
-
+    }
 }
 
 bool Lexer::charIsAlphabetical(char c) {
@@ -71,14 +67,14 @@ bool Lexer::charIsWhiteSpace(char c) {
 
 bool Lexer::charIsDelimiter(char c) {
     switch (c) {
-        case '{':
-        case '}':
-        case '(':
-        case ')':
-        case ';':
-            return true;
-        default:
-            return false;
+    case '{':
+    case '}':
+    case '(':
+    case ')':
+    case ';':
+        return true;
+    default:
+        return false;
     }
 }
 
@@ -103,8 +99,9 @@ bool Lexer::charIsOperator(char c) {
 
 Token Lexer::createKeywordOrNameTokenFromTraversingStream(istream& stream) {
     string name;
-    while (isalnum(stream.peek())) { // while is alphanumeric
-        name += char(stream.get());
+    while (isalnum(stream.peek())) {
+        // while is alphanumeric
+        name += static_cast<char>(stream.get());
     }
     return Token::createNameOrKeywordToken(name);
 }
@@ -112,33 +109,36 @@ Token Lexer::createKeywordOrNameTokenFromTraversingStream(istream& stream) {
 Token Lexer::createIntegerTokenFromTraversingStream(istream& stream) {
     string value;
 
-    while (isdigit(stream.peek())) { // keep getting digits
-        // TODO: we should include a check for how weird numbers like 001
-        value += char(stream.get());
+    while (isdigit(stream.peek())) {
+        // keep getting digits
+        value += static_cast<char>(stream.get());
     }
-    
-    if (value.size() > 1 && value[0] == char(0)) {
+
+    if (value.size() > 1 && value[0] == '0') {
+        // value is a sequence of numbers of length > 1 and starts with 0
         throw SPException(value + string(" is an invalid integer"));
     }
 
-    // cannot have letter immediately after 
+    // cannot have letter immediately after
     if (isalpha(stream.peek())) {
-        throw SPException(string("Alphabetical character ") + char(stream.peek()) + string(" immediately after number ") + value + string(" - did you forget a space ? "));
+        throw SPException(
+            string("Alphabetical character ") + static_cast<char>(stream.peek()) +
+                string("immediately after number ") + value +
+                string(" - did you forget a space ? "));
     }
     return Token::createIntegerToken(value);
-
 }
 
 
 Token Lexer::createDelimiterTokenFromTraversingStream(istream& stream) {
     string s;
-    s += char(stream.get());
+    s += static_cast<char>(stream.get());
     return Token::createDelimiterToken(s);
 }
 
 Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
     // check if is singleton operators
-    char c = char(stream.get());
+    char c = static_cast<char>(stream.get());
     string s;
     s += c;
 
@@ -152,45 +152,46 @@ Token Lexer::createOperatorTokenFromTraversingStream(istream& stream) {
     case '>':
     case '<':
     case '=':
-        if (char(stream.peek()) == '=') { // comparators can only be paired with =
-            s += char(stream.get());
-        }
-        else if (this->charIsOperator(char(stream.peek()))) {
-            throw SPException(string("Invalid comparator operator! ") + s + string(" followed by ") + char(stream.peek()));
+        if (static_cast<char>(stream.peek()) == '=') {
+            // comparators can only be paired with =
+            s += static_cast<char>(stream.get());
+        } else if (this->charIsOperator(static_cast<char>(stream.peek()))) {
+            throw SPException(
+                string("Invalid comparator operator! ") + s + string(" followed by ") +
+                    static_cast<char>(stream.peek()));
         }
         break;
     case '!':
-        
         // Only join the string if it is paired with '='
-        if (char(stream.peek()) == '=') {
-            s += char(stream.get());
+        if (static_cast<char>(stream.peek()) == '=') {
+            s += static_cast<char>(stream.get());
             break;
-        }
-        
-        else if (this->charIsWhiteSpace(char(stream.peek())) || char(stream.peek()) == '(') {
+        } else if (this->charIsWhiteSpace(static_cast<char>(stream.peek()))
+                || static_cast<char>(stream.peek()) == '(') {
             this->traverseStreamUntilNoWhiteSpace(stream);
-            if (char(stream.peek()) == '(') {
+            if (static_cast<char>(stream.peek()) == '(') {
                 // do nothing
                 break;
             }
-        }
-        else {
-            throw SPException(string("Invalid comparator operator! ") + s + string(" followed by ") + char(stream.peek()));
+        } else {
+            throw SPException(
+                string("Invalid comparator operator! ") + s + string(" followed by ") +
+                    static_cast<char>(stream.peek()));
         }
     case '&':
     case '|':
-        if (char(stream.peek()) == c) { // comparators can only be paired with =
-            s += char(stream.get());
+        if (static_cast<char>(stream.peek()) == c) {
+            // comparators can only be paired with =
+            s += static_cast<char>(stream.get());
         }
-        if (this->charIsOperator(char(stream.peek()))) {
-            throw SPException(string("Invalid logical operator! ") + s + string(" followed by ") + char(stream.peek()));
+        if (this->charIsOperator(static_cast<char>(stream.peek()))) {
+            throw SPException(
+                string("Invalid logical operator! ") + s + string(" followed by ") +
+                    static_cast<char>(stream.peek()));
         }
         break;
     default:
         throw SPException(string("Unknown operator: ") + s);
     }
     return Token::createOperatorToken(s);
-    
-
 }
-

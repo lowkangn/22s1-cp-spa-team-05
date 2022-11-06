@@ -1,11 +1,12 @@
 #pragma once
 #include <sp/dataclasses/cfg/CFGNode.h>
-#include <vector>
+
 #include <memory>
+#include <vector>
 
-template <typename T> class CFGExtractor {
+template <typename T>
+class CFGExtractor {
 private:
-
 public:
-	virtual vector<T> extract(shared_ptr<CFGNode> rootnode) = 0;
+    virtual vector<T> extract(shared_ptr<CFGNode> rootnode) = 0;
 };

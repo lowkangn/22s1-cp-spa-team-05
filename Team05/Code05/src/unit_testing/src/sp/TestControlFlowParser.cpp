@@ -875,8 +875,8 @@ TEST_CASE("parse") {
 		Lexer lexer = Lexer();
 		list<Token> tokens = lexer.tokenize(stream);
 
-		ParserManager parser = ParserManager(tokens);
-		shared_ptr<ASTNode> programTree = parser.parse();
+		ParserManager parser = ParserManager();
+		shared_ptr<ASTNode> programTree = parser.parse(tokens);
 
 		// First CFG
 		unordered_map<int, shared_ptr<CFGNode>> firstCFGNodes = {

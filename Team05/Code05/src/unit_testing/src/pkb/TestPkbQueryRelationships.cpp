@@ -1985,6 +1985,717 @@ TEST_CASE("Add and get graph+table relationships (e.g. affects) by type and lhs 
 }
 
 
+TEST_CASE("OPTIMIZED: Add and get graph+table relationships (e.g. affects) by type and lhs and rhs") {
+	auto test = [](
+		PKBTrackedRelationshipType relationshipType,
+		ClauseArgument lhs,
+		ClauseArgument rhs,
+		vector<PQLRelationship> expectedRelationships,
+		vector<shared_ptr<CFGNode>> graphsToAdd,
+		vector<Relationship> relationshipsToAdd,
+		vector<Entity> entitiesToAdd
+		) {
+			// given pkb 
+			PKB pkb = PKB(true); // optimized
+
+			// when add and retrieve relationships 
+			pkb.addCfgs(graphsToAdd);
+			pkb.addRelationships(relationshipsToAdd);
+			pkb.addEntities(entitiesToAdd);
+			vector<PQLRelationship> all = pkb.retrieveRelationshipByTypeAndLhsRhs(relationshipType, lhs, rhs);
+
+			// then should be inside
+			if (expectedRelationships.size() != all.size()) {
+				int x = 2;
+			}
+			REQUIRE(expectedRelationships.size() == all.size());
+			for (int i = 0; i < expectedRelationships.size(); i++) {
+				// retrieval all have been added
+				REQUIRE(find(all.begin(), all.end(), expectedRelationships[i]) != all.end());
+			}
+	};
+
+	SECTION("affects") {
+		/*
+		procedure Second {
+01			x = 0;
+02			i = 5;
+03			while (i!=0) {
+04				x = x + 2*y;
+05				call Third;
+06				i = i - 1; }
+07			if (x==1) then {
+08			   x = x+1; }
+			else {
+09				  z = 1; }
+10			z = z + x + i;
+11			y = z + 2;
+12			x = x * y + z;
+		}
+		*/
+
+		// create entities
+		// statements
+		Entity line1 = Entity::createAssignEntity(1);
+		Entity line2 = Entity::createAssignEntity(2);
+		Entity line3 = Entity::createWhileEntity(3);
+		Entity line4 = Entity::createAssignEntity(4);
+		Entity line5 = Entity::createCallEntity(5);
+		Entity line6 = Entity::createAssignEntity(6);
+		Entity line7 = Entity::createIfEntity(7);
+		Entity line8 = Entity::createAssignEntity(8);
+		Entity line9 = Entity::createAssignEntity(9);
+		Entity line10 = Entity::createAssignEntity(10);
+		Entity line11 = Entity::createAssignEntity(11);
+		Entity line12 = Entity::createAssignEntity(12);
+
+		// variables
+		Entity xVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("x"));
+		Entity iVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("i"));
+		Entity yVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("y"));
+		Entity zVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("z"));
+
+		vector<Entity> entitiesToAdd = {
+			line1, line2, line3, line4, line5, line6, line7, line8, line9, line10, line11, line12,
+			xVariable, iVariable, yVariable, zVariable
+		};
+
+
+		// create relationships
+		vector<Relationship> relationshipsToAdd = {
+			// uses (only assign, variable)
+			Relationship::createUsesRelationship(line4, xVariable),
+			Relationship::createUsesRelationship(line4, yVariable),
+			Relationship::createUsesRelationship(line6, iVariable),
+			Relationship::createUsesRelationship(line8, xVariable),
+			Relationship::createUsesRelationship(line10, zVariable),
+			Relationship::createUsesRelationship(line10, xVariable),
+			Relationship::createUsesRelationship(line10, iVariable),
+			Relationship::createUsesRelationship(line11, zVariable),
+			Relationship::createUsesRelationship(line12, xVariable),
+			Relationship::createUsesRelationship(line12, yVariable),
+			Relationship::createUsesRelationship(line12, zVariable),
+
+			// modifies (only assign, variables)
+			Relationship::createModifiesRelationship(line1, xVariable),
+			Relationship::createModifiesRelationship(line2, iVariable),
+			Relationship::createModifiesRelationship(line4, xVariable),
+			Relationship::createModifiesRelationship(line6, iVariable),
+			Relationship::createModifiesRelationship(line8, xVariable),
+			Relationship::createModifiesRelationship(line9, zVariable),
+			Relationship::createModifiesRelationship(line10, zVariable),
+			Relationship::createModifiesRelationship(line11, yVariable),
+			Relationship::createModifiesRelationship(line12, xVariable),
+
+			// next
+			Relationship::createNextRelationship(line1, line2),
+			Relationship::createNextRelationship(line2, line3),
+			Relationship::createNextRelationship(line3, line4),
+			Relationship::createNextRelationship(line3, line7),
+			Relationship::createNextRelationship(line4, line5),
+			Relationship::createNextRelationship(line5, line6),
+			Relationship::createNextRelationship(line6, line3),
+			Relationship::createNextRelationship(line6, line7),
+			Relationship::createNextRelationship(line7, line8),
+			Relationship::createNextRelationship(line7, line9),
+			Relationship::createNextRelationship(line8, line10),
+			Relationship::createNextRelationship(line9, line10),
+			Relationship::createNextRelationship(line10, line11),
+			Relationship::createNextRelationship(line11, line12),
+		};
+
+		// create graphs
+		unordered_map<int, vector<int>> procedure2AdjList = {
+			{1, {2}},
+			{2, {3}},
+			{3, {4, 7}},
+			{4, {5}},
+			{5, {6}},
+			{6, {3, 7}},
+			{7, {8,9}},
+			{8, {10}},
+			{9, {10}},
+			{10, {11}},
+			{11, {12}},
+			{12, {}},
+
+		};
+		unordered_map<int, shared_ptr<CFGNode>> procedure2NodeIdToNode = {
+			{1, CFGNode::createCFGNode(line1)},
+			{2, CFGNode::createCFGNode(line2)},
+			{3, CFGNode::createCFGNode(line3)},
+			{4, CFGNode::createCFGNode(line4)},
+			{5, CFGNode::createCFGNode(line5)},
+			{6, CFGNode::createCFGNode(line6)},
+			{7, CFGNode::createCFGNode(line7)},
+			{8, CFGNode::createCFGNode(line8)},
+			{9, CFGNode::createCFGNode(line9)},
+			{10, CFGNode::createCFGNode(line10)},
+			{11, CFGNode::createCFGNode(line11)},
+			{12, CFGNode::createCFGNode(line12)},
+		};
+		vector<shared_ptr<CFGNode>> graphsToAdd = {
+			CFGNode::createCFGFromAdjacencyList(procedure2NodeIdToNode, procedure2AdjList, 1)
+		};
+
+	
+		SECTION("Affects: both wildcard or synonym") {
+
+			SECTION("both wildcard-> one result if true") {
+				ClauseArgument lhs = ClauseArgument::createWildcardArg();
+				ClauseArgument rhs = ClauseArgument::createWildcardArg();
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("both different assign, should only have unique") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a1");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a2");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(11), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("both same assign") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+		}
+
+
+		SECTION("Affects: one exact, one assign") {
+			SECTION("exact not inside") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("13");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a2");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("exact not assign statement") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("3");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a2");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("exact, assign returns only unique rhs") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("exact, wildcard returns only 1 of all") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createWildcardArg();
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+		}
+
+		SECTION("Affects: assign, exact") {
+			SECTION("exact not inside") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("13");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("exact not assign statement") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("3");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("assign, exact returns only unique lhs") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12)),
+					PQLRelationship(PQLEntity::generateStatement(11), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("wildcard, exact returns only 1 of rhs") {
+				ClauseArgument lhs = ClauseArgument::createWildcardArg();
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10)),
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("lhs is not assign or statement or wildcard") {
+				ClauseArgument lhs = ClauseArgument::createWhileArg("w");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+
+				};
+				test(PKBTrackedRelationshipType::AFFECTS, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+		}
+	}
+
+	SECTION("affects star") {
+		/*
+		procedure Second {
+01			x = 0;
+02			i = 5;
+03			while (i!=0) {
+04				x = x + 2*y;
+05				call Third;
+06				i = i - 1; }
+07			if (x==1) then {
+08			   x = x+1; }
+			else {
+09				  z = 1; }
+10			z = z + x + i;
+11			y = z + 2;
+12			x = x * y + z;
+		}
+		*/
+
+		// create entities
+		// statements
+		Entity line1 = Entity::createAssignEntity(1);
+		Entity line2 = Entity::createAssignEntity(2);
+		Entity line3 = Entity::createWhileEntity(3);
+		Entity line4 = Entity::createAssignEntity(4);
+		Entity line5 = Entity::createCallEntity(5);
+		Entity line6 = Entity::createAssignEntity(6);
+		Entity line7 = Entity::createIfEntity(7);
+		Entity line8 = Entity::createAssignEntity(8);
+		Entity line9 = Entity::createAssignEntity(9);
+		Entity line10 = Entity::createAssignEntity(10);
+		Entity line11 = Entity::createAssignEntity(11);
+		Entity line12 = Entity::createAssignEntity(12);
+
+		// variables
+		Entity xVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("x"));
+		Entity iVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("i"));
+		Entity yVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("y"));
+		Entity zVariable = Entity::createVariableEntity(-1, Token::createNameOrKeywordToken("z"));
+
+		vector<Entity> entitiesToAdd = {
+			line1, line2, line3, line4, line5, line6, line7, line8, line9, line10, line11, line12,
+			xVariable, iVariable, yVariable, zVariable
+		};
+
+
+		// create relationships
+		vector<Relationship> relationshipsToAdd = {
+			// uses (only assign, variable)
+			Relationship::createUsesRelationship(line4, xVariable),
+			Relationship::createUsesRelationship(line4, yVariable),
+			Relationship::createUsesRelationship(line6, iVariable),
+			Relationship::createUsesRelationship(line8, xVariable),
+			Relationship::createUsesRelationship(line10, zVariable),
+			Relationship::createUsesRelationship(line10, xVariable),
+			Relationship::createUsesRelationship(line10, iVariable),
+			Relationship::createUsesRelationship(line11, zVariable),
+			Relationship::createUsesRelationship(line12, xVariable),
+			Relationship::createUsesRelationship(line12, yVariable),
+			Relationship::createUsesRelationship(line12, zVariable),
+
+			// modifies (only assign, variables)
+			Relationship::createModifiesRelationship(line1, xVariable),
+			Relationship::createModifiesRelationship(line2, iVariable),
+			Relationship::createModifiesRelationship(line4, xVariable),
+			Relationship::createModifiesRelationship(line6, iVariable),
+			Relationship::createModifiesRelationship(line8, xVariable),
+			Relationship::createModifiesRelationship(line9, zVariable),
+			Relationship::createModifiesRelationship(line10, zVariable),
+			Relationship::createModifiesRelationship(line11, yVariable),
+			Relationship::createModifiesRelationship(line12, xVariable),
+			// next
+			Relationship::createNextRelationship(line1, line2),
+			Relationship::createNextRelationship(line2, line3),
+			Relationship::createNextRelationship(line3, line4),
+			Relationship::createNextRelationship(line3, line7),
+			Relationship::createNextRelationship(line4, line5),
+			Relationship::createNextRelationship(line5, line6),
+			Relationship::createNextRelationship(line6, line3),
+			Relationship::createNextRelationship(line6, line7),
+			Relationship::createNextRelationship(line7, line8),
+			Relationship::createNextRelationship(line7, line9),
+			Relationship::createNextRelationship(line8, line10),
+			Relationship::createNextRelationship(line9, line10),
+			Relationship::createNextRelationship(line10, line11),
+			Relationship::createNextRelationship(line11, line12),
+		};
+
+		// create graphs
+		unordered_map<int, vector<int>> procedure2AdjList = {
+			{1, {2}},
+			{2, {3}},
+			{3, {4, 7}},
+			{4, {5}},
+			{5, {6}},
+			{6, {3, 7}},
+			{7, {8,9}},
+			{8, {10}},
+			{9, {10}},
+			{10, {11}},
+			{11, {12}},
+			{12, {}},
+
+		};
+		unordered_map<int, shared_ptr<CFGNode>> procedure2NodeIdToNode = {
+			{1, CFGNode::createCFGNode(line1)},
+			{2, CFGNode::createCFGNode(line2)},
+			{3, CFGNode::createCFGNode(line3)},
+			{4, CFGNode::createCFGNode(line4)},
+			{5, CFGNode::createCFGNode(line5)},
+			{6, CFGNode::createCFGNode(line6)},
+			{7, CFGNode::createCFGNode(line7)},
+			{8, CFGNode::createCFGNode(line8)},
+			{9, CFGNode::createCFGNode(line9)},
+			{10, CFGNode::createCFGNode(line10)},
+			{11, CFGNode::createCFGNode(line11)},
+			{12, CFGNode::createCFGNode(line12)},
+		};
+		vector<shared_ptr<CFGNode>> graphsToAdd = {
+			CFGNode::createCFGFromAdjacencyList(procedure2NodeIdToNode, procedure2AdjList, 1)
+		};
+
+		SECTION("Affects*: both exact") {
+
+			SECTION("Referenced statement is not assign, empty result") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("3");
+				vector<PQLRelationship> expectedRelationships = {};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are not inside the program") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("13");
+				vector<PQLRelationship> expectedRelationships = {};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
+			SECTION("Exact statements are in the program, and do affects*, 1") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("4");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(10))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
+			SECTION("Exact statements are in the program, and do affects*, 2") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(10))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
+
+			SECTION("Exact statements are in the program, and do affects*, 3") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 4") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("6");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 5") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("2");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("6");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 6") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("4");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 7") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("11");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(11))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 8") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("10");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Exact statements are in the program, but do affects*, 9") {
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+		}
+
+		SECTION("Affects*: synonym, synonym") {
+			SECTION("Two wildcards -> return only 1 if true") {
+				ClauseArgument lhs = ClauseArgument::createWildcardArg();
+				ClauseArgument rhs = ClauseArgument::createWildcardArg();
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Two assign, same -> return all") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("Two assign, different -> return all") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a1");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a2");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
+
+					// 2 onwards
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(6)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(12)),
+
+					// 4 onwards
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(12)),
+
+					// 6 onwards
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(6)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(12)),
+
+					// 8 onwards
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+
+					// 9 onwards
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(12)),
+
+					// 10 onwards
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12)),
+
+					// 11 onwards
+					PQLRelationship(PQLEntity::generateStatement(11), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("An illegal synonym (while)") {
+				ClauseArgument lhs = ClauseArgument::createWhileArg("w");
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+		}
+
+		SECTION("Affects*: synonym, exact") {
+			SECTION("wildcard, exact not in program") {
+				ClauseArgument lhs = ClauseArgument::createWildcardArg();
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("13");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("wildcard, exact not assign statement") {
+				ClauseArgument lhs = ClauseArgument::createWildcardArg();
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("3");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("invalid synonym (while)") {
+				ClauseArgument lhs = ClauseArgument::createWhileArg("w");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+			SECTION("valid synonym-exact pair -> returnall unique lhs") {
+				ClauseArgument lhs = ClauseArgument::createAssignArg("a");
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+					// 1 onwards
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
+
+					// 2 onwards
+					PQLRelationship(PQLEntity::generateStatement(2), PQLEntity::generateStatement(12)),
+
+					// 4 onwards
+					PQLRelationship(PQLEntity::generateStatement(4), PQLEntity::generateStatement(12)),
+
+					// 6 onwards
+					PQLRelationship(PQLEntity::generateStatement(6), PQLEntity::generateStatement(12)),
+
+					// 8 onwards
+					PQLRelationship(PQLEntity::generateStatement(8), PQLEntity::generateStatement(12)),
+
+					// 9 onwards
+					PQLRelationship(PQLEntity::generateStatement(9), PQLEntity::generateStatement(12)),
+
+					// 10 onwards
+					PQLRelationship(PQLEntity::generateStatement(10), PQLEntity::generateStatement(12)),
+
+					// 11 onwards
+					PQLRelationship(PQLEntity::generateStatement(11), PQLEntity::generateStatement(12))
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("valid wildcard-exact pair -> return 1") {
+				ClauseArgument lhs = ClauseArgument::createWildcardArg();
+				ClauseArgument rhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+					// 1 onwards
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+		}
+
+
+
+		SECTION("Affects*: exact, synonym") {
+			SECTION("wildcard, exact not in program") {
+				ClauseArgument rhs = ClauseArgument::createWildcardArg();
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("13");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+			SECTION("wildcard, exact not assign statement") {
+				ClauseArgument rhs = ClauseArgument::createWildcardArg();
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("3");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("invalid synonym (while)") {
+				ClauseArgument rhs = ClauseArgument::createWhileArg("w");
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("12");
+				vector<PQLRelationship> expectedRelationships = {
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+
+			}
+			SECTION("valid synonym-exact pair") {
+				ClauseArgument rhs = ClauseArgument::createAssignArg("a");
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(8)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(10)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(11)),
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(12)),
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+
+			SECTION("valid wildcard-exact pair -> return 1") {
+				ClauseArgument rhs = ClauseArgument::createWildcardArg();
+				ClauseArgument lhs = ClauseArgument::createLineNumberArg("1");
+				vector<PQLRelationship> expectedRelationships = {
+					PQLRelationship(PQLEntity::generateStatement(1), PQLEntity::generateStatement(4)),
+				};
+				test(PKBTrackedRelationshipType::AFFECTSSTAR, lhs, rhs, expectedRelationships, graphsToAdd, relationshipsToAdd, entitiesToAdd);
+			}
+		}
+	}
+}
+
+
 
 
 

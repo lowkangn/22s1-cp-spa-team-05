@@ -5,8 +5,8 @@
 	Return the current ASTNode as an entity
 */
 Entity VariableASTNode::extractEntity() {
-	Token nodeToken = this->getToken();
-	int lineNumber = this->getLineNumber();
+    Token nodeToken = this->getToken();
+    int lineNumber = this->getLineNumber();
 
-	return Entity::createVariableEntity(lineNumber, nodeToken);
+    return Entity::createVariableEntity(lineNumber, nodeToken);
 }

@@ -189,7 +189,7 @@ namespace {
 	ClauseArgument printArg = ClauseArgument::createPrintArg("pp");
 
 	ClauseArgument lineOneArg = ClauseArgument::createLineNumberArg("1");
-	ClauseArgument lineThreeArg = ClauseArgument::createLineNumberArg("1");
+	ClauseArgument lineThreeArg = ClauseArgument::createLineNumberArg("3");
 	ClauseArgument lineTwoArg = ClauseArgument::createLineNumberArg("2");
 	ClauseArgument lineSixArg = ClauseArgument::createLineNumberArg("6");
 	ClauseArgument lineNineArg = ClauseArgument::createLineNumberArg("9");
@@ -220,7 +220,8 @@ TEST_CASE("AffectsClause: test execute") {
 
 	// ------ SP ------ 
 	stringstream stream(programString);
-	SourceProcessor sp(stream);
+    SourceProcessor sp = SourceProcessor();
+	sp.initialize(stream);
 
 
 	// ------ PKB ------ 
@@ -354,7 +355,8 @@ TEST_CASE("AffectsTClause: test execute") {
 
 	// ------ SP ------ 
 	stringstream stream(programString);
-	SourceProcessor sp(stream);
+	SourceProcessor sp = SourceProcessor();
+	sp.initialize(stream);
 
 
 	// ------ PKB ------ 
@@ -415,6 +417,10 @@ TEST_CASE("AffectsTClause: test execute") {
 		clause = AffectsTClause(firstStmtArg, printArg);
 		expectedClauseResult = RelationshipClauseResult(firstStmtArg, printArg, expectedRetrievedFromPkb);
 		testExecute(clause, expectedClauseResult, pkb);
+
+        clause = AffectsTClause(lineThreeArg, firstStmtArg);
+        expectedClauseResult = RelationshipClauseResult(lineThreeArg, firstStmtArg, expectedRetrievedFromPkb);
+        testExecute(clause, expectedClauseResult, pkb);
 	}
 
 	SECTION("One line number and one stmtRef - non empty results") {

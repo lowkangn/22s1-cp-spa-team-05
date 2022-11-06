@@ -63,9 +63,7 @@ const string BOOLEAN_KEYWORD = "BOOLEAN";
  * This class represents tokens obtained from tokenizing of the query string.
  */
 class PQLToken {
-
 private:
-
     /**
      * String representation of the token.
      */
@@ -76,11 +74,6 @@ private:
      */
     PQLTokenType tokenType;
 
-    /**
-     *
-     * @param tokenString
-     * @param tokenType
-     */
     PQLToken(string tokenString, PQLTokenType tokenType) {
         this->tokenString = tokenString;
         this->tokenType = tokenType;
@@ -132,22 +125,27 @@ public:
      * @return true if tokens are equal.
      */
     bool equals(PQLToken otherToken) {
-        return tokenString == otherToken.getTokenString() && tokenType == otherToken.getTokenType();
+        return tokenString == otherToken.getTokenString() && tokenType == otherToken.
+            getTokenType();
     }
 
     // tokenType indicators
     bool isName() {
         return tokenType == PQLTokenType::NAME;
     }
+
     bool isInteger() {
         return tokenType == PQLTokenType::INTEGER;
     }
+
     bool isDelimiter() {
         return tokenType == PQLTokenType::DELIMITER;
     }
+
     bool isOperator() {
         return tokenType == PQLTokenType::OPERATOR;
     }
+
     bool isKeywordOnly() {
         return tokenType == PQLTokenType::KEYWORD_ONLY;
     }
@@ -198,18 +196,23 @@ public:
     bool isSelect() {
         return isName() && tokenString == SELECT;
     }
+
     bool isSuch() {
         return isName() && tokenString == SUCH;
     }
+
     bool isThat() {
         return isName() && tokenString == THAT;
     }
+
     bool isPattern() {
         return isName() && tokenString == PATTERN;
     }
+
     bool isWith() {
         return isName() && tokenString == WITH;
     }
+
     bool isAnd() {
         return isName() && tokenString == PQL_AND;
     }
@@ -247,7 +250,7 @@ public:
         return tokenString == PQL_STAR_MODIFIER;
     }
 
-    // attrName idicators
+    // attrName indicators
     bool isProcName() {
         return isName() && tokenString == ATTRIBUTE_PROCNAME;
     }
@@ -264,9 +267,8 @@ public:
         return isKeywordOnly() && tokenString == ATTRIBUTE_STMT_NUM;
     }
 
-	// Boolean keyword indicator
-	bool isBooleanKeyword() {
-		return isName() && tokenString == BOOLEAN_KEYWORD;
-	}
+    // Boolean keyword indicator
+    bool isBooleanKeyword() {
+        return isName() && tokenString == BOOLEAN_KEYWORD;
+    }
 };
-
