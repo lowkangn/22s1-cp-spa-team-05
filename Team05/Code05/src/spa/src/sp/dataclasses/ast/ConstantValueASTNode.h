@@ -3,20 +3,23 @@
 #include <sp/dataclasses/ast/AST.h>
 #include <sp/dataclasses/ast/exceptions/ASTException.h>
 
+#include <memory>
+
 // This type of ASTNode has no children
 class ConstantValueASTNode : public ASTNode {
 private:
-	ConstantValueASTNode(Token& token) : ASTNode(token) {
-		this->type = ASTNodeType::CONSTANT;
-	}
+    explicit ConstantValueASTNode(Token& token) : ASTNode(token) {
+        this->type = ASTNodeType::CONSTANT;
+    }
+
 public:
-	static shared_ptr<ASTNode> createConstantNode(Token token) {
-		return shared_ptr<ASTNode>(new ConstantValueASTNode(token));
-	}
+    static shared_ptr<ASTNode> createConstantNode(Token token) {
+        return shared_ptr<ASTNode>(new ConstantValueASTNode(token));
+    }
 
-	void addChild(shared_ptr<ASTNode> child) override;
+    void addChild(shared_ptr<ASTNode> child) override;
 
-	bool isTerminal() override;
+    bool isTerminal() override;
 
-	Entity extractEntity() override;
+    Entity extractEntity() override;
 };
