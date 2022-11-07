@@ -84,11 +84,11 @@ shared_ptr<CFGNode> ControlFlowParser::handleWhile(shared_ptr<ASTNode> whileNode
         shared_ptr<CFGNode> toAddTo = this->traverseToEnd(stmtListCFG);
 
         toAddTo->addChild(whileCFGNode);
+    }
 
-        // Ensure that the while node does not have next (Prevent case of If the while as children)
-        if (whileCFGNode->hasNext()) {
-            whileCFGNode->removeNext();
-        }
+    // Ensure that the while node does not have next (Prevent case of If the while as children)
+    if (whileCFGNode->hasNext()) {
+        whileCFGNode->removeNext();
     }
 
     return whileCFGNode;
@@ -160,25 +160,22 @@ void ControlFlowParser::addChildToEndOfNode(shared_ptr<CFGNode> root, shared_ptr
 
 shared_ptr<CFGNode> ControlFlowParser::traverseToEnd(shared_ptr<CFGNode> root) {
     if (root->isIfNode()) {
-        // Check if the then and else have children
+        // Keep recursing till we find the end
         shared_ptr<IfCFGNode> ifCFGNode = dynamic_pointer_cast<IfCFGNode>(root);
-
+        
         shared_ptr<CFGNode> thenCFGNode = ifCFGNode->getThenNode();
 
-        // Recursively add child to the end of the then and else nodes
         return this->traverseToEnd(thenCFGNode);
     } else if (root->isWhileNode()) {
         shared_ptr<WhileCFGNode> whileCFGNode = dynamic_pointer_cast<WhileCFGNode>(root);
 
+        // If it doesnt have a next node it is the end
         if (!whileCFGNode->hasNext()) {
-            // Add child to whileCFGNode
             return whileCFGNode;
         } else {
-            // Recurse and get node after the while loop
             return this->traverseToEnd(whileCFGNode->getAfterWhile());
         }
     } else {
-        // Keep recursing untill we find the end
         if (root->hasNext()) {
             shared_ptr<CFGNode> next = root->getNext();
             return this->traverseToEnd(next);
