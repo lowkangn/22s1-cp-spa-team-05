@@ -1260,6 +1260,10 @@ TEST_CASE("Test extractCFGRelations") {
 
 		vector<Relationship> relations = sp.extractCFGRelations();
 
+        if (relations.size() != expectedRelations.size()) {
+			int x = 1;
+        }
+
 		REQUIRE(relations.size() == expectedRelations.size());
 
 		for (int i = 0; i < expectedRelations.size(); i++) {
@@ -1415,6 +1419,102 @@ TEST_CASE("Test extractCFGRelations") {
 			Relationship::createNextRelationship(Entity::createWhileEntity(16),Entity::createPrintEntity(17)),
 			Relationship::createNextRelationship(Entity::createPrintEntity(17),Entity::createAssignEntity(18)),
 			Relationship::createNextRelationship(Entity::createAssignEntity(18),Entity::createWhileEntity(16)),
+		};
+
+		test(program, expectedRelations);
+	}
+
+	SECTION("Test milestone 3 bug") {
+		string program = "procedure x { \
+			while (x == 1) { \
+				if (x == 1) then{\
+				  if (x == 1) then {\
+					x = 1; }\
+				  else {\
+					x = 1;\
+		   } }\
+				else {\
+					x = 1;\
+				}\
+				x = 1;\
+			}}";
+
+		vector<Relationship> expectedRelations = {
+            Relationship::createNextRelationship(Entity::createWhileEntity(1),Entity::createIfEntity(2)),
+            
+            Relationship::createNextRelationship(Entity::createIfEntity(2),Entity::createIfEntity(3)),
+            Relationship::createNextRelationship(Entity::createIfEntity(2),Entity::createAssignEntity(6)),
+            
+            Relationship::createNextRelationship(Entity::createIfEntity(3),Entity::createAssignEntity(4)),
+            Relationship::createNextRelationship(Entity::createIfEntity(3),Entity::createAssignEntity(5)),
+            
+            Relationship::createNextRelationship(Entity::createAssignEntity(4),Entity::createAssignEntity(7)),
+            Relationship::createNextRelationship(Entity::createAssignEntity(5),Entity::createAssignEntity(7)),
+            
+            Relationship::createNextRelationship(Entity::createAssignEntity(6),Entity::createAssignEntity(7)),
+            
+            Relationship::createNextRelationship(Entity::createAssignEntity(7),Entity::createWhileEntity(1)),
+        };
+
+		test(program, expectedRelations);
+	}
+
+	SECTION("Test milestone 3 bug") {
+		string program = "procedure x { \
+			while (x == 1) { \
+				if (x == 1) then{\
+				  if (x == 1) then {\
+					x = 1; }\
+				  else {\
+					x = 1;\
+		   } x = 2;}\
+				else {\
+					x = 1;\
+				}\
+			}}";
+
+		vector<Relationship> expectedRelations = {
+			Relationship::createNextRelationship(Entity::createWhileEntity(1),Entity::createIfEntity(2)),
+            
+			Relationship::createNextRelationship(Entity::createIfEntity(2),Entity::createIfEntity(3)),
+			Relationship::createNextRelationship(Entity::createIfEntity(3),Entity::createAssignEntity(4)),
+			Relationship::createNextRelationship(Entity::createIfEntity(3),Entity::createAssignEntity(5)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(5),Entity::createAssignEntity(6)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(4),Entity::createAssignEntity(6)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(6),Entity::createWhileEntity(1)),
+
+			Relationship::createNextRelationship(Entity::createIfEntity(2),Entity::createAssignEntity(7)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(7),Entity::createWhileEntity(1)),
+		};
+
+		test(program, expectedRelations);
+	}
+    
+	SECTION("Test milestone 3 bug") {
+		string program = "procedure x { \
+			while (x == 1) { \
+				if (x == 1) then{\
+				  if (x == 1) then {\
+					x = 1; }\
+				  else {\
+					x = 1;\
+		   } }\
+				else {\
+					x = 1;\
+				}\
+			}}";
+
+		vector<Relationship> expectedRelations = {
+			Relationship::createNextRelationship(Entity::createWhileEntity(1),Entity::createIfEntity(2)),
+
+			Relationship::createNextRelationship(Entity::createIfEntity(2),Entity::createIfEntity(3)),
+			Relationship::createNextRelationship(Entity::createIfEntity(3),Entity::createAssignEntity(4)),
+			Relationship::createNextRelationship(Entity::createIfEntity(3),Entity::createAssignEntity(5)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(5),Entity::createWhileEntity(1)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(4),Entity::createWhileEntity(1)),
+
+			Relationship::createNextRelationship(Entity::createIfEntity(2),Entity::createAssignEntity(6)),
+			Relationship::createNextRelationship(Entity::createAssignEntity(6),Entity::createWhileEntity(1)),
 		};
 
 		test(program, expectedRelations);

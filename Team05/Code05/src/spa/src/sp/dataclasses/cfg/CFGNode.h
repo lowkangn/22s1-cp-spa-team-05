@@ -37,9 +37,6 @@ public:
     }
 
     virtual shared_ptr<CFGNode> getNext() {
-        if (this->nextNodes.size() != 1) {
-            throw CFGException("This node has more than one child node");
-        }
         return this->nextNodes[0];
     }
 

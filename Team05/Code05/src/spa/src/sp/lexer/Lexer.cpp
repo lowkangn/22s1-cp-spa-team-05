@@ -1,3 +1,4 @@
+
 #include <sp/SPException.h>
 #include <sp/dataclasses/tokens/Token.h>
 #include <sp/lexer/Lexer.h>
