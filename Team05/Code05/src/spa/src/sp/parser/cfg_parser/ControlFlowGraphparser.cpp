@@ -162,7 +162,6 @@ shared_ptr<CFGNode> ControlFlowParser::traverseToEnd(shared_ptr<CFGNode> root) {
     if (root->isIfNode()) {
         // Keep recursing till we find the end
         shared_ptr<IfCFGNode> ifCFGNode = dynamic_pointer_cast<IfCFGNode>(root);
-        
         shared_ptr<CFGNode> thenCFGNode = ifCFGNode->getThenNode();
 
         return this->traverseToEnd(thenCFGNode);
