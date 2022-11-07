@@ -1,0 +1,10 @@
+@startuml
+
+(*top) -down-> "First Action"
+-down-> (*)
+
+partition while {
+
+}
+
+@enduml
