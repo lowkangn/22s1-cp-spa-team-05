@@ -27,4 +27,5 @@ void QPS::projectResults(list<std::string>& results) {
     // project
     QueryResultsProjector projector(this->evaluatorResult);
     projector.populateResultsList(results, this->isReturningBoolean, this->errorString);
+    this->errorString.clear();
 }
