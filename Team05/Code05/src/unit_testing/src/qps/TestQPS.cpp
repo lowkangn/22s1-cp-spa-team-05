@@ -471,7 +471,7 @@ TEST_CASE("QPS: test working correctly") {
 	SECTION("Select and such that") {
 		queryString = "stmt child;\n Select child such that Parent(_, child)";
 		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "14" };
-		testQPS(queryString, expectedResult, pkb);
+        testQPS(queryString, expectedResult, pkb);
 
 		queryString = "stmt stmt, child;\n Select child such that Parent(stmt, child)";
 		expectedResult = set<string>{ "2", "3", "7", "4", "5", "6", "14" };
@@ -524,6 +524,11 @@ TEST_CASE("QPS: test working correctly") {
 		queryString = "assign a; \n Select a such that Next*(a, 3)";
 		expectedResult = set<string>{ "2", "7" };
 		testQPS(queryString, expectedResult, pkb);
+
+        queryString = "stmt s; \n Select s such that Affects*(3, _)";
+        expectedResult = set<string>{};
+        testQPS(queryString, expectedResult, pkb);
+
 	}
 
 	SECTION("Select and Pattern") {
@@ -790,6 +795,11 @@ TEST_CASE("QPS: test working correctly") {
 			";
 		expectedResult = set<string>{ };
 		testQPS(queryString, expectedResult, pkb);
+
+        queryString = "stmt n1, n2; variable v; assign a; if i;\
+            Select a such that Next*(n1, n2) and Modifies(n1, v) and Uses(n2, v) and Modifies(a, v) and Parent(i,n1)";
+        expectedResult = set<string>{"10"};
+        testQPS(queryString, expectedResult, pkb);
 	}
 }
 

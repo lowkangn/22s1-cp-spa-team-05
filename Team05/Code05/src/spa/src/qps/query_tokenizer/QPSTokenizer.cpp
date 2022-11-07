@@ -1,11 +1,10 @@
 #include <qps/query_tokenizer/QPSTokenizer.h>
 
 list<PQLToken> QPSTokenizer::tokenize(istream& stream) {
-
     list<PQLToken> tokenLst;
 
     while (stream.peek() != EOF) {
-        char currentChar = char(stream.peek());
+        char currentChar = static_cast<char>(stream.peek());
 
         if (this->isAlphabetical(currentChar)) {
             tokenLst.emplace_back(extractNameOrKeywordFromStream(stream));
@@ -39,32 +38,32 @@ bool QPSTokenizer::isDigit(char c) {
 
 bool QPSTokenizer::isDelimiter(char c) {
     switch (c) {
-        case '(':
-        case ')':
-		case '<':
-		case '>':
-        case ',':
-        case ';':
-        case '\"':
-        case '_':
-            return true;
-        default:
-            return false;
+    case '(':
+    case ')':
+    case '<':
+    case '>':
+    case ',':
+    case ';':
+    case '\"':
+    case '_':
+        return true;
+    default:
+        return false;
     }
 }
 
 bool QPSTokenizer::isOperator(char c) {
     switch (c) {
-        case '+':
-        case '-':
-        case '*':
-        case '/':
-        case '%':
-        case '=':
-        case '.':
-            return true;
-        default:
-            return false;
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+    case '%':
+    case '=':
+    case '.':
+        return true;
+    default:
+        return false;
     }
 }
 
@@ -75,14 +74,14 @@ bool QPSTokenizer::isWhitespaceOrNewline(char c) {
 PQLToken QPSTokenizer::extractNameOrKeywordFromStream(istream& stream) {
     string word;
     while (isalnum(stream.peek())) {
-        word += char(stream.get());
+        word += static_cast<char>(stream.get());
     }
     string nextChar;
-    nextChar += char(stream.peek());
+    nextChar += static_cast<char>(stream.peek());
 
     //if the word is stmt and # is immediately after, then it is the stmt# keyword
     if (word == ATTRIBUTE_STMT_NUM_STMT && nextChar == ATTRIBUTE_STMT_NUM_HASH) {
-        word += char(stream.get());
+        word += static_cast<char>(stream.get());
         return PQLToken::createKeywordOnlyToken(word);
     }
     return PQLToken::createNameToken(word);
@@ -91,13 +90,15 @@ PQLToken QPSTokenizer::extractNameOrKeywordFromStream(istream& stream) {
 PQLToken QPSTokenizer::extractIntegerFromStream(istream& stream) {
     string integer;
     while (isdigit(stream.peek())) {
-        integer += char(stream.get());
+        integer += static_cast<char>(stream.get());
     }
 
-    if (isAlphabetical(char(stream.peek()))) {
+    if (isAlphabetical(static_cast<char>(stream.peek()))) {
         string next;
-        next += char(stream.peek());
-        throw PQLSyntaxError("Alphabetical character cannot follow integer: " + integer + " followed by " + next);
+        next += static_cast<char>(stream.peek());
+        throw PQLSyntaxError(
+            "Alphabetical character cannot follow integer: " + integer
+            + " followed by " + next);
     }
 
     return PQLToken::createIntegerToken(integer);
@@ -105,13 +106,13 @@ PQLToken QPSTokenizer::extractIntegerFromStream(istream& stream) {
 
 PQLToken QPSTokenizer::extractDelimiterFromStream(istream& stream) {
     string del;
-    del += char(stream.get());
-    return PQLToken::createDelimiterToken (del);
+    del += static_cast<char>(stream.get());
+    return PQLToken::createDelimiterToken(del);
 }
 
 PQLToken QPSTokenizer::extractOperatorFromStream(istream& stream) {
     string op;
-    op += char(stream.get());
+    op += static_cast<char>(stream.get());
     return PQLToken::createOperatorToken(op);
 }
 

@@ -1,55 +1,56 @@
 #pragma once
-#include <string>
+
 #include <memory>
+#include <string>
 
 using namespace std;
 
 enum class PkbEntityType {
-	VARIABLE,
-	STATEMENT,
-	PROCEDURE,
-	CONSTANT,
+    VARIABLE,
+    STATEMENT,
+    PROCEDURE,
+    CONSTANT,
 };
 
 /*
 	Parent class for all variables, statements, constants and procedures.
 */
 class PkbEntity {
-protected: 
-	PkbEntityType entityType;
-	PkbEntity(PkbEntityType entityType) {
-		this->entityType = entityType;
-	}
-public: 
+protected:
+    PkbEntityType entityType;
 
-	bool isVariable() {
-		return this->entityType == PkbEntityType::VARIABLE;
-	}
+    explicit PkbEntity(PkbEntityType entityType) {
+        this->entityType = entityType;
+    }
 
-	bool isStatement() {
-		return this->entityType == PkbEntityType::STATEMENT;
-	}
+public:
+    bool isVariable() {
+        return this->entityType == PkbEntityType::VARIABLE;
+    }
 
-	bool isProcedure() {
-		return this->entityType == PkbEntityType::PROCEDURE;
-	}
+    bool isStatement() {
+        return this->entityType == PkbEntityType::STATEMENT;
+    }
 
-	bool isConstant() {
-		return this->entityType == PkbEntityType::CONSTANT;
-	}
+    bool isProcedure() {
+        return this->entityType == PkbEntityType::PROCEDURE;
+    }
 
-	PkbEntityType getType() {
-		return this->entityType;
-	}
+    bool isConstant() {
+        return this->entityType == PkbEntityType::CONSTANT;
+    }
 
-	virtual string getKey() = 0;
+    PkbEntityType getType() {
+        return this->entityType;
+    }
 
-	virtual string getIdentifier() = 0;
+    virtual string getKey() = 0;
 
-	virtual int getLineNumber() = 0;
+    virtual string getIdentifier() = 0;
 
-	virtual int getValue() = 0;
+    virtual int getLineNumber() = 0;
 
-	virtual bool equals(shared_ptr<PkbEntity> other) = 0;
+    virtual int getValue() = 0;
 
+    virtual bool equals(shared_ptr<PkbEntity> other) = 0;
 };

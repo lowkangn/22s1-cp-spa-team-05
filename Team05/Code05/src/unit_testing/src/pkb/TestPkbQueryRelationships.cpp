@@ -1996,7 +1996,7 @@ TEST_CASE("OPTIMIZED: Add and get graph+table relationships (e.g. affects) by ty
 		vector<Entity> entitiesToAdd
 		) {
 			// given pkb 
-			PKB pkb = new PKB(true); // optimized
+			PKB pkb = PKB(true); // optimized
 
 			// when add and retrieve relationships 
 			pkb.addCfgs(graphsToAdd);

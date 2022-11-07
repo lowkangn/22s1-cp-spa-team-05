@@ -2,10 +2,13 @@
 
 #include <qps/query/clause/RelationshipClause.h>
 
+#include <memory>
+#include <vector>
+
 class ParentClause : public RelationshipClause {
 public:
-    ParentClause(ClauseArgument lhs, ClauseArgument rhs)
-        : RelationshipClause(lhs, rhs) {};
+    ParentClause(ClauseArgument lhs, ClauseArgument rhs) : RelationshipClause(lhs, rhs) {
+    }
 
     shared_ptr<RelationshipClauseResult> execute(shared_ptr<PKBQueryHandler> pkb) override;
 

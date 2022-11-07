@@ -1,7 +1,10 @@
 #pragma once
-#include <pkb/pkbRepository/design_objects/entities/PkbEntity.h>
 #include <pkb/PkbException.h>
+#include <pkb/pkbRepository/design_objects/entities/PkbEntity.h>
+
+#include <memory>
 #include <string>
+
 using namespace std;
 /*
 	This class encapsulates a procedure stored in the pkb. A procedure
@@ -9,48 +12,49 @@ using namespace std;
 */
 class PkbProcedureEntity : public PkbEntity {
 private:
-	string identifier;
+    string identifier;
+
 public:
-	PkbProcedureEntity(string identifier) : PkbEntity (PkbEntityType::PROCEDURE) {
-		this->identifier = identifier;
-	}
+    explicit PkbProcedureEntity(string identifier) : PkbEntity(PkbEntityType::PROCEDURE) {
+        this->identifier = identifier;
+    }
 
-	/*
-		Overriding the equals operator.
-	*/
-	const bool operator==(const PkbProcedureEntity& other) const {
-		return other.identifier == this->identifier;
-	}
+    /*
+        Overriding the equals operator.
+    */
+    const bool operator==(const PkbProcedureEntity& other) const {
+        return other.identifier == this->identifier;
+    }
 
-	/*
-		Returns a unique key.
-	*/
-	string getKey() override {
-		return this->identifier;
-	}
+    /*
+        Returns a unique key.
+    */
+    string getKey() override {
+        return this->identifier;
+    }
 
-	/*
-		Gets the identifier.
-	*/
-	string getIdentifier() override {
-		return this->identifier;
-	}
+    /*
+        Gets the identifier.
+    */
+    string getIdentifier() override {
+        return this->identifier;
+    }
 
-	/*
-		Gets the line number.
-	*/
-	int getLineNumber() override {
-		throw PkbException("Procedure does not have a line number!");
-	}
+    /*
+        Gets the line number.
+    */
+    int getLineNumber() override {
+        throw PkbException("Procedure does not have a line number!");
+    }
 
-	int getValue() override {
-		throw PkbException("Procedure does not have a value!");
-	}
+    int getValue() override {
+        throw PkbException("Procedure does not have a value!");
+    }
 
-	bool equals(shared_ptr<PkbEntity> other) override {
-		if (!other->isProcedure()) {
-			return false;
-		}
-		return this->getIdentifier() == other->getIdentifier();
-	}
+    bool equals(shared_ptr<PkbEntity> other) override {
+        if (!other->isProcedure()) {
+            return false;
+        }
+        return this->getIdentifier() == other->getIdentifier();
+    }
 };

@@ -1,16 +1,18 @@
 #include <qps/query/clause/NextClause.h>
+#include <qps/query_evaluator/CfgClauseOptimiser.h>
 
-shared_ptr<RelationshipClauseResult> NextClause::execute(shared_ptr<PKBQueryHandler> pkb) {
-	vector<PQLRelationship> relationships = pkb->retrieveRelationshipByTypeAndLhsRhs(
-		PKBTrackedRelationshipType::NEXT, this->lhs, this->rhs);
-	return shared_ptr<RelationshipClauseResult>(
-		new RelationshipClauseResult(this->lhs, this->rhs, relationships));
+PKBTrackedRelationshipType NextClause::getPkbTrackedRelationshipType() {
+    return PKBTrackedRelationshipType::NEXT;
+}
+
+void NextClause::acceptClauseOptimiser(CfgClauseOptimiser* optimiser) {
+    optimiser->visitNextClause(this->lhs, this->rhs, this);
 }
 
 bool NextClause::equals(shared_ptr<RelationshipClause> other) {
-	if (dynamic_pointer_cast<NextClause>(other) == nullptr) {
-		return false;
-	}
-	shared_ptr<NextClause> otherNext = dynamic_pointer_cast<NextClause>(other);
-	return (this->lhs == otherNext->lhs) && (this->rhs == otherNext->rhs);
+    if (dynamic_pointer_cast<NextClause>(other) == nullptr) {
+        return false;
+    }
+    shared_ptr<NextClause> otherNext = dynamic_pointer_cast<NextClause>(other);
+    return (this->lhs == otherNext->lhs) && (this->rhs == otherNext->rhs);
 }

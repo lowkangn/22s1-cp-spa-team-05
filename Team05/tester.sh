@@ -2,16 +2,26 @@
 
  # config
 config=Debug
-while getopts 'r' flag
+shouldOverride=false
+while getopts 'rp:' flag
 do
     case "${flag}" in
         r) config=Release
+           ;;
+        p) OVERRIDE_AUTOTESTER_PATH=$OPTARG
+           shouldOverride=true
+           echo $OVERRIDE_AUTOTESTER_PATH
+           ;;
     esac
 done
 
 # ==================== test config ====================
 # autotester path
-readonly path_to_autotester=./Code05/out/build/x64-${config}/src/autotester/autotester.exe
+path_to_autotester=./Code05/out/build/x64-${config}/src/autotester/autotester.exe
+
+if [ "$shouldOverride" = true ]; then
+    path_to_autotester=$OVERRIDE_AUTOTESTER_PATH
+fi
 
 # 0. sample
 readonly sample_path=./Tests05/
