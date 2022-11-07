@@ -1,0 +1,34 @@
+name: CD for Cmake Project (Autotester) - Windows
+
+on:
+  push:
+    branches: ["master", "staging", "wm/ci-scripts"]
+env:
+    BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile Autotester
+        shell: bash
+        run: |
+          cd Team05/Code05
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build . --target autotester --config Release
+          cd ../..
+      - name: Run Autotester
+        shell: bash
+        run: |
+          cd Team05
+          ./tester.sh -p ./Code05/build/src/autotester/Release/autotester.exe
+      - uses: actions/upload-artifact@v3
+        with: 
+          name: autotester_results
+          path: Team05/Code05/testOutputs/**/*.xml
+          if-no-files-found: error
