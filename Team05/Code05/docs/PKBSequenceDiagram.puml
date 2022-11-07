@@ -1,6 +1,10 @@
 @startuml
 !include style.puml
 
+title
+Adding and querying relationships in detail
+end title
+
 actor User as User
 
 box "Problem Knowledge Base" PKB_COLOR_T1

@@ -66,19 +66,20 @@ HiddenOutside ..> PKB
 PKB .left.|> PKBQueryHandler
 PKB .right.|> PKBUpdateHandler
 PKB -down--> "1" PkbQueryManager
-PKB -down--> "1" PkbRepository
-PKB -down-> "1" PkbUpdateManager
+PKB -down-> "1" PkbRepository
+PKB -down--> "1" PkbUpdateManager
 
-PkbUpdateManager -left-> PkbRepository
+PkbUpdateManager -right-> PkbRepository
 
 PkbRepository -down-> "1..*" PkbEntityTable
 PkbRepository -down-> "1..*" PkbPatternTable
 PkbRepository -down-> "1..*" PkbRelationshipTable
 PkbRepository -down-> "1" PkbGraphManager
 
+PkbQueryManager .left.> PkbRepository
+PkbQueryManager -down-> "1" PkbRelationshipQueryHelper
 PkbQueryManager -down-> "1" PkbEntityQueryHelper
 PkbQueryManager -down-> "1" PkbPatternQueryHelper
-PkbQueryManager -down-> "1" PkbRelationshipQueryHelper
 
 PkbRelationshipQueryHelper --> "*" PkbGraphExtractor
 

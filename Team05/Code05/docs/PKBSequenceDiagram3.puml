@@ -2,7 +2,7 @@
 !include style.puml
 
 title
-Querying Modifies(s1, v1) in detail
+Querying Next*(s1, s2) in detail
 end title
 
 participant QPS as QPS QPS_COLOR
@@ -12,7 +12,7 @@ participant ":PKB" as PKB PKB_COLOR
 participant ":PkbQueryManager" as QueryManager PKB_COLOR
 participant ":PkbRelationshipQueryHelper" as QueryHelper PKB_COLOR
 participant "repo:PkbRepository" as Repo PKB_COLOR
-participant "table:PkbRelationshipTable" as Table PKB_COLOR
+participant ":PkbGraphNextStarRelationshipExtractor" as GraphExtractor PKB_COLOR
 end box
 
 QPS -> PKB: retrieveRelationshipsByTypeAndLhsRhs(type, lhs, rhs)
@@ -27,20 +27,26 @@ activate QueryManager
 QueryManager --> QueryManager: PkbRelationshipType pkbType
 deactivate QueryManager
 
-QueryManager -> QueryHelper: retrieveRelationshipsFromTablesByTypeAndLhsRhs(pkbType, lhs, rhs, repo)
+QueryManager -> QueryHelper: retrieveRelationshipsFromGraphsByTypeAndLhsRhs(pkbType, lhs, rhs, repo)
 activate QueryHelper
 
-QueryHelper -> Repo: getRelationshipTableByRelationshipType(pkbType)
+QueryHelper -> QueryHelper: retrieveNextStarByTypeAndLhsRhs(lhs, rhs, repo)
+activate QueryHelper
+
+QueryHelper -> Repo: getCfgs()
 activate Repo
 
-Repo --> QueryHelper: PkbRelationshipTable table
+Repo --> QueryHelper: vector<CFGManager> cfgs
 deactivate Repo
 
-QueryHelper -> Table: get(key)
-activate Table
+QueryHelper -> GraphExtractor: extractAllFromStart(startNode)
+activate GraphExtractor
 
-Table --> QueryHelper: PkbRelationship relationship
-deactivate Table
+GraphExtractor --> QueryHelper: vector<PkbRelationship> relationships
+deactivate GraphExtractor
+
+QueryHelper --> QueryHelper: vector<PkbRelationship> relationships
+deactivate QueryHelper
 
 QueryHelper --> QueryManager: vector<PkbRelationship> relationships
 deactivate QueryHelper
@@ -50,6 +56,5 @@ deactivate QueryManager
 
 PKB --> QPS: vector<PQLRelationship> relationships
 deactivate PKB
-
 
 @enduml
