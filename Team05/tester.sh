@@ -27,6 +27,9 @@ readonly milestoneBugs_path=./Tests05/iteration1/conditionsInWhile/
 readonly iteration2=./Tests05/iteration2/
 readonly iteration2_output_folder=./Code05/testOutputs/iteration2/
 
+# 3. milestone 3 tests
+readonly ms3_ci=./Tests05/ms3-ci-check
+
 readonly invalid_q_path=invalidQuery/
 readonly invalid_s_path=invalidSource/
 readonly multipleReturn=multipleReturn/
@@ -129,6 +132,11 @@ for i in callChain nesting
 do
 	${path_to_autotester} ${iteration2}${stress_test_path}${i}StressTest_source.txt ${iteration2}${stress_test_path}${i}StressTest_queries.txt ${iteration2_output_folder}${i}StressTestOut.xml
 done
+
+# ms3 test
+echo "Starting MS3 tests"
+${path_to_autotester} ${ms3_ci}_source.txt ${ms3_ci}_queries.txt ${iteration2_output_folder}ms3_ci.xml
+
 
 # For random testing, modify Sample_queries.txt and Sample_source.txt
 echo "starting local sample test cases"
