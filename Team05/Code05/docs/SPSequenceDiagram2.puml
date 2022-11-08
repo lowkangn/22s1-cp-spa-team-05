@@ -1,0 +1,83 @@
+@startuml
+!include style.puml
+
+title
+Parsing and extraction in detail
+end title
+
+actor User as User
+
+box "Source Processor" SP_COLOR_T1
+participant ":SourceProcessor" as SP SP_COLOR
+participant ":Lexer" as Lexer SP_COLOR
+participant ":ParserManager" as ParserManager SP_COLOR
+participant ":DesignExtractorManager" as DesignManager SP_COLOR
+participant ":ControlFlowParser" as CFParser SP_COLOR
+end box
+
+create SP
+User -> SP: stream
+activate SP
+
+create DesignManager
+SP -> DesignManager
+activate DesignManager
+
+DesignManager --> SP
+deactivate DesignManager
+
+create Lexer
+SP -> Lexer
+activate Lexer
+
+Lexer --> SP
+deactivate Lexer
+
+SP -> Lexer: tokenize(stream)
+activate Lexer
+
+Lexer --> SP: vector<Token> tokens
+deactivate Lexer
+
+create ParserManager
+SP -> ParserManager: vector<Token> tokens
+activate ParserManager
+
+ParserManager --> SP
+deactivate ParserManager
+
+SP -> ParserManager: parse()
+activate ParserManager
+
+ParserManager --> SP: ASTNode AST
+deactivate ParserManager
+
+create CFParser
+SP -> CFParser
+activate CFParser
+
+CFParser --> SP
+deactivate CFParser
+
+SP -> CFParser: parse(ASTNode AST)
+activate CFParser
+
+CFParser --> SP: CFGNode CFG
+deactivate CFParser
+
+SP --> User
+deactivate SP
+
+User -> SP: extractRelations()
+activate SP
+
+SP -> DesignManager: extractRelationships(ASTNode AST)
+activate DesignManager
+
+DesignManager --> SP: relationships
+deactivate DesignManager
+
+SP --> User: relationships
+deactivate SP
+
+@enduml

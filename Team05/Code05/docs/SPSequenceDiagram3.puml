@@ -1,0 +1,76 @@
+@startuml
+!include style.puml
+
+title
+ParserManager workflow
+end title
+
+box "Source Processor" SP_COLOR_T1
+participant ":SourceProcessor" as SP SP_COLOR
+participant ":ParserManager" as ParserManager SP_COLOR
+participant ":ProgramSyntaxRule" as ProgramRule SP_COLOR
+participant ":SimpleSyntaxRule" as SimpleRule SP_COLOR
+participant ":ProcedureSyntaxRule" as ProcedureRule SP_COLOR
+end box
+
+SP -> ParserManager: parse(vector<Token> tokens)
+activate ParserManager
+
+create ProgramRule
+ParserManager -> ProgramRule
+activate ProgramRule
+
+ProgramRule --> ParserManager
+deactivate ProgramRule
+
+ParserManager -> ProgramRule : consumeTokens(vector<Token> tokens
+activate ProgramRule
+
+ProgramRule --> ParserManager
+deactivate ProgramRule
+
+ParserManager -> ProgramRule: constructNode()
+activate ProgramRule
+
+ProgramRule ->  ProgramRule: generateChildRules()
+activate ProgramRule
+
+loop "!tokens.empty()"
+    create ProcedureRule
+    ProgramRule -> ProcedureRule
+    activate ProcedureRule
+
+    ProcedureRule --> ProgramRule
+    deactivate ProcedureRule
+
+    ProgramRule -> ProcedureRule: consumeTokens(vector<Token> tokens)
+    activate ProcedureRule
+
+    ProcedureRule --> ProgramRule: vector<Token> unconsumed tokens
+    deactivate ProcedureRule
+end
+
+ProgramRule --> ProgramRule: vector<SimpleSyntaxRule> childRules
+    deactivate
+
+loop "childRules.size()"
+    ProgramRule -> SimpleRule: constructNode()
+    activate SimpleRule
+
+    SimpleRule ->  SimpleRule: generateChildRules()
+    activate SimpleRule
+
+    SimpleRule --> SimpleRule: vector<SimpleSyntaxRule> childRules
+    deactivate SimpleRule
+
+    SimpleRule --> ProgramRule: ASTNode node
+    deactivate SimpleRule
+end
+
+ProgramRule --> ParserManager: ASTNode node
+deactivate ProgramRule
+
+ParserManager --> SP: ASTNode rootNode
+deactivate ParserManager
+
+@enduml

@@ -9,14 +9,14 @@ Interface Extractor <<Interface>>
 Interface CFGExtractor <<Interface>>
 
 Class SourceProcessor {
-    + extractEntities() : list<Entity>
-    + extractPatterns() : list<Pattern>
-    + extractRelations() : list<Relationship>
-    + extractCFGRelations() : list<Relationship>
+    + extractEntities() : vector<Entity>
+    + extractPatterns() : vector<Pattern>
+    + extractRelations() : vector<Relationship>
+    + extractCFGRelations() : vector<Relationship>
 }
 
 Class Lexer {
-    + tokenize(istream): list<Token>
+    + tokenize(istream): vector<Token>
 }
 
 Class ParserManager {
@@ -32,7 +32,7 @@ Class PatternExtractor
 Class "Extractor<Relationship>"
 Class NextExtractor
 Class DesignExtractorManager {
-    + extractRelationships(AST) : list<Relationship>
+    + extractRelationships(AST) : vector<Relationship>
 }
 
 Class AST
