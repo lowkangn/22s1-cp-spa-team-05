@@ -73,20 +73,9 @@ shared_ptr<CFGNode> ControlFlowParser::handleWhile(shared_ptr<ASTNode> whileNode
     // Get end of statement list
     shared_ptr<ASTNode> endOfStmtList = stmtList->getChildren().back();
 
-    // Special care for if node
-    if (endOfStmtList->isIfNode()) {
-        // Need to add twice.
-        shared_ptr<IfCFGNode> ifCFGNode = dynamic_pointer_cast<IfCFGNode>(stmtListCFG);
+    this->addChildToEndOfNode(stmtListCFG, whileCFGNode);
 
-        this->addChildToEndOfNode(stmtListCFG, whileCFGNode);
-    } else {
-        // Add whileCFGNode to the end of the statement list
-        shared_ptr<CFGNode> toAddTo = this->traverseToEnd(stmtListCFG);
-
-        toAddTo->addChild(whileCFGNode);
-    }
-
-    // Ensure that the while node does not have next (Prevent case of If the while as children)
+        // Ensure that the while node does not have next (Prevent case of If the while as children)
     if (whileCFGNode->hasNext()) {
         whileCFGNode->removeNext();
     }
@@ -157,32 +146,6 @@ void ControlFlowParser::addChildToEndOfNode(shared_ptr<CFGNode> root, shared_ptr
             }
         } else {
             root->addChild(child);
-        }
-    }
-}
-
-shared_ptr<CFGNode> ControlFlowParser::traverseToEnd(shared_ptr<CFGNode> root) {
-    if (root->isIfNode()) {
-        // Keep recursing till we find the end
-        shared_ptr<IfCFGNode> ifCFGNode = dynamic_pointer_cast<IfCFGNode>(root);
-        shared_ptr<CFGNode> thenCFGNode = ifCFGNode->getThenNode();
-
-        return this->traverseToEnd(thenCFGNode);
-    } else if (root->isWhileNode()) {
-        shared_ptr<WhileCFGNode> whileCFGNode = dynamic_pointer_cast<WhileCFGNode>(root);
-
-        // If it doesnt have a next node it is the end
-        if (!whileCFGNode->hasNext()) {
-            return whileCFGNode;
-        } else {
-            return this->traverseToEnd(whileCFGNode->getAfterWhile());
-        }
-    } else {
-        if (root->hasNext()) {
-            shared_ptr<CFGNode> next = root->getNext();
-            return this->traverseToEnd(next);
-        } else {
-            return root;
         }
     }
 }

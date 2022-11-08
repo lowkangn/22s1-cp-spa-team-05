@@ -46,6 +46,4 @@ public:
         Recursively traverses a node and adds a child to the end of the CFGNode
     */
     void addChildToEndOfNode(shared_ptr<CFGNode> root, shared_ptr<CFGNode> child);
-
-    shared_ptr<CFGNode> traverseToEnd(shared_ptr<CFGNode> root);
 };

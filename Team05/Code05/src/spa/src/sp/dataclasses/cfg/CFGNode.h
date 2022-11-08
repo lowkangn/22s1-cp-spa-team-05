@@ -41,7 +41,10 @@ public:
     }
 
     virtual void addChild(shared_ptr<CFGNode> node) {
-        this->nextNodes.push_back(node);
+        // Node is not allowed to add itself as a child
+        if (node->getLineNumber() != this->getLineNumber()) {
+            this->nextNodes.push_back(node);
+        }
     }
 
     bool equals(shared_ptr<CFGNode> other) {

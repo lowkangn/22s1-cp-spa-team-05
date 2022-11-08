@@ -24,7 +24,7 @@ public:
     }
 
     shared_ptr<CFGNode> getThenNode() {
-        if (this->nextNodes.size() < 2) {
+        if (this->nextNodes.size() != 2) {
             throw CFGException("If node is supposed to have 2 children");
         } else {
             return this->nextNodes[0];
@@ -32,7 +32,7 @@ public:
     }
 
     shared_ptr<CFGNode> getElseNode() {
-        if (this->nextNodes.size() < 2) {
+        if (this->nextNodes.size() != 2) {
             throw CFGException("If node is supposed to have 2 children");
         } else {
             return this->nextNodes[1];
