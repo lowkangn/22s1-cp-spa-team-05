@@ -135,7 +135,6 @@ void ControlFlowParser::addChildToEndOfNode(shared_ptr<CFGNode> root, shared_ptr
         shared_ptr<CFGNode> thenCFGNode = ifCFGNode->getThenNode();
         shared_ptr<CFGNode> elseCFGNode = ifCFGNode->getElseNode();
 
-        // Recursively add child to the end of the then and else nodes
         this->addChildToEndOfNode(thenCFGNode, child);
         this->addChildToEndOfNode(elseCFGNode, child);
     } else if (root->isWhileNode()) {
@@ -146,12 +145,16 @@ void ControlFlowParser::addChildToEndOfNode(shared_ptr<CFGNode> root, shared_ptr
             whileCFGNode->addChild(child);
         } else {
             // Recurse and get node after the while loop
-            this->addChildToEndOfNode(whileCFGNode->getAfterWhile(), child);
+            if (whileCFGNode->getAfterWhile()->getLineNumber() > whileCFGNode->getLineNumber()) {
+                this->addChildToEndOfNode(whileCFGNode->getAfterWhile(), child);
+            }
         }
     } else {
         // Keep recursing untill we find the end
         if (root->hasNext()) {
-            this->addChildToEndOfNode(root->getNext(), child);
+            if (root->getNext()->getLineNumber() > root->getLineNumber()) {
+                this->addChildToEndOfNode(root->getNext(), child);
+            }
         } else {
             root->addChild(child);
         }
