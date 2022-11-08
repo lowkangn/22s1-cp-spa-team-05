@@ -20,7 +20,7 @@ public:
     }
 
     shared_ptr<CFGNode> getNext() override {
-        throw CFGException("If CFG node has two child nodes");
+        throw CFGException("If CFG node has to have child nodes");
     }
 
     shared_ptr<CFGNode> getThenNode() {

@@ -37,14 +37,14 @@ public:
     }
 
     virtual shared_ptr<CFGNode> getNext() {
-        if (this->nextNodes.size() != 1) {
-            throw CFGException("This node has more than one child node");
-        }
         return this->nextNodes[0];
     }
 
     virtual void addChild(shared_ptr<CFGNode> node) {
-        this->nextNodes.push_back(node);
+        // Node is not allowed to add itself as a child
+        if (node->getLineNumber() != this->getLineNumber()) {
+            this->nextNodes.push_back(node);
+        }
     }
 
     bool equals(shared_ptr<CFGNode> other) {

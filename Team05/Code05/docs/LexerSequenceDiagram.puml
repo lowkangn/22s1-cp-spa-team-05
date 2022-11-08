@@ -1,0 +1,18 @@
+@startuml
+!include style.puml
+
+actor "Source Processor" as User
+
+box "Lexer" SP_COLOR_T1
+participant ":Lexer" as Lexer SP_COLOR
+end box
+
+create Lexer
+User -> Lexer: stream
+
+User -> Lexer : tokenize(stream)
+activate Lexer
+return list<Token>
+deactivate Lexer
+
+@enduml
