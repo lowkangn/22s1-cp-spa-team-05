@@ -74,10 +74,10 @@ activate SP
 SP -> DesignManager: extractRelationships(ASTNode AST)
 activate DesignManager
 
-DesignManager --> SP: relationships
+DesignManager --> SP: vector<Relationship> relationships
 deactivate DesignManager
 
-SP --> User: relationships
+SP --> User: vector<Relationship> relationships
 deactivate SP
 
 @enduml
